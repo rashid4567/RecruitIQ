@@ -1,49 +1,59 @@
 import { Schema, Types, model } from "mongoose";
 
-const recruiterProfileSchema = new Schema({
-  userId: {
-    type: Types.ObjectId,
-    ref: "User",
-    required: true,
-    unique: true,
-  },
-  companyName: {
-    type: String,
-    required: true,
-  },
-  companyWebsite: {
-    type: String,
-  },
-  companySize: {
-    type: String,
-  },
-  industry: {
-    type: String,
-  },
-  location: {
-    type: String,
-  },
-  bio: {
-    type: String,
-  },
-  SubscribtionStatus: {
-    type: String,
-    enum: ["free", "active", "expired"],
-    default: "free",
-  },
-  jobPostUsed: {
-    type: Number,
-    default: 0,
-  },
-  verificationStatus: {
-    type: String,
-    enum: ["pending", "verified", "rejected"],
-    default: "pending",
-  },
-},
+const recruiterProfileSchema = new Schema(
+  {
+    userId: {
+      type: Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
+    },
+    companyName: {
+      type: String,
+      required: true,
+    },
+    companyWebsite: {
+      type: String,
+    },
+    companySize: {
+      type: String,
+    },
+    industry: {
+      type: String,
+    },
+    designation: {
+      type: String,
+      trim: true,
+    },
+    location: {
+      type: String,
+    },
+    bio: {
+      type: String,
+    },
+    subscriptionStatus: {
+      type: String,
+      enum: ["free", "active", "expired"],
+      default: "free",
+    },
 
-{
-    timestamps : true,
-});
+    jobPostsUsed: {
+      type: Number,
+      default: 0,
+    },
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected"],
+      default: "pending",
+    },
+  },
 
-export const RecruiterProfileModel = model("RecruiterProfile",recruiterProfileSchema)
+  {
+    timestamps: true,
+  }
+);
+
+export const RecruiterProfileModel = model(
+  "RecruiterProfile",
+  recruiterProfileSchema
+);

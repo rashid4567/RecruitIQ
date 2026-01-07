@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { UserIcon, BriefcaseIcon, ArrowRight } from "lucide-react"
-import type { UserRole } from "../../types/auth.types"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserIcon, BriefcaseIcon, ArrowRight } from "lucide-react";
+import type { UserRole } from "../../types/auth.types";
 
 const RoleSelection = () => {
-  const navigate = useNavigate()
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
+  const navigate = useNavigate();
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
   const roles = [
     {
@@ -34,16 +34,20 @@ const RoleSelection = () => {
         "Seamless Hiring Workflows",
       ],
     },
-  ]
+  ];
 
   const handleContinue = () => {
-  if (!selectedRole) return;
-
-  navigate("/signup", {
-    state: { role: selectedRole },
-  });
-};
-
+    if (!selectedRole) return;
+    if (selectedRole === "candidate") {
+      navigate("/signup", {
+        state: { role: selectedRole },
+      });
+    } else if (selectedRole === "recruiter") {
+      navigate("/recruiter/signup", {
+        state: { role: selectedRole },
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50 flex flex-col items-center justify-center px-4 py-6">
@@ -58,7 +62,8 @@ const RoleSelection = () => {
             Choose Your Role
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Select the role that best describes you to tailor your RecruitFlow AI experience.
+            Select the role that best describes you to tailor your RecruitFlow
+            AI experience.
           </p>
         </div>
 
@@ -85,8 +90,12 @@ const RoleSelection = () => {
                   {role.icon}
                 </div>
 
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">{role.title}</h3>
-                <p className="text-slate-600 text-base mb-8 leading-relaxed">{role.description}</p>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                  {role.title}
+                </h3>
+                <p className="text-slate-600 text-base mb-8 leading-relaxed">
+                  {role.description}
+                </p>
 
                 <ul className="space-y-3">
                   {role.features.map((feature, featureIdx) => (
@@ -97,7 +106,11 @@ const RoleSelection = () => {
                     >
                       <div className="shrink-0 mt-1">
                         <div className="flex items-center justify-center h-5 w-5 rounded-full bg-linear-to-br from-green-400 to-green-500 text-white">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <svg
+                            className="w-3 h-3"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
                             <path
                               fillRule="evenodd"
                               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -106,7 +119,9 @@ const RoleSelection = () => {
                           </svg>
                         </div>
                       </div>
-                      <span className="text-slate-700 font-medium">{feature}</span>
+                      <span className="text-slate-700 font-medium">
+                        {feature}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -125,7 +140,9 @@ const RoleSelection = () => {
         {/* Progress Bar */}
         <div className="mb-8 max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-slate-600">Step 1 of 5</span>
+            <span className="text-sm font-semibold text-slate-600">
+              Step 1 of 5
+            </span>
             <span className="text-sm font-semibold text-slate-600">20%</span>
           </div>
           <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -189,7 +206,7 @@ const RoleSelection = () => {
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default RoleSelection
+export default RoleSelection;

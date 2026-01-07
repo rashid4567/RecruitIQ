@@ -15,3 +15,11 @@ export interface CreateUserInput {
   role: SystemRole;
   fullName: string;
 }
+
+
+export interface AuthUser {
+  id: string;
+  role: "candidate" | "recruiter" | "admin";
+  isVerified: boolean;
+  isProfileComplete: boolean;
+}

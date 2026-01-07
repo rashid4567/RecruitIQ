@@ -1,23 +1,13 @@
-  import { Router } from "express";
-  import { authenticate } from "../middlewares/auth.middleware";
-  import {
-    getCandidateProfile,
-    updateCandidateProfile,
-  } from "./candidate.controller";
+import { Router } from "express";
+import { authenticate } from "../middlewares/auth.middleware";
+import {
+  getCandidateProfile,
+  updateCandidateProfile,
+} from "./candidate.controller";
 
-  const router = Router();
+const router = Router();
 
-  router.get("/profile", authenticate, getCandidateProfile);
-  router.put(
-  "/profile",
-  authenticate,
-  (req, _res, next) => {
-    console.log("🔥🔥🔥 UPDATE PROFILE ROUTE HIT");
-    next();
-  },
-  updateCandidateProfile
-);
+router.get("/profile", authenticate, getCandidateProfile);
+router.put("/profile", authenticate, updateCandidateProfile);
 
-
-
-  export default router;
+export default router;

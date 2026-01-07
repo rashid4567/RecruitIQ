@@ -1,103 +1,156 @@
 "use client"
 
-import type React from "react"
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Eye, EyeOff, Lock, User, Mail, Phone, ArrowRight } from "lucide-react"
-import type { SignUpFormData, PasswordRequirement } from "../../types/auth.types"
+import { Eye, EyeOff, Lock, User, Mail, Phone, ArrowRight, Building } from "lucide-react"
+import { authService } from "../../services/auth.service"
 
-const SignUp = () => {
+const RecruiterSignup = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [formData, setFormData] = useState<SignUpFormData>({
+  const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
     countryCode: "+1 (US)",
     password: "",
     confirmPassword: "",
+    companyName: "",
     termsAccepted: false,
   })
+  const [error, setError] = useState("")
 
-  // Password requirements validation
-  const passwordRequirements: PasswordRequirement[] = useMemo(() => {
-    const password = formData.password
-    return [
-      { label: "At least 8 characters", met: password.length >= 8 },
-      { label: "One uppercase letter", met: /[A-Z]/.test(password) },
-      { label: "One lowercase letter", met: /[a-z]/.test(password) },
-      { label: "One number", met: /\d/.test(password) },
-      {
-        label: "One special character",
-        met: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
-      },
-    ]
-  }, [formData.password])
+ const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target
 
-  const allRequirementsMet = passwordRequirements.every((req) => req.met)
+  setFormData((prev) => ({
+    ...prev,
+    [name]:
+      e.target instanceof HTMLInputElement && e.target.type === "checkbox"
+        ? e.target.checked
+        : value,
+  }))
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
-    }))
+  setError("")
+}
+
+
+
+  const validateForm = () => {
+    if (!formData.fullName.trim()) {
+      setError("Full name is required")
+      return false
+    }
+    if (!formData.email.trim()) {
+      setError("Email is required")
+      return false
+    }
+    if (!formData.phone.trim()) {
+      setError("Phone number is required")
+      return false
+    }
+    if (!formData.companyName.trim()) {
+      setError("Company name is required")
+      return false
+    }
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters")
+      return false
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match")
+      return false
+    }
+    if (!formData.termsAccepted) {
+      setError("You must accept the terms and conditions")
+      return false
+    }
+    return true
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!allRequirementsMet || formData.password !== formData.confirmPassword) {
-      alert("Please ensure all password requirements are met and passwords match")
+    
+    if (!validateForm()) {
       return
     }
+
     setIsLoading(true)
-    setTimeout(() => {
-      console.log("Sign up with:", formData)
-      navigate("/dashboard")
+    setError("")
+
+    try {
+      // Prepare payload for recruiter registration
+      const payload = {
+        fullName: formData.fullName,
+        email: formData.email.toLowerCase().trim(),
+        password: formData.password,
+        role: "recruiter",
+        companyName: formData.companyName,
+        phone: formData.phone,
+      }
+
+      // Call the recruiter registration API
+      await authService.registerRecruiter(payload)
+      
+      // Redirect to recruiter dashboard
+      navigate("/recruiter/dashboard")
+    } catch (err : any) {
+      console.error("Registration error:", err)
+      setError(err.response?.data?.message || "Registration failed. Please try again.")
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50 flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-80 h-80 bg-blue-100/25 rounded-full blur-3xl -z-10"></div>
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-slate-100/25 rounded-full blur-3xl -z-10"></div>
 
       <div className="w-full max-w-lg">
         {/* Logo and Progress */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center gap-2 mb-6 p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/40">
+          <div className="inline-flex items-center justify-center gap-2 mb-6 p-3 bg-linear-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+            <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/40">
               <span className="text-white font-bold text-sm">R</span>
             </div>
-            <h2 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+            <h2 className="text-lg font-bold bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
               RecruitFlow AI
             </h2>
           </div>
 
-          <p className="text-xs font-semibold text-slate-600 mb-3">Step 2 of 5</p>
+          <p className="text-xs font-semibold text-slate-600 mb-3">Recruiter Registration</p>
           <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mb-2 shadow-sm">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-700 rounded-full"
-              style={{ width: "40%" }}
+              className="h-full bg-linear-to-r from-blue-500 to-blue-600 transition-all duration-700 rounded-full"
+              style={{ width: "100%" }}
             ></div>
           </div>
-          <p className="text-xs font-medium text-slate-500">40% Complete</p>
+          <p className="text-xs font-medium text-slate-500">Complete Registration</p>
         </div>
 
         {/* Form Card */}
         <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xl shadow-slate-100/50 backdrop-blur-sm">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2 text-center">Create Your Account</h1>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2 text-center">Recruiter Account</h1>
           <p className="text-slate-600 text-center text-sm mb-8 leading-relaxed">
-            Fill in your information to get started with RecruitFlow AI.
+            Create your recruiter account to start finding top talent.
           </p>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-red-600 text-sm font-medium">{error}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Full Name</label>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">Full Name *</label>
               <div className="relative">
                 <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
@@ -114,7 +167,7 @@ const SignUp = () => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Email Address</label>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">Email Address *</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
@@ -122,7 +175,24 @@ const SignUp = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="john.doe@example.com"
+                  placeholder="john.doe@company.com"
+                  className="w-full pl-12 pr-4 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Company Name */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">Company Name *</label>
+              <div className="relative">
+                <Building className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  name="companyName"
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  placeholder="Tech Corp Inc."
                   className="w-full pl-12 pr-4 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
                   required
                 />
@@ -131,7 +201,7 @@ const SignUp = () => {
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Phone Number</label>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">Phone Number *</label>
               <div className="flex gap-3">
                 <select
                   name="countryCode"
@@ -162,7 +232,7 @@ const SignUp = () => {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Password</label>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">Password *</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
@@ -170,9 +240,10 @@ const SignUp = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Create a strong password"
+                  placeholder="At least 8 characters"
                   className="w-full pl-12 pr-12 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
                   required
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -182,39 +253,12 @@ const SignUp = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <p className="text-xs text-slate-600 mt-3 font-medium">Password requirements:</p>
-              <ul className="mt-3 space-y-2">
-                {passwordRequirements.map((req) => (
-                  <li
-                    key={req.label}
-                    className={`text-xs flex items-center gap-3 transition-all duration-300 ${
-                      req.met ? "text-green-600" : "text-slate-500"
-                    }`}
-                  >
-                    <div
-                      className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
-                        req.met ? "bg-gradient-to-br from-green-400 to-green-500" : "bg-slate-300"
-                      }`}
-                    >
-                      {req.met && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      )}
-                    </div>
-                    {req.label}
-                  </li>
-                ))}
-              </ul>
+              <p className="text-xs text-slate-600 mt-3">Password must be at least 8 characters long.</p>
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Confirm Password</label>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">Confirm Password *</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
@@ -254,7 +298,7 @@ const SignUp = () => {
                     name="termsAccepted"
                     checked={formData.termsAccepted}
                     onChange={handleChange}
-                    className="w-5 h-5 cursor-pointer appearance-none border border-slate-300 rounded-lg checked:bg-gradient-to-br checked:from-blue-500 checked:to-blue-600 checked:border-blue-600 transition-all"
+                    className="w-5 h-5 cursor-pointer appearance-none border border-slate-300 rounded-lg checked:bg-linear-to-br checked:from-blue-500 checked:to-blue-600 checked:border-blue-600 transition-all"
                   />
                   {formData.termsAccepted && (
                     <svg
@@ -291,18 +335,21 @@ const SignUp = () => {
               </button>
               <button
                 type="submit"
-                disabled={!formData.termsAccepted || !allRequirementsMet || isLoading}
+                disabled={!formData.termsAccepted || isLoading}
                 className={`flex-1 font-bold py-3.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${
-                  formData.termsAccepted && allRequirementsMet && !isLoading
-                    ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/40 hover:scale-105 active:scale-95"
+                  formData.termsAccepted && !isLoading
+                    ? "bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/40 hover:scale-105 active:scale-95"
                     : "bg-slate-200 text-slate-400 cursor-not-allowed"
                 }`}
               >
                 {isLoading ? (
-                  "Creating account..."
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Creating account...
+                  </>
                 ) : (
                   <>
-                    Continue
+                    Create Account
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -354,9 +401,20 @@ const SignUp = () => {
             </button>
           </div>
         </div>
+
+        {/* Login Link */}
+        <p className="text-center text-slate-600 mt-8 text-sm">
+          Already have an account?{" "}
+          <button
+            onClick={() => navigate("/signin")}
+            className="text-blue-600 font-bold hover:text-blue-700 transition-colors"
+          >
+            Sign In
+          </button>
+        </p>
       </div>
     </div>
   )
 }
 
-export default SignUp
+export default RecruiterSignup

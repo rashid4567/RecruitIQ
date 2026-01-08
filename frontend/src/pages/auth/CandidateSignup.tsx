@@ -1,35 +1,51 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useMemo } from "react"
+import type React from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { authService } from "../../services/auth.service";
 
-import { Eye, EyeOff, Lock, User, Mail,  ArrowRight, AlertCircle } from "lucide-react"
-import type { SignUpFormData, PasswordRequirement } from "../../types/auth.types"
-
-
-
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  User,
+  Mail,
+  ArrowRight,
+  AlertCircle,
+} from "lucide-react";
+import type {
+  SignUpFormData,
+  PasswordRequirement,
+} from "../../types/auth.types";
 
 const SignUp = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const location = useLocation();
-  const role = location.state?.role as "candidate" | "recruiter" | undefined;
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string>("")
+  const role = (location.state?.role as "candidate" | undefined) || "candidate";
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>("");
   const [formData, setFormData] = useState<SignUpFormData>({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
     termsAccepted: false,
-  })
+  });
+
+  // Optional: Redirect if user comes directly without role selection
+  useEffect(() => {
+    if (!location.state?.role) {
+      navigate("/role-selection");
+    }
+  }, [location.state?.role, navigate]);
 
   // Password requirements validation
   const passwordRequirements: PasswordRequirement[] = useMemo(() => {
-    const password = formData.password
+    const password = formData.password;
     return [
       { label: "At least 8 characters", met: password.length >= 8 },
       { label: "One uppercase letter", met: /[A-Z]/.test(password) },
@@ -39,118 +55,86 @@ const SignUp = () => {
         label: "One special character",
         met: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
       },
-    ]
-  }, [formData.password])
+    ];
+  }, [formData.password]);
 
-  const allRequirementsMet = passwordRequirements.every((req) => req.met)
+  const allRequirementsMet = passwordRequirements.every((req) => req.met);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target as HTMLInputElement;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
-    }))
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+    }));
     // Clear error when user starts typing
-    if (error) setError("")
-  }
+    if (error) setError("");
+  };
 
-  // const handleSubmit = async (e : React.FormEvent) =>{
-  //   e.preventDefault();
-  //   setError("");
-
-  //   if(!allRequirementsMet){
-  //     setError("please mell all requirements")
-  //     return;
-  //   }
-  //   if(formData.password !== formData.confirmPassword){
-  //     setError("Password do not match")
-  //     return;
-  //   }
-  //   if(!formData.termsAccepted){
-  //     setError("please accept the Terms & conditions")
-  //     return
-  //   }
-
-  //   if(!role){
-  //     setError("role is not selected");
-  //     return;
-  //   }
-
-  //   try{
-  //     setIsLoading(true);
-
-  //     const response = await authService.register({
-  //       email : formData.email,
-  //       password : formData.password,
-  //       fullName : formData.fullName,
-  //     },
-  //     role
-  //   );
-
-
-  //   const {token, user} = response.data;
-
-  //   localStorage.setItem("authToken",token);
-  //   localStorage.setItem("userRole",user.role);
-  //   localStorage.setItem("userId",user.id);
-
-  //   if(user.role === "candidate"){
-  //     navigate("/candidate/dashborad")
-  //   }else if(user.role === "recruiter"){
-  //     navigate("/recruiter/dashborad")
-  //   }
-    
-  //   }catch(error : any){
-      
-  //     setError(error.response?.data?.message || "Registration failed")
-  //   }finally{
-  //     setIsLoading(false)
-  //   }
-  // }
-
-
-  const handleSubmit = async (e: React.FormEvent) =>{
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if(!allRequirementsMet){
-      setError("please meet all password requirment")
+    // Validation checks
+    if (!formData.fullName.trim()) {
+      setError("Please enter your full name");
       return;
-    }
-    if(formData.password !== formData.confirmPassword){
-      setError("password do not match");
-      return;
-    }
-    if(!formData.termsAccepted){
-      setError("please accept the terms and conditions");
-      return;
-    }
-    if(role !== "candidate"){
-      setError("invalid role");
-      return
     }
 
-    try{
+    if (!formData.email.trim()) {
+      setError("Please enter your email address");
+      return;
+    }
+
+    if (!formData.password) {
+      setError("Please create a password");
+      return;
+    }
+
+    if (!allRequirementsMet) {
+      setError("Please meet all password requirements");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (!formData.termsAccepted) {
+      setError("Please accept the terms and conditions");
+      return;
+    }
+
+    try {
       setIsLoading(true);
 
-      sessionStorage.setItem(
-        "candidateRegData",
-        JSON.stringify({
-          fullName : formData.fullName,
-          email : formData.email,
-          password : formData.password,
-        })
-      )
-      await authService.sendCandidateOtp(formData.email);
-      navigate("/verify-otp",{
-        state : {email : formData.email},
-      })
-    }catch(error : any){
-    setError(error.response?.data?.message || "Failed to send OTP")
-  }finally{
-    setIsLoading(false)
-  }
-  }
+      // Send OTP with correct role
+      await authService.sendOTP(formData.email, role);
+
+      // Navigate to OTP verification with all necessary data
+      navigate("/verify-otp", {
+        state: {
+          email: formData.email,
+          fullName: formData.fullName,
+          password: formData.password,
+          role: role,
+        },
+      });
+    } catch (err: any) {
+      // Handle different error formats
+      const errorMessage = 
+        err.response?.data?.message || 
+        err.response?.data?.error || 
+        err.message || 
+        "Failed to send OTP. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50 flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden">
@@ -169,7 +153,9 @@ const SignUp = () => {
             </h2>
           </div>
 
-          <p className="text-xs font-semibold text-slate-600 mb-3">Step 2 of 5</p>
+          <p className="text-xs font-semibold text-slate-600 mb-3">
+            Step 2 of 5
+          </p>
           <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mb-2 shadow-sm">
             <div
               className="h-full bg-linear-to-r from-blue-500 to-blue-600 transition-all duration-700 rounded-full"
@@ -181,7 +167,9 @@ const SignUp = () => {
 
         {/* Form Card */}
         <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xl shadow-slate-100/50 backdrop-blur-sm">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2 text-center">Create Your Account</h1>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2 text-center">
+            Create Your Candidate Account
+          </h1>
           <p className="text-slate-600 text-center text-sm mb-8 leading-relaxed">
             Fill in your information to get started with RecruitFlow AI.
           </p>
@@ -197,7 +185,9 @@ const SignUp = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Full Name</label>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">
+                Full Name
+              </label>
               <div className="relative">
                 <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
@@ -208,13 +198,16 @@ const SignUp = () => {
                   placeholder="John Doe"
                   className="w-full pl-12 pr-4 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Email Address</label>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">
+                Email Address
+              </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
@@ -225,44 +218,16 @@ const SignUp = () => {
                   placeholder="john.doe@example.com"
                   className="w-full pl-12 pr-4 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
 
-            {/* Phone
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Phone Number</label>
-              <div className="flex gap-3">
-                <select
-                  name="countryCode"
-                  value={formData.countryCode}
-                  onChange={handleChange}
-                  className="w-28 px-4 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-sm bg-white hover:border-slate-400 font-medium"
-                >
-                  <option>+1 (US)</option>
-                  <option>+44 (UK)</option>
-                  <option>+91 (IN)</option>
-                  <option>+61 (AU)</option>
-                  <option>+1 (CA)</option>
-                </select>
-                <div className="flex-1 relative">
-                  <Phone className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="123 456 7890"
-                    className="w-full pl-12 pr-4 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
-                    required
-                  />
-                </div>
-              </div>
-            </div> */}
-
             {/* Password */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Password</label>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">
+                Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
@@ -273,16 +238,24 @@ const SignUp = () => {
                   placeholder="Create a strong password"
                   className="w-full pl-12 pr-12 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                  disabled={isLoading}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
-              <p className="text-xs text-slate-600 mt-3 font-medium">Password requirements:</p>
+              <p className="text-xs text-slate-600 mt-3 font-medium">
+                Password requirements:
+              </p>
               <ul className="mt-3 space-y-2">
                 {passwordRequirements.map((req) => (
                   <li
@@ -293,11 +266,17 @@ const SignUp = () => {
                   >
                     <div
                       className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
-                        req.met ? "bg-linear-to-br from-green-400 to-green-500" : "bg-slate-300"
+                        req.met
+                          ? "bg-linear-to-br from-green-400 to-green-500"
+                          : "bg-slate-300"
                       }`}
                     >
                       {req.met && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
                           <path
                             fillRule="evenodd"
                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -314,7 +293,9 @@ const SignUp = () => {
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">Confirm Password</label>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">
+                Confirm Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
@@ -325,22 +306,32 @@ const SignUp = () => {
                   placeholder="Confirm your password"
                   className="w-full pl-12 pr-12 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                  disabled={isLoading}
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
               {formData.password && formData.confirmPassword && (
                 <p
                   className={`text-xs mt-3 font-medium transition-all ${
-                    formData.password === formData.confirmPassword ? "text-green-600" : "text-red-600"
+                    formData.password === formData.confirmPassword
+                      ? "text-green-600"
+                      : "text-red-600"
                   }`}
                 >
-                  {formData.password === formData.confirmPassword ? "✓ Passwords match" : "✗ Passwords do not match"}
+                  {formData.password === formData.confirmPassword
+                    ? "✓ Passwords match"
+                    : "✗ Passwords do not match"}
                 </p>
               )}
             </div>
@@ -355,6 +346,7 @@ const SignUp = () => {
                     checked={formData.termsAccepted}
                     onChange={handleChange}
                     className="w-5 h-5 cursor-pointer appearance-none border border-slate-300 rounded-lg checked:bg-linear-to-br checked:from-blue-500 checked:to-blue-600 checked:border-blue-600 transition-all"
+                    disabled={isLoading}
                   />
                   {formData.termsAccepted && (
                     <svg
@@ -363,17 +355,36 @@ const SignUp = () => {
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   )}
                 </div>
                 <span className="text-sm text-slate-700 leading-relaxed">
                   I agree to the{" "}
-                  <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+                  <a
+                    href="#"
+                    className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // Add terms modal or navigation here
+                    }}
+                  >
                     Terms & Conditions
                   </a>{" "}
                   and{" "}
-                  <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+                  <a
+                    href="#"
+                    className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // Add privacy policy modal or navigation here
+                    }}
+                  >
                     Privacy Policy
                   </a>
                 </span>
@@ -392,9 +403,23 @@ const SignUp = () => {
               </button>
               <button
                 type="submit"
-                disabled={!formData.termsAccepted || !allRequirementsMet || isLoading}
+                disabled={
+                  !formData.termsAccepted ||
+                  !allRequirementsMet ||
+                  isLoading ||
+                  !formData.fullName ||
+                  !formData.email ||
+                  !formData.password ||
+                  !formData.confirmPassword
+                }
                 className={`flex-1 font-bold py-3.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${
-                  formData.termsAccepted && allRequirementsMet && !isLoading
+                  formData.termsAccepted &&
+                  allRequirementsMet &&
+                  !isLoading &&
+                  formData.fullName &&
+                  formData.email &&
+                  formData.password &&
+                  formData.confirmPassword
                     ? "bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/40 hover:scale-105 active:scale-95"
                     : "bg-slate-200 text-slate-400 cursor-not-allowed"
                 }`}
@@ -417,7 +442,9 @@ const SignUp = () => {
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-slate-200"></div>
-            <span className="text-xs text-slate-500 font-medium">or sign up with</span>
+            <span className="text-xs text-slate-500 font-medium">
+              or sign up with
+            </span>
             <div className="flex-1 h-px bg-slate-200"></div>
           </div>
 
@@ -427,6 +454,10 @@ const SignUp = () => {
               type="button"
               disabled={isLoading}
               className="border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-slate-900 font-semibold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => {
+                // Add Google OAuth integration here
+                setError("Google signup is not implemented yet");
+              }}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -452,6 +483,10 @@ const SignUp = () => {
               type="button"
               disabled={isLoading}
               className="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-blue-700/40 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => {
+                // Add LinkedIn OAuth integration here
+                setError("LinkedIn signup is not implemented yet");
+              }}
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z" />
@@ -467,6 +502,7 @@ const SignUp = () => {
               type="button"
               onClick={() => navigate("/signin")}
               className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+              disabled={isLoading}
             >
               Sign In
             </button>
@@ -474,7 +510,7 @@ const SignUp = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;

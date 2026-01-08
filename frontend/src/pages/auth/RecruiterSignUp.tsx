@@ -72,39 +72,37 @@ const RecruiterSignup = () => {
     return true
   }
 
-  const handleSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    
-    if (!validateForm()) {
-      return
-    }
+ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
 
-    setIsLoading(true)
-    setError("")
+  if (!validateForm()) return
 
-    try {
-      // Prepare payload for recruiter registration
-      const payload = {
+  setIsLoading(true)
+  setError("")
+
+  try {
+    const email = formData.email.toLowerCase().trim()
+
+    await authService.sendOTP(email, "recruiter")
+
+    navigate("/verify-otp", {
+      state: {
+        email,
         fullName: formData.fullName,
-        email: formData.email.toLowerCase().trim(),
         password: formData.password,
         role: "recruiter",
+        phone: `${formData.countryCode} ${formData.phone}`,
         companyName: formData.companyName,
-        phone: formData.phone,
-      }
-
-      // Call the recruiter registration API
-      await authService.registerRecruiter(payload)
-      
-      // Redirect to recruiter dashboard
-      navigate("/recruiter/dashboard")
-    } catch (err : any) {
-      console.error("Registration error:", err)
-      setError(err.response?.data?.message || "Registration failed. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
+      },
+    })
+  } catch (err: any) {
+    console.error("Registration error:", err)
+    setError(err.response?.data?.message || "Failed to send OTP")
+  } finally {
+    setIsLoading(false)
   }
+}
+
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50 flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden">

@@ -45,7 +45,7 @@ const SignIn = () => {
       if (user.role === "candidate") {
         navigate("/candidate/home");
       } else if (user.role === "recruiter") {
-        navigate("/recruiter/dashboard");
+        navigate("/");
       }
     } catch (error: any) {
       console.error("❌ Login error:", error);

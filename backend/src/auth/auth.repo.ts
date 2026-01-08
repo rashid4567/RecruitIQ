@@ -13,10 +13,18 @@ export const createUser = async (data: CreateUserInput) => {
 
 export const createRecruiterProfile = async (
   userId: string,
-  companyName?: string
+  data?: {
+    companyName?: string;
+    verificationStatus?: "pending" | "verified" | "rejected";
+    subscriptionStatus?: "free" | "active" | "expired";
+  }
 ) => {
-  return RecruiterProfileModel.create({ userId, companyName });
+  return RecruiterProfileModel.create({
+    userId,
+    ...data,
+  });
 };
+
 
 export const createCandidateProfile = async (userId: string) => {
   return candidateProfileModel.create({ userId });

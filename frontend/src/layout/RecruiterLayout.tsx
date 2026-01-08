@@ -1,19 +1,16 @@
-import { Navigate, Outlet } from "react-router-dom";
+// src/layout/RecruiterLayout.tsx
+import { Outlet } from "react-router-dom";
 
-interface ProtectedRouteProps {
-    allowedRoles : string[];
-}
+const RecruiterLayout = () => {
+  return (
+    <div>
+      {/* Add recruiter-specific navigation here */}
+      <nav>Recruiter Navigation</nav>
+      <main>
+        <Outlet />
+      </main>
+    </div>
+  );
+};
 
-const ProtectedRoute = ({allowedRoles} : ProtectedRouteProps) =>{
-    const token = localStorage.getItem("authToken");
-    const userRole = localStorage.getItem("userRole");
-    if(!token){
-        return <Navigate to="/signin" replace/>
-    }
-    if(!userRole || !allowedRoles.includes(userRole)){
-        return <Navigate to="/" />
-    }
-    return Outlet;
-}
-
-export default ProtectedRoute;
+export default RecruiterLayout;

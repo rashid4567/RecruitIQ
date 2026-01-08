@@ -6,24 +6,29 @@ import {
   createCandidateProfile,
   createRecruiterProfile,
 } from "./auth.repo";
-import { RegisterInput } from "./auth.types";
 import { signAccessToken, signRefreshToken } from "../utils/jwt";
 
-export const RegisterUser = async (data: RegisterInput) => {
-  const { email, password, role, fullName, companyName } = data;
-
-  if (!["recruiter", "candidate"].includes(role)) {
-    throw new Error("Invalid roles");
+export const verifyOTPAndRegister = async (
+  email: string,
+  otp: string,
+  password: string,
+  fullName: string,
+  role: "candidate" | "recruiter",
+  companyName?: string,
+) => {
+  if (!["candidate", "recruiter"].includes(role)) {
+    throw new Error("Invalid role");
   }
+
+  await verifyOTP(email, otp, role);
 
   const normalizedEmail = email.toLowerCase().trim();
   const existingUser = await findUserByEmail(normalizedEmail);
   if (existingUser) {
     throw new Error("User already exists");
   }
-
+  
   const hashedPassword = await bcrypt.hash(password, 10);
-
   const user = await createUser({
     email: normalizedEmail,
     password: hashedPassword,
@@ -31,63 +36,22 @@ export const RegisterUser = async (data: RegisterInput) => {
     fullName,
   });
 
-  if (role === "recruiter") {
-    await createRecruiterProfile(user._id.toString(), companyName);
-  }
   if (role === "candidate") {
     await createCandidateProfile(user._id.toString());
   }
 
-  const payload = {
-    userId: user._id.toString(),
-    role: user.role,
-  };
-
-  return {
-    accessToken: signAccessToken(payload),
-    refreshToken: signRefreshToken(payload),
-    user: {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-      fullName: user.fullName,
-    },
-  };
-};
-
-export const verifyOTPAndRegister = async (
-  email: string,
-  otp: string,
-  password: string,
-  fullName: string
-) => {
-  // Verify OTP first
-  await verifyOTP(email, otp);
-
-  // Normalize email
-  const normalizedEmail = email.toLowerCase().trim();
-
-  // Check if user already exists
-  const existingUser = await findUserByEmail(normalizedEmail);
-  if (existingUser) {
-    throw new Error("User already exists");
+  if (role === "recruiter") {
+    if (!companyName) {
+      throw new Error("Company name is required for recruiter registration");
+    }
+    // ✅ FIX: Pass companyName to createRecruiterProfile
+    await createRecruiterProfile(user._id.toString(), {
+      companyName: companyName,  // ✅ Add this
+      verificationStatus: "pending",
+      subscriptionStatus: "free",
+    });
   }
 
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Create user
-  const user = await createUser({
-    email: normalizedEmail,
-    password: hashedPassword,
-    role: "candidate",
-    fullName,
-  });
-
-  // Create candidate profile
-  await createCandidateProfile(user._id.toString());
-
-  // Generate tokens
   const payload = {
     userId: user._id.toString(),
     role: user.role,

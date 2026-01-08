@@ -54,7 +54,7 @@ export const RecruiterDetails: React.FC = () => {
     console.log("Saving recruiter profile:", recruiterProfileData)
     
     // For demo purposes, navigate to next step
-    // navigate("/next-step")
+     navigate("/")
   }
 
   const plans = [

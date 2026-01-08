@@ -7,6 +7,11 @@ const otpSchema = new Schema({
         required : true,
         index : true
     },
+    role : {
+        type : String,
+        enum : ["candidate", "recruiter"],
+        required : true,
+    },
     otpHash : {
         type : String,
         required : true,

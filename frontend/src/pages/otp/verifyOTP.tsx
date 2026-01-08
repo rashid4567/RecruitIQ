@@ -7,37 +7,53 @@ import { authService } from "../../services/auth.service";
 
 const OTP_EXPIRY_SECONDS = 600; // 10 minutes
 
+type VerifyOTPState = {
+  email: string;
+  fullName: string;
+  password: string;
+  role: "candidate" | "recruiter";
+  phone?: string;
+  companyName?: string;
+};
+
 const VerifyOTP = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email as string;
-
+  
+  const [isLoading, setIsLoading] = useState(true);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [state, setState] = useState<VerifyOTPState | null>(null);
 
-  const inputRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null));
-
-  const getRegistrationData = () => {
-    const data = sessionStorage.getItem("candidateRegData");
-    if (!data) {
-      navigate("/signup");
-      return null;
-    }
-    return JSON.parse(data);
-  };
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    const locationState = location.state as VerifyOTPState | undefined;
+    
+    if (!locationState) {
+      console.warn("No state found, redirecting to signup");
+      navigate("/signup");
+      return;
+    }
+
+    console.log("📨 Received state:", locationState);
+    setState(locationState);
+    setIsLoading(false);
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (isLoading || timeLeft <= 0) return;
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [isLoading, timeLeft]);
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -61,7 +77,7 @@ const VerifyOTP = () => {
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent) => {
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").slice(0, 6);
     if (!/^\d+$/.test(pasted)) return;
@@ -75,6 +91,10 @@ const VerifyOTP = () => {
   };
 
   const handleVerify = async () => {
+    if (!state) return;
+    
+    const { email, fullName, password, role, phone, companyName } = state;
+
     if (timeLeft <= 0) {
       setError("OTP has expired. Please resend.");
       return;
@@ -86,44 +106,80 @@ const VerifyOTP = () => {
       return;
     }
 
+    // ✅ FIX: Validate companyName only for recruiters
+    if (role === "recruiter" && !companyName) {
+      setError("Company name is required for recruiter registration");
+      return;
+    }
+
     setIsVerifying(true);
     setError("");
 
     try {
-      const regData = getRegistrationData();
-      if (!regData) return;
-
-      const response = await authService.verifyCandidate({
-        email: regData.email,
+      // Prepare data for API
+      const payload: any = {
+        email: email.trim(),
         otp: otpString,
-        password: regData.password,
-        fullName: regData.fullName,
-      });
+        password: password,
+        fullName: fullName.trim(),
+        role: role,
+      };
 
-      const accessToken = response.data?.accessToken || response.data?.data?.accessToken;
-      const user = response.data?.user || response.data?.data?.user;
-
-      if (!accessToken || !user) {
-        throw new Error("Invalid response structure from server");
+      // ✅ Only add optional fields if they exist
+      if (phone) {
+        payload.phone = phone;
+      }
+      
+      if (companyName) {
+        payload.companyName = companyName;
       }
 
-    
-      localStorage.setItem("authToken", accessToken);
-      localStorage.setItem("userRole", user.role);
-      localStorage.setItem("userId", user.id);
+      console.log("📤 Sending OTP verification payload:", payload);
+      console.log("📤 Payload details:", {
+        email: payload.email,
+        otp: payload.otp,
+        role: payload.role,
+        fullName: payload.fullName,
+        hasPassword: !!payload.password,
+        hasCompanyName: !!payload.companyName,
+        hasPhone: !!payload.phone
+      });
 
-      
-
-      sessionStorage.removeItem("candidateRegData");
+      await authService.verifyOtpAndRegister(payload);
 
       setSuccess(true);
 
       setTimeout(() => {
-        navigate("/candidate/profile");
+        if (role === "candidate") {
+          navigate("/candidate/profile");
+        } else {
+          navigate("/recruiter/complete-profile");
+        }
       }, 1500);
     } catch (err: any) {
-      console.error("❌ OTP Verification Error:", err);
-      setError(err.response?.data?.message || "Invalid OTP. Please try again.");
+      console.error("❌ Full OTP Verification Error:", err);
+      
+      if (err.response) {
+        console.error("Error status:", err.response.status);
+        console.error("Error data:", err.response.data);
+        console.error("Full error response:", JSON.stringify(err.response.data, null, 2));
+        
+        const errorData = err.response.data;
+        const errorMessage = 
+          errorData?.message || 
+          errorData?.error || 
+          errorData?.details?.[0]?.message || 
+          "Invalid OTP. Please try again.";
+        
+        setError(errorMessage);
+      } else if (err.request) {
+        console.error("No response received:", err.request);
+        setError("No response from server. Please check your connection.");
+      } else {
+        console.error("Error setting up request:", err.message);
+        setError("Something went wrong. Please try again.");
+      }
+      
       setOtp(Array(6).fill(""));
       inputRefs.current[0]?.focus();
     } finally {
@@ -132,17 +188,19 @@ const VerifyOTP = () => {
   };
 
   const handleResend = async () => {
-    if (timeLeft > 0) return;
+    if (!state || timeLeft > 0) return;
 
     setIsResending(true);
     setError("");
 
     try {
-      await authService.sendCandidateOtp(email);
+      console.log("🔄 Resending OTP to:", state.email, "with role:", state.role);
+      await authService.sendOTP(state.email, state.role);
       setOtp(Array(6).fill(""));
       setTimeLeft(OTP_EXPIRY_SECONDS);
       inputRefs.current[0]?.focus();
     } catch (err: any) {
+      console.error("Resend error:", err);
       setError(err.response?.data?.message || "Failed to resend OTP");
     } finally {
       setIsResending(false);
@@ -154,41 +212,68 @@ const VerifyOTP = () => {
       sec % 60
     ).padStart(2, "0")}`;
 
-  /* ======================
-     Success screen
-     ====================== */
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Loading verification...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
           <h2 className="text-2xl font-bold">Registration Successful</h2>
-          <p>Redirecting to profile completion...</p>
+          <p>Redirecting...</p>
         </div>
       </div>
     );
   }
 
-  /* ======================
-     UI
-     ====================== */
+  if (!state) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
+          <h2 className="text-2xl font-bold">Missing Information</h2>
+          <p>Redirecting to signup...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { email, role } = state;
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
-        <button onClick={() => navigate(-1)} className="mb-4">
-          <ArrowLeft />
+        <button 
+          onClick={() => navigate(-1)} 
+          className="mb-4 flex items-center gap-2 text-blue-600 hover:text-blue-800"
+          disabled={isVerifying || isResending}
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back
         </button>
 
         <div className="text-center mb-6">
           <Mail className="w-10 h-10 mx-auto text-blue-600" />
           <h1 className="text-2xl font-bold mt-2">Verify your email</h1>
-          <p className="text-sm text-gray-600">{email}</p>
+          <p className="text-sm text-gray-600 break-all">{email}</p>
+          <p className="text-xs text-gray-500 mt-1">
+            OTP sent to register as <strong>{role}</strong>
+          </p>
         </div>
 
         {error && (
-          <div className="mb-4 flex gap-2 items-center text-red-600 text-sm">
-            <AlertCircle className="w-4 h-4" />
-            {error}
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex gap-2 items-start">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700 font-medium">{error}</p>
           </div>
         )}
 
@@ -202,31 +287,56 @@ const VerifyOTP = () => {
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={i === 0 ? handlePaste : undefined}
               maxLength={1}
-              className="w-12 h-12 border text-center text-xl rounded"
+              className="w-12 h-12 border text-center text-xl rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              disabled={isVerifying || isResending}
             />
           ))}
         </div>
 
         <button
           onClick={handleVerify}
-          disabled={isVerifying}
-          className="w-full bg-blue-600 text-white py-3 rounded mb-4"
+          disabled={isVerifying || timeLeft <= 0}
+          className={`w-full py-3 rounded mb-4 font-semibold transition-all ${
+            isVerifying
+              ? "bg-gray-400 cursor-not-allowed"
+              : timeLeft <= 0
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
         >
-          {isVerifying ? "Verifying..." : "Verify OTP"}
+          {isVerifying ? (
+            <span className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              Verifying...
+            </span>
+          ) : (
+            "Verify OTP"
+          )}
         </button>
 
-        <div className="text-center text-sm text-gray-600">
+        <div className="text-center text-sm">
           {timeLeft > 0 ? (
-            <>Expires in {formatTime(timeLeft)}</>
+            <div className="text-gray-600">
+              OTP expires in <span className="font-bold">{formatTime(timeLeft)}</span>
+            </div>
           ) : (
             <button
               onClick={handleResend}
               disabled={isResending}
-              className="text-blue-600 font-semibold"
+              className="text-blue-600 font-semibold hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
             >
-              {isResending ? "Resending..." : "Resend OTP"}
+              {isResending ? "Sending..." : "Resend OTP"}
             </button>
           )}
+        </div>
+
+        {/* Debug info (remove in production) */}
+        <div className="mt-8 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
+          <p className="font-semibold">Debug Info:</p>
+          <p>Email: {email}</p>
+          <p>Role: {role}</p>
+          <p>Time left: {formatTime(timeLeft)}</p>
+          <p>Company Name: {state.companyName || "N/A"}</p>
         </div>
       </div>
     </div>

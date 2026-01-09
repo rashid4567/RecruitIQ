@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import LandingPage from "../pages/landing/landingPage";
 import RoleSelection from "../pages/auth/RoleSelection";
 import SignIn from "../pages/auth/SignIn";
-import SignUp from "../pages/auth/CandidateSignup";
+import SignUp from "../pages/auth/Signup";
 
 const PublicRoutes = () => {
   return (

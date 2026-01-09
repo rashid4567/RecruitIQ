@@ -62,15 +62,14 @@ export const sendRegistrationOTP = async (req: Request, res: Response) => {
 
 export const verifyRegistration = async (req: Request, res: Response) => {
   try {
-    const { email, otp, password, fullName, role, companyName } = req.body;
+    const { email, otp, password, fullName, role } = req.body;
     
     console.log("📝 Registration Request:", {
       email,
       role,
       hasOtp: !!otp,
       hasPassword: !!password,
-      hasFullName: !!fullName,
-      hasCompanyName: !!companyName
+      hasFullName: !!fullName
     });
 
     // ✅ Basic validation for all users
@@ -81,13 +80,7 @@ export const verifyRegistration = async (req: Request, res: Response) => {
       });
     }
 
-    // ✅ Additional validation for recruiters only
-    if (role === "recruiter" && !companyName) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: "Company name is required for recruiter registration",
-      });
-    }
+    // ✅ Remove companyName validation since it's not required during signup
 
     const data = await verifyOTPAndRegister(
       email.toLowerCase().trim(),
@@ -95,7 +88,7 @@ export const verifyRegistration = async (req: Request, res: Response) => {
       password,
       fullName,
       role,
-      companyName, // This can be undefined for candidates
+      // Remove companyName
     );
 
     res.cookie("refreshToken", data.refreshToken, getCookieOptions());
@@ -116,7 +109,6 @@ export const verifyRegistration = async (req: Request, res: Response) => {
     });
   }
 };
-
 /**
  * LOGIN
  */

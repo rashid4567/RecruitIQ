@@ -12,8 +12,8 @@ type VerifyOTPState = {
   fullName: string;
   password: string;
   role: "candidate" | "recruiter";
-  phone?: string;
-  companyName?: string;
+  // Remove optional phone and companyName since they're not required during signup
+  // They can be added during profile completion
 };
 
 const VerifyOTP = () => {
@@ -35,8 +35,15 @@ const VerifyOTP = () => {
     const locationState = location.state as VerifyOTPState | undefined;
     
     if (!locationState) {
-      console.warn("No state found, redirecting to signup");
-      navigate("/signup");
+      console.warn("No state found, redirecting to role selection");
+      navigate("/role-selection");
+      return;
+    }
+
+    // Validate required fields
+    if (!locationState.email || !locationState.fullName || !locationState.password || !locationState.role) {
+      console.error("Missing required fields in state:", locationState);
+      navigate("/role-selection");
       return;
     }
 
@@ -93,7 +100,7 @@ const VerifyOTP = () => {
   const handleVerify = async () => {
     if (!state) return;
     
-    const { email, fullName, password, role, phone, companyName } = state;
+    const { email, fullName, password, role } = state;
 
     if (timeLeft <= 0) {
       setError("OTP has expired. Please resend.");
@@ -106,80 +113,58 @@ const VerifyOTP = () => {
       return;
     }
 
-    // ✅ FIX: Validate companyName only for recruiters
-    if (role === "recruiter" && !companyName) {
-      setError("Company name is required for recruiter registration");
-      return;
-    }
-
     setIsVerifying(true);
     setError("");
 
     try {
       // Prepare data for API
-      const payload: any = {
+      const payload = {
         email: email.trim(),
         otp: otpString,
         password: password,
         fullName: fullName.trim(),
         role: role,
+        // No companyName required during signup
+        // It will be collected during profile completion
       };
 
-      // ✅ Only add optional fields if they exist
-      if (phone) {
-        payload.phone = phone;
-      }
-      
-      if (companyName) {
-        payload.companyName = companyName;
-      }
-
       console.log("📤 Sending OTP verification payload:", payload);
-      console.log("📤 Payload details:", {
-        email: payload.email,
-        otp: payload.otp,
-        role: payload.role,
-        fullName: payload.fullName,
-        hasPassword: !!payload.password,
-        hasCompanyName: !!payload.companyName,
-        hasPhone: !!payload.phone
-      });
 
       await authService.verifyOtpAndRegister(payload);
 
       setSuccess(true);
 
+      // Redirect to appropriate profile completion page
       setTimeout(() => {
         if (role === "candidate") {
           navigate("/candidate/profile");
         } else {
+          // Recruiters go to their profile completion page
           navigate("/recruiter/complete-profile");
         }
       }, 1500);
     } catch (err: any) {
       console.error("❌ Full OTP Verification Error:", err);
       
+      let errorMessage = "Invalid OTP. Please try again.";
+      
       if (err.response) {
         console.error("Error status:", err.response.status);
         console.error("Error data:", err.response.data);
-        console.error("Full error response:", JSON.stringify(err.response.data, null, 2));
         
         const errorData = err.response.data;
-        const errorMessage = 
+        errorMessage = 
           errorData?.message || 
           errorData?.error || 
           errorData?.details?.[0]?.message || 
           "Invalid OTP. Please try again.";
-        
-        setError(errorMessage);
       } else if (err.request) {
-        console.error("No response received:", err.request);
-        setError("No response from server. Please check your connection.");
+        errorMessage = "No response from server. Please check your connection.";
       } else {
-        console.error("Error setting up request:", err.message);
-        setError("Something went wrong. Please try again.");
+        errorMessage = "Something went wrong. Please try again.";
       }
       
+      setError(errorMessage);
       setOtp(Array(6).fill(""));
       inputRefs.current[0]?.focus();
     } finally {
@@ -229,7 +214,7 @@ const VerifyOTP = () => {
         <div className="text-center space-y-4">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
           <h2 className="text-2xl font-bold">Registration Successful</h2>
-          <p>Redirecting...</p>
+          <p>Redirecting to profile setup...</p>
         </div>
       </div>
     );
@@ -328,15 +313,6 @@ const VerifyOTP = () => {
               {isResending ? "Sending..." : "Resend OTP"}
             </button>
           )}
-        </div>
-
-        {/* Debug info (remove in production) */}
-        <div className="mt-8 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
-          <p className="font-semibold">Debug Info:</p>
-          <p>Email: {email}</p>
-          <p>Role: {role}</p>
-          <p>Time left: {formatTime(timeLeft)}</p>
-          <p>Company Name: {state.companyName || "N/A"}</p>
         </div>
       </div>
     </div>

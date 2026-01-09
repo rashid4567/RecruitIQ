@@ -14,7 +14,7 @@ export const verifyOTPAndRegister = async (
   password: string,
   fullName: string,
   role: "candidate" | "recruiter",
-  companyName?: string,
+  // Remove companyName parameter
 ) => {
   if (!["candidate", "recruiter"].includes(role)) {
     throw new Error("Invalid role");
@@ -41,12 +41,9 @@ export const verifyOTPAndRegister = async (
   }
 
   if (role === "recruiter") {
-    if (!companyName) {
-      throw new Error("Company name is required for recruiter registration");
-    }
-    // ✅ FIX: Pass companyName to createRecruiterProfile
+    // Create recruiter profile without companyName initially
     await createRecruiterProfile(user._id.toString(), {
-      companyName: companyName,  // ✅ Add this
+      // No companyName here - will be added in profile completion
       verificationStatus: "pending",
       subscriptionStatus: "free",
     });
@@ -75,6 +72,11 @@ export const LoginUser = async (email: string, password: string) => {
   const user = await findUserByEmail(normalizedEmail);
   if (!user) {
     throw new Error("Invalid email or password");
+  }
+
+  // ✅ Block Google users
+  if (!user.password) {
+    throw new Error("Please login using Google");
   }
 
   const isMatch = await bcrypt.compare(password, user.password);

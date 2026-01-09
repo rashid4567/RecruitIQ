@@ -1,5 +1,6 @@
 import { Schema, Types, model } from "mongoose";
 
+
 const recruiterProfileSchema = new Schema(
   {
     userId: {
@@ -10,7 +11,8 @@ const recruiterProfileSchema = new Schema(
     },
     companyName: {
       type: String,
-      required: true,
+      trim : ""
+
     },
     companyWebsite: {
       type: String,

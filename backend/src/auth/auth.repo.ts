@@ -21,10 +21,11 @@ export const createRecruiterProfile = async (
 ) => {
   return RecruiterProfileModel.create({
     userId,
-    ...data,
+    companyName: data?.companyName || "", 
+    verificationStatus: data?.verificationStatus || "pending",
+    subscriptionStatus: data?.subscriptionStatus || "free",
   });
 };
-
 
 export const createCandidateProfile = async (userId: string) => {
   return candidateProfileModel.create({ userId });

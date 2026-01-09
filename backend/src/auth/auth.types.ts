@@ -4,18 +4,19 @@ export type RegisterRole = "recruiter" | "candidate";
 export interface RegisterInput {
   email: string;
   password: string;
-  role: RegisterRole;
+  role: "candidate" | "recruiter";
   fullName: string;
-  companyName?: string;
+  
 }
 
 export interface CreateUserInput {
   email: string;
   password: string;
-  role: SystemRole;
+  role: "candidate" | "recruiter" | "admin";
   fullName: string;
+  authProvider?: "local" | "google";
+  googleId?: string,
 }
-
 
 export interface AuthUser {
   id: string;

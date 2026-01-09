@@ -5,10 +5,16 @@ import {
   sendRegistrationOTP,
   verifyRegistration,
   testCookies,
+  adminLogin,
 } from "./auth.controller";
+import { requireAdmin } from "../middlewares/role.middleware";
 
 const router = Router();
+
+
+
 router.post("/login", login);
+router.post("/admin/login",adminLogin);
 router.post("/refresh", refreshToken);
 
 

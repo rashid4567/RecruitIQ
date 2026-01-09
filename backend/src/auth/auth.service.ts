@@ -66,7 +66,9 @@ export const verifyOTPAndRegister = async (
   };
 };
 
-export const LoginUser = async (email: string, password: string) => {
+export const LoginUser = async (email: string, password: string,
+  requiredRole?: "admin" | "candidate" | "recruiter"
+) => {
   const normalizedEmail = email.toLowerCase().trim();
 
   const user = await findUserByEmail(normalizedEmail);
@@ -74,7 +76,9 @@ export const LoginUser = async (email: string, password: string) => {
     throw new Error("Invalid email or password");
   }
 
-  // ✅ Block Google users
+  if(requiredRole && user.role !== requiredRole){
+    throw new Error("Unauthorized access")
+  }
   if (!user.password) {
     throw new Error("Please login using Google");
   }

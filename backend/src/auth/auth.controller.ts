@@ -72,7 +72,7 @@ export const verifyRegistration = async (req: Request, res: Response) => {
       hasFullName: !!fullName
     });
 
-    // ✅ Basic validation for all users
+
     if (!email || !otp || !password || !fullName || !role) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
@@ -80,7 +80,7 @@ export const verifyRegistration = async (req: Request, res: Response) => {
       });
     }
 
-    // ✅ Remove companyName validation since it's not required during signup
+
 
     const data = await verifyOTPAndRegister(
       email.toLowerCase().trim(),
@@ -88,7 +88,7 @@ export const verifyRegistration = async (req: Request, res: Response) => {
       password,
       fullName,
       role,
-      // Remove companyName
+ 
     );
 
     res.cookie("refreshToken", data.refreshToken, getCookieOptions());
@@ -109,9 +109,7 @@ export const verifyRegistration = async (req: Request, res: Response) => {
     });
   }
 };
-/**
- * LOGIN
- */
+
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -135,9 +133,32 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * REFRESH TOKEN
- */
+export const adminLogin = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    const data = await LoginUser(email, password, "admin");
+
+    res.cookie("refreshToken", data.refreshToken, getCookieOptions());
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Admin login successful",
+      data: {
+        accessToken: data.accessToken,
+        admin: data.user,
+      },
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      success: false,
+      message: getError(error),
+    });
+  }
+};
+
+
+
 export const refreshToken = (req: Request, res: Response) => {
   try {
     const token = req.cookies?.refreshToken;
@@ -172,9 +193,7 @@ export const refreshToken = (req: Request, res: Response) => {
   }
 };
 
-/**
- * DEBUG
- */
+
 export const testCookies = (req: Request, res: Response) => {
   res.json({
     success: true,

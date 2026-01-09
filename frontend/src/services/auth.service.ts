@@ -2,7 +2,7 @@ import api from "../api/axios";
 import { googleService } from "./google.service";
 
 export const authService = {
-  sendOTP: async (email: string, role: "candidate" | "recruiter") => {
+  sendOTP: async (email: string, role: "candidate" | "recruiter" | "admin") => {
     const res = await api.post("/auth/send-otp", { email, role });
     return res.data;
   },
@@ -38,6 +38,19 @@ export const authService = {
 
     return res.data;
   },
+
+  adminLogin: async (email: string, password: string) => {
+  const res = await api.post("/auth/admin/login", { email, password });
+
+  const { accessToken, admin } = res.data.data;
+
+  localStorage.setItem("authToken", accessToken);
+  localStorage.setItem("userRole", admin.role);
+  localStorage.setItem("userId", admin.id);
+
+  return res.data;
+},
+
 
   googleLogin: googleService.googleLogin,
 

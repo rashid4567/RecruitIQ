@@ -1,4 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+
 import CandidateLayout from "../layout/CandidateLayout";
 import RecruiterLayout from "../layout/RecruiterLayout";
 import CandidateHome from "../pages/candidate/Home";
@@ -8,41 +10,50 @@ import { RecruiterDetails } from "../pages/recruiter/RecruiterDetails";
 import LandingPage from "../pages/landing/landingPage";
 import RoleSelection from "../pages/auth/RoleSelection";
 import SignIn from "../pages/auth/SignIn";
-import UnifiedSignup from "../pages/auth/Signup"; // Changed from CandidateSignup
+import UnifiedSignup from "../pages/auth/Signup";
 import VerifyOTP from "../pages/otp/verifyOTP";
 import ProtectedRoute from "./ProtectedRoute";
 import LinkedInCallback from "../linkedin/LinkedInCallback";
 import PrivacyPolicy from "../pages/linkedin/PrivacyPolicy";
+import AdminLogin from "../pages/admin/login";
+import AdminDashboard from "../pages/admin/dashboard";
+import AdminProtectedRoute from "./adminProtectedRoutes";
+import AdminLayout from "../layout/adminLayout";
+
+interface NavigateToSignupWithRoleProps {
+  role: "candidate" | "recruiter";
+}
 
 const AppRoutes = () => (
   <Routes>
-    {/* 🌍 Public Routes */}
+    {/* 🌍 Public */}
     <Route path="/" element={<LandingPage />} />
     <Route path="/role-selection" element={<RoleSelection />} />
     <Route path="/signin" element={<SignIn />} />
-    
-    {/* Unified Signup Route */}
     <Route path="/signup" element={<UnifiedSignup />} />
-    
-    {/* Optional: Keep the old routes for backward compatibility with redirects */}
-    <Route 
-      path="/candidate/signup" 
-      element={
-        <NavigateToSignupWithRole role="candidate" />
-      } 
-    />
-    <Route 
-      path="/recruiter/signup" 
-      element={
-        <NavigateToSignupWithRole role="recruiter" />
-      } 
-    />
-    
     <Route path="/verify-otp" element={<VerifyOTP />} />
     <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
-    {/* 🔐 Candidate Routes */}
+    {/* 🔁 Backward compatibility */}
+    <Route
+      path="/candidate/signup"
+      element={<NavigateToSignupWithRole role="candidate" />}
+    />
+    <Route
+      path="/recruiter/signup"
+      element={<NavigateToSignupWithRole role="recruiter" />}
+    />
+
+    {/* 🔐 ADMIN */}
+    <Route path="/admin/login" element={<AdminLogin />} />
+    <Route element={<AdminProtectedRoute />}>
+      <Route element={<AdminLayout />}>
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      </Route>
+    </Route>
+
+    {/* 🔐 Candidate */}
     <Route element={<ProtectedRoute allowedRoles={["candidate"]} />}>
       <Route element={<CandidateLayout />}>
         <Route path="/candidate/home" element={<CandidateHome />} />
@@ -50,7 +61,7 @@ const AppRoutes = () => (
       </Route>
     </Route>
 
-    {/* 🔐 Recruiter Routes */}
+    {/* 🔐 Recruiter */}
     <Route element={<ProtectedRoute allowedRoles={["recruiter"]} />}>
       <Route element={<RecruiterLayout />}>
         <Route path="/recruiter/" element={<RecruiterHome />} />
@@ -60,32 +71,18 @@ const AppRoutes = () => (
         />
       </Route>
     </Route>
-
-    {/* 🔐 Admin Routes (if needed in future) */}
-    {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-      <Route path="/admin/*" element={<AdminLayout />} />
-    </Route> */}
   </Routes>
 );
 
 export default AppRoutes;
 
-
-
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-interface NavigateToSignupWithRoleProps {
-  role: "candidate" | "recruiter";
-}
-
 const NavigateToSignupWithRole = ({ role }: NavigateToSignupWithRoleProps) => {
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     navigate(`/signup?role=${role}`);
   }, [navigate, role]);
-  
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">

@@ -1,4 +1,3 @@
-// src/candidate/candidate.service.ts
 import {
   findCandidateProfileByUserId,
   updateCandidateProfileByUserId,

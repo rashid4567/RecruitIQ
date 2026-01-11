@@ -1,9 +1,27 @@
 // src/candidate/candidate.repo.ts
 import { candidateProfileModel } from "./candidateProfile.model";
 import { UpdateCandidateProfileInput } from "./candidate.types";
+import { UserModel } from "../user/user.model";
 
-export const findCandidateProfileByUserId = (userId: string) => {
-  return candidateProfileModel.findOne({ userId });
+export const findCandidateProfileByUserId =async (userId: string) => {
+  const user = await UserModel.findById(userId).select(
+    "fullName email profileImage"
+  );
+
+  if(!user)return null;
+
+  let candidateProfile = await candidateProfileModel.findOne({userId})
+
+  if(!candidateProfile){
+    candidateProfile = await candidateProfileModel.create({
+      userId
+    })
+  }
+
+  return {
+    user,
+    candidateProfile,
+  }
 };
 
 export const updateCandidateProfileByUserId = (
@@ -20,6 +38,7 @@ export const updateCandidateProfileByUserId = (
     },
     { new: true,
       runValidators : true,
+      upsert: true,
      }
   );
 };

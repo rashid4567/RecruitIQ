@@ -2,8 +2,8 @@
 import type React from "react";
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { authService } from "../../services/auth.service";
-import { linkedInService } from "../../services/linkedIn.service";
+import { authService } from "../../services/auth/auth.service";
+import { linkedInService } from "../../services/auth/linkedIn.service";
 import { GoogleLogin } from "@react-oauth/google";
 import {
   Eye,
@@ -37,7 +37,7 @@ const UnifiedSignup = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get role from URL query or location state
+
   const queryParams = new URLSearchParams(location.search);
   const roleFromQuery = queryParams.get("role") as RoleType;
   const roleFromState = location.state?.role as RoleType;
@@ -56,7 +56,6 @@ const UnifiedSignup = () => {
     termsAccepted: false,
   });
 
-  // Update formData when role changes in URL
   useEffect(() => {
     if (roleFromQuery && ["candidate", "recruiter"].includes(roleFromQuery)) {
       setFormData((prev) => ({
@@ -66,7 +65,7 @@ const UnifiedSignup = () => {
     }
   }, [roleFromQuery]);
 
-  // ✅ Google Response Handler
+
   const handleGoogleResponse = async (response: any) => {
     try {
       setGoogleLoading(true);
@@ -79,7 +78,7 @@ const UnifiedSignup = () => {
 
       const result = await authService.googleLogin(
         credential,
-        formData.role // role passed here is fine
+        formData.role
       );
 
       const user = result.data.user;
@@ -102,7 +101,7 @@ const UnifiedSignup = () => {
     }
   };
 
-  // Password requirements validation
+
   const passwordRequirements: PasswordRequirement[] = useMemo(() => {
     const password = formData.password;
     return [
@@ -175,10 +174,10 @@ const UnifiedSignup = () => {
     try {
       setIsLoading(true);
 
-      // Send OTP with correct role
+   
       await authService.sendOTP(formData.email, formData.role);
 
-      // Navigate to OTP verification with all necessary data
+    
       navigate("/verify-otp", {
         state: {
           email: formData.email,
@@ -199,7 +198,6 @@ const UnifiedSignup = () => {
     }
   };
 
-  // LinkedIn Signup Handler
   const handleLinkedInSignup = () => {
     setError("");
     try {
@@ -210,7 +208,6 @@ const UnifiedSignup = () => {
     }
   };
 
-  // Redirect to role selection if no role is specified
   const handleBack = () => {
     if (!roleFromQuery && !roleFromState) {
       navigate("/role-selection");
@@ -222,8 +219,8 @@ const UnifiedSignup = () => {
   const isAnyLoading = isLoading || googleLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decorations */}
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
+  
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
         <div className="absolute top-40 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
@@ -231,13 +228,13 @@ const UnifiedSignup = () => {
       </div>
 
       <div className="w-full max-w-5xl mx-auto relative z-10">
-        {/* Logo and Progress */}
+      
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-xl">R</span>
             </div>
-            <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+            <span className="ml-3 text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
               RecruitFlow AI
             </span>
           </div>
@@ -245,7 +242,7 @@ const UnifiedSignup = () => {
           <div className="mb-4">
             <p className="text-sm text-slate-600 mb-2">Step 2 of 5</p>
             <div className="w-64 h-2 bg-slate-200 rounded-full mx-auto overflow-hidden">
-              <div className="w-2/5 h-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-full transition-all duration-500"></div>
+              <div className="w-2/5 h-full bg-linear-to-r from-blue-600 to-blue-700 rounded-full transition-all duration-500"></div>
             </div>
             <p className="text-xs text-slate-500 mt-2">40% Complete</p>
           </div>
@@ -579,7 +576,7 @@ const UnifiedSignup = () => {
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 py-3 px-6 bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 disabled={isAnyLoading}
               >
                 {isLoading ? (

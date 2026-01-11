@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./auth";
 import candidateRoutes from "./candidate";
 import recruiterRoutes from "./recruiter";
+import adminRouter from "./admin";
 
 const app = express();
 app.use(
@@ -20,7 +21,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/candidate", candidateRoutes);
 app.use("/api/recruiter", recruiterRoutes);
-
+app.use("/api/admin",adminRouter)
 app.get("/api/health", (_req, res) => {
   res.json({
     success: true,

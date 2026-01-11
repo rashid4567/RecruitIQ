@@ -75,6 +75,16 @@ export const LoginUser = async (email: string, password: string,
   if (!user) {
     throw new Error("Invalid email or password");
   }
+  if(!user.isActive){
+    const errorMessage = 
+      user.role === "candidate" 
+        ? "Your candidate account has been deactivated. Please contact support for assistance."
+        : user.role === "recruiter"
+        ? "Your recruiter account has been deactivated. Please contact admin for assistance."
+        : "Your account has been deactivated. Please contact support.";
+
+        throw new Error(errorMessage)
+  }
 
   if(requiredRole && user.role !== requiredRole){
     throw new Error("Unauthorized access")

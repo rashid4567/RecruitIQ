@@ -1,24 +1,38 @@
-import { UpdateRecruiterProfileInput } from "./candidate.types";
-
+// src/recruiter/recruiter.service.ts
 import {
   findRecruiterProfileByUser,
-  updateRecruiterProfileById,
+  createRecruiterProfileIfNotExists,
+  updateRecruiterProfileByUserId,
 } from "./recruiter.repo";
+import { UpdateRecruiterProfileInput } from "./candidate.types";
 
+/**
+ * Get recruiter profile (auto-create if missing)
+ */
 export const getRecruiterProfileService = async (userId: string) => {
-  const profile = await findRecruiterProfileByUser(userId);
+  let profile = await findRecruiterProfileByUser(userId);
+
   if (!profile) {
-    throw new Error("Recruiter profile not found");
+    profile = await createRecruiterProfileIfNotExists(userId);
   }
+
   return profile;
 };
+
+/**
+ * Update recruiter profile (used by BOTH:
+ * - complete-profile page
+ * - normal profile page)
+ */
 export const updateRecruiterProfileService = async (
   userId: string,
   data: UpdateRecruiterProfileInput
 ) => {
-  const profile = await updateRecruiterProfileById(userId, data);
+  const profile = await updateRecruiterProfileByUserId(userId, data);
+
   if (!profile) {
     throw new Error("Recruiter profile not found");
   }
+
   return profile;
 };

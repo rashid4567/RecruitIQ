@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { candidateService } from '../services/candidate.service';
+import { candidateService } from '../services/candidate/candidate.service';
 
 interface AuthState {
   isAuthenticated: boolean;

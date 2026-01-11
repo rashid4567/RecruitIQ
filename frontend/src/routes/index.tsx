@@ -19,6 +19,13 @@ import AdminLogin from "../pages/admin/login";
 import AdminDashboard from "../pages/admin/dashboard";
 import AdminProtectedRoute from "./adminProtectedRoutes";
 import AdminLayout from "../layout/adminLayout";
+import RecruitersPage from "../pages/admin/recruiterManagment/recruiterList";
+import RecruiterProfilePage from "../pages/admin/recruiterManagment/recruiterProfile";
+import CandidateManagement from "../pages/admin/candidateManagment/candidateList";
+import CandidateProfile from "../pages/admin/candidateManagment/candidateProfile";
+import CandidateProfilePage from "@/pages/candidate/profilePage";
+import AccountSettingsPage from "@/pages/candidate/account-setting";
+import RecruiterSettingsPage from "@/pages/recruiter/recruiterProfile";
 
 interface NavigateToSignupWithRoleProps {
   role: "candidate" | "recruiter";
@@ -50,6 +57,16 @@ const AppRoutes = () => (
     <Route element={<AdminProtectedRoute />}>
       <Route element={<AdminLayout />}>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/recruiters" element={<RecruitersPage />} />
+        <Route
+          path="/admin/recruiters/:id"
+          element={<RecruiterProfilePage />}
+        />
+        <Route path="/admin/candidates" element={<CandidateManagement />} />
+        <Route
+          path="/admin/candidates/:candidateId"
+          element={<CandidateProfile />}
+        />
       </Route>
     </Route>
 
@@ -57,7 +74,9 @@ const AppRoutes = () => (
     <Route element={<ProtectedRoute allowedRoles={["candidate"]} />}>
       <Route element={<CandidateLayout />}>
         <Route path="/candidate/home" element={<CandidateHome />} />
-        <Route path="/candidate/profile" element={<CompleteProfile />} />
+        <Route path="/candidate/profile/complete" element={<CompleteProfile />} />
+        <Route path="/candidate/profile" element={<CandidateProfilePage/>}/>
+        <Route path="/candidate/profile/setting" element={<AccountSettingsPage/>}/>
       </Route>
     </Route>
 
@@ -69,6 +88,7 @@ const AppRoutes = () => (
           path="/recruiter/complete-profile"
           element={<RecruiterDetails />}
         />
+        <Route path="/recruiter/profile" element={<RecruiterSettingsPage/>}/>
       </Route>
     </Route>
   </Routes>

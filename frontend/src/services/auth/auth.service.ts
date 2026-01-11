@@ -1,4 +1,4 @@
-import api from "../api/axios";
+import api from "../../api/axios";
 import { googleService } from "./google.service";
 
 export const authService = {

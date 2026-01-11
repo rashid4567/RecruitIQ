@@ -3,17 +3,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Mail, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
-import { authService } from "../../services/auth.service";
+import { authService } from "../../services/auth/auth.service";
 
-const OTP_EXPIRY_SECONDS = 600; // 10 minutes
+const OTP_EXPIRY_SECONDS = 600;
 
 type VerifyOTPState = {
   email: string;
   fullName: string;
   password: string;
   role: "candidate" | "recruiter";
-  // Remove optional phone and companyName since they're not required during signup
-  // They can be added during profile completion
 };
 
 const VerifyOTP = () => {
@@ -124,8 +122,6 @@ const VerifyOTP = () => {
         password: password,
         fullName: fullName.trim(),
         role: role,
-        // No companyName required during signup
-        // It will be collected during profile completion
       };
 
       console.log("📤 Sending OTP verification payload:", payload);
@@ -133,13 +129,10 @@ const VerifyOTP = () => {
       await authService.verifyOtpAndRegister(payload);
 
       setSuccess(true);
-
-      // Redirect to appropriate profile completion page
       setTimeout(() => {
         if (role === "candidate") {
-          navigate("/candidate/profile");
+          navigate("/candidate/profile/complete");
         } else {
-          // Recruiters go to their profile completion page
           navigate("/recruiter/complete-profile");
         }
       }, 1500);

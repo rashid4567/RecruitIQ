@@ -13,8 +13,6 @@ export interface UpdateCandidateProfileInput {
   portfolioUrl?: string;
 }
 
-
-
 export interface CandidateProfile {
   _id: Types.ObjectId;
   userId: Types.ObjectId;

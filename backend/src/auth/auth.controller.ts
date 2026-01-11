@@ -125,13 +125,18 @@ export const login = async (req: Request, res: Response) => {
         user: data.user,
       },
     });
-  } catch (err) {
-    res.status(HTTP_STATUS.UNAUTHORIZED).json({
+  } catch (err: any) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
       message: getError(err),
+      code:
+        err.message.includes("deactivated")
+          ? "ACCOUNT_DEACTIVATED"
+          : "INVALID_CREDENTIALS",
     });
   }
 };
+
 
 export const adminLogin = async (req: Request, res: Response) => {
   try {

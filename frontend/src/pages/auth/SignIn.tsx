@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import type { SignInFormData } from "../../types/auth.types";
-import { authService } from "../../services/auth.service";
-import { linkedInService } from "../../services/linkedIn.service";
+import { authService } from "../../services/auth/auth.service";
+import { linkedInService } from "../../services/auth/linkedIn.service";
 import { GoogleLogin } from "@react-oauth/google";
 
 const SignIn = () => {

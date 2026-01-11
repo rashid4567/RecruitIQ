@@ -33,11 +33,23 @@ export const googleLoginService = async (
     throw new Error("Email already registered using password login");
   }
 
+  
+
   if (user && role && user.role !== role) {
     throw new Error(
       `This account is already registered as a ${user.role}. Please continue as ${user.role}`
     );
   }
+  // if (user && !user.isActive) {
+  //   const errorMessage = 
+  //     user.role === "candidate" 
+  //       ? "Your candidate account has been deactivated. Please contact support for assistance."
+  //       : user.role === "recruiter"
+  //       ? "Your recruiter account has been deactivated. Please contact admin for assistance."
+  //       : "Your account has been deactivated. Please contact support.";
+    
+  //   throw new Error(errorMessage);
+  // }
  
   if (!user) {
     if (!role) {

@@ -1,10 +1,9 @@
-"use client";
 
 import type React from "react";
-import { useState, useEffect } from "react"; // Added useEffect
-import { ArrowLeft, Upload, X, Check, AlertCircle } from "lucide-react"; // Added AlertCircle
+import { useState } from "react";
+import { ArrowLeft, Upload, X, Check, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { candidateService } from "../../services/candidate.service";
+import { candidateService } from "../../services/candidate/candidate.service";
 
 export const CompleteProfile: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -23,7 +22,6 @@ export const CompleteProfile: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -83,11 +81,9 @@ export const CompleteProfile: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    
     setIsSubmitting(true);
     setError(null);
 
-   
     const token = localStorage.getItem("authToken");
     if (!token) {
       setError("No authentication token found. Please login again.");
@@ -108,29 +104,28 @@ export const CompleteProfile: React.FC = () => {
       profileCompleted: true,
     };
 
-   
-
     try {
-      const response = await candidateService.updateProfile(payload);
-      if (response.data) {
-        localStorage.setItem("profileCompleted", "true");
-      }
-      
+      await candidateService.completeProfile(payload);
+
+      localStorage.setItem("profileCompleted", "true");
       navigate("/candidate/home");
     } catch (err: any) {
       console.error("❌ FRONTEND ERROR:", err);
-      
+
       // Provide specific error messages
       if (err.response?.status === 401) {
         setError("Session expired. Please login again.");
         localStorage.clear();
         setTimeout(() => navigate("/signin"), 2000);
       } else if (err.response?.status === 400) {
-        setError(err.response?.data?.message || "Invalid data. Please check your inputs.");
+        setError(
+          err.response?.data?.message ||
+            "Invalid data. Please check your inputs."
+        );
       } else {
         setError("Failed to update profile. Please try again.");
       }
-      
+
       setIsSubmitting(false);
     }
   };
@@ -143,7 +138,7 @@ export const CompleteProfile: React.FC = () => {
   const progressPercentage = 60;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-100 py-8">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-slate-100 py-8">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-100 rounded-full blur-3xl opacity-20 animate-blob" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-50 rounded-full blur-3xl opacity-20 animate-blob animation-delay-4000" />
@@ -154,7 +149,7 @@ export const CompleteProfile: React.FC = () => {
         {/* Header with logo and back button */}
         <div className="flex items-center justify-between mb-8 animate-fade-in">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">R</span>
             </div>
             <span className="font-bold text-blue-600">RecruitFlow AI</span>
@@ -176,7 +171,7 @@ export const CompleteProfile: React.FC = () => {
           </div>
           <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 rounded-full transition-all duration-700 shadow-lg"
+              className="h-full bg-linear-to-r from-blue-500 via-blue-600 to-cyan-500 rounded-full transition-all duration-700 shadow-lg"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -186,7 +181,7 @@ export const CompleteProfile: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-2xl p-8 animate-slide-up space-y-8 backdrop-blur-sm border border-white/80">
           {/* Title section */}
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-linear-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
               Complete Your Profile
             </h1>
             <p className="text-slate-600">
@@ -196,7 +191,7 @@ export const CompleteProfile: React.FC = () => {
 
           {error && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <AlertCircle className="w-5 h-5 shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -368,7 +363,7 @@ export const CompleteProfile: React.FC = () => {
                   {formData.skills.map((skill) => (
                     <div
                       key={skill}
-                      className="bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold
+                      className="bg-linear-to-r from-blue-100 to-cyan-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold
                         flex items-center gap-2 hover:shadow-lg transition-all duration-300 hover:scale-105 animate-slide-up"
                     >
                       {skill}
@@ -408,7 +403,7 @@ export const CompleteProfile: React.FC = () => {
             </div>
           </form>
 
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200 hover:shadow-md transition-all">
+          <div className="flex items-start gap-3 p-4 bg-linear-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200 hover:shadow-md transition-all">
             <input
               type="checkbox"
               id="terms"
@@ -443,7 +438,7 @@ export const CompleteProfile: React.FC = () => {
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600
+              className="flex-1 py-3 px-4 bg-linear-to-r from-blue-500 to-blue-600
                 text-white rounded-lg font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300
                 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed
                 disabled:hover:scale-100"

@@ -19,7 +19,7 @@ const CandidateLayout = () => {
 
   const checkProfileStatus = async () => {
     try {
-      // Check localStorage first
+  
       const storedStatus = localStorage.getItem("profileCompleted");
       
       if (storedStatus === "true") {
@@ -28,7 +28,7 @@ const CandidateLayout = () => {
         return;
       }
 
-      // If not in localStorage, check API
+  
       const res = await api.get("/candidate/profile");
       const profile = res.data.data;
       

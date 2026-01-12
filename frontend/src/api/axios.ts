@@ -28,6 +28,16 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+function clearAuthAndRedirect(path: string, message?: string) {
+  if (message) toast.error(message);
+
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("userRole");
+  localStorage.removeItem("userId");
+
+  window.location.href = path;
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -45,7 +55,7 @@ api.interceptors.response.use(
     });
 
     if (originalRequest?.url?.includes("/auth/refresh")) {
-      forceLogout(message);
+      clearAuthAndRedirect("/signin", message);
       return Promise.reject(error);
     }
 
@@ -53,17 +63,14 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const res = await axios.post(
-          "/api/auth/refresh",
+        const refreshRes = await axios.post(
+          `${import.meta.env.VITE_API_URL || ""}/auth/refresh`,
           {},
           { withCredentials: true }
         );
 
-        const newAccessToken = res.data?.data?.accessToken;
-
-        if (!newAccessToken) {
-          throw new Error("Refresh returned no token");
-        }
+        const newAccessToken = refreshRes.data?.data?.accessToken;
+        if (!newAccessToken) throw new Error("No token from refresh");
 
         localStorage.setItem("authToken", newAccessToken);
 
@@ -72,20 +79,18 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch {
-        forceLogout("Session expired. Please login again.");
+        clearAuthAndRedirect("/signin", "Session expired. Please login again.");
         return Promise.reject(error);
       }
     }
 
-    if (status === 401) {
-      toast.error(message);
-      forceLogout();
+    if (status === 403 && code === "ACCOUNT_DEACTIVATED") {
+      clearAuthAndRedirect("/account-deactivated", message);
       return Promise.reject(error);
     }
 
-    if (status === 403) {
-      toast.error(message);
-      forceLogout();
+    if (status === 401) {
+      clearAuthAndRedirect("/signin", message);
       return Promise.reject(error);
     }
 
@@ -99,17 +104,4 @@ api.interceptors.response.use(
   }
 );
 
-function forceLogout(message?: string) {
-  if (message) toast.error(message);
-
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("userRole");
-  localStorage.removeItem("userId");
-
-  if (!window.location.pathname.includes("/signin")) {
-    window.location.href = "/signin";
-  }
-}
-
 export default api;
-

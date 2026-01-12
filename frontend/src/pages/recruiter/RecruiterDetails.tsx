@@ -5,15 +5,15 @@ import { useState } from "react"
 import { ArrowLeft, Upload, Check } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
-export const RecruiterDetails: React.FC = () => {
+ const RecruiterDetails: React.FC = () => {
   const [formData, setFormData] = useState({
     companyName: "",
     companyWebsite: "",
     companySize: "",
     industry: "",
-    designation: "", // Changed from jobTitle to match schema
-    location: "", // Added location field
-    bio: "", // Added bio field
+    designation: "",
+    location: "",
+    bio: "",
     logo: null as File | null,
   })
 
@@ -35,7 +35,6 @@ export const RecruiterDetails: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Prepare data matching MongoDB schema
     const recruiterProfileData = {
       companyName: formData.companyName,
       companyWebsite: formData.companyWebsite || undefined,
@@ -44,16 +43,16 @@ export const RecruiterDetails: React.FC = () => {
       designation: formData.designation || undefined,
       location: formData.location || undefined,
       bio: formData.bio || undefined,
-      subscriptionStatus: selectedPlan === "free" ? "free" : "active", // Maps to subscriptionStatus enum
-      jobPostsUsed: 0, // Default value
-      verificationStatus: "pending", // Default value
-      // Note: userId should come from auth context/session
+      subscriptionStatus: selectedPlan === "free" ? "free" : "active",
+      jobPostsUsed: 0, 
+      verificationStatus: "pending", 
+      
     }
 
-    // Here you would typically make an API call to save the data
+ 
     console.log("Saving recruiter profile:", recruiterProfileData)
     
-    // For demo purposes, navigate to next step
+    
      navigate("/")
   }
 
@@ -362,3 +361,5 @@ export const RecruiterDetails: React.FC = () => {
     </div>
   )
 }
+
+export default RecruiterDetails

@@ -1,11 +1,12 @@
 import api from "../../api/axios";
+import type { GoogleLoginPayload } from "@/types/auth/google.types";
 
 export const googleService = {
   googleLogin: async (
     credential: string,
     role?: "candidate" | "recruiter"
   ) => {
-    const payload: any = { credential };
+    const payload: GoogleLoginPayload = { credential };
     if (role) payload.role = role;
 
     const res = await api.post("/auth/google/login", payload);

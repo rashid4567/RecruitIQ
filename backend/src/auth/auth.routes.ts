@@ -6,6 +6,7 @@ import {
   verifyRegistration,
   testCookies,
   adminLogin,
+  logout,
 } from "./auth.controller";
 import { requireAdmin } from "../middlewares/role.middleware";
 
@@ -20,6 +21,8 @@ router.post("/refresh", refreshToken);
 
 router.post("/send-otp", sendRegistrationOTP);
 router.post("/verify-otp", verifyRegistration);
+
+router.post("/logout",logout)
 
 router.get("/test-cookies", testCookies);
 

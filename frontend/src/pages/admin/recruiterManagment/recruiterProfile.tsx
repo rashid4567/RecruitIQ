@@ -30,6 +30,7 @@ import type {
   SubscriptionStatus,
 } from "../../../types/admin/recruiter.types";
 import type { JSX } from "react/jsx-runtime";
+import { getError } from "@/utils/getError";
 
 
 interface ConfirmationModalProps {
@@ -83,7 +84,7 @@ function ConfirmationModal({
           <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
             <div className="sm:flex sm:items-start">
               <div
-                className={`mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${
+                className={`mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${
                   variant === "danger"
                     ? "bg-red-100"
                     : variant === "warning"
@@ -167,10 +168,10 @@ export default function RecruiterProfilePage() {
       setError(null);
       const data = await adminRecruiterService.getRecruiterProfile(recruiterId);
       setRecruiter(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to load recruiter profile:", err);
       setError(
-        err.response?.data?.message || "Failed to load recruiter profile"
+         getError( err || "Failed to load recruiter profile")
       );
     } finally {
       setLoading(false);
@@ -190,10 +191,10 @@ export default function RecruiterProfilePage() {
       });
       setShowVerificationMenu(false);
       setShowVerificationModal({ isOpen: false, status: null });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to update verification status:", err);
       setError(
-        err.response?.data?.message || "Failed to update verification status"
+       getError(err || "Failed to update verification status")
       );
     } finally {
       setUpdating(false);
@@ -215,9 +216,9 @@ export default function RecruiterProfilePage() {
         isActive: !recruiter.isActive,
       });
       setShowStatusModal(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to update status:", err);
-      setError(err.response?.data?.message || "Failed to update status");
+      setError(getError(err || "Failed to update status"));
     } finally {
       setUpdating(false);
     }
@@ -258,7 +259,7 @@ export default function RecruiterProfilePage() {
     const map: Record<SubscriptionStatus, string> = {
       free: "bg-gray-100 text-gray-800 border border-gray-300",
       active:
-        "bg-gradient-to-r from-red-50 to-pink-50 text-red-700 border border-red-200",
+        "bg-linear-to-r from-red-50 to-pink-50 text-red-700 border border-red-200",
       expired: "bg-gray-100 text-gray-800 border border-gray-300",
     };
     return map[status] || "bg-gray-100 text-gray-800 border border-gray-300";
@@ -304,11 +305,11 @@ export default function RecruiterProfilePage() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
             <Loader2 className="h-16 w-16 animate-spin text-blue-600 mx-auto" />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-xl opacity-20 rounded-full"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 blur-xl opacity-20 rounded-full"></div>
           </div>
           <p className="mt-6 text-gray-600 text-lg font-medium">
             Loading recruiter profile...
@@ -324,11 +325,11 @@ export default function RecruiterProfilePage() {
   // Error state
   if (error || !recruiter) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center max-w-md bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
           <div className="relative">
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto" />
-            <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 blur-xl opacity-20 rounded-full"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-red-500 to-pink-500 blur-xl opacity-20 rounded-full"></div>
           </div>
           <h3 className="mt-6 text-xl font-bold text-gray-900">
             Profile Not Found
@@ -340,7 +341,7 @@ export default function RecruiterProfilePage() {
           <div className="mt-8 flex gap-3 justify-center">
             <button
               onClick={() => navigate(-1)}
-              className="px-5 py-2.5 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-lg hover:from-gray-800 hover:to-gray-700 transition-all duration-200 font-medium shadow-sm hover:shadow"
+              className="px-5 py-2.5 bg-linear-to-r from-gray-900 to-gray-800 text-white rounded-lg hover:from-gray-800 hover:to-gray-700 transition-all duration-200 font-medium shadow-sm hover:shadow"
             >
               Go Back
             </button>
@@ -382,7 +383,7 @@ export default function RecruiterProfilePage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100">
         {/* Header */}
         <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm px-8 py-6 sticky top-0 z-40 shadow-sm">
           <div className="flex items-center justify-between">
@@ -434,7 +435,7 @@ export default function RecruiterProfilePage() {
 
                   {/* Verification Status Dropdown */}
                   {showVerificationMenu && (
-                    <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 min-w-[200px] overflow-hidden">
+                    <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 min-w-50 overflow-hidden">
                       <div className="py-1">
                         <button
                           onClick={() => openVerificationModal("pending")}
@@ -551,8 +552,8 @@ export default function RecruiterProfilePage() {
                   disabled={updating}
                   className={`px-5 py-2.5 rounded-lg transition-all duration-200 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow ${
                     recruiter.isActive
-                      ? "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
-                      : "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700"
+                      ? "bg-linear-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
+                      : "bg-linear-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700"
                   }`}
                 >
                   {updating ? (
@@ -595,7 +596,7 @@ export default function RecruiterProfilePage() {
                       alt={recruiter.name}
                       className="w-28 h-28 rounded-full mx-auto mb-4 object-cover ring-4 ring-white shadow-lg"
                     />
-                    <div className="absolute bottom-4 right-4 w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                    <div className="absolute bottom-4 right-4 w-6 h-6 rounded-full bg-linear-to-r from-blue-500 to-purple-500 flex items-center justify-center">
                       <UserCheck className="h-3 w-3 text-white" />
                     </div>
                   </div>
@@ -609,7 +610,7 @@ export default function RecruiterProfilePage() {
 
                   {/* Rating if available */}
                   {recruiter.rating !== undefined && (
-                    <div className="mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-amber-50 to-yellow-50 px-4 py-2 rounded-full border border-amber-200">
+                    <div className="mt-4 inline-flex items-center gap-2 bg-linear-to-r from-amber-50 to-yellow-50 px-4 py-2 rounded-full border border-amber-200">
                       <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
                           <svg
@@ -729,7 +730,7 @@ export default function RecruiterProfilePage() {
                     {quickStats.map((stat, i) => (
                       <div
                         key={i}
-                        className="p-3 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+                        className="p-3 bg-linear-to-r from-gray-50 to-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -778,7 +779,7 @@ export default function RecruiterProfilePage() {
                       >
                         {tab}
                         {activeTab === tab.toLowerCase() && (
-                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-blue-500 to-purple-500 rounded-full"></div>
                         )}
                       </button>
                     ))}
@@ -796,7 +797,7 @@ export default function RecruiterProfilePage() {
                           • Biography
                         </span>
                       </h3>
-                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+                      <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
                         <p className="text-gray-700 leading-relaxed text-sm">
                           {recruiter.bio ||
                             "No professional biography provided. This recruiter hasn't added a summary about their background and expertise."}
@@ -813,10 +814,10 @@ export default function RecruiterProfilePage() {
                         </span>
                       </h3>
                       <div className="relative">
-                        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 to-purple-200"></div>
+                        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-linear-to-b from-blue-200 to-purple-200"></div>
                         <div className="space-y-6 pl-8">
                           <div className="relative">
-                            <div className="absolute -left-10 top-0 w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 border-4 border-white"></div>
+                            <div className="absolute -left-10 top-0 w-4 h-4 rounded-full bg-linear-to-r from-blue-500 to-purple-500 border-4 border-white"></div>
                             <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow transition-shadow">
                               <h4 className="font-bold text-gray-900 text-sm">
                                 {recruiter.role}
@@ -857,7 +858,7 @@ export default function RecruiterProfilePage() {
                         ].map((skill, i) => (
                           <span
                             key={i}
-                            className="px-4 py-2 bg-gradient-to-r from-gray-50 to-white text-gray-700 rounded-lg text-sm border border-gray-200 hover:border-blue-300 transition-colors hover:shadow-sm"
+                            className="px-4 py-2 bg-linear-to-r from-gray-50 to-white text-gray-700 rounded-lg text-sm border border-gray-200 hover:border-blue-300 transition-colors hover:shadow-sm"
                           >
                             {skill}
                           </span>
@@ -869,7 +870,7 @@ export default function RecruiterProfilePage() {
 
                 {activeTab !== "overview" && (
                   <div className="p-12 text-center">
-                    <div className="inline-block p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
+                    <div className="inline-block p-6 bg-linear-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
                       <div className="text-4xl mb-4">📊</div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
                         Coming Soon
@@ -881,7 +882,7 @@ export default function RecruiterProfilePage() {
                       </p>
                       <button
                         onClick={() => setActiveTab("overview")}
-                        className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg text-sm font-medium hover:shadow transition-all"
+                        className="mt-4 px-4 py-2 bg-linear-to-r from-blue-500 to-purple-500 text-white rounded-lg text-sm font-medium hover:shadow transition-all"
                       >
                         Back to Overview
                       </button>
@@ -916,7 +917,7 @@ export default function RecruiterProfilePage() {
                       onClick={() => openVerificationModal("pending")}
                       className={`w-full px-4 py-3 rounded-lg text-sm flex items-center justify-center gap-3 transition-all duration-200 ${
                         recruiter.verificationStatus === "pending"
-                          ? "bg-gradient-to-r from-yellow-50 to-amber-50 text-yellow-800 border-2 border-yellow-200 shadow-sm"
+                          ? "bg-linear-to-r from-yellow-50 to-amber-50 text-yellow-800 border-2 border-yellow-200 shadow-sm"
                           : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-300 hover:border-gray-400 hover:shadow-sm"
                       }`}
                     >
@@ -935,7 +936,7 @@ export default function RecruiterProfilePage() {
                       onClick={() => openVerificationModal("verified")}
                       className={`w-full px-4 py-3 rounded-lg text-sm flex items-center justify-center gap-3 transition-all duration-200 ${
                         recruiter.verificationStatus === "verified"
-                          ? "bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-2 border-green-200 shadow-sm"
+                          ? "bg-linear-to-r from-green-50 to-emerald-50 text-green-800 border-2 border-green-200 shadow-sm"
                           : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-300 hover:border-gray-400 hover:shadow-sm"
                       }`}
                     >
@@ -954,7 +955,7 @@ export default function RecruiterProfilePage() {
                       onClick={() => openVerificationModal("rejected")}
                       className={`w-full px-4 py-3 rounded-lg text-sm flex items-center justify-center gap-3 transition-all duration-200 ${
                         recruiter.verificationStatus === "rejected"
-                          ? "bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-2 border-red-200 shadow-sm"
+                          ? "bg-linear-to-r from-red-50 to-rose-50 text-red-800 border-2 border-red-200 shadow-sm"
                           : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-300 hover:border-gray-400 hover:shadow-sm"
                       }`}
                     >
@@ -1015,7 +1016,7 @@ export default function RecruiterProfilePage() {
 
                 {/* Interview Time */}
                 <div className="pt-6 border-t border-gray-200">
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
+                  <div className="bg-linear-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
                     <div className="flex items-start gap-3">
                       <div className="p-3 bg-white rounded-lg shadow-sm">
                         <ClockIcon className="h-6 w-6 text-purple-600" />
@@ -1032,7 +1033,7 @@ export default function RecruiterProfilePage() {
                         </p>
                         <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+                            className="bg-linear-to-r from-purple-500 to-pink-500 h-2 rounded-full"
                             style={{ width: "65%" }}
                           ></div>
                         </div>

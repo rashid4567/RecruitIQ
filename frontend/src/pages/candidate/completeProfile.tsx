@@ -1,11 +1,10 @@
-
 import type React from "react";
 import { useState } from "react";
 import { ArrowLeft, Upload, X, Check, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { candidateService } from "../../services/candidate/candidate.service";
 
-export const CompleteProfile: React.FC = () => {
+const CompleteProfile: React.FC = () => {
   const [formData, setFormData] = useState({
     jobTitle: "",
     yearsOfExperience: "",
@@ -112,7 +111,6 @@ export const CompleteProfile: React.FC = () => {
     } catch (err: any) {
       console.error("❌ FRONTEND ERROR:", err);
 
-      // Provide specific error messages
       if (err.response?.status === 401) {
         setError("Session expired. Please login again.");
         localStorage.clear();
@@ -463,3 +461,4 @@ export const CompleteProfile: React.FC = () => {
     </div>
   );
 };
+export default CompleteProfile;

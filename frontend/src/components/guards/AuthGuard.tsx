@@ -24,15 +24,15 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
     }
 
     try {
-      // Check if token is valid by making a simple API call
+  
       await api.get("/candidate/profile", {
-        validateStatus: (status) => status < 500 // Allow 401/403/404
+        validateStatus: (status) => status < 500 
       });
       
-      // Token is valid, redirect to appropriate page
+
       setShouldRedirect(true);
     } catch (error) {
-      // Token is invalid, clear localStorage
+     
       localStorage.removeItem("authToken");
       localStorage.removeItem("userRole");
       localStorage.removeItem("userId");

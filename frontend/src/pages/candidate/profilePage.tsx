@@ -112,7 +112,7 @@ export default function CandidateProfilePage() {
           educationLevel: profile.candidateProfile.educationLevel,
           skills: profile.candidateProfile.skills,
           preferredJobLocation: profile.candidateProfile.preferredJobLocation,
-          currentJobLocation: profile.candidateProfile.currentJobLocation, // 🔥 ADDED
+          currentJobLocation: profile.candidateProfile.currentJobLocation,
           linkedinUrl: profile.candidateProfile.linkedinUrl,
         })
       }

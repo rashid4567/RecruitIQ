@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { authService } from "../../services/auth/auth.service";
+import { getError } from "@/utils/getError"
 
 export default function AdminLogin() {
   const navigate = useNavigate()
@@ -22,15 +23,15 @@ export default function AdminLogin() {
         console.log("Role : ", localStorage.getItem("userRole"));
         console.log("Token : ", localStorage.getItem("authToken"))
         navigate("/admin/dashboard");
-    }catch(err: any){
-        alert(err?.response?.data?.message || "Admin login failed")
+    }catch(err: unknown){
+        alert(getError(err || "Admin login failed"))
     }finally{
         setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
       {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/5 rounded-full animate-blob"></div>
@@ -41,9 +42,9 @@ export default function AdminLogin() {
       <div className="relative w-full max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Left Side - Branding */}
-          <div className="hidden lg:flex flex-col justify-between h-screen lg:h-auto lg:min-h-96 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-3xl p-12 relative overflow-hidden shadow-2xl">
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+          <div className="hidden lg:flex flex-col justify-between h-screen lg:h-auto lg:min-h-96 bg-linear-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-3xl p-12 relative overflow-hidden shadow-2xl">
+            {/* linear overlay */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
 
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-8">
@@ -64,7 +65,7 @@ export default function AdminLogin() {
 
             {/* Image placeholder */}
             <div className="relative z-10 mb-12">
-              <div className="bg-gradient-to-br from-pink-400 to-orange-500 rounded-xl h-40 flex items-center justify-center overflow-hidden">
+              <div className="bg-linear-to-br from-pink-400 to-orange-500 rounded-xl h-40 flex items-center justify-center overflow-hidden">
                 <div className="text-center">
                   <div className="text-6xl mb-2">📊</div>
                   <p className="text-white/90 font-semibold">Analytics Dashboard</p>
@@ -79,13 +80,13 @@ export default function AdminLogin() {
 
           {/* Right Side - Login Form */}
           <div className="flex flex-col justify-center">
-            <div className="bg-white rounded-3xl shadow-xl p-8 md:p-10 backdrop-blur-xl bg-white/95">
+            <div className="bg-white rounded-3xl shadow-xl p-8 md:p-10 backdrop-blur-xl">
               {/* Logo for mobile */}
               <div className="flex lg:hidden items-center gap-2 mb-8">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <span className="text-xl font-bold text-white">⚡</span>
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   RecruitIQ
                 </span>
               </div>

@@ -25,6 +25,7 @@ import { Sidebar } from "../../../components/admin/sideBar"
 import { candidateService } from "../../../services/admin/admin.candidate.service"
 import type { Candidate,CandidateStatus } from "../../../types/admin/candidate.types"
 import  {useNavigate} from "react-router-dom"
+import { getError } from "@/utils/getError"
 export default function CandidateManagement() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -71,9 +72,9 @@ export default function CandidateManagement() {
         total: response.pagination.total,
         totalPages: Math.ceil(response.pagination.total / prev.limit)
       }))
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to load candidates:", err)
-      setError(err.response?.data?.message || "Failed to load candidates")
+      setError( getError(err, "Failed to load candidates"))
     } finally {
       setLoading(false)
     }
@@ -91,16 +92,16 @@ export default function CandidateManagement() {
         ))
       } else {
         await candidateService.unblockCandidate(candidateId)
-        // Update local state
+        
         setCandidates(prev => prev.map(candidate =>
           candidate.id === candidateId ? { ...candidate, status: "Active" } : candidate
         ))
       }
       
       setShowActionsMenu(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to update candidate status:", err)
-      alert(err.response?.data?.message || "Failed to update candidate status")
+      alert(getError(err || "Failed to update candidate status"))
     } finally {
       setActionLoading(false)
     }

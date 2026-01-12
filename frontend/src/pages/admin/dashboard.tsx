@@ -4,31 +4,54 @@ import { useState } from "react"
 import { Settings, Bell } from "lucide-react"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
 import { Sidebar } from "../../components/admin/sideBar"
-
+import type { ReactNode } from "react"
 const revenueData = [
   { name: "Starter Plan", value: 35, fill: "#6366f1" },
   { name: "Pro Plan", value: 45, fill: "#a855f7" },
   { name: "Enterprise Plan", value: 20, fill: "#ec4899" },
 ]
 
-const StatCard = ({ icon, label, value, change, color }: any) => (
+
+
+interface StatCardProps {
+  icon: ReactNode;
+  label: string;
+  value: string | number;
+  change?: string;
+  color: string;
+}
+
+const StatCard = ({
+  icon,
+  label,
+  value,
+  change,
+  color,
+}: StatCardProps) => (
   <div
-    className={`bg-gradient-to-br ${color} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer`}
+    className={`bg-linear-to-br ${color} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer`}
   >
     <div className="flex items-center justify-between mb-4">
       <span className="text-3xl">{icon}</span>
-      <span className="text-sm font-semibold opacity-80">{change}</span>
+      {change && (
+        <span className="text-sm font-semibold opacity-80">
+          {change}
+        </span>
+      )}
     </div>
+
     <h3 className="text-sm text-white/80 mb-1">{label}</h3>
     <p className="text-2xl font-bold">{value}</p>
   </div>
-)
+);
+
+
 
 export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="flex min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
       {/* Main Content */}
@@ -48,7 +71,7 @@ export default function AdminDashboard() {
               <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <Settings size={20} className="text-gray-600" />
               </button>
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:shadow-lg transition-all">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:shadow-lg transition-all">
                 A
               </div>
             </div>

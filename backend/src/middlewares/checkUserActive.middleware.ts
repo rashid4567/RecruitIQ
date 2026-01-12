@@ -9,46 +9,44 @@ export const checkUserActive = async (
   next: NextFunction
 ) => {
   try {
-    if (!req.user?.userId) {
+    const userId = req.user?.userId;
+    if (!userId) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
-        message: "Unauthorized Access",
-        code: "UNAUTHORIZED"
+        message: "Unauthorized access",
+        code: "UNAUTHORIZED",
       });
     }
 
-    const user = await UserModel.findById(req.user?.userId).select("isActive role");
-
+    const user = await UserModel.findById(userId).select("isActive role");
     if (!user) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({
+      return res.status(404).json({
         success: false,
         message: "User not found",
-        code: "USER_NOT_FOUND"
+        code: "USER_NOT_FOUND",
       });
     }
 
     if (!user.isActive) {
-      const message = 
-        user.role === "candidate" 
-          ? "Your candidate account has been deactivated. Please contact support for assistance."
-          : user.role === "recruiter"
-          ? "Your recruiter account has been deactivated. Please contact admin for assistance."
-          : "Your account has been deactivated. Please contact support.";
-
       return res.status(HTTP_STATUS.FORBIDDEN).json({
         success: false,
-        message: message,
-        code: "ACCOUNT_DEACTIVATED"
+        message:
+          user.role === "candidate"
+            ? "Your candidate account has been deactivated. Please contact support."
+            : user.role === "recruiter"
+            ? "Your recruiter account has been deactivated. Please contact admin."
+            : "Your account has been deactivated.",
+        code: "ACCOUNT_DEACTIVATED",
       });
     }
 
     next();
   } catch (err) {
-    console.error("User Active middleware error", err);
+    console.error("checkUserActive error:", err);
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: getError(err),
-      code: "INTERNAL_ERROR"
+      code: "INTERNAL_ERROR",
     });
   }
 };

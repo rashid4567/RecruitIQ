@@ -6,7 +6,8 @@ import authRoutes from "./auth";
 import candidateRoutes from "./candidate";
 import recruiterRoutes from "./recruiter";
 import adminRouter from "./admin";
-
+import { notFound } from "./middlewares/notFound.middleware";
+import { errorHandler } from "./middlewares/error.middleware";
 const app = express();
 app.use(
   cors({
@@ -22,11 +23,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/candidate", candidateRoutes);
 app.use("/api/recruiter", recruiterRoutes);
 app.use("/api/admin",adminRouter)
-app.get("/api/health", (_req, res) => {
-  res.json({
-    success: true,
-    message: "API is connected",
-  });
-});
 
+app.use(notFound);
+app.use(errorHandler)
 export default app;

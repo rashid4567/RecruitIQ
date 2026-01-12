@@ -6,9 +6,9 @@ import {
 } from "./candidate.controller";
 import { checkUserActive } from "../middlewares/checkUserActive.middleware";
 const router = Router();
-router.use(checkUserActive)
-router.use(authenticate)
 
+router.use(authenticate)
+router.use(checkUserActive)
 router.get("/profile", getCandidateProfile);
 router.put("/profile/complete", updateCandidateProfile);
 

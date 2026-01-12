@@ -6,6 +6,10 @@ import { getError } from "../utils/getErrorMessage";
 import { verifyRefreshToken, signAccessToken } from "../utils/jwt";
 import { createOTPforEmail } from "../otp/otp.service";
 import { findUserByEmail } from "./auth.repo";
+import { UserModel } from "../user/user.model";
+import path from "path";
+import { success } from "zod";
+import { floatSafeRemainder } from "zod/v4/core/util.cjs";
 
 const getCookieOptions = (): CookieOptions => {
   const isProduction = process.env.NODE_ENV === "production";
@@ -162,41 +166,61 @@ export const adminLogin = async (req: Request, res: Response) => {
   }
 };
 
+export const logout = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      path: "/",
+    });
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (err) {
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: getError(err),
+    });
+  }
+};
 
 
-export const refreshToken = (req: Request, res: Response) => {
+export const refreshToken = async (req: Request, res: Response) => {
   try {
     const token = req.cookies?.refreshToken;
-
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "No refresh token",
-      });
+      return res.status(401).json({ success: false, message: "No refresh token" });
     }
 
     const decoded = verifyRefreshToken(token);
 
+    const user = await UserModel.findById(decoded.userId).select("isActive role");
+    if (!user || !user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Account deactivated",
+        code: "ACCOUNT_DEACTIVATED",
+      });
+    }
+
     const newAccessToken = signAccessToken({
-      userId: decoded.userId,
-      role: decoded.role,
+      userId: user._id.toString(),
+      role: user.role,
     });
 
     res.status(200).json({
       success: true,
-      data: {
-        accessToken: newAccessToken,
-      },
+      data: { accessToken: newAccessToken },
     });
   } catch {
     res.clearCookie("refreshToken", { path: "/" });
-
-    res.status(401).json({
-      success: false,
-      message: "Invalid refresh token",
-    });
+    res.status(401).json({ success: false, message: "Invalid refresh token" });
   }
 };
+
 
 
 export const testCookies = (req: Request, res: Response) => {

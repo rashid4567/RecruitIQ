@@ -1,4 +1,3 @@
-// src/hooks/useAuthRedirect.ts
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,7 +14,6 @@ export const useAuthRedirect = () => {
         return;
       }
 
-      // Simple check: if we're on an auth page and have a token, redirect
       const currentPath = window.location.pathname;
       const authPages = ['/signin', '/signup', '/verify-otp', '/role-selection'];
       
@@ -37,7 +35,6 @@ export const useAuthRedirect = () => {
       }
     };
 
-    // Add a small delay to prevent race conditions
     const timer = setTimeout(checkAuthAndRedirect, 100);
     
     return () => clearTimeout(timer);

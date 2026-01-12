@@ -7,7 +7,8 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import type { SignInFormData } from "../../types/auth.types";
 import { authService } from "../../services/auth/auth.service";
 import { linkedInService } from "../../services/auth/linkedIn.service";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, type GoogleCredentialResponse } from "@react-oauth/google";
+import { getError } from "@/utils/getError";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -22,8 +23,7 @@ const SignIn = () => {
   const [linkedInLoading, setLinkedInLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // ✅ Google Response Handler
-  const handleGoogleResponse = async (response: any) => {
+  const handleGoogleResponse = async (response: GoogleCredentialResponse) => {
     try {
       setGoogleLoading(true);
       setError("");
@@ -45,9 +45,9 @@ const SignIn = () => {
           user.profileComplete ? "/recruiter/" : "/recruiter/complete-profile"
         );
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err.response?.data?.message || err.message || "Google sign-in failed"
+        getError(err|| "Google sign-in failed")
       );
     } finally {
       setGoogleLoading(false);
@@ -86,29 +86,23 @@ const SignIn = () => {
       } else if (user.role === "recruiter") {
         navigate("/recruiter/");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ Login error:", error);
-      console.error("❌ Error response:", error.response);
-
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Invalid email or password";
-      setError(errorMessage);
+      setError(getError(error,  "Invalid email or password"));
     } finally {
       setIsLoading(false);
     }
   };
 
-  // LinkedIn Sign In Handler
+  
   const handleLinkedInSignIn = (userType: "candidate" | "recruiter") => {
     setError("");
     setLinkedInLoading(true);
 
     try {
       linkedInService.redirectToLinkedIn(userType);
-    } catch (err: any) {
-      setError("Failed to initiate LinkedIn sign in. Please try again.");
+    } catch (err: unknown) {
+      setError(getError(err,"Failed to initiate LinkedIn sign in. Please try again."));
       setLinkedInLoading(false);
     }
   };

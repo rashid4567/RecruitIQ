@@ -3,8 +3,23 @@
 import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-import type { SignInFormData } from "../../types/auth.types";
+import { 
+  Eye, 
+  EyeOff, 
+  Mail, 
+  Lock, 
+  AlertCircle, 
+  CheckCircle, 
+  ArrowRight, 
+  ChevronRight,
+  Shield,
+  Sparkles,
+  Building2,
+  UserCircle,
+  Linkedin,
+  Globe
+} from "lucide-react";
+import type { SignInFormData } from "../../types/auth/auth.types";
 import { authService } from "../../services/auth/auth.service";
 import { linkedInService } from "../../services/auth/linkedIn.service";
 import { GoogleLogin, type GoogleCredentialResponse } from "@react-oauth/google";
@@ -14,6 +29,7 @@ const SignIn = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
   const [formData, setFormData] = useState<SignInFormData>({
     email: "",
     password: "",
@@ -22,11 +38,24 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [linkedInLoading, setLinkedInLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string): boolean => {
+    return password.length >= 6;
+  };
 
   const handleGoogleResponse = async (response: GoogleCredentialResponse) => {
     try {
       setGoogleLoading(true);
       setError("");
+      setSuccess("");
+      setFieldErrors({});
 
       const credential = response.credential;
       if (!credential) {
@@ -46,9 +75,8 @@ const SignIn = () => {
         );
       }
     } catch (err: unknown) {
-      setError(
-        getError(err|| "Google sign-in failed")
-      );
+      const errorMessage = getError(err, "Google sign-in failed. Please try again.");
+      setError(errorMessage);
     } finally {
       setGoogleLoading(false);
     }
@@ -61,13 +89,44 @@ const SignIn = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
 
-    // Clear error when user starts typing
+    // Clear specific field error when user starts typing
+    if (fieldErrors[name as keyof typeof fieldErrors]) {
+      setFieldErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+    
+    // Clear general error
     if (error) setError("");
+    if (success) setSuccess("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
+    
+    // Validate form
+    let hasError = false;
+    const newFieldErrors: { email?: string; password?: string } = {};
+
+    if (!formData.email.trim()) {
+      newFieldErrors.email = "Email is required";
+      hasError = true;
+    } else if (!validateEmail(formData.email)) {
+      newFieldErrors.email = "Please enter a valid email address";
+      hasError = true;
+    }
+
+    if (!formData.password) {
+      newFieldErrors.password = "Password is required";
+      hasError = true;
+    } else if (!validatePassword(formData.password)) {
+      newFieldErrors.password = "Password must be at least 6 characters";
+      hasError = true;
+    }
+
+    setFieldErrors(newFieldErrors);
+    if (hasError) return;
+
     setIsLoading(true);
 
     try {
@@ -81,28 +140,41 @@ const SignIn = () => {
       localStorage.setItem("userRole", user.role);
       localStorage.setItem("userId", user.id);
 
-      if (user.role === "candidate") {
-        navigate("/candidate/home");
-      } else if (user.role === "recruiter") {
-        navigate("/recruiter/");
-      }
+      setSuccess("Successfully signed in! Redirecting...");
+      
+      // Small delay to show success message
+      setTimeout(() => {
+        if (user.role === "candidate") {
+          navigate("/candidate/home");
+        } else if (user.role === "recruiter") {
+          navigate("/recruiter/");
+        }
+      }, 1000);
     } catch (error: unknown) {
       console.error("❌ Login error:", error);
-      setError(getError(error,  "Invalid email or password"));
+      const errorMessage = getError(error, "Invalid email or password. Please try again.");
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  
-  const handleLinkedInSignIn = (userType: "candidate" | "recruiter") => {
+  const handleLinkedInSignIn = (userType?: "candidate" | "recruiter") => {
+    if (!userType) {
+      setShowRoleSelector(true);
+      return;
+    }
+
     setError("");
+    setSuccess("");
+    setFieldErrors({});
     setLinkedInLoading(true);
 
     try {
       linkedInService.redirectToLinkedIn(userType);
     } catch (err: unknown) {
-      setError(getError(err,"Failed to initiate LinkedIn sign in. Please try again."));
+      const errorMessage = getError(err, "Failed to initiate LinkedIn sign in. Please try again.");
+      setError(errorMessage);
       setLinkedInLoading(false);
     }
   };
@@ -110,84 +182,191 @@ const SignIn = () => {
   const isAnyLoading = isLoading || linkedInLoading || googleLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center px-4 py-8 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-72 h-72 bg-blue-100/25 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-slate-100/25 rounded-full blur-3xl -z-10"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-50/50 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-radial from-transparent via-transparent to-blue-100/20"></div>
+      </div>
 
-      <div className="w-full max-w-sm">
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xl shadow-slate-100/50 backdrop-blur-sm">
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 bg-grid-slate-100/50 [mask-image:linear-gradient(0deg,white,transparent)]"></div>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Main Card */}
+        <div className="bg-white/95 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl shadow-blue-500/10 p-8 md:p-10">
           {/* Logo/Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-5">
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/40">
-                <span className="text-white font-bold text-base">R</span>
+          <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="relative">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40">
+                  <span className="text-white font-bold text-xl">RI</span>
+                </div>
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full flex items-center justify-center shadow-md">
+                  <Sparkles className="w-3 h-3 text-white" />
+                </div>
               </div>
-              <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
-                RecruitFlow
-              </h2>
+              <div className="text-left">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                  RecruitIQ
+                </h1>
+                <p className="text-xs text-slate-500 font-medium">Smart Hiring Platform</p>
+              </div>
             </div>
 
-            <h1 className="text-2xl font-bold text-slate-900 mb-2">
-              Welcome back
-            </h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Sign in to your account to access your dashboard.
+            <h2 className="text-2xl font-bold text-slate-900 mb-3">
+              Welcome Back 👋
+            </h2>
+            <p className="text-sm text-slate-600 leading-relaxed max-w-xs mx-auto">
+              Sign in to continue to your dashboard and manage your recruitment journey.
             </p>
           </div>
 
+          {/* Error/Success Messages */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-              {error}
+            <div className="mb-6 animate-fade-in">
+              <div className="p-4 bg-gradient-to-r from-red-50/90 to-red-50/70 border border-red-200 rounded-xl flex items-start gap-3">
+                <div className="flex-shrink-0 w-5 h-5">
+                  <AlertCircle className="w-full h-full text-red-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-red-800">{error}</p>
+                  <p className="text-xs text-red-600 mt-1">
+                    Please check your credentials and try again.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 animate-fade-in">
+              <div className="p-4 bg-gradient-to-r from-emerald-50/90 to-emerald-50/70 border border-emerald-200 rounded-xl flex items-start gap-3">
+                <div className="flex-shrink-0 w-5 h-5">
+                  <CheckCircle className="w-full h-full text-emerald-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-emerald-800">{success}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* LinkedIn Role Selector Modal */}
+          {showRoleSelector && (
+            <div className="mb-6 animate-fade-in">
+              <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-200 rounded-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-slate-900">Select your role to continue</h3>
+                  <button
+                    onClick={() => setShowRoleSelector(false)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => handleLinkedInSignIn("candidate")}
+                    disabled={linkedInLoading}
+                    className="group p-4 bg-white border border-blue-200 rounded-xl hover:border-blue-400 transition-all duration-300 hover:shadow-md"
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        <UserCircle className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-900">Candidate</span>
+                      <span className="text-xs text-slate-500">Job Seeker</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleLinkedInSignIn("recruiter")}
+                    disabled={linkedInLoading}
+                    className="group p-4 bg-white border border-blue-200 rounded-xl hover:border-blue-400 transition-all duration-300 hover:shadow-md"
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                        <Building2 className="w-5 h-5 text-indigo-600" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-900">Recruiter</span>
+                      <span className="text-xs text-slate-500">Hiring Manager</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
-            <div className="relative">
-              <label className="block text-sm font-semibold text-slate-900 mb-3">
-                Email Address
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-slate-400" />
+                  Email Address
+                </div>
               </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+              <div className="relative group">
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
-                  className="w-full pl-12 pr-4 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
+                  className={`w-full px-4 py-3.5 border ${fieldErrors.email ? 'border-red-300 bg-red-50/50' : 'border-slate-300 bg-white/50'} rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 placeholder:text-slate-400`}
                   required
                   disabled={isAnyLoading}
+                  aria-invalid={!!fieldErrors.email}
+                  aria-describedby={fieldErrors.email ? "email-error" : undefined}
                 />
               </div>
-              <p className="text-xs text-slate-500 mt-2">
-                Enter your registered email address
-              </p>
+              {fieldErrors.email && (
+                <p id="email-error" className="text-sm text-red-600 flex items-center gap-2 animate-slide-down">
+                  <AlertCircle className="w-4 h-4" />
+                  {fieldErrors.email}
+                </p>
+              )}
             </div>
 
             {/* Password Field */}
-            <div className="relative">
-              <label className="block text-sm font-semibold text-slate-900 mb-3">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-semibold text-slate-900">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-slate-400" />
+                    Password
+                  </div>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => navigate("/forgot-password")}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:underline underline-offset-2"
+                  disabled={isAnyLoading}
+                >
+                  Forgot password?
+                </button>
+              </div>
+              <div className="relative group">
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="••••••••"
-                  className="w-full pl-12 pr-12 py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white hover:border-slate-400"
+                  placeholder="Enter your password"
+                  className={`w-full px-4 pr-12 py-3.5 border ${fieldErrors.password ? 'border-red-300 bg-red-50/50' : 'border-slate-300 bg-white/50'} rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 placeholder:text-slate-400`}
                   required
                   disabled={isAnyLoading}
+                  aria-invalid={!!fieldErrors.password}
+                  aria-describedby={fieldErrors.password ? "password-error" : undefined}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-lg hover:bg-slate-100/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isAnyLoading}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -196,150 +375,190 @@ const SignIn = () => {
                   )}
                 </button>
               </div>
+              {fieldErrors.password && (
+                <p id="password-error" className="text-sm text-red-600 flex items-center gap-2 animate-slide-down">
+                  <AlertCircle className="w-4 h-4" />
+                  {fieldErrors.password}
+                </p>
+              )}
             </div>
 
-            {/* Options Row */}
-            <div className="flex items-center justify-between pt-2">
-              <label className="flex items-center gap-3 cursor-pointer">
+            {/* Remember Me */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-3 cursor-pointer group">
                 <div className="relative">
                   <input
                     type="checkbox"
                     name="rememberMe"
                     checked={formData.rememberMe}
                     onChange={handleChange}
-                    className="w-5 h-5 cursor-pointer appearance-none border border-slate-300 rounded-lg checked:bg-gradient-to-br checked:from-blue-500 checked:to-blue-600 checked:border-blue-600 transition-all"
+                    className="w-5 h-5 cursor-pointer appearance-none border-2 border-slate-300 rounded-lg checked:bg-gradient-to-br checked:from-blue-500 checked:to-blue-600 checked:border-blue-600 transition-all group-hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isAnyLoading}
                   />
                   {formData.rememberMe && (
                     <svg
-                      className="absolute inset-0 m-auto w-3 h-3 text-white pointer-events-none"
+                      className="absolute inset-0 m-auto w-3.5 h-3.5 text-white pointer-events-none"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
+                      strokeWidth={3}
                     >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth={3}
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
                   )}
                 </div>
-                <span className="text-sm font-medium text-slate-700">
-                  Remember me
+                <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
+                  Keep me signed in
                 </span>
               </label>
-              <button
-                type="button"
-                onClick={() => navigate("/forgot-password")}
-                className="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
-                disabled={isAnyLoading}
-              >
-                Forgot password?
-              </button>
             </div>
 
             {/* Sign In Button */}
             <button
               type="submit"
               disabled={isAnyLoading}
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/40 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none mt-2"
+              className="w-full py-4 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
             >
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Signing in...
-                </div>
-              ) : (
-                "Sign in"
-              )}
+              <div className="relative z-10 flex items-center justify-center gap-3">
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Sign In</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
           </form>
 
           {/* Divider */}
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-slate-200"></div>
-            <span className="text-xs text-slate-500 font-medium">
-              or continue with
-            </span>
-            <div className="flex-1 h-px bg-slate-200"></div>
+          <div className="my-8 relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200"></div>
+            </div>
+            <div className="relative flex justify-center">
+              <span className="px-4 bg-white text-xs text-slate-500 font-medium">
+                Or continue with
+              </span>
+            </div>
           </div>
 
           {/* Social Auth */}
-          <div className="space-y-2.5">
-            {/* Google Sign In - UPDATED */}
-            <div className="relative">
-              <GoogleLogin
-                onSuccess={(res) => {
-                  if (res.credential) {
-                    handleGoogleResponse({ credential: res.credential });
-                  }
-                }}
-                onError={() => setError("Google sign-in failed")}
-                theme="outline"
-                size="large"
-                shape="rectangular"
-                text="signin_with"
-                width="100%"
-                useOneTap={false}
-              />
-
+          <div className="space-y-4">
+            {/* Google Sign In */}
+            <div className="relative group">
+              <div className={`${googleLoading ? 'opacity-50' : 'group-hover:scale-[1.02]'} transition-transform duration-300`}>
+                <GoogleLogin
+                  onSuccess={(res) => {
+                    if (res.credential) {
+                      handleGoogleResponse({ credential: res.credential });
+                    }
+                  }}
+                  onError={() => setError("Google sign-in failed. Please try again.")}
+                  theme="outline"
+                  size="large"
+                  shape="rectangular"
+                  text="continue_with"
+                  width="100%"
+                  useOneTap={false}
+                  logo_alignment="center"
+                />
+              </div>
               {googleLoading && (
-                <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-xl">
-                  <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                  <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                 </div>
               )}
             </div>
 
-            {/* LinkedIn Sign In - Separate options for Candidate and Recruiter */}
-            <div className="grid grid-cols-2 gap-2.5">
+            {/* LinkedIn Sign In - Unified Button */}
+            <button
+              type="button"
+              onClick={() => handleLinkedInSignIn()}
+              disabled={linkedInLoading || isAnyLoading}
+              className="w-full py-3.5 px-4 bg-gradient-to-r from-[#0077B5] to-[#006699] hover:from-[#006699] hover:to-[#005587] text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-700/30 hover:shadow-xl hover:shadow-blue-700/40 disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
+            >
+              <div className="relative z-10 flex items-center justify-center gap-3">
+                {linkedInLoading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <Linkedin className="w-5 h-5" />
+                )}
+                <span>{linkedInLoading ? "Connecting..." : "Continue with LinkedIn"}</span>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#006699] to-[#005587] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+          </div>
+
+          {/* Sign Up Link */}
+          <div className="mt-10 pt-6 border-t border-slate-200">
+            <div className="text-center">
+              <p className="text-sm text-slate-600 mb-2">
+                New to RecruitIQ?
+              </p>
               <button
-                type="button"
-                onClick={() => handleLinkedInSignIn("candidate")}
+                onClick={() => navigate("/role-selection")}
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isAnyLoading}
-                className="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-blue-700/40 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z" />
-                </svg>
-                {linkedInLoading ? "..." : "Candidate"}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleLinkedInSignIn("recruiter")}
-                disabled={isAnyLoading}
-                className="bg-blue-900 hover:bg-blue-950 text-white font-semibold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-blue-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z" />
-                </svg>
-                {linkedInLoading ? "..." : "Recruiter"}
+                <span>Create your account</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
 
-          {/* Sign Up Link */}
-          <p className="text-center text-slate-600 mt-6 text-sm">
-            Don't have an account?{" "}
-            <button
-              onClick={() => navigate("/role-selection")}
-              className="text-blue-600 font-bold hover:text-blue-700 transition-colors"
-              disabled={isAnyLoading}
-            >
-              Create account
-            </button>
-          </p>
+          {/* Security & Trust Badges */}
+          <div className="mt-6 flex items-center justify-center gap-4 text-xs text-slate-500">
+            <div className="flex items-center gap-1">
+              <Shield className="w-3 h-3" />
+              <span>Secure</span>
+            </div>
+            <div className="w-px h-3 bg-slate-300"></div>
+            <div className="flex items-center gap-1">
+              <Globe className="w-3 h-3" />
+              <span>Trusted</span>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Animated CSS */}
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slide-down {
+          from { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+        
+        .animate-slide-down {
+          animation: slide-down 0.2s ease-out;
+        }
+        
+        .bg-grid-slate-100\/50 {
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(226 232 240 / 0.2)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+        }
+        
+        .bg-gradient-radial {
+          background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(219, 234, 254, 0.1) 100%);
+        }
+      `}</style>
     </div>
   );
 };

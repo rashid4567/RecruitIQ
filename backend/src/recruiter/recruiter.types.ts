@@ -7,3 +7,9 @@ export interface UpdateRecruiterProfileInput {
   location?: string;
   bio?: string;
 }
+
+
+export interface UpdateUserProfileInput {
+  fullName?: string,
+  profileImage?:string,
+}

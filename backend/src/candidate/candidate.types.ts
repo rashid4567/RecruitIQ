@@ -9,8 +9,14 @@ export interface UpdateCandidateProfileInput {
   preferredJobLocation?: string[];
   currentJobLocation?: string;
   gender?: string;
+  bio?:string;
   linkedinUrl?: string;
   portfolioUrl?: string;
+}
+
+export interface UpdateUserProfileInput {
+  fullName?: string,
+  profileImage?:string,
 }
 
 export interface CandidateProfile {

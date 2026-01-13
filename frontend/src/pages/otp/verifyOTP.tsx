@@ -2,10 +2,10 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Mail, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
+import { Mail, ArrowLeft, AlertCircle, CheckCircle, Clock, Shield } from "lucide-react";
 import { authService } from "../../services/auth/auth.service";
 
-const OTP_EXPIRY_SECONDS = 600;
+const OTP_EXPIRY_SECONDS = 60
 
 type VerifyOTPState = {
   email: string;
@@ -13,6 +13,10 @@ type VerifyOTPState = {
   password: string;
   role: "candidate" | "recruiter";
 };
+
+
+const OTP_STORAGE_KEY = "otp_expiry";
+const EMAIL_STORAGE_KEY = "otp_email";
 
 const VerifyOTP = () => {
   const navigate = useNavigate();
@@ -29,6 +33,36 @@ const VerifyOTP = () => {
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  const getSavedExpiryTime = () => {
+    const savedExpiry = localStorage.getItem(OTP_STORAGE_KEY);
+    const savedEmail = localStorage.getItem(EMAIL_STORAGE_KEY);
+    
+    if (!savedExpiry || !savedEmail) return null;
+    
+    const expiryTime = parseInt(savedExpiry, 10);
+    const currentTime = Math.floor(Date.now() / 1000);
+    
+    if (currentTime >= expiryTime) {
+     
+      clearOtpStorage();
+      return null;
+    }
+    
+    return { expiryTime, email: savedEmail };
+  };
+
+  const saveExpiryTime = (email: string) => {
+    const expiryTime = Math.floor(Date.now() / 1000) + OTP_EXPIRY_SECONDS;
+    localStorage.setItem(OTP_STORAGE_KEY, expiryTime.toString());
+    localStorage.setItem(EMAIL_STORAGE_KEY, email);
+    return expiryTime;
+  };
+
+  const clearOtpStorage = () => {
+    localStorage.removeItem(OTP_STORAGE_KEY);
+    localStorage.removeItem(EMAIL_STORAGE_KEY);
+  };
+
   useEffect(() => {
     const locationState = location.state as VerifyOTPState | undefined;
     
@@ -38,7 +72,6 @@ const VerifyOTP = () => {
       return;
     }
 
-    // Validate required fields
     if (!locationState.email || !locationState.fullName || !locationState.password || !locationState.role) {
       console.error("Missing required fields in state:", locationState);
       navigate("/role-selection");
@@ -47,6 +80,23 @@ const VerifyOTP = () => {
 
     console.log("📨 Received state:", locationState);
     setState(locationState);
+
+    
+    const savedData = getSavedExpiryTime();
+    const currentEmail = locationState.email.trim().toLowerCase();
+    
+    if (savedData && savedData.email.toLowerCase() === currentEmail) {
+
+      const currentTime = Math.floor(Date.now() / 1000);
+      const remainingTime = Math.max(0, savedData.expiryTime - currentTime);
+      setTimeLeft(remainingTime);
+      console.log(`⏰ Loaded remaining time from storage: ${remainingTime}s`);
+    } else {
+
+      saveExpiryTime(currentEmail);
+      setTimeLeft(OTP_EXPIRY_SECONDS);
+    }
+
     setIsLoading(false);
   }, [location, navigate]);
 
@@ -54,11 +104,28 @@ const VerifyOTP = () => {
     if (isLoading || timeLeft <= 0) return;
 
     const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
+      setTimeLeft((prev) => {
+        const newTime = prev - 1;
+   
+        if (state && newTime % 10 === 0) {
+          saveExpiryTime(state.email.trim().toLowerCase());
+        }
+        
+        return newTime;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isLoading, timeLeft]);
+  }, [isLoading, timeLeft, state]);
+
+
+  useEffect(() => {
+    return () => {
+      if (success) {
+        clearOtpStorage();
+      }
+    };
+  }, [success]);
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -115,7 +182,7 @@ const VerifyOTP = () => {
     setError("");
 
     try {
-      // Prepare data for API
+
       const payload = {
         email: email.trim(),
         otp: otpString,
@@ -129,6 +196,8 @@ const VerifyOTP = () => {
       await authService.verifyOtpAndRegister(payload);
 
       setSuccess(true);
+      clearOtpStorage(); // Clear storage on success
+      
       setTimeout(() => {
         if (role === "candidate") {
           navigate("/candidate/profile/complete");
@@ -137,7 +206,7 @@ const VerifyOTP = () => {
         }
       }, 1500);
     } catch (err: any) {
-      console.error("❌ Full OTP Verification Error:", err);
+      console.error(" Full OTP Verification Error:", err);
       
       let errorMessage = "Invalid OTP. Please try again.";
       
@@ -166,7 +235,7 @@ const VerifyOTP = () => {
   };
 
   const handleResend = async () => {
-    if (!state || timeLeft > 0) return;
+    if (!state) return;
 
     setIsResending(true);
     setError("");
@@ -174,9 +243,19 @@ const VerifyOTP = () => {
     try {
       console.log("🔄 Resending OTP to:", state.email, "with role:", state.role);
       await authService.sendOTP(state.email, state.role);
+      
+      // Save new expiry time
+      saveExpiryTime(state.email.trim().toLowerCase());
+      
       setOtp(Array(6).fill(""));
       setTimeLeft(OTP_EXPIRY_SECONDS);
       inputRefs.current[0]?.focus();
+      
+      // Show success message
+      setError("");
+      setTimeout(() => {
+        // You could add a success toast here
+      }, 100);
     } catch (err: any) {
       console.error("Resend error:", err);
       setError(err.response?.data?.message || "Failed to resend OTP");
@@ -192,10 +271,10 @@ const VerifyOTP = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p>Loading verification...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-sm text-gray-600">Loading verification...</p>
         </div>
       </div>
     );
@@ -203,11 +282,17 @@ const VerifyOTP = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
-          <h2 className="text-2xl font-bold">Registration Successful</h2>
-          <p>Redirecting to profile setup...</p>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
+        <div className="text-center space-y-6 max-w-md">
+          <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
+            <CheckCircle className="w-10 h-10 text-white" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-gray-900">Registration Successful!</h2>
+            <p className="text-gray-600">Your account has been created successfully.</p>
+            <p className="text-sm text-gray-500">Redirecting to profile setup...</p>
+          </div>
+          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
         </div>
       </div>
     );
@@ -215,11 +300,22 @@ const VerifyOTP = () => {
 
   if (!state) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
-          <h2 className="text-2xl font-bold">Missing Information</h2>
-          <p>Redirecting to signup...</p>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-rose-50 flex items-center justify-center p-4">
+        <div className="text-center space-y-6 max-w-md">
+          <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-rose-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
+            <AlertCircle className="w-10 h-10 text-white" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-gray-900">Missing Information</h2>
+            <p className="text-gray-600">Required information is missing for verification.</p>
+            <p className="text-sm text-gray-500">Redirecting to signup...</p>
+          </div>
+          <button
+            onClick={() => navigate("/role-selection")}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:shadow-lg transition-all duration-300"
+          >
+            Go to Sign Up
+          </button>
         </div>
       </div>
     );
@@ -228,84 +324,132 @@ const VerifyOTP = () => {
   const { email, role } = state;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50/50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        {/* Back Button */}
         <button 
           onClick={() => navigate(-1)} 
-          className="mb-4 flex items-center gap-2 text-blue-600 hover:text-blue-800"
+          className="mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors disabled:opacity-50"
           disabled={isVerifying || isResending}
         >
           <ArrowLeft className="w-5 h-5" />
-          Back
+          Back to signup
         </button>
 
-        <div className="text-center mb-6">
-          <Mail className="w-10 h-10 mx-auto text-blue-600" />
-          <h1 className="text-2xl font-bold mt-2">Verify your email</h1>
-          <p className="text-sm text-gray-600 break-all">{email}</p>
-          <p className="text-xs text-gray-500 mt-1">
-            OTP sent to register as <strong>{role}</strong>
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex gap-2 items-start">
-            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-            <p className="text-sm text-red-700 font-medium">{error}</p>
-          </div>
-        )}
-
-        <div className="flex justify-between mb-6">
-          {otp.map((digit, i) => (
-            <input
-              key={i}
-              ref={(el) => (inputRefs.current[i] = el)}
-              value={digit}
-              onChange={(e) => handleChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              onPaste={i === 0 ? handlePaste : undefined}
-              maxLength={1}
-              className="w-12 h-12 border text-center text-xl rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              disabled={isVerifying || isResending}
-            />
-          ))}
-        </div>
-
-        <button
-          onClick={handleVerify}
-          disabled={isVerifying || timeLeft <= 0}
-          className={`w-full py-3 rounded mb-4 font-semibold transition-all ${
-            isVerifying
-              ? "bg-gray-400 cursor-not-allowed"
-              : timeLeft <= 0
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
-          }`}
-        >
-          {isVerifying ? (
-            <span className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              Verifying...
-            </span>
-          ) : (
-            "Verify OTP"
-          )}
-        </button>
-
-        <div className="text-center text-sm">
-          {timeLeft > 0 ? (
-            <div className="text-gray-600">
-              OTP expires in <span className="font-bold">{formatTime(timeLeft)}</span>
+        {/* Main Card */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/40 p-8 shadow-xl shadow-blue-500/10">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/30">
+              <Mail className="w-8 h-8 text-white" />
             </div>
-          ) : (
-            <button
-              onClick={handleResend}
-              disabled={isResending}
-              className="text-blue-600 font-semibold hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
-            >
-              {isResending ? "Sending..." : "Resend OTP"}
-            </button>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Verify your email</h1>
+            <p className="text-sm text-gray-600 break-all mb-1">{email}</p>
+            <div className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+              <Shield className="w-3 h-3" />
+              Registering as <span className="font-semibold ml-1 capitalize">{role}</span>
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-red-50/80 border border-red-200 rounded-xl flex items-start gap-3 animate-fade-in">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">{error}</p>
+              </div>
+            </div>
           )}
+
+          {/* OTP Inputs */}
+          <div className="mb-8">
+            <div className="flex justify-between gap-2 mb-6">
+              {otp.map((digit, i) => (
+                <input
+                  key={i}
+                  ref={(el) => (inputRefs.current[i] = el)}
+                  value={digit}
+                  onChange={(e) => handleChange(i, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(i, e)}
+                  onPaste={i === 0 ? handlePaste : undefined}
+                  maxLength={1}
+                  className="w-14 h-14 border-2 text-center text-2xl font-bold rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  disabled={isVerifying || isResending}
+                  aria-label={`OTP digit ${i + 1}`}
+                />
+              ))}
+            </div>
+            
+            {/* Timer */}
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Clock className={`w-4 h-4 ${timeLeft < 60 ? 'text-red-500' : 'text-blue-500'}`} />
+              <span className={`text-sm font-medium ${timeLeft < 60 ? 'text-red-600' : 'text-gray-600'}`}>
+                {timeLeft > 0 ? (
+                  <>OTP expires in <span className="font-bold">{formatTime(timeLeft)}</span></>
+                ) : (
+                  <span className="text-red-600 font-semibold">OTP expired</span>
+                )}
+              </span>
+            </div>
+
+            {/* Paste hint */}
+            <p className="text-center text-xs text-gray-500">
+              Paste OTP or type each digit
+            </p>
+          </div>
+
+          {/* Verify Button */}
+          <button
+            onClick={handleVerify}
+            disabled={isVerifying || timeLeft <= 0}
+            className={`w-full py-4 px-4 rounded-xl font-bold transition-all duration-300 mb-4 shadow-lg ${
+              isVerifying || timeLeft <= 0
+                ? "bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white hover:shadow-xl"
+            }`}
+          >
+            {isVerifying ? (
+              <span className="flex items-center justify-center gap-3">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Verifying...
+              </span>
+            ) : (
+              "Verify OTP"
+            )}
+          </button>
+
+          {/* Resend OTP */}
+          <div className="text-center">
+            {timeLeft > 0 ? (
+              <p className="text-sm text-gray-500">
+                Didn't receive OTP? Resend in{" "}
+                <span className="font-medium text-blue-600">{formatTime(timeLeft)}</span>
+              </p>
+            ) : (
+              <button
+                onClick={handleResend}
+                disabled={isResending}
+                className="text-blue-600 hover:text-blue-800 font-semibold text-sm transition-colors disabled:text-gray-400 disabled:cursor-not-allowed inline-flex items-center gap-2"
+              >
+                {isResending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    Sending...
+                  </>
+                ) : (
+                  "Resend OTP"
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Security Note */}
+        <div className="mt-6 text-center">
+          <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+            <Shield className="w-3 h-3" />
+            Your OTP is stored locally and expires automatically
+          </p>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { RecruiterProfileModel } from "./recruiterProfile.model";
-import { UpdateRecruiterProfileInput } from "./candidate.types";
+import { UpdateRecruiterProfileInput } from "./recruiter.types";
 
 export const findRecruiterProfileByUser = (userId: string) => {
   return RecruiterProfileModel.findOne({ userId });

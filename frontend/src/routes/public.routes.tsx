@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
 import RouteLoader from "../components/RouterLoader";
-import NavigateToSignupWithRole from "./NavigateToSignupWithRole";
+import NavigateToSignupWithRole from "./protector/NavigateToSignupWithRole";
 
 const LandingPage = lazy(() => import("../pages/landing/landingPage"));
 const RoleSelection = lazy(() => import("../pages/auth/RoleSelection"));

@@ -51,7 +51,6 @@ export const authService = {
 
   googleLogin: googleService.googleLogin,
 
-  // ✅ SINGLE, SAFE LOGOUT
   logout: async (redirect: boolean = true) => {
     try {
       await api.post("/auth/logout");

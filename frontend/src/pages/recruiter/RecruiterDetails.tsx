@@ -1,11 +1,13 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { ArrowLeft, Upload, Check } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import type React from "react";
+import { useState } from "react";
+import { Upload, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import RecruiterHeader from "../../components/recruiter/header";
 
- const RecruiterDetails: React.FC = () => {
+
+const RecruiterDetails: React.FC = () => {
   const [formData, setFormData] = useState({
     companyName: "",
     companyWebsite: "",
@@ -15,26 +17,49 @@ import { useNavigate } from "react-router-dom"
     location: "",
     bio: "",
     logo: null as File | null,
-  })
+  });
 
-  const [selectedPlan, setSelectedPlan] = useState("free")
-  const navigate = useNavigate()
+  
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const [selectedPlan, setSelectedPlan] = useState("free");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file && file.size <= 2 * 1024 * 1024) {
-      setFormData((prev) => ({ ...prev, logo: file }))
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("File size must be less than 2MB");
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        alert("Please upload an image file");
+        return;
+      }
+      setFormData((prev) => ({ ...prev, logo: file }));
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
+    // Form validation
+    if (!formData.companyName.trim()) {
+      alert("Company name is required");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     const recruiterProfileData = {
       companyName: formData.companyName,
       companyWebsite: formData.companyWebsite || undefined,
@@ -44,17 +69,29 @@ import { useNavigate } from "react-router-dom"
       location: formData.location || undefined,
       bio: formData.bio || undefined,
       subscriptionStatus: selectedPlan === "free" ? "free" : "active",
-      jobPostsUsed: 0, 
-      verificationStatus: "pending", 
-      
-    }
+      jobPostsUsed: 0,
+      verificationStatus: "pending",
+    };
 
- 
-    console.log("Saving recruiter profile:", recruiterProfileData)
-    
-    
-     navigate("/")
-  }
+    // Simulate API call
+    try {
+      console.log("Saving recruiter profile:", recruiterProfileData);
+
+      // TODO: Replace with actual API call
+      // await recruiterService.createProfile(recruiterProfileData)
+
+      // Show success message
+      alert("Profile created successfully!");
+
+      // Navigate to next page
+      navigate("/recruiter/dashboard");
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      alert("Failed to save profile. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const plans = [
     {
@@ -74,7 +111,12 @@ import { useNavigate } from "react-router-dom"
       price: "$59",
       period: "/month",
       description: "Best for growing teams needing powerful recruitment tools.",
-      features: ["Unlimited Job Posts", "Advanced Candidate Search", "AI Candidate Matching", "14-Day Free Trial"],
+      features: [
+        "Unlimited Job Posts",
+        "Advanced Candidate Search",
+        "AI Candidate Matching",
+        "14-Day Free Trial",
+      ],
       button: "Choose Plan",
       isSelected: false,
       badge: "MOST POPULAR",
@@ -85,13 +127,19 @@ import { useNavigate } from "react-router-dom"
       name: "Premium",
       price: "$149",
       period: "/month",
-      description: "For enterprises seeking comprehensive, integrated solutions.",
-      features: ["All Plus Features", "Dedicated Account Manager", "Priority Support", "API Access"],
+      description:
+        "For enterprises seeking comprehensive, integrated solutions.",
+      features: [
+        "All Plus Features",
+        "Dedicated Account Manager",
+        "Priority Support",
+        "API Access",
+      ],
       button: "Choose Plan",
       isSelected: false,
       subscriptionStatus: "active" as const,
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-slate-50 py-8">
@@ -102,49 +150,20 @@ import { useNavigate } from "react-router-dom"
       </div>
 
       <div className="relative max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-              <span className="text-white font-bold">R</span>
-            </div>
-            <span className="font-bold text-blue-600">RecruitFlow AI</span>
-          </div>
-          <button onClick={() => navigate(-1)} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
-          </button>
-        </div>
-
-        {/* Progress bar */}
-        <div className="mb-8 space-y-2 animate-slide-up">
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-slate-600 font-medium">Step 3 of 5</span>
-            <span className="text-slate-600 font-medium">60% Complete</span>
-          </div>
-          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-            <div
-              className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
-              style={{ width: "60%" }}
-            />
-          </div>
-        </div>
+        {/* Use RecruiterHeader component */}
+        <RecruiterHeader/>
 
         {/* Main content */}
         <div className="space-y-8 animate-slide-up">
           {/* Company form */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="text-center space-y-2 mb-8">
-              <h1 className="text-4xl font-bold text-slate-900">Tell Us About Your Company</h1>
-              <p className="text-slate-600">
-                Provide details about your company and select a suitable plan to get started.
-              </p>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Two column layout */}
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-900">Company Name *</label>
+                  <label className="block text-sm font-semibold text-slate-900">
+                    Company Name *
+                  </label>
                   <input
                     type="text"
                     name="companyName"
@@ -157,7 +176,9 @@ import { useNavigate } from "react-router-dom"
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-900">Company Website</label>
+                  <label className="block text-sm font-semibold text-slate-900">
+                    Company Website
+                  </label>
                   <input
                     type="url"
                     name="companyWebsite"
@@ -169,7 +190,9 @@ import { useNavigate } from "react-router-dom"
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-900">Company Size</label>
+                  <label className="block text-sm font-semibold text-slate-900">
+                    Company Size
+                  </label>
                   <select
                     name="companySize"
                     value={formData.companySize}
@@ -185,7 +208,9 @@ import { useNavigate } from "react-router-dom"
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-900">Industry</label>
+                  <label className="block text-sm font-semibold text-slate-900">
+                    Industry
+                  </label>
                   <select
                     name="industry"
                     value={formData.industry}
@@ -204,7 +229,9 @@ import { useNavigate } from "react-router-dom"
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-900">Designation</label>
+                  <label className="block text-sm font-semibold text-slate-900">
+                    Designation
+                  </label>
                   <input
                     type="text"
                     name="designation"
@@ -216,7 +243,9 @@ import { useNavigate } from "react-router-dom"
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-900">Location</label>
+                  <label className="block text-sm font-semibold text-slate-900">
+                    Location
+                  </label>
                   <input
                     type="text"
                     name="location"
@@ -230,7 +259,9 @@ import { useNavigate } from "react-router-dom"
 
               {/* Bio field - Full width */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-slate-900">Bio / About Company</label>
+                <label className="block text-sm font-semibold text-slate-900">
+                  Bio / About Company
+                </label>
                 <textarea
                   name="bio"
                   value={formData.bio}
@@ -243,7 +274,9 @@ import { useNavigate } from "react-router-dom"
 
               {/* Logo upload */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-slate-900">Logo Upload</label>
+                <label className="block text-sm font-semibold text-slate-900">
+                  Logo Upload
+                </label>
                 <div className="relative border-2 border-dashed border-blue-300 rounded-xl p-8 text-center hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer bg-linear-to-b from-blue-50 to-transparent">
                   <input
                     type="file"
@@ -256,8 +289,11 @@ import { useNavigate } from "react-router-dom"
                       <Upload className="w-8 h-8 text-blue-500" />
                     </div>
                     <p className="text-sm text-slate-600">
-                      Drag & drop your logo here, or <span className="text-blue-500 font-medium">click to browse</span>.
-                      Max 2MB.
+                      Drag & drop your logo here, or{" "}
+                      <span className="text-blue-500 font-medium">
+                        click to browse
+                      </span>
+                      . Max 2MB.
                     </p>
                   </div>
                   {formData.logo && (
@@ -272,9 +308,13 @@ import { useNavigate } from "react-router-dom"
 
           {/* Pricing plans - maps to subscriptionStatus in schema */}
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-slate-900 text-center">Select Your Plan</h2>
+            <h2 className="text-3xl font-bold text-slate-900 text-center">
+              Select Your Plan
+            </h2>
             <p className="text-center text-slate-600">
-              Your plan selection will determine your <span className="font-semibold">subscriptionStatus</span> in the system
+              Your plan selection will determine your{" "}
+              <span className="font-semibold">subscriptionStatus</span> in the
+              system
             </p>
 
             <div className="grid grid-cols-3 gap-6">
@@ -301,13 +341,17 @@ import { useNavigate } from "react-router-dom"
                   )}
 
                   <div className="space-y-4">
-                    <h3 className="text-2xl font-bold text-slate-900">{plan.name}</h3>
+                    <h3 className="text-2xl font-bold text-slate-900">
+                      {plan.name}
+                    </h3>
                     <p className="text-slate-600 text-sm">{plan.description}</p>
 
                     <div className="space-y-1">
                       <div className="text-4xl font-bold text-slate-900">
                         {plan.price}
-                        <span className="text-lg text-slate-600 font-normal">{plan.period}</span>
+                        <span className="text-lg text-slate-600 font-normal">
+                          {plan.period}
+                        </span>
                       </div>
                       <div className="text-xs text-slate-500 font-medium">
                         Status: {plan.subscriptionStatus.toUpperCase()}
@@ -318,7 +362,9 @@ import { useNavigate } from "react-router-dom"
                       {plan.features.map((feature, i) => (
                         <div key={i} className="flex items-start gap-3">
                           <Check className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-                          <span className="text-sm text-slate-700">{feature}</span>
+                          <span className="text-sm text-slate-700">
+                            {feature}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -348,18 +394,19 @@ import { useNavigate } from "react-router-dom"
             >
               Back
             </button>
-            <button 
-              type="button"
+            <button
+              type="submit"
               onClick={handleSubmit}
-              className="flex-1 py-3 px-4 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+              disabled={isSubmitting}
+              className="flex-1 py-3 px-4 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Continue
+              {isSubmitting ? "Processing..." : "Continue"}
             </button>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RecruiterDetails
+export default RecruiterDetails;

@@ -15,4 +15,11 @@ export const recruiterService = {
     const res = await api.put("/recruiter/profile", payload);
     return res.data.data;
   },
+
+  updatePassword : async (payload : {
+    currentPassword : string,
+    newPassword : string,
+  }) : Promise<void> =>{
+    await api.put("/recruiter/profile/password", payload);
+  }
 };

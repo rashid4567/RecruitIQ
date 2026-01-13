@@ -1,7 +1,7 @@
-// src/candidate/candidate.repo.ts
 import { candidateProfileModel } from "./candidateProfile.model";
 import { UpdateCandidateProfileInput } from "./candidate.types";
 import { UserModel } from "../user/user.model";
+
 
 export const findCandidateProfileByUserId =async (userId: string) => {
   const user = await UserModel.findById(userId).select(
@@ -42,3 +42,7 @@ export const updateCandidateProfileByUserId = (
      }
   );
 };
+
+export const updateUserById = (userId : string, data : Partial<{fullName : string, profileImage : string}>)=>{
+  return UserModel.findByIdAndUpdate(userId, data,{new : true, runValidators : true})
+}

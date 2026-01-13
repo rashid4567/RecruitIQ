@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
-import ProtectedRoute from "./ProtectedRoute";
+import ProtectedRoute from "./protector/ProtectedRoute";
 import RecruiterLayout from "../layout/RecruiterLayout";
 import RouteLoader from "../components/RouterLoader";
 

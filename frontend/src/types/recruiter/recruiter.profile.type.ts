@@ -1,4 +1,6 @@
 export interface RecruiterProfileData {
+  fullName?: string;
+  profileImage?: string;
   companyName?: string;
   companyWebsite?: string;
   companySize?: string;
@@ -11,7 +13,9 @@ export interface RecruiterProfileData {
 export interface RecruiterProfileResponse {
   _id: string;
   userId: string;
+  fullName?: string;
   companyName?: string;
+   profileImage?: string;
   companyWebsite?: string;
   companySize?: string;
   industry?: string;

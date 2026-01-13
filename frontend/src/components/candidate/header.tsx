@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { authService } from "@/services/auth/auth.service"
-import { useNavigate } from "react-router-dom" // or your routing method
+import { useNavigate } from "react-router-dom"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -22,14 +22,14 @@ export default function Header() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Check if user is logged in on component mount
+   
     checkAuthStatus()
   }, [])
 
   const checkAuthStatus = () => {
     const token = localStorage.getItem("authToken")
     const role = localStorage.getItem("userRole")
-    const fullName = localStorage.getItem("userFullName") // You might need to store this during login
+    const fullName = localStorage.getItem("userFullName") 
     
     setIsLoggedIn(!!token)
     setUserRole(role)
@@ -44,7 +44,7 @@ export default function Header() {
       setIsLoggedIn(false)
       setUserRole(null)
       setUserName(null)
-      navigate("/") // Redirect to home page
+      navigate("/") 
     } catch (error) {
       console.error("Logout failed:", error)
     }
@@ -52,7 +52,7 @@ export default function Header() {
 
   const handleProfileClick = () => {
     if (userRole === "candidate") {
-      navigate("/candidate/profile")
+      navigate("/candidate/profile/setting")
     } else if (userRole === "recruiter") {
       navigate("/recruiter-dashboard")
     } else if (userRole === "admin") {
@@ -150,12 +150,7 @@ export default function Header() {
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
-                  {userRole === "candidate" && (
-                    <DropdownMenuItem onClick={() => navigate("/candidate/profile")} className="cursor-pointer">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>My Profile</span>
-                    </DropdownMenuItem>
-                  )}
+               
                   {userRole === "recruiter" && (
                     <DropdownMenuItem onClick={() => navigate("/recruiter-dashboard")} className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />

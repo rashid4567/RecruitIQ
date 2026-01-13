@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserIcon, BriefcaseIcon, ArrowRight } from "lucide-react";
-import type { UserRole } from "../../types/auth.types";
+import type { UserRole } from "../../types/auth/auth.types";
 
 const RoleSelection = () => {
   const navigate = useNavigate();

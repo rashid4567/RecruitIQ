@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu, X, User, LogOut, Briefcase, Home, Settings, Bell, Search, HelpCircle } from "lucide-react"
+import { Menu, X, User, LogOut } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -10,68 +10,41 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
 import { authService } from "@/services/auth/auth.service"
 import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Input } from "@/components/ui/input"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userRole, setUserRole] = useState<string | null>(null)
-  const [userName, setUserName] = useState<string>("")
-  const [userEmail, setUserEmail] = useState<string>("")
-  const [notifications, setNotifications] = useState(3)
+  const [userName, setUserName] = useState<string | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
+   
     checkAuthStatus()
-    // Listen for auth changes
-    window.addEventListener('storage', checkAuthStatus)
-    window.addEventListener('authChange', checkAuthStatus)
-    
-    return () => {
-      window.removeEventListener('storage', checkAuthStatus)
-      window.removeEventListener('authChange', checkAuthStatus)
-    }
   }, [])
 
   const checkAuthStatus = () => {
-    const token = localStorage.getItem("token")
-    const userStr = localStorage.getItem("user")
+    const token = localStorage.getItem("authToken")
+    const role = localStorage.getItem("userRole")
+    const fullName = localStorage.getItem("userFullName") 
     
     setIsLoggedIn(!!token)
-    
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr)
-        setUserRole(user.role)
-        setUserName(user.name || user.fullName || "User")
-        setUserEmail(user.email || "")
-      } catch {
-        // Handle parse error
-      }
+    setUserRole(role)
+    if (fullName) {
+      setUserName(fullName)
     }
   }
 
   const handleLogout = async () => {
     try {
       await authService.logout()
-      localStorage.removeItem("token")
-      localStorage.removeItem("user")
-      localStorage.removeItem("refreshToken")
-      
       setIsLoggedIn(false)
       setUserRole(null)
-      setUserName("")
-      setUserEmail("")
-      
-      window.dispatchEvent(new Event('authChange'))
-      navigate("/")
+      setUserName(null)
+      navigate("/") 
     } catch (error) {
       console.error("Logout failed:", error)
     }
@@ -82,16 +55,8 @@ export default function Header() {
       navigate("/candidate/profile")
     } else if (userRole === "recruiter") {
       navigate("/recruiter/profile")
-    }
-  }
-
-  const handleDashboardClick = () => {
-    if (userRole === "candidate") {
-      navigate("/candidate/home")
-    } else if (userRole === "recruiter") {
-      navigate("/recruiter/")
     } else if (userRole === "admin") {
-      navigate("/admin/dashboard")
+      navigate("/admin-dashboard")
     }
   }
 
@@ -105,480 +70,202 @@ export default function Header() {
       .slice(0, 2)
   }
 
-  const getRoleLabel = () => {
-    if (!userRole) return "Guest"
-    return userRole.charAt(0).toUpperCase() + userRole.slice(1)
-  }
-
-  // Navigate to specific pages based on user role and login status
-  const handleFindJobs = () => {
-    if (isLoggedIn && userRole === "candidate") {
-      navigate("/candidate/home")
-    } else if (isLoggedIn && userRole === "recruiter") {
-      navigate("/recruiter/")
-    } else {
-      navigate("/jobs")
-    }
-  }
-
-  const handlePostJobs = () => {
-    if (isLoggedIn && userRole === "recruiter") {
-      navigate("/recruiter/")
-    } else if (!isLoggedIn) {
-      navigate("/signup?role=recruiter")
-    } else {
-      // If logged in but not recruiter, redirect to role selection
-      navigate("/role-selection")
-    }
-  }
-
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          
-          {/* Logo Section */}
-          <div className="flex items-center gap-2 lg:gap-3">
-            {/* Mobile Menu Button */}
-            <button
-              className="lg:hidden -ml-2 p-2 text-muted-foreground hover:text-foreground"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </button>
+    <header className="fixed top-0 left-0 right-0 z-50">
+      <div className="absolute inset-0 bg-linear-to-b from-white/80 via-white/70 to-white/0 backdrop-blur-xl"></div>
 
-            {/* Logo */}
-            <div 
-              className="flex items-center gap-2 cursor-pointer group"
-              onClick={() => navigate("/")}
-            >
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                <span className="text-white font-bold text-sm">R</span>
-              </div>
-              <div className="hidden sm:block">
-                <span className="text-xl font-bold tracking-tight text-gray-900">
-                  RecruitIQ
-                </span>
-                <span className="block text-xs text-gray-500 font-medium tracking-wide">
-                  Talent & Careers
-                </span>
-              </div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20 md:h-24">
+          {/* Logo */}
+          <div 
+            className="flex items-center gap-3 group cursor-pointer"
+            onClick={() => navigate("/")}
+          >
+            <div className="w-10 h-10 bg-linear-to-br from-blue-600 via-cyan-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:shadow-xl group-hover:shadow-blue-500/50 transition-all duration-300 transform group-hover:scale-110">
+              <span className="text-white font-bold text-xl">◇</span>
             </div>
+            <span className="font-bold text-xl text-gray-900">RecruitIQ</span>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/")}
-              className="gap-2 hover:bg-gray-100 text-gray-700"
+          <nav className="hidden md:flex items-center gap-8">
+            <a
+              href="#features"
+              className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
             >
-              <Home className="h-4 w-4" />
-              Home
-            </Button>
-            
-            {/* Find Jobs - Shows for everyone */}
-            <Button
-              variant="ghost"
-              onClick={handleFindJobs}
-              className="gap-2 hover:bg-gray-100 text-gray-700"
+              Features
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a
+              href="/jobs"
+              className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
             >
-              <Briefcase className="h-4 w-4" />
-              {isLoggedIn && userRole === "recruiter" ? "Find Candidates" : "Find Jobs"}
-            </Button>
-            
-            {/* Post Jobs - Only for recruiters or redirect to signup */}
-            {(isLoggedIn && userRole === "recruiter") || !isLoggedIn ? (
-              <Button
-                variant="ghost"
-                onClick={handlePostJobs}
-                className="gap-2 hover:bg-gray-100 text-gray-700"
-              >
-                <Briefcase className="h-4 w-4" />
-                {isLoggedIn && userRole === "recruiter" ? "Post Jobs" : "For Employers"}
-              </Button>
-            ) : null}
-            
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/about")}
-              className="gap-2 hover:bg-gray-100 text-gray-700"
+              Jobs
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a
+              href="#"
+              className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
             >
-              <HelpCircle className="h-4 w-4" />
-              About
-            </Button>
+              About Us
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a
+              href="#"
+              className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
+            >
+              Contact
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+            </a>
           </nav>
 
-          {/* Right Section */}
-          <div className="flex items-center gap-2 lg:gap-4">
-            
-            {/* Search Bar - Desktop (for logged in users) */}
-            {isLoggedIn && (
-              <div className="hidden md:block relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <Input
-                  placeholder={userRole === "recruiter" ? "Search candidates..." : "Search jobs..."}
-                  className="pl-9 w-48 lg:w-64 h-9 bg-gray-50 border-gray-200 focus:w-72 transition-all"
-                />
-              </div>
-            )}
-
-            {/* Auth Buttons / Profile */}
+          {/* Auth Buttons / Profile */}
+          <div className="flex items-center gap-3">
             {isLoggedIn ? (
-              <>
-                {/* Notifications */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="relative hover:bg-gray-100"
-                    >
-                      <Bell className="h-5 w-5" />
-                      {notifications > 0 && (
-                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
-                          {notifications}
-                        </span>
-                      )}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-80">
-                    <DropdownMenuLabel className="flex items-center justify-between">
-                      <span>Notifications</span>
-                      <Badge variant="secondary" className="h-5 px-1.5 text-xs">
-                        {notifications} new
-                      </Badge>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <div className="max-h-96 overflow-y-auto">
-                      <div className="p-3 hover:bg-gray-100 cursor-pointer border-b">
-                        <div className="flex items-start gap-3">
-                          <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                            <Briefcase className="h-4 w-4 text-blue-600" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">New Job Application</p>
-                            <p className="text-xs text-gray-500">John Doe applied for Senior Designer</p>
-                            <p className="text-xs text-gray-500 mt-1">2 minutes ago</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="p-3 hover:bg-gray-100 cursor-pointer border-b">
-                        <div className="flex items-start gap-3">
-                          <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                            <User className="h-4 w-4 text-emerald-600" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">Profile Viewed</p>
-                            <p className="text-xs text-gray-500">TechCorp viewed your profile</p>
-                            <p className="text-xs text-gray-500 mt-1">1 hour ago</p>
-                          </div>
-                        </div>
-                      </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 hover:bg-gray-100 rounded-full p-2 transition duration-300">
+                    <Avatar className="h-10 w-10 border-2 border-blue-500/20 hover:border-blue-500/50 transition duration-300">
+                      <AvatarImage src="/api/placeholder/40/40" />
+                      <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-500 text-white font-semibold">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden lg:block text-gray-700 font-medium">
+                      {userName || "Profile"}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{userName || "User"}</p>
+                      <p className="text-xs leading-none text-gray-500">
+                        {userRole ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)}` : "User"}
+                      </p>
                     </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer justify-center text-blue-600">
-                      View all notifications
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  {userRole === "candidate" && (
+                    <DropdownMenuItem onClick={() => navigate("/candidate/profile")} className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>My Profile</span>
                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* User Menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="gap-2 hover:bg-gray-100 h-9 px-2"
-                    >
-                      <Avatar className="h-8 w-8 border-2 border-white">
-                        <AvatarImage src="/api/placeholder/32/32" alt={userName} />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-medium text-sm">
-                          {getInitials()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="hidden lg:block text-left">
-                        <p className="text-sm font-medium leading-none">{userName}</p>
-                        <p className="text-xs text-gray-500 capitalize">{getRoleLabel()}</p>
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{userName}</p>
-                        <p className="text-xs leading-none text-gray-500">
-                          {userEmail}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem 
-                        onClick={handleDashboardClick}
-                        className="cursor-pointer gap-2"
-                      >
-                        <Home className="h-4 w-4" />
-                        Dashboard
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={handleProfileClick}
-                        className="cursor-pointer gap-2"
-                      >
-                        <User className="h-4 w-4" />
-                        My Profile
-                      </DropdownMenuItem>
-                      {userRole === "candidate" && (
-                        <DropdownMenuItem 
-                          onClick={() => navigate("/candidate/profile/setting")}
-                          className="cursor-pointer gap-2"
-                        >
-                          <Settings className="h-4 w-4" />
-                          Settings
-                        </DropdownMenuItem>
-                      )}
-                      {userRole === "recruiter" && (
-                        <DropdownMenuItem 
-                          onClick={() => navigate("/recruiter/profile")}
-                          className="cursor-pointer gap-2"
-                        >
-                          <Settings className="h-4 w-4" />
-                          Settings
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => navigate("/help")}
-                      className="cursor-pointer gap-2"
-                    >
-                      <HelpCircle className="h-4 w-4" />
-                      Help & Support
+                  )}
+                  {userRole === "recruiter" && (
+                    <DropdownMenuItem onClick={() => navigate("/recruiter/profile")} className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={handleLogout}
-                      className="cursor-pointer gap-2 text-red-600 focus:text-red-600"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Log out
+                  )}
+                  {userRole === "admin" && (
+                    <DropdownMenuItem onClick={() => navigate("/admin-dashboard")} className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Admin Panel</span>
                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
-                {/* Desktop Auth Buttons */}
-                <div className="hidden lg:flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate("/signin")}
-                    className="text-gray-700 hover:text-blue-600"
-                  >
-                    Sign In
-                  </Button>
-                  <Separator orientation="vertical" className="h-6" />
-                  <Button
-                    onClick={() => navigate("/role-selection")}
-                    className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white shadow-sm"
-                  >
-                    Get Started
-                  </Button>
-                </div>
-
-                {/* Mobile Auth Buttons */}
-                <div className="flex lg:hidden items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate("/signin")}
-                    className="text-gray-700 hover:text-blue-600"
-                  >
-                    Sign In
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => navigate("/role-selection")}
-                    className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white shadow-sm"
-                  >
-                    Get Started
-                  </Button>
-                </div>
+                <button 
+                  onClick={() => navigate("/login")}
+                  className="hidden md:block px-5 py-2 text-gray-700 font-medium hover:text-blue-600 transition duration-300"
+                >
+                  Sign In
+                </button>
+                <button 
+                  onClick={() => navigate("/register")}
+                  className="px-5 py-2 bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105"
+                >
+                  Register
+                </button>
               </>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 pt-4 pb-6 space-y-4 animate-in slide-in-from-top">
-            {/* Mobile Navigation */}
-            <div className="space-y-1">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  navigate("/")
-                  setIsMenuOpen(false)
-                }}
-                className="w-full justify-start gap-3 hover:bg-gray-100 text-gray-700"
-              >
-                <Home className="h-4 w-4" />
-                Home
-              </Button>
-              
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  handleFindJobs()
-                  setIsMenuOpen(false)
-                }}
-                className="w-full justify-start gap-3 hover:bg-gray-100 text-gray-700"
-              >
-                <Briefcase className="h-4 w-4" />
-                {isLoggedIn && userRole === "recruiter" ? "Find Candidates" : "Find Jobs"}
-              </Button>
-              
-              {(isLoggedIn && userRole === "recruiter") || !isLoggedIn ? (
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    handlePostJobs()
-                    setIsMenuOpen(false)
-                  }}
-                  className="w-full justify-start gap-3 hover:bg-gray-100 text-gray-700"
-                >
-                  <Briefcase className="h-4 w-4" />
-                  {isLoggedIn && userRole === "recruiter" ? "Post Jobs" : "For Employers"}
-                </Button>
-              ) : null}
-              
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  navigate("/about")
-                  setIsMenuOpen(false)
-                }}
-                className="w-full justify-start gap-3 hover:bg-gray-100 text-gray-700"
-              >
-                <HelpCircle className="h-4 w-4" />
-                About Us
-              </Button>
-            </div>
-
-            {/* Mobile Search for logged in users */}
-            {isLoggedIn && (
-              <>
-                <Separator />
-                <div className="px-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                    <Input
-                      placeholder={userRole === "recruiter" ? "Search candidates..." : "Search jobs..."}
-                      className="pl-9 w-full h-9 bg-gray-50 border-gray-200"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Mobile User Info for logged in users */}
-            {isLoggedIn && (
-              <>
-                <Separator />
-                <div className="px-1 space-y-4">
-                  <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-100">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
+          <div className="md:hidden pb-6 space-y-4 animate-in fade-in slide-in-from-top-2">
+            <a href="#features" className="block text-gray-700 hover:text-blue-600 font-medium">
+              Features
+            </a>
+            <a href="/jobs" className="block text-gray-700 hover:text-blue-600 font-medium">
+              Jobs
+            </a>
+            <a href="#" className="block text-gray-700 hover:text-blue-600 font-medium">
+              About Us
+            </a>
+            <a href="#" className="block text-gray-700 hover:text-blue-600 font-medium">
+              Contact
+            </a>
+            
+            {/* Mobile Auth Menu */}
+            <div className="pt-4 border-t border-gray-200">
+              {isLoggedIn ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-blue-100 text-blue-600">
                         {getInitials()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium">{userName}</p>
-                      <p className="text-sm text-gray-500 capitalize">{getRoleLabel()}</p>
+                      <p className="text-sm font-medium">{userName || "User"}</p>
+                      <p className="text-xs text-gray-500">{userRole || "User"}</p>
                     </div>
                   </div>
-                  
-                  <div className="space-y-1">
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        handleDashboardClick()
-                        setIsMenuOpen(false)
-                      }}
-                      className="w-full justify-start gap-3 hover:bg-gray-100 text-gray-700"
-                    >
-                      <Home className="h-4 w-4" />
-                      Dashboard
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        handleProfileClick()
-                        setIsMenuOpen(false)
-                      }}
-                      className="w-full justify-start gap-3 hover:bg-gray-100 text-gray-700"
-                    >
-                      <User className="h-4 w-4" />
-                      My Profile
-                    </Button>
-                    {userRole === "candidate" && (
-                      <Button
-                        variant="ghost"
-                        onClick={() => {
-                          navigate("/candidate/profile/setting")
-                          setIsMenuOpen(false)
-                        }}
-                        className="w-full justify-start gap-3 hover:bg-gray-100 text-gray-700"
-                      >
-                        <Settings className="h-4 w-4" />
-                        Settings
-                      </Button>
-                    )}
-                    {userRole === "recruiter" && (
-                      <Button
-                        variant="ghost"
-                        onClick={() => {
-                          navigate("/recruiter/profile")
-                          setIsMenuOpen(false)
-                        }}
-                        className="w-full justify-start gap-3 hover:bg-gray-100 text-gray-700"
-                      >
-                        <Settings className="h-4 w-4" />
-                        Settings
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        navigate("/help")
-                        setIsMenuOpen(false)
-                      }}
-                      className="w-full justify-start gap-3 hover:bg-gray-100 text-gray-700"
-                    >
-                      <HelpCircle className="h-4 w-4" />
-                      Help & Support
-                    </Button>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <Button
-                    variant="ghost"
+                  <button
+                    onClick={handleProfileClick}
+                    className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium"
+                  >
+                    Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left text-red-600 hover:text-red-700 font-medium"
+                  >
+                    Log out
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <button 
                     onClick={() => {
-                      handleLogout()
+                      navigate("/login")
                       setIsMenuOpen(false)
                     }}
-                    className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium"
                   >
-                    <LogOut className="h-4 w-4" />
-                    Log out
-                  </Button>
+                    Sign In
+                  </button>
+                  <button 
+                    onClick={() => {
+                      navigate("/register")
+                      setIsMenuOpen(false)
+                    }}
+                    className="px-4 py-2 bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg text-center"
+                  >
+                    Register
+                  </button>
                 </div>
-              </>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -26,6 +26,9 @@ const candidateProfileSchema = new Schema ({
         type :[String],
         default : [],
     },
+    bio : {
+        type : String,
+    },
     currentJobLocation : {
         type : String,
     },

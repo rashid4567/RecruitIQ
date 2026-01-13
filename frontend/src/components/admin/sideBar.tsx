@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
 import {
   LayoutDashboard,
   Activity,
@@ -18,15 +19,15 @@ import {
 } from "lucide-react"
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", id: "dashboard" },
-  { icon: Activity, label: "Activity Logs", id: "activity" },
-  { icon: Briefcase, label: "Recruiter Management", id: "recruiter" },
-  { icon: Users, label: "Candidate Management", id: "candidate" },
-  { icon: CreditCard, label: "Subscribers", id: "subscribers" },
-  { icon: TrendingUp, label: "Plans Overview", id: "plans" },
-  { icon: Mail, label: "Email Template Management", id: "templates" },
-  { icon: MailIcon, label: "Email Logs", id: "logs" },
-  { icon: Settings, label: "Settings", id: "settings" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
+  { icon: Activity, label: "Activity Logs", path: "/admin/coming-soon" },
+  { icon: Briefcase, label: "Recruiter Management", path: "/admin/recruiters" },
+  { icon: Users, label: "Candidate Management", path: "/admin/candidates" },
+  { icon: CreditCard, label: "Subscribers", path: "/admin/coming-soon" },
+  { icon: TrendingUp, label: "Plans Overview", path: "/admin/coming-soon" },
+  { icon: Mail, label: "Email Template Management", path: "/admin/coming-soon" },
+  { icon: MailIcon, label: "Email Logs", path: "/admin/coming-soon" },
+  { icon: Settings, label: "Settings", path: "/admin/coming-soon" },
 ]
 
 interface SidebarProps {
@@ -35,8 +36,9 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
-  const [activeItem, setActiveItem] = useState("dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(isOpen)
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
@@ -45,23 +47,24 @@ export function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
+      {/* Mobile Toggle */}
       <button
         onClick={toggleSidebar}
-        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-black transition-colors"
+        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg bg-white border border-gray-200"
       >
         {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
       <aside
-        className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-200 shadow-lg transition-all duration-300 z-40 overflow-hidden ${
+        className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-200 shadow-lg transition-all duration-300 z-40 ${
           sidebarOpen ? "w-64" : "w-20"
         } lg:relative`}
       >
         <div className="flex flex-col h-full">
+          {/* Logo */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center gap-3 justify-center">
-              <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">⚡</span>
               </div>
               {sidebarOpen && (
@@ -73,27 +76,29 @@ export function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
             </div>
           </div>
 
+          {/* Menu */}
           <nav className="flex-1 overflow-y-auto p-3 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon
-              const isActive = activeItem === item.id
+              const isActive = location.pathname.startsWith(item.path)
+
               return (
                 <button
-                  key={item.id}
-                  onClick={() => setActiveItem(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group relative ${
-                    isActive ? "bg-black text-white shadow-md" : "text-black hover:bg-gray-100 active:bg-gray-200"
+                  key={item.label}
+                  onClick={() => navigate(item.path)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                    isActive
+                      ? "bg-black text-white shadow-md"
+                      : "text-black hover:bg-gray-100"
                   }`}
-                  title={sidebarOpen ? "" : item.label}
                 >
-                  <Icon
-                    size={20}
-                    className="transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
-                  />
+                  <Icon size={20} />
                   {sidebarOpen && (
                     <>
-                      <span className="text-sm font-medium flex-1 text-left">{item.label}</span>
-                      {isActive && <ChevronRight size={16} className="opacity-90 transition-transform duration-200" />}
+                      <span className="text-sm font-medium flex-1 text-left">
+                        {item.label}
+                      </span>
+                      {isActive && <ChevronRight size={16} />}
                     </>
                   )}
                 </button>
@@ -101,23 +106,26 @@ export function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
             })}
           </nav>
 
+          {/* Logout */}
           <div className="p-3 border-t border-gray-200">
             <button
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-black hover:bg-red-50 hover:text-red-600 active:bg-red-100 transition-all duration-200 group"
-              title={sidebarOpen ? "" : "Log Out"}
+              onClick={() => navigate("/admin/login")}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 hover:text-red-600"
             >
-              <LogOut
-                size={20}
-                className="transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
-              />
+              <LogOut size={20} />
               {sidebarOpen && <span className="text-sm font-medium">Log Out</span>}
             </button>
           </div>
         </div>
       </aside>
 
-      {/* Mobile Overlay */}
-      {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={toggleSidebar} />}
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={toggleSidebar}
+        />
+      )}
     </>
   )
 }

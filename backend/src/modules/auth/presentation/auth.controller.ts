@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { HTTP_STATUS } from "../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../constants/httpStatus";
 
 export class AuthController {
   constructor(

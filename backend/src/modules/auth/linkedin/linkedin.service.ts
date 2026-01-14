@@ -5,7 +5,7 @@ import {
   createCandidateProfile,
   createRecruiterProfile,
 } from "../auth.repo";
-import { signAccessToken, signRefreshToken } from "../../utils/jwt";
+import { signAccessToken, signRefreshToken } from "../../../utils/jwt";
 import {
   LinkedInTokenResponse,
   LinkedInProfile,

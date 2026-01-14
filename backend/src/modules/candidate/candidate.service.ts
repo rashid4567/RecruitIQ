@@ -8,7 +8,7 @@ import {
   UpdateCandidateProfileInput,
   UpdateUserProfileInput,
 } from "./candidate.types";
-import { UserModel } from "../auth/infrastructure/mongoose/model/user.model";
+import { UserModel } from "../modules/auth/infrastructure/mongoose/model/user.model";
 import { comparePassword, hashPassword } from "../utils/hash";
 
 

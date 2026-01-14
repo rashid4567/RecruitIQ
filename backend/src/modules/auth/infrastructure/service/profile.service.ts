@@ -1,5 +1,5 @@
-import { candidateProfileModel } from "../../../candidate/candidateProfile.model";
-import { RecruiterProfileModel } from "../../../recruiter/recruiterProfile.model";
+import { candidateProfileModel } from "../../../../candidate/candidateProfile.model";
+import { RecruiterProfileModel } from "../../../../recruiter/recruiterProfile.model";
 
 export class ProfileService {
   async createProfile(userId: string, role: string) {

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { UserModel } from "../auth/infrastructure/mongoose/model/user.model";
+import { UserModel } from "../modules/auth/infrastructure/mongoose/model/user.model";
 import { HTTP_STATUS } from "../constants/httpStatus";
 import { getError } from "../utils/getErrorMessage";
 

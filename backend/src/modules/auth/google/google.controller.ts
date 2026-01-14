@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { CookieOptions } from "express";
-import { HTTP_STATUS } from "../../constants/httpStatus";
-import { getError } from "../../utils/getErrorMessage";
+import { HTTP_STATUS } from "../../../constants/httpStatus";
+import { getError } from "../../../utils/getErrorMessage";
 import { googleLoginService } from "./google.service";
 
 const getCookieOptions = (): CookieOptions => {

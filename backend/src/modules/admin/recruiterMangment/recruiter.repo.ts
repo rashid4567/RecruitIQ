@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { UserModel } from "../../auth/infrastructure/mongoose/model/user.model";
+import { UserModel } from "../../modules/auth/infrastructure/mongoose/model/user.model";
 import { RecruiterProfileModel } from "../../recruiter/recruiterProfile.model";
 import { VerificationStatus } from "./recruiter.types";
 

@@ -5,7 +5,7 @@ import {
   createCandidateProfile,
   createRecruiterProfile,
 } from "../auth.repo";
-import { signAccessToken, signRefreshToken } from "../../utils/jwt";
+import { signAccessToken, signRefreshToken } from "../../../utils/jwt";
 
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);

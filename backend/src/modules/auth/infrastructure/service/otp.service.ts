@@ -1,6 +1,6 @@
 import { otpModel } from "../mongoose/model/otp.model";
-import { sendOtp } from "../../../utils/email";
-import { generateOTP, hashOTP } from "../../../utils/otp";
+import { sendOtp } from "../../../../utils/email";
+import { generateOTP, hashOTP } from "../../../../utils/otp";
 import { OTPServicePort  } from "../../application/ports/opt.service.ports";
 
 export class OTPService implements OTPServicePort {

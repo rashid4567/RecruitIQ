@@ -1,6 +1,6 @@
 import { candidateProfileModel } from "./candidateProfile.model";
 import { UpdateCandidateProfileInput } from "./candidate.types";
-import { UserModel } from "../auth/infrastructure/mongoose/model/user.model";
+import { UserModel } from "../modules/auth/infrastructure/mongoose/model/user.model";
 
 
 export const findCandidateProfileByUserId =async (userId: string) => {

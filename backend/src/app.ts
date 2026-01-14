@@ -2,10 +2,10 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-import authRoutes from "./auth/presentation/auth.routes";
-import candidateRoutes from "./candidate";
-import recruiterRoutes from "./recruiter";
-import adminRouter from "./admin";
+import authRoutes from "./modules/auth/presentation/auth.routes";
+import candidateRoutes from "./modules/candidate";
+import recruiterRoutes from "./modules/recruiter";
+import adminRouter from "./modules/admin";
 import { notFound } from "./middlewares/notFound.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
 const app = express();

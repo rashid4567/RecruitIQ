@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { TokenServicePort } from "../../application/ports/token.service";
-import { User } from "../..//domain/entities/user.entity";
+import { User } from "../../domain/entities/user.entity";
 
 export class TokenService implements TokenServicePort {
   generateToken(user: User) {

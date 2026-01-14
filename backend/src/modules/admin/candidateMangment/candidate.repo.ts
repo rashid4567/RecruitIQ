@@ -1,5 +1,5 @@
 import { PipelineStage, Types } from "mongoose";
-import { UserModel } from "../../auth/infrastructure/mongoose/model/user.model";
+import { UserModel } from "../../modules/auth/infrastructure/mongoose/model/user.model";
 
 interface GetCandidatesArgs {
   search: string;

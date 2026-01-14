@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { linkedinLogin } from "./linkedin.service";
-import { HTTP_STATUS } from "../../constants/httpStatus";
-import { getError } from "../../utils/getErrorMessage";
+import { HTTP_STATUS } from "../../../constants/httpStatus";
+import { getError } from "../../../utils/getErrorMessage";
 import { CookieOptions } from "express";
 
 const getCookieOptions = (): CookieOptions => {

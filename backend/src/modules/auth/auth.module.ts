@@ -4,7 +4,7 @@ import { RefreshTokenUseCase } from "./application/useCase/refreshToken.useCase"
 import { SendRegistrationOTPUseCase } from "./application/useCase/send-registration-otp.usecase";
 import { VerifyRegistrationUseCase } from "./application/useCase/verify-registration.usecase";
 
-import { UserRepository } from "../auth/domain/repositories/user.repository";
+import { UserRepository } from "./domain/repositories/user.repository";
 import { MongooseUserRepository } from "./infrastructure/repositories/mongoose-use.repository";
 import { OTPService } from "./infrastructure/service/otp.service";
 

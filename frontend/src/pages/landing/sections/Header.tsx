@@ -178,13 +178,13 @@ export default function Header() {
             ) : (
               <>
                 <button 
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate("/signin")}
                   className="hidden md:block px-5 py-2 text-gray-700 font-medium hover:text-blue-600 transition duration-300"
                 >
                   Sign In
                 </button>
                 <button 
-                  onClick={() => navigate("/register")}
+                  onClick={() => navigate("/role-selection")}
                   className="px-5 py-2 bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105"
                 >
                   Register

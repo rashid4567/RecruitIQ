@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-import authRoutes from "./auth";
+import authRoutes from "./auth/presentation/auth.routes";
 import candidateRoutes from "./candidate";
 import recruiterRoutes from "./recruiter";
 import adminRouter from "./admin";
@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/candidate", candidateRoutes);
-app.use("/api/recruiter", recruiterRoutes);
+app.use("/api/recruiter", recruiterRoutes); 
 app.use("/api/admin",adminRouter)
 
 app.use(notFound);

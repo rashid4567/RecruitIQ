@@ -316,7 +316,7 @@ const SignIn = () => {
                   onChange={handleChange}
                   placeholder="you@example.com"
                   className={`w-full px-4 py-3.5 border ${fieldErrors.email ? 'border-red-300 bg-red-50/50' : 'border-slate-300 bg-white/50'} rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 placeholder:text-slate-400`}
-                  required
+                  
                   disabled={isAnyLoading}
                   aria-invalid={!!fieldErrors.email}
                   aria-describedby={fieldErrors.email ? "email-error" : undefined}
@@ -356,7 +356,7 @@ const SignIn = () => {
                   onChange={handleChange}
                   placeholder="Enter your password"
                   className={`w-full px-4 pr-12 py-3.5 border ${fieldErrors.password ? 'border-red-300 bg-red-50/50' : 'border-slate-300 bg-white/50'} rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 placeholder:text-slate-400`}
-                  required
+                  
                   disabled={isAnyLoading}
                   aria-invalid={!!fieldErrors.password}
                   aria-describedby={fieldErrors.password ? "password-error" : undefined}

@@ -6,8 +6,6 @@ function App() {
   return (
     <Router>
       <AppRoutes />
-
-
       <Toaster richColors position="top-right" />
     </Router>
   );

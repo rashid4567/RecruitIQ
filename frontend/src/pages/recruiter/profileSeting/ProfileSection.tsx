@@ -277,7 +277,7 @@ export function ProfileSection() {
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <div className="h-12 w-12 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <User className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -329,13 +329,13 @@ export function ProfileSection() {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Avatar Section */}
             <div className="lg:w-1/3 space-y-6">
-              <div className="p-6 bg-gradient-to-br from-blue-50/50 to-indigo-50/30 rounded-2xl border border-blue-100/50">
+              <div className="p-6 bg-linear-to-br from-blue-50/50 to-indigo-50/30 rounded-2xl border border-blue-100/50">
                 <div className="relative mx-auto w-48 h-48">
                   <Avatar className="h-full w-full border-4 border-white shadow-xl">
                     {avatarPreview ? (
                       <AvatarImage src={avatarPreview} alt="Profile" className="object-cover" />
                     ) : (
-                      <div className="h-full w-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                      <div className="h-full w-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
                         <AvatarFallback className="bg-transparent text-white text-4xl font-bold">
                           {getInitials(currentName)}
                         </AvatarFallback>
@@ -345,7 +345,7 @@ export function ProfileSection() {
                   
                   {isEditing && (
                     <label htmlFor="avatar-upload" className="absolute -bottom-2 -right-2 cursor-pointer">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 hover:from-blue-600 hover:to-blue-700 flex items-center justify-center transition-all duration-300 hover:scale-105">
+                      <div className="h-12 w-12 rounded-full bg-linear-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 hover:from-blue-600 hover:to-blue-700 flex items-center justify-center transition-all duration-300 hover:scale-105">
                         <Upload className="h-5 w-5 text-white" />
                       </div>
                       <input
@@ -747,7 +747,7 @@ export function ProfileSection() {
                 </Button>
                 <Button
                   type="submit"
-                  className="h-11 px-6 gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl transition-all duration-300 disabled:opacity-70"
+                  className="h-11 px-6 gap-2 bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl transition-all duration-300 disabled:opacity-70"
                   disabled={isSubmitting || !isDirty}
                 >
                   {isSubmitting ? (
@@ -768,7 +768,7 @@ export function ProfileSection() {
                 type="button"
                 variant="default"
                 onClick={() => setIsEditing(true)}
-                className="h-11 px-6 gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                className="h-11 px-6 gap-2 bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
               >
                 <Edit className="h-4 w-4" />
                 Edit Profile

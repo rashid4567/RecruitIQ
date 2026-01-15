@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getRecruiterProfileController, getRecruiters, updateRecruiterStatusController, verifyRecruite } from "./recruiterMangment/recruiter.controller";
-import { authenticate } from "../middlewares/auth.middleware";
-import { requireAdmin } from "../middlewares/role.middleware";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { requireAdmin } from "../../middlewares/role.middleware";
 import { blockCandidate, getCandidate, getCandidateProfile, unblockCandidate } from "../admin/candidateMangment/candidate.controller";
 const router = Router()
 router.use(authenticate)

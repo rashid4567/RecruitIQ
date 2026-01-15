@@ -12,7 +12,9 @@ export class MongooseUserRepository implements UserRepository {
       u.email,
       u.role,
       u.fullName ?? "",
-      u.isActive ?? true
+      u.isActive ?? true,
+      u.authProvider ?? "local",
+      u.googleId ?? undefined
     );
   }
 
@@ -25,7 +27,9 @@ export class MongooseUserRepository implements UserRepository {
       u.email,
       u.role,
       u.fullName ?? "",
-      u.isActive ?? true
+      u.isActive ?? true,
+      u.authProvider ?? "local",
+      u.googleId ?? undefined
     );
   }
 
@@ -40,6 +44,7 @@ export class MongooseUserRepository implements UserRepository {
       password: passwordHash,
       role: user.role,
       fullName: user.fullName,
+      authProvider: "local"
     });
 
     return new User(
@@ -47,7 +52,35 @@ export class MongooseUserRepository implements UserRepository {
       doc.email,
       doc.role,
       doc.fullName ?? "",
-      doc.isActive ?? true
+      doc.isActive ?? true,
+      doc.authProvider,
+      doc.googleId ?? undefined
+    );
+  }
+
+  async createGoogleUser(input: {
+    email: string;
+    googleId: string;
+    fullName: string;
+    role: "candidate" | "recruiter";
+  }): Promise<User> {
+    const doc = await UserModel.create({
+      email: input.email,
+      role: input.role,
+      fullName: input.fullName,
+      authProvider: "google",
+      googleId: input.googleId,
+      password: null
+    });
+
+    return new User(
+      doc._id.toString(),
+      doc.email,
+      doc.role,
+      doc.fullName ?? "",
+      doc.isActive ?? true,
+      doc.authProvider,
+      doc.googleId ?? undefined
     );
   }
 }

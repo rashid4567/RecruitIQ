@@ -150,7 +150,7 @@ export default function AccountSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50 flex">
       {/* Sidebar */}
       <CandidateSidebar 
         user={{
@@ -181,7 +181,7 @@ export default function AccountSettingsPage() {
             </div>
             <Avatar className="h-10 w-10 ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
               <AvatarImage src={profile.user.profileImage || "/professional-dark-haired-man.png"} />
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold">
+              <AvatarFallback className="bg-linear-to-br from-blue-500 to-blue-600 text-white font-semibold">
                 {profile.user.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
               </AvatarFallback>
             </Avatar>

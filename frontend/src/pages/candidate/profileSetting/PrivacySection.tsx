@@ -24,7 +24,7 @@ export function PrivacySection() {
       </div>
       <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50 p-8">
         <div className="flex items-center gap-4 mb-6">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center">
+          <div className="h-12 w-12 rounded-xl bg-linear-to-br from-slate-600 to-slate-700 flex items-center justify-center">
             <Lock className="h-6 w-6 text-white" />
           </div>
           <div>
@@ -98,7 +98,7 @@ export function PrivacySection() {
                     value={privacySettings[item.id as keyof typeof privacySettings] as string}
                     onValueChange={(value) => setPrivacySettings(prev => ({ ...prev, [item.id]: value }))}
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-45">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

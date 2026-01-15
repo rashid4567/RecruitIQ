@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import type { AppContainer } from "../container/app.container";
 
 declare global {
   namespace Express {
@@ -7,6 +7,7 @@ declare global {
         userId: string;
         role: "admin" | "recruiter" | "candidate";
       };
+      container: AppContainer;
     }
   }
 }

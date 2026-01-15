@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { HTTP_STATUS } from "../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../constants/httpStatus";
 import { blockCandidateById, getCandidateList, getCanidateProfileById, unblockCandidateById } from "./candidate.service";
 import { success } from "zod";
 

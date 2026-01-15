@@ -33,7 +33,7 @@ export function NotificationsSection() {
       </div>
       <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50 p-8">
         <div className="flex items-center gap-4 mb-6">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+          <div className="h-12 w-12 rounded-xl bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center">
             <Bell className="h-6 w-6 text-white" />
           </div>
           <div>

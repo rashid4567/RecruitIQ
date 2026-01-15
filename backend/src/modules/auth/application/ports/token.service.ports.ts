@@ -4,6 +4,9 @@ export interface TokenServicePort{
     generateToken(user : User):{
         accessToken : string,
         refreshToken : string,
-        user : User
+    },
+    verifyToken(token : string):{
+        userId : string,
+        role : string,
     }
 }

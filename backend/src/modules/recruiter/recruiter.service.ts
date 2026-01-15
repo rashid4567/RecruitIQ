@@ -5,8 +5,8 @@ import {
   updateRecruiterProfileByUserId,
 } from "./recruiter.repo";
 import { UpdateRecruiterProfileInput, UpdateUserProfileInput } from "./recruiter.types";
-import { UserModel } from "../modules/auth/infrastructure/mongoose/model/user.model";
-import { comparePassword, hashPassword } from "../utils/hash";
+import { UserModel } from "../../modules/auth/infrastructure/mongoose/model/user.model";
+import { comparePassword, hashPassword } from "../../utils/hash";
 import { updateUserById } from "../candidate/candidate.repo";
 
 

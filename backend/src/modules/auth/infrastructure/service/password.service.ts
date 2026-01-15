@@ -1,10 +1,12 @@
-import bcrypt from "bcryptjs"
+import bcrypt from "bcryptjs";
+import { passwordServicePort } from "../../application/ports/password.service.port";
 
-export class PasswordService {
-    hash(password : string){
-        return bcrypt.hash(password,10)
+export class PasswordService implements passwordServicePort{
+    async hash(password : string):Promise<string>{
+        return bcrypt.hash(password, 10);
     }
-    compare(password : string, hash : string){
-        return bcrypt.compare(password,hash);
+
+    async compare(password : string, hash : string):Promise<boolean>{
+        return bcrypt.compare(password, hash)
     }
 }

@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import { getRecruiterList, getRecruiterProfileService, updateRecruiterStatus, verifyRecruiter} from "./recruiter.service";
-import { HTTP_STATUS } from "../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../constants/httpStatus";
 
 
 

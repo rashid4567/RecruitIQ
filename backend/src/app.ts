@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import authRoutes from "./modules/auth/presentation/auth.routes";
-import candidateRoutes from "./modules/candidate";
+import candidateRoutes from "./modules/candidate/presentation/candidate.routes";
 import recruiterRoutes from "./modules/recruiter";
 import adminRouter from "./modules/admin";
 import { notFound } from "./middlewares/notFound.middleware";

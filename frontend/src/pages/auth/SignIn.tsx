@@ -3,26 +3,29 @@
 import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Eye, 
-  EyeOff, 
-  Mail, 
-  Lock, 
-  AlertCircle, 
-  CheckCircle, 
-  ArrowRight, 
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  AlertCircle,
+  CheckCircle,
+  ArrowRight,
   ChevronRight,
   Shield,
   Sparkles,
   Building2,
   UserCircle,
   Linkedin,
-  Globe
+  Globe,
 } from "lucide-react";
 import type { SignInFormData } from "../../types/auth/auth.types";
 import { authService } from "../../services/auth/auth.service";
 import { linkedInService } from "../../services/auth/linkedIn.service";
-import { GoogleLogin, type GoogleCredentialResponse } from "@react-oauth/google";
+import {
+  GoogleLogin,
+  type GoogleCredentialResponse,
+} from "@react-oauth/google";
 import { getError } from "@/utils/getError";
 
 const SignIn = () => {
@@ -38,7 +41,10 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [linkedInLoading, setLinkedInLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{
+    email?: string;
+    password?: string;
+  }>({});
   const [showRoleSelector, setShowRoleSelector] = useState(false);
 
   const validateEmail = (email: string): boolean => {
@@ -67,7 +73,9 @@ const SignIn = () => {
 
       if (user.role === "candidate") {
         navigate(
-          user.profileComplete ? "/candidate/home" : "/candidate/profile"
+          user.profileComplete
+            ? "/candidate/home"
+            : "/candidate/profile/complete"
         );
       } else if (user.role === "recruiter") {
         navigate(
@@ -75,7 +83,10 @@ const SignIn = () => {
         );
       }
     } catch (err: unknown) {
-      const errorMessage = getError(err, "Google sign-in failed. Please try again.");
+      const errorMessage = getError(
+        err,
+        "Google sign-in failed. Please try again."
+      );
       setError(errorMessage);
     } finally {
       setGoogleLoading(false);
@@ -88,13 +99,11 @@ const SignIn = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-
-    // Clear specific field error when user starts typing
     if (fieldErrors[name as keyof typeof fieldErrors]) {
-      setFieldErrors(prev => ({ ...prev, [name]: undefined }));
+      setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
     }
-    
-    // Clear general error
+
+
     if (error) setError("");
     if (success) setSuccess("");
   };
@@ -103,8 +112,7 @@ const SignIn = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    
-    // Validate form
+
     let hasError = false;
     const newFieldErrors: { email?: string; password?: string } = {};
 
@@ -139,10 +147,9 @@ const SignIn = () => {
       localStorage.setItem("authToken", accessToken);
       localStorage.setItem("userRole", user.role);
       localStorage.setItem("userId", user.id);
+      localStorage.setItem("userFullName", user.fullName)
 
       setSuccess("Successfully signed in! Redirecting...");
-      
-      // Small delay to show success message
       setTimeout(() => {
         if (user.role === "candidate") {
           navigate("/candidate/home");
@@ -151,8 +158,11 @@ const SignIn = () => {
         }
       }, 1000);
     } catch (error: unknown) {
-      console.error("❌ Login error:", error);
-      const errorMessage = getError(error, "Invalid email or password. Please try again.");
+      console.error(" Login error:", error);
+      const errorMessage = getError(
+        error,
+        "Invalid email or password. Please try again."
+      );
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -173,7 +183,10 @@ const SignIn = () => {
     try {
       linkedInService.redirectToLinkedIn(userType);
     } catch (err: unknown) {
-      const errorMessage = getError(err, "Failed to initiate LinkedIn sign in. Please try again.");
+      const errorMessage = getError(
+        err,
+        "Failed to initiate LinkedIn sign in. Please try again."
+      );
       setError(errorMessage);
       setLinkedInLoading(false);
     }
@@ -182,16 +195,16 @@ const SignIn = () => {
   const isAnyLoading = isLoading || linkedInLoading || googleLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-50/50 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/50 to-indigo-50/50 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-radial from-transparent via-transparent to-blue-100/20"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-linear-radial from-transparent via-transparent to-blue-100/20"></div>
       </div>
 
       {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-grid-slate-100/50 [mask-image:linear-gradient(0deg,white,transparent)]"></div>
+      <div className="absolute inset-0 bg-grid-slate-100/50 mask-[linear-linear(0deg,white,transparent)]"></div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Main Card */}
@@ -200,18 +213,20 @@ const SignIn = () => {
           <div className="text-center mb-10">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="relative">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40">
+                <div className="w-14 h-14 bg-linear-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40">
                   <span className="text-white font-bold text-xl">RI</span>
                 </div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full flex items-center justify-center shadow-md">
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-linear-to-r from-amber-400 to-amber-500 rounded-full flex items-center justify-center shadow-md">
                   <Sparkles className="w-3 h-3 text-white" />
                 </div>
               </div>
               <div className="text-left">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-linear-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                   RecruitIQ
                 </h1>
-                <p className="text-xs text-slate-500 font-medium">Smart Hiring Platform</p>
+                <p className="text-xs text-slate-500 font-medium">
+                  Smart Hiring Platform
+                </p>
               </div>
             </div>
 
@@ -219,15 +234,16 @@ const SignIn = () => {
               Welcome Back 👋
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed max-w-xs mx-auto">
-              Sign in to continue to your dashboard and manage your recruitment journey.
+              Sign in to continue to your dashboard and manage your recruitment
+              journey.
             </p>
           </div>
 
           {/* Error/Success Messages */}
           {error && (
             <div className="mb-6 animate-fade-in">
-              <div className="p-4 bg-gradient-to-r from-red-50/90 to-red-50/70 border border-red-200 rounded-xl flex items-start gap-3">
-                <div className="flex-shrink-0 w-5 h-5">
+              <div className="p-4 bg-linear-to-r from-red-50/90 to-red-50/70 border border-red-200 rounded-xl flex items-start gap-3">
+                <div className="shrink-0 w-5 h-5">
                   <AlertCircle className="w-full h-full text-red-500" />
                 </div>
                 <div className="flex-1">
@@ -242,12 +258,14 @@ const SignIn = () => {
 
           {success && (
             <div className="mb-6 animate-fade-in">
-              <div className="p-4 bg-gradient-to-r from-emerald-50/90 to-emerald-50/70 border border-emerald-200 rounded-xl flex items-start gap-3">
-                <div className="flex-shrink-0 w-5 h-5">
+              <div className="p-4 bg-linear-to-r from-emerald-50/90 to-emerald-50/70 border border-emerald-200 rounded-xl flex items-start gap-3">
+                <div className="shrink-0 w-5 h-5">
                   <CheckCircle className="w-full h-full text-emerald-500" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-emerald-800">{success}</p>
+                  <p className="text-sm font-semibold text-emerald-800">
+                    {success}
+                  </p>
                 </div>
               </div>
             </div>
@@ -256,9 +274,11 @@ const SignIn = () => {
           {/* LinkedIn Role Selector Modal */}
           {showRoleSelector && (
             <div className="mb-6 animate-fade-in">
-              <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-200 rounded-xl">
+              <div className="p-5 bg-linear-to-br from-blue-50 to-indigo-50/50 border border-blue-200 rounded-xl">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-slate-900">Select your role to continue</h3>
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    Select your role to continue
+                  </h3>
                   <button
                     onClick={() => setShowRoleSelector(false)}
                     className="text-slate-400 hover:text-slate-600 transition-colors"
@@ -276,7 +296,9 @@ const SignIn = () => {
                       <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                         <UserCircle className="w-5 h-5 text-blue-600" />
                       </div>
-                      <span className="text-sm font-medium text-slate-900">Candidate</span>
+                      <span className="text-sm font-medium text-slate-900">
+                        Candidate
+                      </span>
                       <span className="text-xs text-slate-500">Job Seeker</span>
                     </div>
                   </button>
@@ -289,8 +311,12 @@ const SignIn = () => {
                       <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
                         <Building2 className="w-5 h-5 text-indigo-600" />
                       </div>
-                      <span className="text-sm font-medium text-slate-900">Recruiter</span>
-                      <span className="text-xs text-slate-500">Hiring Manager</span>
+                      <span className="text-sm font-medium text-slate-900">
+                        Recruiter
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        Hiring Manager
+                      </span>
                     </div>
                   </button>
                 </div>
@@ -315,15 +341,23 @@ const SignIn = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
-                  className={`w-full px-4 py-3.5 border ${fieldErrors.email ? 'border-red-300 bg-red-50/50' : 'border-slate-300 bg-white/50'} rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 placeholder:text-slate-400`}
-                  
+                  className={`w-full px-4 py-3.5 border ${
+                    fieldErrors.email
+                      ? "border-red-300 bg-red-50/50"
+                      : "border-slate-300 bg-white/50"
+                  } rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 placeholder:text-slate-400`}
                   disabled={isAnyLoading}
                   aria-invalid={!!fieldErrors.email}
-                  aria-describedby={fieldErrors.email ? "email-error" : undefined}
+                  aria-describedby={
+                    fieldErrors.email ? "email-error" : undefined
+                  }
                 />
               </div>
               {fieldErrors.email && (
-                <p id="email-error" className="text-sm text-red-600 flex items-center gap-2 animate-slide-down">
+                <p
+                  id="email-error"
+                  className="text-sm text-red-600 flex items-center gap-2 animate-slide-down"
+                >
                   <AlertCircle className="w-4 h-4" />
                   {fieldErrors.email}
                 </p>
@@ -355,11 +389,16 @@ const SignIn = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className={`w-full px-4 pr-12 py-3.5 border ${fieldErrors.password ? 'border-red-300 bg-red-50/50' : 'border-slate-300 bg-white/50'} rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 placeholder:text-slate-400`}
-                  
+                  className={`w-full px-4 pr-12 py-3.5 border ${
+                    fieldErrors.password
+                      ? "border-red-300 bg-red-50/50"
+                      : "border-slate-300 bg-white/50"
+                  } rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 placeholder:text-slate-400`}
                   disabled={isAnyLoading}
                   aria-invalid={!!fieldErrors.password}
-                  aria-describedby={fieldErrors.password ? "password-error" : undefined}
+                  aria-describedby={
+                    fieldErrors.password ? "password-error" : undefined
+                  }
                 />
                 <button
                   type="button"
@@ -376,7 +415,10 @@ const SignIn = () => {
                 </button>
               </div>
               {fieldErrors.password && (
-                <p id="password-error" className="text-sm text-red-600 flex items-center gap-2 animate-slide-down">
+                <p
+                  id="password-error"
+                  className="text-sm text-red-600 flex items-center gap-2 animate-slide-down"
+                >
                   <AlertCircle className="w-4 h-4" />
                   {fieldErrors.password}
                 </p>
@@ -392,7 +434,7 @@ const SignIn = () => {
                     name="rememberMe"
                     checked={formData.rememberMe}
                     onChange={handleChange}
-                    className="w-5 h-5 cursor-pointer appearance-none border-2 border-slate-300 rounded-lg checked:bg-gradient-to-br checked:from-blue-500 checked:to-blue-600 checked:border-blue-600 transition-all group-hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-5 h-5 cursor-pointer appearance-none border-2 border-slate-300 rounded-lg checked:bg-linear-to-br checked:from-blue-500 checked:to-blue-600 checked:border-blue-600 transition-all group-hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isAnyLoading}
                   />
                   {formData.rememberMe && (
@@ -421,7 +463,7 @@ const SignIn = () => {
             <button
               type="submit"
               disabled={isAnyLoading}
-              className="w-full py-4 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
+              className="w-full py-4 px-4 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
             >
               <div className="relative z-10 flex items-center justify-center gap-3">
                 {isLoading ? (
@@ -436,7 +478,7 @@ const SignIn = () => {
                   </>
                 )}
               </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
           </form>
 
@@ -456,14 +498,20 @@ const SignIn = () => {
           <div className="space-y-4">
             {/* Google Sign In */}
             <div className="relative group">
-              <div className={`${googleLoading ? 'opacity-50' : 'group-hover:scale-[1.02]'} transition-transform duration-300`}>
+              <div
+                className={`${
+                  googleLoading ? "opacity-50" : "group-hover:scale-[1.02]"
+                } transition-transform duration-300`}
+              >
                 <GoogleLogin
                   onSuccess={(res) => {
                     if (res.credential) {
                       handleGoogleResponse({ credential: res.credential });
                     }
                   }}
-                  onError={() => setError("Google sign-in failed. Please try again.")}
+                  onError={() =>
+                    setError("Google sign-in failed. Please try again.")
+                  }
                   theme="outline"
                   size="large"
                   shape="rectangular"
@@ -485,7 +533,7 @@ const SignIn = () => {
               type="button"
               onClick={() => handleLinkedInSignIn()}
               disabled={linkedInLoading || isAnyLoading}
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-[#0077B5] to-[#006699] hover:from-[#006699] hover:to-[#005587] text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-700/30 hover:shadow-xl hover:shadow-blue-700/40 disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
+              className="w-full py-3.5 px-4 bg-linear-to-r from-[#0077B5] to-[#006699] hover:from-[#006699] hover:to-[#005587] text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-700/30 hover:shadow-xl hover:shadow-blue-700/40 disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
             >
               <div className="relative z-10 flex items-center justify-center gap-3">
                 {linkedInLoading ? (
@@ -493,18 +541,18 @@ const SignIn = () => {
                 ) : (
                   <Linkedin className="w-5 h-5" />
                 )}
-                <span>{linkedInLoading ? "Connecting..." : "Continue with LinkedIn"}</span>
+                <span>
+                  {linkedInLoading ? "Connecting..." : "Continue with LinkedIn"}
+                </span>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#006699] to-[#005587] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-[#006699] to-[#005587] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
           </div>
 
           {/* Sign Up Link */}
           <div className="mt-10 pt-6 border-t border-slate-200">
             <div className="text-center">
-              <p className="text-sm text-slate-600 mb-2">
-                New to RecruitIQ?
-              </p>
+              <p className="text-sm text-slate-600 mb-2">New to RecruitIQ?</p>
               <button
                 onClick={() => navigate("/role-selection")}
                 className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
@@ -555,8 +603,8 @@ const SignIn = () => {
           background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(226 232 240 / 0.2)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
         }
         
-        .bg-gradient-radial {
-          background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(219, 234, 254, 0.1) 100%);
+        .bg-linear-radial {
+          background: radial-linear(ellipse at center, transparent 0%, transparent 50%, rgba(219, 234, 254, 0.1) 100%);
         }
       `}</style>
     </div>

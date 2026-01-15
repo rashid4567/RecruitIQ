@@ -335,7 +335,7 @@ const getDisplayValue = (
             {!isEditing ? (
               <Button
                 onClick={onEditToggle}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/20 transition-all duration-200"
+                className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/20 transition-all duration-200"
                 size="lg"
               >
                 <Edit2 className="h-4 w-4 mr-2" />
@@ -355,7 +355,7 @@ const getDisplayValue = (
                 <Button
                   onClick={handleSave}
                   disabled={loading || isSaving || hasErrors}
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                   size="lg"
                 >
                   {loading || isSaving ? (
@@ -389,22 +389,22 @@ const getDisplayValue = (
       </div>
 
      
-      <div className="flex flex-col sm:flex-row items-center gap-6 mb-8 p-6 bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-center gap-6 mb-8 p-6 bg-linear-to-br from-white to-gray-50 rounded-2xl border border-gray-200 shadow-sm">
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-full blur-xl opacity-10" />
+          <div className="absolute inset-0 bg-linear-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-full blur-xl opacity-10" />
           <Avatar className="h-28 w-28 ring-4 ring-white shadow-2xl relative">
             <AvatarImage 
               src={imagePreview || user.profileImage || "/placeholder-avatar.png"} 
               className="object-cover"
             />
-            <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold">
+            <AvatarFallback className="text-2xl bg-linear-to-br from-blue-600 to-indigo-600 text-white font-bold">
               {user.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
             </AvatarFallback>
           </Avatar>
           {isEditing && (
             <label 
               htmlFor="profile-image-upload"
-              className="absolute -bottom-1 -right-1 h-11 w-11 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center cursor-pointer hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 active:scale-95"
+              className="absolute -bottom-1 -right-1 h-11 w-11 bg-linear-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center cursor-pointer hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 active:scale-95"
               title="Upload new photo"
             >
               <Upload className="h-5 w-5 text-white" />
@@ -426,7 +426,7 @@ const getDisplayValue = (
               <>
                 <Button 
                   onClick={handleSaveImage}
-                  className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md"
+                  className="gap-2 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md"
                   size="sm"
                 >
                   <Save className="h-4 w-4" />
@@ -495,7 +495,7 @@ const getDisplayValue = (
                 </div>
                 {shouldShowError('fullName') && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">{validationErrors.fullName}</span>
                   </div>
                 )}
@@ -582,7 +582,7 @@ const getDisplayValue = (
                 </div>
                 {shouldShowError('currentJob') && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">{validationErrors.currentJob}</span>
                   </div>
                 )}
@@ -613,7 +613,7 @@ const getDisplayValue = (
                     <SelectTrigger className={getFieldClasses('experienceYears', 'pl-10')}>
                       <SelectValue placeholder="Select experience" />
                     </SelectTrigger>
-                    <SelectContent className="max-h-[280px]">
+                    <SelectContent className="max-h-70">
                       {experienceOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -625,7 +625,7 @@ const getDisplayValue = (
                 </div>
                 {shouldShowError('experienceYears') && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">{validationErrors.experienceYears}</span>
                   </div>
                 )}
@@ -670,7 +670,7 @@ const getDisplayValue = (
                 </Select>
                 {shouldShowError('educationLevel') && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">{validationErrors.educationLevel}</span>
                   </div>
                 )}
@@ -707,7 +707,7 @@ const getDisplayValue = (
                 </Select>
                 {shouldShowError('gender') && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">{validationErrors.gender}</span>
                   </div>
                 )}
@@ -749,7 +749,7 @@ const getDisplayValue = (
                 </div>
                 {shouldShowError('currentJobLocation') && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">{validationErrors.currentJobLocation}</span>
                   </div>
                 )}
@@ -787,7 +787,7 @@ const getDisplayValue = (
                 </div>
                 {shouldShowError('preferredJobLocation') && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">{validationErrors.preferredJobLocation}</span>
                   </div>
                 )}
@@ -860,11 +860,11 @@ const getDisplayValue = (
                 onChange={(e) => handleFieldChange("skills", e.target.value)}
                 onBlur={() => handleBlur("skills")}
                 placeholder="Add your skills separated by commas (e.g., JavaScript, React, Node.js, Python)"
-                className={getFieldClasses('skills', 'min-h-[100px]')}
+                className={getFieldClasses('skills', 'min-h-25')}
               />
               {shouldShowError('skills') && (
                 <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                  <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                   <span className="leading-tight">{validationErrors.skills}</span>
                 </div>
               )}
@@ -927,7 +927,7 @@ const getDisplayValue = (
                 </div>
                 {shouldShowError('linkedinUrl') && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">{validationErrors.linkedinUrl}</span>
                   </div>
                 )}
@@ -976,7 +976,7 @@ const getDisplayValue = (
                 </div>
                 {shouldShowError('portfolioUrl') && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">{validationErrors.portfolioUrl}</span>
                   </div>
                 )}
@@ -1027,21 +1027,21 @@ const getDisplayValue = (
             <div className="space-y-2">
               <Textarea
                 placeholder="Tell us more about yourself, your career goals, or anything else you'd like to share..."
-                className={getFieldClasses('bio', 'min-h-[140px]')}
+                className={getFieldClasses('bio', 'min-h-35')}
                 value={getFieldValue('bio') as string}
                 onChange={(e) => handleFieldChange("bio", e.target.value)}
                 onBlur={() => handleBlur("bio")}
               />
               {shouldShowError('bio') && (
                 <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
-                  <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                   <span className="leading-tight">{validationErrors.bio}</span>
                 </div>
               )}
               <p className="text-xs text-gray-500 mt-1">Optional: Share more about yourself (max 500 characters)</p>
             </div>
           ) : (
-            <div className="p-4 bg-gray-50/70 rounded-lg border border-gray-300 min-h-[140px]">
+            <div className="p-4 bg-gray-50/70 rounded-lg border border-gray-300 min-h-35">
               <p className="text-gray-700 whitespace-pre-wrap">
                 {candidateProfile.bio || "No additional information provided."}
               </p>
@@ -1065,7 +1065,7 @@ const getDisplayValue = (
             <Button
               onClick={handleSave}
               disabled={loading || isSaving || hasErrors}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading || isSaving ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

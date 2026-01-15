@@ -15,26 +15,15 @@ const CompleteProfile = lazy(
 const AccountSettingsPage = lazy(
   () => import("../pages/candidate/profileSetting/account-setting")
 );
-const ComingSoonPage = lazy(()=> import("../components/comingSoon"))
+//const ComingSoonPage = lazy(()=> import("../components/comingSoon"))
 const CandidateRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
     <Routes>
       <Route element={<ProtectedRoute allowedRoles={["candidate"]} />}>
         <Route element={<CandidateLayout />}>
-          <Route path="/candidate/home" element={<CandidateHome />} />
-          <Route
-            path="/candidate/profile/complete"
-            element={<CompleteProfile />}
-          />
-          {/* <Route
-            path="/candidate/profile"
-            element={<CandidateProfilePage />}
-          /> */}
-          <Route
-            path="/candidate/profile/setting"
-            element={<AccountSettingsPage />}
-          />
-           <Route path="/candidate/*" element={<ComingSoonPage />} />
+          <Route path="home" element={<CandidateHome />} />
+          <Route path="profile/complete" element={<CompleteProfile />} />
+          <Route path="profile/setting" element={<AccountSettingsPage />} />
         </Route>
       </Route>
     </Routes>
@@ -42,3 +31,7 @@ const CandidateRoutes = () => (
 );
 
 export default CandidateRoutes;
+
+
+
+

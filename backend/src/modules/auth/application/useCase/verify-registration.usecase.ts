@@ -1,6 +1,6 @@
 import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { TokenServicePort } from "../ports/token.service";
+import { TokenServicePort } from "../ports/token.service.ports";
 
 interface VerificationInput {
   email: string;
@@ -30,7 +30,7 @@ export class VerifyRegistrationUseCase {
 
     const passwordHash = await this.passwordService.hash(input.password);
 
-    const user = new User("", input.email, input.role, input.fullName, true);
+    const user = new User("", input.email, input.role, input.fullName, true, "local");
 
     const savedUser = await this.userRepo.create(user, passwordHash);
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authController } from "../auth.module";
+import { authController, googleController } from "../auth.module";
 
 const router = Router();
 
@@ -9,5 +9,7 @@ router.post("/login", authController.login);
 router.post("/admin/login", authController.adminLogin);
 router.post("/refresh", authController.refresh);
 router.post("/logout", authController.logout);
+console.log("google login router registered")
+router.post("/google/login", googleController.login);
 
 export default router;

@@ -1,12 +1,12 @@
 // src/recruiter/recruiter.routes.ts
 import { Router } from "express";
-import { authenticate } from "../middlewares/auth.middleware";
+import { authenticate } from "../../middlewares/auth.middleware";
 import {
   getRecruiterProfile,
   updateRecruiterPassword,
   updateRecruiterProfile,
 } from "./recruiter.controller";
-import { checkUserActive } from "../middlewares/checkUserActive.middleware";
+import { checkUserActive } from "../../middlewares/checkUserActive.middleware";
 const router = Router();
 router.use(authenticate);
 router.use(checkUserActive)

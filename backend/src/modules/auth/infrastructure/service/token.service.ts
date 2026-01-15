@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { TokenServicePort } from "../../application/ports/token.service";
+import { TokenServicePort } from "../../application/ports/token.service.ports";
 import { User } from "../../domain/entities/user.entity";
 
 export class TokenService implements TokenServicePort {
@@ -16,18 +16,16 @@ export class TokenService implements TokenServicePort {
       refreshToken: jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET!, {
         expiresIn: "7d",
       }),
-      user,
     };
   }
 
-  generateAccessToken(user: User) {
-    return jwt.sign(
-      { userId: user.id, role: user.role },
-      process.env.ACCESS_TOKEN_SECRET!,
-      { expiresIn: "15m" }
-    );
-  }
-  verifyRefreshToken(token :string){
-    return jwt.sign(token, process.env.REFRESH_TOKEN_SECRET!)as any
+  verifyToken(token: string){
+    return jwt.verify(
+      token,
+      process.env.JWT_REFRESH_SECRET!
+    )as{
+      userId : string,
+      role : string,
+    }
   }
 }

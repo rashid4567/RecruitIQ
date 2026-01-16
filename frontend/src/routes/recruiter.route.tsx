@@ -18,15 +18,9 @@ const RecruiterRoutes = () => (
     <Routes>
       <Route element={<ProtectedRoute allowedRoles={["recruiter"]} />}>
         <Route element={<RecruiterLayout />}>
-          <Route path="/recruiter/" element={<RecruiterHome />} />
-          <Route
-            path="/recruiter/complete-profile"
-            element={<RecruiterDetails />}
-          />
-          <Route
-            path="/recruiter/profile"
-            element={<RecruiterSettingsPage />}
-          />
+          <Route index element={<RecruiterHome />} />
+          <Route path="complete-profile" element={<RecruiterDetails />} />
+          <Route path="profile" element={<RecruiterSettingsPage />} />
         </Route>
       </Route>
     </Routes>
@@ -34,3 +28,4 @@ const RecruiterRoutes = () => (
 );
 
 export default RecruiterRoutes;
+

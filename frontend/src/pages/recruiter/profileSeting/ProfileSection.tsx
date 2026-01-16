@@ -12,13 +12,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { 
   User, 
   Linkedin, 
@@ -41,7 +34,6 @@ import {
 import { recruiterService } from "../../../services/recruiter/recruiter.service"
 import type { RecruiterProfileResponse } from "../../../types/recruiter/recruiter.profile.type"
 
-// Validation schema based on API structure
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
   profileImage: z.string().optional(),
@@ -56,7 +48,6 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>
 
-// Company size options
 const COMPANY_SIZES = [
   { value: "1-10", label: "1-10 employees" },
   { value: "11-50", label: "11-50 employees" },
@@ -66,7 +57,6 @@ const COMPANY_SIZES = [
   { value: "1000+", label: "1000+ employees" }
 ]
 
-// Industry options
 const INDUSTRIES = [
   "Technology",
   "Finance",
@@ -97,7 +87,6 @@ export function ProfileSection() {
     formState: { errors, isDirty },
     watch,
     setValue,
-    control
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -113,7 +102,6 @@ export function ProfileSection() {
     }
   })
 
- 
   useEffect(() => {
     fetchProfile()
   }, [])
@@ -124,11 +112,6 @@ export function ProfileSection() {
       const data = await recruiterService.getProfile()
       setProfileData(data)
       
-     
-      // const storedEmail = localStorage.getItem("userEmail") || data.email || ""
-      // setUserEmail(storedEmail)
-      
-    
       reset({
         fullName: data.fullName || "",
         profileImage: data.profileImage || "",
@@ -158,7 +141,6 @@ export function ProfileSection() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File too large", {
         description: "Please upload an image smaller than 5MB."
@@ -166,7 +148,6 @@ export function ProfileSection() {
       return
     }
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error("Invalid file type", {
         description: "Please upload an image file (JPEG, PNG, etc.)."
@@ -194,7 +175,6 @@ export function ProfileSection() {
     try {
       setIsSubmitting(true)
 
-      // Create payload matching API structure
       const payload = {
         fullName: data.fullName,
         profileImage: data.profileImage || undefined,
@@ -209,7 +189,6 @@ export function ProfileSection() {
 
       await recruiterService.updateProfile(payload)
       
-      // Update profile data
       const updatedData = await recruiterService.getProfile()
       setProfileData(updatedData)
       
@@ -231,7 +210,7 @@ export function ProfileSection() {
   }
 
   const handleCancel = () => {
-    fetchProfile() // Reset to original data
+    fetchProfile()
     setIsEditing(false)
     setAvatarFile(null)
   }
@@ -288,46 +267,47 @@ export function ProfileSection() {
               </div>
             </div>
             
-            {/* Account Status Badges */}
             {profileData && (
               <div className="flex flex-wrap gap-2">
-                <Badge 
-                  variant="outline"
-                  className={`px-3 py-1 border font-medium ${
-                    profileData.subscriptionStatus === "active" 
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                      : profileData.subscriptionStatus === "free"
-                      ? "bg-blue-50 text-blue-700 border-blue-200"
-                      : "bg-amber-50 text-amber-700 border-amber-200"
-                  }`}
-                >
-                  {profileData.subscriptionStatus === "active" && (
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                  )}
-                  {profileData.subscriptionStatus.charAt(0).toUpperCase() + profileData.subscriptionStatus.slice(1)} Plan
-                </Badge>
+                {profileData.subscriptionStatus && (
+                  <Badge 
+                    variant="outline"
+                    className={`px-3 py-1 border font-medium ${
+                      profileData.subscriptionStatus === "active" 
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                        : profileData.subscriptionStatus === "free"
+                        ? "bg-blue-50 text-blue-700 border-blue-200"
+                        : "bg-amber-50 text-amber-700 border-amber-200"
+                    }`}
+                  >
+                    {profileData.subscriptionStatus === "active" && (
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                    )}
+                    {profileData.subscriptionStatus.charAt(0).toUpperCase() + profileData.subscriptionStatus.slice(1)} Plan
+                  </Badge>
+                )}
                 
-                <Badge 
-                  variant="outline"
-                  className={`px-3 py-1 border font-medium ${
-                    profileData.verificationStatus === "verified" 
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                      : profileData.verificationStatus === "pending"
-                      ? "bg-amber-50 text-amber-700 border-amber-200"
-                      : "bg-red-50 text-red-700 border-red-200"
-                  }`}
-                >
-                  {profileData.verificationStatus.charAt(0).toUpperCase() + profileData.verificationStatus.slice(1)}
-                </Badge>
+                {profileData.verificationStatus && (
+                  <Badge 
+                    variant="outline"
+                    className={`px-3 py-1 border font-medium ${
+                      profileData.verificationStatus === "verified" 
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                        : profileData.verificationStatus === "pending"
+                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                        : "bg-red-50 text-red-700 border-red-200"
+                    }`}
+                  >
+                    {profileData.verificationStatus.charAt(0).toUpperCase() + profileData.verificationStatus.slice(1)}
+                  </Badge>
+                )}
               </div>
             )}
           </div>
         </CardHeader>
         
         <CardContent className="space-y-8">
-          {/* Avatar & Bio Section */}
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Avatar Section */}
             <div className="lg:w-1/3 space-y-6">
               <div className="p-6 bg-linear-to-br from-blue-50/50 to-indigo-50/30 rounded-2xl border border-blue-100/50">
                 <div className="relative mx-auto w-48 h-48">
@@ -396,7 +376,6 @@ export function ProfileSection() {
                 </div>
               </div>
 
-              {/* Stats & Info Card */}
               <Card className="border-slate-200/50 shadow-sm">
                 <CardContent className="p-6">
                   <h4 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
@@ -404,9 +383,8 @@ export function ProfileSection() {
                     Profile Information
                   </h4>
                   <div className="space-y-4">
-                    {/* Email */}
                     <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
                         <Mail className="h-4 w-4 text-blue-600" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -417,16 +395,15 @@ export function ProfileSection() {
                       </div>
                     </div>
 
-                    {/* Job Posts Used */}
                     <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                      <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
                         <FileText className="h-4 w-4 text-emerald-600" />
                       </div>
                       <div className="flex-1">
                         <p className="text-xs text-slate-500">Job Posts Used</p>
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-medium text-slate-900">
-                            {profileData?.jobPostsUsed || 0}
+                            {profileData?.jobPostsUsed ?? 0}
                           </p>
                           <Badge variant="outline" className="text-xs">
                             Current
@@ -435,9 +412,8 @@ export function ProfileSection() {
                       </div>
                     </div>
 
-                    {/* Member Since */}
                     <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                      <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
                         <Calendar className="h-4 w-4 text-amber-600" />
                       </div>
                       <div className="flex-1">
@@ -448,9 +424,8 @@ export function ProfileSection() {
                       </div>
                     </div>
 
-                    {/* Profile ID */}
                     <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+                      <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
                         <User className="h-4 w-4 text-purple-600" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -465,9 +440,7 @@ export function ProfileSection() {
               </Card>
             </div>
 
-            {/* Form Fields */}
             <div className="lg:w-2/3 space-y-8">
-              {/* Personal Information */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                   <User className="h-5 w-5 text-blue-500" />
@@ -475,7 +448,6 @@ export function ProfileSection() {
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Full Name */}
                   <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-sm font-medium text-slate-700 flex items-center justify-between">
                       Full Name
@@ -499,7 +471,6 @@ export function ProfileSection() {
                     </div>
                   </div>
 
-                  {/* Designation */}
                   <div className="space-y-2">
                     <Label htmlFor="designation" className="text-sm font-medium text-slate-700 flex items-center justify-between">
                       Designation
@@ -523,7 +494,6 @@ export function ProfileSection() {
                     </div>
                   </div>
 
-                  {/* Location */}
                   <div className="space-y-2">
                     <Label htmlFor="location" className="text-sm font-medium text-slate-700 flex items-center justify-between">
                       Location
@@ -547,7 +517,6 @@ export function ProfileSection() {
                     </div>
                   </div>
 
-                  {/* LinkedIn Profile */}
                   <div className="space-y-2">
                     <Label htmlFor="linkedin" className="text-sm font-medium text-slate-700">
                       LinkedIn Profile (Optional)
@@ -567,7 +536,6 @@ export function ProfileSection() {
                 </div>
               </div>
 
-              {/* Company Information */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                   <Building className="h-5 w-5 text-indigo-500" />
@@ -575,7 +543,6 @@ export function ProfileSection() {
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Company Name */}
                   <div className="space-y-2">
                     <Label htmlFor="companyName" className="text-sm font-medium text-slate-700 flex items-center justify-between">
                       Company Name
@@ -599,7 +566,6 @@ export function ProfileSection() {
                     </div>
                   </div>
 
-                  {/* Company Size */}
                   <div className="space-y-2">
                     <Label htmlFor="companySize" className="text-sm font-medium text-slate-700 flex items-center justify-between">
                       Company Size
@@ -629,7 +595,6 @@ export function ProfileSection() {
                     </div>
                   </div>
 
-                  {/* Industry */}
                   <div className="space-y-2">
                     <Label htmlFor="industry" className="text-sm font-medium text-slate-700 flex items-center justify-between">
                       Industry
@@ -659,7 +624,6 @@ export function ProfileSection() {
                     </div>
                   </div>
 
-                  {/* Company Website */}
                   <div className="space-y-2">
                     <Label htmlFor="companyWebsite" className="text-sm font-medium text-slate-700 flex items-center justify-between">
                       Company Website
@@ -685,7 +649,6 @@ export function ProfileSection() {
                 </div>
               </div>
 
-              {/* Bio Section */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                   <FileText className="h-5 w-5 text-amber-500" />
@@ -704,7 +667,7 @@ export function ProfileSection() {
                     {...register("bio")}
                     disabled={!isEditing}
                     rows={4}
-                    className={`min-h-[120px] resize-y ${errors.bio ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
+                    className={`min-h-30 resize-y ${errors.bio ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
                     placeholder="Tell us about your professional background, expertise, and what makes you unique as a recruiter..."
                   />
                   {errors.bio && (

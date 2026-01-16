@@ -1,2 +1,2 @@
-import router from "./recruiter.route"
-export default router;
+// import router from "./recruiter.route"
+// export default router;

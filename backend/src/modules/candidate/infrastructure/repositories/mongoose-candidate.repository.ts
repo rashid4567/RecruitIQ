@@ -1,4 +1,4 @@
-import { candidateProfileModel } from "../../candidateProfile.model";
+import { candidateProfileModel } from "../monogoose/models/candidate-profile.model";
 import { CandidateProfile } from "../../domain/entities/candidate-profile.entity";
 import { CandidateRespository } from "../../domain/repositories/candidate.repository";
 

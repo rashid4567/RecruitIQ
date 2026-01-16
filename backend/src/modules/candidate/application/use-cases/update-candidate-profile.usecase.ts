@@ -1,5 +1,7 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { CandidateRespository } from "../../domain/repositories/candidate.repository";
+import { UpdateCandidateProfileDTO } from "../dto/update-candidate-profile.dto";
+import { CandidateProfileDTO } from "../dto/candidate-profile.dto";
 
 export class UpdateCandidateProfileUseCase {
   constructor(
@@ -9,25 +11,9 @@ export class UpdateCandidateProfileUseCase {
 
   async execute(
     userId: string,
-    input: {
-      fullName?: string;
-      email?: string;
-      profileImage?: string;
-      currentJob?: string;
-      experienceYears?: number;
-      skills?: string[];
-      educationLevel?: string;
-      preferredJobLocation?: string[];
-      bio?: string;
-    }
-  ) {
-    const {
-      fullName,
-      email,
-      profileImage,
-      ...candidateData
-    } = input;
-
+    input: UpdateCandidateProfileDTO
+  ): Promise<CandidateProfileDTO> {
+    const { fullName, email, profileImage, ...candidateData } = input;
 
     if (fullName || email || profileImage) {
       await this.userRepo.updateProfile(userId, {
@@ -37,7 +23,16 @@ export class UpdateCandidateProfileUseCase {
       });
     }
 
- 
-    return this.candidateRepo.update(userId, candidateData);
+    const updated = await this.candidateRepo.update(userId, candidateData);
+
+    return {
+      currentJob: updated.currentJob,
+      experienceYears: updated.experienceYears,
+      skills: updated.skills,
+      educationLevel: updated.educationLevel ?? "",
+      preferredJobLocation: updated.preferredJobLocation,
+      bio: updated.bio ?? "",
+      profileCompleted: updated.profileCompleted,
+    };
   }
 }

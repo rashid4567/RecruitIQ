@@ -1,4 +1,4 @@
-import { RecruiterProfileModel } from "./recruiterProfile.model";
+import { RecruiterProfileModel } from "./infrastructure/mongoose/model/recruiterProfile.model"; 
 import { UpdateRecruiterProfileInput } from "./recruiter.types";
 
 export const findRecruiterProfileByUser = (userId: string) => {

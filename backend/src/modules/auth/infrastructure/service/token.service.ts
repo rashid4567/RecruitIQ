@@ -19,6 +19,29 @@ export class TokenService implements TokenServicePort {
     };
   }
 
+  generatePasswordResetToken(userId: string): string {
+    return jwt.sign(
+      {
+        userId,
+        purpose : "PASSWORD_RESET",
+      },
+      process.env.ACCESS_TOKEN_SECRET!,
+      {expiresIn : "10m"}
+    )
+  }
+
+  verifyPasswordResetToken(token: string): { userId: string} {
+    const payload = jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET!
+    ) as any;
+
+   if(payload.purpose !== "PASSWORD_RESET"){
+    throw new Error("Invalid reset token")
+   }
+   return {userId : payload.userId}
+  }
+
   verifyToken(token: string){
     return jwt.verify(
       token,

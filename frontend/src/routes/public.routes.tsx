@@ -14,6 +14,10 @@ const PrivacyPolicy = lazy(
   () => import("../pages/linkedin/PrivacyPolicy")
 );
 
+const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
+const ResetPassword = lazy(()=> import("../pages/auth/ResetPassword"));
+
+
 const PublicRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
     <Routes>
@@ -24,6 +28,8 @@ const PublicRoutes = () => (
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password" element={<ResetPassword />} />
 
       <Route
         path="/candidate/signup"

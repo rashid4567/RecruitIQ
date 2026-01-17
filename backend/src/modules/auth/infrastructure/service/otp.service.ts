@@ -1,5 +1,5 @@
 import { otpModel } from "../mongoose/model/otp.model";
-import { sendOtp } from "../../../../utils/email";
+import { sentOtp } from "../../../../utils/email";
 import { generateOTP, hashOTP } from "../../../../utils/otp";
 import { OTPServicePort  } from "../../application/ports/opt.service.ports";
 
@@ -14,7 +14,7 @@ export class OTPService implements OTPServicePort {
             otpHash : hashOTP(otp),
             expiresAt : new Date(Date.now() + 10 * 60 * 1000)
         });
-        await sendOtp(email, otp);
+        await sentOtp(email, otp);
     }
 
     async verify(email: string, otp: string, role: "candidate" | "recruiter"){

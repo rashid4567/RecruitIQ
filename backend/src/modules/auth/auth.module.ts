@@ -7,7 +7,8 @@ import { LoginUseCase } from "./application/useCase/login.useCase";
 import { RefreshTokenUseCase } from "./application/useCase/refreshToken.useCase";
 import { SendRegistrationOTPUseCase } from "./application/useCase/send-registration-otp.usecase";
 import { VerifyRegistrationUseCase } from "./application/useCase/verify-registration.usecase";
-
+import { ForgotPasswordUseCase } from "./application/useCase/forgot-password.usecase";
+import { ResetPasswordUseCase } from "./application/useCase/reset-password.usecase";
 import { UserRepository } from "./domain/repositories/user.repository";
 import { MongooseUserRepository } from "./infrastructure/repositories/mongoose-use.repository";
 import { GoogleService } from "./infrastructure/service/google-auth.service";
@@ -21,9 +22,9 @@ import { AuthController } from "./presentation/auth.controller";
 import { GoogleController } from "./presentation/google.controller";
 
 const userRepo: UserRepository = new MongooseUserRepository();
-const passwordService : passwordServicePort = new PasswordService();
-const tokenService : TokenServicePort= new TokenService();
-const googleAuthService : GoogleAuthPort = new GoogleService();
+const passwordService: passwordServicePort = new PasswordService();
+const tokenService: TokenServicePort = new TokenService();
+const googleAuthService: GoogleAuthPort = new GoogleService();
 const profileService = new ProfileService();
 
 const otpService = new OTPService();
@@ -43,22 +44,26 @@ const loginUC = new LoginUseCase(userRepo, passwordService, tokenService);
 const adminLoginUC = new AdminLoginUseCase(loginUC);
 
 const refreshTokenUC = new RefreshTokenUseCase(userRepo, tokenService);
-
+const forgotPassWordUC = new ForgotPasswordUseCase(userRepo, tokenService);
+const resetPasswordUC  = new ResetPasswordUseCase(
+  userRepo,
+  passwordService,
+  tokenService,
+);
 const googleLoginUc = new GoogleLoginUseCase(
   userRepo,
   googleAuthService,
   tokenService,
   profileService
-)
+);
 export const authController = new AuthController(
   sendOtpUC,
   verifyRegistrationUC,
   loginUC,
   adminLoginUC,
-  refreshTokenUC
+  refreshTokenUC,
+  forgotPassWordUC,
+  resetPasswordUC
 );
 
-
-export const googleController = new GoogleController(
-  googleLoginUc
-)
+export const googleController = new GoogleController(googleLoginUc);

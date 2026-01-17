@@ -17,13 +17,18 @@ export class AuthController {
     },
     private readonly refreshUC: {
       execute(refreshToken: string): Promise<string>;
+    },
+    private readonly forgotPasswordUC: {               // ✅ FIX
+      execute(email: string): Promise<void>;
+    },
+    private readonly resetPasswordUC: {                // ✅ FIX
+      execute(token: string, newPassword: string): Promise<void>;
     }
   ) {}
 
   sendOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.sendOtpUC.execute(req.body.email, req.body.role);
-
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "OTP sent successfully",
@@ -109,10 +114,36 @@ export class AuthController {
 
   logout = async (_req: Request, res: Response) => {
     res.clearCookie("refreshToken");
-
     return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Logout successful",
     });
+  };
+
+  forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.forgotPasswordUC.execute(req.body.email);
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: "Mail sent successfully",
+      });
+    } catch (err) {
+      return next(err);
+    }
+  };
+
+  resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.resetPasswordUC.execute(
+        req.body.token,
+        req.body.newPassword
+      );
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: "Password reset successfully",
+      });
+    } catch (err) {
+      return next(err);
+    }
   };
 }

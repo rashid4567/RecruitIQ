@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { UserModel } from "../../../modules/auth/infrastructure/mongoose/model/user.model";
-import { RecruiterProfileModel } from "../../recruiter/infrastructure/mongoose/model/recruiterProfile.model";
+import { RecruiterProfileModel } from "../../recruiter/recruiterProfile.model"; 
 import { VerificationStatus } from "./recruiter.types";
 
 export const aggregateRecruiters = async (pipeline: any[]) => {

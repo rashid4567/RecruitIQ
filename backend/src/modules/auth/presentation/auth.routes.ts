@@ -9,7 +9,9 @@ router.post("/login", authController.login);
 router.post("/admin/login", authController.adminLogin);
 router.post("/refresh", authController.refresh);
 router.post("/logout", authController.logout);
-console.log("google login router registered")
+router.post("/forgot-password",authController.forgotPassword);
+router.post("/reset-password",authController.resetPassword)
+
 router.post("/google/login", googleController.login);
 
 export default router;

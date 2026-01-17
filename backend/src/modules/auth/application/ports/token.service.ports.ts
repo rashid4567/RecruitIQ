@@ -8,5 +8,9 @@ export interface TokenServicePort{
     verifyToken(token : string):{
         userId : string,
         role : string,
+    },
+    generatePasswordResetToken(userId : string):string;
+    verifyPasswordResetToken(token : string):{
+        userId : string,
     }
 }

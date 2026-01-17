@@ -1,3 +1,4 @@
+import { email } from "zod";
 import api from "../../api/axios";
 import { googleService } from "./google.service";
 
@@ -66,4 +67,17 @@ export const authService = {
       }
     }
   },
+
+  forgotPassword : async (email : string) =>{
+    const res = await api.post("/auth/forgot-password",{email});
+    return res.data;
+  },
+  resetPassword : async (token : string, newPassword :string) =>{
+    const res = await api.post("/auth/reset-password",{
+      token,
+      newPassword,
+    });
+
+    return res.data;
+  }
 };

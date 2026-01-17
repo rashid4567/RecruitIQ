@@ -81,6 +81,13 @@ export class MongooseUserRepository implements UserRepository {
       doc.isActive ?? true,
       doc.authProvider,
       doc.googleId ?? undefined
-    );
+    ); 
+  }
+
+  async updatePassword(userId : string, passwordHash : string):Promise<void>{
+    await UserModel.findByIdAndUpdate(userId, {
+      password : passwordHash,
+      authProvider : "local",
+    })
   }
 }

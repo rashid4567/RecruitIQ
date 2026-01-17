@@ -1,6 +1,6 @@
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
 import { RecruiterProfile } from "../../domain/entities/recruiter-profile.entity";
-import { RecruiterProfileModel } from "../../recruiterProfile.model";
+import { RecruiterProfileModel } from "../mongoose/model/recruiter-profile.model";
 
 export class MongooseRecruiterProfileRepository
   implements RecruiterProfileRepository

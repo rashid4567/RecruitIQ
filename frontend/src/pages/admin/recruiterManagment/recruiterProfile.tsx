@@ -32,7 +32,6 @@ import type {
 import type { JSX } from "react/jsx-runtime";
 import { getError } from "@/utils/getError";
 
-
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -170,9 +169,7 @@ export default function RecruiterProfilePage() {
       setRecruiter(data);
     } catch (err: unknown) {
       console.error("Failed to load recruiter profile:", err);
-      setError(
-         getError( err || "Failed to load recruiter profile")
-      );
+      setError(getError(err || "Failed to load recruiter profile"));
     } finally {
       setLoading(false);
     }
@@ -193,9 +190,7 @@ export default function RecruiterProfilePage() {
       setShowVerificationModal({ isOpen: false, status: null });
     } catch (err: unknown) {
       console.error("Failed to update verification status:", err);
-      setError(
-       getError(err || "Failed to update verification status")
-      );
+      setError(getError(err || "Failed to update verification status"));
     } finally {
       setUpdating(false);
     }
@@ -363,19 +358,19 @@ export default function RecruiterProfilePage() {
   const quickStats = [
     {
       label: "Jobs Posted",
-      value: recruiter.quickStats.jobsPosted.toString(),
+      value: String(recruiter.quickStats?.jobsPosted ?? 0),
       icon: "📋",
       description: "Active job listings",
     },
     {
       label: "Interviews Scheduled",
-      value: recruiter.quickStats.interviewsScheduled.toString(),
+      value: String(recruiter.quickStats?.interviewsScheduled ?? 0),
       icon: "📅",
       description: "This month",
     },
     {
       label: "Candidates Contacted",
-      value: recruiter.quickStats.candidatesContacted.toString(),
+      value: String(recruiter.quickStats?.candidatesContacted ?? 0),
       icon: "👥",
       description: "Total outreach",
     },
@@ -974,44 +969,38 @@ export default function RecruiterProfilePage() {
                 </div>
 
                 {/* Subscription */}
-                <div className="py-6 border-t border-gray-200">
-                  <h4 className="font-semibold text-gray-900 mb-3">
-                    Subscription Details
-                  </h4>
-                  <div
-                    className={`px-4 py-3 rounded-lg ${getSubscriptionColor(
-                      recruiter.subscription.plan
-                    )} mb-3`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold">
-                        {getSubscriptionDisplay(recruiter.subscription.plan)}
-                      </span>
-                      <span className="text-xs font-medium px-2 py-1 bg-white/50 rounded">
-                        {recruiter.subscription.plan === "active"
-                          ? "💰 Paid"
-                          : "🆓 Free"}
-                      </span>
-                    </div>
+                <div
+                  className={`px-4 py-3 rounded-lg ${getSubscriptionColor(
+                    recruiter.subscription?.plan ?? "free"
+                  )} mb-3`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold">
+                      {getSubscriptionDisplay(
+                        recruiter.subscription?.plan ?? "free"
+                      )}
+                    </span>
+                    <span className="text-xs font-medium px-2 py-1 bg-white/50 rounded">
+                      {recruiter.subscription?.plan === "active"
+                        ? "💰 Paid"
+                        : "🆓 Free"}
+                    </span>
                   </div>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span>Status:</span>
-                      <span className="font-medium">
-                        {recruiter.subscription.status}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Plan Type:</span>
-                      <span className="font-medium capitalize">
-                        {recruiter.subscription.plan}
-                      </span>
-                    </div>
+                </div>
+
+                <div className="text-sm text-gray-600 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span>Status:</span>
+                    <span className="font-medium">
+                      {recruiter.subscription?.status ?? "free"}
+                    </span>
                   </div>
-                  <button className="w-full mt-4 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-sm flex items-center justify-center gap-2">
-                    <Download className="h-4 w-4" />
-                    Download Invoice
-                  </button>
+                  <div className="flex items-center justify-between">
+                    <span>Plan Type:</span>
+                    <span className="font-medium capitalize">
+                      {recruiter.subscription?.plan ?? "free"}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Interview Time */}

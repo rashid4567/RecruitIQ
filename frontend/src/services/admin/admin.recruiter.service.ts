@@ -29,9 +29,11 @@ export const adminRecruiterService = {
   },
 
   updateRecruiterStatus: async (recruiterId: string, isActive: boolean) => {
-    const res = await api.patch(`/admin/recruiters/${recruiterId}/status`, {
-      isActive,
-    });
+    const endpoint = isActive
+      ? `/admin/recruiters/${recruiterId}/unblock`
+      : `/admin/recruiters/${recruiterId}/block`;
+
+    const res = await api.patch(endpoint);
     return res.data;
   },
 };

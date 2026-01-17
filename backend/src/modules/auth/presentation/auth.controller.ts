@@ -101,6 +101,13 @@ export class AuthController {
   refresh = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.cookies.refreshToken;
+
+      if(!token){
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          success : false,
+          message : "Refresh token missing"
+        })
+      }
       const accessToken = await this.refreshUC.execute(token);
 
       return res.status(HTTP_STATUS.OK).json({

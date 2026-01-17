@@ -107,8 +107,6 @@ export default function AccountSettingsPage() {
   const handleVerifyEmail = async () => {
     try {
       setEmailVerificationSent(true)
-      // Call API to send verification email
-      // await candidateService.sendVerificationEmail()
       toast.success("Verification email sent! Please check your inbox.")
       setTimeout(() => setEmailVerificationSent(false), 5000)
     } catch (err) {
@@ -118,11 +116,7 @@ export default function AccountSettingsPage() {
 
   const handleImageUpload = async (file: File) => {
     try {
-      // Implement image upload logic here
-      // const formData = new FormData()
-      // formData.append('image', file)
-      // const response = await api.post('/upload/profile-image', formData)
-      // handleInputChange('profileImage', response.data.url)
+
       toast.success("Profile image updated successfully!")
     } catch (err) {
       toast.error("Failed to upload image")

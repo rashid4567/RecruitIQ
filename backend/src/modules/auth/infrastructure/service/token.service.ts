@@ -45,7 +45,7 @@ export class TokenService implements TokenServicePort {
   verifyToken(token: string){
     return jwt.verify(
       token,
-      process.env.JWT_REFRESH_SECRET!
+      process.env.REFRESH_TOKEN_SECRET!
     )as{
       userId : string,
       role : string,

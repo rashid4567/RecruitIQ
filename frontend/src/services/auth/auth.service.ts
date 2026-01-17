@@ -41,11 +41,11 @@ export const authService = {
   adminLogin: async (email: string, password: string) => {
     const res = await api.post("/auth/admin/login", { email, password });
 
-    const { accessToken, admin } = res.data.data;
+    const { accessToken, user } = res.data.data;
 
     localStorage.setItem("authToken", accessToken);
-    localStorage.setItem("userRole", admin.role);
-    localStorage.setItem("userId", admin.id);
+    localStorage.setItem("userRole", user.role);
+    localStorage.setItem("userId", user.id);
 
     return res.data;
   },

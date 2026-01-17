@@ -19,7 +19,6 @@ const ResetPassword = () => {
   
   const navigate = useNavigate();
 
-  // Validate token on component mount
   useEffect(() => {
     const validateToken = async () => {
       if (!token) {
@@ -28,9 +27,8 @@ const ResetPassword = () => {
       }
       
       try {
-        // You might want to add a token validation API call here
-        // await authService.validateResetToken(token);
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated delay
+       
+        await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (error) {
         toast.error("Invalid or expired reset link", {
           description: "Please request a new password reset link.",
@@ -43,7 +41,7 @@ const ResetPassword = () => {
     validateToken();
   }, [token]);
 
-  // Password strength checker
+
   useEffect(() => {
     let strength = 0;
     if (password.length >= 8) strength += 25;
@@ -105,7 +103,7 @@ const ResetPassword = () => {
         },
       });
       
-      // Show success state briefly before redirect
+   
       setTimeout(() => {
         navigate("/signin");
       }, 2000);
@@ -130,7 +128,7 @@ const ResetPassword = () => {
 
   if (validatingToken) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <div className="text-center">
           <Loader2 className="h-12 w-12 text-blue-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Verifying reset link...</p>
@@ -141,7 +139,7 @@ const ResetPassword = () => {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -153,7 +151,7 @@ const ResetPassword = () => {
             </p>
             <button
               onClick={() => navigate("/forgot-password")}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200"
+              className="w-full bg-linear-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200"
             >
               Request New Reset Link
             </button>
@@ -170,7 +168,7 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center mb-8">
@@ -301,7 +299,7 @@ const ResetPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:ring-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
+              className="w-full bg-linear-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:ring-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
             >
               {loading ? (
                 <>

@@ -1,5 +1,5 @@
 import { candidateProfileModel } from "../../../candidate/infrastructure/monogoose/models/candidate-profile.model";
-import { RecruiterProfileModel } from "../../../recruiter/recruiterProfile.model"; 
+import { RecruiterProfileModel } from "../../../recruiter/infrastructure/mongoose/model/recruiter-profile.model"; 
 
 
 export class ProfileService {

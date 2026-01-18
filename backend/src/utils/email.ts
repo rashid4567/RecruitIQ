@@ -47,3 +47,12 @@ export const sendPasswordLink = async (email : string, resetLink : string) =>{
     `,
   })
 }
+
+export const sendTestEmail = async (to : string , subject : string, html : string) =>{
+  await trannsporter.sendMail({
+    from : `RecruitIQ <${process.env.EMAIL_USER}`,
+    to,
+    subject : `[TEST] ${subject}`,
+    html,
+  })
+}

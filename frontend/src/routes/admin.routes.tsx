@@ -1,17 +1,30 @@
-import { Routes, Route } from "react-router-dom"
-import { Suspense, lazy } from "react"
+import { Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
 
-import AdminProtectedRoute from "./protector/adminProtectedRoutes"
-import AdminLayout from "../layout/adminLayout"
-import RouteLoader from "../components/RouterLoader"
+import AdminProtectedRoute from "./protector/adminProtectedRoutes";
+import AdminLayout from "../layout/adminLayout";
+import RouteLoader from "../components/RouterLoader";
 
-const AdminLogin = lazy(() => import("../pages/admin/login"))
-const AdminDashboard = lazy(() => import("../pages/admin/dashboard"))
-const RecruitersPage = lazy(() => import("../pages/admin/recruiterManagment/recruiterList"))
-const RecruiterProfilePage = lazy(() => import("../pages/admin/recruiterManagment/recruiterProfile"))
-const CandidateManagement = lazy(() => import("../pages/admin/candidateManagment/candidateList"))
-const CandidateProfile = lazy(() => import("../pages/admin/candidateManagment/candidateProfile"))
-
+const AdminLogin = lazy(() => import("../pages/admin/login"));
+const AdminDashboard = lazy(() => import("../pages/admin/dashboard"));
+const RecruitersPage = lazy(
+  () => import("../pages/admin/recruiterManagment/recruiterList")
+);
+const RecruiterProfilePage = lazy(
+  () => import("../pages/admin/recruiterManagment/recruiterProfile")
+);
+const CandidateManagement = lazy(
+  () => import("../pages/admin/candidateManagment/candidateList")
+);
+const CandidateProfile = lazy(
+  () => import("../pages/admin/candidateManagment/candidateProfile")
+);
+const EmailTemplateManagement = lazy(
+  () => import("../pages/admin/email-templates/emailTemplate.mangment")
+);
+const EmailTemplateEditor = lazy(
+  () => import("../pages/admin/email-templates/emailTemplate.editort")
+);
 
 const AdminRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
@@ -24,7 +37,22 @@ const AdminRoutes = () => (
           <Route path="recruiters" element={<RecruitersPage />} />
           <Route path="recruiters/:id" element={<RecruiterProfilePage />} />
           <Route path="candidates" element={<CandidateManagement />} />
-          <Route path="candidates/:candidateId" element={<CandidateProfile />} />
+          <Route
+            path="candidates/:candidateId"
+            element={<CandidateProfile />}
+          />
+          <Route
+            path="/email-templates"
+            element={<EmailTemplateManagement />}
+          />
+          <Route
+            path="/email-templates/create"
+            element={<EmailTemplateEditor />}
+          />
+          <Route
+            path="/email-templates/edit/:id"
+            element={<EmailTemplateEditor />}
+          />
         </Route>
       </Route>
     </Routes>
@@ -32,4 +60,3 @@ const AdminRoutes = () => (
 );
 
 export default AdminRoutes;
-

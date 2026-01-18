@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Router } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
 import AdminProtectedRoute from "./protector/adminProtectedRoutes";
@@ -25,6 +25,8 @@ const EmailTemplateManagement = lazy(
 const EmailTemplateEditor = lazy(
   () => import("../pages/admin/email-templates/emailTemplate.editort")
 );
+
+const EmailLogs = lazy(()=> import("../pages/admin/email-logs/EmailLogsPage"))
 
 const AdminRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
@@ -53,6 +55,7 @@ const AdminRoutes = () => (
             path="/email-templates/edit/:id"
             element={<EmailTemplateEditor />}
           />
+        <Route path="/email-logs" element={<EmailLogs/>}/>
         </Route>
       </Route>
     </Routes>

@@ -2,33 +2,29 @@
 
 import { useState, useEffect } from "react";
 import {
-  LogOut,
-  Settings,
   Mail,
-  FileText,
-  Users,
-  UserCheck,
-  BarChart3,
-  LogIn,
-  Grid3x3,
   Bold,
   Italic,
   List,
   Link,
   Plus,
   Eye,
-  Download,
   RotateCcw,
   Copy,
   Send,
-  ChevronRight,
   ArrowLeft,
   Save,
   X,
+  RefreshCw,
+  Zap,
+  MailIcon,
+  ChevronLeft,
+  Type,
+  Image,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate, useParams } from "react-router-dom";
 import { emailTemplateService } from "../../../services/admin/admin.emailTemplate.service";
@@ -46,6 +42,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "react-hot-toast";
+import Sidebar from "../../../components/admin/sideBar";
 
 export default function EmailTemplateEditor() {
   const { id } = useParams<{ id: string }>();
@@ -62,13 +59,13 @@ export default function EmailTemplateEditor() {
   });
 
   const [companySignature, setCompanySignature] = useState(
-    "Best regards, The RecruitFlow Team"
+    "Best regards, The RecruitIQ Team"
   );
   const [socialLinks, setSocialLinks] = useState(
-    "https://linkedin.com/company/recruitflow"
+    "https://linkedin.com/company/recruitiq"
   );
   const [unsubscribeLink, setUnsubscribeLink] = useState(
-    "https://recruitflow.com/unsubscribe?user_id=123"
+    "https://recruitiq.com/unsubscribe?user_id=123"
   );
   const [testEmail, setTestEmail] = useState("");
   const [showVariablesDropdown, setShowVariablesDropdown] = useState(false);
@@ -117,11 +114,11 @@ export default function EmailTemplateEditor() {
         setTemplate(foundTemplate);
       } else {
         toast.error("Template not found");
-        setTimeout(() => navigate("/email-templates"), 1500);
+        setTimeout(() => navigate("/admin/email-templates"), 1500);
       }
     } catch (error) {
       toast.error("Failed to load template");
-      setTimeout(() => navigate("/email-templates"), 1500);
+      setTimeout(() => navigate("/admin/email-templates"), 1500);
     } finally {
       setIsLoading(false);
     }
@@ -143,7 +140,6 @@ export default function EmailTemplateEditor() {
         };
         await emailTemplateService.update(template.id, updatePayload);
 
-        // If activating, call toggle endpoint
         if (activate && !template.isActive) {
           const togglePayload: ToggleEmailInputPayload = { isActive: true };
           await emailTemplateService.toggle(template.id, togglePayload);
@@ -160,7 +156,6 @@ export default function EmailTemplateEditor() {
         };
         const newTemplate = await emailTemplateService.create(createPayload);
 
-        // If activating, call toggle endpoint
         if (activate) {
           const togglePayload: ToggleEmailInputPayload = { isActive: true };
           await emailTemplateService.toggle(newTemplate.id, togglePayload);
@@ -170,9 +165,8 @@ export default function EmailTemplateEditor() {
         }
       }
 
-      // Show success toast for 2 seconds, then navigate back
       setTimeout(() => {
-        navigate("/email-templates");
+        navigate("/admin/email-templates");
       }, 2000);
     } catch (error: any) {
       const errorMessage =
@@ -196,7 +190,6 @@ export default function EmailTemplateEditor() {
         template.body.substring(end);
       setTemplate({ ...template, body: newText });
 
-      // Focus back on textarea
       setTimeout(() => {
         textarea.focus();
         textarea.selectionStart = textarea.selectionEnd =
@@ -232,9 +225,8 @@ export default function EmailTemplateEditor() {
       );
       toast.success("Template duplicated successfully!");
 
-      // Navigate to edit page after toast is visible
       setTimeout(() => {
-        navigate(`/email-templates/edit/${duplicatedTemplate.id}`);
+        navigate(`/admin/email-templates/edit/${duplicatedTemplate.id}`);
       }, 1500);
     } catch (error) {
       toast.error("Failed to duplicate template");
@@ -242,232 +234,139 @@ export default function EmailTemplateEditor() {
   };
 
   const handleSendTestEmail = async () => {
-  if (!testEmail) {
-    toast.error("Please enter a test email address");
-    return;
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(testEmail)) {
-    toast.error("Please enter a valid email address");
-    return;
-  }
-
-  try {
-    setIsSendingTest(true);
-
-    if (!template.id) {
-      const createPayload: createEmailTemplatePayload = {
-        name: template.name || "Untitled Template",
-        event: template.event,
-        subject: template.subject,
-        body: template.body,
-      };
-
-      const newTemplate = await emailTemplateService.create(createPayload);
-      setTemplate(newTemplate);
-
-      await emailTemplateService.sendTestEmail(newTemplate.id, {
-        email: testEmail,
-      });
-
-      toast.success("Template saved and test email sent successfully!");
-    } else {
-      await emailTemplateService.sendTestEmail(template.id, {
-        email: testEmail,
-      });
-
-      toast.success("Test email sent successfully!");
+    if (!testEmail) {
+      toast.error("Please enter a test email address");
+      return;
     }
 
-    setTestEmail("");
-  } catch (error: any) {
-    toast.error(
-      error.response?.data?.message || "Failed to send test email"
-    );
-  } finally {
-    setIsSendingTest(false);
-  }
-};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(testEmail)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
 
+    try {
+      setIsSendingTest(true);
+
+      if (!template.id) {
+        const createPayload: createEmailTemplatePayload = {
+          name: template.name || "Untitled Template",
+          event: template.event,
+          subject: template.subject,
+          body: template.body,
+        };
+
+        const newTemplate = await emailTemplateService.create(createPayload);
+        setTemplate(newTemplate);
+
+        await emailTemplateService.sendTestEmail(newTemplate.id, {
+          email: testEmail,
+        });
+
+        toast.success("Template saved and test email sent successfully!");
+      } else {
+        await emailTemplateService.sendTestEmail(template.id, {
+          email: testEmail,
+        });
+
+        toast.success("Test email sent successfully!");
+      }
+
+      setTestEmail("");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to send test email");
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">Loading...</div>
+      <div className="min-h-screen bg-gray-50 flex">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <p className="text-gray-600">Loading template editor...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <div className="w-56 bg-white border-r border-gray-200 flex flex-col">
-        {/* Logo */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-sm font-bold">R</span>
-            </div>
-            <span className="font-semibold text-gray-900">RecruitIQ</span>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          <div className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer">
-            <Grid3x3 size={20} />
-            <span className="text-sm font-medium">Dashboard</span>
-          </div>
-          <div className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer">
-            <FileText size={20} />
-            <span className="text-sm font-medium">Activity Logs</span>
-          </div>
-          <div className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer">
-            <UserCheck size={20} />
-            <span className="text-sm font-medium">Recruiter Management</span>
-          </div>
-          <div className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer">
-            <Users size={20} />
-            <span className="text-sm font-medium">Candidate Management</span>
-          </div>
-          <div className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer">
-            <LogIn size={20} />
-            <span className="text-sm font-medium">Subscribers</span>
-          </div>
-          <div className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer">
-            <BarChart3 size={20} />
-            <span className="text-sm font-medium">Plans Overview</span>
-          </div>
-          <div
-            className="flex items-center gap-3 px-3 py-2 text-indigo-600 bg-indigo-50 rounded-lg cursor-pointer font-medium"
-            onClick={() => navigate("/email-templates")}
-          >
-            <Mail size={20} />
-            <span className="text-sm">Email Template Management</span>
-          </div>
-          <div className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer">
-            <FileText size={20} />
-            <span className="text-sm font-medium">Email logs</span>
-          </div>
-          <div className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer">
-            <Settings size={20} />
-            <span className="text-sm font-medium">Settings</span>
-          </div>
-        </nav>
-
-        {/* Log Out */}
-        <div className="p-3 border-t border-gray-200">
-          <div className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer">
-            <LogOut size={20} />
-            <span className="text-sm font-medium">Log Out</span>
-          </div>
-        </div>
-      </div>
+      <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/email-templates")}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft size={16} />
-              Back to Templates
-            </Button>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <ChevronRight size={16} />
-              <span>
-                {isEditMode ? "Edit Template" : "Create New Template"}
-              </span>
+        <div className="bg-white border-b border-gray-200 px-8 py-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                <button
+                  onClick={() => navigate("/admin/email-templates")}
+                  className="hover:text-gray-700 flex items-center gap-1"
+                >
+                  <ChevronLeft size={14} />
+                  <span>Email Template Management</span>
+                </button>
+                <span>›</span>
+                <span className="text-gray-900 font-medium">
+                  {isEditMode ? "Edit Template" : "Create Template"}
+                </span>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <Mail className="w-8 h-8 text-indigo-600" />
+                {isEditMode ? "Edit Email Template" : "Create Email Template"}
+              </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => navigate("/admin/email-templates")}
+              >
+                <ArrowLeft size={18} />
+                Back to List
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => fetchTemplate(id!)}
+              >
+                <RefreshCw size={18} />
+                Refresh
+              </Button>
+              <Button
+                className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
+                onClick={() => handleSave(true)}
+                disabled={isSaving}
+              >
+                <Save size={18} />
+                {isSaving ? "Saving..." : "Save & Activate"}
+              </Button>
             </div>
           </div>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-blue-500"></div>
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-8">
-            {/* Title */}
-            <div className="flex items-center justify-between mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">
-                {isEditMode ? "Edit Email Template" : "Create Email Template"}
-              </h1>
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => navigate("/email-templates")}
-                  disabled={isSaving}
-                >
-                  <X size={18} className="mr-2" />
-                  Cancel
-                </Button>
-                <Button
-                  className="bg-gray-600 hover:bg-gray-700 text-white flex items-center gap-2"
-                  onClick={() => handleSave(false)}
-                  disabled={isSaving}
-                >
-                  <Save size={18} />
-                  {isSaving ? "Saving..." : "Save Draft"}
-                </Button>
-                <Button
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2"
-                  onClick={() => handleSave(true)}
-                  disabled={isSaving}
-                >
-                  <span>✓</span>
-                  {isSaving ? "Saving..." : "Save & Activate"}
-                </Button>
-              </div>
-            </div>
-
-            {/* Two Column Layout */}
-            <div className="grid grid-cols-2 gap-8">
-              {/* Left Column - Email Preview */}
-              <div>
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-1">
-                    Email Preview
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    See how your email will look to recipients.
-                  </p>
-                </div>
-                <Card className="bg-white border-gray-200 p-6 h-full min-h-[400px] overflow-y-auto">
-                  <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
-                    <div>
-                      <span className="font-semibold">Subject:</span>{" "}
-                      {template.subject}
+        <div className="flex-1 overflow-auto px-8 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Editor */}
+            <div className="space-y-6">
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-100 rounded-lg">
+                      <Type className="w-5 h-5 text-indigo-600" />
                     </div>
-                    <div className="pt-3 border-t border-gray-200">
-                      <div className="whitespace-pre-wrap text-xs">
-                        {template.body}
-                      </div>
-                    </div>
-                    <div className="pt-3 border-t border-gray-200">
-                      <div className="text-xs text-gray-600">
-                        {companySignature}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Right Column - Template Editor */}
-              <div>
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-1">
-                    Template Editor
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    Customize your email template content and settings.
-                  </p>
-                </div>
-
-                <div className="space-y-6">
+                    Template Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-6">
                   {/* Template Name */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -478,8 +377,8 @@ export default function EmailTemplateEditor() {
                       onChange={(e) =>
                         setTemplate({ ...template, name: e.target.value })
                       }
-                      className="bg-white border-gray-200"
                       placeholder="Enter template name"
+                      className="border-gray-300"
                     />
                   </div>
 
@@ -494,7 +393,7 @@ export default function EmailTemplateEditor() {
                         setTemplate({ ...template, event: value as any })
                       }
                     >
-                      <SelectTrigger className="bg-white border-gray-200">
+                      <SelectTrigger className="border-gray-300">
                         <SelectValue placeholder="Select event type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -512,17 +411,18 @@ export default function EmailTemplateEditor() {
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                       Subject Line *
                     </label>
-                    <div className="flex gap-2 mb-2">
+                    <div className="flex gap-2">
                       <Input
                         value={template.subject}
                         onChange={(e) =>
                           setTemplate({ ...template, subject: e.target.value })
                         }
-                        className="flex-1 bg-white border-gray-200"
+                        className="flex-1 border-gray-300"
                         placeholder="Enter email subject"
                       />
                       <Button
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1 px-3"
+                        variant="outline"
+                        className="gap-2"
                         onClick={() =>
                           setShowVariablesDropdown(!showVariablesDropdown)
                         }
@@ -533,13 +433,14 @@ export default function EmailTemplateEditor() {
                     </div>
                   </div>
 
-                  {/* Email Body */}
+                  {/* Email Body Editor */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                       Email Body *
                     </label>
-                    <div className="bg-white border border-gray-200 rounded-lg mb-2">
-                      <div className="border-b border-gray-200 bg-gray-50 p-3 flex gap-2">
+                    <div className="border border-gray-300 rounded-lg">
+                      {/* Editor Toolbar */}
+                      <div className="border-b border-gray-300 bg-gray-50 p-3 flex gap-2 rounded-t-lg">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -568,41 +469,28 @@ export default function EmailTemplateEditor() {
                         >
                           <Link size={16} />
                         </Button>
+                        <div className="w-px h-6 bg-gray-300 mx-2"></div>
+                        <Button variant="ghost" size="sm" className="p-2 h-8">
+                          <Image size={16} className="mr-2" />
+                          Add Image
+                        </Button>
                       </div>
+
+                      {/* Text Area */}
                       <Textarea
                         value={template.body}
                         onChange={(e) =>
                           setTemplate({ ...template, body: e.target.value })
                         }
-                        className="w-full p-4 text-sm border-none focus:outline-none min-h-48 font-sans resize-none"
-                        placeholder="Enter email body content"
+                        className="w-full p-4 text-sm border-none focus:outline-none min-h-64 font-sans resize-none"
+                        placeholder="Write your email content here..."
                       />
                     </div>
 
-                    <div className="flex gap-2 mb-4">
-                      <Button
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 text-sm"
-                        onClick={() =>
-                          setShowVariablesDropdown(!showVariablesDropdown)
-                        }
-                      >
-                        <Plus size={16} />
-                        Insert Variable
-                      </Button>
-                      <Button className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 text-sm">
-                        <Eye size={16} />
-                        Insert Button Component
-                      </Button>
-                      <Button className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 text-sm">
-                        <Download size={16} />
-                        Add Image
-                      </Button>
-                    </div>
-
-                    {/* Variables Dropdown */}
+                    {/* Variables Section */}
                     {showVariablesDropdown && (
-                      <div className="mb-4 p-4 bg-white border border-gray-200 rounded-lg">
-                        <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                      <div className="mt-4 p-4 bg-gray-50 border border-gray-300 rounded-lg">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-3">
                           Available Variables
                         </h4>
                         <div className="grid grid-cols-2 gap-2">
@@ -614,7 +502,7 @@ export default function EmailTemplateEditor() {
                               onClick={() =>
                                 handleInsertVariable(variable.value)
                               }
-                              className="justify-start text-xs"
+                              className="justify-start text-xs border-gray-300 hover:bg-gray-100"
                             >
                               {variable.label}
                             </Button>
@@ -623,100 +511,152 @@ export default function EmailTemplateEditor() {
                       </div>
                     )}
                   </div>
+                </CardContent>
+              </Card>
 
-                  {/* Email Footer Settings */}
-                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                      Email Footer Settings
-                    </h3>
-                    <p className="text-xs text-gray-500 mb-4">
-                      Configure the standard footer included in all emails.
-                    </p>
+              {/* Footer Settings */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <MailIcon className="w-5 h-5 text-blue-600" />
+                    </div>
+                    Email Footer Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                      Company Signature
+                    </label>
+                    <Input
+                      value={companySignature}
+                      onChange={(e) => setCompanySignature(e.target.value)}
+                      className="border-gray-300 text-sm"
+                    />
+                  </div>
 
-                    <div className="space-y-4">
-                      {/* Company Signature */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                          Company Signature
-                        </label>
-                        <Input
-                          value={companySignature}
-                          onChange={(e) => setCompanySignature(e.target.value)}
-                          className="bg-white border-gray-200 text-sm"
-                        />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                      Social Links URL
+                    </label>
+                    <Input
+                      value={socialLinks}
+                      onChange={(e) => setSocialLinks(e.target.value)}
+                      className="border-gray-300 text-sm"
+                      placeholder="https://linkedin.com/company/recruitiq"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                      Unsubscribe Link URL
+                    </label>
+                    <Input
+                      value={unsubscribeLink}
+                      onChange={(e) => setUnsubscribeLink(e.target.value)}
+                      className="border-gray-300 text-sm"
+                      placeholder="https://recruitiq.com/unsubscribe"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - Preview & Actions */}
+            <div className="space-y-6">
+              {/* Preview Card */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <Eye className="w-5 h-5 text-purple-600" />
+                    </div>
+                    Email Preview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="bg-white border border-gray-300 rounded-lg p-4 min-h-96">
+                    <div className="space-y-4 text-sm text-gray-700">
+                      {/* Header */}
+                      <div className="border-b border-gray-300 pb-3">
+                        <div className="text-xs text-gray-500 mb-1">
+                          TO: recipient@example.com
+                        </div>
+                        <div className="text-xs text-gray-500 mb-1">
+                          FROM: no-reply@recruitiq.com
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          SUBJECT: {template.subject || "(No subject)"}
+                        </div>
                       </div>
 
-                      {/* Social Links */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                          Social Links (URL)
-                        </label>
-                        <Input
-                          value={socialLinks}
-                          onChange={(e) => setSocialLinks(e.target.value)}
-                          className="bg-white border-gray-200 text-sm"
-                          placeholder="https://linkedin.com/company/recruitflow"
-                        />
-                      </div>
+                      {/* Body Preview */}
+                      <div className="prose prose-sm max-w-none">
+                        <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {template.body ||
+                            "Your email content will appear here..."}
+                        </div>
 
-                      {/* Unsubscribe Link */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                          Unsubscribe Link (URL)
-                        </label>
-                        <Input
-                          value={unsubscribeLink}
-                          onChange={(e) => setUnsubscribeLink(e.target.value)}
-                          className="bg-white border-gray-200 text-sm"
-                          placeholder="https://recruitflow.com/unsubscribe?user_id=123"
-                        />
+                        {/* Footer */}
+                        <div className="mt-8 pt-4 border-t border-gray-300">
+                          <p className="text-sm text-gray-600">
+                            {companySignature}
+                          </p>
+                          {socialLinks && (
+                            <p className="text-xs text-gray-500 mt-2">
+                              Connect with us:{" "}
+                              <a
+                                href={socialLinks}
+                                className="text-blue-600 hover:underline"
+                              >
+                                {socialLinks}
+                              </a>
+                            </p>
+                          )}
+                          {unsubscribeLink && (
+                            <p className="text-xs text-gray-400 mt-4">
+                              <a
+                                href={unsubscribeLink}
+                                className="hover:underline"
+                              >
+                                Unsubscribe
+                              </a>{" "}
+                              from these emails
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
 
-                  {/* Secondary Actions */}
-                  <div className="flex gap-3 text-sm">
-                    <button
-                      className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
-                      onClick={handleResetToDefault}
-                    >
-                      <RotateCcw size={16} />
-                      Reset to Default
-                    </button>
-                    <button
-                      className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
-                      onClick={handleDuplicateTemplate}
-                    >
-                      <Copy size={16} />
-                      Duplicate Template
-                    </button>
-                  </div>
-
-                  {/* Test Email Section */}
-                  <div className="bg-white border border-gray-200 rounded-lg p-6 mt-6">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+              {/* Actions Card */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <Zap className="w-5 h-5 text-green-600" />
+                    </div>
+                    Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-4">
+                  {/* Test Email */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-gray-900">
                       Send Test Email
-                    </h3>
-                    <p className="text-xs text-gray-500 mb-4">
-                      Send a test email to ensure everything looks correct
-                      before activation.
-                    </p>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Recipient Email
-                      </label>
-                      <Input
-                        type="email"
-                        value={testEmail}
-                        onChange={(e) => setTestEmail(e.target.value)}
-                        placeholder="john.doe@example.com"
-                        className="bg-white border-gray-200"
-                      />
-                    </div>
-
+                    </h4>
+                    <Input
+                      type="email"
+                      value={testEmail}
+                      onChange={(e) => setTestEmail(e.target.value)}
+                      placeholder="recipient@example.com"
+                      className="border-gray-300"
+                    />
                     <Button
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-2"
+                      className="w-full gap-2"
                       onClick={handleSendTestEmail}
                       disabled={!testEmail || isSendingTest}
                     >
@@ -733,15 +673,51 @@ export default function EmailTemplateEditor() {
                       )}
                     </Button>
                   </div>
-                </div>
-              </div>
+
+                  {/* Secondary Actions */}
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-200">
+                    <Button
+                      variant="outline"
+                      className="gap-2"
+                      onClick={handleResetToDefault}
+                    >
+                      <RotateCcw size={16} />
+                      Reset
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="gap-2"
+                      onClick={handleDuplicateTemplate}
+                    >
+                      <Copy size={16} />
+                      Duplicate
+                    </Button>
+                  </div>
+
+                  {/* Save Actions */}
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-200">
+                    <Button
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => navigate("/admin/email-templates")}
+                      disabled={isSaving}
+                    >
+                      <X size={16} />
+                      Cancel
+                    </Button>
+                    <Button
+                      className="gap-2 bg-indigo-600 hover:bg-indigo-700"
+                      onClick={() => handleSave(true)}
+                      disabled={isSaving}
+                    >
+                      <Save size={16} />
+                      {isSaving ? "Saving..." : "Save & Activate"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="bg-white border-t border-gray-200 px-8 py-4 text-center text-sm text-gray-500">
-          © 2025 RecruitFlow Admin. All rights reserved.
         </div>
       </div>
     </div>

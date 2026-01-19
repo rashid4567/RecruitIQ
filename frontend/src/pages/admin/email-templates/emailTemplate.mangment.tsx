@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useNavigate } from 'react-router-dom'
 import { emailTemplateService } from '../../../services/admin/admin.emailTemplate.service'
 import type { EmailTemplate } from '../../../types/admin/email-template.types'
@@ -285,7 +285,7 @@ export default function EmailTemplateManagement() {
                     <p className="text-gray-600 text-sm font-medium mb-2">Total Templates</p>
                     <p className="text-3xl font-bold text-gray-900">{templates.length}</p>
                   </div>
-                  <div className="bg-linear-to-br from-blue-600 to-blue-700 p-3 rounded-lg text-white">
+                  <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-3 rounded-lg text-white">
                     <Mail className="w-5 h-5" />
                   </div>
                 </div>
@@ -301,7 +301,7 @@ export default function EmailTemplateManagement() {
                       {templates.filter(t => t.isActive).length}
                     </p>
                   </div>
-                  <div className="bg-linear-to-br from-green-600 to-green-700 p-3 rounded-lg text-white">
+                  <div className="bg-gradient-to-br from-green-600 to-green-700 p-3 rounded-lg text-white">
                     <FileText className="w-5 h-5" />
                   </div>
                 </div>
@@ -317,7 +317,7 @@ export default function EmailTemplateManagement() {
                       {new Set(templates.map(t => getCategoryFromEvent(t.event))).size}
                     </p>
                   </div>
-                  <div className="bg-linear-to-br from-indigo-600 to-indigo-700 p-3 rounded-lg text-white">
+                  <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 p-3 rounded-lg text-white">
                     <Filter className="w-5 h-5" />
                   </div>
                 </div>
@@ -339,7 +339,7 @@ export default function EmailTemplateManagement() {
                       }
                     </p>
                   </div>
-                  <div className="bg-linear-to-br from-purple-600 to-purple-700 p-3 rounded-lg text-white">
+                  <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-3 rounded-lg text-white">
                     <RefreshCw className="w-5 h-5" />
                   </div>
                 </div>
@@ -407,7 +407,7 @@ export default function EmailTemplateManagement() {
                   setActiveCategory(value)
                   setCurrentPage(1)
                 }}>
-                  <SelectTrigger className="w-45">
+                  <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>

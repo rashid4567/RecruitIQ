@@ -2,16 +2,26 @@
 
 import { useState, useEffect } from "react";
 import {
+  LogOut,
+  Settings,
   Mail,
+  FileText,
+  Users,
+  UserCheck,
+  BarChart3,
+  LogIn,
+  Grid3x3,
   Bold,
   Italic,
   List,
   Link,
   Plus,
   Eye,
+  Download,
   RotateCcw,
   Copy,
   Send,
+  ChevronRight,
   ArrowLeft,
   Save,
   X,
@@ -274,7 +284,9 @@ export default function EmailTemplateEditor() {
 
       setTestEmail("");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to send test email");
+      toast.error(
+        error.response?.data?.message || "Failed to send test email"
+      );
     } finally {
       setIsSendingTest(false);
     }
@@ -298,7 +310,7 @@ export default function EmailTemplateEditor() {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <Sidebar />
-
+      
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
@@ -306,8 +318,8 @@ export default function EmailTemplateEditor() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                <button
-                  onClick={() => navigate("/admin/email-templates")}
+                <button 
+                  onClick={() => navigate('/admin/email-templates')}
                   className="hover:text-gray-700 flex items-center gap-1"
                 >
                   <ChevronLeft size={14} />
@@ -315,38 +327,38 @@ export default function EmailTemplateEditor() {
                 </button>
                 <span>›</span>
                 <span className="text-gray-900 font-medium">
-                  {isEditMode ? "Edit Template" : "Create Template"}
+                  {isEditMode ? 'Edit Template' : 'Create Template'}
                 </span>
               </div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                 <Mail className="w-8 h-8 text-indigo-600" />
-                {isEditMode ? "Edit Email Template" : "Create Email Template"}
+                {isEditMode ? 'Edit Email Template' : 'Create Email Template'}
               </h1>
             </div>
             <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
+              <Button 
+                variant="outline" 
                 className="gap-2"
-                onClick={() => navigate("/admin/email-templates")}
+                onClick={() => navigate('/admin/email-templates')}
               >
                 <ArrowLeft size={18} />
                 Back to List
               </Button>
-              <Button
-                variant="outline"
+              <Button 
+                variant="outline" 
                 className="gap-2"
                 onClick={() => fetchTemplate(id!)}
               >
                 <RefreshCw size={18} />
                 Refresh
               </Button>
-              <Button
+              <Button 
                 className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
                 onClick={() => handleSave(true)}
                 disabled={isSaving}
               >
                 <Save size={18} />
-                {isSaving ? "Saving..." : "Save & Activate"}
+                {isSaving ? 'Saving...' : 'Save & Activate'}
               </Button>
             </div>
           </div>
@@ -441,32 +453,16 @@ export default function EmailTemplateEditor() {
                     <div className="border border-gray-300 rounded-lg">
                       {/* Editor Toolbar */}
                       <div className="border-b border-gray-300 bg-gray-50 p-3 flex gap-2 rounded-t-lg">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-2 h-8 w-8"
-                        >
+                        <Button variant="ghost" size="sm" className="p-2 h-8 w-8">
                           <Bold size={16} />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-2 h-8 w-8"
-                        >
+                        <Button variant="ghost" size="sm" className="p-2 h-8 w-8">
                           <Italic size={16} />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-2 h-8 w-8"
-                        >
+                        <Button variant="ghost" size="sm" className="p-2 h-8 w-8">
                           <List size={16} />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-2 h-8 w-8"
-                        >
+                        <Button variant="ghost" size="sm" className="p-2 h-8 w-8">
                           <Link size={16} />
                         </Button>
                         <div className="w-px h-6 bg-gray-300 mx-2"></div>
@@ -475,7 +471,7 @@ export default function EmailTemplateEditor() {
                           Add Image
                         </Button>
                       </div>
-
+                      
                       {/* Text Area */}
                       <Textarea
                         value={template.body}
@@ -490,18 +486,14 @@ export default function EmailTemplateEditor() {
                     {/* Variables Section */}
                     {showVariablesDropdown && (
                       <div className="mt-4 p-4 bg-gray-50 border border-gray-300 rounded-lg">
-                        <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                          Available Variables
-                        </h4>
+                        <h4 className="text-sm font-semibold text-gray-900 mb-3">Available Variables</h4>
                         <div className="grid grid-cols-2 gap-2">
                           {variables.map((variable) => (
                             <Button
                               key={variable.value}
                               variant="outline"
                               size="sm"
-                              onClick={() =>
-                                handleInsertVariable(variable.value)
-                              }
+                              onClick={() => handleInsertVariable(variable.value)}
                               className="justify-start text-xs border-gray-300 hover:bg-gray-100"
                             >
                               {variable.label}
@@ -580,49 +572,28 @@ export default function EmailTemplateEditor() {
                     <div className="space-y-4 text-sm text-gray-700">
                       {/* Header */}
                       <div className="border-b border-gray-300 pb-3">
-                        <div className="text-xs text-gray-500 mb-1">
-                          TO: recipient@example.com
-                        </div>
-                        <div className="text-xs text-gray-500 mb-1">
-                          FROM: no-reply@recruitiq.com
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          SUBJECT: {template.subject || "(No subject)"}
-                        </div>
+                        <div className="text-xs text-gray-500 mb-1">TO: recipient@example.com</div>
+                        <div className="text-xs text-gray-500 mb-1">FROM: no-reply@recruitiq.com</div>
+                        <div className="text-xs text-gray-500">SUBJECT: {template.subject || '(No subject)'}</div>
                       </div>
-
+                      
                       {/* Body Preview */}
                       <div className="prose prose-sm max-w-none">
                         <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                          {template.body ||
-                            "Your email content will appear here..."}
+                          {template.body || 'Your email content will appear here...'}
                         </div>
-
+                        
                         {/* Footer */}
                         <div className="mt-8 pt-4 border-t border-gray-300">
-                          <p className="text-sm text-gray-600">
-                            {companySignature}
-                          </p>
+                          <p className="text-sm text-gray-600">{companySignature}</p>
                           {socialLinks && (
                             <p className="text-xs text-gray-500 mt-2">
-                              Connect with us:{" "}
-                              <a
-                                href={socialLinks}
-                                className="text-blue-600 hover:underline"
-                              >
-                                {socialLinks}
-                              </a>
+                              Connect with us: <a href={socialLinks} className="text-blue-600 hover:underline">{socialLinks}</a>
                             </p>
                           )}
                           {unsubscribeLink && (
                             <p className="text-xs text-gray-400 mt-4">
-                              <a
-                                href={unsubscribeLink}
-                                className="hover:underline"
-                              >
-                                Unsubscribe
-                              </a>{" "}
-                              from these emails
+                              <a href={unsubscribeLink} className="hover:underline">Unsubscribe</a> from these emails
                             </p>
                           )}
                         </div>
@@ -645,9 +616,7 @@ export default function EmailTemplateEditor() {
                 <CardContent className="pt-6 space-y-4">
                   {/* Test Email */}
                   <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-gray-900">
-                      Send Test Email
-                    </h4>
+                    <h4 className="text-sm font-semibold text-gray-900">Send Test Email</h4>
                     <Input
                       type="email"
                       value={testEmail}
@@ -699,7 +668,7 @@ export default function EmailTemplateEditor() {
                     <Button
                       variant="outline"
                       className="gap-2"
-                      onClick={() => navigate("/admin/email-templates")}
+                      onClick={() => navigate('/admin/email-templates')}
                       disabled={isSaving}
                     >
                       <X size={16} />
@@ -711,7 +680,7 @@ export default function EmailTemplateEditor() {
                       disabled={isSaving}
                     >
                       <Save size={16} />
-                      {isSaving ? "Saving..." : "Save & Activate"}
+                      {isSaving ? 'Saving...' : 'Save & Activate'}
                     </Button>
                   </div>
                 </CardContent>

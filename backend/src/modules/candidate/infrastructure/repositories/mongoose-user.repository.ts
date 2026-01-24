@@ -17,9 +17,30 @@ export class MongooseUserRepository implements UserRepository {
     };
   }
 
-  async updateProfile(userId: string, data: any) {
+  async findByEmail(email: string) {
+    const user = await UserModel.findOne({ email }).select(
+      "fullName email profileImage"
+    );
+
+    if (!user) return null;
+
+    return {
+      id: user._id.toString(),
+      fullName: user.fullName ?? "",
+      email: user.email,
+      profileImage: user.profileImage ?? undefined,
+    };
+  }
+
+  async updateProfile(
+    userId: string,
+    data: {
+      fullName?: string;
+      email?: string;
+      profileImage?: string;
+    }
+  ): Promise<void> {
     await UserModel.findByIdAndUpdate(userId, data, {
-      new: true,
       runValidators: true,
     });
   }

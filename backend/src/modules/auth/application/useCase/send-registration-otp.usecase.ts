@@ -1,20 +1,23 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { OTPServicePort } from "../ports/opt.service.ports";
+import { Email } from "../../domain/value.objects.ts/email.vo";
+import { ERROR_CODES } from "../constants/error-codes.constants";
+import { ApplicationError } from "../errors/application.error";
+import { OTPServicePort } from "../ports/otp.service.ports";
 
-export class SendRegistrationOTPUseCase {
+export class SendRegistrationOTPUseCase{
   constructor(
     private readonly userRepo : UserRepository,
     private readonly otpService : OTPServicePort,
   ){};
-  async execute(email :string, role : "candidate" | "recruiter") :Promise<void>{
-    if(!["candidate","recruiter"].includes(role)){
-      throw new Error("Invalid role")
+
+  async execute(EmailRaw : string, role : "candidate" | "recruiter"){
+    const email = Email.create(EmailRaw);
+
+    const existingUser = await this.userRepo.findByEmail(email);
+    if(existingUser){
+      throw new ApplicationError(ERROR_CODES.EMAIL_ALREADY_EXISTS);
     }
 
-    const exsting = await this.userRepo.findByEmail(email);
-    if(exsting){
-      throw new Error("User already exists")
-    }
     await this.otpService.create(email, role)
   }
 }

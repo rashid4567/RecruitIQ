@@ -9,13 +9,11 @@ const CandidateHome = lazy(() => import("../pages/candidate/Home"));
 const CompleteProfile = lazy(
   () => import("../pages/candidate/completeProfile")
 );
-// const CandidateProfilePage = lazy(
-//   () => import("../pages/candidate/profilePage")
-// );
+
 const AccountSettingsPage = lazy(
   () => import("../pages/candidate/profileSetting/account-setting")
 );
-//const ComingSoonPage = lazy(()=> import("../components/comingSoon"))
+
 const CandidateRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
     <Routes>

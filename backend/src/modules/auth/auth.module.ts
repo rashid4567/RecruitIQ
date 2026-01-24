@@ -18,7 +18,7 @@ import { PasswordService } from "./infrastructure/service/password.service";
 import { ProfileService } from "./infrastructure/service/profile.service";
 import { TokenService } from "./infrastructure/service/token.service";
 
-import { AuthController } from "./presentation/auth.controller";
+import { AuthController } from "./presentation/controller/auth.controller";
 import { GoogleController } from "./presentation/google.controller";
 
 const userRepo: UserRepository = new MongooseUserRepository();

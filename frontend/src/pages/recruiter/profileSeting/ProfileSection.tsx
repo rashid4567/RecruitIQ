@@ -12,6 +12,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { 
   User, 
   Linkedin, 
@@ -29,7 +36,15 @@ import {
   CheckCircle,
   Mail,
   Calendar,
-  FileBadge
+  AlertCircle,
+  Clock,
+  RefreshCw,
+  Send,
+  Shield,
+  Info,
+  HelpCircle,
+  Lock,
+  ChevronRight
 } from "lucide-react"
 import { recruiterService } from "../../../services/recruiter/recruiter.service"
 import type { RecruiterProfileResponse } from "../../../types/recruiter/recruiter.profile.type"
@@ -79,6 +94,16 @@ export function ProfileSection() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [profileData, setProfileData] = useState<RecruiterProfileResponse | null>(null)
   const [userEmail, setUserEmail] = useState<string>("")
+  
+  // Email update states
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
+  const [newEmail, setNewEmail] = useState("")
+  const [otp, setOtp] = useState("")
+  const [otpSent, setOtpSent] = useState(false)
+  const [isSendingOtp, setIsSendingOtp] = useState(false)
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false)
+  const [countdown, setCountdown] = useState(0)
+  const [emailError, setEmailError] = useState("")
 
   const {
     register,
@@ -105,6 +130,22 @@ export function ProfileSection() {
   useEffect(() => {
     fetchProfile()
   }, [])
+
+  useEffect(() => {
+    let timer: number | undefined;
+
+    if (countdown > 0) {
+      timer = window.setTimeout(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [countdown]);
 
   const fetchProfile = async () => {
     try {
@@ -233,6 +274,107 @@ export function ProfileSection() {
     })
   }
 
+  // Email Update Functions
+  const handleEmailUpdateClick = () => {
+    setNewEmail("")
+    setOtp("")
+    setOtpSent(false)
+    setEmailError("")
+    setIsEmailModalOpen(true)
+  }
+
+  const handleSendOtp = async () => {
+    if (!newEmail || !newEmail.includes("@")) {
+      setEmailError("Please enter a valid email address")
+      return
+    }
+
+    try {
+      setIsSendingOtp(true)
+      setEmailError("")
+      await recruiterService.requestEmailUpdate(newEmail)
+      setOtpSent(true)
+      setCountdown(60)
+      toast.success("Verification code sent", {
+        description: "Check your email for the 6-digit code"
+      })
+    } catch (error: any) {
+      console.error("Send OTP error:", error)
+      setEmailError(error.response?.data?.message || "Failed to send verification code. Please try again.")
+    } finally {
+      setIsSendingOtp(false)
+    }
+  }
+
+  const handleVerifyOtp = async () => {
+    if (otp.length !== 6) {
+      setEmailError("Please enter the 6-digit verification code")
+      return
+    }
+
+    try {
+      setIsVerifyingOtp(true)
+      setEmailError("")
+      
+      await recruiterService.verifyEmail({
+        newEmail,
+        otp
+      })
+
+      if (profileData) {
+        setProfileData({
+          ...profileData,
+          email: newEmail
+        })
+      }
+      
+      toast.success("Email updated successfully", {
+        description: "Your email address has been verified and updated."
+      })
+
+      setIsEmailModalOpen(false)
+      setOtpSent(false)
+      setNewEmail("")
+      setOtp("")
+      
+    } catch (error: any) {
+      console.error("Verify OTP error:", error)
+      setEmailError(error.response?.data?.message || "Invalid verification code. Please try again.")
+    } finally {
+      setIsVerifyingOtp(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    if (countdown > 0) return
+
+    try {
+      setIsSendingOtp(true)
+      setEmailError("")
+      await recruiterService.requestEmailUpdate(newEmail)
+      setCountdown(60)
+      toast.success("New code sent", {
+        description: "A new verification code has been sent to your email"
+      })
+    } catch (error: any) {
+      console.error("Resend OTP error:", error)
+      setEmailError(error.response?.data?.message || "Failed to resend code. Please try again.")
+    } finally {
+      setIsSendingOtp(false)
+    }
+  }
+
+  const handleModalClose = () => {
+    if (isSendingOtp || isVerifyingOtp) return
+    
+    setIsEmailModalOpen(false)
+    setNewEmail("")
+    setOtp("")
+    setOtpSent(false)
+    setEmailError("")
+    setCountdown(0)
+  }
+
   if (isLoading) {
     return (
       <Card className="border-slate-200/50 shadow-lg">
@@ -251,495 +393,782 @@ export function ProfileSection() {
   const bioLength = currentBio?.length || 0
 
   return (
-    <Card className="border-slate-200/50 shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-                <User className="h-6 w-6 text-white" />
+    <>
+      <Card className="border-slate-200/50 shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <CardHeader className="pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                  <User className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-slate-900 text-2xl">Recruiter Profile</CardTitle>
+                  <CardDescription>
+                    Manage your professional profile and company information
+                  </CardDescription>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-slate-900 text-2xl">Recruiter Profile</CardTitle>
-                <CardDescription>
-                  Manage your professional profile and company information
-                </CardDescription>
-              </div>
-            </div>
-            
-            {profileData && (
-              <div className="flex flex-wrap gap-2">
-                {profileData.subscriptionStatus && (
-                  <Badge 
-                    variant="outline"
-                    className={`px-3 py-1 border font-medium ${
-                      profileData.subscriptionStatus === "active" 
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                        : profileData.subscriptionStatus === "free"
-                        ? "bg-blue-50 text-blue-700 border-blue-200"
-                        : "bg-amber-50 text-amber-700 border-amber-200"
-                    }`}
-                  >
-                    {profileData.subscriptionStatus === "active" && (
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                    )}
-                    {profileData.subscriptionStatus.charAt(0).toUpperCase() + profileData.subscriptionStatus.slice(1)} Plan
-                  </Badge>
-                )}
-                
-                {profileData.verificationStatus && (
-                  <Badge 
-                    variant="outline"
-                    className={`px-3 py-1 border font-medium ${
-                      profileData.verificationStatus === "verified" 
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                        : profileData.verificationStatus === "pending"
-                        ? "bg-amber-50 text-amber-700 border-amber-200"
-                        : "bg-red-50 text-red-700 border-red-200"
-                    }`}
-                  >
-                    {profileData.verificationStatus.charAt(0).toUpperCase() + profileData.verificationStatus.slice(1)}
-                  </Badge>
-                )}
-              </div>
-            )}
-          </div>
-        </CardHeader>
-        
-        <CardContent className="space-y-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="lg:w-1/3 space-y-6">
-              <div className="p-6 bg-linear-to-br from-blue-50/50 to-indigo-50/30 rounded-2xl border border-blue-100/50">
-                <div className="relative mx-auto w-48 h-48">
-                  <Avatar className="h-full w-full border-4 border-white shadow-xl">
-                    {avatarPreview ? (
-                      <AvatarImage src={avatarPreview} alt="Profile" className="object-cover" />
-                    ) : (
-                      <div className="h-full w-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                        <AvatarFallback className="bg-transparent text-white text-4xl font-bold">
-                          {getInitials(currentName)}
-                        </AvatarFallback>
-                      </div>
-                    )}
-                  </Avatar>
+              
+              {profileData && (
+                <div className="flex flex-wrap gap-2">
+                  {profileData.subscriptionStatus && (
+                    <Badge 
+                      variant="outline"
+                      className={`px-3 py-1 border font-medium ${
+                        profileData.subscriptionStatus === "active" 
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                          : profileData.subscriptionStatus === "free"
+                          ? "bg-blue-50 text-blue-700 border-blue-200"
+                          : "bg-amber-50 text-amber-700 border-amber-200"
+                      }`}
+                    >
+                      {profileData.subscriptionStatus === "active" && (
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                      )}
+                      {profileData.subscriptionStatus.charAt(0).toUpperCase() + profileData.subscriptionStatus.slice(1)} Plan
+                    </Badge>
+                  )}
                   
-                  {isEditing && (
-                    <label htmlFor="avatar-upload" className="absolute -bottom-2 -right-2 cursor-pointer">
-                      <div className="h-12 w-12 rounded-full bg-linear-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 hover:from-blue-600 hover:to-blue-700 flex items-center justify-center transition-all duration-300 hover:scale-105">
-                        <Upload className="h-5 w-5 text-white" />
-                      </div>
-                      <input
-                        id="avatar-upload"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleAvatarChange}
-                        disabled={!isEditing}
-                      />
-                    </label>
+                  {profileData.verificationStatus && (
+                    <Badge 
+                      variant="outline"
+                      className={`px-3 py-1 border font-medium ${
+                        profileData.verificationStatus === "verified" 
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                          : profileData.verificationStatus === "pending"
+                          ? "bg-amber-50 text-amber-700 border-amber-200"
+                          : "bg-red-50 text-red-700 border-red-200"
+                      }`}
+                    >
+                      {profileData.verificationStatus.charAt(0).toUpperCase() + profileData.verificationStatus.slice(1)}
+                    </Badge>
                   )}
                 </div>
-                
-                <div className="mt-6 space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-slate-900 text-lg">Profile Photo</h4>
-                    <p className="text-sm text-slate-600 mt-1">
-                      Upload a professional headshot. Recommended: 400×400px, JPG or PNG, max 5MB.
-                    </p>
+              )}
+            </div>
+          </CardHeader>
+          
+          <CardContent className="space-y-8">
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="lg:w-1/3 space-y-6">
+                <div className="p-6 bg-linear-to-br from-blue-50/50 to-indigo-50/30 rounded-2xl border border-blue-100/50">
+                  <div className="relative mx-auto w-48 h-48">
+                    <Avatar className="h-full w-full border-4 border-white shadow-xl">
+                      {avatarPreview ? (
+                        <AvatarImage src={avatarPreview} alt="Profile" className="object-cover" />
+                      ) : (
+                        <div className="h-full w-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                          <AvatarFallback className="bg-transparent text-white text-4xl font-bold">
+                            {getInitials(currentName)}
+                          </AvatarFallback>
+                        </div>
+                      )}
+                    </Avatar>
+                    
+                    {isEditing && (
+                      <label htmlFor="avatar-upload" className="absolute -bottom-2 -right-2 cursor-pointer">
+                        <div className="h-12 w-12 rounded-full bg-linear-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 hover:from-blue-600 hover:to-blue-700 flex items-center justify-center transition-all duration-300 hover:scale-105">
+                          <Upload className="h-5 w-5 text-white" />
+                        </div>
+                        <input
+                          id="avatar-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleAvatarChange}
+                          disabled={!isEditing}
+                        />
+                      </label>
+                    )}
                   </div>
                   
-                  {isEditing && (
-                    <div className="flex flex-wrap gap-3">
-                      <label htmlFor="avatar-upload">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="gap-2 border-slate-200 hover:border-slate-300"
-                        >
-                          <Upload className="h-4 w-4" />
-                          Upload New
-                        </Button>
-                      </label>
-                      
-                      {avatarPreview && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={removeAvatar}
-                          className="text-slate-600 hover:text-red-600 hover:bg-red-50"
-                        >
-                          Remove Photo
-                        </Button>
-                      )}
+                  <div className="mt-6 space-y-4">
+                    <div>
+                      <h4 className="font-semibold text-slate-900 text-lg">Profile Photo</h4>
+                      <p className="text-sm text-slate-600 mt-1">
+                        Upload a professional headshot. Recommended: 400×400px, JPG or PNG, max 5MB.
+                      </p>
                     </div>
-                  )}
+                    
+                    {isEditing && (
+                      <div className="flex flex-wrap gap-3">
+                        <label htmlFor="avatar-upload">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="gap-2 border-slate-200 hover:border-slate-300"
+                          >
+                            <Upload className="h-4 w-4" />
+                            Upload New
+                          </Button>
+                        </label>
+                        
+                        {avatarPreview && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={removeAvatar}
+                            className="text-slate-600 hover:text-red-600 hover:bg-red-50"
+                          >
+                            Remove Photo
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Enhanced Security & Email Section */}
+                <Card className="border-slate-200/50 shadow-sm">
+                  <CardContent className="p-6">
+                    <h4 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-emerald-500" />
+                      Security & Account
+                    </h4>
+                    <div className="space-y-4">
+                      {/* Email Update Card */}
+                      <div 
+                        onClick={handleEmailUpdateClick}
+                        className="group cursor-pointer p-4 rounded-xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-200"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                              <Mail className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-slate-900 text-sm">Email Address</p>
+                              <p className="text-xs text-slate-500 truncate max-w-45" title={profileData?.email || userEmail}>
+                                {profileData?.email || userEmail}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {profileData?.verificationStatus && (
+                              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Verified
+                              </Badge>
+                            )}
+                            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                          </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-slate-100 group-hover:border-blue-100 transition-colors">
+                          <p className="text-xs text-blue-600 flex items-center gap-1">
+                            <Edit className="h-3 w-3" />
+                            Click to update email address
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                          <FileText className="h-4 w-4 text-emerald-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-slate-500">Job Posts Used</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium text-slate-900">
+                              {profileData?.jobPostsUsed ?? 0}
+                            </p>
+                            <Badge variant="outline" className="text-xs">
+                              Current
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                          <Calendar className="h-4 w-4 text-amber-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-slate-500">Member Since</p>
+                          <p className="text-sm font-medium text-slate-900">
+                            {profileData?.createdAt ? formatDate(profileData.createdAt) : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
+                          <User className="h-4 w-4 text-purple-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-slate-500">Profile ID</p>
+                          <p className="text-sm font-medium text-slate-900 truncate" title={profileData?._id}>
+                            {profileData?._id ? profileData._id.substring(0, 8) + "..." : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
 
-              <Card className="border-slate-200/50 shadow-sm">
-                <CardContent className="p-6">
-                  <h4 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                    <FileBadge className="h-5 w-5 text-blue-500" />
-                    Profile Information
-                  </h4>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-                        <Mail className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-slate-500">Email</p>
-                        <p className="text-sm font-medium text-slate-900 truncate" title={userEmail}>
-                          {userEmail}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
-                        <FileText className="h-4 w-4 text-emerald-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs text-slate-500">Job Posts Used</p>
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-slate-900">
-                            {profileData?.jobPostsUsed ?? 0}
-                          </p>
-                          <Badge variant="outline" className="text-xs">
-                            Current
-                          </Badge>
+              <div className="lg:w-2/3 space-y-8">
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                    <User className="h-5 w-5 text-blue-500" />
+                    Personal Information
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                        Full Name
+                        {errors.fullName && (
+                          <span className="text-red-500 text-xs font-normal">
+                            {errors.fullName.message}
+                          </span>
+                        )}
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="fullName"
+                          {...register("fullName")}
+                          disabled={!isEditing}
+                          className={`h-12 pl-11 ${errors.fullName ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
+                          placeholder="John Doe"
+                        />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                          <User className="h-4 w-4 text-slate-600" />
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-                        <Calendar className="h-4 w-4 text-amber-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs text-slate-500">Member Since</p>
-                        <p className="text-sm font-medium text-slate-900">
-                          {profileData?.createdAt ? formatDate(profileData.createdAt) : "N/A"}
-                        </p>
+                    <div className="space-y-2">
+                      <Label htmlFor="designation" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                        Designation
+                        {errors.designation && (
+                          <span className="text-red-500 text-xs font-normal">
+                            {errors.designation.message}
+                          </span>
+                        )}
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="designation"
+                          {...register("designation")}
+                          disabled={!isEditing}
+                          className={`h-12 pl-11 ${errors.designation ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
+                          placeholder="Senior Recruiter"
+                        />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                          <Briefcase className="h-4 w-4 text-purple-600" />
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
-                        <User className="h-4 w-4 text-purple-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-slate-500">Profile ID</p>
-                        <p className="text-sm font-medium text-slate-900 truncate" title={profileData?._id}>
-                          {profileData?._id ? profileData._id.substring(0, 8) + "..." : "N/A"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="lg:w-2/3 space-y-8">
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                  <User className="h-5 w-5 text-blue-500" />
-                  Personal Information
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-                      Full Name
-                      {errors.fullName && (
-                        <span className="text-red-500 text-xs font-normal">
-                          {errors.fullName.message}
-                        </span>
-                      )}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="fullName"
-                        {...register("fullName")}
-                        disabled={!isEditing}
-                        className={`h-12 pl-11 ${errors.fullName ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
-                        placeholder="John Doe"
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center">
-                        <User className="h-4 w-4 text-slate-600" />
+                    <div className="space-y-2">
+                      <Label htmlFor="location" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                        Location
+                        {errors.location && (
+                          <span className="text-red-500 text-xs font-normal">
+                            {errors.location.message}
+                          </span>
+                        )}
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="location"
+                          {...register("location")}
+                          disabled={!isEditing}
+                          className={`h-12 pl-11 ${errors.location ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
+                          placeholder="San Francisco, CA"
+                        />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                          <MapPin className="h-4 w-4 text-amber-600" />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="designation" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-                      Designation
-                      {errors.designation && (
-                        <span className="text-red-500 text-xs font-normal">
-                          {errors.designation.message}
-                        </span>
-                      )}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="designation"
-                        {...register("designation")}
-                        disabled={!isEditing}
-                        className={`h-12 pl-11 ${errors.designation ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
-                        placeholder="Senior Recruiter"
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                        <Briefcase className="h-4 w-4 text-purple-600" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="location" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-                      Location
-                      {errors.location && (
-                        <span className="text-red-500 text-xs font-normal">
-                          {errors.location.message}
-                        </span>
-                      )}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="location"
-                        {...register("location")}
-                        disabled={!isEditing}
-                        className={`h-12 pl-11 ${errors.location ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
-                        placeholder="San Francisco, CA"
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center">
-                        <MapPin className="h-4 w-4 text-amber-600" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="linkedin" className="text-sm font-medium text-slate-700">
-                      LinkedIn Profile (Optional)
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="linkedin"
-                        className="h-12 pl-11 border-slate-200 disabled:bg-slate-50"
-                        placeholder="https://linkedin.com/in/yourprofile"
-                        disabled={!isEditing}
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                        <Linkedin className="h-4 w-4 text-[#0A66C2]" />
+                    <div className="space-y-2">
+                      <Label htmlFor="linkedin" className="text-sm font-medium text-slate-700">
+                        LinkedIn Profile (Optional)
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="linkedin"
+                          className="h-12 pl-11 border-slate-200 disabled:bg-slate-50"
+                          placeholder="https://linkedin.com/in/yourprofile"
+                          disabled={!isEditing}
+                        />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                          <Linkedin className="h-4 w-4 text-[#0A66C2]" />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                  <Building className="h-5 w-5 text-indigo-500" />
-                  Company Information
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="companyName" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-                      Company Name
-                      {errors.companyName && (
-                        <span className="text-red-500 text-xs font-normal">
-                          {errors.companyName.message}
-                        </span>
-                      )}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="companyName"
-                        {...register("companyName")}
-                        disabled={!isEditing}
-                        className={`h-12 pl-11 ${errors.companyName ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
-                        placeholder="TechCorp Inc."
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                        <Building className="h-4 w-4 text-indigo-600" />
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                    <Building className="h-5 w-5 text-indigo-500" />
+                    Company Information
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="companyName" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                        Company Name
+                        {errors.companyName && (
+                          <span className="text-red-500 text-xs font-normal">
+                            {errors.companyName.message}
+                          </span>
+                        )}
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="companyName"
+                          {...register("companyName")}
+                          disabled={!isEditing}
+                          className={`h-12 pl-11 ${errors.companyName ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
+                          placeholder="TechCorp Inc."
+                        />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+                          <Building className="h-4 w-4 text-indigo-600" />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="companySize" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-                      Company Size
-                      {errors.companySize && (
-                        <span className="text-red-500 text-xs font-normal">
-                          {errors.companySize.message}
-                        </span>
-                      )}
-                    </Label>
-                    <div className="relative">
-                      <select
-                        id="companySize"
-                        {...register("companySize")}
-                        disabled={!isEditing}
-                        className={`w-full h-12 pl-11 pr-4 rounded-md border ${errors.companySize ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer`}
-                      >
-                        <option value="">Select company size</option>
-                        {COMPANY_SIZES.map(({ value, label }) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-rose-50 flex items-center justify-center">
-                        <Users className="h-4 w-4 text-rose-600" />
+                    <div className="space-y-2">
+                      <Label htmlFor="companySize" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                        Company Size
+                        {errors.companySize && (
+                          <span className="text-red-500 text-xs font-normal">
+                            {errors.companySize.message}
+                          </span>
+                        )}
+                      </Label>
+                      <div className="relative">
+                        <select
+                          id="companySize"
+                          {...register("companySize")}
+                          disabled={!isEditing}
+                          className={`w-full h-12 pl-11 pr-4 rounded-md border ${errors.companySize ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer`}
+                        >
+                          <option value="">Select company size</option>
+                          {COMPANY_SIZES.map(({ value, label }) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-rose-50 flex items-center justify-center">
+                          <Users className="h-4 w-4 text-rose-600" />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="industry" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-                      Industry
-                      {errors.industry && (
-                        <span className="text-red-500 text-xs font-normal">
-                          {errors.industry.message}
-                        </span>
-                      )}
-                    </Label>
-                    <div className="relative">
-                      <select
-                        id="industry"
-                        {...register("industry")}
-                        disabled={!isEditing}
-                        className={`w-full h-12 pl-11 pr-4 rounded-md border ${errors.industry ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer`}
-                      >
-                        <option value="">Select industry</option>
-                        {INDUSTRIES.map(industry => (
-                          <option key={industry} value={industry}>
-                            {industry}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                        <Building className="h-4 w-4 text-emerald-600" />
+                    <div className="space-y-2">
+                      <Label htmlFor="industry" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                        Industry
+                        {errors.industry && (
+                          <span className="text-red-500 text-xs font-normal">
+                            {errors.industry.message}
+                          </span>
+                        )}
+                      </Label>
+                      <div className="relative">
+                        <select
+                          id="industry"
+                          {...register("industry")}
+                          disabled={!isEditing}
+                          className={`w-full h-12 pl-11 pr-4 rounded-md border ${errors.industry ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer`}
+                        >
+                          <option value="">Select industry</option>
+                          {INDUSTRIES.map(industry => (
+                            <option key={industry} value={industry}>
+                              {industry}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                          <Building className="h-4 w-4 text-emerald-600" />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="companyWebsite" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-                      Company Website
-                      {errors.companyWebsite && (
-                        <span className="text-red-500 text-xs font-normal">
-                          {errors.companyWebsite.message}
-                        </span>
-                      )}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="companyWebsite"
-                        {...register("companyWebsite")}
-                        disabled={!isEditing}
-                        className={`h-12 pl-11 ${errors.companyWebsite ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
-                        placeholder="https://company.com"
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-sky-50 flex items-center justify-center">
-                        <Globe className="h-4 w-4 text-sky-600" />
+                    <div className="space-y-2">
+                      <Label htmlFor="companyWebsite" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                        Company Website
+                        {errors.companyWebsite && (
+                          <span className="text-red-500 text-xs font-normal">
+                            {errors.companyWebsite.message}
+                          </span>
+                        )}
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="companyWebsite"
+                          {...register("companyWebsite")}
+                          disabled={!isEditing}
+                          className={`h-12 pl-11 ${errors.companyWebsite ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
+                          placeholder="https://company.com"
+                        />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-sky-50 flex items-center justify-center">
+                          <Globe className="h-4 w-4 text-sky-600" />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-amber-500" />
-                  Professional Bio
-                </h3>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="bio" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-                    About You
-                    <span className={`text-xs ${bioLength > 450 ? 'text-red-500' : 'text-slate-500'}`}>
-                      {bioLength}/500 characters
-                    </span>
-                  </Label>
-                  <Textarea
-                    id="bio"
-                    {...register("bio")}
-                    disabled={!isEditing}
-                    rows={4}
-                    className={`min-h-30 resize-y ${errors.bio ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
-                    placeholder="Tell us about your professional background, expertise, and what makes you unique as a recruiter..."
-                  />
-                  {errors.bio && (
-                    <p className="text-red-500 text-xs mt-1">{errors.bio.message}</p>
-                  )}
-                  <p className="text-xs text-slate-500 mt-2">
-                    Share your experience, skills, and what you're looking for in candidates.
-                  </p>
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-amber-500" />
+                    Professional Bio
+                  </h3>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="bio" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                      About You
+                      <span className={`text-xs ${bioLength > 450 ? 'text-red-500' : 'text-slate-500'}`}>
+                        {bioLength}/500 characters
+                      </span>
+                    </Label>
+                    <Textarea
+                      id="bio"
+                      {...register("bio")}
+                      disabled={!isEditing}
+                      rows={4}
+                      className={`min-h-30 resize-y ${errors.bio ? 'border-red-300 focus:ring-red-500/20' : 'border-slate-200'} ${!isEditing ? 'bg-slate-50' : ''}`}
+                      placeholder="Tell us about your professional background, expertise, and what makes you unique as a recruiter..."
+                    />
+                    {errors.bio && (
+                      <p className="text-red-500 text-xs mt-1">{errors.bio.message}</p>
+                    )}
+                    <p className="text-xs text-slate-500 mt-2">
+                      Share your experience, skills, and what you're looking for in candidates.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-        
-        <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-slate-200">
-          <div className="text-sm text-slate-500 text-center sm:text-left">
-            {isEditing ? (
-              isDirty ? (
-                "You have unsaved changes. Save or cancel to continue."
-              ) : (
-                "Make changes to your profile and save them."
-              )
-            ) : (
-              "Ready to update your profile information?"
-            )}
-          </div>
+          </CardContent>
           
-          <div className="flex gap-3">
-            {isEditing ? (
-              <>
+          <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-slate-200">
+            <div className="text-sm text-slate-500 text-center sm:text-left">
+              {isEditing ? (
+                isDirty ? (
+                  "You have unsaved changes. Save or cancel to continue."
+                ) : (
+                  "Make changes to your profile and save them."
+                )
+              ) : (
+                "Ready to update your profile information?"
+              )}
+            </div>
+            
+            <div className="flex gap-3">
+              {isEditing ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                    className="h-11 px-6 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                    disabled={isSubmitting}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-11 px-6 gap-2 bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl transition-all duration-300 disabled:opacity-70"
+                    disabled={isSubmitting || !isDirty}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Save Changes
+                      </>
+                    )}
+                  </Button>
+                </>
+              ) : (
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  className="h-11 px-6 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
-                  disabled={isSubmitting}
+                  variant="default"
+                  onClick={() => setIsEditing(true)}
+                  className="h-11 px-6 gap-2 bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
                 >
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
+                  <Edit className="h-4 w-4" />
+                  Edit Profile
                 </Button>
-                <Button
-                  type="submit"
-                  className="h-11 px-6 gap-2 bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl transition-all duration-300 disabled:opacity-70"
-                  disabled={isSubmitting || !isDirty}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4" />
-                      Save Changes
-                    </>
+              )}
+            </div>
+          </CardFooter>
+        </form>
+      </Card>
+
+      {/* Enhanced Email Update Modal */}
+      <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
+        <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-0 shadow-2xl">
+          {/* Header with linear background */}
+          <div className="relative bg-linear-to-br from-indigo-600 via-purple-600 to-blue-700 px-6 pt-8 pb-6">
+            <div className="absolute inset-0 bg-grid-white/5"></div>
+            <div className="relative">
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg">
+                  <Lock className="h-7 w-7 text-white" />
+                </div>
+                <div className="flex-1">
+                  <DialogTitle className="text-2xl font-bold text-white mb-1">
+                    {otpSent ? 'Verify Your Email' : 'Secure Email Update'}
+                  </DialogTitle>
+                  <DialogDescription className="text-indigo-100/90 text-sm">
+                    {otpSent
+                      ? "Enter the 6-digit verification code sent to your email"
+                      : "Enter your new email address to receive a verification code"}
+                  </DialogDescription>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-6 py-6">
+            {!otpSent ? (
+              <div className="space-y-5">
+                <div className="space-y-3">
+                  <Label htmlFor="modal-email" className="text-sm font-semibold text-gray-700">
+                    New Email Address
+                  </Label>
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-indigo-600" />
+                    <Input
+                      id="modal-email"
+                      type="email"
+                      placeholder="your.email@example.com"
+                      value={newEmail}
+                      onChange={(e) => {
+                        setNewEmail(e.target.value)
+                        setEmailError("")
+                      }}
+                      disabled={isSendingOtp}
+                      className={`pl-12 h-12 text-base rounded-xl border-2 transition-all duration-200 ${
+                        emailError 
+                          ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-100" 
+                          : "border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                      }`}
+                      autoFocus
+                    />
+                  </div>
+                  {emailError && (
+                    <div className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-100 p-3.5">
+                      <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm font-medium text-red-700">{emailError}</p>
+                    </div>
                   )}
-                </Button>
-              </>
+                </div>
+
+                <div className="rounded-xl bg-linear-to-br from-indigo-50/80 to-purple-50/80 border border-indigo-100 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100">
+                      <Info className="h-5 w-5 text-indigo-600" />
+                    </div>
+                    <div className="space-y-2 flex-1">
+                      <p className="text-sm font-semibold text-gray-800">
+                        What happens next?
+                      </p>
+                      <ul className="space-y-1.5 text-sm text-gray-600">
+                        <li className="flex items-start gap-2">
+                          <span className="text-indigo-500 mt-0.5">•</span>
+                          <span>You'll receive a 6-digit verification code</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-indigo-500 mt-0.5">•</span>
+                          <span>The code expires in 15 minutes</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-indigo-500 mt-0.5">•</span>
+                          <span>Your email won't change until verified</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
-              <Button
-                type="button"
-                variant="default"
-                onClick={() => setIsEditing(true)}
-                className="h-11 px-6 gap-2 bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-              >
-                <Edit className="h-4 w-4" />
-                Edit Profile
-              </Button>
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold text-gray-700">
+                      Verification Code
+                    </Label>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 border border-gray-200">
+                      <Mail className="h-3.5 w-3.5 text-gray-500" />
+                      <span className="text-xs font-medium text-gray-700 truncate max-w-35">{newEmail}</span>
+                    </div>
+                  </div>
+
+                  {/* Enhanced OTP Input */}
+                  <div className="relative">
+                    <input
+                      id="otp-input"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      autoComplete="one-time-code"
+                      value={otp}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 6)
+                        setOtp(value)
+                        setEmailError("")
+                      }}
+                      onFocus={(e) => e.target.select()}
+                      disabled={isVerifyingOtp}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-default"
+                      autoFocus
+                      maxLength={6}
+                    />
+                    
+                    <div className="flex justify-center gap-3">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <div
+                          key={index}
+                          onClick={() => {
+                            document.getElementById('otp-input')?.focus()
+                          }}
+                          className={`h-14 w-12 rounded-xl border-2 flex items-center justify-center cursor-text transition-all duration-200 ${
+                            otp[index] 
+                              ? 'bg-linear-to-b from-indigo-50 to-white border-indigo-500 shadow-sm shadow-indigo-500/20' 
+                              : index === otp.length
+                              ? 'border-indigo-400 ring-4 ring-indigo-100'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <span className="text-2xl font-bold text-gray-800">
+                            {otp[index] || ""}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {emailError && (
+                    <div className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-100 p-3.5">
+                      <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm font-medium text-red-700">{emailError}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={countdown > 0 || isSendingOtp}
+                      className="flex items-center gap-2 font-medium text-indigo-600 hover:text-indigo-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-all hover:gap-3"
+                    >
+                      {isSendingOtp ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Sending new code...
+                        </>
+                      ) : countdown > 0 ? (
+                        <>
+                          <Clock className="h-4 w-4" />
+                          Resend in {countdown}s
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="h-4 w-4" />
+                          Resend verification code
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpSent(false)
+                        setEmailError("")
+                      }}
+                      className="flex items-center gap-2 font-medium text-gray-600 hover:text-gray-800 transition-all hover:gap-3"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Change email
+                    </button>
+                  </div>
+
+                  <div className="rounded-xl bg-linear-to-br from-amber-50/80 to-orange-50/80 border border-amber-100 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100">
+                        <HelpCircle className="h-5 w-5 text-amber-600" />
+                      </div>
+                      <div className="space-y-1 flex-1">
+                        <p className="text-sm font-semibold text-gray-800">
+                          Can't find the code?
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Check your spam folder or wait a few moments. Codes are valid for 15 minutes.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
-        </CardFooter>
-      </form>
-    </Card>
+
+          <DialogFooter className="gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <Button
+              variant="outline"
+              onClick={handleModalClose}
+              disabled={isSendingOtp || isVerifyingOtp}
+              className="px-6 h-11 rounded-xl font-semibold border-2 hover:bg-gray-100 transition-all"
+            >
+              Cancel
+            </Button>
+            {!otpSent ? (
+              <Button
+                onClick={handleSendOtp}
+                disabled={isSendingOtp || !newEmail}
+                className="gap-2 px-6 h-11 rounded-xl font-semibold bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl hover:shadow-indigo-500/40"
+              >
+                {isSendingOtp ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Sending Code...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    Send Verification Code
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleVerifyOtp}
+                disabled={isVerifyingOtp || otp.length !== 6}
+                className="gap-2 px-6 h-11 rounded-xl font-semibold bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl hover:shadow-indigo-500/40"
+              >
+                {isVerifyingOtp ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4" />
+                    Verify & Update Email
+                  </>
+                )}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

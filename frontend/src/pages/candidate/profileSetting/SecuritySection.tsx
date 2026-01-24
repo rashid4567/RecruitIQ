@@ -4,13 +4,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+
 import { Shield, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { candidateService } from "@/services/candidate/candidate.service";
 import { getError } from "@/utils/getError";
 
-// Validation helper functions
 const validatePassword = (password: string) => {
   const errors: string[] = [];
 

@@ -1,41 +1,38 @@
+import { email } from "zod";
 import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { TokenServicePort } from "../ports/token.service.ports";
-
-interface VerificationInput {
-  email: string;
-  otp: string;
-  password: string;
-  fullName: string;
-  role: "candidate" | "recruiter";
-}
+import { Email } from "../../domain/value.objects.ts/email.vo";
+import { Password } from "../../domain/value.objects.ts/password.vo";
+import { VerificationInput } from "../dto/verification.input.dto";
+import { OTPServicePort } from "../ports/otp.service.ports";
+import { PasswordHasherPort } from "../ports/password.service.port";
+import { SUCCESS_CODES } from "../constants/success-code.contents";
 
 export class VerifyRegistrationUseCase {
   constructor(
     private readonly userRepo: UserRepository,
-    private readonly otpService: {
-      verify(email: string, otp: string, role: string): Promise<void>;
-    },
-    private readonly passwordService: {
-      hash(password: string): Promise<string>;
-    },
-    private readonly tokenService: TokenServicePort,
-    private readonly profileService: {
-      createProfile(userId: string, role: string): Promise<void>;
-    }
+    private readonly otpRepo: OTPServicePort,
+    private readonly passwrodHash: PasswordHasherPort,
   ) {}
 
   async execute(input: VerificationInput) {
-    await this.otpService.verify(input.email, input.otp, input.role);
+    await this.otpRepo.verify(Email.create(input.otp), input.otp, input.role);
+    const password = Password.create(input.password);
+    const passwordHash = await this.passwrodHash.hash(password);
 
-    const passwordHash = await this.passwordService.hash(input.password);
+    const user = User.register({
+      id: "",
+      email: Email.create(input.email),
+      role: input.role,
+      fullName: input.fullName,
+      passwordHash,
+    });
 
-    const user = new User("", input.email, input.role, input.fullName, true, "local");
+    const savedUser = await this.userRepo.save(user);
 
-    const savedUser = await this.userRepo.create(user, passwordHash);
-
-    await this.profileService.createProfile(savedUser.id, savedUser.role);
-
-    return this.tokenService.generateToken(savedUser);
+    return {
+      code: SUCCESS_CODES.USER_CREATED,
+      userId: savedUser.id,
+    };
   }
 }

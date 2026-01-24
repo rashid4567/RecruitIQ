@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { authService } from "../../services/auth/auth.service";
-import { useNavigate, Link } from "react-router-dom";
+import {  Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Mail, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 
@@ -9,7 +9,7 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<{ email?: string }>({});
-  const navigate = useNavigate();
+
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

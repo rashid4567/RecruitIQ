@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserIcon, BriefcaseIcon, ArrowRight } from "lucide-react";
@@ -43,7 +41,7 @@ const RoleSelection = () => {
         state: { role: selectedRole },
       });
     } else if (selectedRole === "recruiter") {
-      navigate("/recruiter/signup", {
+      navigate("/signup", {
         state: { role: selectedRole },
       });
     }

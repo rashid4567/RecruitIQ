@@ -1,7 +1,7 @@
 import { otpModel } from "../mongoose/model/otp.model";
 import { sendOtp } from "../../../../utils/email";
 import { generateOTP, hashOTP } from "../../../../utils/otp";
-import { OTPServicePort  } from "../../application/ports/opt.service.ports";
+import { OTPServicePort  } from "../../application/ports/otp.service.ports";
 
 export class OTPService implements OTPServicePort {
     async create(email : string, role : "candidate" | "recruiter"){

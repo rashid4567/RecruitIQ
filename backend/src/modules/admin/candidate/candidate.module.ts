@@ -1,4 +1,4 @@
-import { CandidateController } from "../../candidate/presentation/candidate.controller";
+import { CandidateController } from "../../candidate/presentation/controller/candidate.controller";
 import { BlockCandidateUseCase } from "./Application/use-Cases/block-candidate.usecase";
 import { GetCandidateprofileUseCase } from "./Application/use-Cases/get-candidate-profile.usecase";
 import { GetcandidateUseCase } from "./Application/use-Cases/get-candidates.usecase";

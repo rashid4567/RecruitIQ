@@ -1,4 +1,3 @@
-// INPUT DTO (form + update)
 export interface RecruiterProfileData {
   fullName?: string;
   profileImage?: string;
@@ -11,13 +10,14 @@ export interface RecruiterProfileData {
   designation?: string;
 }
 
-// OUTPUT DTO (API response)
+
 export interface RecruiterProfileResponse {
   _id: string;
   userId: string;
 
   fullName?: string;
   profileImage?: string;
+  email?:string,
   companyName?: string;
   companyWebsite?: string;
   companySize?: string;

@@ -8,6 +8,15 @@ export interface UserRepository {
     profileImage?: string;
   } | null>;
 
+  findByEmail(
+    email: string
+  ): Promise<{
+    id: string;
+    fullName: string;
+    email: string;
+    profileImage?: string;
+  } | null>;
+
   updateProfile(
     userId: string,
     data: {

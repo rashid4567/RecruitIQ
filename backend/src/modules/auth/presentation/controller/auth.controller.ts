@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { HTTP_STATUS } from "../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../constants/httpStatus";
 
 export class AuthController {
   constructor(
@@ -18,10 +18,10 @@ export class AuthController {
     private readonly refreshUC: {
       execute(refreshToken: string): Promise<string>;
     },
-    private readonly forgotPasswordUC: {               // ✅ FIX
+    private readonly forgotPasswordUC: {              
       execute(email: string): Promise<void>;
     },
-    private readonly resetPasswordUC: {                // ✅ FIX
+    private readonly resetPasswordUC: {       
       execute(token: string, newPassword: string): Promise<void>;
     }
   ) {}

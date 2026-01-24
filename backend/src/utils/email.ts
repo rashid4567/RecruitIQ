@@ -9,13 +9,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-console.log("📧 EMAIL_USER:", process.env.EMAIL_USER);
-console.log(
-  "📧 EMAIL_PASS:",
-  process.env.EMAIL_PASS ? "SET" : "NOT SET"
-);
 
-/* ================= OTP EMAIL ================= */
+
+
 export const sendOtp = async (to: string, otp: string) => {
   try {
     await transporter.sendMail({
@@ -48,7 +44,7 @@ export const sendOtp = async (to: string, otp: string) => {
   }
 };
 
-/* ============== PASSWORD RESET EMAIL ============== */
+
 export const sendPasswordLink = async (
   to: string,
   resetLink: string
@@ -89,7 +85,7 @@ export const sendPasswordLink = async (
   }
 };
 
-/* ================= TEST EMAIL ================= */
+
 export const sendTestEmail = async (
   to: string,
   subject: string,

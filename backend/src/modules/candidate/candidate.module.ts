@@ -10,22 +10,31 @@ import { MongooseCandidateRepository } from "./infrastructure/repositories/mongo
 import { MongooseUserRepository } from "./infrastructure/repositories/mongoose-user.repository";
 import { PasswordService } from "./infrastructure/service/password.service";
 import { UserService } from "./infrastructure/service/user.service";
-import { CandidateController } from "./presentation/candidate.controller";
+import { CandidateController } from "./presentation/controller/candidate.controller";
+import { RequestCandidateEmailUpdateUseCase } from "./application/use-cases/request-candidate-emailUpdate.usecase";
+import { OTPServicePort } from "../auth/application/ports/otp.service.ports";
+import { OTPService } from "../auth/infrastructure/service/otp.service";
+import { verifyCadndidateEmailUpdateUseCase } from "./application/use-cases/verify-candidate-email.usecse";
 
 const candidateRepository : CandidateRespository = new MongooseCandidateRepository();
 const userRepository :  UserRepository = new MongooseUserRepository();
 const passwordService : passwordServicePort = new PasswordService();
 const userService : UserServicePort = new UserService();
+const otpService : OTPServicePort = new OTPService();
 
 const getCandidateProfileUC = new GetCandidateProfileUseCase(candidateRepository, userRepository);
 const updateCandidateProfileUC = new UpdateCandidateProfileUseCase(candidateRepository, userRepository)
 const completeCandidateProfileUC = new CompleteProfileCandidateProfileUseCase(candidateRepository);
 const updatePasswordUC = new updatePasswordUseCase(userService, passwordService);
+const requestEmailUpdateUC = new RequestCandidateEmailUpdateUseCase(userRepository, otpService)
+const verifyEmaolupdateUc = new verifyCadndidateEmailUpdateUseCase(otpService, userRepository)
 
 export const candidateController = new CandidateController(
     getCandidateProfileUC,
   updateCandidateProfileUC,
   completeCandidateProfileUC,
-  updatePasswordUC
+  updatePasswordUC,
+  requestEmailUpdateUC,
+  verifyEmaolupdateUc,
 
 )

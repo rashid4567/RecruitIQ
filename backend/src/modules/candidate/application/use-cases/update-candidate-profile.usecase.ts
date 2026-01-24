@@ -13,12 +13,11 @@ export class UpdateCandidateProfileUseCase {
     userId: string,
     input: UpdateCandidateProfileDTO
   ): Promise<CandidateProfileDTO> {
-    const { fullName, email, profileImage, ...candidateData } = input;
+    const { fullName, profileImage, ...candidateData } = input;
 
-    if (fullName || email || profileImage) {
+    if (fullName || profileImage) {
       await this.userRepo.updateProfile(userId, {
         fullName,
-        email,
         profileImage,
       });
     }

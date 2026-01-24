@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { authService } from "../../services/auth/auth.service";
 import { getError } from "@/utils/getError"
+import { toast } from "sonner"
 
 export default function AdminLogin() {
   const navigate = useNavigate()
@@ -22,9 +23,10 @@ export default function AdminLogin() {
         await authService.adminLogin(email, password);
         console.log("Role : ", localStorage.getItem("userRole"));
         console.log("Token : ", localStorage.getItem("authToken"))
+        toast.success("login succesfully")
         navigate("/admin/dashboard");
     }catch(err: unknown){
-        alert(getError(err || "Admin login failed"))
+        toast.error(getError(err || "Admin login failed"))
     }finally{
         setIsLoading(false)
     }

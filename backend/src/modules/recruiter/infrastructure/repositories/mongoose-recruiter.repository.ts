@@ -2,23 +2,17 @@ import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.
 import { RecruiterProfile } from "../../domain/entities/recruiter-profile.entity";
 import { RecruiterProfileModel } from "../mongoose/model/recruiter-profile.model";
 
-export class MongooseRecruiterProfileRepository
-  implements RecruiterProfileRepository
-{
-  async findByUserId(
-    userId: string
-  ): Promise<RecruiterProfile | null> {
+export class MongooseRecruiterProfileRepository implements RecruiterProfileRepository {
+  async findByUserId(userId: string): Promise<RecruiterProfile | null> {
     const doc = await RecruiterProfileModel.findOne({ userId }).lean();
     return doc ? this.toEntity(doc) : null;
   }
 
-  async createIfNotExists(
-    userId: string
-  ): Promise<RecruiterProfile> {
+  async createIfNotExists(userId: string): Promise<RecruiterProfile> {
     const doc = await RecruiterProfileModel.findOneAndUpdate(
       { userId },
       {},
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     ).lean();
 
     return this.toEntity(doc);
@@ -26,12 +20,12 @@ export class MongooseRecruiterProfileRepository
 
   async updateByUserId(
     userId: string,
-    data: Partial<RecruiterProfile>
+    data: Partial<RecruiterProfile>,
   ): Promise<RecruiterProfile | null> {
     const doc = await RecruiterProfileModel.findOneAndUpdate(
       { userId },
       { $set: data },
-      { new: true }
+      { new: true },
     ).lean();
 
     return doc ? this.toEntity(doc) : null;
@@ -49,7 +43,7 @@ export class MongooseRecruiterProfileRepository
       doc.bio,
       doc.subscriptionStatus,
       doc.jobPostsUsed,
-      doc.verificationStatus
+      doc.verificationStatus,
     );
   }
 }

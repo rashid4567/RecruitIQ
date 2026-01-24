@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-import authRoutes from "./modules/auth/presentation/auth.routes";
-import candidateRoutes from "./modules/candidate/presentation/candidate.routes";
-import recruiterRoutes from "./modules/recruiter/presentation/recruiter.routes";
+import authRoutes from "./modules/auth/presentation/routes/auth.routes";
+import candidateRoutes from "./modules/candidate/presentation/routes/candidate.routes";
+import recruiterRoutes from "./modules/recruiter/presentation/router/recruiter.routes";
 import adminCandidateRouters from "./modules/admin/candidate/Presentation/candidate.routes"
 import adminRecruiterRouters from "./modules/admin/Recruiter/presentation/recruiter.routes"
 import adminEmailTemplateRouter from "./modules/admin/email-template/presentation/email-templete.routes";

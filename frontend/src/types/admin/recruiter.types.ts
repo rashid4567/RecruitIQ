@@ -40,7 +40,7 @@ export interface RecruiterProfile {
   email: string;
   role: string;
   profileImage?: string;
-
+  phone?: string;
   isActive: boolean;
   verificationStatus: VerificationStatus;
 

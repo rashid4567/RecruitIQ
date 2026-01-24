@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import {  Bell, Users, FileText, User, Briefcase, TrendingUp, BarChart3, DollarSign, Zap, Target, Activity, Clock, ArrowUpRight, ArrowDownRight, RefreshCw, Download } from "lucide-react"
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts"
+import { Settings, Bell, Users, Building, FileText, User, Briefcase, TrendingUp, BarChart3, DollarSign, Zap, Target, Activity, Calendar, Clock, ArrowUpRight, ArrowDownRight, RefreshCw, Download } from "lucide-react"
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts"
 import Sidebar from "../../components/admin/sideBar"
 import type { ReactNode } from "react"
 import { Button } from "@/components/ui/button"
@@ -62,6 +62,7 @@ const StatCard = ({ icon, label, value, change, changeType, color }: StatCardPro
 )
 
 export default function AdminDashboard() {
+  const [sidebarOpen] = useState(true)
   const [currentTime, setCurrentTime] = useState('')
 
   useEffect(() => {
@@ -279,8 +280,8 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   {recentActivity.map((activity, index) => (
                     <div key={index} className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                      <div className="shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
                           <Bell className="w-5 h-5 text-indigo-600" />
                         </div>
                       </div>

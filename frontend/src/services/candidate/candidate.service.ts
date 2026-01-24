@@ -33,4 +33,14 @@ export const candidateService = {
   return res.data;
 },
 
+  requestEmailUpdate : async (newEmail  :string):Promise<void> =>{
+    await api.put("/candidate/email/request-otp",{newEmail})
+  },
+
+  verifyEmailUpdate : async (payload : {
+    newEmail : string,
+    otp : string,
+  }):Promise<void> =>{
+    await api.post("/candidate/email/verify",payload)
+  }
 };

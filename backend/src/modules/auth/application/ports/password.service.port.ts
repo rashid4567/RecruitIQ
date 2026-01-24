@@ -1,4 +1,6 @@
-export interface passwordServicePort{
-    hash(passWord : string):Promise<string>
-    compare(password : string, hash : string):Promise<boolean>
+import { Password } from "../../domain/value.objects.ts/password.vo"
+
+export interface PasswordHasherPort {
+    hash(password : Password):Promise<string>
+    compare(password : Password, hash : string):Promise<boolean>
 }

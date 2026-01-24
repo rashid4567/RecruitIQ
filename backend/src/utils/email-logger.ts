@@ -36,6 +36,6 @@ export const logEmail = (data: {
 
     console.log("📧 EMAIL LOG:", entry);
   } catch (err) {
-    console.error("❌ Failed to write email log:", err);
+    console.error(" Failed to write email log:", err);
   }
 };

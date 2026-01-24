@@ -2,15 +2,8 @@
 
 import { useState, useEffect } from "react";
 import {
-  LogOut,
-  Settings,
+
   Mail,
-  FileText,
-  Users,
-  UserCheck,
-  BarChart3,
-  LogIn,
-  Grid3x3,
   Bold,
   Italic,
   List,

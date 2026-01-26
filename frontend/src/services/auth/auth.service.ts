@@ -9,7 +9,7 @@ export const authService = {
   },
 
   verifyOtpAndRegister: async (data: {
-    email: string;
+    email: string; 
     otp: string;
     password: string;
     fullName: string;

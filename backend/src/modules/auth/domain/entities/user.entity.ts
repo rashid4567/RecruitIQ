@@ -15,7 +15,9 @@ export class User {
     public readonly authProvider: AuthProvider,
     private readonly passwordHash?: string,
     public readonly googleId?: GoogleId
-  ) {}
+  ) {
+    this.validateInvariants();
+  }
 
   public static register(params: {
     id: string;
@@ -34,6 +36,29 @@ export class User {
       params.passwordHash
     );
   }
+
+  public static rehydrate(params: {
+    id: string;
+    email: Email;
+    role: userRoles;
+    fullName: string;
+    isActive: boolean;
+    authProvider: AuthProvider;
+    passwordHash?: string;
+    googleId?: GoogleId;
+  }): User {
+    return new User(
+      params.id,
+      params.email,
+      params.role,
+      params.fullName,
+      params.isActive,
+      params.authProvider,
+      params.passwordHash,
+      params.googleId
+    );
+  }
+
 
 
   public static registerWithGoogle(params: {
@@ -63,10 +88,45 @@ export class User {
     password: Password,
     hasher: PasswordHasherPort 
   ): Promise<boolean> {
-    if (!this.passwordHash) {
+    if (!this.authProvider.isLocal() ||  !this.passwordHash) {
       return false; 
     }
     return hasher.compare(password, this.passwordHash);
   }
+
+  public changePassword(newPasswordHash : string):User{
+    if(!this.authProvider.isLocal()){
+      throw new Error("Password change not allowed for social login")
+    }
+
+    return new User(
+      this.id,
+      this.email,
+      this.role,
+      this.fullName,
+      this.isActive,
+      this.authProvider,
+      newPasswordHash,
+      this.googleId
+    )
+  }
+
+  getPasswordHash():string | undefined{
+    return this.passwordHash;
+  }
+  private validateInvariants():void{
+    if(this.authProvider.isLocal() && !this.passwordHash){
+      throw new Error("Local user must have a password hash")
+    }
+    if(this.authProvider.isGoogle() && !this.googleId){
+      throw new Error("Google user must have a GoogleId")
+    }
+
+    if(this.authProvider.isGoogle() &&  this.passwordHash){
+      throw new Error("Google user cannot have a password");
+    }
+  }
+
+  
 }
  

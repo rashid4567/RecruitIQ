@@ -1,17 +1,18 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { PasswordHasherPort } from "../ports/password.service.port";
-import { TokenServicePort } from "../ports/token.service.ports";
 import { User } from "../../domain/entities/user.entity";
 import { Email } from "../../domain/value.objects.ts/email.vo";
 import { Password } from "../../domain/value.objects.ts/password.vo";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 import { ApplicationError } from "../errors/application.error";
 import { SUCCESS_CODES } from "../constants/success-code.contents";
+import { AuthTokenServicePort } from "../ports/token.service.ports";
 
 export class LoginUseCase {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly passwordHasher: PasswordHasherPort,
+    private readonly tokenService : AuthTokenServicePort,
   ) {}
 
   async execute(emailRaw: string, passwordRaw: string) {
@@ -36,8 +37,10 @@ export class LoginUseCase {
     }
 
     return {
-      code: SUCCESS_CODES.LOGIN_SUCCESS,
-      userId: user.id,
+     accessToken : this.tokenService.generateAccessToken(user.id, user.role),
+     refreshToken : this.tokenService.generateRefreshToken(user.id),
+     userId : user.id,
+    role : user.role,
     };
   }
 }

@@ -1,6 +1,6 @@
 import { GoogleAuthPort } from "./application/ports/google-auth.ports";
-import { passwordServicePort } from "./application/ports/password.service.port";
-import { TokenServicePort } from "./application/ports/token.service.ports";
+import { PasswordHasherPort } from "./application/ports/password.service.port";
+import { AuthTokenServicePort } from "./application/ports/token.service.ports";
 import { AdminLoginUseCase } from "./application/useCase/admin-login.usecase";
 import { GoogleLoginUseCase } from "./application/useCase/google-login.usecase";
 import { LoginUseCase } from "./application/useCase/login.useCase";
@@ -19,51 +19,61 @@ import { ProfileService } from "./infrastructure/service/profile.service";
 import { TokenService } from "./infrastructure/service/token.service";
 
 import { AuthController } from "./presentation/controller/auth.controller";
-import { GoogleController } from "./presentation/google.controller";
+import { GoogleController } from "./presentation/controller/google.controller";
+import { EmailService } from "./infrastructure/service/email.service";
+import { OtpController } from "./presentation/controller/otp.controller";
+import { RegistrationController } from "./presentation/controller/registration.controller";
+import { AdminAuthController } from "./presentation/controller/admin.auth.controller";
+import { TokenController } from "./presentation/controller/token.controller";
+import { PasswordController } from "./presentation/controller/password.controller";
 
 const userRepo: UserRepository = new MongooseUserRepository();
-const passwordService: passwordServicePort = new PasswordService();
-const tokenService: TokenServicePort = new TokenService();
+const passwordPort: PasswordHasherPort = new PasswordService();
+const tokenService: AuthTokenServicePort = new TokenService();
 const googleAuthService: GoogleAuthPort = new GoogleService();
 const profileService = new ProfileService();
 
 const otpService = new OTPService();
-
+const emailService = new EmailService();
 const sendOtpUC = new SendRegistrationOTPUseCase(userRepo, otpService);
 
 const verifyRegistrationUC = new VerifyRegistrationUseCase(
   userRepo,
   otpService,
-  passwordService,
+  passwordPort,
   tokenService,
-  profileService
 );
 
-const loginUC = new LoginUseCase(userRepo, passwordService, tokenService);
+const loginUC = new LoginUseCase(userRepo, passwordPort, tokenService);
 
 const adminLoginUC = new AdminLoginUseCase(loginUC);
 
 const refreshTokenUC = new RefreshTokenUseCase(userRepo, tokenService);
-const forgotPassWordUC = new ForgotPasswordUseCase(userRepo, tokenService);
-const resetPasswordUC  = new ResetPasswordUseCase(
+const forgotPassWordUC = new ForgotPasswordUseCase(
   userRepo,
-  passwordService,
+  tokenService,
+  emailService,
+);
+const resetPasswordUC = new ResetPasswordUseCase(
+  userRepo,
+  passwordPort,
   tokenService,
 );
 const googleLoginUc = new GoogleLoginUseCase(
   userRepo,
   googleAuthService,
   tokenService,
-  profileService
 );
-export const authController = new AuthController(
-  sendOtpUC,
+export const authController = new AuthController(loginUC);
+export const otpController = new OtpController(sendOtpUC);
+export const registrationController = new RegistrationController(
   verifyRegistrationUC,
-  loginUC,
-  adminLoginUC,
-  refreshTokenUC,
+);
+export const adminAuthcontroller = new AdminAuthController(adminLoginUC);
+export const tokenController = new TokenController(refreshTokenUC);
+export const passwordController = new PasswordController(
   forgotPassWordUC,
-  resetPasswordUC
+  resetPasswordUC,
 );
 
 export const googleController = new GoogleController(googleLoginUc);

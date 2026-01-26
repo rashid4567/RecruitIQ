@@ -11,13 +11,13 @@ export const googleService = {
 
     const res = await api.post("/auth/google/login", payload);
 
-    const accessToken = res.data.data.accessToken;
-    const user = res.data.data.user;
+    const { accessToken, role: userRole, userId } = res.data.data;
 
     localStorage.setItem("authToken", accessToken);
-    localStorage.setItem("userRole", user.role);
-    localStorage.setItem("userId", user.id);
+    localStorage.setItem("userRole", userRole);
+    localStorage.setItem("userId", userId);
 
     return res.data;
   },
 };
+

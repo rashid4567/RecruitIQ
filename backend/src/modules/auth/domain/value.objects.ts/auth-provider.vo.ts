@@ -19,6 +19,7 @@ export class AuthProvider {
     return this.type === "google";
   }
 
+
   public getValue(): AuthProviderType {
     return this.type;
   }

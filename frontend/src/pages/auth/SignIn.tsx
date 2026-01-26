@@ -39,6 +39,10 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [linkedInLoading, setLinkedInLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [pendingGoogleCredential, setPendingGoogleCredential] = useState<
+    string | null
+  >(null);
+
   const [fieldErrors, setFieldErrors] = useState<{
     email?: string;
     password?: string;
@@ -54,40 +58,86 @@ const SignIn = () => {
     return password.length >= 6;
   };
 
-  const handleGoogleResponse = async (response: GoogleCredentialResponse) => {
+ const handleGoogleResponse = async (response: GoogleCredentialResponse) => {
+  const credential = response.credential;
+
+  try {
+    setGoogleLoading(true);
+    setError("");
+    setSuccess("");
+    setFieldErrors({});
+
+    if (!credential) {
+      throw new Error("No Google credential received");
+    }
+
+    const result = await authService.googleLogin(credential);
+
+    const { role, userId, accessToken } = result.data;
+
+    localStorage.setItem("authToken", accessToken);
+    localStorage.setItem("userRole", role);
+    localStorage.setItem("userId", userId);
+
+    if (role === "candidate") {
+      navigate("/candidate/home");
+    } else {
+      navigate("/recruiter/");
+    }
+  } catch (err: unknown) {
+    const errorMessage = getError(
+      err,
+      "Google sign-in failed. Please try again",
+    );
+
+    if (
+      credential &&
+      typeof err === "object" &&
+      err &&
+      "response" in err &&
+      (err as any).response?.data?.code === "ROLE_REQUIRED"
+    ) {
+      setPendingGoogleCredential(credential);
+      setShowRoleSelector(true);
+      setError("");
+      return;
+    }
+
+    setError(errorMessage);
+  } finally {
+    setGoogleLoading(false);
+  }
+};
+
+
+  const handleGoogleRoleSelect = async (role: "candidate" | "recruiter") => {
+    if (!pendingGoogleCredential) return;
+
     try {
       setGoogleLoading(true);
-      setError("");
-      setSuccess("");
-      setFieldErrors({});
 
-      const credential = response.credential;
-      if (!credential) {
-        throw new Error("No Google credential received");
-      }
-
-      const result = await authService.googleLogin(credential);
-      const user = result.data.user;
-
-      if (user.role === "candidate") {
-        navigate(
-          user.profileComplete
-            ? "/candidate/home"
-            : "/candidate/profile/complete"
-        );
-      } else if (user.role === "recruiter") {
-        navigate(
-          user.profileComplete ? "/recruiter/" : "/recruiter/complete-profile"
-        );
-      }
-    } catch (err: unknown) {
-      const errorMessage = getError(
-        err,
-        "Google sign-in failed. Please try again."
+      const result = await authService.googleLogin(
+        pendingGoogleCredential,
+        role,
       );
-      setError(errorMessage);
+
+      const { role: userRole, userId, accessToken } = result.data;
+
+      localStorage.setItem("authToken", accessToken);
+      localStorage.setItem("userRole", userRole);
+      localStorage.setItem("userId", userId);
+
+      if (userRole === "candidate") {
+        navigate("/candidate/home");
+      } else {
+        navigate("/recruiter/");
+      }
+    } catch (err) {
+      setError(getError(err));
     } finally {
       setGoogleLoading(false);
+      setPendingGoogleCredential(null);
+      setShowRoleSelector(false);
     }
   };
 
@@ -100,7 +150,6 @@ const SignIn = () => {
     if (fieldErrors[name as keyof typeof fieldErrors]) {
       setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
     }
-
 
     if (error) setError("");
     if (success) setSuccess("");
@@ -138,14 +187,14 @@ const SignIn = () => {
     try {
       const response = await authService.login(
         formData.email,
-        formData.password
+        formData.password,
       );
       const { accessToken, user } = response.data;
 
       localStorage.setItem("authToken", accessToken);
       localStorage.setItem("userRole", user.role);
       localStorage.setItem("userId", user.id);
-      localStorage.setItem("userFullName", user.fullName)
+      localStorage.setItem("userFullName", user.fullName);
 
       setSuccess("Successfully signed in! Redirecting...");
       setTimeout(() => {
@@ -159,7 +208,7 @@ const SignIn = () => {
       console.error(" Login error:", error);
       const errorMessage = getError(
         error,
-        "Invalid email or password. Please try again."
+        "Invalid email or password. Please try again.",
       );
       setError(errorMessage);
     } finally {
@@ -183,7 +232,7 @@ const SignIn = () => {
     } catch (err: unknown) {
       const errorMessage = getError(
         err,
-        "Failed to initiate LinkedIn sign in. Please try again."
+        "Failed to initiate LinkedIn sign in. Please try again.",
       );
       setError(errorMessage);
       setLinkedInLoading(false);
@@ -286,8 +335,11 @@ const SignIn = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <button
-                    onClick={() => handleLinkedInSignIn("candidate")}
-                    disabled={linkedInLoading}
+                    onClick={() =>
+                      pendingGoogleCredential
+                        ? handleGoogleRoleSelect("candidate")
+                        : handleLinkedInSignIn("candidate")
+                    }
                     className="group p-4 bg-white border border-blue-200 rounded-xl hover:border-blue-400 transition-all duration-300 hover:shadow-md"
                   >
                     <div className="flex flex-col items-center gap-2">
@@ -301,8 +353,12 @@ const SignIn = () => {
                     </div>
                   </button>
                   <button
-                    onClick={() => handleLinkedInSignIn("recruiter")}
-                    disabled={linkedInLoading}
+                    onClick={() =>
+  pendingGoogleCredential
+    ? handleGoogleRoleSelect("recruiter")
+    : handleLinkedInSignIn("recruiter")
+}
+
                     className="group p-4 bg-white border border-blue-200 rounded-xl hover:border-blue-400 transition-all duration-300 hover:shadow-md"
                   >
                     <div className="flex flex-col items-center gap-2">

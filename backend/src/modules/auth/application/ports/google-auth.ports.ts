@@ -1,7 +1,9 @@
+export interface GoogleAuthResult {
+  email: string;
+  googleId: string;
+  fullName: string;
+}
+
 export interface GoogleAuthPort {
-    verifyToken(creadential : string):Promise<{
-        email : string,
-        googleId : string,
-        fullName : string,
-    }>
+  verifyToken(credential: string): Promise<GoogleAuthResult>;
 }

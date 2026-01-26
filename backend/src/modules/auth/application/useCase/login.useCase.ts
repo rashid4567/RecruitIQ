@@ -1,5 +1,5 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { PasswordHasherPort } from "../ports/password.service.port";
+import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 import { User } from "../../domain/entities/user.entity";
 import { Email } from "../../domain/value.objects.ts/email.vo";
 import { Password } from "../../domain/value.objects.ts/password.vo";

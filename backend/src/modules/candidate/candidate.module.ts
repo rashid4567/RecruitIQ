@@ -1,6 +1,6 @@
 import { UserRepository } from "./domain/repositories/user.repository";
 import { passwordServicePort } from "./application/ports/password.service.port";
-import { UserServicePort } from "./application/ports/user.service";
+import { UserServicePort } from "./application/ports/user.service.port";
 import { CompleteProfileCandidateProfileUseCase } from "./application/use-cases/complete-candidate-profile.usecase";
 import { GetCandidateProfileUseCase } from "./application/use-cases/get-candidate-profile.usecase";
 import { UpdateCandidateProfileUseCase } from "./application/use-cases/update-candidate-profile.usecase";

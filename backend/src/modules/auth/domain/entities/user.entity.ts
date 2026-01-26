@@ -3,7 +3,9 @@ import { AuthProvider } from "../value.objects.ts/auth-provider.vo";
 import { Email } from "../value.objects.ts/email.vo"; 
 import { GoogleId } from "../value.objects.ts/google-id.vo"; 
 import { Password } from "../value.objects.ts/password.vo"; 
-import { PasswordHasherPort  } from "../../application/ports/password.service.port"; 
+import { PasswordHasherPort  } from "../ports/password-hasher.port"; 
+import { passwordServicePort } from "../../../candidate/application/ports/password.service.port";
+import { th } from "zod/v4/locales";
 
 export class User {
   private constructor(
@@ -80,6 +82,22 @@ export class User {
     );
   }
 
+  public updateEmail(email : Email):User{
+    if(!this.authProvider.isLocal()){
+      throw new Error("Email update not allowed for social login")
+    }
+
+    return new User(
+      this.id,
+      this.email,
+      this.role,
+      this.fullName,
+      this.isActive,
+      this.authProvider,
+      this.passwordHash,
+      this.googleId,
+    )
+  }
   public canLogin(): boolean {
     return this.isActive;
   }
@@ -94,11 +112,35 @@ export class User {
     return hasher.compare(password, this.passwordHash);
   }
 
-  public changePassword(newPasswordHash : string):User{
+  public resetPassword(newPasswordHash : Password, hasher : PasswordHasherPort):Promise<User>{
     if(!this.authProvider.isLocal()){
       throw new Error("Password change not allowed for social login")
     }
 
+   return this.withNewPassword(newPasswordHash, hasher)
+  }
+
+  public async updatePassword(current : Password, next : Password, hasher : PasswordHasherPort):Promise<User>{
+     if(!this.authProvider.isLocal()){
+      throw new Error("Password change not allowed for social login")
+     }
+
+     if(!this.passwordHash){
+      throw new Error("Password not set")
+     }
+
+     const match = await hasher.compare(current, this.passwordHash);
+     if(!match){
+      throw new Error("Invalid current password")
+     }
+    return this.withNewPassword(next, hasher)
+  }
+
+  private async withNewPassword(
+    password : Password,
+    hasher : PasswordHasherPort,
+  ):Promise<User>{
+    const hash =await hasher.hash(password);
     return new User(
       this.id,
       this.email,
@@ -106,7 +148,7 @@ export class User {
       this.fullName,
       this.isActive,
       this.authProvider,
-      newPasswordHash,
+      hash,
       this.googleId
     )
   }

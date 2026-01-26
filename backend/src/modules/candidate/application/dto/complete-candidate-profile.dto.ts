@@ -4,5 +4,5 @@ export interface CompleteCandidateProfileDTO {
   skills: string[];
   educationLevel: string;
   preferredJobLocation: string[];
-  bio?: string;
+  bio: string;
 }

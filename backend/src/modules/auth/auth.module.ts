@@ -1,5 +1,5 @@
 import { GoogleAuthPort } from "./application/ports/google-auth.ports";
-import { PasswordHasherPort } from "./application/ports/password.service.port";
+import { PasswordHasherPort } from "./domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "./application/ports/token.service.ports";
 import { AdminLoginUseCase } from "./application/useCase/admin-login.usecase";
 import { GoogleLoginUseCase } from "./application/useCase/google-login.usecase";
@@ -25,7 +25,10 @@ import { OtpController } from "./presentation/controller/otp.controller";
 import { RegistrationController } from "./presentation/controller/registration.controller";
 import { AdminAuthController } from "./presentation/controller/admin.auth.controller";
 import { TokenController } from "./presentation/controller/token.controller";
-import { PasswordController } from "./presentation/controller/password.controller";
+import { ForgotPasswordController } from "./presentation/controller/forgot-password.controller";
+import { updatePasswordUseCase } from "./application/useCase/update-password.usecase";
+import e from "express";
+import { ChangePasswordController } from "./presentation/controller/change-password.controller";
 
 const userRepo: UserRepository = new MongooseUserRepository();
 const passwordPort: PasswordHasherPort = new PasswordService();
@@ -64,6 +67,7 @@ const googleLoginUc = new GoogleLoginUseCase(
   googleAuthService,
   tokenService,
 );
+const changePasswordUC = new updatePasswordUseCase(userRepo, passwordPort);
 export const authController = new AuthController(loginUC);
 export const otpController = new OtpController(sendOtpUC);
 export const registrationController = new RegistrationController(
@@ -71,9 +75,11 @@ export const registrationController = new RegistrationController(
 );
 export const adminAuthcontroller = new AdminAuthController(adminLoginUC);
 export const tokenController = new TokenController(refreshTokenUC);
-export const passwordController = new PasswordController(
+export const ForgotpasswordController = new ForgotPasswordController(
   forgotPassWordUC,
   resetPasswordUC,
 );
+
+export const changePassowrdController = new ChangePasswordController(changePasswordUC)
 
 export const googleController = new GoogleController(googleLoginUc);

@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { PasswordHasherPort } from "../../application/ports/password.service.port";
+import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 import { BCRYPT_SALT_ROUNDS } from "../constants/security.constants";
 import { Password } from "../../domain/value.objects.ts/password.vo";
 

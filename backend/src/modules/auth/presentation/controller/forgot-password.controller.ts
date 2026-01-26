@@ -5,7 +5,7 @@ import { ForgotPasswordSchema } from "../validators/forgot-password.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { ResetPasswordSchema } from "../validators/reset-password.schema";
 
-export class PasswordController {
+export class ForgotPasswordController {
   constructor(
     private readonly forgotPasswordUC: ForgotPasswordUseCase,
     private readonly resetPasswordUC: ResetPasswordUseCase,

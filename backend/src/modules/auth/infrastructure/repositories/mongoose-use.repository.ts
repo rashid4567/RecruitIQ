@@ -31,8 +31,9 @@ export class MongooseUserRepository implements UserRepository {
     };
 
     const doc = user.id
-      ? await UserModel.findByIdAndUpdate(user.id, persistence, { new: true })
-      : await UserModel.create(persistence);
+      await UserModel.findByIdAndUpdate(user.id, persistence, { upsert: false })
+
+      // : await UserModel.create(persistence);
 
     return this.toDomain(doc);
   }

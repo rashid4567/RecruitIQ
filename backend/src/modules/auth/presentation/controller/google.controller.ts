@@ -9,8 +9,6 @@ export class GoogleController {
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { credential, role } = GoogleLoginSchema.parse(req.body);
-      console.log("the credential is : ",credential)
-      console.log("the role is  :",role)
       const result = await this.googleLoginUC.execute(credential, role);
 
       this.setRefreshCookie(res, result.refreshToken);
@@ -35,6 +33,7 @@ export class GoogleController {
       secure: true,
       sameSite: "strict",
       path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   }
 }

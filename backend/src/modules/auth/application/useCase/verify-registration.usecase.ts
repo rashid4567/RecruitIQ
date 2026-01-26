@@ -4,7 +4,7 @@ import { Email } from "../../domain/value.objects.ts/email.vo";
 import { Password } from "../../domain/value.objects.ts/password.vo";
 import { VerificationInput } from "../dto/verification.input.dto";
 import { OTPServicePort } from "../ports/otp.service.ports";
-import { PasswordHasherPort } from "../ports/password.service.port";
+import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../ports/token.service.ports";
 import { SUCCESS_CODES } from "../constants/success-code.contents";
 import { ApplicationError } from "../errors/application.error";

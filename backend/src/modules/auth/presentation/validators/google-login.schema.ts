@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OTP_ROLES } from "../constants/otp-role";
+import { OTP_ROLES } from "../../domain/constants/otp-roles.constants"; 
 
 export const GoogleLoginSchema = z.object({
   credential: z.string().min(10),

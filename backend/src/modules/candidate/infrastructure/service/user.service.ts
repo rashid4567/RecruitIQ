@@ -1,5 +1,5 @@
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
-import { UserServicePort } from "../../application/ports/user.service";
+import { UserServicePort } from "../../application/ports/user.service.port";
 
 export class UserService implements UserServicePort{
     async findByWithPassword(userId: string){

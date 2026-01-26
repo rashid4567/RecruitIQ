@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { AdminLoginUseCase } from "../../application/useCase/admin-login.usecase";
 import { LoginSchema } from "../validators/login.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { USER_ROLES } from "../../domain/constants/roles.constants"; 
 export class AdminAuthController {
   constructor(
     private readonly adminLoginUC: AdminLoginUseCase,
@@ -11,6 +12,13 @@ export class AdminAuthController {
     try {
       const { email, password } = LoginSchema.parse(req.body);
       const result = await this.adminLoginUC.execute(email, password);
+
+      if(result.role !== USER_ROLES.ADMIN){
+        return res.status(HTTP_STATUS.FORBIDDEN).json({
+            success : false,
+            message : "Access denied"
+        })
+      }
 
       this.setRefreshCookie(res, result.refreshToken);
 
@@ -36,6 +44,7 @@ export class AdminAuthController {
       secure: true,
       sameSite: "strict",
       path: "/",
+      maxAge : 7 * 24 * 60 * 1000,
     });
   }
 }

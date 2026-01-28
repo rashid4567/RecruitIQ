@@ -1,8 +1,10 @@
 export interface CompleteCandidateProfileDTO {
-  currentJob: string;
-  experienceYears?: number;
   skills: string[];
   educationLevel: string;
-  preferredJobLocation: string[];
+  preferredJobLocations: string[];
   bio: string;
+  currentJobLocation?: string;
+  gender?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
 }

@@ -11,7 +11,14 @@ export class CandidateProfile {
     private educationLevel?: string,
     private preferredJobLocations: string[] = [],
     private bio?: string,
-  ) {}
+    private currentJobLocation?: string,
+    private gender?: string,
+    private linkedinUrl?: string,
+    private portfolioUrl?: string,
+    profileComplete = false,
+  ) {
+    this.profileComplete = profileComplete;
+  }
 
   public static create(
     userId: UserId,
@@ -27,6 +34,36 @@ export class CandidateProfile {
     }
 
     return new CandidateProfile(userId, currentJob, experienceYears);
+  }
+
+  public static fromPersistence(props: {
+    userId: UserId;
+    currentJob: string;
+    experienceYears?: number;
+    skills: string[];
+    educationLevel?: string;
+    preferredJobLocations: string[];
+    bio?: string;
+    currentJobLocation?: string;
+    gender?: string;
+    linkedinUrl?: string;
+    portfolioUrl?: string;
+    profileComplete: boolean;
+  }): CandidateProfile {
+    return new CandidateProfile(
+      props.userId,
+      props.currentJob,
+      props.experienceYears,
+      props.skills,
+      props.educationLevel,
+      props.preferredJobLocations,
+      props.bio,
+      props.currentJobLocation,
+      props.gender,
+      props.linkedinUrl,
+      props.portfolioUrl,
+      props.profileComplete,
+    );
   }
 
   public updateSkills(skills: string[]): void {
@@ -50,8 +87,32 @@ export class CandidateProfile {
     this.preferredJobLocations = [...locations];
   }
 
+  public updateCurrentJob(currentJob : string):void{
+    this.currentJob = currentJob
+  }
+
+  public updateExperienceYears(year : number):void{
+    this.experienceYears = year
+  }
+
   public updateBio(bio: string): void {
     this.bio = bio;
+  }
+
+  public updateCurrentJobLocation(location?: string): void {
+    this.currentJobLocation = location;
+  }
+
+  public updateGender(gender?: string): void {
+    this.gender = gender;
+  }
+
+  public updateLinkedinUrl(url?: string): void {
+    this.linkedinUrl = url;
+  }
+
+  public updatePortfolioUrl(url?: string): void {
+    this.portfolioUrl = url;
   }
 
   public completeProfile(): void {
@@ -68,22 +129,38 @@ export class CandidateProfile {
     return this.experienceYears;
   }
 
-  public getSkills(): string[]{
+  public getSkills(): string[] {
     return [...this.skills];
   }
   public getEducationLevel(): string | undefined {
     return this.educationLevel;
   }
 
-  public getBio():string | undefined{
-    return this.bio
+  public getBio(): string | undefined {
+    return this.bio;
   }
   public getUserId(): UserId {
     return this.userId;
   }
 
-  public getPreferredLocations():string[]{
-    return [...this.preferredJobLocations]
+  public getPreferredLocations(): string[] {
+    return [...this.preferredJobLocations];
+  }
+
+  public getCurrentJobLocation(): string | undefined {
+    return this.currentJobLocation;
+  }
+
+  public getGender(): string | undefined {
+    return this.gender;
+  }
+
+  public getLinkedinUrl(): string | undefined {
+    return this.linkedinUrl;
+  }
+
+  public getPortfolioUrl(): string | undefined {
+    return this.portfolioUrl;
   }
 
   public isProfileCompleted(): boolean {

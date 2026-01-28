@@ -7,18 +7,9 @@ export interface UserServicePort {
     }
   ): Promise<void>;
 
-  updateEmail(
-    userId: string,
-    newEmail: string
-  ): Promise<void>;
+ 
 
-  findUserWithPassWord(
-    userId: string
-  ): Promise<{
-    password: string;
-    role: string;
-    authProvider: string;
-  } | null>;
+
 
   findUserById(
     userId: string
@@ -31,8 +22,5 @@ export interface UserServicePort {
     createdAt: Date;
   } | null>;
 
-  updatePassword(
-    userId: string,
-    password: string
-  ): Promise<void>;
+
 }

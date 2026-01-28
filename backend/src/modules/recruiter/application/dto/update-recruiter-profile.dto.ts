@@ -1,7 +1,7 @@
 export interface UpdateRecruiterProfileDTO {
   companyName?: string;
   companyWebsite?: string;
-  companySize?: string;
+  companySize?: number;
   industry?: string;
   designation?: string;
   location?: string;

@@ -13,11 +13,6 @@ export class UserService implements UserServicePort {
     await UserModel.findByIdAndUpdate(userId, { $set: data });
   }
 
-  async findUserWithPassWord(
-    userId: string
-  ): Promise<{ password: string; role: string; authProvider: string } | null> {
-    return UserModel.findById(userId).select("+password role authProvider");
-  }
 
   async findUserById(
     userId: string
@@ -42,37 +37,6 @@ export class UserService implements UserServicePort {
     };
   }
 
-  async updatePassword(
-    userId: string,
-    hashedPassword: string
-  ): Promise<void> {
-    await UserModel.findByIdAndUpdate(userId, {
-      $set: { password: hashedPassword },
-    });
-  }
 
-  async updateEmail(
-    userId: string,
-    newEmail: string
-  ): Promise<void> {
-    const normalizedEmail = newEmail.toLowerCase().trim();
 
-    const exists = await UserModel.exists({ email: normalizedEmail });
-    if (exists) {
-      throw new Error("Email already in use");
-    }
-
-    const user = await UserModel.findById(userId).select("authProvider");
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    if (user.authProvider !== "local") {
-      throw new Error("Email update not allowed for social login accounts");
-    }
-
-    await UserModel.findByIdAndUpdate(userId, {
-      $set: { email: normalizedEmail },
-    });
-  }
 }

@@ -18,7 +18,7 @@ const recruiterProfileSchema = new Schema(
       type: String,
     },
     companySize: {
-      type: String,
+      type: Number,
     },
     industry: {
       type: String,

@@ -10,7 +10,7 @@ import adminRecruiterRouters from "./modules/admin/Recruiter/presentation/recrui
 import adminEmailTemplateRouter from "./modules/admin/email-template/presentation/email-templete.routes";
 import adminEmailLoger from "./modules/admin/email.logs/presentation/routes/email-logs.routes";
 import { notFound } from "./middlewares/notFound.middleware";
-import { errorHandler } from "./modules/auth/presentation/middlewares/error.middleware";
+import { errorHandler } from "./shared/errors/candidate-error.middleware"; 
 
 const app = express();
 app.use(

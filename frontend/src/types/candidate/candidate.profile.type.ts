@@ -3,26 +3,42 @@ export interface UpdateCandidateProfilePayload {
   experienceYears?: number;
   educationLevel?: string;
   skills?: string[];
-  preferredJobLocation?: string[];
+  preferredJobLocations?: string[];
   currentJobLocation?: string;
   linkedinUrl?: string;
   gender?: string;
-   bio?:string;
+  bio?: string;
   portfolioUrl?: string;
 }
+
+export interface CompleteCandidateProfileRequest {
+  currentJob: string;
+  experienceYears?: number;
+  skills: string[];
+  educationLevel: string;
+  preferredJobLocations: string[];
+  bio: string;
+  currentJobLocation?: string;
+  gender?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+}
+
+
 
 export interface CandidateProfileData {
   currentJob?: string;
   experienceYears?: number;
   educationLevel?: string;
   skills?: string[];
-  preferredJobLocation?: string[];
+  preferredJobLocations?: string[];
   currentJobLocation?: string;
   gender?: string;
   linkedinUrl?: string;
   portfolioUrl?: string;
    bio?:string;
-  profileCompleted?: boolean;
+  profileCompleted: boolean;
+
 }
 
 export interface CandidateProfileResponse {
@@ -42,18 +58,6 @@ export interface UpdateUserProfilePayload {
 }
 
 
-export interface UpdateCandidateProfilePayload {
-  currentJob?: string;
-  experienceYears?: number;
-  educationLevel?: string;
-  skills?: string[];
-  preferredJobLocation?: string[];
-  currentJobLocation?: string;
-  linkedinUrl?: string;
-  gender?: string;
-  bio?:string;
-  portfolioUrl?: string;
-}
 
 
 export type UpdateCandidateProfileRequest =

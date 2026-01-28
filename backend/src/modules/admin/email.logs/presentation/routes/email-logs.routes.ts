@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { authenticate } from "../../../../../middlewares/auth.middleware";
+import { authenticate } from "../../../../auth/presentation/middlewares/auth.middleware";
 import { requireAdmin } from "../../../../../middlewares/role.middleware";
 import { emailLogsController } from "../../email-logs.module"; 
 

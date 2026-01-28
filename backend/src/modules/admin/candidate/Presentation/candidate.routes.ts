@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { candidateController } from "../candidate.module";
 import { requireAdmin } from "../../../../middlewares/role.middleware";
-import { authenticate } from "../../../../middlewares/auth.middleware";
+import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
 
 const router = Router();
 router.use(authenticate);

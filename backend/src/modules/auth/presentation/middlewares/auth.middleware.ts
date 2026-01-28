@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { HTTP_STATUS } from "../constants/httpStatus";
-import { ACCESS_TOKEN_SECRET } from "../utils/jwt"; // Import from jwt.ts
+import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { ACCESS_TOKEN_SECRET } from "../../../../utils/jwt"; 
 
-// Extend Express Request type
 declare global {
     namespace Express {
         interface Request {
@@ -20,7 +19,7 @@ export const authenticate = (
     res: Response,
     next: NextFunction
 ) => {
-    // ✅ Allow preflight requests
+   
     if (req.method === "OPTIONS") {
         return next();
     }
@@ -38,7 +37,7 @@ export const authenticate = (
 
         const token = authHeader.split(" ")[1];
      
-        // Decode to check expiry without verification first
+
         try {
             const decoded = jwt.decode(token) as any;
             if (decoded) {
@@ -52,7 +51,7 @@ export const authenticate = (
        
         const decoded = jwt.verify(
             token,
-            ACCESS_TOKEN_SECRET  // ← Use imported constant
+            ACCESS_TOKEN_SECRET 
         ) as {
             userId: string;
             role: "admin" | "recruiter" | "candidate";
@@ -67,7 +66,7 @@ export const authenticate = (
 
         next();
     } catch (err: any) {
-        console.error("❌ Authentication error:", err.message);
+        console.error(" Authentication error:", err.message);
 
         if (err instanceof jwt.TokenExpiredError) {
             return res.status(HTTP_STATUS.UNAUTHORIZED).json({

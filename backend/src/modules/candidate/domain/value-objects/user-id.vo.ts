@@ -1,18 +1,19 @@
-export class UserId{
-    private constructor(private readonly value : string){}
+export class UserId {
+  private constructor(private readonly value: string) {}
 
-    public static create(value : string):UserId{
-        if(!value || value.trim().length === 0){
-            throw new Error("UserId cannot be empty")
-        }
-        return new UserId(value)
-    }
-    public equlas(other : UserId):boolean{
-        return this.value === other.value;
+  public static create(value: string): UserId {
+    if (!value || value.trim().length === 0) {
+      throw new Error("UserId cannot be empty");
     }
 
-    public getValue():string{
-        return this.value;
-    }
+    return new UserId(value.trim());
+  }
 
+  public equals(other: UserId): boolean {
+    return this.value === other.value;
+  }
+
+  public getValue(): string {
+    return this.value;
+  }
 }

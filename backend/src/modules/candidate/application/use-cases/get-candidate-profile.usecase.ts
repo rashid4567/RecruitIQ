@@ -1,7 +1,9 @@
 import { CandidateRespository } from "../../domain/repositories/candidate.repository";
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { UserId } from "../../domain/value-objects/user-id.vo";
+import { ERROR_CODES } from "../constants/error-code.constant";
 import { GetCandidateProfileResponseDTO } from "../dto/candidate-profile.dto";
+import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 
 export class GetCandidateProfileUseCase {
   constructor(
@@ -14,12 +16,12 @@ export class GetCandidateProfileUseCase {
 
     const user = await this.userRepo.findById(id);
     if(!user){
-      throw new Error("User not found")
+      throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND)
     }
 
     const profile = await this.candidateRepo.findByUserId(id);
     if(!profile){
-      throw new Error("Candidate profile not found")
+      throw new ApplicationError(ERROR_CODES.CANDIDATE_PROFILE_NOT_FOUND)
     }
 
     return {
@@ -33,10 +35,14 @@ export class GetCandidateProfileUseCase {
         currentJob : profile.getCurrentJob(),
         experienceYears : profile.getExperienceYears(),
         skills : profile.getSkills(),
-        preferredJobLocation : profile.getPreferredLocations(),
+        preferredJobLocations : profile.getPreferredLocations(),
         educationLevel : profile.getEducationLevel() ?? "",
         bio : profile.getBio() ?? "",
-        profileCompleted : profile.isProfileCompleted()
+        currentJobLocation : profile.getCurrentJobLocation() ?? "",
+        gender : profile.getCurrentJob() ?? "",
+        linkedinUrl : profile.getLinkedinUrl() ?? "",
+        portfolioUrl : profile.getPortfolioUrl() ?? "",
+        profileCompleted : profile.isProfileCompleted(),
 
       }
     }

@@ -93,7 +93,6 @@ export function ProfileSection() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [profileData, setProfileData] = useState<RecruiterProfileResponse | null>(null)
-  const [userEmail, setUserEmail] = useState<string>("")
   
   // Email update states
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
@@ -152,21 +151,20 @@ export function ProfileSection() {
       setIsLoading(true)
       const data = await recruiterService.getProfile()
       setProfileData(data)
-      
       reset({
-        fullName: data.fullName || "",
-        profileImage: data.profileImage || "",
-        companyName: data.companyName || "",
-        companyWebsite: data.companyWebsite || "",
-        companySize: data.companySize || "",
-        industry: data.industry || "",
-        location: data.location || "",
-        bio: data.bio || "",
-        designation: data.designation || "",
+        fullName: data.user?.fullName || "",
+        profileImage: data.user?.profileImage || "",
+        companyName: data.recruiter?.companyName || "",
+        companyWebsite: data.recruiter?.companyWebsite || "",
+        companySize: data.recruiter?.companySize?.toString() || "",
+        industry: data.recruiter?.industry || "",
+        location: data.recruiter?.location || "",
+        bio: data.recruiter?.bio || "",
+        designation: data.recruiter?.designation || "",
       })
       
-      if (data.profileImage) {
-        setAvatarPreview(data.profileImage)
+      if (data.user?.profileImage) {
+        setAvatarPreview(data.user.profileImage)
       }
     } catch (error) {
       console.error("Profile fetch error:", error)
@@ -221,7 +219,7 @@ export function ProfileSection() {
         profileImage: data.profileImage || undefined,
         companyName: data.companyName,
         companyWebsite: data.companyWebsite || undefined,
-        companySize: data.companySize,
+        companySize: parseInt(data.companySize) || undefined,
         industry: data.industry,
         location: data.location,
         bio: data.bio,
@@ -266,7 +264,8 @@ export function ProfileSection() {
       .slice(0, 2)
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "N/A"
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -324,7 +323,10 @@ export function ProfileSection() {
       if (profileData) {
         setProfileData({
           ...profileData,
-          email: newEmail
+          user: {
+            ...profileData.user,
+            email: newEmail
+          }
         })
       }
       
@@ -412,36 +414,36 @@ export function ProfileSection() {
               
               {profileData && (
                 <div className="flex flex-wrap gap-2">
-                  {profileData.subscriptionStatus && (
+                  {profileData.recruiter?.subscriptionStatus && (
                     <Badge 
                       variant="outline"
                       className={`px-3 py-1 border font-medium ${
-                        profileData.subscriptionStatus === "active" 
+                        profileData.recruiter.subscriptionStatus === "active" 
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                          : profileData.subscriptionStatus === "free"
+                          : profileData.recruiter.subscriptionStatus === "free"
                           ? "bg-blue-50 text-blue-700 border-blue-200"
                           : "bg-amber-50 text-amber-700 border-amber-200"
                       }`}
                     >
-                      {profileData.subscriptionStatus === "active" && (
+                      {profileData.recruiter.subscriptionStatus === "active" && (
                         <CheckCircle className="h-3 w-3 mr-1" />
                       )}
-                      {profileData.subscriptionStatus.charAt(0).toUpperCase() + profileData.subscriptionStatus.slice(1)} Plan
+                      {profileData.recruiter.subscriptionStatus.charAt(0).toUpperCase() + profileData.recruiter.subscriptionStatus.slice(1)} Plan
                     </Badge>
                   )}
                   
-                  {profileData.verificationStatus && (
+                  {profileData.recruiter?.verificationStatus && (
                     <Badge 
                       variant="outline"
                       className={`px-3 py-1 border font-medium ${
-                        profileData.verificationStatus === "verified" 
+                        profileData.recruiter.verificationStatus === "verified" 
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                          : profileData.verificationStatus === "pending"
+                          : profileData.recruiter.verificationStatus === "pending"
                           ? "bg-amber-50 text-amber-700 border-amber-200"
                           : "bg-red-50 text-red-700 border-red-200"
                       }`}
                     >
-                      {profileData.verificationStatus.charAt(0).toUpperCase() + profileData.verificationStatus.slice(1)}
+                      {profileData.recruiter.verificationStatus.charAt(0).toUpperCase() + profileData.recruiter.verificationStatus.slice(1)}
                     </Badge>
                   )}
                 </div>
@@ -539,13 +541,13 @@ export function ProfileSection() {
                             </div>
                             <div>
                               <p className="font-medium text-slate-900 text-sm">Email Address</p>
-                              <p className="text-xs text-slate-500 truncate max-w-45" title={profileData?.email || userEmail}>
-                                {profileData?.email || userEmail}
+                              <p className="text-xs text-slate-500 truncate max-w-45" title={profileData?.user?.email}>
+                                {profileData?.user?.email || "N/A"}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {profileData?.verificationStatus && (
+                            {profileData?.user?.email && (
                               <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
                                 <CheckCircle className="h-3 w-3 mr-1" />
                                 Verified
@@ -570,7 +572,7 @@ export function ProfileSection() {
                           <p className="text-xs text-slate-500">Job Posts Used</p>
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-medium text-slate-900">
-                              {profileData?.jobPostsUsed ?? 0}
+                              {profileData?.recruiter?.jobPostsUsed ?? 0}
                             </p>
                             <Badge variant="outline" className="text-xs">
                               Current
@@ -586,7 +588,7 @@ export function ProfileSection() {
                         <div className="flex-1">
                           <p className="text-xs text-slate-500">Member Since</p>
                           <p className="text-sm font-medium text-slate-900">
-                            {profileData?.createdAt ? formatDate(profileData.createdAt) : "N/A"}
+                            {formatDate(profileData?.recruiter?.createdAt)}
                           </p>
                         </div>
                       </div>
@@ -597,8 +599,8 @@ export function ProfileSection() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-slate-500">Profile ID</p>
-                          <p className="text-sm font-medium text-slate-900 truncate" title={profileData?._id}>
-                            {profileData?._id ? profileData._id.substring(0, 8) + "..." : "N/A"}
+                          <p className="text-sm font-medium text-slate-900 truncate" title={profileData?.user?.id}>
+                            {profileData?.user?.id ? profileData.user.id.substring(0, 8) + "..." : "N/A"}
                           </p>
                         </div>
                       </div>

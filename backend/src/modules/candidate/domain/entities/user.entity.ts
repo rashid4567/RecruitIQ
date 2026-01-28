@@ -1,5 +1,3 @@
-
-
 import { Email } from "../value-objects/email.vo";
 import { UserId } from "../value-objects/user-id.vo";
 
@@ -24,22 +22,28 @@ export class User {
     return new User(id, fullName, email, profileImage);
   }
 
-  public updateFullName(name : string):void{
-    if(!name || name.trim().length === 0){
-      throw new Error("Full name cannot be empty")
+  public static fromPersistence(props: {
+    id: UserId;
+    fullName: string;
+    email: Email;
+    profileImage?: string;
+  }): User {
+    return new User(props.id, props.fullName, props.email, props.profileImage);
+  }
+  public updateFullName(name: string): void {
+    if (!name || name.trim().length === 0) {
+      throw new Error("Full name cannot be empty");
     }
     this.fullName = name;
   }
-  
-  public updateEmail(email : Email):void{
+
+  public updateEmail(email: Email): void {
     this.email = email;
   }
 
-  public updateProfileImage(image?: string):void{
+  public updateProfileImage(image?: string): void {
     this.profileImage = image;
   }
-
- 
 
   public getId(): UserId {
     return this.id;

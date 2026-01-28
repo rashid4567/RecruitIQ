@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
-import { ApplicationError } from "../../application/errors/application.error";
+import { ApplicationError } from "./applicatoin.error"
 
 const ERROR_STATUS_MAP: Record<string, number> = {
   USER_ALREADY_EXISTS: 409,

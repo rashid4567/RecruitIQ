@@ -29,15 +29,10 @@ import {
   Edit2,
   AlertCircle,
   ExternalLink,
-  Shield,
-  KeyRound,
   Clock,
   Check,
-  Send,
   Info,
-  Edit,
   RefreshCw,
-  Key,
   HelpCircle,
 } from "lucide-react";
 import type {
@@ -59,7 +54,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -129,12 +123,20 @@ export function PersonalInfoForm({
   }, [countdown]);
 
   const getFieldValue = (field: keyof UpdateCandidateProfileRequest) => {
-    return (
-      editData[field] ??
-      (field === "fullName"
-        ? user.fullName
-        : candidateProfile[field as keyof typeof candidateProfile])
-    );
+    // Check if field exists in editData first
+    if (editData[field] !== undefined && editData[field] !== null) {
+      return editData[field];
+    }
+
+    // Fallback to profile data
+    if (field === "fullName") {
+      return user.fullName || "";
+    }
+
+    // For candidate profile fields
+    const profileValue =
+      candidateProfile[field as keyof typeof candidateProfile];
+    return profileValue !== undefined ? profileValue : "";
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,7 +175,7 @@ export function PersonalInfoForm({
     let processedValue = value;
 
     if (
-      (field === "skills" || field === "preferredJobLocation") &&
+      (field === "skills" || field === "preferredJobLocations") &&
       typeof value === "string"
     ) {
       const items = value
@@ -226,18 +228,12 @@ export function PersonalInfoForm({
   };
 
   const handleRemoveItem = (
-    field: "skills" | "preferredJobLocation",
+    field: "skills" | "preferredJobLocations",
     index: number,
   ) => {
-    const currentItems = Array.isArray(editData[field])
-      ? [...(editData[field] as any[])]
-      : Array.isArray(candidateProfile[field as keyof typeof candidateProfile])
-        ? [
-            ...(candidateProfile[
-              field as keyof typeof candidateProfile
-            ] as any[]),
-          ]
-        : [];
+    const currentItems = Array.isArray(getFieldValue(field))
+      ? [...(getFieldValue(field) as any[])]
+      : [];
 
     const newItems = currentItems.filter((_, i) => i !== index);
     handleFieldChange(field, newItems);
@@ -251,7 +247,7 @@ export function PersonalInfoForm({
       "educationLevel",
       "gender",
       "currentJobLocation",
-      "preferredJobLocation",
+      "preferredJobLocations",
       "skills",
       "linkedinUrl",
       "portfolioUrl",
@@ -261,7 +257,22 @@ export function PersonalInfoForm({
     const newTouchedFields = new Set([...touchedFields, ...allFields]);
     setTouchedFields(newTouchedFields);
 
-    const sanitizedData = sanitizeCandidateData(editData);
+    // Create complete data object with all fields
+    const completeData: UpdateCandidateProfileRequest = {
+      fullName: getFieldValue("fullName") as string,
+      currentJob: getFieldValue("currentJob") as string,
+      experienceYears: getFieldValue("experienceYears") as number,
+      educationLevel: getFieldValue("educationLevel") as string,
+      gender: getFieldValue("gender") as string,
+      currentJobLocation: getFieldValue("currentJobLocation") as string,
+      preferredJobLocations: getFieldValue("preferredJobLocations") as string[],
+      skills: getFieldValue("skills") as string[],
+      linkedinUrl: getFieldValue("linkedinUrl") as string,
+      portfolioUrl: getFieldValue("portfolioUrl") as string,
+      bio: getFieldValue("bio") as string,
+    };
+
+    const sanitizedData = sanitizeCandidateData(completeData);
     const validationResult = validateCandidateProfile(sanitizedData);
 
     if (!validationResult.isValid) {
@@ -315,8 +326,12 @@ export function PersonalInfoForm({
 
       await onSave(sanitizedData);
       toast.success("Profile updated successfully!");
-    } catch (error) {
-      toast.error("Failed to update profile. Please try again.");
+    } catch (error: any) {
+      console.error("Save error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to update profile. Please try again.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -500,243 +515,250 @@ export function PersonalInfoForm({
   return (
     <div className="max-w-4xl mx-auto">
       {/* Email Verification Modal */}
-<Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
-  <DialogContent className="sm:max-w-md p-0 overflow-hidden border border-gray-200 shadow-lg">
-    {/* Clean Header */}
-    <div className="px-6 pt-6 pb-4 border-b border-gray-100 bg-gray-50">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-          <Mail className="h-5 w-5" />
-        </div>
-        <div>
-          <DialogTitle className="text-lg font-semibold text-gray-900">
-            {otpSent ? 'Verify Email' : 'Update Email'}
-          </DialogTitle>
-          <DialogDescription className="text-gray-500 text-sm mt-0.5">
-            {otpSent
-              ? "Enter the verification code sent to your email"
-              : "Enter your new email address"}
-          </DialogDescription>
-        </div>
-      </div>
-    </div>
-
-    <div className="px-6 py-6">
-      {!otpSent ? (
-        <div className="space-y-5">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="new-email" className="text-sm font-medium text-gray-700">
-                Email Address
-              </Label>
-              {newEmail && !emailError && (
-                <Check className="h-4 w-4 text-green-500" />
-              )}
-            </div>
-            
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                id="new-email"
-                type="email"
-                placeholder="you@example.com"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                disabled={isSendingOtp}
-                className={`pl-10 h-11 rounded-lg ${emailError ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
-                autoFocus
-              />
-            </div>
-            
-            {emailError && (
-              <p className="text-sm text-red-600 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                {emailError}
-              </p>
-            )}
-          </div>
-
-          <div className="rounded-lg border border-gray-200 p-4">
-            <div className="flex items-start gap-3">
-              <Info className="h-4 w-4 text-blue-500 mt-0.5" />
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">What to expect:</p>
-                <ul className="space-y-1.5 text-sm text-gray-600">
-                  <li>• 6-digit code sent to your email</li>
-                  <li>• Code valid for 15 minutes</li>
-                  <li>• Email updates after verification</li>
-                </ul>
+      <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden border border-gray-200 shadow-lg">
+          {/* Clean Header */}
+          <div className="px-6 pt-6 pb-4 border-b border-gray-100 bg-gray-50">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                <Mail className="h-5 w-5" />
               </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
               <div>
-                <Label className="text-sm font-medium text-gray-700 block">
-                  Verification Code
-                </Label>
-                <p className="text-sm text-gray-500 mt-1">
-                  Sent to <span className="font-medium">{newEmail}</span>
-                </p>
+                <DialogTitle className="text-lg font-semibold text-gray-900">
+                  {otpSent ? "Verify Email" : "Update Email"}
+                </DialogTitle>
+                <DialogDescription className="text-gray-500 text-sm mt-0.5">
+                  {otpSent
+                    ? "Enter the verification code sent to your email"
+                    : "Enter your new email address"}
+                </DialogDescription>
               </div>
-              <button
-                onClick={() => {
-                  setOtpSent(false);
-                  setEmailError("");
-                }}
-                className="text-sm text-blue-600 hover:text-blue-700"
-              >
-                Change email
-              </button>
             </div>
+          </div>
 
-            {/* Fixed OTP Input - Now typeable */}
-            <div className="relative">
-              <input
-                id="otp-input"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                autoComplete="one-time-code"
-                value={otp}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                  setOtp(value);
-                }}
-                onFocus={(e) => e.target.select()}
-                disabled={isVerifyingOtp}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-default"
-                autoFocus
-                maxLength={6}
-              />
-              
-              <div className="flex justify-center gap-2">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      document.getElementById('otp-input')?.focus();
-                    }}
-                    className={`h-12 w-10 rounded-lg border-2 flex items-center justify-center cursor-text transition-colors ${
-                      index === otp.length
-                        ? 'border-blue-500 bg-blue-50'
-                        : otp[index]
-                        ? 'border-blue-400 bg-blue-50/50'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <span className="text-xl font-semibold text-gray-800">
-                      {otp[index] || ''}
-                    </span>
-                    {index === otp.length && (
-                      <div className="absolute w-0.5 h-5 bg-blue-500 animate-pulse" />
+          <div className="px-6 py-6">
+            {!otpSent ? (
+              <div className="space-y-5">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label
+                      htmlFor="new-email"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Email Address
+                    </Label>
+                    {newEmail && !emailError && (
+                      <Check className="h-4 w-4 text-green-500" />
                     )}
                   </div>
-                ))}
+
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      id="new-email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      disabled={isSendingOtp}
+                      className={`pl-10 h-11 rounded-lg ${emailError ? "border-red-300 focus:border-red-500" : "border-gray-300 focus:border-blue-500"}`}
+                      autoFocus
+                    />
+                  </div>
+
+                  {emailError && (
+                    <p className="text-sm text-red-600 flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4" />
+                      {emailError}
+                    </p>
+                  )}
+                </div>
+
+                <div className="rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-start gap-3">
+                    <Info className="h-4 w-4 text-blue-500 mt-0.5" />
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-gray-700">
+                        What to expect:
+                      </p>
+                      <ul className="space-y-1.5 text-sm text-gray-600">
+                        <li>• 6-digit code sent to your email</li>
+                        <li>• Code valid for 15 minutes</li>
+                        <li>• Email updates after verification</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 block">
+                        Verification Code
+                      </Label>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Sent to <span className="font-medium">{newEmail}</span>
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setOtpSent(false);
+                        setEmailError("");
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-700"
+                    >
+                      Change email
+                    </button>
+                  </div>
 
-            {emailError && (
-              <p className="text-sm text-red-600 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                {emailError}
-              </p>
+                  {/* Fixed OTP Input - Now typeable */}
+                  <div className="relative">
+                    <input
+                      id="otp-input"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      autoComplete="one-time-code"
+                      value={otp}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 6);
+                        setOtp(value);
+                      }}
+                      onFocus={(e) => e.target.select()}
+                      disabled={isVerifyingOtp}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-default"
+                      autoFocus
+                      maxLength={6}
+                    />
+
+                    <div className="flex justify-center gap-2">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <div
+                          key={index}
+                          onClick={() => {
+                            document.getElementById("otp-input")?.focus();
+                          }}
+                          className={`h-12 w-10 rounded-lg border-2 flex items-center justify-center cursor-text transition-colors ${
+                            index === otp.length
+                              ? "border-blue-500 bg-blue-50"
+                              : otp[index]
+                                ? "border-blue-400 bg-blue-50/50"
+                                : "border-gray-300 hover:border-gray-400"
+                          }`}
+                        >
+                          <span className="text-xl font-semibold text-gray-800">
+                            {otp[index] || ""}
+                          </span>
+                          {index === otp.length && (
+                            <div className="absolute w-0.5 h-5 bg-blue-500 animate-pulse" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {emailError && (
+                    <p className="text-sm text-red-600 flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4" />
+                      {emailError}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between text-sm">
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={countdown > 0 || isSendingOtp}
+                      className={`flex items-center gap-2 ${
+                        countdown > 0 || isSendingOtp
+                          ? "text-gray-400"
+                          : "text-blue-600 hover:text-blue-700"
+                      }`}
+                    >
+                      {isSendingOtp ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : countdown > 0 ? (
+                        <>
+                          <Clock className="h-4 w-4" />
+                          Resend in {countdown}s
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="h-4 w-4" />
+                          Resend code
+                        </>
+                      )}
+                    </button>
+
+                    <span className="text-gray-500 text-sm">
+                      Expires in 15 minutes
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-start gap-3">
+                    <HelpCircle className="h-4 w-4 text-gray-500 mt-0.5" />
+                    <p className="text-sm text-gray-600">
+                      Didn't receive the code? Check your spam folder or wait a
+                      moment before resending.
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
+          </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <button
-                type="button"
-                onClick={handleResendOtp}
-                disabled={countdown > 0 || isSendingOtp}
-                className={`flex items-center gap-2 ${
-                  countdown > 0 || isSendingOtp
-                    ? 'text-gray-400'
-                    : 'text-blue-600 hover:text-blue-700'
-                }`}
+          <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <Button
+              variant="outline"
+              onClick={handleModalClose}
+              disabled={isSendingOtp || isVerifyingOtp}
+              className="h-10 rounded-lg border-gray-300 hover:bg-gray-100"
+            >
+              Cancel
+            </Button>
+            {!otpSent ? (
+              <Button
+                onClick={handleSendOtp}
+                disabled={isSendingOtp || !newEmail}
+                className="h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {isSendingOtp ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     Sending...
                   </>
-                ) : countdown > 0 ? (
+                ) : (
+                  "Send Code"
+                )}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleVerifyOtp}
+                disabled={isVerifyingOtp || otp.length !== 6}
+                className="h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {isVerifyingOtp ? (
                   <>
-                    <Clock className="h-4 w-4" />
-                    Resend in {countdown}s
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Verifying...
                   </>
                 ) : (
-                  <>
-                    <RefreshCw className="h-4 w-4" />
-                    Resend code
-                  </>
+                  "Verify Email"
                 )}
-              </button>
-              
-              <span className="text-gray-500 text-sm">
-                Expires in 15 minutes
-              </span>
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-gray-200 p-4">
-            <div className="flex items-start gap-3">
-              <HelpCircle className="h-4 w-4 text-gray-500 mt-0.5" />
-              <p className="text-sm text-gray-600">
-                Didn't receive the code? Check your spam folder or wait a moment before resending.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-
-    <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50">
-      <Button
-        variant="outline"
-        onClick={handleModalClose}
-        disabled={isSendingOtp || isVerifyingOtp}
-        className="h-10 rounded-lg border-gray-300 hover:bg-gray-100"
-      >
-        Cancel
-      </Button>
-      {!otpSent ? (
-        <Button
-          onClick={handleSendOtp}
-          disabled={isSendingOtp || !newEmail}
-          className="h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          {isSendingOtp ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Sending...
-            </>
-          ) : (
-            'Send Code'
-          )}
-        </Button>
-      ) : (
-        <Button
-          onClick={handleVerifyOtp}
-          disabled={isVerifyingOtp || otp.length !== 6}
-          className="h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          {isVerifyingOtp ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Verifying...
-            </>
-          ) : (
-            'Verify Email'
-          )}
-        </Button>
-      )}
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Header */}
       <div className="mb-8">
@@ -1134,12 +1156,10 @@ export function PersonalInfoForm({
                     <SelectValue placeholder="Select education level" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="high-school">High School</SelectItem>
-                    <SelectItem value="associate">Associate Degree</SelectItem>
-                    <SelectItem value="bachelor">Bachelor's Degree</SelectItem>
+                    <SelectItem value="highschool">High School</SelectItem>
+                    <SelectItem value="Bachelor">Bachelor's Degree</SelectItem>
                     <SelectItem value="master">Master's Degree</SelectItem>
-                    <SelectItem value="phd">PhD/Doctorate</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="phd">PhD</SelectItem>
                   </SelectContent>
                 </Select>
                 {shouldShowError("educationLevel") && (
@@ -1177,12 +1197,8 @@ export function PersonalInfoForm({
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="Male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="non-binary">Non-binary</SelectItem>
-                    <SelectItem value="prefer-not-to-say">
-                      Prefer not to say
-                    </SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
@@ -1270,37 +1286,40 @@ export function PersonalInfoForm({
                   <Input
                     id="preferredLocations"
                     value={
-                      Array.isArray(getFieldValue("preferredJobLocation"))
+                      Array.isArray(getFieldValue("preferredJobLocations"))
                         ? (
-                            getFieldValue("preferredJobLocation") as string[]
+                            getFieldValue("preferredJobLocations") as string[]
                           ).join(", ")
                         : ""
                     }
                     onChange={(e) =>
-                      handleFieldChange("preferredJobLocation", e.target.value)
+                      handleFieldChange("preferredJobLocations", e.target.value)
                     }
-                    onBlur={() => handleBlur("preferredJobLocation")}
+                    onBlur={() => handleBlur("preferredJobLocations")}
                     placeholder="e.g., San Francisco, CA, New York, NY, Remote"
-                    className={getFieldClasses("preferredJobLocation", "pl-10")}
+                    className={getFieldClasses(
+                      "preferredJobLocations",
+                      "pl-10",
+                    )}
                   />
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-gray-500 transition-colors" />
                 </div>
-                {shouldShowError("preferredJobLocation") && (
+                {shouldShowError("preferredJobLocations") && (
                   <div className="flex items-center gap-1.5 text-red-600 text-sm px-1 animate-fadeIn">
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     <span className="leading-tight">
-                      {validationErrors.preferredJobLocation}
+                      {validationErrors.preferredJobLocations}
                     </span>
                   </div>
                 )}
                 <p className="text-xs text-gray-500 mt-1">
                   Separate locations with commas
                 </p>
-                {Array.isArray(getFieldValue("preferredJobLocation")) &&
-                  (getFieldValue("preferredJobLocation") as string[]).length >
+                {Array.isArray(getFieldValue("preferredJobLocations")) &&
+                  (getFieldValue("preferredJobLocations") as string[]).length >
                     0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {(getFieldValue("preferredJobLocation") as string[]).map(
+                      {(getFieldValue("preferredJobLocations") as string[]).map(
                         (location, index) => (
                           <Badge
                             key={index}
@@ -1311,7 +1330,7 @@ export function PersonalInfoForm({
                             <button
                               type="button"
                               onClick={() =>
-                                handleRemoveItem("preferredJobLocation", index)
+                                handleRemoveItem("preferredJobLocations", index)
                               }
                               className="ml-2 text-gray-400 hover:text-gray-600"
                             >
@@ -1328,16 +1347,16 @@ export function PersonalInfoForm({
                 <div className="relative">
                   <Input
                     id="preferredLocations"
-                    value={getDisplayValue("preferredJobLocation")}
+                    value={getDisplayValue("preferredJobLocations")}
                     readOnly
                     className="bg-gray-50/70 border-gray-300 pl-10"
                   />
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
-                {Array.isArray(candidateProfile.preferredJobLocation) &&
-                  candidateProfile.preferredJobLocation.length > 0 && (
+                {Array.isArray(candidateProfile.preferredJobLocations) &&
+                  candidateProfile.preferredJobLocations.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {candidateProfile.preferredJobLocation.map(
+                      {candidateProfile.preferredJobLocations.map(
                         (location, index) => (
                           <Badge
                             key={index}

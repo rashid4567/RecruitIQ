@@ -1,5 +1,5 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { Email } from "../../domain/value.objects.ts/email.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
 import { GoogleId } from "../../domain/value.objects.ts/google-id.vo";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 import { ApplicationError } from "../errors/application.error";

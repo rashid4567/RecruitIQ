@@ -1,35 +1,32 @@
 import { userRoles } from "../constants/roles.constants";
-import { AuthProvider } from "../value.objects.ts/auth-provider.vo"; 
-import { Email } from "../value.objects.ts/email.vo"; 
-import { GoogleId } from "../value.objects.ts/google-id.vo"; 
-import { Password } from "../value.objects.ts/password.vo"; 
-import { PasswordHasherPort  } from "../ports/password-hasher.port"; 
-import { passwordServicePort } from "../../../candidate/application/ports/password.service.port";
-import { th } from "zod/v4/locales";
+import { AuthProvider } from "../../../../shared/domain/value-objects.ts/auth-provider.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { GoogleId } from "../value.objects.ts/google-id.vo";
+import { Password } from "../../../../shared/domain/value-objects.ts/password.vo";
+import { PasswordHasherPort } from "../ports/password-hasher.port";
 
 export class User {
   private constructor(
-    public readonly id: string,
+    public readonly id: string | undefined,
     public readonly email: Email,
     public readonly role: userRoles,
     public readonly fullName: string,
     private readonly isActive: boolean,
     public readonly authProvider: AuthProvider,
     private readonly passwordHash?: string,
-    public readonly googleId?: GoogleId
+    public readonly googleId?: GoogleId,
   ) {
     this.validateInvariants();
   }
 
-  public static register(params: {
-    id: string;
+  static register(params: {
     email: Email;
     role: userRoles;
     fullName: string;
     passwordHash: string;
   }): User {
     return new User(
-      params.id,
+      undefined,
       params.email,
       params.role,
       params.fullName,
@@ -57,21 +54,18 @@ export class User {
       params.isActive,
       params.authProvider,
       params.passwordHash,
-      params.googleId
+      params.googleId,
     );
   }
 
-
-
-  public static registerWithGoogle(params: {
-    id: string;
+  static registerWithGoogle(params: {
     email: Email;
     role: userRoles;
     fullName: string;
     googleId: GoogleId;
   }): User {
     return new User(
-      params.id,
+      undefined,
       params.email,
       params.role,
       params.fullName,
@@ -82,9 +76,10 @@ export class User {
     );
   }
 
-  public updateEmail(email : Email):User{
-    if(!this.authProvider.isLocal()){
-      throw new Error("Email update not allowed for social login")
+ 
+  public updateEmail(email: Email): User {
+    if (!this.authProvider.isLocal()) {
+      throw new Error("Email update not allowed for social login");
     }
 
     return new User(
@@ -96,7 +91,7 @@ export class User {
       this.authProvider,
       this.passwordHash,
       this.googleId,
-    )
+    );
   }
   public canLogin(): boolean {
     return this.isActive;
@@ -104,43 +99,50 @@ export class User {
 
   public async verifyPassword(
     password: Password,
-    hasher: PasswordHasherPort 
+    hasher: PasswordHasherPort,
   ): Promise<boolean> {
-    if (!this.authProvider.isLocal() ||  !this.passwordHash) {
-      return false; 
+    if (!this.authProvider.isLocal() || !this.passwordHash) {
+      return false;
     }
     return hasher.compare(password, this.passwordHash);
   }
 
-  public resetPassword(newPasswordHash : Password, hasher : PasswordHasherPort):Promise<User>{
-    if(!this.authProvider.isLocal()){
-      throw new Error("Password change not allowed for social login")
+  public resetPassword(
+    newPasswordHash: Password,
+    hasher: PasswordHasherPort,
+  ): Promise<User> {
+    if (!this.authProvider.isLocal()) {
+      throw new Error("Password change not allowed for social login");
     }
 
-   return this.withNewPassword(newPasswordHash, hasher)
+    return this.withNewPassword(newPasswordHash, hasher);
   }
 
-  public async updatePassword(current : Password, next : Password, hasher : PasswordHasherPort):Promise<User>{
-     if(!this.authProvider.isLocal()){
-      throw new Error("Password change not allowed for social login")
-     }
+  public async updatePassword(
+    current: Password,
+    next: Password,
+    hasher: PasswordHasherPort,
+  ): Promise<User> {
+    if (!this.authProvider.isLocal()) {
+      throw new Error("Password change not allowed for social login");
+    }
 
-     if(!this.passwordHash){
-      throw new Error("Password not set")
-     }
+    if (!this.passwordHash) {
+      throw new Error("Password not set");
+    }
 
-     const match = await hasher.compare(current, this.passwordHash);
-     if(!match){
-      throw new Error("Invalid current password")
-     }
-    return this.withNewPassword(next, hasher)
+    const match = await hasher.compare(current, this.passwordHash);
+    if (!match) {
+      throw new Error("Invalid current password");
+    }
+    return this.withNewPassword(next, hasher);
   }
 
   private async withNewPassword(
-    password : Password,
-    hasher : PasswordHasherPort,
-  ):Promise<User>{
-    const hash =await hasher.hash(password);
+    password: Password,
+    hasher: PasswordHasherPort,
+  ): Promise<User> {
+    const hash = await hasher.hash(password);
     return new User(
       this.id,
       this.email,
@@ -149,26 +151,23 @@ export class User {
       this.isActive,
       this.authProvider,
       hash,
-      this.googleId
-    )
+      this.googleId,
+    );
   }
 
-  getPasswordHash():string | undefined{
+  getPasswordHash(): string | undefined {
     return this.passwordHash;
   }
-  private validateInvariants():void{
-    if(this.authProvider.isLocal() && !this.passwordHash){
-      throw new Error("Local user must have a password hash")
+  private validateInvariants(): void {
+    if (this.authProvider.isLocal() && !this.passwordHash) {
+      throw new Error("Local user must have a password hash");
     }
-    if(this.authProvider.isGoogle() && !this.googleId){
-      throw new Error("Google user must have a GoogleId")
+    if (this.authProvider.isGoogle() && !this.googleId) {
+      throw new Error("Google user must have a GoogleId");
     }
 
-    if(this.authProvider.isGoogle() &&  this.passwordHash){
+    if (this.authProvider.isGoogle() && this.passwordHash) {
       throw new Error("Google user cannot have a password");
     }
   }
-
-  
 }
- 

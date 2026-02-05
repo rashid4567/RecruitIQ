@@ -1,5 +1,6 @@
+import type { UserRole } from "@/module/auth/domain/constants/user-role"
 import type React from "react"
-export type UserRole = "candidate" | "recruiter" | "admin"
+
 
 export interface RoleOption {
   id: UserRole

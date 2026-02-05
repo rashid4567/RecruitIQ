@@ -1,5 +1,5 @@
-import { Email } from "../value-objects/email.vo";
-import { UserId } from "../value-objects/user-id.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 
 export class User {
   private constructor(

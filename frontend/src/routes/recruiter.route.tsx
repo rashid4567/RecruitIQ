@@ -7,10 +7,14 @@ import RouteLoader from "../components/RouterLoader";
 
 const RecruiterHome = lazy(() => import("../pages/landing/landingPage"));
 const RecruiterDetails = lazy(
-  () => import("../pages/recruiter/RecruiterDetails")
+  () => import("../pages/recruiter/RecruiterDetails"),
 );
+// const RecruiterSettingsPage = lazy(
+//   () => import("../pages/recruiter/recruiterProfile")
+// );
+
 const RecruiterSettingsPage = lazy(
-  () => import("../pages/recruiter/recruiterProfile")
+  () => import("../module/recruiter/presentation/pages/recruiter.profile"),
 );
 
 const RecruiterRoutes = () => (
@@ -28,4 +32,3 @@ const RecruiterRoutes = () => (
 );
 
 export default RecruiterRoutes;
-

@@ -1,5 +1,5 @@
 import { User } from "../entities/user.entity";
-import { Email } from "../value.objects.ts/email.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
 
 export interface UserRepository {
   findById(userId : string):Promise<User|null>;

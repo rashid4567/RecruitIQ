@@ -1,5 +1,5 @@
-import { Email } from "../value.object.ts/email.vo";
-import { UserId } from "../value.object.ts/user-Id.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 
 export class User {
   private constructor(
@@ -18,7 +18,7 @@ export class User {
     if (!fullName || fullName.trim().length === 0) {
       throw new Error("Full name is required");
     }
-    
+
     return new User(id, fullName, email, profileImage);
   }
 

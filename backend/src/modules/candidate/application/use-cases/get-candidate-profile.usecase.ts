@@ -1,6 +1,6 @@
 import { CandidateRespository } from "../../domain/repositories/candidate.repository";
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { UserId } from "../../domain/value-objects/user-id.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 import { ERROR_CODES } from "../constants/error-code.constant";
 import { GetCandidateProfileResponseDTO } from "../dto/candidate-profile.dto";
 import { ApplicationError } from "../../../../shared/errors/applicatoin.error";

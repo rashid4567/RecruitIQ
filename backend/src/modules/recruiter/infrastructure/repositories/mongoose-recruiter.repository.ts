@@ -1,8 +1,10 @@
 import { Types } from "mongoose";
 import { RecruiterProfile } from "../../domain/entities/recruiter-profile.entity";
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
-import { UserId } from "../../domain/value.object.ts/user-Id.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 import { RecruiterProfileModel } from "../mongoose/model/recruiter-profile.model";
+import { subscribtionStatus } from "../../domain/constatns/subscribtionStatus.contsants";
+import { verificationStatus } from "../../domain/constatns/verificationStatus.constants";
 
 export class MongooseRecruiterProfileRepository implements RecruiterProfileRepository{
   async findByUserId(userId: UserId){
@@ -12,19 +14,21 @@ export class MongooseRecruiterProfileRepository implements RecruiterProfileRepos
 
     if(!doc)return null;
 
-    return RecruiterProfile.fromPresistence({
-      userId,
-      companyName : doc.companyName ?? "",
-      companyWebsite : doc.companyWebsite ?? "",
-      comopanySize : doc.companySize ?? 0,
-      industry : doc.industry ?? "",
-      designation : doc.designation ?? "",
-      bio : doc.bio ?? "",
-      location : doc.location ?? "",
-      subscribtionStatus : doc.subscriptionStatus ?? "",
-      jobPostUsed : doc.jobPostsUsed ?? 0,
-      verificationStatus : doc.verificationStatus ?? ""
-    })
+   return RecruiterProfile.fromPresistence({
+  userId,
+  companyName: doc.companyName ?? "",
+  companyWebsite: doc.companyWebsite ?? "",
+  companySize: doc.companySize ?? 0,
+  industry: doc.industry ?? "",
+  designation: doc.designation ?? "",
+  bio: doc.bio ?? "",
+  linkedinUrl: doc.linkedinUrl ?? "",
+  location: doc.location ?? "",
+  subscriptionStatus: (doc.subscriptionStatus ?? "free") as subscribtionStatus,
+  jobPostsUsed: doc.jobPostsUsed ?? 0,
+  verificationStatus: (doc.verificationStatus ?? "pending") as verificationStatus,
+});
+
   }
 
 
@@ -43,6 +47,7 @@ export class MongooseRecruiterProfileRepository implements RecruiterProfileRepos
         designation : profile.getDesignation(),
         industry : profile.getIndustry(),
         bio : profile.getBio(),
+        linkedinUrl  : profile.getLinkedinUrl(),
         location : profile.getLocation(),
         subscriptionStatus : profile.getSubscriptionStatus(),
         jobPostsUsed : profile.getJobPostsUsed(),

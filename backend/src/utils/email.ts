@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { logEmail } from "./email-logger";
+import { logger } from "../shared/logger/logger";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -25,6 +26,8 @@ export const sendOtp = async (to: string, otp: string) => {
         <p>This OTP expires in 10 minutes.</p>
       `,
     });
+
+    logger.debug(`otp is : - ${otp}`)
 
     logEmail({
       type: "REAL",

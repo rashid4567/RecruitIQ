@@ -1,7 +1,7 @@
 import { sendOtp } from "../../../../utils/email";
 import { generateOTP, hashOTP } from "../security/otp.crypto";
 import { OTPServicePort } from "../../application/ports/otp.service.ports";
-import { Email } from "../../domain/value.objects.ts/email.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
 import { INFRA_ERRORS } from "../constants/error-messages.constants";
 import { otpModel } from "../mongoose/model/otp.model";
 import { OtpRole } from "../../domain/constants/otp-roles.constants";

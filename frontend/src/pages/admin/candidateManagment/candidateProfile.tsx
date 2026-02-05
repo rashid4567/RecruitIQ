@@ -1,7 +1,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { candidateService } from "../../../services/admin/admin.candidate.service";
+import { candidateService } from "../../../services/admin/admin.service";
 import type { CandidateProfile } from "../../../types/admin/candidate.types";
 import { ScoreBar } from "../../../components/admin/scoreBar";
 import {

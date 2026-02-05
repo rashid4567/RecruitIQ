@@ -1,5 +1,5 @@
 import { OtpRole } from "../../domain/constants/otp-roles.constants";
-import { Email } from "../../domain/value.objects.ts/email.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
 
 export interface OTPServicePort {
   create(email: Email, role: OtpRole): Promise<void>;

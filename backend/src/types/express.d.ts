@@ -8,6 +8,7 @@ declare global {
         role: "admin" | "recruiter" | "candidate";
       };
       container: AppContainer;
+      requestId: string;
     }
   }
 }

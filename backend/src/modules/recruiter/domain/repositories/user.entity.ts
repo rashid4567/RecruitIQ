@@ -1,6 +1,6 @@
 import { User } from "../entities/user.entity";
-import { Email } from "../value.object.ts/email.vo";
-import { UserId } from "../value.object.ts/user-Id.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 
 export interface UserRepository{
     findById(userId : UserId):Promise<User | null>;

@@ -1,64 +1,94 @@
 import { PipelineStage, Types } from "mongoose";
 import { CandidateRepository } from "../../Domain/repositories/candidate.repository";
-import { UserModel } from "../../../../auth/infrastructure/mongoose/model/user.model";
 import { Candidate } from "../../Domain/entities/candidate.entity";
+import { UserModel } from "../../../../auth/infrastructure/mongoose/model/user.model";
+import { UserId } from "../../../../../shared/domain/value-objects.ts/userId.vo";
+import { Email } from "../../../../../shared/domain/value-objects.ts/email.vo";
+import { CandidateRow } from "../types/candidate.row.type";
 
-export class MongooseCandidateRepositort implements CandidateRepository{
-    async getCandidates({search , status , skip , limit} : any ){
-        const match : any = {role : "candidate"};
 
-        if(status === "Active")match.isActive = true;
-        if(status === "Blocked")match.isActive = false;
 
-        if(search){
-            match.$or = [
-                {fullName : {$regex : search , $options : "i"}},
-                {email : {$regex : search, $optionss : "i"}},
-            ]
-        }
-        const pipeline : PipelineStage[] = [
-            {$match : match},
-            {$project : {
-                id : "$_id",
-                name : "$fullName",
-                status : {
-                    $cond : [{$eq : ["$isActive",true]}, "Active", "Blocked"],
-                },
-            },
-        },
-        {$skip : skip},
-        {$limit : limit},
-        ]
+export class MongooseCandidateRepository implements CandidateRepository {
+  async getCandidates(input: {
+    search?: string;
+    status?: boolean;
+    skip: number;
+    limit: number;
+  }): Promise<{ candidates: Candidate[]; total: number }> {
+    const match: Record<string, unknown> = {
+      role: "candidate",
+    };
 
-        const [data, total] = await Promise.all([
-            UserModel.aggregate(pipeline),
-            UserModel.countDocuments(match)
-        ])
-        return {
-            candidates : data.map(
-                (c) => new Candidate(c.id, c.name, c.email, c.status)
-            ),
-            total,
-        }
-    }   
-
-    async getCandidateProfile(candidateId: string): Promise<Candidate | null> {
-        const result = await UserModel.aggregate([
-            {$match : {_id : new Types.ObjectId(candidateId),role : "candidate"}},
-            {$lookup : {
-                from : "candidateprofiles",
-                localField : "_id",
-                foreignField : "userId",
-                as : "profile"
-            },
-        },
-        {$unwind : {path : "$profile",preserveNullAndEmptyArrays : true}}
-        ])
-
-        return result[0] ?? null;
+    if (input.status === true) {
+      match.isActive = true;
     }
 
-    async updateCandidateStatus(candidateId : string, isActive : boolean){
-        await UserModel.findByIdAndUpdate(candidateId, {isActive})
+    if (input.status === false) {
+      match.isActive = false;
     }
+
+    if (input.search) {
+      match.$or = [
+        { fullName: { $regex: input.search, $options: "i" } },
+        { email: { $regex: input.search, $options: "i" } },
+      ];
+    }
+
+    const pipeline: PipelineStage[] = [
+      { $match: match },
+      {
+        $facet: {
+          data: [
+            { $skip: input.skip },
+            { $limit: input.limit },
+            {
+              $project: {
+                _id: 1,
+                fullName: 1,
+                email: 1,
+                isActive: 1,
+              },
+            },
+          ],
+          total: [{ $count: "count" }],
+        },
+      },
+    ];
+
+    const result = await UserModel.aggregate(pipeline);
+
+    const rows: CandidateRow[] = result[0].data;
+    const total = result[0].total[0]?.count ?? 0;
+
+    return {
+      candidates: rows.map((row) =>
+        Candidate.fromPersistence({
+          id: UserId.create(row._id.toString()),
+          name: row.fullName,
+          email: Email.create(row.email),
+          isActive: row.isActive,
+        }),
+      ),
+      total,
+    };
+  }
+
+  async findById(candidateId: string): Promise<Candidate | null> {
+    
+    if (!Types.ObjectId.isValid(candidateId)) return null;
+
+    const doc = await UserModel.findOne({
+      _id: candidateId,
+      role: "candidate",
+    }).lean();
+
+    if (!doc) return null;
+
+    return Candidate.fromPersistence({
+      id: UserId.create(doc._id.toString()),
+      name: doc.fullName ?? "",
+      email: Email.create(doc.email),
+      isActive: doc.isActive,
+    });
+  }
 }

@@ -52,12 +52,18 @@ export const UpdateRecruiterProfileSchema = z
       .string("Bio must be a string")
       .max(500, { message: "Bio must not exceed 500 characters" })
       .optional(),
+
+   linkedinUrl: z
+  .union([
+    z.string().url({ message: "LinkedIn profile must be a valid URL" }),
+    z.literal(""),
+  ])
+  .optional()
+  .transform((val) => (val === "" ? undefined : val)),
+
+
   })
   .strict()
-  .refine(
-    data =>
-      Object.values(data).some(value => value !== undefined),
-    {
-      message: "At least one field must be provided to update",
-    }
-  );
+  .refine((data) => Object.values(data).some((value) => value !== undefined), {
+    message: "At least one field must be provided to update",
+  });

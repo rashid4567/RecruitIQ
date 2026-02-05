@@ -1,39 +1,56 @@
 import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { Email } from "../../domain/value.objects.ts/email.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
 import { UserModel } from "../mongoose/model/user.model";
 import { userRoles } from "../../domain/constants/roles.constants";
-import { AuthProvider } from "../../domain/value.objects.ts/auth-provider.vo";
+import { AuthProvider } from "../../../../shared/domain/value-objects.ts/auth-provider.vo";
 import { GoogleId } from "../../domain/value.objects.ts/google-id.vo";
 
 export class MongooseUserRepository implements UserRepository {
   async findByEmail(email: Email): Promise<User | null> {
-    const doc = await UserModel.findOne({ email: email.getValue() });
-    if (!doc) return null;
-    return this.toDomain(doc);
+    const doc = await UserModel.findOne({ email: email.getValue() }).lean();
+    return doc ? this.toDomain(doc) : null;
   }
 
   async findById(userId: string): Promise<User | null> {
-    const doc = await UserModel.findById(userId);
-    if (!doc) return null;
-    return this.toDomain(doc);
+    const doc = await UserModel.findById(userId).lean();
+    return doc ? this.toDomain(doc) : null;
   }
 
   async save(user: User): Promise<User> {
-    const persistence = {
-      email: user.email.getValue(),
-      role: user.role,
-      fullName: user.fullName,
-      isActive: user.canLogin(),
-      authProvider: user.authProvider.getValue(),
-      googleId: user.googleId?.getValue(),
-      password: user.getPasswordHash() ?? null,
-    };
+    // 🟢 CREATE
+    if (!user.id) {
+      const doc = await UserModel.create({
+        email: user.email.getValue(),
+        role: user.role,
+        fullName: user.fullName,
+        isActive: user.canLogin(),
+        authProvider: user.authProvider.getValue(),
+        googleId: user.googleId?.getValue(),
+        password: user.getPasswordHash() ?? null,
+      });
 
-    const doc = user.id
-      await UserModel.findByIdAndUpdate(user.id, persistence, { upsert: false })
+      return this.toDomain(doc);
+    }
 
-      // : await UserModel.create(persistence);
+    // 🟢 UPDATE
+    const doc = await UserModel.findByIdAndUpdate(
+      user.id,
+      {
+        email: user.email.getValue(),
+        role: user.role,
+        fullName: user.fullName,
+        isActive: user.canLogin(),
+        authProvider: user.authProvider.getValue(),
+        googleId: user.googleId?.getValue(),
+        password: user.getPasswordHash() ?? null,
+      },
+      { new: true }
+    ).lean();
+
+    if (!doc) {
+      throw new Error("User not found while updating");
+    }
 
     return this.toDomain(doc);
   }
@@ -43,7 +60,7 @@ export class MongooseUserRepository implements UserRepository {
       id: doc._id.toString(),
       email: Email.create(doc.email),
       role: doc.role as userRoles,
-      fullName: doc.fullName ?? "",
+      fullName: doc.fullName,
       isActive: doc.isActive ?? true,
       authProvider:
         doc.authProvider === "google"

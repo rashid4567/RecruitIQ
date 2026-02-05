@@ -26,9 +26,9 @@ import { RegistrationController } from "./presentation/controller/registration.c
 import { AdminAuthController } from "./presentation/controller/admin.auth.controller";
 import { TokenController } from "./presentation/controller/token.controller";
 import { ForgotPasswordController } from "./presentation/controller/forgot-password.controller";
-import { updatePasswordUseCase } from "./application/useCase/update-password.usecase";
+import { UpdatePasswordUseCase } from "./application/useCase/update-password.usecase";
 import e from "express";
-import { ChangePasswordController } from "./presentation/controller/change-password.controller";
+import { ChangePasswordController } from "./presentation/controller/updatePassword.controller";
 
 const userRepo: UserRepository = new MongooseUserRepository();
 const passwordPort: PasswordHasherPort = new PasswordService();
@@ -67,7 +67,7 @@ const googleLoginUc = new GoogleLoginUseCase(
   googleAuthService,
   tokenService,
 );
-const changePasswordUC = new updatePasswordUseCase(userRepo, passwordPort);
+const changePasswordUC = new UpdatePasswordUseCase(userRepo, passwordPort);
 export const authController = new AuthController(loginUC);
 export const otpController = new OtpController(sendOtpUC);
 export const registrationController = new RegistrationController(

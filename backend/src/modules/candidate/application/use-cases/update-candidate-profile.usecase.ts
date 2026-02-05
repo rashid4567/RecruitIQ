@@ -2,7 +2,7 @@ import { UserRepository } from "../../domain/repositories/user.repository";
 import { CandidateRespository } from "../../domain/repositories/candidate.repository";
 import { UpdateCandidateProfileDTO } from "../dto/update-candidate-profile.dto";
 import { CandidateProfileDTO } from "../dto/candidate-profile.dto";
-import { UserId } from "../../domain/value-objects/user-id.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 import { ERROR_CODES } from "../constants/error-code.constant";
 

@@ -1,6 +1,6 @@
 import { OTPServicePort } from "../ports/otp.service.ports";
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { Email } from "../../domain/value.objects.ts/email.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
 import { OTP_ROLES } from "../../domain/constants/otp-roles.constants";
 
 

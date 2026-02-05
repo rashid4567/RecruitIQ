@@ -9,8 +9,11 @@ export class UpdateRecruiterProfileController {
 
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      console.log("userId : ", req.user);
+      console.log("body : ", req.body)
      const userId = userIdSchema.parse(req.user?.userId);
       const body = UpdateRecruiterProfileSchema.parse(req.body);
+      console.log("after parsed : ", body);
       const profile = await this.updateProfileUC.execute(userId, body)
       res.status(HTTP_STATUS.OK).json({
         success : true,
@@ -18,6 +21,7 @@ export class UpdateRecruiterProfileController {
         data : profile,
       })
     } catch (err) {
+      console.log("err : - ",err)
       next(err);
     }
   };

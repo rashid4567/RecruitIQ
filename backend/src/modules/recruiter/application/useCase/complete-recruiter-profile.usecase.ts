@@ -1,8 +1,8 @@
 import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 import { CandidateRepository } from "../../../admin/candidate/Domain/repositories/candidate.repository";
-import { RecruiterRepository } from "../../../admin/Recruiter/Domain/repositories/recruiter.repository";
+import { RecruiterRepository } from "../../../admin/candidate/Domain/repositories/recruiter.repository";
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
-import { UserId } from "../../domain/value.object.ts/user-Id.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 import { ERROR_CODES } from "../constants/error.code.constants";
 import { CompleteRecruiterProfileDTO } from "../dto/complete-recruiter-profile.dto";
 

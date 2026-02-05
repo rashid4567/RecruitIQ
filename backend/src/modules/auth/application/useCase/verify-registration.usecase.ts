@@ -1,7 +1,7 @@
 import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { Email } from "../../domain/value.objects.ts/email.vo";
-import { Password } from "../../domain/value.objects.ts/password.vo";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { Password } from "../../../../shared/domain/value-objects.ts/password.vo";
 import { VerificationInput } from "../dto/verification.input.dto";
 import { OTPServicePort } from "../ports/otp.service.ports";
 import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
@@ -32,7 +32,6 @@ export class VerifyRegistrationUseCase {
     const passwordHash = await this.passwordHasher.hash(password);
 
     const user = User.register({
-      id: "",
       email,
       role: input.role,
       fullName: input.fullName,
@@ -43,12 +42,12 @@ export class VerifyRegistrationUseCase {
 
     return {
   accessToken: this.tokenService.generateAccessToken(
-    savedUser.id,
+    savedUser.id!,
     savedUser.role,
   ),
-  refreshToken: this.tokenService.generateRefreshToken(savedUser.id),
+  refreshToken: this.tokenService.generateRefreshToken(savedUser.id!),
   user: {
-    id: savedUser.id,
+    id: savedUser.id!,
     role: savedUser.role,
     fullName: savedUser.fullName,
   },

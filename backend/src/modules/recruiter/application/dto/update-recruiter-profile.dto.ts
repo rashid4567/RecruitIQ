@@ -6,6 +6,7 @@ export interface UpdateRecruiterProfileDTO {
   designation?: string;
   location?: string;
   bio?: string;
+  linkedinUrl?:string;
   fullName?:string,
   profileImage?:string,
   email?:string,

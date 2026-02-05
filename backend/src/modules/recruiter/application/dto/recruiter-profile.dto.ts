@@ -6,6 +6,7 @@ export interface RecruiterProfileDTO {
   designation?: string;
   location?: string;
   bio?: string;
+  linkedinUrl   ?:string,
   subscriptionStatus?: string;
   jobPostsUsed?: number;
   verificationStatus?: string;

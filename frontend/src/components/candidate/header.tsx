@@ -1,5 +1,3 @@
-"use client"
-
 import { Menu, X, User, LogOut } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"

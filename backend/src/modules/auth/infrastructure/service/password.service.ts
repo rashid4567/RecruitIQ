@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 import { BCRYPT_SALT_ROUNDS } from "../constants/security.constants";
-import { Password } from "../../domain/value.objects.ts/password.vo";
+import { Password } from "../../../../shared/domain/value-objects.ts/password.vo";
 
 export class PasswordService implements PasswordHasherPort{
     async hash(password: Password): Promise<string> {

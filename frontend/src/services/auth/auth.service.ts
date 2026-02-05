@@ -79,5 +79,13 @@ export const authService = {
     });
 
     return res.data;
+  },
+
+  updatePassword : async (payload : {
+    currentPassword : string,
+    newPassword : string,
+  }) =>{
+   await api.put("/auth/update-password",payload)
+
   }
 };

@@ -46,8 +46,8 @@ import {
   Lock,
   ChevronRight
 } from "lucide-react"
-import { recruiterService } from "../../../services/recruiter/recruiter.service"
-import type { RecruiterProfileResponse } from "../../../types/recruiter/recruiter.profile.type"
+import { recruiterService } from "@/services/recruiter/recruiter.service" 
+import type { RecruiterProfileResponse } from "@/types/recruiter/recruiter.profile.type" 
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),

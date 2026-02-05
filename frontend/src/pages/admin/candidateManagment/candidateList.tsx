@@ -36,7 +36,7 @@ import {
   Target,
 } from "lucide-react";
 import Sidebar from "../../../components/admin/sideBar";
-import { candidateService } from "../../../services/admin/admin.candidate.service";
+import { candidateService } from "../../../services/admin/admin.service";
 import type {
   Candidate,
   CandidateStatus,

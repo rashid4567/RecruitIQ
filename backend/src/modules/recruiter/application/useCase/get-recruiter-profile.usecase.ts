@@ -1,9 +1,10 @@
 import { ApplicationError } from "../../../auth/application/errors/application.error";
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
 import { UserRepository } from "../../domain/repositories/user.entity";
-import { UserId } from "../../domain/value.object.ts/user-Id.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 import { ERROR_CODES } from "../constants/error.code.constants";
 import { RecruiterProfileReponse } from "../dto/recruiter-profile.dto";
+import { RecruiterProfile } from "../../domain/entities/recruiter-profile.entity";
 
 export class GetRecruiterProfileUseCase {
   constructor(
@@ -19,9 +20,25 @@ export class GetRecruiterProfileUseCase {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    const profile = await this.recruiterRepo.findByUserId(id);
+    let profile = await this.recruiterRepo.findByUserId(id);
+
     if (!profile) {
-      throw new ApplicationError(ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND);
+      profile = RecruiterProfile.fromPresistence({
+        userId: id,
+        companyName: "",
+        companyWebsite: "",
+        companySize: 0,
+        industry: "",
+        designation: "",
+        location: "",
+        bio: "",
+        linkedinUrl: "",
+        subscriptionStatus: "free",
+        jobPostsUsed: 0,
+        verificationStatus: "pending",
+      });
+
+      await this.recruiterRepo.save(profile);
     }
 
     return {
@@ -35,9 +52,11 @@ export class GetRecruiterProfileUseCase {
         companyName: profile.getCompanyName(),
         companyWebsite: profile.getCompanyWebsite(),
         companySize: profile.getCompanySize(),
-        designation: profile.getDesignation(),
         industry: profile.getIndustry(),
+        designation: profile.getDesignation(),
+        location: profile.getLocation(),
         bio: profile.getBio(),
+        linkedinUrl: profile.getLinkedinUrl(),
         subscriptionStatus: profile.getSubscriptionStatus(),
         jobPostsUsed: profile.getJobPostsUsed(),
         verificationStatus: profile.getVerificationStatus(),

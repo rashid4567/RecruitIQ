@@ -1,6 +1,6 @@
 import { subscribtionStatus } from "../constatns/subscribtionStatus.contsants";
 import { verificationStatus } from "../constatns/verificationStatus.constants";
-import { UserId } from "../value.object.ts/user-Id.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 
 export class RecruiterProfile {
   private constructor(
@@ -11,9 +11,10 @@ export class RecruiterProfile {
     private industry?: string,
     private designation?: string,
     private bio?: string,
+    private linkedinUrl?: string,
     private location?: string,
-    private subscrbtionStatus?: subscribtionStatus,
-    private jobPostUser?: number,
+    private subscriptionStatus?: subscribtionStatus,
+    private jobPostsUsed?: number,
     private verificationStatus?: verificationStatus,
   ) {}
 
@@ -35,26 +36,28 @@ export class RecruiterProfile {
     userId: UserId;
     companyName: string;
     companyWebsite?: string;
-    comopanySize?: number;
+    companySize?: number;
     industry?: string;
     designation?: string;
     bio?: string;
+    linkedinUrl?: string;
     location?: string;
-    subscribtionStatus: subscribtionStatus;
-    jobPostUsed: number;
+    subscriptionStatus: subscribtionStatus;
+    jobPostsUsed: number;
     verificationStatus: verificationStatus;
   }): RecruiterProfile {
     return new RecruiterProfile(
       props.userId,
       props.companyName,
       props.companyWebsite,
-      props.comopanySize,
+      props.companySize,
       props.industry,
       props.designation,
       props.bio,
+      props.linkedinUrl,
       props.location,
-      props.subscribtionStatus,
-      props.jobPostUsed,
+      props.subscriptionStatus,
+      props.jobPostsUsed,
       props.verificationStatus,
     );
   }
@@ -90,6 +93,10 @@ export class RecruiterProfile {
     this.bio = value;
   }
 
+  public updateLinkedinUrl(value: string): void {
+    this.linkedinUrl = value;
+  }
+
   public updateLocation(value: string): void {
     this.location = value;
   }
@@ -118,18 +125,22 @@ export class RecruiterProfile {
     return this.bio;
   }
 
+  public getLinkedinUrl(): string | undefined {
+    return this.linkedinUrl;
+  }
+
   public getLocation(): string | undefined {
     return this.location;
   }
   public getSubscriptionStatus(): subscribtionStatus | undefined {
-    return this.subscrbtionStatus;
+    return this.subscriptionStatus;
   }
 
   public getUserId(): UserId {
     return this.userId;
   }
-  public getJobPostsUsed(): number | undefined {
-    return this.jobPostUser;
+  getJobPostsUsed(): number | undefined {
+    return this.jobPostsUsed;
   }
 
   public getVerificationStatus(): verificationStatus | undefined {

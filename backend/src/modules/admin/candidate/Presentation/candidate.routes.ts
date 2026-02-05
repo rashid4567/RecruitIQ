@@ -1,18 +1,54 @@
 import { Router } from "express";
-import { candidateController } from "../candidate.module";
-import { requireAdmin } from "../../../../middlewares/role.middleware";
-import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
 
-const router = Router();
-router.use(authenticate);
-router.use(requireAdmin);
+import {
+  blockUserController,
+  unblockUserController,
+  getCandidatesController,
+  getCandidateProfileController,
+  getRecruitersController,
+  getRecruiterProfileController,
+  verifyRecruiterController,
+  rejectRecruiterController,
+} from "../candidate.module";
 
-router.get("", candidateController.getCandidates);
+const adminRouter = Router();
 
-router.get("/:candidateId", candidateController.getCandidateProfile);
+adminRouter.get("/candidates", getCandidatesController.getCandidates);
 
-router.patch("/:candidateId/block", candidateController.blockCandidate);
+adminRouter.get(
+  "/candidates/:candidateId",
+  getCandidateProfileController.getCandidateProfile,
+);
 
-router.patch("/:candidateId/unblock", candidateController.unblockCandidate);
+adminRouter.patch("/candidates/:userId/block", blockUserController.blockUser);
 
-export default router;
+adminRouter.patch(
+  "/candidates/:userId/unblock",
+  unblockUserController.unblockUser,
+);
+
+adminRouter.get("/recruiters", getRecruitersController.recruiterList);
+
+adminRouter.get(
+  "/recruiters/:recruiterId",
+  getRecruiterProfileController.getRecruiterProfile,
+);
+
+adminRouter.patch("/recruiters/:userId/block", blockUserController.blockUser);
+
+adminRouter.patch(
+  "/recruiters/:userId/unblock",
+  unblockUserController.unblockUser,
+);
+
+adminRouter.patch(
+  "/recruiters/:recruiterId/verify",
+  verifyRecruiterController.verifyRecruiter,
+);
+
+adminRouter.patch(
+  "/recruiters/:recruiterId/reject",
+  rejectRecruiterController.rejectRecruiter,
+);
+
+export default adminRouter;

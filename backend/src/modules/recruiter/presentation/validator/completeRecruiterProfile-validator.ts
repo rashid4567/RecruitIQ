@@ -40,5 +40,7 @@ export const CompleteRecruiterProfileSchema = z
       .string("Bio must be a string")
       .max(500, { message: "Bio must not exceed 500 characters" })
       .optional(),
+
+ 
   })
   .strict();

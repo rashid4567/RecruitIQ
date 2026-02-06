@@ -36,22 +36,31 @@ import {
   Target,
 } from "lucide-react";
 import Sidebar from "../../../components/admin/sideBar";
-import { candidateService } from "../../../services/admin/admin.service";
-import type {
-  Candidate,
-  CandidateStatus,
-} from "../../../types/admin/candidate.types";
+import { candidateService } from "../../../infrastructure/services/candidate.service";
 import { useNavigate } from "react-router-dom";
 import { getError } from "@/utils/getError";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
+// Domain types
+type CandidateStatus = "Active" | "Blocked";
+
+interface Candidate {
+  id: string;
+  name: string;
+  email: string;
+  status: CandidateStatus;
+  registeredDate: string;
+  location?: string;
+  experience?: number;
+  applications?: number;
+  skills: string[];
+}
+
 export default function CandidateManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch] = useDebounce(searchTerm, 500);
-  const [filterStatus, setFilterStatus] = useState<"All" | CandidateStatus>(
-    "All",
-  );
+  const [filterStatus, setFilterStatus] = useState<"All" | CandidateStatus>("All");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,9 +72,7 @@ export default function CandidateManagement() {
     totalPages: 1,
   });
 
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
-    null,
-  );
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showActionsMenu, setShowActionsMenu] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [stats, setStats] = useState({
@@ -75,7 +82,7 @@ export default function CandidateManagement() {
     applications: 0,
   });
 
-  // Fetch candidates on mount and when filters change
+  // Fetch candidates using the use case
   useEffect(() => {
     loadCandidates();
   }, [pagination.page, debouncedSearch, filterStatus]);
@@ -95,7 +102,7 @@ export default function CandidateManagement() {
       const response = await candidateService.getCandidates(params);
 
       // Ensure all candidates have required properties
-      const safeCandidates = response.candidates.map((candidate) => ({
+      const safeCandidates = response.candidates.map((candidate: Candidate) => ({
         ...candidate,
         registeredDate: candidate.registeredDate || "Jan 1, 2024",
         location: candidate.location || "Not specified",
@@ -114,12 +121,10 @@ export default function CandidateManagement() {
 
       // Calculate stats
       const active = safeCandidates.filter((c) => c.status === "Active").length;
-      const blocked = safeCandidates.filter(
-        (c) => c.status === "Blocked",
-      ).length;
+      const blocked = safeCandidates.filter((c) => c.status === "Blocked").length;
       const applications = safeCandidates.reduce(
         (acc, c) => acc + (c.applications || 0),
-        0,
+        0
       );
 
       setStats({
@@ -138,7 +143,7 @@ export default function CandidateManagement() {
 
   const handleBlockUnblock = async (
     candidateId: string,
-    currentStatus: CandidateStatus,
+    currentStatus: CandidateStatus
   ) => {
     try {
       setActionLoading(true);
@@ -152,8 +157,8 @@ export default function CandidateManagement() {
           prev.map((candidate) =>
             candidate.id === candidateId
               ? { ...candidate, status: "Blocked" }
-              : candidate,
-          ),
+              : candidate
+          )
         );
       } else {
         await candidateService.unblockCandidate(candidateId);
@@ -161,8 +166,8 @@ export default function CandidateManagement() {
           prev.map((candidate) =>
             candidate.id === candidateId
               ? { ...candidate, status: "Active" }
-              : candidate,
-          ),
+              : candidate
+          )
         );
       }
 
@@ -185,7 +190,7 @@ export default function CandidateManagement() {
   };
 
   const handleExport = () => {
-    // Export functionality - you can implement CSV/Excel export here
+    // Export functionality
     console.log("Export candidates functionality");
   };
 
@@ -196,23 +201,19 @@ export default function CandidateManagement() {
   };
 
   const getExperienceColor = (years: number) => {
-    if (years >= 8)
-      return "bg-purple-100 text-purple-800 border border-purple-200";
+    if (years >= 8) return "bg-purple-100 text-purple-800 border border-purple-200";
     if (years >= 5) return "bg-blue-100 text-blue-800 border border-blue-200";
-    if (years >= 3)
-      return "bg-amber-100 text-amber-800 border border-amber-200";
+    if (years >= 3) return "bg-amber-100 text-amber-800 border border-amber-200";
     return "bg-gray-100 text-gray-800 border border-gray-200";
   };
 
   const getApplicationColor = (apps: number) => {
-    if (apps >= 10)
-      return "bg-green-100 text-green-800 border border-green-200";
+    if (apps >= 10) return "bg-green-100 text-green-800 border border-green-200";
     if (apps >= 5) return "bg-blue-100 text-blue-800 border border-blue-200";
     if (apps >= 1) return "bg-amber-100 text-amber-800 border border-amber-200";
     return "bg-gray-100 text-gray-800 border border-gray-200";
   };
 
-  // Format date for display
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return "Not provided";
 
@@ -313,8 +314,7 @@ export default function CandidateManagement() {
             </div>
           </div>
           <p className="text-gray-600">
-            Manage and monitor all candidate accounts, applications, and
-            activity
+            Manage and monitor all candidate accounts, applications, and activity
           </p>
         </div>
 
@@ -674,9 +674,7 @@ export default function CandidateManagement() {
                                   className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                                   title="View Profile"
                                   onClick={() =>
-                                    navigate(
-                                      `/admin/candidates/${candidate.id}`,
-                                    )
+                                    navigate(`/admin/candidates/${candidate.id}`)
                                   }
                                 >
                                   <Eye size={18} />
@@ -688,7 +686,7 @@ export default function CandidateManagement() {
                                     setShowActionsMenu(
                                       showActionsMenu === candidate.id
                                         ? null
-                                        : candidate.id,
+                                        : candidate.id
                                     )
                                   }
                                   disabled={actionLoading}
@@ -711,9 +709,7 @@ export default function CandidateManagement() {
                                         <div className="p-2">
                                           <button
                                             onClick={() => {
-                                              navigate(
-                                                `/admin/candidates/${candidate.id}`,
-                                              );
+                                              navigate(`/admin/candidates/${candidate.id}`);
                                               setShowActionsMenu(null);
                                             }}
                                             className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
@@ -727,7 +723,7 @@ export default function CandidateManagement() {
                                               onClick={() =>
                                                 handleBlockUnblock(
                                                   candidate.id,
-                                                  candidate.status,
+                                                  candidate.status
                                                 )
                                               }
                                               className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -740,7 +736,7 @@ export default function CandidateManagement() {
                                               onClick={() =>
                                                 handleBlockUnblock(
                                                   candidate.id,
-                                                  candidate.status,
+                                                  candidate.status
                                                 )
                                               }
                                               className="flex items-center gap-3 w-full px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg transition-colors"
@@ -772,7 +768,7 @@ export default function CandidateManagement() {
                           (pagination.page - 1) * pagination.limit + 1
                         } to ${Math.min(
                           pagination.page * pagination.limit,
-                          pagination.total,
+                          pagination.total
                         )} of ${pagination.total} candidates`}
                   </div>
 
@@ -828,7 +824,7 @@ export default function CandidateManagement() {
                               {pageNum}
                             </button>
                           );
-                        },
+                        }
                       )}
                     </div>
 

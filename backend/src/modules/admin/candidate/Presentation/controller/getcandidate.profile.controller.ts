@@ -10,7 +10,7 @@ export class GetCandidateProfileController {
     getCandidateProfile = async (req : Request, res : Response, next : NextFunction) =>{
         try{
             const {candidateId} = req.params;
-
+            console.log("candidate", req.params);
             const profile = await this.getCandidteProfileUC.execute(candidateId)
 
             return res.status(HTTP_STATUS.OK).json({
@@ -19,6 +19,7 @@ export class GetCandidateProfileController {
                 data :profile,
             })
         }catch(err){
+            console.log("err", err);
             return next(err)
         }
     }

@@ -8,7 +8,10 @@ export class UnblockUserUseCase{
         private readonly userRepo : UserRepository
     ){};
 
-    async execute(userId : string){{
+    async execute(userId : string){
+          if (!userId || userId === "[object Object]") {
+    throw new ApplicationError("Invalid user id");
+  }
         const id = UserId.create(userId);
         const user = await this.userRepo.findById(id);
 
@@ -18,7 +21,7 @@ export class UnblockUserUseCase{
 
         user.unblock();
         await this.userRepo.save(user);
-    }}
+    }
 
     
 }

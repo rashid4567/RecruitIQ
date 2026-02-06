@@ -2,23 +2,33 @@ import { Request, Response, NextFunction } from "express";
 import { BlockUserUseCase } from "../../Application/use-Cases/block-user.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
-export class BlockUserController{
-    constructor(
-        private readonly blockUserUC : BlockUserUseCase
-    ){};
+export class BlockUserController {
+  constructor(private readonly blockUserUC: BlockUserUseCase) {}
 
-    blockUser = async (req : Request, res : Response , next : NextFunction) =>{
-        try{
-            const {userId} = req.params;
+  blockUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { userId } = req.params;
+      console.log("body : ", req.params);
+      console.log("PARAM userId:", req.params.userId);
+          if(!userId){
+        console.log("no userID is found")
+      }
 
-        await this.blockUserUC.execute(userId);
-
-        return res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message : "User blocked succesfully",
+      if(!userId || typeof userId !== "string"){
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success : false,
+          message : "Invalid userId in route params"
         })
-        }catch(err){
-            return next(err)
-        }
+      }
+      await this.blockUserUC.execute(userId);
+
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: "User blocked succesfully",
+      });
+    } catch (err) {
+      console.error("err : ", err);
+      return next(err);
     }
-  }
+  };
+}

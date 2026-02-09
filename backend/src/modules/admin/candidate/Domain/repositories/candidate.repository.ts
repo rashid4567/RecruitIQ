@@ -1,7 +1,4 @@
-
-import { UserId } from "../../../../../shared/domain/value-objects.ts/userId.vo";
 import { Candidate } from "../entities/candidate.entity";
-
 
 export interface CandidateRepository {
   getCandidates(input: {
@@ -14,5 +11,5 @@ export interface CandidateRepository {
     total: number;
   }>;
 
-  findById(candidateId: string): Promise<Candidate | null>;
+  findProfileById(candidateId: string): Promise<Candidate | null>;
 }

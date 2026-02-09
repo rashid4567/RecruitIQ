@@ -10,7 +10,7 @@ export class GetCandidateprofileUseCase {
     async execute(candidateId : string){
       
        
-        const profile = await this.candidateRepo.findById(candidateId);
+        const profile = await this.candidateRepo.findProfileById(candidateId);
         if(!profile){
             throw new Error("Candidate profile is not found")
         }

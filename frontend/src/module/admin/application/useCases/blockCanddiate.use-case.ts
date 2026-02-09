@@ -10,6 +10,10 @@ export class BlockCandidateUseCase{
     }
 
     async execute(candidateId : string):Promise<void>{
+
+        if(typeof candidateId !== "string"){
+            throw new Error('Invalid candidateid  : must be string')
+        }
         return this.candidateRepo.blockCandidate(candidateId)
     }
 }

@@ -6,10 +6,11 @@ export class Candidate {
   public readonly email: string;
   public readonly status: CandidateStatus;
   public readonly registeredDate: string;
-  public readonly location?: string;
+  public readonly jobTitle?: string;
   public readonly experience: number;
-  public readonly applications: number;
   public readonly skills: string[];
+  public readonly summary?: string;
+  public readonly location?: string;
 
   constructor(params: {
     userId: string;
@@ -17,15 +18,15 @@ export class Candidate {
     email: string;
     status: CandidateStatus;
     registeredDate: string;
-    location?: string;
-    experience?: number;
-    applications?: number;
-    skills?: string[];
-  }) {
-    
 
-    if (!params.userId || typeof params.userId !== "string") {
-      throw new Error("userId is required and must be a string");
+    jobTitle?: string;
+    experience?: number;
+    skills?: string[];
+    summary?: string;
+    location?: string;
+  }) {
+    if (!params.userId) {
+      throw new Error("Candidate userId is required");
     }
 
     this.userId = params.userId;
@@ -33,10 +34,12 @@ export class Candidate {
     this.email = params.email;
     this.status = params.status;
     this.registeredDate = params.registeredDate;
-    this.location = params.location;
+
+    this.jobTitle = params.jobTitle;
     this.experience = params.experience ?? 0;
-    this.applications = params.applications ?? 0;
     this.skills = params.skills ?? [];
+    this.summary = params.summary;
+    this.location = params.location;
   }
 
   isActive(): boolean {
@@ -45,5 +48,24 @@ export class Candidate {
 
   isBlocked(): boolean {
     return this.status === "Blocked";
+  }
+
+  hasProfile(): boolean {
+    return Boolean(this.summary || this.skills.length);
+  }
+
+  withStatus(status: CandidateStatus): Candidate {
+    return new Candidate({
+      userId: this.userId,
+      name: this.name,
+      email: this.email,
+      registeredDate: this.registeredDate,
+      status,
+      jobTitle: this.jobTitle,
+      experience: this.experience,
+      skills: this.skills,
+      summary: this.summary,
+      location: this.location,
+    });
   }
 }

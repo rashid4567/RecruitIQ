@@ -5,7 +5,7 @@ export interface CandidateListItemDTO {
   id: UserId;
   name: string;
   email: string;
-  status: boolean;
+  isActive: boolean;
 }
 
 

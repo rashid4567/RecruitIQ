@@ -10,15 +10,14 @@ export class GetCandidateAdminController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 
-      let status: boolean | undefined;
+     const status =
+  req.query.status === "true"
+    ? true
+    : req.query.status === "false"
+    ? false
+    : undefined;
 
-      if (req.query.status === "Active") {
-        status = true;
-      } else if (req.query.status === "Blocked") {
-        status = false;
-      } else {
-        status = undefined;
-      }
+    console.log("status : ", status)
 
       const result = await this.getCandidatesUC.execute({
         page,
@@ -26,6 +25,8 @@ export class GetCandidateAdminController {
         search: req.query.search as string | undefined,
         status,
       });
+
+      console.log("result", result)
 
       res.status(HTTP_STATUS.OK).json({
         success: true,

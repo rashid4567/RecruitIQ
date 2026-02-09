@@ -32,7 +32,7 @@ export class GetCandidateUseCase {
         id: candidate.getId(),     
         name: candidate.getName(),
         email: candidate.getEmail().getValue(),
-        status: candidate.isActiveAccount(), 
+        isActive: candidate.isActiveAccount(), 
       })),
 
       pagination: {

@@ -20,7 +20,7 @@ export class BlockUserController {
           message : "Invalid userId in route params"
         })
       }
-      await this.blockUserUC.execute(userId);
+      await this.blockUserUC.execute(userId); 
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,

@@ -4,28 +4,23 @@ import { Candidate } from "../../Domain/entities/candidate.entity";
 import { UserModel } from "../../../../auth/infrastructure/mongoose/model/user.model";
 import { UserId } from "../../../../../shared/domain/value-objects.ts/userId.vo";
 import { Email } from "../../../../../shared/domain/value-objects.ts/email.vo";
-import { CandidateRow } from "../types/candidate.row.type";
-
-
 
 export class MongooseCandidateRepository implements CandidateRepository {
+
   async getCandidates(input: {
     search?: string;
     status?: boolean;
     skip: number;
     limit: number;
   }): Promise<{ candidates: Candidate[]; total: number }> {
-    const match: Record<string, unknown> = {
+
+    const match: Record<string, any> = {
       role: "candidate",
     };
 
-    if (input.status === true) {
-      match.isActive = true;
-    }
 
-    if (input.status === false) {
-      match.isActive = false;
-    }
+    if (input.status === true) match.isActive = true;
+    if (input.status === false) match.isActive = false;
 
     if (input.search) {
       match.$or = [
@@ -56,13 +51,13 @@ export class MongooseCandidateRepository implements CandidateRepository {
     ];
 
     const result = await UserModel.aggregate(pipeline);
-
-    const rows: CandidateRow[] = result[0].data;
-    const total = result[0].total[0]?.count ?? 0;
+ 
+    const rows = result[0]?.data ?? [];
+    const total = result[0]?.total[0]?.count ?? 0;
 
     return {
-      candidates: rows.map((row) =>
-        Candidate.fromPersistence({
+      candidates: rows.map((row: { _id: { toString: () => string; }; fullName: any; email: string; isActive: any; }) =>
+        Candidate.fromList({
           id: UserId.create(row._id.toString()),
           name: row.fullName,
           email: Email.create(row.email),
@@ -73,22 +68,53 @@ export class MongooseCandidateRepository implements CandidateRepository {
     };
   }
 
-  async findById(candidateId: string): Promise<Candidate | null> {
-    
+
+  async findProfileById(candidateId: string): Promise<Candidate | null> {
     if (!Types.ObjectId.isValid(candidateId)) return null;
 
-    const doc = await UserModel.findOne({
-      _id: candidateId,
-      role: "candidate",
-    }).lean();
+    const result = await UserModel.aggregate([
+      {
+        $match: {
+          _id: new Types.ObjectId(candidateId),
+          role: "candidate",
+        },
+      },
+      {
+        $lookup: {
+          from: "candidateprofiles",
+          localField: "_id",
+          foreignField: "userId",
+          as: "profile",
+        },
+      },
+      {
+        $unwind: {
+          path: "$profile",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]);
 
-    if (!doc) return null;
+    if (!result.length) return null;
 
-    return Candidate.fromPersistence({
+    const doc = result[0];
+
+    return Candidate.fromProfile({
       id: UserId.create(doc._id.toString()),
-      name: doc.fullName ?? "",
+      name: doc.fullName,
       email: Email.create(doc.email),
       isActive: doc.isActive,
+      currentJob: doc.profile?.currentJob,
+      experienceYears: doc.profile?.experienceYears,
+      educationLevel: doc.profile?.educationLevel,
+      skills: doc.profile?.skills ?? [],
+      preferredJobLocations: doc.profile?.preferredJobLocations ?? [],
+      bio: doc.profile?.bio,
+      currentJobLocation: doc.profile?.currentJobLocation,
+      gender: doc.profile?.gender,
+      linkedinUrl: doc.profile?.linkedinUrl,
+      portfolioUrl: doc.profile?.portfolioUrl,
+      profileCompleted: doc.profile?.profileCompleted ?? false,
     });
   }
 }

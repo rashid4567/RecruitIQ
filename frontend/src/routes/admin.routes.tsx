@@ -18,9 +18,11 @@ const RecruiterProfilePage = lazy(
 // );
 
 const CandidateManagement = lazy(()=> import("../module/admin/presentation/pages/candidateList"))
-const CandidateProfile = lazy(
-  () => import("../pages/admin/candidateManagment/candidateProfile")
-);
+// const CandidateProfile = lazy(
+//   () => import("../pages/admin/candidateManagment/candidateProfile")
+// );
+
+const CandidateProfile = lazy(()=> import("../module/admin/presentation/pages/candidateProfile"))
 const EmailTemplateManagement = lazy(
   () => import("../pages/admin/email-templates/emailTemplate.mangment")
 );

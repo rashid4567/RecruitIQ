@@ -5,7 +5,7 @@ import type { GoogleRoles } from "../../domain/constants/google-role";
 import type { UserRole } from "../../domain/constants/user-role";
 import type { Email } from "../../domain/value-object/email.vo";
 import type { Password } from "../../domain/value-object/password.vo";
-import { email } from "zod";
+
 export class ApiAuthRepository implements AuthRepository {
   async login(email: Email, password: Password) {
     const res = await api.post("/auth/login", {

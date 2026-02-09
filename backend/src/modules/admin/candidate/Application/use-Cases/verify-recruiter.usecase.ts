@@ -14,12 +14,14 @@ export class VerifyRecruiterUseCase{
             throw new ApplicationError(ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND)
         }
 
-        if(!recruiter.canBeVerified()){
+        if(!recruiter.canBeRejected()){
             throw new ApplicationError(ERROR_CODES.RECRUITER_CANNOT_BE_VERIFIED)
         }
 
+        const updated = recruiter.reject();
+
         await this.recruiterRepo.verifyRecruiter(
-            recruiter.getId(),
+            updated.getId(),
             "verified"
         )
     }

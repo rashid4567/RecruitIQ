@@ -20,25 +20,15 @@ adminRouter.get(
   getCandidateProfileController.getCandidateProfile,
 );
 
-adminRouter.patch("/candidates/:userId/block", blockUserController.blockUser);
+adminRouter.patch("/:userId/block", blockUserController.blockUser);
 
-adminRouter.patch(
-  "/candidates/:userId/unblock",
-  unblockUserController.unblockUser,
-);
+adminRouter.patch("/:userId/unblock", unblockUserController.unblockUser);
 
 adminRouter.get("/recruiters", getRecruitersController.recruiterList);
 
 adminRouter.get(
   "/recruiters/:recruiterId",
   getRecruiterProfileController.getRecruiterProfile,
-);
-
-adminRouter.patch("/recruiters/:userId/block", blockUserController.blockUser);
-
-adminRouter.patch(
-  "/recruiters/:userId/unblock",
-  unblockUserController.unblockUser,
 );
 
 adminRouter.patch(

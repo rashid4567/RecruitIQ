@@ -1,19 +1,16 @@
-import type { CandidateRepository } from "../../domain/repositories/candidate.repository";
+import type { UserRepositry } from "../../domain/repositories/user.Repository";
 
-export class BlockCandidateUseCase{
-    private readonly candidateRepo : CandidateRepository;
+export class BlockUserUseCase {
+  private readonly userRepo: UserRepositry;
 
-    constructor(
-        candidateRepo : CandidateRepository
-    ){
-        this.candidateRepo = candidateRepo;
+  constructor(userRepo: UserRepositry) {
+    this.userRepo = userRepo;
+  }
+
+  async execute(userId: string): Promise<void> {
+    if (typeof userId !== "string") {
+      throw new Error("Invalid userId : must be string");
     }
-
-    async execute(candidateId : string):Promise<void>{
-
-        if(typeof candidateId !== "string"){
-            throw new Error('Invalid candidateid  : must be string')
-        }
-        return this.candidateRepo.blockCandidate(candidateId)
-    }
+    return this.userRepo.blockUser(userId);
+  }
 }

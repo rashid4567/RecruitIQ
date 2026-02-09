@@ -1,5 +1,3 @@
-import { verificationStatus } from "../../../../recruiter/domain/constatns/verificationStatus.constants";
-
 export type VerificationStatus = "pending" | "verified" | "rejected";
 
 export class Recruiter {
@@ -8,10 +6,10 @@ export class Recruiter {
     public readonly name: string,
     public readonly email: string,
     public readonly isActive: boolean,
-    public readonly verficationStatus: VerificationStatus,
+    public readonly verificationStatus: VerificationStatus,
   ) {}
 
-  public static fromPersistence(props: {
+  static fromPersistence(props: {
     id: string;
     name: string;
     email: string;
@@ -28,15 +26,43 @@ export class Recruiter {
   }
 
   canBeVerified(): boolean {
-    return this.verficationStatus === "pending";
+    return this.verificationStatus === "pending";
   }
 
   canBeRejected(): boolean {
-    return this.verficationStatus === "pending";
+    return this.verificationStatus === "pending";
   }
 
   canBeActivated(): boolean {
     return !this.isActive;
+  }
+
+  verify(): Recruiter {
+    if (!this.canBeVerified()) {
+      throw new Error("Cannot verify recruiter");
+    }
+
+    return new Recruiter(
+      this.id,
+      this.name,
+      this.email,
+      this.isActive,
+      "verified",
+    );
+  }
+
+  reject(): Recruiter {
+    if (!this.canBeRejected()) {
+      throw new Error("Cannot reject recruiter");
+    }
+
+    return new Recruiter(
+      this.id,
+      this.name,
+      this.email,
+      this.isActive,
+      "rejected",
+    );
   }
 
   getId(): string {
@@ -44,12 +70,13 @@ export class Recruiter {
   }
 
   getVerificationStatus(): VerificationStatus {
-    return this.verficationStatus;
+    return this.verificationStatus;
   }
 
-  isRecruiterIsActive(): boolean {
+  isRecruiterActive(): boolean {
     return this.isActive;
   }
+
   getEmail(): string {
     return this.email;
   }

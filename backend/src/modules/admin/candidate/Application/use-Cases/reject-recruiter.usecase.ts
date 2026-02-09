@@ -14,12 +14,9 @@ export class RejectRecruiterUseCase{
             throw new ApplicationError(ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND)
         }
 
-        if(!recruiter.canBeRejected()){
-            throw new ApplicationError(ERROR_CODES.RECRUITER_CANNOT_BE_REJECTED)
-        }
-
+       const updated = recruiter.verify()
         await this.recruiterRepo.verifyRecruiter(
-            recruiter.getId(),
+            updated.getId(),
             'rejected',
         )
     }

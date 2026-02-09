@@ -75,7 +75,6 @@ export class ApiCandidateRepository implements CandidateRepository {
     await api.patch(`/admin/candidates/${candidateId}/unblock`);
   }
 
-  /* -------------------- helpers -------------------- */
 
   private normalizeId(id: unknown): string {
     if (typeof id === "string") return id;

@@ -10,14 +10,12 @@ export class GetCandidateAdminController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 
-     const status =
-  req.query.status === "true"
-    ? true
-    : req.query.status === "false"
-    ? false
-    : undefined;
-
-    console.log("status : ", status)
+      const status =
+        req.query.status === "true"
+          ? true
+          : req.query.status === "false"
+            ? false
+            : undefined;
 
       const result = await this.getCandidatesUC.execute({
         page,
@@ -26,15 +24,12 @@ export class GetCandidateAdminController {
         status,
       });
 
-      console.log("result", result)
-
       res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "Candidates listed successfully",
         data: result,
       });
     } catch (err) {
-      console.log("err", err);
       next(err);
     }
   };

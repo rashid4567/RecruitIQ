@@ -39,9 +39,10 @@ import {
   XCircle,
 } from "lucide-react";
 import Sidebar from "@/components/admin/sideBar";
-import { blockCandidateUC, getCandidateProfileUC, unblockCandidateUC } from "@/module/admin/presentation/di/candidate.di";
+import { getCandidateProfileUC } from "@/module/admin/presentation/di/candidate.di";
 import { Candidate } from "@/module/admin/domain/entities/candidates.entity";
 import { toast } from "sonner";
+import { blockUserUC, unblockUserUC } from "../di/user.di";
 
 const CandidateProfileView: React.FC = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
@@ -79,7 +80,7 @@ const CandidateProfileView: React.FC = () => {
     if (!candidateId || !profile) return;
     try {
       setActionLoading(true);
-      await blockCandidateUC.execute(candidateId);
+      await blockUserUC.execute(candidateId);
       setProfile((prev) => prev ? prev.withStatus("Blocked") : null);
       toast.success("Candidate blocked", {
         description: `${profile.name} can no longer access the platform.`,
@@ -97,7 +98,7 @@ const CandidateProfileView: React.FC = () => {
     if (!candidateId || !profile) return;
     try {
       setActionLoading(true);
-      await unblockCandidateUC.execute(candidateId);
+      await unblockUserUC.execute(candidateId);
       setProfile((prev) => prev ? prev.withStatus("Active") : null);
       toast.success("Candidate unblocked", {
         description: `${profile.name} can now access the platform.`,

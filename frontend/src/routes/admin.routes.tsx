@@ -7,9 +7,12 @@ import RouteLoader from "../components/RouterLoader";
 
 const AdminLogin = lazy(() => import("../pages/admin/login"));
 const AdminDashboard = lazy(() => import("../pages/admin/dashboard"));
-const RecruitersPage = lazy(
-  () => import("../pages/admin/recruiterManagment/recruiterList")
-);
+
+const RecruitersPage = lazy(()=> import("../module/admin/presentation/pages/getRecruiterList"))
+
+// const RecruitersPage = lazy(
+//   () => import("../pages/admin/recruiterManagment/recruiterList")
+// );
 const RecruiterProfilePage = lazy(
   () => import("../pages/admin/recruiterManagment/recruiterProfile")
 );

@@ -16,7 +16,6 @@ export class GetRecruitersController {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-
     let isActive: boolean | undefined;
     if (req.query.isActive === "true") isActive = true;
     else if (req.query.isActive === "false") isActive = false;
@@ -33,12 +32,15 @@ export class GetRecruitersController {
       sort: req.query.sort as "latest" | "oldest" | undefined,
     });
 
+    console.log("result ", result);
+
     return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Recruiters loaded successfully",
       data: result,
     });
   } catch (err) {
+    console.log("err", err);
     next(err);
   }
 };

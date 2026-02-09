@@ -11,14 +11,14 @@ export class VerifyRecruiterController{
         try{
             const {recruiterId} = req.params;
             await this.verifyRecruiterUC.execute(recruiterId);
-             console.log("recruiter ",req.params)
+          
             return res.status(HTTP_STATUS.OK).json({
                 success : true,
                 message : "Recruiter verified succesfuuly"
             })
             
         }catch(err){
-            console.log("err", err);
+          
             return next(err);
         }
     }

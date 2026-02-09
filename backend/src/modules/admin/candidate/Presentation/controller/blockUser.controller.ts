@@ -8,11 +8,7 @@ export class BlockUserController {
   blockUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { userId } = req.params;
-      console.log("body : ", req.params);
-      console.log("PARAM userId:", req.params.userId);
-          if(!userId){
-        console.log("no userID is found")
-      }
+
 
       if(!userId || typeof userId !== "string"){
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -27,7 +23,7 @@ export class BlockUserController {
         message: "User blocked succesfully",
       });
     } catch (err) {
-      console.error("err : ", err);
+
       return next(err);
     }
   };

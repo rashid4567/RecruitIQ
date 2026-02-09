@@ -13,9 +13,11 @@ const RecruitersPage = lazy(()=> import("../module/admin/presentation/pages/getR
 // const RecruitersPage = lazy(
 //   () => import("../pages/admin/recruiterManagment/recruiterList")
 // );
-const RecruiterProfilePage = lazy(
-  () => import("../pages/admin/recruiterManagment/recruiterProfile")
-);
+// const RecruiterProfilePage = lazy(
+//   () => import("../pages/admin/recruiterManagment/recruiterProfile")
+// );
+
+const RecruiterProfilePage = lazy(()=> import("../module/admin/presentation/pages/recruiterProfile"))
 // const CandidateManagement = lazy(
 //   () => import("../pages/admin/candidateManagment/candidateList")
 // );

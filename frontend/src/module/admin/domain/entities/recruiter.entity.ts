@@ -6,33 +6,41 @@ export class Recruiter {
   public readonly name: string;
   public readonly email: string;
   public readonly isActive: boolean;
-  public readonly companyName ?: string;
+  public readonly profileImage?: string;
   public readonly verificationStatus: VerificationStatus;
+  public readonly companyName?: string;
   public readonly subscriptionStatus: SubscriptionStatus;
   public readonly jobPostsUsed: number;
   public readonly joinedDate: string;
-
+  public readonly location?: string;
+  public readonly bio?: string;
 
   constructor(params: {
     id: string;
     name: string;
     email: string;
     isActive: boolean;
-    companyName ?: string;
+    profileImage?: string;
     verificationStatus: VerificationStatus;
+    companyName?: string;
     subscriptionStatus: SubscriptionStatus;
     jobPostsUsed: number;
     joinedDate: string;
+    location?: string;
+    bio?: string;
   }) {
     this.id = params.id;
     this.name = params.name;
     this.email = params.email;
     this.isActive = params.isActive;
-    this.companyName = params.companyName;
+    this.profileImage = params.profileImage;
     this.verificationStatus = params.verificationStatus;
+    this.companyName = params.companyName;
     this.subscriptionStatus = params.subscriptionStatus;
     this.jobPostsUsed = params.jobPostsUsed;
     this.joinedDate = params.joinedDate;
+    this.location = params.location;
+    this.bio = params.bio;
   }
 
   isBlocked(): boolean {
@@ -44,11 +52,17 @@ export class Recruiter {
   }
 
   withVerificationStatus(status: VerificationStatus): Recruiter {
-    return new Recruiter({ ...this.toPrimitives(), verificationStatus: status });
+    return new Recruiter({
+      ...this.toPrimitives(),
+      verificationStatus: status,
+    });
   }
 
   withActiveStatus(isActive: boolean): Recruiter {
-    return new Recruiter({ ...this.toPrimitives(), isActive });
+    return new Recruiter({
+      ...this.toPrimitives(),
+      isActive,
+    });
   }
 
   toPrimitives() {
@@ -57,11 +71,14 @@ export class Recruiter {
       name: this.name,
       email: this.email,
       isActive: this.isActive,
-      companyName: this.companyName,
+      profileImage: this.profileImage,
       verificationStatus: this.verificationStatus,
+      companyName: this.companyName,
       subscriptionStatus: this.subscriptionStatus,
       jobPostsUsed: this.jobPostsUsed,
       joinedDate: this.joinedDate,
+      location: this.location,
+      bio: this.bio,
     };
   }
 }

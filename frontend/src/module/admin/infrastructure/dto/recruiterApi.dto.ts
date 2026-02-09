@@ -1,7 +1,7 @@
 import type {
-  SubscriptionStatus,
   VerificationStatus,
-} from "@/types/admin/recruiter.types";
+  SubscriptionStatus,
+} from "../../domain/entities/recruiter.entity";
 
 export interface RecruiterApiDto {
   id: string;

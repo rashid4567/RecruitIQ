@@ -32,7 +32,7 @@ export class GetRecruitersController {
       sort: req.query.sort as "latest" | "oldest" | undefined,
     });
 
-    console.log("result ", result);
+
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -40,7 +40,7 @@ export class GetRecruitersController {
       data: result,
     });
   } catch (err) {
-    console.log("err", err);
+
     next(err);
   }
 };

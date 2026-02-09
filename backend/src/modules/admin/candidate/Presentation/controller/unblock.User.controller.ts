@@ -14,11 +14,6 @@ export class UnblockUserController {
   ) => {
     try {
       const { userId } = req.params;
-      console.log(`body : `, req.params)
-      console.log("PARAM userId:", req.params.userId);
-      if(!userId){
-        console.log("no userID is found")
-      }
 
 
       if(!userId || typeof userId !== "string"){
@@ -34,7 +29,7 @@ export class UnblockUserController {
         message: "User unblocked successfully",
       });
     } catch (error) {
-      console.error("err", error)
+
       next(error);
     }
   };

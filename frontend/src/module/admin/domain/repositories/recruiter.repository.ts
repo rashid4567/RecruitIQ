@@ -1,5 +1,5 @@
-import type { VerificationStatus } from "@/types/admin/recruiter.types";
 import type { Recruiter } from "../entities/recruiter.entity";
+import type { VerificationStatus } from "../entities/recruiter.entity";
 
 export interface RecruiterRepository {
   getRecruiters(query: {
@@ -13,8 +13,10 @@ export interface RecruiterRepository {
     total: number;
   }>;
 
+  getProfile(recruiterId: string): Promise<Recruiter>;
+
   updateVerificationStatus(
     recruiterId: string,
-    status: VerificationStatus
+    status: VerificationStatus,
   ): Promise<void>;
 }

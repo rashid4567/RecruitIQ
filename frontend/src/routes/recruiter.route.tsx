@@ -9,9 +9,6 @@ const RecruiterHome = lazy(() => import("../pages/landing/landingPage"));
 const RecruiterDetails = lazy(
   () => import("../pages/recruiter/RecruiterDetails"),
 );
-// const RecruiterSettingsPage = lazy(
-//   () => import("../pages/recruiter/recruiterProfile")
-// );
 
 const RecruiterSettingsPage = lazy(
   () => import("../module/recruiter/presentation/pages/recruiter.profile"),

@@ -1,4 +1,4 @@
-import { Routes, Route, Router } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
 import AdminProtectedRoute from "./protector/adminProtectedRoutes";
@@ -6,36 +6,32 @@ import AdminLayout from "../layout/adminLayout";
 import RouteLoader from "../components/RouterLoader";
 
 const AdminLogin = lazy(() => import("../pages/admin/login"));
+
 const AdminDashboard = lazy(() => import("../pages/admin/dashboard"));
 
-const RecruitersPage = lazy(()=> import("../module/admin/presentation/pages/getRecruiterList"))
+const RecruitersPage = lazy(
+  () => import("../module/admin/presentation/pages/getRecruiterList"),
+);
 
-// const RecruitersPage = lazy(
-//   () => import("../pages/admin/recruiterManagment/recruiterList")
-// );
-// const RecruiterProfilePage = lazy(
-//   () => import("../pages/admin/recruiterManagment/recruiterProfile")
-// );
+const RecruiterProfilePage = lazy(
+  () => import("../module/admin/presentation/pages/recruiterProfile"),
+);
 
-const RecruiterProfilePage = lazy(()=> import("../module/admin/presentation/pages/recruiterProfile"))
-// const CandidateManagement = lazy(
-//   () => import("../pages/admin/candidateManagment/candidateList")
-// );
+const CandidateManagement = lazy(
+  () => import("../module/admin/presentation/pages/candidateList"),
+);
 
-const CandidateManagement = lazy(()=> import("../module/admin/presentation/pages/candidateList"))
-// const CandidateProfile = lazy(
-//   () => import("../pages/admin/candidateManagment/candidateProfile")
-// );
-
-const CandidateProfile = lazy(()=> import("../module/admin/presentation/pages/candidateProfile"))
+const CandidateProfile = lazy(
+  () => import("../module/admin/presentation/pages/candidateProfile"),
+);
 const EmailTemplateManagement = lazy(
-  () => import("../pages/admin/email-templates/emailTemplate.mangment")
+  () => import("../pages/admin/email-templates/emailTemplate.mangment"),
 );
 const EmailTemplateEditor = lazy(
-  () => import("../pages/admin/email-templates/emailTemplate.editort")
+  () => import("../pages/admin/email-templates/emailTemplate.editort"),
 );
 
-const EmailLogs = lazy(()=> import("../pages/admin/email-logs/EmailLogsPage"))
+const EmailLogs = lazy(() => import("../pages/admin/email-logs/EmailLogsPage"));
 
 const AdminRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
@@ -64,7 +60,7 @@ const AdminRoutes = () => (
             path="/email-templates/edit/:id"
             element={<EmailTemplateEditor />}
           />
-        <Route path="/email-logs" element={<EmailLogs/>}/>
+          <Route path="/email-logs" element={<EmailLogs />} />
         </Route>
       </Route>
     </Routes>

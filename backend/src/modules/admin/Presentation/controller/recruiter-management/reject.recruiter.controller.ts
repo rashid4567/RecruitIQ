@@ -1,0 +1,25 @@
+import { Request, Response ,NextFunction } from "express";
+
+import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { RejectRecruiterUseCase } from "../../../Application/use-Cases/recruiter-management/reject-recruiter.usecase";
+
+export class RejectRecruiterController{
+    constructor(
+        private readonly rejectRecruiterUC : RejectRecruiterUseCase
+    ){};
+    
+    rejectRecruiter = async (req : Request, res : Response, next : NextFunction) =>{
+        try{
+            const {recruiterId} = req.params;
+            await this.rejectRecruiterUC.execute(recruiterId);
+    
+            return res.status(HTTP_STATUS.OK).json({
+                success : true,
+                message : "Candidate rejected succesfully"
+            })
+        }catch(err){
+  
+            return next(err)
+        }
+    }
+}

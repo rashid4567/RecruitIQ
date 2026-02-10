@@ -5,10 +5,10 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/presentation/routes/index";
 import candidateRoutes from "./modules/candidate/presentation/routes/candidate.routes";
 import recruiterRoutes from "./modules/recruiter/presentation/router/recruiter.routes";
-import adminCandidateRouters from "./modules/admin/candidate/Presentation/candidate.routes";
+import adminCandidateRouters from "./modules/admin/candidate.routes"
 
-import adminEmailTemplateRouter from "./modules/admin/email-template/presentation/email-templete.routes";
-import adminEmailLoger from "./modules/admin/email.logs/presentation/routes/email-logs.routes";
+import adminEmailTemplateRouter from "./modules/admin/email-templete.routes";
+import adminEmailLoger from "./modules/admin/email-logs.routes";
 import { notFound } from "./middlewares/notFound.middleware";
 import { errorHandler } from "./shared/errors/candidate-error.middleware"; 
 import { requestLogger } from "./middlewares/req-logger.middleware";

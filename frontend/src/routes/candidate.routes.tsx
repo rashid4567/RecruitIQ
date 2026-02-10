@@ -6,15 +6,10 @@ import CandidateLayout from "../layout/CandidateLayout";
 import RouteLoader from "../components/RouterLoader";
 
 const CandidateHome = lazy(() => import("../pages/candidate/Home"));
-// const CompleteProfile = lazy(
-//   () => import("../pages/candidate/completeProfile")
-// );
 
 const CompleteProfile = lazy(()=> import("../module/candidate/presentation/pages/comleteProfile"))
 
-// const AccountSettingsPage = lazy(
-//   () => import("../pages/candidate/profileSetting/account-setting")
-// );
+
 
 const AccountSettingsPage = lazy(
   () => import("../module/candidate/presentation/pages/personal-info")

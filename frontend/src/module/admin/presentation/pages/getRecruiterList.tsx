@@ -12,7 +12,6 @@ import {
   Users,
   RefreshCw,
   ShieldCheck,
-  Clock,
   XCircle,
   Ban,
   Shield,
@@ -38,7 +37,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+
 } from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
@@ -74,7 +73,6 @@ export default function RecruiterManagement() {
 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // ─── Fetch Recruiters ─────────────────────────────────────────────────────
   const fetchRecruiters = useCallback(async () => {
     setLoading(true);
     try {
@@ -100,7 +98,7 @@ export default function RecruiterManagement() {
     fetchRecruiters();
   }, [fetchRecruiters]);
 
-  // ─── Confirmation Flow ────────────────────────────────────────────────────
+
   const requestAction = (recruiter: Recruiter, action: typeof confirm.action) => {
     setConfirm({ open: true, recruiter, action });
   };
@@ -140,7 +138,7 @@ export default function RecruiterManagement() {
     }
   };
 
-  // ─── Badge & Initials Helpers ─────────────────────────────────────────────
+
   const getVerificationBadge = (status?: string) => {
     const s = (status || "").toLowerCase();
 
@@ -180,7 +178,7 @@ export default function RecruiterManagement() {
       .join("")
       .slice(0, 2) || "?";
 
-  // ─── Render ───────────────────────────────────────────────────────────────
+ 
   return (
     <div className="min-h-screen bg-gray-100 flex">
       <Sidebar />
@@ -218,7 +216,7 @@ export default function RecruiterManagement() {
         </header>
 
         {/* Filters */}
-        <div className="bg-white border-b border-gray-200 sticky top-[60px] sm:top-[72px] z-20 px-5 sm:px-8 py-4 shadow-md">
+        <div className="bg-white border-b border-gray-200 sticky top-15 sm:top-18 z-20 px-5 sm:px-8 py-4 shadow-md">
           <div className="max-w-screen-2xl mx-auto flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
             <div className="flex flex-wrap gap-2">
               {["All", "Pending Approval", "Verified", "Blocked"].map((label) => {
@@ -287,7 +285,7 @@ export default function RecruiterManagement() {
               <>
                 {/* Desktop Table */}
                 <div className="hidden md:block overflow-x-auto">
-                  <table className="w-full min-w-[1100px] text-sm">
+                  <table className="w-full min-w-275 text-sm">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-4 text-left font-medium text-gray-700">Recruiter Profile</th>
@@ -348,7 +346,7 @@ export default function RecruiterManagement() {
                               <div className="inline-flex items-center gap-3">
                                 <div className="w-28 h-2.5 bg-gray-200 rounded-full overflow-hidden shadow-md">
                                   <div
-                                    className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
+                                    className="h-full bg-linear-to-r from-blue-500 to-blue-600 transition-all duration-300"
                                     style={{ width: `${Math.min(100, (r.jobPostsUsed || 0) * 5)}%` }}
                                   />
                                 </div>
@@ -696,7 +694,7 @@ export default function RecruiterManagement() {
         {/* ─── Improved Confirmation Modal ─────────────────────────────────────── */}
         <AlertDialog open={confirm.open} onOpenChange={(open) => !open && setConfirm({ ...confirm, open: false })}>
           <AlertDialogContent className="max-w-md sm:max-w-lg rounded-2xl p-0 overflow-hidden border-0 shadow-2xl bg-white">
-            <div className="bg-gradient-to-br from-blue-50 to-gray-50 px-8 pt-10 pb-8">
+            <div className="bg-linear-to-br from-blue-50 to-gray-50 px-8 pt-10 pb-8">
               <AlertDialogHeader>
                 <div
                   className={cn(
@@ -738,7 +736,7 @@ export default function RecruiterManagement() {
                   onClick={handleConfirmed}
                   disabled={!!actionLoading}
                   className={cn(
-                    "h-11 sm:h-12 px-8 rounded-full font-semibold shadow-md hover:shadow-xl transition-all duration-200 text-base min-w-[140px]",
+                    "h-11 sm:h-12 px-8 rounded-full font-semibold shadow-md hover:shadow-xl transition-all duration-200 text-base min-w-35",
                     confirm.action === "verify" && "bg-emerald-600 hover:bg-emerald-700 text-white",
                     confirm.action === "reject" && "bg-rose-600 hover:bg-rose-700 text-white",
                     confirm.action === "block" && "bg-rose-600 hover:bg-rose-700 text-white",

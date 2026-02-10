@@ -41,9 +41,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Switch } from "@/components/ui/switch";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
+
 import { cn } from "@/lib/utils";
 import { blockUserUC, unblockUserUC } from "../di/user.di";
 
@@ -74,9 +74,7 @@ export default function CandidateManagement() {
     action: "block" | "unblock";
   }>({ open: false, candidateId: "", candidateName: "", action: "block" });
 
-  // ────────────────────────────────────────────────
-  // Helpers
-  // ────────────────────────────────────────────────
+
   const mapStatusToQuery = (status: FilterStatusUI): boolean | undefined => {
     if (status === "All") return undefined;
     return status === "Active";
@@ -107,9 +105,7 @@ export default function CandidateManagement() {
 
   const getLocation = (candidate: Candidate): string => candidate.location || "—";
 
-  // ────────────────────────────────────────────────
-  // Data fetching
-  // ────────────────────────────────────────────────
+
   const loadCandidates = useCallback(async () => {
     try {
       setLoading(true);
@@ -143,9 +139,7 @@ export default function CandidateManagement() {
     loadCandidates();
   }, [loadCandidates]);
 
-  // ────────────────────────────────────────────────
-  // Actions
-  // ────────────────────────────────────────────────
+
   const handleToggleStatus = (candidate: Candidate) => {
     setConfirmationDialog({
       open: true,
@@ -183,11 +177,8 @@ export default function CandidateManagement() {
     setPagination((prev) => ({ ...prev, page: newPage }));
   };
 
-  // ────────────────────────────────────────────────
-  // Components
-  // ────────────────────────────────────────────────
   const SkeletonRow = () => (
-    <div className="h-[88px] bg-linear-to-r from-slate-100 to-slate-200/70 rounded-2xl animate-pulse mb-3" />
+    <div className="h-22 bg-linear-to-r from-slate-100 to-slate-200/70 rounded-2xl animate-pulse mb-3" />
   );
 
   const EmptyState = () => (
@@ -248,7 +239,7 @@ export default function CandidateManagement() {
         </header>
 
         {/* Filters */}
-        <div className="bg-white/90 backdrop-blur-lg border-b border-slate-200/70 sticky top-[76px] z-30 px-8 py-5 shadow-sm">
+        <div className="bg-white/90 backdrop-blur-lg border-b border-slate-200/70 sticky top-19 z-30 px-8 py-5 shadow-sm">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center gap-5">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
@@ -275,7 +266,7 @@ export default function CandidateManagement() {
                   variant={filterStatus === status ? "default" : "outline"}
                   size="sm"
                   className={cn(
-                    "min-w-[88px] h-11 font-medium transition-all shadow-sm",
+                    "min-w-22 h-11 font-medium transition-all shadow-sm",
                     filterStatus === status
                       ? status === "All"
                         ? "bg-slate-700 hover:bg-slate-800"
@@ -327,7 +318,7 @@ export default function CandidateManagement() {
                 </CardHeader>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[1200px]">
+                  <table className="w-full min-w-300">
                     <thead className="bg-slate-50/80">
                       <tr>
                         <th className="px-10 py-5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Candidate</th>

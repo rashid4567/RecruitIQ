@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
@@ -50,7 +48,7 @@ import {
 } from "../di/recruiter.di";
 import { blockUserUC, unblockUserUC } from "../di/user.di";
 
-/* ───────────────── Styles ───────────────── */
+
 
 const statusVariants: Record<string, string> = {
   pending: "bg-amber-50 text-amber-800 border-amber-200",
@@ -70,7 +68,7 @@ function accountStatusVariant(active: boolean) {
     : "bg-rose-50 text-rose-800 border-rose-200";
 }
 
-/* ───────────────── Page ───────────────── */
+
 
 export default function RecruiterProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -210,7 +208,7 @@ export default function RecruiterProfilePage() {
             <CardContent className="p-6 lg:p-8">
               <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                 {/* Left – Avatar & Name */}
-                <div className="flex flex-col items-center lg:items-start gap-5 min-w-[200px]">
+                <div className="flex flex-col items-center lg:items-start gap-5 min-w-50">
                   <div className="relative">
                     <img
                       src={
@@ -290,7 +288,7 @@ export default function RecruiterProfilePage() {
                       variant={recruiter.isActive ? "outline" : "default"}
                       size="lg"
                       className={cn(
-                        "min-w-[160px] transition-all",
+                        "min-w-40 transition-all",
                         recruiter.isActive
                           ? "border-rose-200 text-rose-700 hover:bg-rose-50 hover:text-rose-800"
                           : "bg-emerald-600 hover:bg-emerald-700 text-white"
@@ -315,7 +313,7 @@ export default function RecruiterProfilePage() {
                       <>
                         <Button
                           size="lg"
-                          className="min-w-[160px] bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all"
+                          className="min-w-40 bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all"
                           onClick={() => setShowVerifyModal(true)}
                           disabled={actionLoading}
                         >
@@ -326,7 +324,7 @@ export default function RecruiterProfilePage() {
                         <Button
                           variant="outline"
                           size="lg"
-                          className="min-w-[160px] border-rose-200 text-rose-700 hover:bg-rose-50 hover:text-rose-800 transition-all"
+                          className="min-w-40 border-rose-200 text-rose-700 hover:bg-rose-50 hover:text-rose-800 transition-all"
                           onClick={() => setShowRejectModal(true)}
                           disabled={actionLoading}
                         >
@@ -426,7 +424,7 @@ export default function RecruiterProfilePage() {
   );
 }
 
-/* ───────────────── Components ───────────────── */
+
 
 function Info({
   icon: Icon,
@@ -479,14 +477,14 @@ function ConfirmDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="gap-3 sm:gap-4">
-          <AlertDialogCancel disabled={loading} className="min-w-[100px]">
+          <AlertDialogCancel disabled={loading} className="min-w-25">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={loading}
             className={cn(
-              "min-w-[100px]",
+              "min-w-25",
               variant === "destructive" && "bg-rose-600 hover:bg-rose-700"
             )}
           >

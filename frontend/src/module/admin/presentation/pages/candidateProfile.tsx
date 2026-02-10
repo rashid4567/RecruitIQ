@@ -24,7 +24,7 @@ import {
   Mail,
   MapPin,
   Briefcase,
-  Calendar,
+
   FileText,
   Code,
   Award,
@@ -65,7 +65,7 @@ const CandidateProfileView: React.FC = () => {
       setLoading(true);
       setError(null);
       const data = await getCandidateProfileUC.execute(id);
-      console.log("Fetched profile:", data); // Debug: see what arrives
+      console.log("Fetched profile:", data); 
       setProfile(data);
     } catch (err: any) {
       const msg = err?.message || "Failed to load candidate profile";
@@ -112,11 +112,9 @@ const CandidateProfileView: React.FC = () => {
     }
   };
 
-  // ────────────────────────────────────────────────
-  //  Super-defensive experience parser
-  // ────────────────────────────────────────────────
+
   const getExperienceYears = (exp: any): number => {
-    // Log what we actually receive
+
     console.log("getExperienceYears received:", exp, "type:", typeof exp);
 
     if (exp == null) return 0;
@@ -140,21 +138,6 @@ const CandidateProfileView: React.FC = () => {
     return `${years} years`;
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Invalid date";
-
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 1) return "Today";
-    if (diffDays < 7) return `${diffDays}d ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  };
 
   const getInitials = (name?: string) =>
     name
@@ -165,14 +148,10 @@ const CandidateProfileView: React.FC = () => {
       .toUpperCase()
       .slice(0, 2) ?? "NA";
 
-  const getStatusBadge = (status: string) =>
-    status === "Active"
-      ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-      : "bg-rose-100 text-rose-800 border-rose-200";
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex">
+      <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-6">
@@ -189,7 +168,7 @@ const CandidateProfileView: React.FC = () => {
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex">
+      <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="w-full max-w-lg border-none shadow-2xl bg-white/80 backdrop-blur-lg rounded-3xl">
@@ -203,7 +182,7 @@ const CandidateProfileView: React.FC = () => {
               </p>
               <Button
                 onClick={() => (error ? fetchCandidateProfile(candidateId!) : navigate("/admin/candidates"))}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg"
+                className="bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg"
               >
                 {error ? "Try Again" : "Back to Candidates"}
               </Button>
@@ -215,7 +194,7 @@ const CandidateProfileView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex">
+    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex">
       <Sidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -340,11 +319,11 @@ const CandidateProfileView: React.FC = () => {
             <Card className="border-none shadow-xl bg-white/80 backdrop-blur-lg rounded-3xl overflow-hidden">
               <CardContent className="p-6 lg:p-10">
                 <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-12">
-                  {/* Avatar */}
+                  
                   <div className="relative shrink-0">
                     <Avatar className="h-32 w-32 lg:h-40 lg:w-40 rounded-full border-4 border-white shadow-2xl">
                       <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name}`} alt={profile.name} />
-                      <AvatarFallback className="text-5xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                      <AvatarFallback className="text-5xl bg-linear-to-br from-indigo-500 to-purple-600 text-white">
                         {getInitials(profile.name)}
                       </AvatarFallback>
                     </Avatar>
@@ -428,7 +407,7 @@ const CandidateProfileView: React.FC = () => {
               {/* Skills */}
               {profile.skills?.length > 0 && (
                 <Card className="border-none shadow-lg bg-white/80 backdrop-blur-lg rounded-3xl overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 pb-4">
+                  <CardHeader className="bg-linear-to-r from-purple-50 to-violet-50 pb-4">
                     <CardTitle className="flex items-center gap-3 text-xl text-purple-900">
                       <Code className="w-6 h-6 text-purple-600" />
                       Skills
@@ -451,7 +430,7 @@ const CandidateProfileView: React.FC = () => {
 
               {/* Experience Summary */}
               <Card className="border-none shadow-lg bg-white/80 backdrop-blur-lg rounded-3xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-4">
+                <CardHeader className="bg-linear-to-r from-blue-50 to-indigo-50 pb-4">
                   <CardTitle className="flex items-center gap-3 text-xl text-blue-900">
                     <Briefcase className="w-6 h-6 text-blue-600" />
                     Experience

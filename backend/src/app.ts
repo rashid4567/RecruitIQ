@@ -8,7 +8,7 @@ import recruiterRoutes from "./modules/recruiter/presentation/router/recruiter.r
 import adminRoutes from "./modules/admin/Presentation/routes/admin.Routes";
 import { notFound } from "./middlewares/notFound.middleware";
 import { errorHandler } from "./shared/errors/candidate-error.middleware"; 
-import { requestLogger } from "./middlewares/req-logger.middleware";
+// import { requestLogger } from "./middlewares/req-logger.middleware";
 
 const app = express();
 app.use(
@@ -30,5 +30,5 @@ app.use("/api/admin", adminRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
-app.use(requestLogger);
+// app.use(requestLogger);
 export default app;

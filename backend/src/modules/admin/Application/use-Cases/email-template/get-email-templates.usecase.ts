@@ -1,6 +1,6 @@
 import { EmailTemplateRepository } from "../../../Domain/repositories/email-template.repository";
 
-export class GetEmailTemplateUseCase{
+export class GetEmailTemplatesUseCase{
     constructor(
         private readonly EmailTemplateRepo : EmailTemplateRepository,
     ){};
@@ -8,3 +8,4 @@ export class GetEmailTemplateUseCase{
         return this.EmailTemplateRepo.findAll()
     }
 }
+

@@ -9,7 +9,7 @@ interface CreateEmailTemplateInput {
   body: string;
 }
 
-export class CreateEmailTempleteUseCase {
+export class CreateEmailTemplateUseCase {
   constructor(
     private readonly emailTemplateRepository: EmailTemplateRepository
   ) {}

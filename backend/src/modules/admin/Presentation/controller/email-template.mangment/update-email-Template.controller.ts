@@ -7,7 +7,7 @@ export class UpdateEmailTemplateController{
         private readonly updateTemplateUC : UpdateEmailTemplateUseCase
     ){};
 
-    updateTemplate = async (req : Request, res : Response, next : NextFunction) =>{
+    updateEmailTemplate = async (req : Request, res : Response, next : NextFunction) =>{
         try{
             const result = await this.updateTemplateUC.execute(req.params.id, req.body);
 

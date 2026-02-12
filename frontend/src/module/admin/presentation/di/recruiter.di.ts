@@ -1,7 +1,8 @@
-import { GetRecruiterListUseCase } from "../../application/useCases/get-recruiters.usecase";
-import { GetRecruiterProfileUseCase } from "../../application/useCases/getRecruiterProfile.useCase";
-import { RejectRecruiterUseCase } from "../../application/useCases/rejectRecruiter.useCase";
-import { VerifyRecruiterUseCase } from "../../application/useCases/verifyRecruiter.useCase";
+
+import { GetRecruiterListUseCase } from "../../application/useCases/recruiter-management/get-recruiters.usecase";
+import { GetRecruiterProfileUseCase } from "../../application/useCases/recruiter-management/getRecruiterProfile.useCase";
+import { RejectRecruiterUseCase } from "../../application/useCases/recruiter-management/rejectRecruiter.useCase";
+import { VerifyRecruiterUseCase } from "../../application/useCases/recruiter-management/verifyRecruiter.useCase";
 import { ApiRecruiterRepository } from "../../infrastructure/repositories/ApiRecruiterRepository";
 
 const recruiterRepo = new ApiRecruiterRepository();

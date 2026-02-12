@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   ForgotpasswordController,
   changePassowrdController,
-} from "../../auth.module";
+} from "../container/auth.container";
 import { authenticate } from "../middlewares/auth.middleware";
 import { checkUserActive } from "../../../../middlewares/checkUserActive.middleware";
 

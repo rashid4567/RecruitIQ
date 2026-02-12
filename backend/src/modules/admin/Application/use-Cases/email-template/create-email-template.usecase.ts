@@ -1,24 +1,19 @@
 import { EmailTemplate } from "../../../Domain/entities/email-template.entity";
 import { EmailTemplateRepository } from "../../../Domain/repositories/email-template.repository";
-import { EmailEvent } from "../../../Domain/constatns/email-enum.events";
-
-interface CreateEmailTemplateInput {
-  name: string;
-  event: EmailEvent;
-  subject: string;
-  body: string;
-}
+import { CreateEmailTemplateInputDto } from "../../dto/email.template/createEmailTemplate.input.dto";
 
 export class CreateEmailTemplateUseCase {
   constructor(
-    private readonly emailTemplateRepository: EmailTemplateRepository
+    private readonly emailTemplateRepository: EmailTemplateRepository,
   ) {}
 
-  async execute(input: CreateEmailTemplateInput): Promise<EmailTemplate> {
-   const existing = await this.emailTemplateRepository.findByEvent(input.event);
-   if(existing){
-    throw new Error(`Email template for event ${input.event} already exists`)
-   }
+  async execute(input: CreateEmailTemplateInputDto): Promise<EmailTemplate> {
+    const existing = await this.emailTemplateRepository.findByEvent(
+      input.event,
+    );
+    if (existing) {
+      throw new Error(`Email template for event ${input.event} already exists`);
+    }
 
     const template = new EmailTemplate(
       "",
@@ -27,7 +22,7 @@ export class CreateEmailTemplateUseCase {
       input.subject,
       input.body,
       true,
-      new Date()
+      new Date(),
     );
 
     return this.emailTemplateRepository.create(template);

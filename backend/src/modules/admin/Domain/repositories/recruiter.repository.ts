@@ -1,5 +1,6 @@
+import { GetRecruitersInput } from "../../Application/dto/recruiter.dto/get-recruiters.input";
 import { Recruiter } from "../entities/recruiter.entity";
-import { GetRecruitersInput } from "../../Application/dto/get-recruiters.input";
+
 import { VerificationStatus } from "../entities/recruiter.entity";
 
 export interface RecruiterRepository {

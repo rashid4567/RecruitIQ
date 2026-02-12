@@ -26,7 +26,7 @@ export class ForgotPasswordUseCase {
     }
 
     const token =
-      await this.tokenService.generatePasswordResetToken(user.id);
+      this.tokenService.generatePasswordResetToken(user.id);
 
     await this.emailService.sendPasswordResetLink(
       email.getValue(),

@@ -20,13 +20,12 @@ export class UpdateRecruiterProfileUseCase {
 
     const id = UserId.create(userId);
 
-    /* ─────────────── USER VALIDATION ─────────────── */
+  
     const user = await this.userRepo.findById(id);
     if (!user) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    /* ─────────────── PROFILE LOAD / AUTO-CREATE ─────────────── */
     let profile = await this.recruiterRepo.findByUserId(id);
 
     if (!profile) {
@@ -46,7 +45,7 @@ export class UpdateRecruiterProfileUseCase {
       });
     }
 
-    /* ─────────────── USER UPDATES ─────────────── */
+
     if (input.fullName !== undefined) {
       user.updateFullName(input.fullName);
     }
@@ -55,7 +54,7 @@ export class UpdateRecruiterProfileUseCase {
       user.updateProfileImage(input.profileImage);
     }
 
-    /* ─────────────── RECRUITER PROFILE UPDATES ─────────────── */
+
     if (input.companyName !== undefined) {
       profile.updateCompanyName(input.companyName);
     }
@@ -88,11 +87,11 @@ export class UpdateRecruiterProfileUseCase {
       profile.updateLinkedinUrl(input.linkedinUrl);
     }
 
-    /* ─────────────── PERSIST CHANGES ─────────────── */
+
     await this.userRepo.save(user);
     await this.recruiterRepo.save(profile);
 
-    /* ─────────────── RESPONSE ─────────────── */
+
     return {
       user: {
         id: user.getId().getValue(),

@@ -1,6 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-
-
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { CreateEmailTemplateUseCase } from "../../../Application/use-Cases/email-template/create-email-template.usecase";
 

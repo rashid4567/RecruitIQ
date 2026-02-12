@@ -1,6 +1,4 @@
 import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
-import { CandidateRepository } from "../../../admin/Domain/repositories/candidate.repository";
-import { RecruiterRepository } from "../../../admin/Domain/repositories/recruiter.repository";
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
 import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 import { ERROR_CODES } from "../constants/error.code.constants";

@@ -1,5 +1,6 @@
-import { BlockUserUseCase } from "../../application/useCases/blockCanddiate.use-case";
-import { UnblockUserUseCase } from "../../application/useCases/unblockCanddiate.use-case";
+
+import { BlockUserUseCase } from "../../application/useCases/user-management/blockCanddiate.use-case";
+import { UnblockUserUseCase } from "../../application/useCases/user-management/unblockCanddiate.use-case";
 import { ApiUserRepository } from "../../infrastructure/repositories/api-user.repository";
 
 

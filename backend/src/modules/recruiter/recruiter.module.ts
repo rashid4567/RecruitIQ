@@ -1,13 +1,8 @@
 import { RecruiterProfileRepository } from "./domain/repositories/recruiter.repository";
-
-import { UserServicePort } from "./application/ports/user.service.port";
 import { GetRecruiterProfileUseCase } from "./application/useCase/get-recruiter-profile.usecase";
 import { UpdateRecruiterProfileUseCase } from "./application/useCase/update-recruiter-profile.usecase";
 import { CompleteRecruiterProfileUseCase } from "./application/useCase/complete-recruiter-profile.usecase";
-
 import { MongooseRecruiterProfileRepository } from "./infrastructure/repositories/mongoose-recruiter.repository";
-
-import { UserService } from "./infrastructure/service/user.service";
 import { UpdateRecruiterProfileController } from "./presentation/controller/updateProfile.controller";
 import { UserRepository } from "./domain/repositories/user.entity";
 import { MongooseUserRepository } from "./infrastructure/repositories/mongoose-user.repository";
@@ -17,8 +12,6 @@ import { GetRecruiterProfileController } from "./presentation/controller/getProf
 const recruiterRepository: RecruiterProfileRepository =
   new MongooseRecruiterProfileRepository();
 const userRepository: UserRepository = new MongooseUserRepository();
-
-const userService: UserServicePort = new UserService();
 
 const getRecruiterProfileUC = new GetRecruiterProfileUseCase(
   recruiterRepository,

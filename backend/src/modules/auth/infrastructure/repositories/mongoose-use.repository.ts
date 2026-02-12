@@ -18,7 +18,7 @@ export class MongooseUserRepository implements UserRepository {
   }
 
   async save(user: User): Promise<User> {
-    // 🟢 CREATE
+
     if (!user.id) {
       const doc = await UserModel.create({
         email: user.email.getValue(),
@@ -33,7 +33,7 @@ export class MongooseUserRepository implements UserRepository {
       return this.toDomain(doc);
     }
 
-    // 🟢 UPDATE
+
     const doc = await UserModel.findByIdAndUpdate(
       user.id,
       {

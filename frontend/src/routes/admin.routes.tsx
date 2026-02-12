@@ -24,14 +24,18 @@ const CandidateManagement = lazy(
 const CandidateProfile = lazy(
   () => import("../module/admin/presentation/pages/candidateProfile"),
 );
-const EmailTemplateManagement = lazy(
-  () => import("../pages/admin/email-templates/emailTemplate.mangment"),
-);
-const EmailTemplateEditor = lazy(
-  () => import("../pages/admin/email-templates/emailTemplate.editort"),
-);
+// const EmailTemplateManagement = lazy(
+//   () => import("../pages/admin/email-templates/emailTemplate.mangment"),
+// );
 
-const EmailLogs = lazy(() => import("../pages/admin/email-logs/EmailLogsPage"));
+const EmailTemplateManagement = lazy(()=> import("../module/admin/presentation/pages/emailTemplate.mangment"))
+// const EmailTemplateEditor = lazy(
+//   () => import("../pages/admin/email-templates/emailTemplate.editort"),
+// );
+
+const EmailTemplateEditor = lazy(()=> import("../module/admin/presentation/pages/emailTemplate.editor"))
+//const EmailLogs = lazy(() => import("../pages/admin/email-logs/EmailLogsPage"));
+const EmailLogs = lazy(()=> import("../module/admin/presentation/pages/email.logs"))
 
 const AdminRoutes = () => (
   <Suspense fallback={<RouteLoader />}>

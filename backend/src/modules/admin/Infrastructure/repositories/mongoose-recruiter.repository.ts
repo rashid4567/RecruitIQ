@@ -4,10 +4,11 @@ import {
   Recruiter,
   VerificationStatus,
 } from "../../Domain/entities/recruiter.entity";
-import { GetRecruitersInput } from "../../Application/dto/get-recruiters.input";
+
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
 import { RecruiterProfileModel } from "../../../recruiter/infrastructure/mongoose/model/recruiter-profile.model";
 import { RecruiterAggregate } from "../types/recruiter-aggregate.type";
+import { GetRecruitersInput } from "../../Application/dto/recruiter.dto/get-recruiters.input";
 
 export class MongooseRecruiterRepository implements RecruiterRepository {
   async getRecruiters(

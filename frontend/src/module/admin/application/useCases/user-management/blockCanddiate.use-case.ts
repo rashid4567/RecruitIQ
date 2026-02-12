@@ -1,4 +1,4 @@
-import type { UserRepositry } from "../../domain/repositories/user.Repository";
+import type { UserRepositry } from "../../../domain/repositories/user.Repository";
 
 export class BlockUserUseCase {
   private readonly userRepo: UserRepositry;

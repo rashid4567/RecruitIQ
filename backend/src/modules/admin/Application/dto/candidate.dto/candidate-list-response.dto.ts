@@ -1,4 +1,4 @@
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../../shared/domain/value-objects.ts/userId.vo";
 
 
 export interface CandidateListItemDTO {

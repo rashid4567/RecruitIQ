@@ -1,4 +1,4 @@
-// lib/validation/candidate.validation.ts
+
 
 export interface ValidationErrors {
   [key: string]: string;
@@ -9,7 +9,7 @@ export interface ValidationResult {
   errors: ValidationErrors;
 }
 
-// Field validation rules
+
 const validationRules = {
   fullName: {
     required: true,
@@ -24,7 +24,7 @@ const validationRules = {
   
   currentJob: {
     validate: (value: string) => {
-      if (!value || value.trim() === '') return null; // Optional field
+      if (!value || value.trim() === '') return null; 
       if (value.length > 100) return 'Current job must not exceed 100 characters';
       return null;
     }
@@ -32,7 +32,7 @@ const validationRules = {
   
   experienceYears: {
     validate: (value: string | number | undefined) => {
-      if (value === undefined || value === null || value === '' || value === '0') return null; // Optional field
+      if (value === undefined || value === null || value === '' || value === '0') return null;
       const numValue = Number(value);
       if (isNaN(numValue)) return 'Experience must be a number';
       if (numValue < 0) return 'Experience cannot be negative';
@@ -44,7 +44,7 @@ const validationRules = {
   educationLevel: {
     validate: (value: string) => {
       const validLevels = ['high-school', 'associate', 'bachelor', 'master', 'phd', 'other'];
-      if (!value || value.trim() === '') return null; // Optional field
+      if (!value || value.trim() === '') return null; 
       if (!validLevels.includes(value)) return 'Please select a valid education level';
       return null;
     }
@@ -53,7 +53,7 @@ const validationRules = {
   gender: {
     validate: (value: string) => {
       const validGenders = ['male', 'female', 'non-binary', 'prefer-not-to-say', 'other'];
-      if (!value || value.trim() === '') return null; // Optional field
+      if (!value || value.trim() === '') return null; 
       if (!validGenders.includes(value)) return 'Please select a valid gender';
       return null;
     }
@@ -61,7 +61,7 @@ const validationRules = {
   
   currentJobLocation: {
     validate: (value: string) => {
-      if (!value || value.trim() === '') return null; // Optional field
+      if (!value || value.trim() === '') return null; 
       if (value.length > 100) return 'Location must not exceed 100 characters';
       if (value.length < 2) return 'Location must be at least 2 characters';
       return null;
@@ -70,9 +70,9 @@ const validationRules = {
   
   preferredJobLocation: {
     validate: (value: string[] | string | undefined) => {
-      if (!value) return null; // Optional field
+      if (!value) return null; 
       
-      // If it's a string (from input), parse it
+     
       let locations: string[] = [];
       if (typeof value === 'string') {
         locations = value.split(',').map(loc => loc.trim()).filter(loc => loc.length > 0);
@@ -80,14 +80,14 @@ const validationRules = {
         locations = value;
       }
       
-      // Validate each location
+    
       for (const location of locations) {
         if (location.length > 50) return 'Each location must not exceed 50 characters';
         if (location.length < 2) return 'Location must be at least 2 characters';
         if (!/^[A-Za-z\s,'-]+$/.test(location)) return 'Locations can only contain letters, spaces, commas, hyphens, and apostrophes';
       }
       
-      // Check total count
+     
       if (locations.length > 10) return 'Maximum 10 preferred locations allowed';
       
       return null;
@@ -96,9 +96,9 @@ const validationRules = {
   
   skills: {
     validate: (value: string[] | string | undefined) => {
-      if (!value) return null; // Optional field
+      if (!value) return null; 
       
-      // If it's a string (from input), parse it
+     
       let skills: string[] = [];
       if (typeof value === 'string') {
         skills = value.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
@@ -106,14 +106,14 @@ const validationRules = {
         skills = value;
       }
       
-      // Validate each skill
+      
       for (const skill of skills) {
         if (skill.length > 50) return 'Each skill must not exceed 50 characters';
         if (skill.length < 2) return 'Skill must be at least 2 characters';
         if (!/^[A-Za-z0-9\s\-#.+()/]+$/.test(skill)) return 'Skills can only contain letters, numbers, spaces, hyphens, and basic symbols';
       }
       
-      // Check total count
+     
       if (skills.length > 50) return 'Maximum 50 skills allowed';
       
       return null;
@@ -122,22 +122,22 @@ const validationRules = {
   
   linkedinUrl: {
     validate: (value: string) => {
-      if (!value || value.trim() === '') return null; // Optional field
+      if (!value || value.trim() === '') return null; 
       
-      // Clean URL if it doesn't have protocol
+     
       let url = value.trim();
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = 'https://' + url;
       }
       
-      // Basic URL validation
+
       try {
         new URL(url);
       } catch {
         return 'Please enter a valid URL';
       }
       
-      // LinkedIn specific validation - more flexible
+
       const linkedinPatterns = [
         /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[A-Za-z0-9-]+\/?$/i,
         /^(https?:\/\/)?(www\.)?linkedin\.com\/pub\/[A-Za-z0-9-]+\/?$/i,
@@ -155,15 +155,15 @@ const validationRules = {
   
   portfolioUrl: {
     validate: (value: string) => {
-      if (!value || value.trim() === '') return null; // Optional field
+      if (!value || value.trim() === '') return null; 
       
-      // Clean URL if it doesn't have protocol
+
       let url = value.trim();
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = 'https://' + url;
       }
       
-      // Basic URL validation
+ 
       try {
         const parsedUrl = new URL(url);
         if (!parsedUrl.protocol.match(/^https?:$/)) {
@@ -181,7 +181,7 @@ const validationRules = {
   
   bio: {
     validate: (value: string) => {
-      if (!value || value.trim() === '') return null; // Optional field
+      if (!value || value.trim() === '') return null; 
       if (value.length > 500) return 'Bio must not exceed 500 characters';
       return null;
     }
@@ -191,20 +191,19 @@ const validationRules = {
     validate: (file: File) => {
       if (!file) return null;
       
-      // Check file type
+
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!validTypes.includes(file.type.toLowerCase())) {
         return 'Please upload a valid image file (JPEG, PNG, GIF, or WebP)';
       }
       
-      // Check file size (5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
         return 'Image size must be less than 5MB';
       }
       
-      // Check dimensions if needed (optional)
-      // You could add image dimension validation here
+     
       
       return null;
     }

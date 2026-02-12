@@ -1,4 +1,4 @@
-import type { CandidateRepository } from "../../domain/repositories/candidate.repository";
+import type { CandidateRepository } from "../../../domain/repositories/candidate.repository";
 
 export class GetCandidateProfileUseCase{
     private readonly candidateRepo : CandidateRepository;

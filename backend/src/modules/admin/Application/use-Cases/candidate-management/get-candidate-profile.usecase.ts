@@ -1,5 +1,5 @@
 import { CandidateRepository } from "../../../Domain/repositories/candidate.repository";
-import { CandidateProfileResponseDTO } from "../../dto/candidate-profile-response.dto";
+import { CandidateProfileResponseDTO } from "../../dto/candidate.dto/candidate-profile-response.dto";
 
 
 export class GetCandidateprofileUseCase {

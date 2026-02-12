@@ -1,5 +1,6 @@
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
-import { GetRecruitersQuery } from "../../dto/get-recruiters.query";
+import { GetRecruitersQuery } from "../../dto/recruiter.dto/get-recruiters.query";
+
 
 
 export class GetRecruitersUseCase {

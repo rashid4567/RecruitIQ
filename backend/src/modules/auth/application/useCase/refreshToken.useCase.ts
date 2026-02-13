@@ -1,19 +1,31 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { TokenServicePort } from "../ports/token.service.ports";
+import { ERROR_CODES } from "../constants/error-codes.constants";
+import { ApplicationError } from "../errors/application.error";
+import { AuthTokenServicePort } from "../ports/token.service.ports";
 
-export class RefreshTokenUseCase {
+export class RefreshTokenUseCase{
   constructor(
-    private readonly userRepo: UserRepository,
-    private readonly tokenService: TokenServicePort
-  ) {}
-  async execute(refreshToken: string) {
-    const payload = this.tokenService.verifyToken(refreshToken);
-    const user = await this.userRepo.findById(payload.userId);
+    private readonly userRepo : UserRepository,
+    private readonly tokenService : AuthTokenServicePort
+  ){};
 
-    if (!user || !user.isActive) {
-      throw new Error("Account deactivated please contact the admin");
+  async execute(refreshToken : string):Promise<{accessToken : string}>{
+
+    if(!refreshToken){
+      throw new ApplicationError(ERROR_CODES.UNAUTHORIZED)
+    }
+    const payload = this.tokenService.verifyRefreshToken(refreshToken);
+    const user = await this.userRepo.findById(payload.userId);
+    
+    if(!user || !user.canLogin()){
+      throw new ApplicationError(ERROR_CODES.ACCOUNT_DEACTIVATED)
     }
 
-    return this.tokenService.generateToken(user).accessToken;
+    if(!user.id){
+      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND);
+    }
+    return {
+      accessToken : this.tokenService.generateAccessToken(user.id, user.role)
+    }
   }
 }

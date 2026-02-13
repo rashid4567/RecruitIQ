@@ -1,19 +1,16 @@
 export type CandidateStatus = "Active" | "Blocked";
 
-export interface Candidate {
+export interface CandidateListItem {
   id: string;
   name: string;
   email: string;
-  skills: string[];
-  experience: number;
-  location: string;
-  applications: number;
   status: CandidateStatus;
   registeredDate: string;
 }
 
+
 export interface CandidateListResponse {
-  candidates: Candidate[];
+  candidates: CandidateListItem[];
   pagination: {
     page: number;
     limit: number;
@@ -21,12 +18,14 @@ export interface CandidateListResponse {
   };
 }
 
+
 export interface GetCandidatesParams {
   page?: number;
   limit?: number;
   search?: string;
   status?: "All" | CandidateStatus;
 }
+
 
 export interface CandidateProfile {
   id: string;

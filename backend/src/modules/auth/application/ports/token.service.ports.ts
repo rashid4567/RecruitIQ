@@ -1,16 +1,10 @@
-import { User } from "../../domain/entities/user.entity";
-
-export interface TokenServicePort{
-    generateToken(user : User):{
-        accessToken : string,
-        refreshToken : string,
-    },
-    verifyToken(token : string):{
-        userId : string,
-        role : string,
-    },
-    generatePasswordResetToken(userId : string):string;
-    verifyPasswordResetToken(token : string):{
-        userId : string,
-    }
+export interface AuthTokenServicePort {
+  generateAccessToken(userId: string, role: string): string;
+  generateRefreshToken(userId: string): string;
+  verifyAccessToken(token: string): { userId: string; role: string };
+  verifyRefreshToken(token: string): { userId: string };
+   generatePasswordResetToken(userId: string): string;
+  verifyPasswordResetToken(token: string): { userId: string };
 }
+
+

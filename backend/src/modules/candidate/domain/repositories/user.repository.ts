@@ -1,19 +1,9 @@
-export interface UserRepository {
-  findById(
-    userId: string
-  ): Promise<{
-    id: string;
-    fullName: string;
-    email: string;
-    profileImage?: string;
-  } | null>;
+import { User } from "../entities/user.entity";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 
-  updateProfile(
-    userId: string,
-    data: {
-      fullName?: string;
-      email?: string;
-      profileImage?: string;
-    }
-  ): Promise<void>;
+export interface UserRepository {
+  findById(userId: UserId): Promise<User | null>;
+  findByEmail(email: Email): Promise<User | null>;
+  save(userId: User): Promise<void>;
 }

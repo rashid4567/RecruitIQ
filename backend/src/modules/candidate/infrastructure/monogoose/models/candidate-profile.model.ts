@@ -22,7 +22,7 @@ const candidateProfileSchema = new Schema ({
         type : [String],
         default  : [],
     },
-    preferredJobLocation : {
+    preferredJobLocations : {
         type :[String],
         default : [],
     },

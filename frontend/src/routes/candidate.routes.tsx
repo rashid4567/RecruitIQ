@@ -6,16 +6,15 @@ import CandidateLayout from "../layout/CandidateLayout";
 import RouteLoader from "../components/RouterLoader";
 
 const CandidateHome = lazy(() => import("../pages/candidate/Home"));
-const CompleteProfile = lazy(
-  () => import("../pages/candidate/completeProfile")
-);
-// const CandidateProfilePage = lazy(
-//   () => import("../pages/candidate/profilePage")
-// );
+
+const CompleteProfile = lazy(()=> import("../module/candidate/presentation/pages/comleteProfile"))
+
+
+
 const AccountSettingsPage = lazy(
-  () => import("../pages/candidate/profileSetting/account-setting")
+  () => import("../module/candidate/presentation/pages/personal-info")
 );
-//const ComingSoonPage = lazy(()=> import("../components/comingSoon"))
+
 const CandidateRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
     <Routes>

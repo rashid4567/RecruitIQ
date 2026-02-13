@@ -1,18 +1,42 @@
 import { UserServicePort } from "../../application/ports/user.service.port";
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
-import { RecruiterProfileDTO } from "../../application/dto/recruiter-profile.dto";
 
 export class UserService implements UserServicePort {
-  async updateProfile(userId: string, data: any):Promise<void> {
+
+  async updateProfile(
+    userId: string,
+    data: {
+      fullName?: string;
+      profileImage?: string;
+    }
+  ): Promise<void> {
     await UserModel.findByIdAndUpdate(userId, { $set: data });
   }
 
-  async findUserWithPassWord(userId: string):Promise<{password :string, role : string, authProvider :string} | null> {
-     return UserModel.findById(userId).select("+password role authprovider");
-   
-  } 
 
-  async updatePassword(userId: string, hashedPassword: string) {
-    await UserModel.findByIdAndUpdate(userId, { password: hashedPassword });
+  async findUserById(
+    userId: string
+  ): Promise<{
+    id: string;
+    fullName: string;
+    email: string;
+    profileImage?: string;
+    isActive: boolean;
+    createdAt: Date;
+  } | null> {
+    const user = await UserModel.findById(userId).lean();
+    if (!user) return null;
+
+    return {
+      id: user._id.toString(),
+      fullName: user.fullName ?? "",
+      email: user.email,
+      profileImage: user.profileImage ?? "",
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+    };
   }
+
+
+
 }

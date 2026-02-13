@@ -1,6 +1,9 @@
 import { CandidateRespository } from "../../domain/repositories/candidate.repository";
 import { UserRepository } from "../../domain/repositories/user.repository";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { ERROR_CODES } from "../constants/error-code.constant";
 import { GetCandidateProfileResponseDTO } from "../dto/candidate-profile.dto";
+import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 
 export class GetCandidateProfileUseCase {
   constructor(
@@ -8,33 +11,41 @@ export class GetCandidateProfileUseCase {
     private readonly userRepo: UserRepository
   ) {}
 
-  async execute(userId: string): Promise<GetCandidateProfileResponseDTO> {
-    const user = await this.userRepo.findById(userId);
-    if (!user) {
-      throw new Error("User not found");
+  async execute(userId:string):Promise<GetCandidateProfileResponseDTO>{
+    const id = UserId.create(userId);
+
+    const user = await this.userRepo.findById(id);
+    if(!user){
+      throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND)
     }
 
-    const candidateProfile = await this.candidateRepo.findByUserId(userId);
-    if (!candidateProfile) {
-      throw new Error("Candidate profile not found");
+    const profile = await this.candidateRepo.findByUserId(id);
+    if(!profile){
+      throw new ApplicationError(ERROR_CODES.CANDIDATE_PROFILE_NOT_FOUND)
     }
 
     return {
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        profileImage: user.profileImage,
+      user : {
+        id : user.getId().getValue(),
+        fullName : user.getFullName(),
+        email : user.getEmail().getValue(),
+        profileImage : user.getProfileImage(),
       },
-      candidateProfile: {
-        currentJob: candidateProfile.currentJob,
-        experienceYears: candidateProfile.experienceYears,
-        skills: candidateProfile.skills,
-        educationLevel: candidateProfile.educationLevel ?? "",
-        preferredJobLocation: candidateProfile.preferredJobLocation,
-        bio: candidateProfile.bio ?? "",
-        profileCompleted: candidateProfile.profileCompleted,
-      },
-    };
+      candidateProfile : {
+        currentJob : profile.getCurrentJob(),
+        experienceYears : profile.getExperienceYears(),
+        skills : profile.getSkills(),
+        preferredJobLocations : profile.getPreferredLocations(),
+        educationLevel : profile.getEducationLevel() ?? "",
+        bio : profile.getBio() ?? "",
+        currentJobLocation : profile.getCurrentJobLocation() ?? "",
+        gender : profile.getCurrentJob() ?? "",
+        linkedinUrl : profile.getLinkedinUrl() ?? "",
+        portfolioUrl : profile.getPortfolioUrl() ?? "",
+        profileCompleted : profile.isProfileCompleted(),
+
+      }
+    }
+
   }
 }

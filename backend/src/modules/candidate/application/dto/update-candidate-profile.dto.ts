@@ -1,11 +1,14 @@
 export interface UpdateCandidateProfileDTO {
   fullName?: string;
-  email?: string;
   profileImage?: string;
   currentJob?: string;
   experienceYears?: number;
   skills?: string[];
   educationLevel?: string;
-  preferredJobLocation?: string[];
+  preferredJobLocations?: string[];
   bio?: string;
+  currentJobLocation ?:string,
+  gender ?:string,
+  linkedinUrl?:string,
+  portfolioUrl?:string,
 }

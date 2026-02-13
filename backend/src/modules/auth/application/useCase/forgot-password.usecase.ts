@@ -1,23 +1,40 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { TokenService } from "../../infrastructure/service/token.service";
-import { sendPasswordLink } from "../../../../utils/email";
-import { TokenServicePort } from "../ports/token.service.ports";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+
+import { ERROR_CODES } from "../constants/error-codes.constants";
+import { ApplicationError } from "../errors/application.error";
+import { AuthTokenServicePort } from "../ports/token.service.ports";
+import { EmailServicePort } from "../ports/email.service.port";
 
 export class ForgotPasswordUseCase {
   constructor(
     private readonly userRepo: UserRepository,
-    private readonly jwtService: TokenServicePort,
-
+    private readonly tokenService: AuthTokenServicePort,
+    private readonly emailService: EmailServicePort,
   ) {}
 
-  async execute(email: string): Promise<void> {
+  async execute(emailRaw: string): Promise<void> {
+    const email = Email.create(emailRaw);
+
     const user = await this.userRepo.findByEmail(email);
-    if (!user) return;
-    if(user.authProvider !== "local")throw new Error("Socail account doesn't have password")
-    const token = this.jwtService.generatePasswordResetToken(user.id);
+    if (!user) {
+      return;
+    }
 
-    const link = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    if(!user.id){
+      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND)
+    }
 
-    await sendPasswordLink(user.email, link);
+    if (!user.authProvider.isLocal()) {
+      throw new ApplicationError(ERROR_CODES.PASSWORD_RESET_NOT_ALLOWED);
+    }
+
+    const token =
+      this.tokenService.generatePasswordResetToken(user.id);
+
+    await this.emailService.sendPasswordResetLink(
+      email.getValue(),
+      token,
+    );
   }
 }

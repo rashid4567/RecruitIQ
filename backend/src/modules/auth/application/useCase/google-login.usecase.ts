@@ -1,60 +1,79 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { GoogleId } from "../../domain/value.objects.ts/google-id.vo";
+import { ERROR_CODES } from "../constants/error-codes.constants";
+import { ApplicationError } from "../errors/application.error";
 import { GoogleAuthPort } from "../ports/google-auth.ports";
-import { TokenServicePort } from "../ports/token.service.ports";
-import { ProfileServicePort } from "../ports/profile.service.ports";
+import { USER_ROLES, userRoles } from "../../domain/constants/roles.constants";
+import { User } from "../../domain/entities/user.entity";
+import { AuthResult } from "../types/auth-result.type";
+import { AuthTokenServicePort } from "../ports/token.service.ports";
 
 export class GoogleLoginUseCase {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly googleAuth: GoogleAuthPort,
-    private readonly tokenService: TokenServicePort,
-    private readonly profileService: ProfileServicePort
+    private readonly tokenServie: AuthTokenServicePort,
   ) {}
 
   async execute(
     credential: string,
-    role?: "candidate" | "recruiter"
-  ) {
+    role?: userRoles,
+  ): Promise<AuthResult> {
+
     const googleUser = await this.googleAuth.verifyToken(credential);
 
-    let user = await this.userRepo.findByEmail(googleUser.email);
+    const email = Email.create(googleUser.email);
+    const googleId = GoogleId.create(googleUser.googleId);
 
-  
-    if (user && user.authProvider === "local") {
-      throw new Error("Email already registered using password login");
-    }
+    let user = await this.userRepo.findByEmail(email);
 
-  
-    if (user && role && user.role !== role) {
-      throw new Error(
-        `This account is already registered as ${user.role}`
+    if (
+      (user && user.role === USER_ROLES.ADMIN) ||
+      role === USER_ROLES.ADMIN
+    ) {
+      throw new ApplicationError(
+        ERROR_CODES.GOOGLE_LOGIN_NOT_ALLOWED_FOR_ADMIN
       );
     }
 
- 
-    if (user && !user.isActive) {
-      throw new Error("Account is deactivated");
+    if (user && user.authProvider.isLocal()) {
+      throw new ApplicationError(ERROR_CODES.EMAIL_ALREADY_EXISTS);
+    }
+
+    if (user && role && user.role !== role) {
+      throw new ApplicationError(ERROR_CODES.ROLE_MISMATCH);
+    }
+
+    if (user && !user.canLogin()) {
+      throw new ApplicationError(ERROR_CODES.ACCOUNT_DEACTIVATED);
     }
 
     if (!user) {
       if (!role) {
-        throw new Error("Role is required for Google signup");
+        throw new ApplicationError(ERROR_CODES.ROLE_REQUIRED);
       }
 
-      user = await this.userRepo.createGoogleUser({
-        email: googleUser.email,
-        googleId: googleUser.googleId,
-        fullName: googleUser.fullName,
+      user = User.registerWithGoogle({
+        email,
         role,
+        fullName: googleUser.fullName,
+        googleId,
       });
 
-      await this.profileService.createProfile(user.id, role);
+      user = await this.userRepo.save(user);
     }
 
-    const tokens = this.tokenService.generateToken(user);
-    return{
-        user,
-        ...tokens,
+    if (!user.id) {
+      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND);
     }
+
+    return {
+      accessToken: this.tokenServie.generateAccessToken(user.id, user.role),
+      refreshToken: this.tokenServie.generateRefreshToken(user.id),
+      userId: user.id,
+      role: user.role,
+    };
   }
 }
+

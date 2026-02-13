@@ -1,4 +1,4 @@
-import { email } from "zod";
+
 import api from "../../api/axios";
 import { googleService } from "./google.service";
 
@@ -9,7 +9,7 @@ export const authService = {
   },
 
   verifyOtpAndRegister: async (data: {
-    email: string;
+    email: string; 
     otp: string;
     password: string;
     fullName: string;
@@ -79,5 +79,13 @@ export const authService = {
     });
 
     return res.data;
+  },
+
+  updatePassword : async (payload : {
+    currentPassword : string,
+    newPassword : string,
+  }) =>{
+   await api.put("/auth/update-password",payload)
+
   }
 };

@@ -1,10 +1,7 @@
 import { RecruiterProfile } from "../entities/recruiter-profile.entity";
+import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
 
 export interface RecruiterProfileRepository {
-  findByUserId(userId: string): Promise<RecruiterProfile | null>;
-  createIfNotExists(userId: string): Promise<RecruiterProfile>;
-  updateByUserId(
-    userId: string,
-    data: Partial<RecruiterProfile>
-  ): Promise<RecruiterProfile | null>;
+  findByUserId(userId: UserId): Promise<RecruiterProfile | null>;
+  save(profile: RecruiterProfile): Promise<void>;
 }

@@ -11,14 +11,14 @@ const recruiterProfileSchema = new Schema(
     },
     companyName: {
       type: String,
-      trim : ""
+      trim : true,
 
     },
     companyWebsite: {
       type: String,
     },
     companySize: {
-      type: String,
+      type: Number,
     },
     industry: {
       type: String,
@@ -29,6 +29,10 @@ const recruiterProfileSchema = new Schema(
     },
     location: {
       type: String,
+    },
+
+    linkedinUrl  : {
+      type : String,
     },
     bio: {
       type: String,

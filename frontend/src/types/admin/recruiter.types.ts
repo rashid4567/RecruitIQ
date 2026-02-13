@@ -1,28 +1,27 @@
 export type VerificationStatus = "pending" | "verified" | "rejected";
 export type SubscriptionStatus = "free" | "active" | "expired";
 
-export interface Recruiter {
-  _id: string;
-  fullName: string;
+export interface RecruiterListItem {
+  id: string;
+  name: string;
   email: string;
   isActive: boolean;
-  createdAt: string;
-
   verificationStatus: VerificationStatus;
   subscriptionStatus: SubscriptionStatus;
   jobPostsUsed: number;
+  joinedDate: string;
 }
 
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-}
 
 export interface RecruiterListResponse {
-  recruiters: Recruiter[];
-  pagination: Pagination;
+  recruiters: RecruiterListItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
 }
+
 
 export interface RecruiterQueryParams {
   page?: number;
@@ -34,13 +33,14 @@ export interface RecruiterQueryParams {
   sort?: "latest" | "oldest";
 }
 
+
 export interface RecruiterProfile {
   id: string;
   name: string;
   email: string;
   role: string;
   profileImage?: string;
-
+  phone?: string;
   isActive: boolean;
   verificationStatus: VerificationStatus;
 

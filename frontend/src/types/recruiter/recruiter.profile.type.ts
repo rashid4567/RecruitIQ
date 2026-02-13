@@ -1,35 +1,39 @@
-// INPUT DTO (form + update)
 export interface RecruiterProfileData {
   fullName?: string;
   profileImage?: string;
   companyName?: string;
   companyWebsite?: string;
-  companySize?: string;
+  companySize?: number;
   industry?: string;
   location?: string;
   bio?: string;
   designation?: string;
 }
 
-// OUTPUT DTO (API response)
+
 export interface RecruiterProfileResponse {
-  _id: string;
-  userId: string;
+  user: {
+    id: string;
+    fullName?: string;
+    email?: string;
+    profileImage?: string;
+  };
 
-  fullName?: string;
-  profileImage?: string;
-  companyName?: string;
-  companyWebsite?: string;
-  companySize?: string;
-  industry?: string;
-  location?: string;
-  bio?: string;
-  designation?: string;
+  recruiter: {
+    companyName?: string;
+    companyWebsite?: string;
+    companySize?: number;
+    industry?: string;
+    location?: string;
+    bio?: string;
+    designation?: string;
 
-  subscriptionStatus?: "free" | "active" | "expired";
-  verificationStatus?: "pending" | "verified" | "rejected";
-  jobPostsUsed?: number;
+    subscriptionStatus?: "free" | "active" | "expired";
+    verificationStatus?: "pending" | "verified" | "rejected";
+    jobPostsUsed?: number;
 
-  createdAt?: string;
-  updatedAt?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
 }
+

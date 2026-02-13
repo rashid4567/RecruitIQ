@@ -23,6 +23,7 @@ export const verifyRefreshToken = (token: string): jwtPayload => {
         return jwt.verify(token, REFRESH_TOKEN_SECRET) as jwtPayload
     } catch (err) {
         throw new Error("Invalid Refresh token")
+        console.error(err);
     }
 }
 
@@ -31,5 +32,6 @@ export const verifyAccessToken = (token: string): jwtPayload => {
         return jwt.verify(token, ACCESS_TOKEN_SECRET) as jwtPayload
     } catch (err) {
         throw new Error("Invalid Access token")
+        console.error(err)
     }
 }

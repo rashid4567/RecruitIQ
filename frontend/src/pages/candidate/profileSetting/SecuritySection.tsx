@@ -1,16 +1,13 @@
-"use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+
 import { Shield, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { candidateService } from "@/services/candidate/candidate.service";
 import { getError } from "@/utils/getError";
+import { authService } from "@/services/auth/auth.service";
 
-// Validation helper functions
 const validatePassword = (password: string) => {
   const errors: string[] = [];
 
@@ -189,7 +186,7 @@ export function SecuritySection() {
       setLoading(true);
       toast.loading("Updating password...");
 
-      await candidateService.updatePassword({
+      await authService.updatePassword({
         currentPassword,
         newPassword,
       });
@@ -249,7 +246,7 @@ export function SecuritySection() {
       </div>
       <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50 p-8">
         <div className="flex items-center gap-4 mb-6">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+          <div className="h-12 w-12 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center">
             <Shield className="h-6 w-6 text-white" />
           </div>
           <div>
@@ -263,7 +260,7 @@ export function SecuritySection() {
         </div>
 
         <div className="space-y-6">
-          <div className="p-6 bg-gradient-to-br from-blue-50/50 to-blue-100/30 rounded-xl border border-blue-100/50">
+          <div className="p-6 bg-linear-to-br from-blue-50/50 to-blue-100/30 rounded-xl border border-blue-100/50">
             <div className="mb-4">
               <h4 className="font-medium text-gray-900 mb-4">
                 Change Password
@@ -456,7 +453,7 @@ export function SecuritySection() {
                 <Button
                   onClick={handleChangePassword}
                   disabled={loading || !isFormValid()}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>
@@ -471,9 +468,9 @@ export function SecuritySection() {
             </div>
           </div>
 
-          {/* Rest of the component remains the same */}
         
-          <div className="p-6 bg-gradient-to-br from-amber-50/50 to-amber-100/30 rounded-xl border border-amber-100/50">
+        
+          <div className="p-6 bg-linear-to-br from-amber-50/50 to-amber-100/30 rounded-xl border border-amber-100/50">
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-medium text-gray-900">Active Sessions</h4>

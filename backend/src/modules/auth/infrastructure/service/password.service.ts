@@ -1,12 +1,13 @@
 import bcrypt from "bcryptjs";
-import { passwordServicePort } from "../../application/ports/password.service.port";
+import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
+import { BCRYPT_SALT_ROUNDS } from "../constants/security.constants";
+import { Password } from "../../../../shared/domain/value-objects.ts/password.vo";
 
-export class PasswordService implements passwordServicePort{
-    async hash(password : string):Promise<string>{
-        return bcrypt.hash(password, 10);
+export class PasswordService implements PasswordHasherPort{
+    async hash(password: Password): Promise<string> {
+        return bcrypt.hash(password.getValue(), BCRYPT_SALT_ROUNDS);
     }
-
-    async compare(password : string, hash : string):Promise<boolean>{
-        return bcrypt.compare(password, hash)
+    async compare(password: Password, hash: string): Promise<boolean> {
+        return bcrypt.compare(password.getValue(), hash);
     }
 }

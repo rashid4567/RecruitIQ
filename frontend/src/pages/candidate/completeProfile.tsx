@@ -105,7 +105,7 @@ const CompleteProfile: React.FC = () => {
 
     try {
       await candidateService.completeProfile(payload);
-
+ 
       localStorage.setItem("profileCompleted", "true");
       navigate("/candidate/home");
     } catch (err: any) {

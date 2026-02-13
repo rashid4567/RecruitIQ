@@ -7,7 +7,7 @@ export const recruiterService = {
     return res.data.data;
   },
 
-  // Changed to accept RecruiterProfileData instead of RecruiterProfileResponse
+
   updateProfile: async (
     payload: RecruiterProfileData
   ): Promise<RecruiterProfileResponse> => {
@@ -20,5 +20,19 @@ export const recruiterService = {
     newPassword: string;
   }): Promise<void> => {
     await api.put("/recruiter/profile/password", payload);
+  },
+
+ requestEmailUpdate: async (newEmail: string): Promise<void> => {
+  await api.put("/recruiter/email/request-otp", {
+    newEmail,
+  });
+},
+
+
+  verifyEmail : async (payload : {
+    newEmail : string,
+    otp : string,
+  }): Promise<void> =>{
+    await api.post("/recruiter/email/verify",payload)
   }
 };

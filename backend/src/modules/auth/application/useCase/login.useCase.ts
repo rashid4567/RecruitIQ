@@ -1,33 +1,50 @@
-import { UserRepository } from "../../domain/repositories/user.repository"
-import { passwordServicePort } from "../ports/password.service.port";
-import { TokenServicePort } from "../ports/token.service.ports";
-import { User } from "../../domain/entities/user.entity";
+import { UserRepository } from "../../domain/repositories/user.repository";
+import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 
-export class LoginUseCase{
-    constructor(
-        private readonly userRepo : UserRepository,
-        private readonly passwordService : passwordServicePort,
-        private readonly tokenService : TokenServicePort,
-    ){};
+import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { Password } from "../../../../shared/domain/value-objects.ts/password.vo";
+import { ERROR_CODES } from "../constants/error-codes.constants";
+import { ApplicationError } from "../errors/application.error";
 
-    async execute(email :string, password :string):Promise<{
-        user : User,
-        accessToken : string,
-        refreshToken : string,
-    }>{
-        const user = await this.userRepo.findByEmail(email);
-        if(!user)throw new Error("Invalid email or password");
-        if(!user.isActive)throw new Error("Account is deactivated please contact admin");
-        const passwordHash = await this.userRepo.getPasswordHash(email);
-        if(!passwordHash)throw new Error("please login with the socail account");
+import { AuthTokenServicePort } from "../ports/token.service.ports";
 
-        const isMatch = await this.passwordService.compare(password, passwordHash);
-        if(!isMatch)throw new Error("invalid email or password");
+export class LoginUseCase {
+  constructor(
+    private readonly userRepo: UserRepository,
+    private readonly passwordHasher: PasswordHasherPort,
+    private readonly tokenService : AuthTokenServicePort,
+  ) {}
 
-        const tokens = this.tokenService.generateToken(user)
-        return {
-            user,
-            ...tokens
-        }
+  async execute(emailRaw: string, passwordRaw: string) {
+    const email = Email.create(emailRaw);
+    const password = Password.create(passwordRaw);
+
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) {
+      throw new ApplicationError(ERROR_CODES.INVALID_CREDENTIALS);
     }
+
+    if (!user.canLogin()) {
+      throw new ApplicationError(ERROR_CODES.ACCOUNT_DEACTIVATED);
+    }
+
+    const authenticated = await user.verifyPassword(
+      password,
+      this.passwordHasher,
+    );
+    if (!authenticated) {
+      throw new ApplicationError(ERROR_CODES.INVALID_CREDENTIALS);
+    }
+
+    if(!user.id){
+      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND)
+    }
+
+    return {
+     accessToken : this.tokenService.generateAccessToken(user.id, user.role),
+     refreshToken : this.tokenService.generateRefreshToken(user.id),
+     userId : user.id,
+    role : user.role,
+    };
+  }
 }

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Upload, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import RecruiterHeader from "../../components/recruiter/header";
+import { toast, useSonner } from "sonner";
 
 
 const RecruiterDetails: React.FC = () => {
@@ -38,11 +39,11 @@ const RecruiterDetails: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert("File size must be less than 2MB");
+        toast.info("File size must be less than 2MB");
         return;
       }
       if (!file.type.startsWith("image/")) {
-        alert("Please upload an image file");
+        toast.info("Please upload an image file");
         return;
       }
       setFormData((prev) => ({ ...prev, logo: file }));
@@ -54,7 +55,7 @@ const RecruiterDetails: React.FC = () => {
 
     // Form validation
     if (!formData.companyName.trim()) {
-      alert("Company name is required");
+      toast.warning("Company name is required");
       return;
     }
 
@@ -73,21 +74,16 @@ const RecruiterDetails: React.FC = () => {
       verificationStatus: "pending",
     };
 
-    // Simulate API call
+    
     try {
       console.log("Saving recruiter profile:", recruiterProfileData);
 
-      // TODO: Replace with actual API call
-      // await recruiterService.createProfile(recruiterProfileData)
-
-      // Show success message
-      alert("Profile created successfully!");
-
-      // Navigate to next page
-      navigate("/recruiter/dashboard");
+    
+      toast.success("Profile created successfully!");
+      navigate("/recruiter/");
     } catch (error) {
       console.error("Error saving profile:", error);
-      alert("Failed to save profile. Please try again.");
+      toast.error("Failed to save profile. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

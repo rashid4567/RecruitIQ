@@ -12,6 +12,7 @@ export class OtpController {
   sendOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, role } = SendOtpSchema.parse(req.body);
+      console.log("otp : ", req.body);
       await this.sendOtpUC.execute(email, role);
       res.status(HTTP_STATUS.OK).json({
         success: true,

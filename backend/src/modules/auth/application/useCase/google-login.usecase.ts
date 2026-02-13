@@ -4,7 +4,7 @@ import { GoogleId } from "../../domain/value.objects.ts/google-id.vo";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 import { ApplicationError } from "../errors/application.error";
 import { GoogleAuthPort } from "../ports/google-auth.ports";
-import {  USER_ROLES, userRoles } from "../../domain/constants/roles.constants";
+import { USER_ROLES, userRoles } from "../../domain/constants/roles.constants";
 import { User } from "../../domain/entities/user.entity";
 import { AuthResult } from "../types/auth-result.type";
 import { AuthTokenServicePort } from "../ports/token.service.ports";
@@ -13,16 +13,17 @@ export class GoogleLoginUseCase {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly googleAuth: GoogleAuthPort,
-    private readonly tokenServie : AuthTokenServicePort,
+    private readonly tokenServie: AuthTokenServicePort,
   ) {}
 
   async execute(
     credential: string,
     role?: userRoles,
-  ):Promise<AuthResult> {
+  ): Promise<AuthResult> {
+
     const googleUser = await this.googleAuth.verifyToken(credential);
 
-    const email = Email.create(googleUser.email)
+    const email = Email.create(googleUser.email);
     const googleId = GoogleId.create(googleUser.googleId);
 
     let user = await this.userRepo.findByEmail(email);
@@ -52,9 +53,8 @@ export class GoogleLoginUseCase {
       if (!role) {
         throw new ApplicationError(ERROR_CODES.ROLE_REQUIRED);
       }
-      
+
       user = User.registerWithGoogle({
-        id : "",
         email,
         role,
         fullName: googleUser.fullName,
@@ -62,17 +62,18 @@ export class GoogleLoginUseCase {
       });
 
       user = await this.userRepo.save(user);
+    }
 
-      if(!user){
-        throw new ApplicationError(ERROR_CODES.ROLE_REQUIRED)
-      }
+    if (!user.id) {
+      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND);
     }
 
     return {
-      accessToken : this.tokenServie.generateAccessToken(user.id, user.role),
-      refreshToken : this.tokenServie.generateRefreshToken(user.id),
+      accessToken: this.tokenServie.generateAccessToken(user.id, user.role),
+      refreshToken: this.tokenServie.generateRefreshToken(user.id),
       userId: user.id,
       role: user.role,
     };
   }
 }
+

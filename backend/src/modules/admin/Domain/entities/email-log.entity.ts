@@ -4,7 +4,7 @@ export class EmailLog {
     public readonly to: string,
     public readonly subject: string,
     public readonly status: "SENT" | "FAILED",
-    public readonly timestamp: string,        
+    public readonly timestamp: Date,        
     public readonly error?: string
   ) {}
 }

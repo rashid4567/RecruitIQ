@@ -21,6 +21,10 @@ export class ForgotPasswordUseCase {
       return;
     }
 
+    if(!user.id){
+      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND)
+    }
+
     if (!user.authProvider.isLocal()) {
       throw new ApplicationError(ERROR_CODES.PASSWORD_RESET_NOT_ALLOWED);
     }

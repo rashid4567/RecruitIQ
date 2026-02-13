@@ -10,7 +10,8 @@ export class GoogleController {
     try {
       const { credential, role } = GoogleLoginSchema.parse(req.body);
       const result = await this.googleLoginUC.execute(credential, role);
-
+      console.log("role and credential : ", role , credential);
+      console.log("result : ", result)
       this.setRefreshCookie(res, result.refreshToken);
 
       return res.status(HTTP_STATUS.OK).json({
@@ -23,7 +24,9 @@ export class GoogleController {
         },
       });
     } catch (err) {
+      console.log(err)
       return next(err);
+
     }
   };
 

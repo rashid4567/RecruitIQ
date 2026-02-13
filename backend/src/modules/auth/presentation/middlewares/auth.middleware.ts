@@ -1,7 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
-import { ACCESS_TOKEN_SECRET } from "../../../../utils/jwt"; 
+import { ACCESS_TOKEN_SECRET } from "../../../../utils/jwt";
+
+interface JwtPayload {
+    userId: string;
+    role: "admin" | "recruiter" | "candidate";
+    iat?: number;
+    exp?: number;
+}
 
 declare global {
     namespace Express {
@@ -19,14 +26,14 @@ export const authenticate = (
     res: Response,
     next: NextFunction
 ) => {
-   
+
     if (req.method === "OPTIONS") {
         return next();
     }
 
     try {
         const authHeader = req.headers.authorization;
-        
+
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return res.status(HTTP_STATUS.UNAUTHORIZED).json({
                 success: false,
@@ -36,28 +43,11 @@ export const authenticate = (
         }
 
         const token = authHeader.split(" ")[1];
-     
 
-        try {
-            const decoded = jwt.decode(token) as any;
-            if (decoded) {
-                const now = Math.floor(Date.now() / 1000);
-             
-            }
-        } catch (decodeErr) {
-           
-        }
-
-       
         const decoded = jwt.verify(
             token,
-            ACCESS_TOKEN_SECRET 
-        ) as {
-            userId: string;
-            role: "admin" | "recruiter" | "candidate";
-        };
-
-       
+            ACCESS_TOKEN_SECRET
+        ) as JwtPayload;
 
         req.user = {
             userId: decoded.userId,
@@ -65,8 +55,8 @@ export const authenticate = (
         };
 
         next();
+
     } catch (err: any) {
-        console.error(" Authentication error:", err.message);
 
         if (err instanceof jwt.TokenExpiredError) {
             return res.status(HTTP_STATUS.UNAUTHORIZED).json({

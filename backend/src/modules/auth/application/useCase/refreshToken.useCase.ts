@@ -20,6 +20,10 @@ export class RefreshTokenUseCase{
     if(!user || !user.canLogin()){
       throw new ApplicationError(ERROR_CODES.ACCOUNT_DEACTIVATED)
     }
+
+    if(!user.id){
+      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND);
+    }
     return {
       accessToken : this.tokenService.generateAccessToken(user.id, user.role)
     }

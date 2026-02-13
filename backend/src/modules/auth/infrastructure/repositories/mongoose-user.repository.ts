@@ -5,15 +5,31 @@ import { UserModel } from "../mongoose/model/user.model";
 import { userRoles } from "../../domain/constants/roles.constants";
 import { AuthProvider } from "../../../../shared/domain/value-objects.ts/auth-provider.vo";
 import { GoogleId } from "../../domain/value.objects.ts/google-id.vo";
+import { Types } from "mongoose";
+
+export interface UserDocument {
+  _id: Types.ObjectId;
+  email: string;
+  role: string;
+  fullName?: string | null;
+  isActive: boolean;
+  authProvider: string;
+  googleId?: string | null;
+  password?: string | null;
+  profileImage?: string | null;
+}
+
+
 
 export class MongooseUserRepository implements UserRepository {
+
   async findByEmail(email: Email): Promise<User | null> {
-    const doc = await UserModel.findOne({ email: email.getValue() }).lean();
+    const doc = await UserModel.findOne({ email: email.getValue() }).lean<UserDocument>();
     return doc ? this.toDomain(doc) : null;
   }
 
   async findById(userId: string): Promise<User | null> {
-    const doc = await UserModel.findById(userId).lean();
+    const doc = await UserModel.findById(userId).lean<UserDocument>();
     return doc ? this.toDomain(doc) : null;
   }
 
@@ -30,9 +46,8 @@ export class MongooseUserRepository implements UserRepository {
         password: user.getPasswordHash() ?? null,
       });
 
-      return this.toDomain(doc);
+      return this.toDomain(doc.toObject());
     }
-
 
     const doc = await UserModel.findByIdAndUpdate(
       user.id,
@@ -46,7 +61,7 @@ export class MongooseUserRepository implements UserRepository {
         password: user.getPasswordHash() ?? null,
       },
       { new: true }
-    ).lean();
+    ).lean<UserDocument>();
 
     if (!doc) {
       throw new Error("User not found while updating");
@@ -55,12 +70,12 @@ export class MongooseUserRepository implements UserRepository {
     return this.toDomain(doc);
   }
 
-  private toDomain(doc: any): User {
+  private toDomain(doc: UserDocument): User {
     return User.rehydrate({
       id: doc._id.toString(),
       email: Email.create(doc.email),
       role: doc.role as userRoles,
-      fullName: doc.fullName,
+      fullName: doc.fullName ?? "",
       isActive: doc.isActive ?? true,
       authProvider:
         doc.authProvider === "google"

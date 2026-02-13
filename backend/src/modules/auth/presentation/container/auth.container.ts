@@ -11,9 +11,10 @@ import { VerifyRegistrationUseCase } from "../../application/useCase/verify-regi
 import { ForgotPasswordUseCase } from "../../application/useCase/forgot-password.usecase";
 import { ResetPasswordUseCase } from "../../application/useCase/reset-password.usecase";
 import { UpdatePasswordUseCase } from "../../application/useCase/update-password.usecase";
+import { ActivityTrackerService } from "../../../../shared/ActivityLogger/service/activityTracker.service";
 
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { MongooseUserRepository } from "../../infrastructure/repositories/mongoose-use.repository";
+import { MongooseUserRepository } from "../../infrastructure/repositories/mongoose-user.repository";
 
 import { GoogleService } from "../../infrastructure/service/google-auth.service";
 import { OTPService } from "../../infrastructure/service/otp.service";
@@ -39,7 +40,7 @@ const googleAuthService: GoogleAuthPort = new GoogleService();
 
 const otpService = new OTPService();
 const emailService = new EmailService();
-
+const activityTracker = new ActivityTrackerService(); 
 const notificationService = new EmailNotificationAdaptor(sendEmailByEventUC);
 
 const sendOtpUC = new SendRegistrationOTPUseCase(userRepo, otpService);
@@ -50,6 +51,7 @@ const verifyRegistrationUC = new VerifyRegistrationUseCase(
   passwordPort,
   tokenService,
   notificationService,
+  activityTracker
 );
 
 const loginUC = new LoginUseCase(userRepo, passwordPort, tokenService);

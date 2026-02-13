@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { GetRecruiterProfileUseCase } from "../../application/useCase/get-recruiter-profile.usecase";
 import { userIdSchema } from "../validator/userId.validator";
-import { logger } from "../../../../shared/logger/logger";
+// import { logger } from "../../../../shared/logger/logger";
 
 export class GetRecruiterProfileController {
   constructor(private readonly getProfileUC: GetRecruiterProfileUseCase) {}
@@ -25,7 +25,7 @@ export class GetRecruiterProfileController {
         data: profile,
       });
     } catch (err) {
-      logger.error(err);
+     // logger.error(err);
       next(err);
     }
   };

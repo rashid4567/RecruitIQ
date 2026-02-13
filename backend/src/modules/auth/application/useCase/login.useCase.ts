@@ -36,6 +36,10 @@ export class LoginUseCase {
       throw new ApplicationError(ERROR_CODES.INVALID_CREDENTIALS);
     }
 
+    if(!user.id){
+      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND)
+    }
+
     return {
      accessToken : this.tokenService.generateAccessToken(user.id, user.role),
      refreshToken : this.tokenService.generateRefreshToken(user.id),

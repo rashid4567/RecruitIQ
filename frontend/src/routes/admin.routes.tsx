@@ -36,6 +36,7 @@ const EmailTemplateManagement = lazy(()=> import("../module/admin/presentation/p
 const EmailTemplateEditor = lazy(()=> import("../module/admin/presentation/pages/emailTemplate.editor"))
 //const EmailLogs = lazy(() => import("../pages/admin/email-logs/EmailLogsPage"));
 const EmailLogs = lazy(()=> import("../module/admin/presentation/pages/email.logs"))
+const ActivityLogs = lazy(()=>import("../module/admin/presentation/pages/activity-log"))
 
 const AdminRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
@@ -65,6 +66,7 @@ const AdminRoutes = () => (
             element={<EmailTemplateEditor />}
           />
           <Route path="/email-logs" element={<EmailLogs />} />
+          <Route path="/activity-logs" element={<ActivityLogs/>}/>
         </Route>
       </Route>
     </Routes>

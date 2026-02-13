@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { logger } from "../../../../../shared/logger/logger";
+//import { logger } from "../../../../../shared/logger/logger";
 import { GetCandidateprofileUseCase } from "../../../Application/use-Cases/candidate-management/get-candidate-profile.usecase";
 
 export class GetCandidateProfileController {
@@ -21,7 +21,7 @@ export class GetCandidateProfileController {
                 data :profile,
             })
         }catch(err){
-           logger.error(err);
+           //logger.error(err);
             return next(err)
         }
     }

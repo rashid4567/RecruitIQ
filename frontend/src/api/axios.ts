@@ -25,7 +25,7 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 function clearAuthAndRedirect(path: string, message?: string) {
@@ -39,20 +39,27 @@ function clearAuthAndRedirect(path: string, message?: string) {
 }
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const message = response?.data?.message;
+
+    if (message && response.config.method !== "get") {
+      toast.success(message);
+    }
+
+    return response;
+  },
+
   async (error) => {
     const originalRequest = error.config as AxiosRequestConfigWithRetry;
 
-    const status = error.response?.status;
-    const code = error.response?.data?.code;
-    const message = error.response?.data?.message || "Something went wrong";
+    if (!error.response) {
+      toast.error("Network error. Please check your internet connection.");
+      return Promise.reject(error);
+    }
 
-    console.error("❌ Axios error:", {
-      url: originalRequest?.url,
-      status,
-      code,
-      message,
-    });
+    const status = error.response.status;
+    const code = error.response.data?.code;
+    const message = error.response.data?.message || "Something went wrong";
 
     if (originalRequest?.url?.includes("/auth/refresh")) {
       clearAuthAndRedirect("/signin", message);
@@ -64,13 +71,14 @@ api.interceptors.response.use(
 
       try {
         const refreshRes = await axios.post(
-          `${import.meta.env.VITE_API_URL || ""}/auth/refresh`,
+          `${import.meta.env.VITE_API_URL}/auth/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         const newAccessToken = refreshRes.data?.data?.accessToken;
-        if (!newAccessToken) throw new Error("No token from refresh");
+
+        if (!newAccessToken) throw new Error();
 
         localStorage.setItem("authToken", newAccessToken);
 
@@ -95,13 +103,15 @@ api.interceptors.response.use(
     }
 
     if (status === 404) {
-      toast.error("Requested resource not found");
+      toast.error(message || "Requested resource not found");
     } else if (status >= 500) {
       toast.error("Server error. Please try again later.");
+    } else {
+      toast.error(message);
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

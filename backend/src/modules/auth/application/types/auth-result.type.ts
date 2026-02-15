@@ -1,8 +1,9 @@
 import { userRoles } from "../../domain/constants/roles.constants";
 
-export type AuthResult = {
+export interface AuthResult {
   accessToken: string;
   refreshToken: string;
   userId: string;
   role: userRoles;
-};
+  fullName?: string; 
+}

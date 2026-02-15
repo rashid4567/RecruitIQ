@@ -3,9 +3,7 @@ import { googleController } from "../container/auth.container";
 
 const router = Router();
 
-router.post("/google/login", (req, res, next) => {
-  console.log("hit google router");
-  next();
-}, googleController.login);
+
+router.post("/login",  googleController.login);
 
 export default router;

@@ -1,7 +1,7 @@
-import { UserId } from "../../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../../shared/value-objects.ts/userId.vo";
 import { ApplicationError } from "../../../../auth/application/errors/application.error";
 import { UserRepository } from "../../../Domain/repositories/user.repository";
-import { ERROR_CODES } from "../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../constants/errorcode.constants.ts";
 
 export class UnblockUserUseCase{
     constructor(

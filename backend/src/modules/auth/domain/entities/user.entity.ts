@@ -1,8 +1,8 @@
 import { userRoles } from "../constants/roles.constants";
-import { AuthProvider } from "../../../../shared/domain/value-objects.ts/auth-provider.vo";
-import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { AuthProvider } from "../../../../shared/value-objects.ts/auth-provider.vo";
+import { Email } from "../../../../shared/value-objects.ts/email.vo";
 import { GoogleId } from "../value.objects.ts/google-id.vo";
-import { Password } from "../../../../shared/domain/value-objects.ts/password.vo";
+import { Password } from "../../../../shared/value-objects.ts/password.vo";
 import { PasswordHasherPort } from "../ports/password-hasher.port";
 
 export class User {

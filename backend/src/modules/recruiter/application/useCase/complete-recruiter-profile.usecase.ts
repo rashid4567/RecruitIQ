@@ -1,6 +1,6 @@
 import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
 import { ERROR_CODES } from "../constants/error.code.constants";
 import { CompleteRecruiterProfileDTO } from "../dto/complete-recruiter-profile.dto";
 

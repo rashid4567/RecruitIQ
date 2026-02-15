@@ -1,8 +1,8 @@
 import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../domain/repositories/user.repository";
 
-import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
-import { Password } from "../../../../shared/domain/value-objects.ts/password.vo";
+import { Email } from "../../../../shared/value-objects.ts/email.vo";
+import { Password } from "../../../../shared/value-objects.ts/password.vo";
 
 import { VerificationInput } from "../dto/verification.input.dto";
 import { OTPServicePort } from "../ports/otp.service.ports";
@@ -50,18 +50,17 @@ export class VerifyRegistrationUseCase {
     const savedUser = await this.userRepo.save(user);
 
     this.activityTracker.track({
-  userId: savedUser.id!,
-  action: ActivityAction.USER_CREATED,
-  entityType: "User",
-  entityId: savedUser.id!,
+      userId: savedUser.id!,
+      action: ActivityAction.USER_CREATED,
+      entityType: "User",
+      entityId: savedUser.id!,
 
-  metadata: {
-    fullName: savedUser.fullName,
-    email: savedUser.email.getValue(),
-    role: savedUser.role,
-  },
-});
-
+      metadata: {
+        fullName: savedUser.fullName,
+        email: savedUser.email.getValue(),
+        role: savedUser.role,
+      },
+    });
 
     await this.notificationService.sendEmail({
       event: EmailEvent.ACCOUNT_CREATED,

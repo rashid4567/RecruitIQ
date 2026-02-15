@@ -126,7 +126,7 @@ export default function Header() {
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 hover:bg-gray-100 rounded-full p-2 transition duration-300">
                     <Avatar className="h-10 w-10 border-2 border-blue-500/20 hover:border-blue-500/50 transition duration-300">
-                      <AvatarImage src="/api/placeholder/40/40" />
+                      <AvatarImage src="https://i.pravatar.cc/40" />
                       <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-500 text-white font-semibold">
                         {getInitials()}
                       </AvatarFallback>

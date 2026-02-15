@@ -1,8 +1,8 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 
-import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
-import { Password } from "../../../../shared/domain/value-objects.ts/password.vo";
+import { Email } from "../../../../shared/value-objects.ts/email.vo";
+import { Password } from "../../../../shared/value-objects.ts/password.vo";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 import { ApplicationError } from "../errors/application.error";
 

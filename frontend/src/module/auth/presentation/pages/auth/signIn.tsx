@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Eye,
@@ -34,7 +34,6 @@ import type { GoogleRoles } from "@/module/auth/domain/constants/google-role";
 const SignIn = () => {
   const navigate = useNavigate();
 
-
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -66,7 +65,6 @@ const SignIn = () => {
 
   const [passwordScore, setPasswordScore] = useState(0);
 
-
   const validateEmail = (
     email: string,
   ): { isValid: boolean; message?: string } => {
@@ -77,18 +75,6 @@ const SignIn = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return { isValid: false, message: "Please enter a valid email address" };
-    }
-
-    const validDomains = [
-      "gmail.com",
-      "yahoo.com",
-      "outlook.com",
-      "hotmail.com",
-      "company.com",
-    ];
-    const domain = email.split("@")[1];
-    if (domain && !validDomains.some((d) => domain.includes(d))) {
-      return { isValid: true, message: "Uncommon email domain detected" };
     }
 
     return { isValid: true };
@@ -127,7 +113,7 @@ const SignIn = () => {
 
     return {
       isValid: false,
-      message: `Password needs: ${messages.slice(0, 2).join(", ")}`,
+      message: `Password needs: ${messages.slice(0, 2).join(", ")}${messages.length > 2 ? "..." : ""}`,
       score,
     };
   };
@@ -155,20 +141,18 @@ const SignIn = () => {
 
     if (field === "email") {
       const validation = validateEmail(formData.email);
-      if (!validation.isValid) {
-        setFieldErrors((prev) => ({ ...prev, email: validation.message }));
-      } else {
-        setFieldErrors((prev) => ({ ...prev, email: undefined }));
-      }
+      setFieldErrors((prev) => ({
+        ...prev,
+        email: validation.isValid ? undefined : validation.message,
+      }));
     }
 
     if (field === "password") {
       const validation = validatePassword(formData.password);
-      if (!validation.isValid) {
-        setFieldErrors((prev) => ({ ...prev, password: validation.message }));
-      } else {
-        setFieldErrors((prev) => ({ ...prev, password: undefined }));
-      }
+      setFieldErrors((prev) => ({
+        ...prev,
+        password: validation.isValid ? undefined : validation.message,
+      }));
     }
   };
 
@@ -186,9 +170,10 @@ const SignIn = () => {
 
     if (name === "password" && touchedFields.password) {
       const validation = validatePassword(value);
-      if (!validation.isValid) {
-        setFieldErrors((prev) => ({ ...prev, password: validation.message }));
-      }
+      setFieldErrors((prev) => ({
+        ...prev,
+        password: validation.isValid ? undefined : validation.message,
+      }));
     }
 
     setError("");
@@ -237,7 +222,7 @@ const SignIn = () => {
     } catch (err) {
       const errorMessage = getError(
         err,
-        "Invalid email or password. Please try again.",
+        "Invalid email or password. Please try again or reset your password.",
       );
       setError(errorMessage);
 
@@ -249,40 +234,56 @@ const SignIn = () => {
   };
 
   const handleGoogleResponse = async (response: GoogleCredentialResponse) => {
-    const credential = response.credential;
+  console.log("1️⃣ Google response received:", response);
+  console.log("2️⃣ Credential:", response.credential);
+  
+  const credential = response.credential;
 
-    if (!credential) {
-      setError("Google authentication failed. Please try again.");
+  if (!credential) {
+    console.error("❌ No credential in response");
+    setError("Google authentication failed. Please try again.");
+    return;
+  }
+
+  try {
+    console.log("3️⃣ Calling googleAuthUseCase.execute");
+    setGoogleLoading(true);
+    setError("");
+
+    const result = await googleAuthUseCase.execute(credential);
+    console.log("4️⃣ UseCase result:", result);
+
+    setSuccess("Google authentication successful! Redirecting...");
+
+    setTimeout(() => {
+      if (result.user.role === "candidate") {
+        navigate("/candidate/home");
+      } else {
+        navigate("/recruiter/");
+      }
+    }, 500);
+  } catch (err: any) {
+    console.error("5️⃣ Error caught:", err);
+    console.error("5️⃣ Error response:", err?.response?.data);
+    
+    if (err?.response?.data?.code === "ROLE_REQUIRED") {
+      setPendingGoogleCredential(credential);
+      setShowRoleSelector(true);
       return;
     }
 
-    try {
-      setGoogleLoading(true);
-      setError("");
+    setError(
+      getError(
+        err,
+        "Google sign-in failed. Please ensure your Google account is configured correctly and try again.",
+      ),
+    );
+  } finally {
+    setGoogleLoading(false);
+  }
+};
 
-      const { user } = await googleAuthUseCase.execute(credential);
 
-      setSuccess("Google authentication successful! Redirecting...");
-
-      setTimeout(() => {
-        if (user.role === "candidate") {
-          navigate("/candidate/home");
-        } else {
-          navigate("/recruiter/");
-        }
-      }, 500);
-    } catch (err: any) {
-      if (err?.response?.data?.code === "ROLE_REQUIRED") {
-        setPendingGoogleCredential(credential);
-        setShowRoleSelector(true);
-        return;
-      }
-
-      setError(getError(err, "Google sign-in failed. Please try again."));
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
 
   const handleGoogleRoleSelect = async (role: GoogleRoles) => {
     if (!pendingGoogleCredential) return;
@@ -308,7 +309,12 @@ const SignIn = () => {
         }
       }, 500);
     } catch (err) {
-      setError(getError(err, "Failed to complete sign-in. Please try again."));
+      setError(
+        getError(
+          err,
+          "Failed to complete sign-in with the selected role. Please try again.",
+        ),
+      );
     } finally {
       setGoogleLoading(false);
       setPendingGoogleCredential(null);
@@ -333,12 +339,13 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 via-white to-blue-50/50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50/50 p-4">
       <div className="w-full max-w-6xl flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
-        <div className="md:w-1/2 bg-linear-to-br from-indigo-600 via-blue-600 to-purple-700 text-white p-8 md:p-12 flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-white"></div>
-            <div className="absolute bottom-10 right-10 w-48 h-48 rounded-full bg-white"></div>
+        {/* LEFT SIDE - WELCOME PANEL */}
+        <div className="md:w-1/2 bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-700 text-white p-8 md:p-12 flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 pointer-events-none">
+            <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-white/50 blur-xl"></div>
+            <div className="absolute bottom-10 right-10 w-48 h-48 rounded-full bg-white/50 blur-xl"></div>
           </div>
 
           <div className="relative z-10">
@@ -347,7 +354,7 @@ const SignIn = () => {
                 <Key className="w-7 h-7" />
               </div>
               <h1 className="text-2xl font-bold tracking-tight">
-                CareerConnect Pro
+                RecruitIQ
               </h1>
             </div>
 
@@ -365,7 +372,7 @@ const SignIn = () => {
               </div>
 
               <div className="space-y-6 mt-10">
-                <div className="flex items-center gap-5 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
+                <div className="flex items-center gap-5 p-4 bg-white/10 rounded-xl backdrop-blur-sm transition-all hover:scale-105">
                   <div className="p-3 bg-white/20 rounded-full">
                     <GraduationCap className="w-6 h-6" />
                   </div>
@@ -377,7 +384,7 @@ const SignIn = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-5 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
+                <div className="flex items-center gap-5 p-4 bg-white/10 rounded-xl backdrop-blur-sm transition-all hover:scale-105">
                   <div className="p-3 bg-white/20 rounded-full">
                     <Briefcase className="w-6 h-6" />
                   </div>
@@ -459,7 +466,7 @@ const SignIn = () => {
 
             {/* ROLE SELECTOR */}
             {showRoleSelector && (
-              <div className="mb-6 p-5 bg-linear-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm animate-fade-in">
+              <div className="mb-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm animate-fade-in">
                 <div className="flex items-center gap-3 mb-4">
                   <User className="w-5 h-5 text-blue-600" />
                   <div>
@@ -541,6 +548,7 @@ const SignIn = () => {
                     data-error={!!fieldErrors.email}
                     className={`w-full pl-10 pr-4 py-3.5 border ${fieldErrors.email ? "border-red-300 bg-red-50" : "border-gray-300"} rounded-xl focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all duration-200`}
                     disabled={isAnyLoading}
+                    autoComplete="username"
                   />
                 </div>
                 {fieldErrors.email && touchedFields.email && (
@@ -610,7 +618,7 @@ const SignIn = () => {
                     </div>
                     <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className={`h-full ${getPasswordStrengthColor(passwordScore)} transition-all duration-300`}
+                        className={`h-full transition-all duration-300 ${getPasswordStrengthColor(passwordScore)}`}
                         style={{ width: `${(passwordScore / 5) * 100}%` }}
                       ></div>
                     </div>
@@ -625,7 +633,7 @@ const SignIn = () => {
                 )}
               </div>
 
-              {/* Remember Me & Submit */}
+              {/* Remember Me */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input
@@ -646,10 +654,11 @@ const SignIn = () => {
                 </div>
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isAnyLoading}
-                className="w-full py-4 px-4 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg group"
+                className="w-full py-4 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg group"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-3">
@@ -676,18 +685,19 @@ const SignIn = () => {
 
             {/* SOCIAL SIGN IN */}
             <div className="space-y-4">
-              <GoogleLogin
-                onSuccess={handleGoogleResponse}
-                onError={() =>
-                  setError("Google sign-in failed. Please try again.")
-                }
-                width="100%"
-                theme="filled_blue"
-                size="large"
-                text="signin_with"
-                shape="pill"
-                logo_alignment="center"
-              />
+              <div className="w-full flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleResponse}
+                  onError={() =>
+                    setError("Google sign-in failed. Please try again.")
+                  }
+                  theme="filled_blue"
+                  size="large"
+                  text="signin_with"
+                  shape="pill"
+                  logo_alignment="center"
+                />
+              </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <button

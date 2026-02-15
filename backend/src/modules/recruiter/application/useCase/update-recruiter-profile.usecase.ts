@@ -1,7 +1,7 @@
 import { ApplicationError } from "../../../auth/application/errors/application.error";
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
 import { UserRepository } from "../../domain/repositories/user.entity";
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
 import { ERROR_CODES } from "../constants/error.code.constants";
 import { RecruiterProfileReponse } from "../dto/recruiter-profile.dto";
 import { UpdateRecruiterProfileDTO } from "../dto/update-recruiter-profile.dto";

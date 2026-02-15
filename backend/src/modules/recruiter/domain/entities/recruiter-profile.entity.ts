@@ -1,6 +1,6 @@
 import { subscribtionStatus } from "../constatns/subscribtionStatus.contsants";
 import { verificationStatus } from "../constatns/verificationStatus.constants";
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
 
 export class RecruiterProfile {
   private constructor(

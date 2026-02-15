@@ -8,10 +8,11 @@ import socialRoutes from "./social.routes";
 
 const router = Router();
 
+router.use("/google", socialRoutes);
 router.use("/", authRoutes);
 router.use("/", otpRoutes);
 router.use("/", tokenRoutes);
 router.use("/", passwordRoutes);
-router.use("/", socialRoutes);
+
 
 export default router;

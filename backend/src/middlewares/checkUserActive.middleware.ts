@@ -42,7 +42,7 @@ export const checkUserActive = async (
 
     next();
   } catch (err) {
-    console.error("checkUserActive error:", err);
+
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: getError(err),

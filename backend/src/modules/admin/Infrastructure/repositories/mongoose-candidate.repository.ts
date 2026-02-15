@@ -2,8 +2,8 @@ import { PipelineStage, Types } from "mongoose";
 import { CandidateRepository } from "../../Domain/repositories/candidate.repository";
 import { Candidate } from "../../Domain/entities/candidate.entity";
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
-import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
+import { Email } from "../../../../shared/value-objects.ts/email.vo";
 
 export class MongooseCandidateRepository implements CandidateRepository {
 

@@ -14,6 +14,8 @@ const SignIn = lazy(
   () => import("../module/auth/presentation/pages/auth/signIn"),
 );
 
+//const SignIn = lazy(()=> import("../pages/auth/SignIn"))
+
 const Signup = lazy(
   () => import("../module/auth/presentation/pages/auth/signup"),
 );

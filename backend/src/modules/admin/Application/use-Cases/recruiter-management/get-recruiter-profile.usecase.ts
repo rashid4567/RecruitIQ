@@ -1,6 +1,6 @@
 import { ApplicationError } from "../../../../auth/application/errors/application.error";
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
-import { ERROR_CODES } from "../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../constants/errorcode.constants.ts";
 import { Recruiter } from "../../../Domain/entities/recruiter.entity";
 
 export class GetRecruiterProfileUseCase {

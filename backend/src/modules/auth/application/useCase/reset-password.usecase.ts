@@ -1,5 +1,5 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { Password } from "../../../../shared/domain/value-objects.ts/password.vo";
+import { Password } from "../../../../shared/value-objects.ts/password.vo";
 import { ApplicationError } from "../errors/application.error";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";

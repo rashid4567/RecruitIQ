@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
 import { Progress } from "@/components/ui/progress";
 import {
   Loader2,
@@ -36,7 +34,7 @@ export interface CandidateProfileResponse {
     fullName: string;
     email: string;
     profileImage?: string;
-    emailVerified?: boolean;
+    emailVerified: boolean;
   };
   candidateProfile: CandidateProfile;
   profileCompleted?: boolean;
@@ -79,13 +77,11 @@ function ProfileCard({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Size validation
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image must be less than 5MB");
       return;
     }
 
-    // Type validation
     const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     if (!validTypes.includes(file.type)) {
       toast.error("Please upload a valid image (JPEG, PNG, WebP, GIF)");
@@ -94,7 +90,6 @@ function ProfileCard({
 
     setIsUploading(true);
     try {
-      // Create preview
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === "string") {
@@ -107,7 +102,6 @@ function ProfileCard({
       };
       reader.readAsDataURL(file);
 
-      // Call the upload handler with File
       await onImageUpload(file);
     } catch (error) {
       toast.error("Failed to process image");
@@ -145,7 +139,6 @@ function ProfileCard({
   return (
     <Card className="border-0 shadow-xl bg-linear-to-br from-white to-blue-50/50 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
       <CardContent className="p-6">
-        {/* Profile Image */}
         <div className="relative mb-6">
           <div className="relative w-32 h-32 mx-auto group">
             <Avatar className="h-full w-full ring-4 ring-blue-500/20 shadow-xl group-hover:ring-blue-500/40 transition-all duration-300">
@@ -225,7 +218,6 @@ function ProfileCard({
           </div>
         </div>
 
-        {/* Profile Completion */}
         <div className="mb-6 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -257,7 +249,6 @@ function ProfileCard({
           </div>
         </div>
 
-        {/* Quick Stats */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-linear-to-br from-blue-50 to-blue-100/50 p-4 rounded-xl text-center border border-blue-100 hover:border-blue-200 transition-all group">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-linear-to-br from-blue-100 to-blue-200 mb-2 group-hover:scale-110 transition-transform">
@@ -279,7 +270,6 @@ function ProfileCard({
           </div>
         </div>
 
-        {/* Contact Info */}
         <div className="space-y-3">
           <div className="bg-linear-to-r from-blue-50/50 to-blue-50/30 p-3 rounded-xl border border-blue-100/50 hover:border-blue-200/50 transition-all group">
             <div className="flex items-center gap-3">
@@ -342,7 +332,6 @@ function ProfileCard({
   );
 }
 
-// Enhanced validation with detailed messages
 const validateField = (field: string, value: any): string => {
   switch (field) {
     case "fullName":
@@ -408,16 +397,26 @@ const validateField = (field: string, value: any): string => {
 
     case "gender":
       if (!value) return "";
-      if (!["male", "female", "other", "prefer-not-to-say"].includes(value))
+      if (!["male", "female", "other",].includes(value))
         return "Please select a valid gender option";
       return "";
 
+    case "preferredJobLocations":
+      if (!value) return "";
+      if (!Array.isArray(value)) return "Preferred locations must be an array";
+      if (value.length > 10) return "Cannot have more than 10 preferred locations";
+      for (const location of value) {
+        if (typeof location !== "string") return "Each location must be a string";
+        if (location.length > 100) return "Location must be less than 100 characters";
+      }
+      return "";
+
     default:
+      console.warn(`No validation rule found for field: ${field}`);
       return "";
   }
 };
 
-// Calculate profile completion and stats
 const calculateProfileStats = (
   profile: CandidateProfile | null,
 ): ProfileStats => {
@@ -456,14 +455,13 @@ const transformToCandidateProfileResponse = (
       fullName: profile.fullName || "",
       email: profile.email || "",
       profileImage: profile.profileImage,
-      emailVerified: profile.emailVerified,
+      emailVerified: profile.emailVerified || false,
     },
     candidateProfile: profile,
     profileCompleted: profile.profileCompleted,
   };
 };
 
-// Main Component
 export default function CandidateProfilePage() {
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [editData, setEditData] = useState<Partial<CandidateProfile>>({});
@@ -580,7 +578,6 @@ export default function CandidateProfilePage() {
   ) => {
     setEditData((prev) => ({ ...prev, [key]: value }));
 
-    // Validate on change
     const error = validateField(key, value);
     if (error) {
       setValidationErrors((prev) => ({ ...prev, [key]: error }));
@@ -595,7 +592,6 @@ export default function CandidateProfilePage() {
 
   const handleImageUpload = async (file: File): Promise<void> => {
     try {
-      // Convert file to base64 string for preview
       const reader = new FileReader();
       const imageData = await new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve(reader.result as string);
@@ -603,7 +599,6 @@ export default function CandidateProfilePage() {
         reader.readAsDataURL(file);
       });
 
-      // Update the editData with base64 string
       handleInputChange("profileImage", imageData);
       toast.success("Image uploaded successfully!");
     } catch (error) {
@@ -653,7 +648,6 @@ export default function CandidateProfilePage() {
     setEmailVerificationSent(true);
     toast.info("Sending verification email...");
 
-    // Simulate API call
     setTimeout(() => {
       toast.success("Verification email sent! Please check your inbox. 📧");
     }, 1000);
@@ -663,7 +657,6 @@ export default function CandidateProfilePage() {
     if (activeTab === "Personal Info") {
       return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          {/* Left Column - Profile Card */}
           <div className="lg:col-span-1">
             <ProfileCard
               profile={profile!}
@@ -678,7 +671,6 @@ export default function CandidateProfilePage() {
             />
           </div>
 
-          {/* Right Column - Personal Info Form */}
           <div className="lg:col-span-2">
             {profileResponse && (
               <PersonalInfoForm
@@ -692,7 +684,6 @@ export default function CandidateProfilePage() {
                 emailVerificationSent={emailVerificationSent}
                 onImageUpload={handleImageUpload}
                 loading={loading}
-                validationErrors={validationErrors}
               />
             )}
           </div>
@@ -763,7 +754,6 @@ export default function CandidateProfilePage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30 flex">
-      {/* Sidebar */}
       <CandidateSidebar
         user={{
           fullName: profile.fullName,
@@ -772,9 +762,7 @@ export default function CandidateProfilePage() {
         }}
       />
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header */}
         <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200/50 px-6 md:px-8 py-4 flex items-center justify-between sticky top-0 z-50">
           <div>
             <h1 className="text-xl font-bold text-gray-900">
@@ -828,9 +816,7 @@ export default function CandidateProfilePage() {
           </div>
         </header>
 
-        {/* Content Area */}
         <div className="flex-1 p-6 md:p-8 overflow-y-auto">
-          {/* Settings Tabs */}
           <div className="bg-gray-100/50 backdrop-blur-sm rounded-xl p-1.5 inline-flex mb-8 border border-gray-200/50">
             {settingsTabs.map((tab) => {
               const Icon = tab.icon;
@@ -851,12 +837,11 @@ export default function CandidateProfilePage() {
             })}
           </div>
 
-          {/* Render Active Tab Content */}
           {renderTabContent()}
         </div>
       </main>
 
-      <style jsx global>{`
+      <style>{`
         @keyframes shimmer {
           0% {
             transform: translateX(-100%);

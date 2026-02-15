@@ -2,7 +2,7 @@ import { UserRepository } from "../../domain/repositories/user.repository";
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
 import { User } from "../../domain/entities/user.entity";
 import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
-import { Email } from "../../../../shared/value-objects.ts/email.vo.ts";
+import { Email } from "../../../../shared/value-objects.ts/email.vo";
 
 export class MongooseUserRepository implements UserRepository {
   async findById(userId: UserId): Promise<User | null> {

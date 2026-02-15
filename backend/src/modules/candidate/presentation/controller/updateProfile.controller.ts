@@ -11,17 +11,28 @@ export class UpdateCandidateProfileController {
 
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-          
+      console.log("Raw body:", req.body);
+
+      // validate user id
       const userId = userIdSchema.parse(req.user?.userId);
+
+      // validate request body
       const body = updateCandidateProfileSchema.parse(req.body);
-      const profile = await this.updateProfileUC.execute(userId, body);
-      res.status(HTTP_STATUS.OK).json({
+
+      console.log("Parsed body:", body);
+
+      // execute usecase
+      const result = await this.updateProfileUC.execute(userId, body);
+
+      // send response
+      return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "Profile updated successfully",
-        data: profile,
+        data: result,
       });
+
     } catch (err) {
-        console.error(err)
+      console.error(err);
       next(err);
     }
   };

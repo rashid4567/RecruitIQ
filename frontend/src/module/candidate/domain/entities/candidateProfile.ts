@@ -1,3 +1,5 @@
+import type { Gender } from "../types/gender.types";
+
 export interface CandidateProfileApiResponse {
   user: {
     fullName: string;
@@ -12,7 +14,7 @@ export interface CandidateProfileApiResponse {
     skills?: string[];
     preferredJobLocations?: string[];
     currentJobLocation?: string;
-    gender?: string;
+    gender?: Gender;
     linkedinUrl?: string;
     portfolioUrl?: string;
     bio?: string;
@@ -32,7 +34,7 @@ export class CandidateProfile {
   public readonly skills?: string[];
   public readonly preferredJobLocations?: string[];
   public readonly currentJobLocation?: string;
-  public readonly gender?: string;
+  public readonly gender?: Gender;
   public readonly linkedinUrl?: string;
   public readonly portfolioUrl?: string;
   public readonly bio?: string;
@@ -51,7 +53,7 @@ export class CandidateProfile {
     skills?: string[];
     preferredJobLocations?: string[];
     currentJobLocation?: string;
-    gender?: string;
+    gender?: Gender;
     linkedinUrl?: string;
     portfolioUrl?: string;
     bio?: string;
@@ -77,7 +79,7 @@ export class CandidateProfile {
     this.profileCompleted = params.profileCompleted;
   }
 
-  // ⭐ API → Domain mapper (NEW)
+
   static fromApi(data: CandidateProfileApiResponse): CandidateProfile {
     return new CandidateProfile({
       fullName: data.user.fullName,
@@ -100,29 +102,50 @@ export class CandidateProfile {
     });
   }
 
-  // immutable update
-  update(data: Partial<CandidateProfile>): CandidateProfile {
-    return new CandidateProfile({
-      fullName: data.fullName ?? this.fullName,
-      email: this.email,
-      emailVerified: this.emailVerified,
-      profileImage: this.profileImage,
+  update(data: {
+  fullName?: string;
+  profileImage?: string;
 
-      currentJob: data.currentJob ?? this.currentJob,
-      experienceYears: data.experienceYears ?? this.experienceYears,
-      educationLevel: data.educationLevel ?? this.educationLevel,
-      skills: data.skills ?? this.skills,
-      preferredJobLocations:
-        data.preferredJobLocations ?? this.preferredJobLocations,
-      currentJobLocation: data.currentJobLocation ?? this.currentJobLocation,
-      gender: data.gender ?? this.gender,
-      linkedinUrl: data.linkedinUrl ?? this.linkedinUrl,
-      portfolioUrl: data.portfolioUrl ?? this.portfolioUrl,
-      bio: data.bio ?? this.bio,
+  currentJob?: string;
+  experienceYears?: number;
+  educationLevel?: string;
+  skills?: string[];
+  preferredJobLocations?: string[];
+  currentJobLocation?: string;
+  gender?: Gender;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  bio?: string;
+}): CandidateProfile {
+  return new CandidateProfile({
+    fullName: data.fullName ?? this.fullName,
+    email: this.email,
+    emailVerified: this.emailVerified,
+    profileImage: data.profileImage ?? this.profileImage,
 
-      profileCompleted: this.profileCompleted,
-    });
-  }
+    currentJob: data.currentJob ?? this.currentJob,
+    experienceYears: data.experienceYears ?? this.experienceYears,
+    educationLevel: data.educationLevel ?? this.educationLevel,
+    skills: data.skills ?? this.skills,
+    preferredJobLocations:
+      data.preferredJobLocations ?? this.preferredJobLocations,
+    currentJobLocation: data.currentJobLocation ?? this.currentJobLocation,
+
+    gender:
+      data.gender === "male" ||
+      data.gender === "female" ||
+      data.gender === "other"
+        ? data.gender
+        : this.gender,
+
+    linkedinUrl: data.linkedinUrl ?? this.linkedinUrl,
+    portfolioUrl: data.portfolioUrl ?? this.portfolioUrl,
+    bio: data.bio ?? this.bio,
+
+    profileCompleted: this.profileCompleted,
+  });
+}
+
 
   complete(data: {
     currentJob: string;
@@ -134,7 +157,7 @@ export class CandidateProfile {
     linkedinUrl?: string;
     portfolioUrl?: string;
     currentJobLocation?: string;
-    gender?: string;
+    gender?: Gender;
   }): CandidateProfile {
     if (this.profileCompleted) {
       throw new Error("Profile already completed");

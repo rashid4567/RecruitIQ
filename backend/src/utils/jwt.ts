@@ -1,7 +1,12 @@
 import jwt from "jsonwebtoken";
-import { jwtPayload } from "../interfaces/jwt.interface"
+
 export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || "access_secret_key_123";
 export const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "refresh_secret_key_456";
+
+export interface jwtPayload {
+    userId : string,
+    role : "recruiter" | "candidate" | "admin"
+}
 
 const ACCESS_TOKEN_EXPIRE = "24h";
 const REFRESH_TOKEN_EXPIRE = "7d";

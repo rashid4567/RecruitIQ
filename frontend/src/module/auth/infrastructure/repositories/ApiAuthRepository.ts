@@ -90,12 +90,13 @@ export class ApiAuthRepository implements AuthRepository {
     });
   }
 
-  async resetPassword(token: string, newPassword: Password): Promise<void> {
-    await api.post("/auth/reset-password", {
-      token,
-      password: newPassword.getValue(),
-    });
-  }
+ async resetPassword(token: string, newPassword: Password): Promise<void> {
+  await api.post("/auth/reset-password", {
+    token,
+    newPassword: newPassword.getValue(), 
+  });
+}
+
 
   private persistSession(
     accessToken: string,
@@ -114,20 +115,24 @@ export class ApiAuthRepository implements AuthRepository {
     currentPassword: Password,
     newPassword: Password,
   ): Promise<void> {
-    await api.post("/auth/update-password", {
+    await api.put("/auth/update-password", {
       currentPassword: currentPassword.getValue(),
       newPassword: newPassword.getValue(),
     });
   }
 
   async requestEmailupdate(newEmail: Email): Promise<void> {
-    await api.post("auth/email/request-otp", { email: newEmail.getValue() });
-  }
+  await api.post("/auth/email/request-otp", {
+    newEmail: newEmail.getValue(),
+  });
+}
+
 
   async verifyEmailUpdate(email: Email, otp: string): Promise<void> {
-    await api.post("/auth/email/request-otp", {
-      email: email.getValue(),
-      otp,
-    });
-  }
+  await api.post("/auth/email/verify-otp", {
+    newEmail: email.getValue(),
+    otp,
+  });
+}
+
 }

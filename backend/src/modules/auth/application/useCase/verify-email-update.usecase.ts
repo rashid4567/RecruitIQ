@@ -3,33 +3,31 @@ import { OtpRole } from "../../domain/constants/otp-roles.constants";
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { Email } from "../../../../shared/value-objects.ts/email.vo";
 
-export class verifyEmailUpdateUseCase{
-    constructor(
-        private readonly otpService : OTPServicePort,
-        private readonly userRepo : UserRepository,
-    ){};
+export class VerifyEmailUpdateUseCase {
+  constructor(
+    private readonly otpService: OTPServicePort,
+    private readonly userRepo: UserRepository,
+  ) {}
 
-    async execute(input : {
-        userId :string,
-        newEmail : Email,
-        otp : string,
-        context : OtpRole
-    }):Promise<void>{
-      
-        await this.otpService.verify(
-            input.newEmail,
-            input.otp,
-            input.context,
-        )
-      
-        const user = await this.userRepo.findById(input.userId);
+  async execute(input: {
+    userId: string;
+    newEmail: string;
+    otp: string;
+    context: OtpRole;
+  }): Promise<void> {
+    const email = Email.create(input.newEmail);
 
-        if(!user){
-            throw new Error("User not found")
-        }
+    await this.otpService.verify(email, input.otp, input.context);
 
-        const updateUser = user.updateEmail(input.newEmail);
+    const user = await this.userRepo.findById(input.userId);
+    if (!user) throw new Error("User not found");
 
-        await this.userRepo.save(updateUser);
-    };
+    const existing = await this.userRepo.findByEmail(email);
+    if (existing && existing.id !== user.id) {
+      throw new Error("Email already exists");
+    }
+
+    const updatedUser = user.updateEmail(email);
+    await this.userRepo.save(updatedUser);
+  }
 }

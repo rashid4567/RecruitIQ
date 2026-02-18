@@ -39,7 +39,7 @@ export class GetCandidateProfileUseCase {
         educationLevel : profile.getEducationLevel() ?? "",
         bio : profile.getBio() ?? "",
         currentJobLocation : profile.getCurrentJobLocation() ?? "",
-        gender : profile.getCurrentJob() ?? "",
+        gender : profile.getGender(),
         linkedinUrl : profile.getLinkedinUrl() ?? "",
         portfolioUrl : profile.getPortfolioUrl() ?? "",
         profileCompleted : profile.isProfileCompleted(),

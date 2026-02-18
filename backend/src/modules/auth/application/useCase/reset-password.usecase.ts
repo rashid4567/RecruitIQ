@@ -13,17 +13,43 @@ export class ResetPasswordUseCase {
   ) {}
 
   async execute(token: string, newPasswordRaw: string): Promise<void> {
-    const { userId } = this.tokenService.verifyPasswordResetToken(token);
+    if (!token) {
+      throw new ApplicationError(ERROR_CODES.INVALID_OR_EXPIRED_TOKEN);
+    }
+
+    if (!newPasswordRaw) {
+      throw new ApplicationError(ERROR_CODES.INVALID_PASSWORD);
+    }
+
+    let decoded: { userId: string };
+
+    try {
+      decoded = this.tokenService.verifyPasswordResetToken(token);
+    } catch (error) {
+      throw new ApplicationError(ERROR_CODES.INVALID_OR_EXPIRED_TOKEN);
+    }
+
+    const { userId } = decoded;
+
+    if (!userId) {
+      throw new ApplicationError(ERROR_CODES.INVALID_OR_EXPIRED_TOKEN);
+    }
 
     const user = await this.userRepo.findById(userId);
+
     if (!user) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    const updatedUser = await user.resetPassword(
-      Password.create(newPasswordRaw),
-      this.hasher,
-    );
+    let newPassword: Password;
+
+    try {
+      newPassword = Password.create(newPasswordRaw);
+    } catch {
+      throw new ApplicationError(ERROR_CODES.INVALID_PASSWORD);
+    }
+
+    const updatedUser = await user.resetPassword(newPassword, this.hasher);
     await this.userRepo.save(updatedUser);
   }
 }

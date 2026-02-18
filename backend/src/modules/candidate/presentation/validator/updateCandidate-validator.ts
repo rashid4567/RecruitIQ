@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const updateCandidateProfileSchema = z.object({
-  // ---------- USER ----------
+
   fullName: z
     .string()
     .min(1, "Full name cannot be empty")
@@ -12,7 +12,7 @@ export const updateCandidateProfileSchema = z.object({
     .url("Invalid profile image URL")
     .optional(),
 
-  // ---------- CANDIDATE ----------
+
   currentJob: z
     .string()
     .min(1, "Current job cannot be empty")
@@ -25,7 +25,7 @@ export const updateCandidateProfileSchema = z.object({
     .min(0, "Experience years cannot be negative")
     .optional(),
 
-  // ⭐ allow empty array
+ 
   skills: z
     .array(z.string().min(1, "Skill cannot be empty"))
     .optional(),
@@ -34,7 +34,7 @@ export const updateCandidateProfileSchema = z.object({
     .enum(["highschool", "diploma", "bachelor", "master", "phd"])
     .optional(),
 
-  // ⭐ allow empty array
+
   preferredJobLocations: z
     .array(z.string().min(1, "Location cannot be empty"))
     .optional(),
@@ -44,7 +44,7 @@ export const updateCandidateProfileSchema = z.object({
     .optional()
     .transform((val) => val === "" ? undefined : val),
 
-  // ⭐ empty string → undefined
+
   currentJobLocation: z
     .string()
     .optional()
@@ -54,7 +54,7 @@ export const updateCandidateProfileSchema = z.object({
     .enum(["male", "female", "other"])
     .optional(),
 
-  // ⭐ empty string allowed + must be valid URL if present
+
   linkedinUrl: z
     .string()
     .optional()
@@ -64,7 +64,7 @@ export const updateCandidateProfileSchema = z.object({
       { message: "Invalid LinkedIn URL" }
     ),
 
-  // ⭐ empty string allowed + must be valid URL if present
+
   portfolioUrl: z
     .string()
     .optional()

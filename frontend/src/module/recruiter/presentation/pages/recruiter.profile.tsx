@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Shield, Bell, CreditCard, Loader2 } from "lucide-react";
@@ -10,13 +8,14 @@ import { Separator } from "@/components/ui/separator";
 import RecruiterHeader from "@/components/recruiter/header";
 import { Sidebar } from "@/components/sidebar/recruiterSidebar";
 
-import { RecruiterProfileSection } from "./profileSeting/ProfileSection";
-import { SecuritySection } from "./profileSeting/SecuritySection";
+import { RecruiterProfileSection } from "./components/Recruiter-profile/ProfileSection";
+
 import { NotificationsSection } from "./profileSeting/NotificationsSection";
 import { BillingSection } from "./profileSeting/BillingSection";
 
 import { GetRecruiterProfileUc } from "../di/recruiter.di";
 import type { RecruiterProfile } from "@/module/recruiter/Domain/entities/recruiterEntities";
+import { SecuritySection } from "./components/SecuritySection/SecuritySection";
 
 const settingsTabs = [
   {

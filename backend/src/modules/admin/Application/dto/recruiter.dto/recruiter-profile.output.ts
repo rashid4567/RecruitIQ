@@ -1,9 +1,11 @@
+import { VerificationStatus } from "../../../Domain/entities/recruiter.entity";
+
 export interface RecruiterProfileOutput {
   id: string;
   name: string;
   email: string;
   isActive: boolean;
-  verificationStatus: "pending" | "verified" | "rejected";
+  verificationStatus:VerificationStatus;
   company: string;
   subscriptionStatus: string;
   jobPostsUsed: number;

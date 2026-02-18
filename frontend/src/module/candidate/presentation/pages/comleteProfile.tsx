@@ -5,7 +5,7 @@ import {
   ArrowLeft,
   Loader2,
   AlertCircle,
-  Check,
+
   X,
 } from "lucide-react";
 import { completeProfileUC } from "../di/candidate";
@@ -83,7 +83,7 @@ const CompleteCandidateProfile: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-100 py-10">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-slate-100 py-10">
       <div className="max-w-3xl mx-auto px-4">
         {/* HEADER */}
         <div className="flex items-center justify-between mb-8">

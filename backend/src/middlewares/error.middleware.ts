@@ -49,7 +49,7 @@ export function errorHandler(
     });
   }
 
- 
+ console.log(err);
   return res.status(500).json({
     success: false,
     type: "INTERNAL_SERVER_ERROR",

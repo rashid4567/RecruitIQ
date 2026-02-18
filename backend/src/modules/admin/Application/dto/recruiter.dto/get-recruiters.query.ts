@@ -1,11 +1,12 @@
-import { verificationStatus } from "../../../recruiter/domain/constatns/verificationStatus.constants";
+import { VerificationStatus } from "../../../Domain/entities/recruiter.entity";
 
 export interface GetRecruitersQuery {
   page?: number;
   limit?: number;
   search?: string;
-  verificationStatus?: verificationStatus;
+  verificationStatus?: VerificationStatus;
   subscriptionStatus?: string;
   isActive?: boolean;
   sort?: "latest" | "oldest";
 }
+``

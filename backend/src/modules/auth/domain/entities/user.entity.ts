@@ -77,22 +77,27 @@ export class User {
   }
 
  
-  public updateEmail(email: Email): User {
-    if (!this.authProvider.isLocal()) {
-      throw new Error("Email update not allowed for social login");
-    }
-
-    return new User(
-      this.id,
-      this.email,
-      this.role,
-      this.fullName,
-      this.isActive,
-      this.authProvider,
-      this.passwordHash,
-      this.googleId,
-    );
+ public updateEmail(email: Email): User {
+  if (!this.authProvider.isLocal()) {
+    throw new Error("Email update not allowed for social login");
   }
+
+  if (this.email.getValue() === email.getValue()) {
+    return this;
+  }
+
+  return new User(
+    this.id,
+    email,
+    this.role,
+    this.fullName,
+    this.isActive,
+    this.authProvider,
+    this.passwordHash,
+    this.googleId,
+  );
+}
+
   public canLogin(): boolean {
     return this.isActive;
   }

@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 export const profileSchema = z.object({
   fullName: z
@@ -17,9 +17,9 @@ export const profileSchema = z.object({
 
   companyWebsite: z
     .string()
-    .url("Please enter a valid website URL (e.g., https://example.com)")
-    .optional()
-    .or(z.literal("")),
+    .trim()
+    .transform((v) => (v === "" ? undefined : v))
+    .pipe(z.string().url("Please enter a valid website URL").optional()),
 
   companySize: z.coerce.number().min(1, "Company size is required"),
 
@@ -27,8 +27,11 @@ export const profileSchema = z.object({
 
   location: z
     .string()
-    .max(100, "Location must not exceed 100 characters")
-    .optional(),
+    .trim()
+    .transform((v) => (v === "" ? undefined : v))
+    .pipe(
+      z.string().max(100, "Location must not exceed 100 characters").optional(),
+    ),
 
   bio: z
     .string()
@@ -47,16 +50,20 @@ export const profileSchema = z.object({
     .string()
     .min(2, "Designation must be at least 2 characters")
     .max(100, "Designation must not exceed 100 characters"),
-
   linkedinUrl: z
     .string()
-    .url("Please enter a valid LinkedIn URL")
-    .regex(
-      /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+\/?$/,
-      "Please enter a valid LinkedIn profile URL (e.g., linkedin.com/in/username)",
-    )
-    .optional()
-    .or(z.literal("")),
+    .trim()
+    .transform((v) => (v === "" ? undefined : v))
+    .pipe(
+      z
+        .string()
+        .url("Please enter a valid LinkedIn URL")
+        .regex(
+          /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+\/?$/,
+          "Please enter a valid LinkedIn profile URL (e.g., linkedin.com/in/username)",
+        )
+        .optional(),
+    ),
 });
 
 export type ProfileFormData = z.infer<typeof profileSchema>;

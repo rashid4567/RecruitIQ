@@ -6,9 +6,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import axios, { AxiosError } from "axios";
 
-/**
- * Extract error message safely from API response
- */
 function extractErrorMessage(
   error: unknown,
   fallback: string

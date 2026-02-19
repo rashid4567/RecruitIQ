@@ -1,5 +1,5 @@
 import { UserId } from "../../../../../shared/value-objects.ts/userId.vo";
-import { ApplicationError } from "../../../../auth/application/errors/application.error";
+import { ApplicationError } from "../../../../../shared/errors/applicatoin.error"; 
 import { UserRepository } from "../../../Domain/repositories/user.repository";
 import { ERROR_CODES } from "../../constants/errorcode.constants";
 

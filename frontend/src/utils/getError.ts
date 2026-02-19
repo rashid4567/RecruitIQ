@@ -1,13 +1,22 @@
 import axios from "axios";
 
-export function getError(err : unknown, fallback = "something we wrong"){
-    if(axios.isAxiosError(err)){
-        return(
-            err.response?.data?.message || err.message || fallback
-        )
+export function getError(
+  err: unknown,
+  fallback: string = "Something went wrong",
+): string {
+  if (axios.isAxiosError(err)) {
+    const message = err.response?.data?.message;
+
+    if (typeof message === "string") {
+      return message;
     }
-    if(err instanceof Error){
-        return err.message
-    }
-    return fallback
+
+    return err.message || fallback;
+  }
+
+  if (err instanceof Error) {
+    return err.message;
+  }
+
+  return fallback;
 }

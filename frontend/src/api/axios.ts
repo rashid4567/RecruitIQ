@@ -105,7 +105,7 @@ api.interceptors.response.use(
     if (status === 404) {
       toast.error(message || "Requested resource not found");
     } else if (status >= 500) {
-      toast.error("Server error. Please try again later.");
+      toast.error(message || "Server error. Please try again later.");
     } else {
       toast.error(message);
     }

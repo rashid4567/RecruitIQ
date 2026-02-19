@@ -9,7 +9,7 @@ import { OTPServicePort } from "../ports/otp.service.ports";
 import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../ports/token.service.ports";
 
-import { ApplicationError } from "../errors/application.error";
+import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 
 import { EmailEvent } from "../../../admin/Domain/constatns/email-enum.events";

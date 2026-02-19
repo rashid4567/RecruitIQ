@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import { logger } from "../shared/logger";
-import { ApplicationError } from "../shared/errors/applicatoin.error"; 
+import { ApplicationError } from "../shared/errors/applicatoin.error";
+import { DomainError } from "../shared/errors/domain.error";
+
 
 const ERROR_STATUS_MAP: Record<string, number> = {
   USER_ALREADY_EXISTS: 409,
@@ -12,7 +14,12 @@ const ERROR_STATUS_MAP: Record<string, number> = {
   EMAIL_ALREADY_EXISTS: 409,
   ROLE_MISMATCH: 409,
   ACCOUNT_DEACTIVATED: 403,
+  INVALID_CURRENT_PASSWORD: 400,
+  PASSWORD_CHANGE_NOT_ALLOWED: 403,
+  PASSWORD_NOT_SET: 400,
+  USER_NOT_FOUND: 404,
 };
+
 
 export function errorHandler(
   err: unknown,
@@ -25,6 +32,7 @@ export function errorHandler(
     error: err,
     method: req.method,
     url: req.originalUrl,
+    body: req.body,
   });
 
 
@@ -39,7 +47,6 @@ export function errorHandler(
     });
   }
 
-
   if (err instanceof ApplicationError) {
     return res.status(ERROR_STATUS_MAP[err.code] ?? 400).json({
       success: false,
@@ -49,7 +56,17 @@ export function errorHandler(
     });
   }
 
- console.log(err);
+  if (err instanceof DomainError) {
+    return res.status(400).json({
+      success: false,
+      type: "DOMAIN_ERROR",
+      message: err.message,
+    });
+  }
+
+ 
+  console.error("Unhandled error:", err);
+
   return res.status(500).json({
     success: false,
     type: "INTERNAL_SERVER_ERROR",

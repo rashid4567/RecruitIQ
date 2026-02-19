@@ -1,4 +1,4 @@
-import { Password } from "../../../../shared/value-objects.ts/password.vo.ts"
+import { Password } from "../../../../shared/value-objects.ts/password.vo"
 
 export interface PasswordHasherPort {
     hash(password : Password):Promise<string>

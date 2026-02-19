@@ -1,6 +1,6 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { ERROR_CODES } from "../constants/error-codes.constants";
-import { ApplicationError } from "../errors/application.error";
+import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 import { AuthTokenServicePort } from "../ports/token.service.ports";
 
 export class RefreshTokenUseCase{

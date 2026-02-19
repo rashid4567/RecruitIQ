@@ -1,24 +1,29 @@
-"use client";
-
 import { useCallback, useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Shield, Bell, Lock } from "lucide-react";
+import { toast } from "sonner";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
 import CandidateSidebar from "@/components/sidebar/candidateSidebar";
-import { SecuritySection } from "@/pages/candidate/profileSetting/SecuritySection";
-import { NotificationsSection } from "@/pages/candidate/profileSetting/NotificationsSection";
-import { PrivacySection } from "@/pages/candidate/profileSetting/PrivacySection";
+import { CandidatePrivacyAndSecurity } from "./personalInfo/components/tabs/CandidatePrivacyAndSecurity";
+import { NotificationsSection } from "./NotificationsSection";
+import { PrivacySection } from "./PrivacySection";
+import { PersonalInfoTab } from "./personalInfo/components/tabs/PersonalInfoTab";
+import { Header } from "./personalInfo/components/common/Header";
+import { LoadingState } from "./personalInfo/components/common/LoadingState";
+import { ErrorState } from "./personalInfo/components/common/ErrorState";
 
 import { useCandidateProfile } from "../hooks/useCandidateProfile";
-import { useImageUpload } from "../hooks/useImageUpload";
 import { useProfileEdit } from "../hooks/useProfileEdit";
+import { useImageUpload } from "../hooks/useImageUpload";
 import { useProfileStats } from "../hooks/useProfileStats";
-import { useSettingsTab } from "../hooks/useSetting.tabs";
-
-import { toast } from "sonner";
-import { LoadingState } from "../components/candidate-Profile/LoadingState";
-import { ErrorState } from "../components/candidate-Profile/ErrorState";
-import Header from "@/components/candidate/header";
-import { SettingsTabs } from "../components/candidate-Profile/SettingsTabs";
-import { PersonalInfoTab } from "../components/candidate-Profile/personalInfoTab/PersonalInfoTab"
 
 import {
   validateProfileField,
@@ -26,16 +31,41 @@ import {
   type ProfileFormData,
 } from "../validators/profileValidation";
 
+const settingsTabs = [
+  {
+    value: "personal-info",
+    label: "Personal Info",
+    icon: User,
+    description: "Your personal details, skills, bio and preferences",
+  },
+  {
+    value: "security",
+    label: "Security",
+    icon: Shield,
+    description: "Password, sessions and login methods",
+  },
+  {
+    value: "notifications",
+    label: "Notifications",
+    icon: Bell,
+    description: "Email, in-app and job alert preferences",
+  },
+  {
+    value: "privacy",
+    label: "Privacy",
+    icon: Lock,
+    description: "Control who can see your profile and data",
+  },
+] as const;
+
+type TabValue = (typeof settingsTabs)[number]["value"];
+
 export default function CandidateProfilePage() {
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [activeTab, setActiveTab] = useState<TabValue>("personal-info");
 
   const { profile, loading, error, loadProfile, updateProfile } =
     useCandidateProfile();
-
-
   const stats = useProfileStats(profile);
-  const { activeTab, setActiveTab } = useSettingsTab();
-
   const {
     isEditing,
     editData,
@@ -45,44 +75,22 @@ export default function CandidateProfilePage() {
     updateField,
     setValidationErrors,
   } = useProfileEdit(profile);
-
   const {
     uploadImage,
     uploading: isUploading,
     preview: imagePreview,
     clearPreview,
-  } = useImageUpload((imageData) =>
-    updateField("profileImage" as any, imageData),
-  );
-
-  const settingsTabs = [
-    { id: "Personal Info", icon: User },
-    { id: "Security", icon: Shield },
-    { id: "Notifications", icon: Bell },
-    { id: "Privacy", icon: Lock },
-  ];
+  } = useImageUpload((imageData) => updateField("profileImage", imageData));
 
   const validateFieldWithZod = useCallback(
-    <K extends keyof ProfileFormData>(
-      field: K,
-      value: ProfileFormData[K],
-    ): string => {
-      return validateProfileField(field, value);
-    },
+    <K extends keyof ProfileFormData>(field: K, value: ProfileFormData[K]) =>
+      validateProfileField(field, value),
     [],
   );
 
   const validateAllWithZod = useCallback((): boolean => {
     if (!profile) return false;
-
-    const safeGender =
-      profile.gender === "male" ||
-      profile.gender === "female" ||
-      profile.gender === "other"
-        ? profile.gender
-        : undefined;
-
-    const dataToValidate: ProfileFormData = {
+    const result = validateProfileForm({
       fullName: editData.fullName ?? profile.fullName,
       email: editData.email ?? profile.email,
       currentJob: editData.currentJob ?? profile.currentJob,
@@ -91,17 +99,14 @@ export default function CandidateProfilePage() {
       educationLevel: editData.educationLevel ?? profile.educationLevel,
       currentJobLocation:
         editData.currentJobLocation ?? profile.currentJobLocation,
-      gender: editData.gender ?? safeGender,
+      gender: editData.gender ?? profile.gender,
       linkedinUrl: editData.linkedinUrl ?? profile.linkedinUrl ?? "",
       portfolioUrl: editData.portfolioUrl ?? profile.portfolioUrl ?? "",
       bio: editData.bio ?? profile.bio ?? "",
       skills: editData.skills ?? profile.skills ?? [],
       preferredJobLocations:
         editData.preferredJobLocations ?? profile.preferredJobLocations ?? [],
-    };
-
-    const result = validateProfileForm(dataToValidate);
-
+    });
     if (!result.success) {
       const errors: Record<string, string> = {};
       result.error.issues.forEach((issue) => {
@@ -109,110 +114,50 @@ export default function CandidateProfilePage() {
         errors[path] = issue.message;
       });
       setValidationErrors(errors);
-      toast.error(`Please fix ${Object.keys(errors).length} error(s)`);
+      toast.error("Please fix validation errors");
       return false;
     }
-
     setValidationErrors({});
     return true;
   }, [editData, profile, setValidationErrors]);
 
   const handleInputChange = useCallback(
     <K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
-      updateField(key as any, value);
-
+      updateField(key, value);
       const error = validateFieldWithZod(key, value);
-      if (error) {
-        setValidationErrors((prev) => ({ ...prev, [key]: error }));
-      } else {
-        setValidationErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[key];
-          return newErrors;
-        });
-      }
+      setValidationErrors((prev) => ({ ...prev, [key]: error || undefined }));
     },
     [updateField, validateFieldWithZod, setValidationErrors],
   );
 
-  const handleImageUpload = useCallback(
-    async (file: File) => {
-      await uploadImage(file);
-    },
-    [uploadImage],
-  );
-
-  const refreshProfile = useCallback(async () => {
-    try {
-      const toastId = toast.loading("Refreshing profile...");
-      await loadProfile();
-      setRefreshTrigger((prev) => prev + 1);
-      toast.dismiss(toastId);
-      console.log("✅ Profile refreshed successfully");
-    } catch (error) {
-      console.error("❌ Failed to refresh profile:", error);
-      toast.error("Failed to refresh profile");
-    }
-  }, [loadProfile]);
-
   const handleSave = useCallback(async () => {
     if (!profile || loading) return;
     if (!validateAllWithZod()) return;
-
     try {
-      const cleanedEditData = Object.fromEntries(
-        Object.entries(editData).filter(([_, v]) => v !== undefined),
-      );
-
-      const updated = profile.update(cleanedEditData);
-      const success = await updateProfile(updated);
-
-      if (success) {
-        cancelEdit();
-        clearPreview();
-        toast.success("Profile updated successfully!", {
-          description: "Your changes have been saved.",
-          duration: 3000,
-        });
-        await refreshProfile();
-      }
-    } catch (err) {
-      console.error("Save error:", err);
-      toast.error("Something went wrong while saving", {
-        description: "Please try again.",
-        duration: 4000,
-      });
+      const updatedProfile = profile.update(editData);
+      await updateProfile(updatedProfile);
+      cancelEdit();
+      clearPreview();
+      toast.success("Profile updated successfully!");
+    } catch {
+      toast.error("Failed to update profile");
     }
-  }, [profile, editData, updateProfile, cancelEdit, validateAllWithZod, loading, refreshProfile, clearPreview]);
-
-  const handleVerifyEmail = useCallback(async () => {
-    toast.info("Email verification feature coming soon");
-  }, []);
-
-  const handleStartEdit = useCallback(() => {
-    startEdit();
-    if (imagePreview) clearPreview();
-  }, [startEdit, imagePreview, clearPreview]);
-
-  const handleCancelEdit = useCallback(() => {
-    cancelEdit();
-    clearPreview();
-  }, [cancelEdit, clearPreview]);
-
-  const handleTabChange = useCallback(
-    (tab: string) => {
-      setActiveTab(tab as any);
-    },
-    [setActiveTab],
-  );
+  }, [
+    profile,
+    loading,
+    editData,
+    validateAllWithZod,
+    updateProfile,
+    cancelEdit,
+    clearPreview,
+  ]);
 
   if (loading && !profile) return <LoadingState />;
   if (!profile) return <ErrorState onRetry={loadProfile} loading={loading} />;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30 flex">
+    <div className="min-h-screen bg-slate-50/70 flex">
       <CandidateSidebar
-        key={`sidebar-${refreshTrigger}`}
         user={{
           fullName: profile.fullName,
           email: profile.email,
@@ -220,51 +165,130 @@ export default function CandidateProfilePage() {
         }}
       />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <Header
-          key={`header-${refreshTrigger}`}
-          profile={profile}
-          error={error}
-          onRetry={loadProfile}
-        />
+      <main className="flex-1 flex flex-col min-h-0">
+        <Header profile={profile} error={error} onRetry={loadProfile} />
 
-        <div className="flex-1 p-6 md:p-8 overflow-y-auto">
-          <SettingsTabs
-            tabs={settingsTabs}
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-          />
+        <div className="flex-1 overflow-y-auto p-6 md:p-8">
+          <div className="max-w-5xl mx-auto">
+            <Card className="border-none shadow-sm">
+              <CardHeader>
+                <CardTitle>Settings</CardTitle>
+                <CardDescription>
+                  Manage your profile, security and preferences
+                </CardDescription>
+              </CardHeader>
 
-          {activeTab === "Personal Info" && (
-            <PersonalInfoTab
-              key={`personal-info-${refreshTrigger}`}
-              profile={profile}
-              stats={stats}
-              isEditing={isEditing}
-              editData={editData}
-              validationErrors={validationErrors}
-              isUploading={isUploading}
-              imagePreview={imagePreview}
-              onInputChange={handleInputChange}
-              onVerifyEmail={handleVerifyEmail}
-              onImageUpload={handleImageUpload}
-              onEditToggle={handleStartEdit}
-              onSave={handleSave}
-              onCancel={handleCancelEdit}
-              loading={loading}
-              // ✅ No email props — PersonalInfoTab handles it internally
-            />
-          )}
+              <CardContent>
+                <Tabs
+                  value={activeTab}
+                  onValueChange={(v) => setActiveTab(v as TabValue)}
+                  className="space-y-6"
+                >
+                  <TabsList className="h-14 w-full justify-start bg-muted/60 overflow-x-auto">
+                    {settingsTabs.map((tab) => {
+                      const Icon = tab.icon;
+                      return (
+                        <TabsTrigger
+                          key={tab.value}
+                          value={tab.value}
+                          className="gap-2"
+                        >
+                          <Icon className="h-4 w-4" />
+                          {tab.label}
+                        </TabsTrigger>
+                      );
+                    })}
+                  </TabsList>
 
-          {activeTab === "Security" && (
-            <SecuritySection key={`security-${refreshTrigger}`} />
-          )}
-          {activeTab === "Notifications" && (
-            <NotificationsSection key={`notifications-${refreshTrigger}`} />
-          )}
-          {activeTab === "Privacy" && (
-            <PrivacySection key={`privacy-${refreshTrigger}`} />
-          )}
+                  <div className="pt-2">
+                    <TabsContent
+                      value="personal-info"
+                      className="mt-0 space-y-6 focus-visible:outline-none"
+                    >
+                      <div>
+                        <h2 className="text-xl font-semibold">Personal Info</h2>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {
+                            settingsTabs.find(
+                              (t) => t.value === "personal-info",
+                            )?.description
+                          }
+                        </p>
+                        <Separator className="my-5" />
+                        <PersonalInfoTab
+                          profile={profile}
+                          stats={stats}
+                          isEditing={isEditing}
+                          editData={editData}
+                          validationErrors={validationErrors}
+                          isUploading={isUploading}
+                          imagePreview={imagePreview}
+                          onInputChange={handleInputChange}
+                          onImageUpload={uploadImage}
+                          onEditToggle={startEdit}
+                          onSave={handleSave}
+                          onCancel={cancelEdit}
+                          loading={loading}
+                        />
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent
+                      value="security"
+                      className="mt-0 space-y-6 focus-visible:outline-none"
+                    >
+                      <div>
+                        <h2 className="text-xl font-semibold">Security</h2>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {
+                            settingsTabs.find((t) => t.value === "security")
+                              ?.description
+                          }
+                        </p>
+                        <Separator className="my-5" />
+                        <CandidatePrivacyAndSecurity />
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent
+                      value="notifications"
+                      className="mt-0 space-y-6 focus-visible:outline-none"
+                    >
+                      <div>
+                        <h2 className="text-xl font-semibold">Notifications</h2>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {
+                            settingsTabs.find(
+                              (t) => t.value === "notifications",
+                            )?.description
+                          }
+                        </p>
+                        <Separator className="my-5" />
+                        <NotificationsSection />
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent
+                      value="privacy"
+                      className="mt-0 space-y-6 focus-visible:outline-none"
+                    >
+                      <div>
+                        <h2 className="text-xl font-semibold">Privacy</h2>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {
+                            settingsTabs.find((t) => t.value === "privacy")
+                              ?.description
+                          }
+                        </p>
+                        <Separator className="my-5" />
+                        <PrivacySection />
+                      </div>
+                    </TabsContent>
+                  </div>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </main>
     </div>

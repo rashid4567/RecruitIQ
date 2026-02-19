@@ -5,7 +5,7 @@ import ProtectedRoute from "./protector/ProtectedRoute";
 import CandidateLayout from "../layout/CandidateLayout";
 import RouteLoader from "../components/RouterLoader";
 
-const CandidateHome = lazy(() => import("../pages/candidate/Home"));
+const CandidateHome = lazy(() => import("../module/candidate/presentation/pages/Home"));
 
 const CompleteProfile = lazy(()=> import("../module/candidate/presentation/pages/comleteProfile"))
 

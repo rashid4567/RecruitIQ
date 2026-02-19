@@ -2,6 +2,8 @@ import { OTPServicePort } from "../ports/otp.service.ports";
 import { OtpRole } from "../../domain/constants/otp-roles.constants";
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { Email } from "../../../../shared/value-objects.ts/email.vo";
+import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
+import { ERROR_CODES } from "../constants/error-codes.constants";
 
 export class VerifyEmailUpdateUseCase {
   constructor(
@@ -20,11 +22,11 @@ export class VerifyEmailUpdateUseCase {
     await this.otpService.verify(email, input.otp, input.context);
 
     const user = await this.userRepo.findById(input.userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND)
 
     const existing = await this.userRepo.findByEmail(email);
     if (existing && existing.id !== user.id) {
-      throw new Error("Email already exists");
+      throw new ApplicationError(ERROR_CODES.EMAIL_ALREADY_EXISTS)
     }
 
     const updatedUser = user.updateEmail(email);

@@ -1,6 +1,6 @@
 import { USER_ROLES, userRoles } from "../../domain/constants/roles.constants";
 import { ERROR_CODES } from "../constants/error-codes.constants";
-import { ApplicationError } from "../errors/application.error";
+import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 import { ProfileCreatorPort } from "../ports/profile-creator.port";
 
 export class CreateProfileUseCase{

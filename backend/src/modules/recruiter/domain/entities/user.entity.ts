@@ -1,5 +1,7 @@
-import { Email } from "../../../../shared/value-objects.ts/email.vo.ts";
+import { Email } from "../../../../shared/value-objects.ts/email.vo";
 import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
+import { DomainError } from "../../../../shared/errors/domain.error";
+import { ERROR_CODES } from "../constatns/recruiter.profile.error";
 
 export class User {
   private constructor(
@@ -15,28 +17,33 @@ export class User {
     email: Email,
     profileImage?: string,
   ): User {
-    if (!fullName || fullName.trim().length === 0) {
-      throw new Error("Full name is required");
+    if (!fullName?.trim()) {
+      throw new DomainError(ERROR_CODES.FULL_NAME_REQUIRED);
     }
 
-    return new User(id, fullName, email, profileImage);
+    return new User(
+      id,
+      fullName.trim(),
+      email,
+      profileImage?.trim() || undefined,
+    );
   }
 
-  public static fromPresistance(props: {
+  public static fromPersistence(props: {
     id: UserId;
     fullName: string;
     email: Email;
-    profileImage: string;
+    profileImage?: string;
   }): User {
     return new User(props.id, props.fullName, props.email, props.profileImage);
   }
 
   public updateFullName(name: string): void {
-    if (!name || name.trim().length === 0) {
-      throw new Error("Full name cannot be empty");
+    if (!name?.trim()) {
+      throw new DomainError(ERROR_CODES.FULL_NAME_EMPTY);
     }
 
-    this.fullName = name;
+    this.fullName = name.trim();
   }
 
   public updateEmail(email: Email): void {
@@ -44,17 +51,21 @@ export class User {
   }
 
   public updateProfileImage(image?: string): void {
-    this.profileImage = image;
+    this.profileImage = image?.trim() || undefined;
   }
+
   public getId(): UserId {
     return this.id;
   }
+
   public getFullName(): string {
     return this.fullName;
   }
+
   public getEmail(): Email {
     return this.email;
   }
+
   public getProfileImage(): string | undefined {
     return this.profileImage;
   }

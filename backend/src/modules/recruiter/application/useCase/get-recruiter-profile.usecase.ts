@@ -1,10 +1,9 @@
-import { ApplicationError } from "../../../../shared/errors/applicatoin.error"; 
+import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
 import { UserRepository } from "../../domain/repositories/user.entity";
 import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
 import { ERROR_CODES } from "../constants/error.code.constants";
 import { RecruiterProfileReponse } from "../dto/recruiter-profile.dto";
-import { RecruiterProfile } from "../../domain/entities/recruiter-profile.entity";
 
 export class GetRecruiterProfileUseCase {
   constructor(
@@ -20,26 +19,7 @@ export class GetRecruiterProfileUseCase {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    let profile = await this.recruiterRepo.findByUserId(id);
-
-    if (!profile) {
-      profile = RecruiterProfile.fromPresistence({
-        userId: id,
-        companyName: "",
-        companyWebsite: "",
-        companySize: 0,
-        industry: "",
-        designation: "",
-        location: "",
-        bio: "",
-        linkedinUrl: "",
-        subscriptionStatus: "free",
-        jobPostsUsed: 0,
-        verificationStatus: "pending",
-      });
-
-      await this.recruiterRepo.save(profile);
-    }
+    const profile = await this.recruiterRepo.findByUserId(id);
 
     return {
       user: {
@@ -48,18 +28,19 @@ export class GetRecruiterProfileUseCase {
         email: user.getEmail().getValue(),
         profileImage: user.getProfileImage(),
       },
+
       recruiter: {
-        companyName: profile.getCompanyName(),
-        companyWebsite: profile.getCompanyWebsite(),
-        companySize: profile.getCompanySize(),
-        industry: profile.getIndustry(),
-        designation: profile.getDesignation(),
-        location: profile.getLocation(),
-        bio: profile.getBio(),
-        linkedinUrl: profile.getLinkedinUrl(),
-        subscriptionStatus: profile.getSubscriptionStatus(),
-        jobPostsUsed: profile.getJobPostsUsed(),
-        verificationStatus: profile.getVerificationStatus(),
+        companyName: profile?.getCompanyName() ?? "",
+        companyWebsite: profile?.getCompanyWebsite() ?? "",
+        companySize: profile?.getCompanySize() ?? 0,
+        industry: profile?.getIndustry() ?? "",
+        designation: profile?.getDesignation() ?? "",
+        location: profile?.getLocation() ?? "",
+        bio: profile?.getBio() ?? "",
+        linkedinUrl: profile?.getLinkedinUrl() ?? "",
+        subscriptionStatus: profile?.getSubscriptionStatus() ?? "free",
+        jobPostsUsed: profile?.getJobPostsUsed() ?? 0,
+        verificationStatus: profile?.getVerificationStatus() ?? "pending",
       },
     };
   }

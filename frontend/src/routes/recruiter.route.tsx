@@ -7,7 +7,7 @@ import RouteLoader from "../components/RouterLoader";
 
 const RecruiterHome = lazy(() => import("../pages/landing/landingPage"));
 const RecruiterDetails = lazy(
-  () => import("../pages/recruiter/RecruiterDetails"),
+  () => import("../module/recruiter/presentation/pages/completeProfile"),
 );
 
 const RecruiterSettingsPage = lazy(

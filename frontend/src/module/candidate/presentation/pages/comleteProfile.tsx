@@ -1,4 +1,4 @@
-"use client"; // if using Next.js App Router — remove if CRA / Vite
+
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +16,7 @@ import {
   Linkedin,
 } from "lucide-react";
 
-import { useCompleteCandidateProfile } from "../hooks/useCompleteCandidateProfile"; // ← adjust path
+import { useCompleteCandidateProfile } from "../hooks/useCompleteCandidateProfile"; 
 
 import type { CompleteCandidateProfileForm } from "../types/candidate-profile.types";
 
@@ -67,7 +67,7 @@ export default function CompleteCandidateProfile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Minimal client-side cleanup
+
     const payload: CompleteCandidateProfileForm = {
       currentJob: formData.currentJob.trim() || "",
       experienceYears: formData.experienceYears
@@ -84,7 +84,7 @@ export default function CompleteCandidateProfile() {
       await completeProfile(payload);
       navigate("/candidate/home");
     } catch (err) {
-      // error is already managed by hook → UI shows it
+     
       console.error("Profile submission failed", err);
     }
   };

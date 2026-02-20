@@ -8,44 +8,39 @@ import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 export class GetCandidateProfileUseCase {
   constructor(
     private readonly candidateRepo: CandidateRespository,
-    private readonly userRepo: UserRepository
+    private readonly userRepo: UserRepository,
   ) {}
 
-  async execute(userId:string):Promise<GetCandidateProfileResponseDTO>{
+  async execute(userId: string): Promise<GetCandidateProfileResponseDTO> {
     const id = UserId.create(userId);
 
     const user = await this.userRepo.findById(id);
-    if(!user){
-      throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND)
+    if (!user) {
+      throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
     const profile = await this.candidateRepo.findByUserId(id);
-    if(!profile){
-      throw new ApplicationError(ERROR_CODES.CANDIDATE_PROFILE_NOT_FOUND)
-    }
 
     return {
-      user : {
-        id : user.getId().getValue(),
-        fullName : user.getFullName(),
-        email : user.getEmail().getValue(),
-        profileImage : user.getProfileImage(),
+      user: {
+        id: user.getId().getValue(),
+        fullName: user.getFullName(),
+        email: user.getEmail().getValue(),
+        profileImage: user.getProfileImage(),
       },
-      candidateProfile : {
-        currentJob : profile.getCurrentJob(),
-        experienceYears : profile.getExperienceYears(),
-        skills : profile.getSkills(),
-        preferredJobLocations : profile.getPreferredLocations(),
-        educationLevel : profile.getEducationLevel() ?? "",
-        bio : profile.getBio() ?? "",
-        currentJobLocation : profile.getCurrentJobLocation() ?? "",
-        gender : profile.getGender(),
-        linkedinUrl : profile.getLinkedinUrl() ?? "",
-        portfolioUrl : profile.getPortfolioUrl() ?? "",
-        profileCompleted : profile.isProfileCompleted(),
-
-      }
-    }
-
+      candidateProfile: {
+        currentJob: profile?.getCurrentJob() ?? "",
+        experienceYears: profile?.getExperienceYears() ?? 0,
+        skills: profile?.getSkills() ?? [],
+        preferredJobLocations: profile?.getPreferredLocations() ?? [],
+        educationLevel: profile?.getEducationLevel() ?? "",
+        bio: profile?.getBio() ?? "",
+        currentJobLocation: profile?.getCurrentJobLocation() ?? "",
+        gender: profile?.getGender() ?? undefined,
+        linkedinUrl: profile?.getLinkedinUrl() ?? "",
+        portfolioUrl: profile?.getPortfolioUrl() ?? "",
+        profileCompleted: profile?.isProfileCompleted() || false,
+      },
+    };
   }
 }

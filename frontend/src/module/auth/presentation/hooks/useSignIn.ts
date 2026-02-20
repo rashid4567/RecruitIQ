@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { GoogleCredentialResponse } from "@react-oauth/google";
 import { ZodError } from "zod";
 
-import { SignInUC, googleAuthUseCase } from "../di/auth";
+import { SignInUC, googleAuthUc } from "../di/auth";
 import { getError } from "@/utils/getError";
 import type { GoogleRoles } from "@/module/auth/domain/constants/google-role";
 import type { SignInFormData } from "@/types/auth/auth.types";
@@ -76,7 +76,7 @@ export function useSignIn() {
       setGoogleLoading(true);
       setError("");
 
-      const result = await googleAuthUseCase.execute(credential);
+      const result = await googleAuthUc.execute(credential);
 
       setSuccess("Google authentication successful! Redirecting...");
 
@@ -112,7 +112,7 @@ export function useSignIn() {
       setGoogleLoading(true);
       setError("");
 
-      const { user } = await googleAuthUseCase.execute(
+      const { user } = await googleAuthUc.execute(
         pendingGoogleCredential,
         role,
       );

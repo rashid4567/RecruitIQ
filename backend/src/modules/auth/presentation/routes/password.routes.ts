@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  ForgotpasswordController,
+ 
   changePassowrdController,
 } from "../container/auth.container";
 import { authenticate } from "../middlewares/auth.middleware";
@@ -9,10 +9,6 @@ import { checkUserActive } from "../../../../middlewares/checkUserActive.middlew
 const router = Router();
 router.use(authenticate)
 router.use(checkUserActive)
-
-
-router.post("/forgot-password", ForgotpasswordController.forgotPassword);
-router.post("/reset-password", ForgotpasswordController.resetPassword);
 router.put("/update-password", changePassowrdController.updatePassword);
 
 export default router;

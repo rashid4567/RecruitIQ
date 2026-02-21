@@ -1,11 +1,8 @@
-"use client";
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Mail, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
+import { Mail, ArrowLeft, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { forgotPasswordUc } from "../../di/auth";
-
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -13,9 +10,9 @@ const ForgotPassword = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<{ email?: string }>({});
 
-  const validateEmail = (email: string) => {
+  const validateEmail = (email: string): string => {
+    if (!email.trim()) return "Email is required";
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) return "Email is required";
     if (!emailRegex.test(email)) return "Please enter a valid email address";
     return "";
   };
@@ -26,6 +23,7 @@ const ForgotPassword = () => {
     const emailError = validateEmail(email);
     if (emailError) {
       setErrors({ email: emailError });
+      toast.error(emailError);
       return;
     }
 
@@ -33,17 +31,16 @@ const ForgotPassword = () => {
     setErrors({});
 
     try {
-      await forgotPasswordUc.execute(email);
+      await forgotPasswordUc.execute(email.trim());
 
       setIsSubmitted(true);
-      toast.success("Reset link sent successfully!", {
-        description: "Check your email inbox for further instructions.",
-        duration: 5000,
+      toast.success("Reset link sent", {
+        description: "Check your inbox (and spam folder) for the reset instructions.",
+        duration: 6000,
       });
     } catch (err: any) {
-      toast.error("Failed to send reset link", {
-        description: err.message || "Please try again later.",
-      });
+      const msg = err.message || "Something went wrong. Please try again.";
+      toast.error("Couldn't send reset link", { description: msg });
     } finally {
       setLoading(false);
     }
@@ -55,86 +52,165 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300">
+          {/* Header / Back + Step */}
+          <div className="px-8 pt-8 pb-4 flex items-center justify-between">
             <Link
               to="/signin"
-              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors group"
+              className="group flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
             >
-              <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              <span className="text-sm font-medium">Back to Sign In</span>
+              <ArrowLeft className="h-4 w-4 mr-1.5 transition-transform group-hover:-translate-x-1" />
+              Back to Sign in
             </Link>
-            <div className="text-sm text-gray-500">Step 1 of 2</div>
+            <span className="text-xs font-medium text-gray-500">Step 1 of 2</span>
           </div>
 
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          {/* Illustration / Icon area */}
+          <div className="px-8 pb-6 text-center">
+            <div
+              className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500 ${
+                isSubmitted
+                  ? "bg-green-100 text-green-600 shadow-green-100/50"
+                  : "bg-blue-100 text-blue-600 shadow-blue-100/50"
+              }`}
+            >
               {isSubmitted ? (
-                <CheckCircle className="h-8 w-8 text-green-500" />
+                <CheckCircle2 className="h-10 w-10" strokeWidth={2.5} />
               ) : (
-                <Mail className="h-8 w-8 text-blue-500" />
+                <Mail className="h-10 w-10" strokeWidth={2.2} />
               )}
             </div>
 
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {isSubmitted ? "Check Your Email" : "Forgot Password"}
+            <h1 className="mt-6 text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+              {isSubmitted ? "Check your inbox" : "Forgot your password?"}
             </h1>
 
-            <p className="text-gray-600">
-              {isSubmitted
-                ? `We've sent instructions to ${email}`
-                : "Enter your email address to receive a reset link."}
+            <p className="mt-3 text-gray-600 leading-relaxed">
+              {isSubmitted ? (
+                <>
+                  We sent password reset instructions to{" "}
+                  <span className="font-medium text-gray-900 break-all">{email}</span>
+                </>
+              ) : (
+                "Enter your email and we'll send you a link to reset your password."
+              )}
             </p>
           </div>
 
-          {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Email Address
-                </label>
-                <div className="relative mt-1">
-                  <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => handleEmailChange(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border rounded-lg"
-                    disabled={loading}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-sm text-red-600 mt-1">{errors.email}</p>
-                )}
-              </div>
+          {/* Form or Success state */}
+          <div className="px-8 pb-10">
+            {!isSubmitted ? (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-1.5"
+                  >
+                    Email address
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <Mail className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => handleEmailChange(e.target.value)}
+                      placeholder="name@example.com"
+                      className={`
+                        block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 
+                        rounded-xl text-gray-900 placeholder-gray-400 
+                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                        focus:bg-white transition-all duration-200
+                        disabled:opacity-60 disabled:cursor-not-allowed
+                        ${errors.email ? "border-red-400 focus:ring-red-500 focus:border-red-500" : ""}
+                      `}
+                      disabled={loading}
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? "email-error" : undefined}
+                    />
+                  </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                    Sending...
-                  </>
-                ) : (
-                  "Send Reset Link"
-                )}
-              </button>
-            </form>
-          ) : (
-            <button
-              onClick={() => handleSubmit()}
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4"
-            >
-              {loading ? "Resending..." : "Resend Link"}
-            </button>
-          )}
+                  {errors.email && (
+                    <div className="mt-2 flex items-center text-sm text-red-600" id="email-error">
+                      <AlertCircle className="h-4 w-4 mr-1.5 flex-shrink-0" />
+                      {errors.email}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`
+                    w-full flex items-center justify-center gap-2 py-3.5 px-4 
+                    bg-gradient-to-r from-blue-600 to-blue-700 
+                    hover:from-blue-700 hover:to-blue-800 
+                    text-white font-medium rounded-xl shadow-lg shadow-blue-200/30 
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+                    transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed
+                    active:scale-[0.98]
+                  `}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send Reset Link"
+                  )}
+                </button>
+              </form>
+            ) : (
+              <div className="space-y-6">
+                <div className="text-center text-sm text-gray-600">
+                  Didn't receive the email? Check your spam folder or try resending.
+                </div>
+
+                <button
+                  onClick={() => handleSubmit()}
+                  disabled={loading}
+                  className={`
+                    w-full flex items-center justify-center gap-2 py-3.5 px-4 
+                    bg-gradient-to-r from-blue-600 to-blue-700 
+                    hover:from-blue-700 hover:to-blue-800 
+                    text-white font-medium rounded-xl shadow-lg shadow-blue-200/30 
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+                    transition-all duration-200 disabled:opacity-60
+                  `}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Resending...
+                    </>
+                  ) : (
+                    "Resend Reset Link"
+                  )}
+                </button>
+
+                <div className="text-center">
+                  <Link
+                    to="/signin"
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                  >
+                    Return to Sign in
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Optional subtle footer hint */}
+        <p className="mt-6 text-center text-sm text-gray-500">
+          Secure • Encrypted • We never store your password
+        </p>
       </div>
     </div>
   );

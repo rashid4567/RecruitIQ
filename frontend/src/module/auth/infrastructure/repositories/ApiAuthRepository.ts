@@ -24,19 +24,32 @@ export class ApiAuthRepository implements AuthRepository {
   }
 
   async googleLogin(credential: string, role?: GoogleRoles) {
-    const payload: Record<string, unknown> = { credential };
-    if (role) payload.role = role;
+    const payload = role ? { credential, role } : { credential };
 
-    const res = await api.post("/auth/google/login", payload);
+    try {
+      const res = await api.post("/auth/google/login", payload);
 
-    const { accessToken, user } = res.data.data;
+      if (!res?.data?.data?.user) {
+        throw new Error("Invalid API response from server");
+      }
 
-    this.persistSession(accessToken, user);
+      const { accessToken, user } = res.data.data;
 
-    return {
-      accessToken,
-      user: new AuthUser(user.id, user.role, user.fullName),
-    };
+      const userData = {
+        id: String(user.id),
+        role: user.role as UserRole,
+        fullName: user.fullName ?? "",
+      };
+
+      this.persistSession(accessToken, userData);
+
+      return {
+        accessToken,
+        user: new AuthUser(userData.id, userData.role, userData.fullName),
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async sendOtp(email: Email, role: UserRole): Promise<void> {
@@ -77,12 +90,13 @@ export class ApiAuthRepository implements AuthRepository {
     });
   }
 
-  async resetPassword(token: string, newPassword: Password): Promise<void> {
-    await api.post("/auth/reset-password", {
-      token,
-      password: newPassword.getValue(),
-    });
-  }
+ async resetPassword(token: string, newPassword: Password): Promise<void> {
+  await api.post("/auth/reset-password", {
+    token,
+    newPassword: newPassword.getValue(), 
+  });
+}
+
 
   private persistSession(
     accessToken: string,
@@ -101,20 +115,24 @@ export class ApiAuthRepository implements AuthRepository {
     currentPassword: Password,
     newPassword: Password,
   ): Promise<void> {
-    await api.post("/auth/update-password", {
+    await api.put("/auth/update-password", {
       currentPassword: currentPassword.getValue(),
       newPassword: newPassword.getValue(),
     });
   }
 
   async requestEmailupdate(newEmail: Email): Promise<void> {
-    await api.post("auth/email/request-otp", { email: newEmail.getValue() });
-  }
+  await api.post("/auth/email/request-otp", {
+    newEmail: newEmail.getValue(),
+  });
+}
+
 
   async verifyEmailUpdate(email: Email, otp: string): Promise<void> {
-    await api.post("/auth/email/request-otp",{
-      email : email.getValue(),
-      otp,
-    })
-  }
+  await api.post("/auth/email/verify-otp", {
+    newEmail: email.getValue(),
+    otp,
+  });
+}
+
 }

@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { RecruiterProfile } from "../../domain/entities/recruiter-profile.entity";
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
 import { RecruiterProfileModel } from "../mongoose/model/recruiter-profile.model";
 import { subscribtionStatus } from "../../domain/constatns/subscribtionStatus.contsants";
 import { verificationStatus } from "../../domain/constatns/verificationStatus.constants";

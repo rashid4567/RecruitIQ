@@ -10,30 +10,28 @@ export class GoogleController {
     try {
       const { credential, role } = GoogleLoginSchema.parse(req.body);
       const result = await this.googleLoginUC.execute(credential, role);
-      console.log("role and credential : ", role , credential);
-      console.log("result : ", result)
       this.setRefreshCookie(res, result.refreshToken);
-
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "Google login successfully",
         data: {
           accessToken: result.accessToken,
-          userId: result.userId,
-          role: result.role,
+          user: {
+            id: result.userId,
+            role: result.role,
+            fullName: result.fullName,
+          },
         },
       });
     } catch (err) {
-      console.log(err)
       return next(err);
-
     }
   };
 
   private setRefreshCookie(res: Response, refreshToken: string) {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       sameSite: "strict",
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,

@@ -32,6 +32,9 @@ import { ForgotPasswordController } from "../controller/forgot-password.controll
 import { ChangePasswordController } from "../controller/updatePassword.controller";
 import { sendEmailByEventUC } from "../../../admin/Presentation/containers/email-template.container";
 import { EmailNotificationAdaptor } from "../../infrastructure/adapters/email-notification.adapter";
+import { VerifyEmailUpdateUseCase } from "../../application/useCase/verify-email-update.usecase";
+import { RequestEmailUpdateUseCase } from "../../application/useCase/request-email.update.usecase";
+import { EmailUpdateController } from "../controller/email-update.controller";
 
 const userRepo: UserRepository = new MongooseUserRepository();
 const passwordPort: PasswordHasherPort = new PasswordService();
@@ -78,6 +81,9 @@ const googleLoginUc = new GoogleLoginUseCase(
   tokenService,
 );
 
+const requestEmailUpdateUc = new RequestEmailUpdateUseCase(userRepo, otpService);
+const verifyEmailUpdateUc = new VerifyEmailUpdateUseCase(otpService, userRepo);
+
 const changePasswordUC = new UpdatePasswordUseCase(userRepo, passwordPort);
 
 export const authController = new AuthController(loginUC);
@@ -102,3 +108,6 @@ export const changePassowrdController = new ChangePasswordController(
 );
 
 export const googleController = new GoogleController(googleLoginUc);
+
+
+export const emailUpdateController = new EmailUpdateController(requestEmailUpdateUc, verifyEmailUpdateUc)

@@ -1,6 +1,8 @@
 import { subscribtionStatus } from "../constatns/subscribtionStatus.contsants";
 import { verificationStatus } from "../constatns/verificationStatus.constants";
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
+import { DomainError } from "../../../../shared/errors/domain.error";
+import { ERROR_CODES } from "../constatns/recruiter.profile.error";
 
 export class RecruiterProfile {
   private constructor(
@@ -13,9 +15,9 @@ export class RecruiterProfile {
     private bio?: string,
     private linkedinUrl?: string,
     private location?: string,
-    private subscriptionStatus?: subscribtionStatus,
-    private jobPostsUsed?: number,
-    private verificationStatus?: verificationStatus,
+    private subscriptionStatus: subscribtionStatus = "free",
+    private jobPostsUsed: number = 0,
+    private verificationStatus: verificationStatus = "pending",
   ) {}
 
   public static create(
@@ -23,18 +25,20 @@ export class RecruiterProfile {
     companyName: string,
     companyWebsite: string,
   ): RecruiterProfile {
-    if (!companyName || companyName.trim().length === 0) {
-      throw new Error("Company name is required");
+    if (!companyName?.trim()) {
+      throw new DomainError(ERROR_CODES.COMPANY_NAME_REQUIRED);
     }
-    if (!companyWebsite) {
-      throw new Error("Company website should be there");
+
+    if (!companyWebsite?.trim()) {
+      throw new DomainError(ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
     }
+
     return new RecruiterProfile(userId, companyName, companyWebsite);
   }
 
-  public static fromPresistence(props: {
+  public static fromPersistence(props: {
     userId: UserId;
-    companyName: string;
+    companyName?: string;
     companyWebsite?: string;
     companySize?: number;
     industry?: string;
@@ -42,9 +46,9 @@ export class RecruiterProfile {
     bio?: string;
     linkedinUrl?: string;
     location?: string;
-    subscriptionStatus: subscribtionStatus;
-    jobPostsUsed: number;
-    verificationStatus: verificationStatus;
+    subscriptionStatus?: subscribtionStatus;
+    jobPostsUsed?: number;
+    verificationStatus?: verificationStatus;
   }): RecruiterProfile {
     return new RecruiterProfile(
       props.userId,
@@ -56,17 +60,23 @@ export class RecruiterProfile {
       props.bio,
       props.linkedinUrl,
       props.location,
-      props.subscriptionStatus,
-      props.jobPostsUsed,
-      props.verificationStatus,
+      props.subscriptionStatus ?? "free",
+      props.jobPostsUsed ?? 0,
+      props.verificationStatus ?? "pending",
     );
   }
 
   public updateCompanyName(name: string): void {
+    if (!name?.trim()) {
+      throw new DomainError(ERROR_CODES.COMPANY_NAME_REQUIRED);
+    }
     this.companyName = name;
   }
 
   public updateCompanyWebsite(url: string): void {
+    if (!url?.trim()) {
+      throw new DomainError(ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
+    }
     this.companyWebsite = url;
   }
 
@@ -75,17 +85,16 @@ export class RecruiterProfile {
   }
 
   public updateCompanySize(size: number): void {
-    if (!size || size < 0) {
-      throw new Error("Company size will not be negative");
+    if (size < 0) {
+      throw new DomainError(ERROR_CODES.COMPANY_SIZE_INVALID);
     }
     this.companySize = size;
   }
 
   public updateDesignation(value: string): void {
-    if (!value || value.trim().length === 0) {
-      throw new Error("Designation should not be empty");
+    if (!value?.trim()) {
+      throw new DomainError(ERROR_CODES.DESIGNATION_REQUIRED);
     }
-
     this.designation = value;
   }
 
@@ -99,6 +108,22 @@ export class RecruiterProfile {
 
   public updateLocation(value: string): void {
     this.location = value;
+  }
+
+  public incrementJobPostsUsed(): void {
+    this.jobPostsUsed += 1;
+  }
+
+  public activateSubscription(status: subscribtionStatus): void {
+    this.subscriptionStatus = status;
+  }
+
+  public verify(): void {
+    this.verificationStatus = "verified";
+  }
+
+  public getUserId(): UserId {
+    return this.userId;
   }
 
   public getCompanyName(): string | undefined {
@@ -132,18 +157,16 @@ export class RecruiterProfile {
   public getLocation(): string | undefined {
     return this.location;
   }
-  public getSubscriptionStatus(): subscribtionStatus | undefined {
+
+  public getSubscriptionStatus(): subscribtionStatus {
     return this.subscriptionStatus;
   }
 
-  public getUserId(): UserId {
-    return this.userId;
-  }
-  getJobPostsUsed(): number | undefined {
+  public getJobPostsUsed(): number {
     return this.jobPostsUsed;
   }
 
-  public getVerificationStatus(): verificationStatus | undefined {
+  public getVerificationStatus(): verificationStatus {
     return this.verificationStatus;
   }
 }

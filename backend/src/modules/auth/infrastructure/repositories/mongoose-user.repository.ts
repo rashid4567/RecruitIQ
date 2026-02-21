@@ -1,9 +1,9 @@
 import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { Email } from "../../../../shared/value-objects.ts/email.vo";
 import { UserModel } from "../mongoose/model/user.model";
 import { userRoles } from "../../domain/constants/roles.constants";
-import { AuthProvider } from "../../../../shared/domain/value-objects.ts/auth-provider.vo";
+import { AuthProvider } from "../../../../shared/value-objects.ts/auth-provider.vo";
 import { GoogleId } from "../../domain/value.objects.ts/google-id.vo";
 import { Types } from "mongoose";
 

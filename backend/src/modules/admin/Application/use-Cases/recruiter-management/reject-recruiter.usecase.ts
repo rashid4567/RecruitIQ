@@ -1,4 +1,4 @@
-import { ApplicationError } from "../../../../auth/application/errors/application.error";
+import { ApplicationError } from "../../../../../shared/errors/applicatoin.error"; 
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
 import { ERROR_CODES } from "../../constants/errorcode.constants";
 

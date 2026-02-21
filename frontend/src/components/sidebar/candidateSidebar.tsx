@@ -33,7 +33,6 @@ export default function CandidateSidebar({
 
   const initials = user?.fullName.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'
 
-  // Function to check if a route is active
   const isActive = (href: string) => {
     if (href === "/candidate/home" && location.pathname === "/candidate/home") return true
     if (href === "/candidate/profile" && location.pathname.startsWith("/candidate/profile")) return true
@@ -45,7 +44,12 @@ export default function CandidateSidebar({
   }
 
   return (
-    <aside className="w-64 bg-white/90 backdrop-blur-sm border-r border-gray-200/50 flex flex-col">
+    // ✅ FIX: Removed "backdrop-blur-sm" — this CSS property forces the browser
+    //    to create a new stacking context that bleeds *outside* the sidebar's
+    //    visual bounds across the entire page width, silently intercepting all
+    //    pointer/click events before they reach the TabsTrigger buttons.
+    //    The sidebar background is already bg-white/90 so it looks identical.
+    <aside className="w-64 bg-white border-r border-gray-200/50 flex flex-col">
       {/* Logo */}
       <div className="p-4 flex items-center gap-2">
         <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
@@ -77,7 +81,6 @@ export default function CandidateSidebar({
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2 space-y-1">
         {sidebarItems.map((item) => {
-          // Check if the route exists in your routes
           const routeExists = defaultSidebarItems.some(sidebarItem => sidebarItem.href === item.href)
           
           return (
@@ -87,10 +90,7 @@ export default function CandidateSidebar({
                 if (routeExists) {
                   navigate(item.href)
                 } else {
-                  // If route doesn't exist, you can show a message or just do nothing
                   console.log(`Route ${item.href} not implemented yet`)
-                  // Or navigate to a placeholder page
-                  // navigate("/coming-soon")
                 }
               }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-300 ${

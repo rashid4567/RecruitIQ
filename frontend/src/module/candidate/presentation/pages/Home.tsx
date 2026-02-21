@@ -1,14 +1,17 @@
-import Header from "@/components/candidate/header"
-import Hero from "@/components/candidate/Hero"
-import CandidateProfilePage from "./personal-info"
+import Header from "@/components/candidate/header"; 
+import Hero from "@/components/candidate/Hero"; 
+import Features from "@/components/candidate/TrustedCompanies"; 
+import TrustedCompanies from "@/pages/landing/sections/TrustedCompanies";
 
-const CandidateHome = () =>{
+const CandidateHome = () => {
+  return (
     <>
-
-    <Header/>
-    <Hero/>
-    <CandidateProfilePage/>
+      <Header />
+      <Hero />
+      <Features />
+      <TrustedCompanies />
     </>
-}
+  );
+};
 
-export default CandidateHome
+export default CandidateHome;

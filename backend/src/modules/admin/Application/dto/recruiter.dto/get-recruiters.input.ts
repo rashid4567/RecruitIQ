@@ -1,4 +1,4 @@
-import { verificationStatus } from "../../../recruiter/domain/constatns/verificationStatus.constants";
+import { verificationStatus } from "../../../../recruiter/domain/constatns/verificationStatus.constants"; 
 
 export interface GetRecruitersInput {
   search?: string;

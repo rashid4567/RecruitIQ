@@ -1,7 +1,7 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { Email } from "../../../../shared/domain/value-objects.ts/email.vo";
+import { Email } from "../../../../shared/value-objects.ts/email.vo";
 import { ERROR_CODES } from "../constants/error-codes.constants";
-import { ApplicationError } from "../errors/application.error";
+import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 import { OTPServicePort } from "../ports/otp.service.ports";
 import { OtpRole } from "../../domain/constants/otp-roles.constants";
 

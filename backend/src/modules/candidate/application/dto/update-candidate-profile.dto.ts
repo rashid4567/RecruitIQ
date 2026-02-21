@@ -1,3 +1,5 @@
+import { Gender } from "../../domain/type/gender.Types";
+
 export interface UpdateCandidateProfileDTO {
   fullName?: string;
   profileImage?: string;
@@ -8,7 +10,7 @@ export interface UpdateCandidateProfileDTO {
   preferredJobLocations?: string[];
   bio?: string;
   currentJobLocation ?:string,
-  gender ?:string,
+  gender ?:Gender,
   linkedinUrl?:string,
   portfolioUrl?:string,
 }

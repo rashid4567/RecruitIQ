@@ -1,193 +1,152 @@
 "use client";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { UserIcon, BriefcaseIcon, ArrowRight } from "lucide-react";
-import type { UserRole } from "@/module/auth/domain/constants/user-role";
 
+import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useRoleSelection } from "../../hooks/useRoleSelection";
+import { ROLE_SELECTION_CONFIG } from "../../constant/role-selection.config"; 
 
-
-const RoleSelection = () => {
-  const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
-
-  const roles = [
-    {
-      id: "candidate" as UserRole,
-      icon: <UserIcon className="w-12 h-12 text-blue-500" />,
-      title: "Candidate",
-      description: "Looking for your next career opportunity?",
-      features: [
-        "Personalized Job Matches",
-        "Build a Professional Profile",
-        "Direct Employer Connections",
-        "Resume & Portfolio Showcase",
-      ],
-    },
-    {
-      id: "recruiter" as UserRole,
-      icon: <BriefcaseIcon className="w-12 h-12 text-blue-500" />,
-      title: "Recruiter",
-      description: "Find and hire top talent efficiently.",
-      features: [
-        "Advanced Candidate Sourcing",
-        "Applicant Tracking System",
-        "Employer Branding Tools",
-        "Seamless Hiring Workflows",
-      ],
-    },
-  ];
-
-  const handleContinue = () => {
-    if (!selectedRole) return;
-
-    navigate("/signup", {
-      state: { role: selectedRole },
-    });
-  };
+export default function RoleSelection() {
+  const {
+    selectedRole,
+    selectRole,
+    handleContinue,
+    goToSignIn,
+    isRoleSelected,
+  } = useRoleSelection();
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50 flex flex-col items-center justify-center px-4 py-6 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute top-0 left-0 w-80 h-80 bg-blue-100/30 rounded-full blur-3xl -z-10 animate-pulse" />
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-blue-50/30 rounded-full blur-3xl -z-10 animate-pulse" />
+    <div className="relative min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center px-5 py-8 sm:py-12 overflow-hidden">
+      {/* Background decoration – smaller and softer */}
+      <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-100/15 rounded-full blur-3xl opacity-70" />
+      <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-indigo-100/15 rounded-full blur-3xl opacity-70" />
 
-      <div className="w-full max-w-3xl">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold bg-linear-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3 animate-fade-in">
-            Choose Your Role
+      <div className="w-full max-w-4xl relative z-10">
+        {/* Header – more compact */}
+        <div className="text-center mb-10 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight bg-linear-to-r from-slate-900 to-indigo-800 bg-clip-text text-transparent mb-3">
+            Choose your path
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Select the role that best describes you to tailor your RecruitFlow AI
-            experience.
+          <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto">
+            Select the role that fits you to get the right experience.
           </p>
         </div>
 
-        {/* Role Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mb-10">
-          {roles.map((role, idx) => (
-            <div
-              key={role.id}
-              onClick={() => setSelectedRole(role.id)}
-              className={`group relative p-8 rounded-2xl cursor-pointer transition-all duration-500 border-2 overflow-hidden ${
-                selectedRole === role.id
-                  ? "border-blue-500 bg-linear-to-br from-blue-50 to-blue-100/50 shadow-xl shadow-blue-200/50"
-                  : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-lg hover:shadow-blue-100/30"
-              }`}
-              style={{
-                animation: `slideUp 0.6s ease-out ${idx * 0.1}s both`,
-              }}
-            >
-              <div className="absolute inset-0 bg-linear-to-br from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-blue-500/10 transition-all duration-300" />
+        {/* Cards – using ROLE_SELECTION_CONFIG */}
+        <div className="grid md:grid-cols-2 gap-5 sm:gap-7 mb-10 sm:mb-12">
+          {ROLE_SELECTION_CONFIG.map((role) => {
+            const isSelected = selectedRole === role.id;
+            const Icon = role.icon;
 
-              <div className="relative">
-                <div className="mb-6 p-4 bg-linear-to-br from-blue-100 to-blue-50 rounded-xl w-fit group-hover:shadow-lg transition-all duration-300">
-                  {role.icon}
-                </div>
-
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                  {role.title}
-                </h3>
-                <p className="text-slate-600 text-base mb-8 leading-relaxed">
-                  {role.description}
-                </p>
-
-                <ul className="space-y-3">
-                  {role.features.map((feature, featureIdx) => (
-                    <li
-                      key={featureIdx}
-                      className="flex items-start gap-3 animate-fade-in"
-                      style={{ animationDelay: `${0.1 * featureIdx}s` }}
-                    >
-                      <div className="shrink-0 mt-1">
-                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-linear-to-br from-green-400 to-green-500 text-white">
-                          <svg
-                            className="w-3 h-3"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      </div>
-                      <span className="text-slate-700 font-medium">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                {selectedRole === role.id && (
-                  <div className="mt-6 flex items-center gap-2 text-blue-600 font-semibold">
-                    Selected
-                    <ArrowRight className="w-4 h-4" />
+            return (
+              <button
+                key={role.id}
+                type="button"
+                onClick={() => selectRole(role.id)}
+                className={`
+                  group relative p-6 sm:p-8 rounded-2xl border transition-all duration-300
+                  backdrop-blur-sm bg-white/70 shadow-lg shadow-slate-200/30
+                  hover:shadow-xl hover:shadow-blue-200/40 hover:-translate-y-1
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                  ${
+                    isSelected
+                      ? "border-blue-600 bg-linear-to-br from-blue-50/90 to-indigo-50/70 shadow-blue-300/40 scale-[1.015]"
+                      : "border-slate-200/70 hover:border-blue-400/60"
+                  }
+                `}
+              >
+                {isSelected && (
+                  <div className="absolute -top-2.5 -right-2.5 bg-blue-600 text-white rounded-full p-1 shadow-md">
+                    <CheckCircle2 className="w-5 h-5" />
                   </div>
                 )}
-              </div>
+
+                <div className="flex flex-col items-center text-center">
+                  <div
+                    className={`
+                      mb-6 p-5 rounded-xl transition-all duration-300
+                      ${isSelected ? "bg-blue-100/80 scale-105" : "bg-blue-50/70 group-hover:bg-blue-100/80"}
+                    `}
+                  >
+                    <Icon 
+                      className={`w-12 h-12 ${role.id === "candidate" ? "text-blue-600" : "text-indigo-600"}`}
+                      strokeWidth={1.9}
+                    />
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
+                    {role.title}
+                  </h3>
+
+                  <p className="text-slate-600 text-sm sm:text-base mb-6 leading-relaxed">
+                    {role.description}
+                  </p>
+
+                  <ul className="space-y-3 w-full text-left text-sm sm:text-base">
+                    {role.features.map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2.5 text-slate-700">
+                        <div className="shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                          <svg
+                            className="w-3.5 h-3.5 text-green-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* CTA section – more compact */}
+        <div className="max-w-md mx-auto space-y-6">
+          <div>
+            <div className="flex justify-between text-sm font-medium text-slate-600 mb-2.5">
+              <span>Step 1 / 5</span>
+              <span>{isRoleSelected ? "20%" : "0%"}</span>
             </div>
-          ))}
-        </div>
-
-        {/* Progress */}
-        <div className="mb-8 max-w-2xl mx-auto">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-slate-600">
-              Step 1 of 5
-            </span>
-            <span className="text-sm font-semibold text-slate-600">20%</span>
+            <div className="h-2 bg-slate-200/70 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-linear-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-700"
+                style={{ width: isRoleSelected ? "20%" : "0%" }}
+              />
+            </div>
           </div>
-          <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-            <div className="h-full bg-linear-to-r from-blue-500 to-blue-600 rounded-full w-1/5 transition-all duration-500" />
-          </div>
-        </div>
 
-        {/* Continue */}
-        <div className="max-w-2xl mx-auto">
           <button
             onClick={handleContinue}
-            disabled={!selectedRole}
-            className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-              selectedRole
-                ? "bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/40"
-                : "bg-slate-200 text-slate-400 cursor-not-allowed"
-            }`}
+            disabled={!isRoleSelected}
+            className={`
+              w-full py-3.5 px-6 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300
+              flex items-center justify-center gap-2.5 shadow-md
+              ${
+                isRoleSelected
+                  ? "bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white hover:shadow-lg active:scale-[0.98]"
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
+              }
+            `}
           >
             Continue
+            {isRoleSelected && <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}
           </button>
 
-          <p className="text-center text-slate-600 mt-6">
+          <p className="text-center text-sm text-slate-600">
             Already have an account?{" "}
             <button
-              onClick={() => navigate("/signin")}
-              className="text-blue-600 font-bold hover:text-blue-700 transition-colors"
+              onClick={goToSignIn}
+              className="text-blue-700 font-semibold hover:text-blue-800 transition-colors"
             >
-              Login
+              Sign in
             </button>
           </p>
         </div>
       </div>
-
-      <style>{`
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
-};
-
-export default RoleSelection;
+}

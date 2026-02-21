@@ -1,638 +1,340 @@
 "use client";
-import type React from "react";
-import { useState, useMemo, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 
 import { GoogleLogin } from "@react-oauth/google";
 import {
   Eye,
   EyeOff,
-  Lock,
   User,
   Mail,
+  Lock,
   ArrowRight,
-  AlertCircle,
+  ChevronRight,
+  ShieldCheck,
+  GraduationCap,
+  Building2,
   Check,
   X,
-  Briefcase,
-  GraduationCap,
-  Shield,
-  ChevronLeft,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 
-import { googleAuthUseCase, sentOtpUc } from "../../di/auth";
-import type { UserRole } from "@/module/auth/domain/constants/user-role";
+import { useSignUp } from "../../hooks/useSignUp";
+import { useNavigate } from "react-router-dom";
 
-type RoleType = UserRole;
+export default function SignUpPage() {
+  const navigate = useNavigate()
+  const {
+    formData,
+    setFormData,
+    handleChange,
+    submit,
+    googleSignUp,
+    showPassword,
+    setShowPassword,
+    showConfirm,
+    setShowConfirm,
+    passwordChecks,
+    passwordStrength,
+    strengthColor,
+    isLoading,
+    error,
+    success,
+  } = useSignUp();
 
-interface SignUpFormData {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  role: RoleType;
-  termsAccepted: boolean;
-}
-
-interface ValidationErrors {
-  fullName?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  termsAccepted?: string;
-  general?: string;
-}
-
-const UnifiedSignup = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  /* -------------------- ROLE FROM ROUTE -------------------- */
-  const queryParams = new URLSearchParams(location.search);
-  const roleFromQuery = queryParams.get("role") as RoleType | null;
-  const roleFromState = location.state?.role as RoleType | undefined;
-
-  /* -------------------- STATE -------------------- */
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-
-  const [formData, setFormData] = useState<SignUpFormData>({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role: roleFromQuery || roleFromState || "candidate",
-    termsAccepted: false,
-  });
-
-  /* -------------------- EFFECTS -------------------- */
-  useEffect(() => {
-    if (roleFromQuery === "candidate" || roleFromQuery === "recruiter") {
-      setFormData((prev) => ({ ...prev, role: roleFromQuery }));
-    }
-  }, [roleFromQuery]);
-
-  useEffect(() => {
-    validateField("password", formData.password);
-    validateField("confirmPassword", formData.confirmPassword);
-  }, [formData.password, formData.confirmPassword]);
-
-  /* -------------------- VALIDATION -------------------- */
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  const handleGoogleResponse = async (credentialResponse: any) => {
+    await googleSignUp(credentialResponse.credential);
   };
 
-  const validatePassword = (password: string): { isValid: boolean; requirements: PasswordRequirement[] } => {
-    const requirements = [
-      { label: "At least 8 characters", met: password.length >= 8 },
-      { label: "One uppercase letter", met: /[A-Z]/.test(password) },
-      { label: "One lowercase letter", met: /[a-z]/.test(password) },
-      { label: "One number", met: /\d/.test(password) },
-      { label: "One special character", met: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password) },
-    ];
-    return { isValid: requirements.every(r => r.met), requirements };
-  };
-
-  const validateField = (field: string, value: any) => {
-    const errors: ValidationErrors = { ...validationErrors };
-    
-    switch (field) {
-      case "fullName":
-        if (!value.trim()) {
-          errors.fullName = "Full name is required";
-        } else if (value.trim().length < 2) {
-          errors.fullName = "Full name must be at least 2 characters";
-        } else {
-          delete errors.fullName;
-        }
-        break;
-      
-      case "email":
-        if (!value.trim()) {
-          errors.email = "Email is required";
-        } else if (!validateEmail(value)) {
-          errors.email = "Please enter a valid email address";
-        } else {
-          delete errors.email;
-        }
-        break;
-      
-      case "password":
-        if (!value) {
-          errors.password = "Password is required";
-        } else if (!validatePassword(value).isValid) {
-          errors.password = "Password does not meet requirements";
-        } else {
-          delete errors.password;
-        }
-        break;
-      
-      case "confirmPassword":
-        if (!value) {
-          errors.confirmPassword = "Please confirm your password";
-        } else if (value !== formData.password) {
-          errors.confirmPassword = "Passwords do not match";
-        } else {
-          delete errors.confirmPassword;
-        }
-        break;
-    }
-    
-    setValidationErrors(errors);
-  };
-
-  const handleBlur = (field: string) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
-    validateField(field, formData[field as keyof SignUpFormData]);
-  };
-
-  const validateForm = (): boolean => {
-    const errors: ValidationErrors = {};
-    
-    if (!formData.fullName.trim()) {
-      errors.fullName = "Full name is required";
-    } else if (formData.fullName.trim().length < 2) {
-      errors.fullName = "Full name must be at least 2 characters";
-    }
-    
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!validateEmail(formData.email)) {
-      errors.email = "Please enter a valid email address";
-    }
-    
-    const passwordValidation = validatePassword(formData.password);
-    if (!formData.password) {
-      errors.password = "Password is required";
-    } else if (!passwordValidation.isValid) {
-      errors.password = "Password does not meet requirements";
-    }
-    
-    if (!formData.confirmPassword) {
-      errors.confirmPassword = "Please confirm your password";
-    } else if (formData.confirmPassword !== formData.password) {
-      errors.confirmPassword = "Passwords do not match";
-    }
-    
-    if (!formData.termsAccepted) {
-      errors.termsAccepted = "You must accept the terms and conditions";
-    }
-    
-    setValidationErrors(errors);
-    setTouched({
-      fullName: true,
-      email: true,
-      password: true,
-      confirmPassword: true,
-      termsAccepted: true,
-    });
-    
-    return Object.keys(errors).length === 0;
-  };
-
-  /* -------------------- GOOGLE AUTH -------------------- */
-  const handleGoogleResponse = async (response: any) => {
-    try {
-      setGoogleLoading(true);
-      setValidationErrors({});
-
-      const credential = response?.credential;
-      if (!credential) {
-        throw new Error("Google credential missing");
-      }
-
-      const { user } = await googleAuthUseCase.execute(
-        credential,
-        formData.role
-      );
-
-      if (user.role === "candidate") {
-        navigate("/candidate/home");
-      } else {
-        navigate("/recruiter/");
-      }
-    } catch (err: any) {
-      setValidationErrors({ general: err.message || "Google sign-in failed" });
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
-  /* -------------------- PASSWORD REQUIREMENTS -------------------- */
-  interface PasswordRequirement {
-    label: string;
-    met: boolean;
-  }
-
-  const passwordValidation = useMemo(() => {
-    return validatePassword(formData.password);
-  }, [formData.password]);
-
-  /* -------------------- HANDLERS -------------------- */
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target as HTMLInputElement;
-
-    const newValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
-    
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-
-    if (touched[name]) {
-      validateField(name, newValue);
-    }
-  };
-
-  const handleRoleChange = (role: RoleType) => {
-    setFormData((prev) => ({ ...prev, role }));
-  };
-
-  /* -------------------- SUBMIT (SEND OTP) -------------------- */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-
-      await sentOtpUc.execute(formData.email, formData.role);
-
-      navigate("/verify-otp", {
-        state: {
-          email: formData.email,
-          fullName: formData.fullName,
-          password: formData.password,
-          role: formData.role,
-        },
-      });
-    } catch (err: any) {
-      setValidationErrors({ general: err.message || "Failed to send OTP. Please try again." });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /* -------------------- LINKEDIN -------------------- */
-  const handleLinkedInSignup = () => {
-    window.location.href = `/auth/linkedin?role=${formData.role}`;
-  };
-
-  const handleBack = () => {
-    if (!roleFromQuery && !roleFromState) {
-      navigate("/role-selection");
-    } else {
-      navigate(-1);
-    }
-  };
-
-  const isAnyLoading = isLoading || googleLoading;
-
-  /* -------------------- UI -------------------- */
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-slate-50 to-blue-50">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-        {/* Back Button */}
-        <button
-          onClick={handleBack}
-          className="flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-6"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          Back
-        </button>
+    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-blue-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-6xl bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-white/30 grid lg:grid-cols-2">
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-            <Shield className="w-8 h-8 text-blue-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">
-            Create Your Account
-          </h1>
-          <p className="text-slate-600">
-            Join as a {formData.role === "candidate" ? "candidate" : "recruiter"} and get started
-          </p>
-        </div>
-
-        {/* General Error */}
-        {validationErrors.general && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
-            <p className="text-red-700 text-sm">{validationErrors.general}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Role Selection */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleRoleChange("candidate")}
-              className={`p-4 border-2 rounded-xl transition-all duration-200 flex flex-col items-center gap-2 ${
-                formData.role === "candidate"
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-slate-200 hover:border-slate-300 text-slate-700"
-              }`}
-            >
-              <div className={`p-3 rounded-full ${
-                formData.role === "candidate" ? "bg-blue-100" : "bg-slate-100"
-              }`}>
-                <GraduationCap className="w-6 h-6" />
+        {/* Left – Branding Panel with Glassmorphism vibe */}
+        <div className="relative hidden lg:flex flex-col justify-center p-12 xl:p-16 bg-linear-to-br from-indigo-600/90 to-purple-600/90 text-white overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-12">
+              <div className="w-16 h-16 bg-white/15 backdrop-blur-lg rounded-2xl flex items-center justify-center border border-white/20 shadow-lg">
+                <ShieldCheck className="w-9 h-9" />
               </div>
-              <span className="font-medium">Candidate</span>
-              <span className="text-xs text-slate-500">Looking for jobs</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleRoleChange("recruiter")}
-              className={`p-4 border-2 rounded-xl transition-all duration-200 flex flex-col items-center gap-2 ${
-                formData.role === "recruiter"
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-slate-200 hover:border-slate-300 text-slate-700"
-              }`}
-            >
-              <div className={`p-3 rounded-full ${
-                formData.role === "recruiter" ? "bg-blue-100" : "bg-slate-100"
-              }`}>
-                <Briefcase className="w-6 h-6" />
-              </div>
-              <span className="font-medium">Recruiter</span>
-              <span className="text-xs text-slate-500">Hiring talent</span>
-            </button>
-          </div>
-
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Full Name
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                name="fullName"
-                placeholder="John Doe"
-                value={formData.fullName}
-                onChange={handleChange}
-                onBlur={() => handleBlur("fullName")}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
-                  validationErrors.fullName && touched.fullName
-                    ? "border-red-500"
-                    : "border-slate-300"
-                }`}
-              />
+              <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-md">CareerConnect</h1>
             </div>
-            {validationErrors.fullName && touched.fullName && (
-              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.fullName}
-              </p>
-            )}
-          </div>
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                onBlur={() => handleBlur("email")}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
-                  validationErrors.email && touched.email
-                    ? "border-red-500"
-                    : "border-slate-300"
-                }`}
-              />
-            </div>
-            {validationErrors.email && touched.email && (
-              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.email}
-              </p>
-            )}
-          </div>
+            <h2 className="text-4xl font-bold leading-tight mb-8 drop-shadow">
+              {formData.role === "candidate" ? "Launch Your Career" : "Discover Top Talent"}
+            </h2>
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                onBlur={() => handleBlur("password")}
-                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
-                  validationErrors.password && touched.password
-                    ? "border-red-500"
-                    : "border-slate-300"
-                }`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-            {validationErrors.password && touched.password && (
-              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.password}
-              </p>
-            )}
-          </div>
-
-          {/* Password Requirements */}
-          {formData.password && (
-            <div className="bg-slate-50 p-4 rounded-lg">
-              <p className="text-sm font-medium text-slate-700 mb-2">
-                Password Requirements
-              </p>
-              <div className="space-y-1">
-                {passwordValidation.requirements.map((req, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    {req.met ? (
-                      <Check className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <X className="w-4 h-4 text-red-500" />
-                    )}
-                    <span className={`text-sm ${req.met ? 'text-green-600' : 'text-red-600'}`}>
-                      {req.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Confirm Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                name="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                onBlur={() => handleBlur("confirmPassword")}
-                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
-                  validationErrors.confirmPassword && touched.confirmPassword
-                    ? "border-red-500"
-                    : formData.confirmPassword && formData.confirmPassword === formData.password
-                    ? "border-green-500"
-                    : "border-slate-300"
-                }`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-            {validationErrors.confirmPassword && touched.confirmPassword && (
-              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.confirmPassword}
-              </p>
-            )}
-            {formData.confirmPassword && formData.confirmPassword === formData.password && (
-              <p className="mt-2 text-sm text-green-600 flex items-center gap-1">
-                <Check className="w-4 h-4" />
-                Passwords match
-              </p>
-            )}
-          </div>
-
-          {/* Terms and Conditions */}
-          <div className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              name="termsAccepted"
-              id="termsAccepted"
-              checked={formData.termsAccepted}
-              onChange={handleChange}
-              onBlur={() => handleBlur("termsAccepted")}
-              className="mt-1 w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="termsAccepted" className="text-sm text-slate-600">
-              I agree to the{" "}
-              <button
-                type="button"
-                onClick={() => window.open("/terms", "_blank")}
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                Terms & Conditions
-              </button>{" "}
-              and{" "}
-              <button
-                type="button"
-                onClick={() => window.open("/privacy", "_blank")}
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                Privacy Policy
-              </button>
-            </label>
-          </div>
-          {validationErrors.termsAccepted && touched.termsAccepted && (
-            <p className="text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle className="w-4 h-4" />
-              {validationErrors.termsAccepted}
+            <p className="text-indigo-100/95 text-xl leading-relaxed mb-12 max-w-lg drop-shadow">
+              {formData.role === "candidate"
+                ? "Connect with dream opportunities, showcase your skills, and accelerate your professional journey."
+                : "Access verified professionals, AI-driven matching, and streamlined hiring — all in one place."}
             </p>
-          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isAnyLoading}
-            className="w-full py-3.5 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Sending OTP...
-              </>
-            ) : (
-              <>
-                Continue
-                <ArrowRight className="w-5 h-5" />
-              </>
+            <ul className="space-y-5 text-lg">
+              {[
+                { icon: CheckCircle2, text: "Bank-level encryption & privacy" },
+                { icon: CheckCircle2, text: "Instant OTP verification" },
+                { icon: CheckCircle2, text: "Intelligent role-based matching" },
+                { icon: CheckCircle2, text: "24/7 support & career resources" },
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-4">
+                  <item.icon className="w-6 h-6 text-emerald-300" />
+                  <span>{item.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Subtle glass-like floating elements */}
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <div className="absolute -left-40 top-20 w-125 h-125 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute right-0 bottom-0 w-100 h-100 bg-purple-300/20 rounded-full blur-3xl" />
+          </div>
+        </div>
+
+        {/* Right – Form with Glassmorphism card */}
+        <div className="p-6 sm:p-10 lg:p-14 flex flex-col bg-white/40 backdrop-blur-xl border-l border-white/20">
+          <div className="max-w-md mx-auto w-full space-y-8">
+
+            <div className="text-center">
+              <h2 className="text-4xl font-bold text-gray-900 tracking-tight">Create Account</h2>
+              <p className="mt-3 text-gray-600 text-lg">Join in seconds — it's free</p>
+            </div>
+
+            {/* Role Cards – Glassmorphic style */}
+            <div className="grid grid-cols-2 gap-5">
+              {[
+                { value: "candidate" as const, label: "Candidate", icon: GraduationCap, desc: "Find jobs" },
+                { value: "recruiter" as const, label: "Recruiter", icon: Building2, desc: "Hire talent" },
+              ].map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  onClick={() => setFormData((p: any) => ({ ...p, role: r.value }))}
+                  className={`group relative p-6 rounded-2xl backdrop-blur-lg border border-white/30 transition-all duration-300 shadow-lg
+                    ${formData.role === r.value
+                      ? "bg-white/60 border-indigo-400/50 shadow-indigo-200/40 scale-[1.03]"
+                      : "bg-white/30 hover:bg-white/50 hover:border-white/50 hover:shadow-xl"}`}
+                >
+                  <r.icon className={`w-10 h-10 mx-auto mb-4 transition-colors ${formData.role === r.value ? "text-indigo-600" : "text-gray-500 group-hover:text-indigo-500"}`} />
+                  <div className="font-semibold text-gray-900 text-lg">{r.label}</div>
+                  <div className="text-sm text-gray-600 mt-1">{r.desc}</div>
+
+                  {formData.role === r.value && (
+                    <div className="absolute -top-2 -right-2 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md ring-2 ring-white/80">
+                      Active
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Alerts */}
+            {(error || success) && (
+              <div className={`p-5 rounded-2xl flex items-start gap-4 backdrop-blur-sm border ${
+                error ? "bg-rose-100/70 border-rose-300/50 text-rose-800" : "bg-emerald-100/70 border-emerald-300/50 text-emerald-800"
+              }`}>
+                {error ? <AlertCircle className="w-6 h-6 mt-0.5 shrink-0" /> : <CheckCircle2 className="w-6 h-6 mt-0.5 shrink-0" />}
+                <p className="text-base">{error || success}</p>
+              </div>
             )}
-          </button>
-        </form>
 
-        {/* Divider */}
-        <div className="my-8 flex items-center">
-          <div className="grow border-t border-slate-200"></div>
-          <span className="mx-4 text-sm text-slate-500">Or continue with</span>
-          <div className="grow border-t border-slate-200"></div>
+            <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="space-y-6">
+
+              {/* Floating label inputs */}
+              <div className="relative">
+                <input
+                  id="fullName"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder=" "
+                  className="peer w-full px-5 pt-7 pb-3 bg-white/60 backdrop-blur-sm border border-gray-300/70 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-300/50 outline-none transition-all shadow-sm"
+                />
+                <label
+                  htmlFor="fullName"
+                  className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-600 peer-placeholder-shown:text-base transition-all duration-200 pointer-events-none"
+                >
+                  Full Name
+                </label>
+                <User className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+
+              <div className="relative">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder=" "
+                  className="peer w-full px-5 pt-7 pb-3 bg-white/60 backdrop-blur-sm border border-gray-300/70 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-300/50 outline-none transition-all shadow-sm"
+                />
+                <label
+                  htmlFor="email"
+                  className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-600 peer-placeholder-shown:text-base transition-all duration-200 pointer-events-none"
+                >
+                  Email Address
+                </label>
+                <Mail className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+
+              {/* Password with checklist */}
+              <div className="space-y-2">
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder=" "
+                    className="peer w-full px-5 pt-7 pb-3 bg-white/60 backdrop-blur-sm border border-gray-300/70 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-300/50 outline-none transition-all shadow-sm"
+                  />
+                  <label
+                    htmlFor="password"
+                    className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-600 peer-placeholder-shown:text-base transition-all duration-200 pointer-events-none"
+                  >
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                  <Lock className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                </div>
+
+                {formData.password && (
+                  <>
+                    <div className="h-1.5 bg-gray-200/70 rounded-full overflow-hidden shadow-inner">
+                      <div className={`h-full bg-linear-to-r ${strengthColor} transition-all duration-500`} style={{ width: `${passwordStrength}%` }} />
+                    </div>
+                    <ul className="space-y-1.5 text-sm">
+                      {passwordChecks.map((check, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          {check.ok ? (
+                            <Check className="w-4 h-4 text-emerald-600" />
+                          ) : (
+                            <X className="w-4 h-4 text-rose-500" />
+                          )}
+                          <span className={check.ok ? "text-emerald-700" : "text-gray-600"}>{check.label}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirm ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder=" "
+                  className="peer w-full px-5 pt-7 pb-3 bg-white/60 backdrop-blur-sm border border-gray-300/70 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-300/50 outline-none transition-all shadow-sm"
+                />
+                <label
+                  htmlFor="confirmPassword"
+                  className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-600 peer-placeholder-shown:text-base transition-all duration-200 pointer-events-none"
+                >
+                  Confirm Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
+                >
+                  {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+                <Lock className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  name="termsAccepted"
+                  checked={formData.termsAccepted}
+                  onChange={handleChange}
+                  className="mt-1.5 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 bg-white/70"
+                />
+                <label htmlFor="terms" className="text-sm text-gray-700 leading-relaxed">
+                  I accept the{" "}
+                  <a href="#" className="text-indigo-600 hover:text-indigo-800 font-medium underline-offset-2 hover:underline">Terms of Service</a>{" "}
+                  and{" "}
+                  <a href="#" className="text-indigo-600 hover:text-indigo-800 font-medium underline-offset-2 hover:underline">Privacy Policy</a>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-4 bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 ring-1 ring-indigo-500/30"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-6 h-6 border-4 border-white/40 border-t-transparent rounded-full animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    Sign Up
+                    <ArrowRight className="w-6 h-6" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="relative my-10">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200/70" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-white/80 backdrop-blur-sm px-6 py-1.5 rounded-full text-sm text-gray-500 border border-gray-200/50 shadow-sm">or continue with</span>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleResponse}
+                onError={() => {}} // Error is handled in the hook
+                useOneTap={false}
+                theme="outline"
+                size="large"
+                text="signup_with"
+                shape="rectangular"
+                width="100%"
+              />
+            </div>
+
+            <p className="text-center text-gray-600 mt-10">
+              Already have an account?{" "}
+              <button
+                onClick={() => navigate("/signin")}
+                className="text-indigo-600 hover:text-indigo-800 font-semibold hover:underline inline-flex items-center gap-1.5"
+                disabled={isLoading}
+              >
+                Sign in now
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </p>
+
+            <div className="mt-8 p-5 bg-white/40 backdrop-blur-lg rounded-2xl border border-white/30 text-center shadow-inner">
+              <div className="flex justify-center items-center gap-3 mb-2">
+                <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                <p className="font-semibold text-gray-800">Your security is our priority</p>
+              </div>
+              <p className="text-sm text-gray-600">
+                End-to-end encryption • GDPR compliant • No plain-text passwords stored
+              </p>
+            </div>
+          </div>
         </div>
-
-        {/* Social Logins */}
-        <div className="space-y-4">
-          <GoogleLogin
-            onSuccess={handleGoogleResponse}
-            onError={() => setValidationErrors({ general: "Google sign-in failed" })}
-            width="100%"
-            theme="outline"
-            shape="rectangular"
-            text="signup_with"
-            size="large"
-          />
-
-          <button
-            onClick={handleLinkedInSignup}
-            disabled={isAnyLoading}
-            className="w-full py-3 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#0A66C2">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-            </svg>
-            Continue with LinkedIn
-          </button>
-        </div>
-
-        {/* Sign In Link */}
-        <p className="mt-8 text-center text-slate-600">
-          Already have an account?{" "}
-          <button
-            onClick={() => navigate("/signin")}
-            className="text-blue-600 hover:text-blue-800 font-semibold"
-          >
-            Sign In
-          </button>
-        </p>
       </div>
     </div>
   );
-};
-
-export default UnifiedSignup;
+}

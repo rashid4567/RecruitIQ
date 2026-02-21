@@ -1,8 +1,32 @@
+import type { Gender } from "../types/gender.types";
+
+export interface CandidateProfileApiResponse {
+  user: {
+    fullName: string;
+    email: string;
+    emailVerified: boolean;
+    profileImage?: string;
+  };
+  candidateProfile: {
+    currentJob?: string;
+    experienceYears?: number;
+    educationLevel?: string;
+    skills?: string[];
+    preferredJobLocations?: string[];
+    currentJobLocation?: string;
+    gender?: Gender;
+    linkedinUrl?: string;
+    portfolioUrl?: string;
+    bio?: string;
+    profileCompleted: boolean;
+  };
+}
+
 export class CandidateProfile {
   public readonly fullName: string;
   public readonly email: string;
   public readonly emailVerified: boolean;
-  public readonly profileImage!: string;
+  public readonly profileImage?: string;
 
   public readonly currentJob?: string;
   public readonly experienceYears?: number;
@@ -10,9 +34,9 @@ export class CandidateProfile {
   public readonly skills?: string[];
   public readonly preferredJobLocations?: string[];
   public readonly currentJobLocation?: string;
-  public readonly gender?: string;
+  public readonly gender?: Gender;
   public readonly linkedinUrl?: string;
-  public readonly portfolioUrl?:string;
+  public readonly portfolioUrl?: string;
   public readonly bio?: string;
 
   public readonly profileCompleted: boolean;
@@ -21,7 +45,7 @@ export class CandidateProfile {
     fullName: string;
     email: string;
     emailVerified: boolean;
-    profileImage: string;
+    profileImage?: string;
 
     currentJob?: string;
     experienceYears?: number;
@@ -29,9 +53,9 @@ export class CandidateProfile {
     skills?: string[];
     preferredJobLocations?: string[];
     currentJobLocation?: string;
-    gender?: string;
+    gender?: Gender;
     linkedinUrl?: string;
-    portfolioUrl ?:string;
+    portfolioUrl?: string;
     bio?: string;
 
     profileCompleted: boolean;
@@ -39,6 +63,7 @@ export class CandidateProfile {
     this.fullName = params.fullName;
     this.email = params.email;
     this.emailVerified = params.emailVerified;
+    this.profileImage = params.profileImage;
 
     this.currentJob = params.currentJob;
     this.experienceYears = params.experienceYears;
@@ -54,28 +79,73 @@ export class CandidateProfile {
     this.profileCompleted = params.profileCompleted;
   }
 
-  update(data: Partial<CandidateProfile>): CandidateProfile {
+
+  static fromApi(data: CandidateProfileApiResponse): CandidateProfile {
     return new CandidateProfile({
-      fullName: data.fullName ?? this.fullName,
-      email: this.email,
-      emailVerified: this.emailVerified,
-      profileImage: this.profileImage,
+      fullName: data.user.fullName,
+      email: data.user.email,
+      emailVerified: data.user.emailVerified,
+      profileImage: data.user.profileImage,
 
-      currentJob: data.currentJob ?? this.currentJob,
-      experienceYears: data.experienceYears ?? this.experienceYears,
-      educationLevel: data.educationLevel ?? this.educationLevel,
-      skills: data.skills ?? this.skills,
-      preferredJobLocations:
-        data.preferredJobLocations ?? this.preferredJobLocations,
-      currentJobLocation: data.currentJobLocation ?? this.currentJobLocation,
-      gender: data.gender ?? this.gender,
-      linkedinUrl: data.linkedinUrl ?? this.linkedinUrl,
-      portfolioUrl : data.portfolioUrl ?? this.portfolioUrl,
-      bio: data.bio ?? this.bio,
+      currentJob: data.candidateProfile.currentJob,
+      experienceYears: data.candidateProfile.experienceYears,
+      educationLevel: data.candidateProfile.educationLevel,
+      skills: data.candidateProfile.skills,
+      preferredJobLocations: data.candidateProfile.preferredJobLocations,
+      currentJobLocation: data.candidateProfile.currentJobLocation,
+      gender: data.candidateProfile.gender,
+      linkedinUrl: data.candidateProfile.linkedinUrl,
+      portfolioUrl: data.candidateProfile.portfolioUrl,
+      bio: data.candidateProfile.bio,
 
-      profileCompleted: this.profileCompleted,
+      profileCompleted: data.candidateProfile.profileCompleted,
     });
   }
+
+  update(data: {
+  fullName?: string;
+  profileImage?: string;
+
+  currentJob?: string;
+  experienceYears?: number;
+  educationLevel?: string;
+  skills?: string[];
+  preferredJobLocations?: string[];
+  currentJobLocation?: string;
+  gender?: Gender;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  bio?: string;
+}): CandidateProfile {
+  return new CandidateProfile({
+    fullName: data.fullName ?? this.fullName,
+    email: this.email,
+    emailVerified: this.emailVerified,
+    profileImage: data.profileImage ?? this.profileImage,
+
+    currentJob: data.currentJob ?? this.currentJob,
+    experienceYears: data.experienceYears ?? this.experienceYears,
+    educationLevel: data.educationLevel ?? this.educationLevel,
+    skills: data.skills ?? this.skills,
+    preferredJobLocations:
+      data.preferredJobLocations ?? this.preferredJobLocations,
+    currentJobLocation: data.currentJobLocation ?? this.currentJobLocation,
+
+    gender:
+      data.gender === "male" ||
+      data.gender === "female" ||
+      data.gender === "other"
+        ? data.gender
+        : this.gender,
+
+    linkedinUrl: data.linkedinUrl ?? this.linkedinUrl,
+    portfolioUrl: data.portfolioUrl ?? this.portfolioUrl,
+    bio: data.bio ?? this.bio,
+
+    profileCompleted: this.profileCompleted,
+  });
+}
+
 
   complete(data: {
     currentJob: string;
@@ -85,29 +155,19 @@ export class CandidateProfile {
     bio: string;
     experienceYears?: number;
     linkedinUrl?: string;
-    portfolioUrl?:string;
+    portfolioUrl?: string;
     currentJobLocation?: string;
-    gender?: string;
+    gender?: Gender;
   }): CandidateProfile {
     if (this.profileCompleted) {
       throw new Error("Profile already completed");
     }
 
-    if (!data.currentJob) {
-      throw new Error("Current job is required");
-    }
-
-    if (!data.educationLevel) {
-      throw new Error("Education level is required");
-    }
-
-    if (!data.skills || data.skills.length === 0) {
+    if (!data.currentJob) throw new Error("Current job is required");
+    if (!data.educationLevel) throw new Error("Education level is required");
+    if (!data.skills || data.skills.length === 0)
       throw new Error("At least one skill is required");
-    }
-
-    if (!data.bio) {
-      throw new Error("Bio is required");
-    }
+    if (!data.bio) throw new Error("Bio is required");
 
     return new CandidateProfile({
       fullName: this.fullName,
@@ -123,7 +183,7 @@ export class CandidateProfile {
       currentJobLocation: data.currentJobLocation,
       gender: data.gender,
       linkedinUrl: data.linkedinUrl,
-      portfolioUrl : data.portfolioUrl,
+      portfolioUrl: data.portfolioUrl,
       bio: data.bio,
 
       profileCompleted: true,

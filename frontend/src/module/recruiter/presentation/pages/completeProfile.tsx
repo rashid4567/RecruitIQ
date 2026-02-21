@@ -1,4 +1,3 @@
-"use client";
 
 import type React from "react";
 import { useState, useEffect } from "react";
@@ -172,7 +171,7 @@ const RecruiterDetails: React.FC = () => {
         bio: formData.bio.trim(),
         subscriptionStatus: selectedPlan,
         verificationStatus: "pending",
-        jobPostUsed: 0,
+       
       });
 
       console.log("Submitting recruiter profile:", {

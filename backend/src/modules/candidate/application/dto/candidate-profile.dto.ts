@@ -1,3 +1,5 @@
+import { Gender } from "../../domain/type/gender.Types";
+
 export interface UserProfileDTO {
   id: string;
   fullName: string;
@@ -14,7 +16,7 @@ export interface CandidateProfileDTO {
   bio: string;
   profileCompleted: boolean;
   currentJobLocation : string,
-  gender : string,
+  gender ?: Gender,
   linkedinUrl : string,
   portfolioUrl : string
 }

@@ -11,6 +11,10 @@ export class UpdatePasswordUsecase {
     currentPassword: string;
     newPassword: string;
   }): Promise<void> {
+
+    if(!input.currentPassword || !input.newPassword){
+      throw new Error("All Feilds are Required");
+    }
     const current = Password.create(input.currentPassword);
     const next = Password.create(input.newPassword);
 

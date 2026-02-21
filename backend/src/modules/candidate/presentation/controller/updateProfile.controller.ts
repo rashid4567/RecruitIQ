@@ -6,22 +6,21 @@ import { updateCandidateProfileSchema } from "../validator/updateCandidate-valid
 
 export class UpdateCandidateProfileController {
   constructor(
-    private readonly updateProfileUC: UpdateCandidateProfileUseCase,
+    private readonly updateProfileUC: UpdateCandidateProfileUseCase
   ) {}
 
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-          
       const userId = userIdSchema.parse(req.user?.userId);
-      const body = updateCandidateProfileSchema.parse(req.body);
-      const profile = await this.updateProfileUC.execute(userId, body);
-      res.status(HTTP_STATUS.OK).json({
+      const input = updateCandidateProfileSchema.parse(req.body);
+      const result = await this.updateProfileUC.execute(userId, input);
+      return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "Profile updated successfully",
-        data: profile,
+        data: result,
       });
+
     } catch (err) {
-        console.error(err)
       next(err);
     }
   };

@@ -1,7 +1,7 @@
 import { candidateProfileModel } from "../monogoose/models/candidate-profile.model";
 import { CandidateProfile } from "../../domain/entities/candidate-profile.entity";
 import { CandidateRespository } from "../../domain/repositories/candidate.repository";
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
 import { Types } from "mongoose";
 
 export class MongooseCandidateRepository implements CandidateRespository {

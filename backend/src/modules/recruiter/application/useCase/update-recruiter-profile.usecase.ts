@@ -1,50 +1,32 @@
-import { ApplicationError } from "../../../auth/application/errors/application.error";
+import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
 import { UserRepository } from "../../domain/repositories/user.entity";
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
 import { ERROR_CODES } from "../constants/error.code.constants";
 import { RecruiterProfileReponse } from "../dto/recruiter-profile.dto";
 import { UpdateRecruiterProfileDTO } from "../dto/update-recruiter-profile.dto";
-import { RecruiterProfile } from "../../domain/entities/recruiter-profile.entity";
 
 export class UpdateRecruiterProfileUseCase {
   constructor(
     private readonly recruiterRepo: RecruiterProfileRepository,
-    private readonly userRepo: UserRepository
+    private readonly userRepo: UserRepository,
   ) {}
 
   async execute(
     userId: string,
-    input: UpdateRecruiterProfileDTO
+    input: UpdateRecruiterProfileDTO,
   ): Promise<RecruiterProfileReponse> {
-
     const id = UserId.create(userId);
 
-  
     const user = await this.userRepo.findById(id);
     if (!user) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    let profile = await this.recruiterRepo.findByUserId(id);
-
+    const profile = await this.recruiterRepo.findByUserId(id);
     if (!profile) {
-      profile = RecruiterProfile.fromPresistence({
-        userId: id,
-        companyName: "",
-        companyWebsite: "",
-        companySize: 0,
-        industry: "",
-        designation: "",
-        location: "",
-        bio: "",
-        linkedinUrl: "",
-        subscriptionStatus: "free",
-        jobPostsUsed: 0,
-        verificationStatus: "pending",
-      });
+      throw new ApplicationError(ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND);
     }
-
 
     if (input.fullName !== undefined) {
       user.updateFullName(input.fullName);
@@ -53,7 +35,6 @@ export class UpdateRecruiterProfileUseCase {
     if (input.profileImage !== undefined) {
       user.updateProfileImage(input.profileImage);
     }
-
 
     if (input.companyName !== undefined) {
       profile.updateCompanyName(input.companyName);
@@ -87,10 +68,8 @@ export class UpdateRecruiterProfileUseCase {
       profile.updateLinkedinUrl(input.linkedinUrl);
     }
 
-
     await this.userRepo.save(user);
     await this.recruiterRepo.save(profile);
-
 
     return {
       user: {

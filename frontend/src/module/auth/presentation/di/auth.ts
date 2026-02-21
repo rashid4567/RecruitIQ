@@ -13,7 +13,7 @@ import { ApiAuthRepository } from "../../infrastructure/repositories/ApiAuthRepo
 const authRepo = new ApiAuthRepository();
 
 export const SignInUC = new SignInUseCase(authRepo);
-export const googleAuthUseCase = new GoogleAuthUseCase(authRepo)
+export const googleAuthUc = new GoogleAuthUseCase(authRepo)
 export const sentOtpUc = new SendOTPUseCase(authRepo);
 export const verifyOtpUc = new VerifyOtpUseCase(authRepo);
 export const resendOtpUc = new ResendOTPUseCase(authRepo);

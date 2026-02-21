@@ -1,4 +1,5 @@
-import { UserId } from "../../../../shared/domain/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
+import { Gender } from "../type/gender.Types";
 
 export class CandidateProfile {
   private profileComplete = false;
@@ -12,7 +13,7 @@ export class CandidateProfile {
     private preferredJobLocations: string[] = [],
     private bio?: string,
     private currentJobLocation?: string,
-    private gender?: string,
+    private gender?: Gender,
     private linkedinUrl?: string,
     private portfolioUrl?: string,
     profileComplete = false,
@@ -20,12 +21,17 @@ export class CandidateProfile {
     this.profileComplete = profileComplete;
   }
 
+
   public static create(
     userId: UserId,
     currentJob: string,
     experienceYears?: number,
   ): CandidateProfile {
-    if (!currentJob || currentJob.trim().length === 0) {
+    if (!userId) {
+      throw new Error("User id is required");
+    }
+
+    if (!currentJob?.trim()) {
       throw new Error("Current job is required");
     }
 
@@ -40,30 +46,63 @@ export class CandidateProfile {
     userId: UserId;
     currentJob: string;
     experienceYears?: number;
-    skills: string[];
+    skills?: string[];
     educationLevel?: string;
-    preferredJobLocations: string[];
+    preferredJobLocations?: string[];
     bio?: string;
     currentJobLocation?: string;
-    gender?: string;
+    gender?: Gender;
     linkedinUrl?: string;
     portfolioUrl?: string;
-    profileComplete: boolean;
+    profileComplete?: boolean;
   }): CandidateProfile {
     return new CandidateProfile(
       props.userId,
-      props.currentJob,
+      props.currentJob ?? "",
       props.experienceYears,
-      props.skills,
+      props.skills ?? [],
       props.educationLevel,
-      props.preferredJobLocations,
+      props.preferredJobLocations ?? [],
       props.bio,
       props.currentJobLocation,
       props.gender,
       props.linkedinUrl,
       props.portfolioUrl,
-      props.profileComplete,
+      props.profileComplete ?? false,
     );
+  }
+
+
+
+  public canBeCompleted(): boolean {
+    return (
+      this.skills.length > 0 &&
+      !!this.educationLevel?.trim() &&
+      !!this.bio?.trim()
+    );
+  }
+
+  public completeProfile(): void {
+    if (!this.canBeCompleted()) {
+      throw new Error("Profile cannot be completed. Missing required fields");
+    }
+    this.profileComplete = true;
+  }
+
+ 
+
+  public updateCurrentJob(currentJob: string): void {
+    if (!currentJob?.trim()) {
+      throw new Error("Current job cannot be empty");
+    }
+    this.currentJob = currentJob.trim();
+  }
+
+  public updateExperienceYears(year?: number): void {
+    if (year !== undefined && year < 0) {
+      throw new Error("Experience years cannot be negative");
+    }
+    this.experienceYears = year;
   }
 
   public updateSkills(skills: string[]): void {
@@ -74,10 +113,10 @@ export class CandidateProfile {
   }
 
   public updateEducation(level: string): void {
-    if (!level || level.trim().length === 0) {
+    if (!level?.trim()) {
       throw new Error("Education level cannot be empty");
     }
-    this.educationLevel = level;
+    this.educationLevel = level.trim();
   }
 
   public updatePreferredLocations(locations: string[]): void {
@@ -87,15 +126,10 @@ export class CandidateProfile {
     this.preferredJobLocations = [...locations];
   }
 
-  public updateCurrentJob(currentJob : string):void{
-    this.currentJob = currentJob
-  }
-
-  public updateExperienceYears(year : number):void{
-    this.experienceYears = year
-  }
-
-  public updateBio(bio: string): void {
+  public updateBio(bio?: string): void {
+    if (bio && bio.length > 500) {
+      throw new Error("Bio cannot exceed 500 characters");
+    }
     this.bio = bio;
   }
 
@@ -103,7 +137,11 @@ export class CandidateProfile {
     this.currentJobLocation = location;
   }
 
-  public updateGender(gender?: string): void {
+  public updateGender(gender?: Gender): void {
+    const allowed = ["male", "female", "other"];
+    if (gender && !allowed.includes(gender)) {
+      throw new Error("Invalid gender value");
+    }
     this.gender = gender;
   }
 
@@ -115,12 +153,10 @@ export class CandidateProfile {
     this.portfolioUrl = url;
   }
 
-  public completeProfile(): void {
-    if (this.skills.length === 0 || !this.educationLevel || !this.bio) {
-      throw new Error("Profile not completed");
-    }
-    this.profileComplete = true;
+  public getUserId(): UserId {
+    return this.userId;
   }
+
   public getCurrentJob(): string {
     return this.currentJob;
   }
@@ -132,26 +168,24 @@ export class CandidateProfile {
   public getSkills(): string[] {
     return [...this.skills];
   }
+
   public getEducationLevel(): string | undefined {
     return this.educationLevel;
-  }
-
-  public getBio(): string | undefined {
-    return this.bio;
-  }
-  public getUserId(): UserId {
-    return this.userId;
   }
 
   public getPreferredLocations(): string[] {
     return [...this.preferredJobLocations];
   }
 
+  public getBio(): string | undefined {
+    return this.bio;
+  }
+
   public getCurrentJobLocation(): string | undefined {
     return this.currentJobLocation;
   }
 
-  public getGender(): string | undefined {
+  public getGender(): Gender | undefined {
     return this.gender;
   }
 

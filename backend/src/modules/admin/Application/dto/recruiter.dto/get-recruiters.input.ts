@@ -1,8 +1,8 @@
-import { VerificationStatus } from "../../../Domain/entities/recruiter.entity"; 
+import { verificationStatus } from "../../../../recruiter/domain/constatns/verificationStatus.constants"; 
 
 export interface GetRecruitersInput {
   search?: string;
-  verificationStatus?: VerificationStatus;
+  verificationStatus?: verificationStatus;
   subscriptionStatus?: string;
   isActive?: boolean;
   skip: number;

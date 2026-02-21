@@ -9,4 +9,4 @@ export class ListActivityLogUseCase{
         const logs = await this.activityLogRepo.list();
         return [...logs].reverse();
     }
-} 
+}

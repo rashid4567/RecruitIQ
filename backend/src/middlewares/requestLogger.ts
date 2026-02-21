@@ -1,21 +1,28 @@
 import { Request, Response, NextFunction } from "express";
-import { logger } from "../shared/logger";
+import { logger } from "../shared/logger"; 
+import { randomUUID } from "crypto";
 
 export const requestLogger = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
+  const requestId = randomUUID();
   const start = Date.now();
 
-  res.on("finish", () => {
-    const duration = Date.now() - start;
+  req.requestId = requestId;
 
-    logger.info(`
-${req.method} ${req.originalUrl}
-Body: ${JSON.stringify(req.body)}
-Status: ${res.statusCode} (${duration}ms)
-    `);
+  const log = logger.child({
+    requestId,
+    method: req.method,
+    path: req.originalUrl,
+  });
+
+  res.on("finish", () => {
+    log.info({
+      statusCode: res.statusCode,
+      durationMs: Date.now() - start,
+    });
   });
 
   next();

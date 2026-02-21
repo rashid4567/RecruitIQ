@@ -1,4 +1,3 @@
-// hooks/useSetting.tabs.ts
 import { useState, useCallback } from "react";
 import { type SettingsTab, SETTINGS_TABS } from "../constants/settingTab";
 

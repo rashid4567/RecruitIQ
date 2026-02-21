@@ -61,7 +61,7 @@ export default function ActivityLogsPage() {
 
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 12,           // slightly more rows by default
+    limit: 12,        
     total: 0,
   });
 

@@ -154,25 +154,7 @@ export function ProfileCard({
               )}
             </h2>
 
-            <Badge
-              className={`border px-3 py-1 ${
-                profile.emailVerified
-                  ? "bg-green-50 text-green-800 border-green-200"
-                  : "bg-amber-50 text-amber-800 border-amber-200"
-              }`}
-            >
-              {profile.emailVerified ? (
-                <>
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Verified
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-3 w-3 mr-1" />
-                  Unverified
-                </>
-              )}
-            </Badge>
+            
           </div>
         </div>
 

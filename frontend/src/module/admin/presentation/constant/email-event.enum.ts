@@ -1,0 +1,13 @@
+import type { EVENTS } from "./templateEvents";
+
+export const EmailEvent = {
+  ACCOUNT_CREATED: "ACCOUNT_CREATED",
+  JOB_APPLIED: "JOB_APPLIED",
+  INTERVIEW_SCHEDULED: "INTERVIEW_SCHEDULED",
+  SELECTED: "SELECTED",
+  REJECTED: "REJECTED",
+  SUBSCRIPTION_EXPIRING: "SUBSCRIPTION_EXPIRING",
+  SUBSCRIPTION_EXPIRED: "SUBSCRIPTION_EXPIRED",
+} as const;
+
+export type EventValue = (typeof EVENTS)[number]["value"];

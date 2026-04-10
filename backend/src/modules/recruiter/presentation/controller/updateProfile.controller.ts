@@ -12,7 +12,8 @@ export class UpdateRecruiterProfileController {
 
      const userId = userIdSchema.parse(req.user?.userId);
       const body = UpdateRecruiterProfileSchema.parse(req.body);
-  
+      console.log("body", body);
+
       const profile = await this.updateProfileUC.execute(userId, body)
       res.status(HTTP_STATUS.OK).json({
         success : true,
@@ -20,7 +21,7 @@ export class UpdateRecruiterProfileController {
         data : profile,
       })
     } catch (err) {
-
+      console.error("error", err);
       next(err);
     }
   };

@@ -23,15 +23,15 @@ export class UpdateRecruiterProfileUseCase {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    const profile = await this.recruiterRepo.findByUserId(id);
+    let profile = await this.recruiterRepo.findByUserId(id);
     if (!profile) {
       throw new ApplicationError(ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND);
     }
 
+
     if (input.fullName !== undefined) {
       user.updateFullName(input.fullName);
     }
-
     if (input.profileImage !== undefined) {
       user.updateProfileImage(input.profileImage);
     }
@@ -39,35 +39,29 @@ export class UpdateRecruiterProfileUseCase {
     if (input.companyName !== undefined) {
       profile.updateCompanyName(input.companyName);
     }
-
     if (input.companyWebsite !== undefined) {
       profile.updateCompanyWebsite(input.companyWebsite);
     }
-
     if (input.companySize !== undefined) {
       profile.updateCompanySize(input.companySize);
     }
-
-    if (input.designation !== undefined) {
-      profile.updateDesignation(input.designation);
-    }
-
     if (input.industry !== undefined) {
       profile.updateIndustry(input.industry);
     }
-
+    if (input.designation !== undefined) {
+      profile.updateDesignation(input.designation);
+    }
     if (input.location !== undefined) {
       profile.updateLocation(input.location);
     }
-
     if (input.bio !== undefined) {
       profile.updateBio(input.bio);
     }
-
     if (input.linkedinUrl !== undefined) {
       profile.updateLinkedinUrl(input.linkedinUrl);
     }
 
+   
     await this.userRepo.save(user);
     await this.recruiterRepo.save(profile);
 
@@ -79,14 +73,14 @@ export class UpdateRecruiterProfileUseCase {
         profileImage: user.getProfileImage(),
       },
       recruiter: {
-        companyName: profile.getCompanyName(),
-        companyWebsite: profile.getCompanyWebsite(),
-        companySize: profile.getCompanySize(),
-        designation: profile.getDesignation(),
-        industry: profile.getIndustry(),
-        location: profile.getLocation(),
-        bio: profile.getBio(),
-        linkedinUrl: profile.getLinkedinUrl(),
+        companyName: profile.getCompanyName() ?? "",
+        companyWebsite: profile.getCompanyWebsite() ?? "",
+        companySize: profile.getCompanySize() ?? 0,
+        industry: profile.getIndustry() ?? "",
+        designation: profile.getDesignation() ?? "",
+        location: profile.getLocation() ?? "",
+        bio: profile.getBio() ?? "",
+        linkedinUrl: profile.getLinkedinUrl() ?? "",
         subscriptionStatus: profile.getSubscriptionStatus(),
         jobPostsUsed: profile.getJobPostsUsed(),
         verificationStatus: profile.getVerificationStatus(),

@@ -1,5 +1,3 @@
-"use client";
-
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Info, ShieldCheck, Loader2, CheckCircle, XCircle } from "lucide-react";
@@ -7,7 +5,6 @@ import { PasswordField } from "./PasswordField";
 import { PasswordStrength } from "./PasswordStrength";
 import { SecurityTips } from "./SecurityTips";
 import type { PasswordFormData } from "../../../validators/password.validator";
-
 
 interface ChangePasswordFormProps {
   formData: {
@@ -51,6 +48,8 @@ export function ChangePasswordForm({
   const { currentPassword, newPassword, confirmPassword } = formData;
   const { errors, touched, passwordValidation } = validation;
 
+  const passwordsMatch = newPassword && confirmPassword && newPassword === confirmPassword;
+
   return (
     <div className="space-y-6">
       {/* Section Header */}
@@ -86,7 +85,7 @@ export function ChangePasswordForm({
             value={newPassword}
             onChange={(value) => onFieldChange("newPassword", value)}
             onBlur={() => onFieldBlur("newPassword")}
-            placeholder="Create new password"
+            placeholder="Create a strong new password"
             error={errors.newPassword}
             touched={touched.new}
             disabled={loading}
@@ -96,41 +95,37 @@ export function ChangePasswordForm({
 
           <PasswordField
             id="confirm-password"
-            label="Confirm Password"
+            label="Confirm New Password"
             value={confirmPassword}
             onChange={(value) => onFieldChange("confirmPassword", value)}
             onBlur={() => onFieldBlur("confirmPassword")}
-            placeholder="Confirm new password"
+            placeholder="Re-enter new password"
             error={errors.confirmPassword}
             touched={touched.confirm}
             disabled={loading}
             required
             icon="shield"
           />
-          
-          {/* Password match indicator */}
+
+          {/* Password Match Indicator - Improved */}
           {confirmPassword && newPassword && (
-            <div className="flex items-center gap-2 mt-2 text-sm">
-              {confirmPassword === newPassword ? (
+            <div className="flex items-center gap-2 text-sm mt-1">
+              {passwordsMatch ? (
                 <>
                   <CheckCircle className="h-4 w-4 text-emerald-500" />
-                  <span className="text-emerald-600 font-medium">
-                    Passwords match
-                  </span>
+                  <span className="text-emerald-600 font-medium">Passwords match ✓</span>
                 </>
               ) : (
                 <>
                   <XCircle className="h-4 w-4 text-red-500" />
-                  <span className="text-red-600 font-medium">
-                    Passwords don't match
-                  </span>
+                  <span className="text-red-600 font-medium">Passwords do not match</span>
                 </>
               )}
             </div>
           )}
         </div>
 
-        {/* RIGHT COLUMN - Password Requirements */}
+        {/* RIGHT COLUMN - Password Requirements & Tips */}
         <div className="space-y-4">
           {newPassword && (
             <PasswordStrength 
@@ -142,24 +137,24 @@ export function ChangePasswordForm({
         </div>
       </div>
 
-      <Separator className="my-2" />
+      <Separator className="my-4" />
 
-      {/* ACTION BUTTONS */}
-      <div className="flex items-center justify-between">
+      {/* Action Area */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <Info className="h-4 w-4" />
-          <span>Make sure your password is strong and memorable</span>
+          <span>Use a strong, unique password</span>
         </div>
-        
+
         <Button
           onClick={onSubmit}
           disabled={loading || !validation.isValid}
-          className="h-12 px-8 gap-3 bg-linear-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white shadow-lg shadow-rose-500/25 hover:shadow-xl transition-all disabled:opacity-70"
+          className="h-12 px-10 gap-3 bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white shadow-lg shadow-rose-500/25 hover:shadow-xl transition-all disabled:opacity-70 w-full sm:w-auto"
         >
           {loading ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin" />
-              Updating...
+              Updating Password...
             </>
           ) : (
             <>

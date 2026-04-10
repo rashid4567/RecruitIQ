@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Settings, Bell, Users, Building, FileText, User, Briefcase, TrendingUp, BarChart3, DollarSign, Zap, Target, Activity, Calendar, Clock, ArrowUpRight, ArrowDownRight, RefreshCw, Download } from "lucide-react"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts"
-import Sidebar from "../../components/admin/sideBar"
+import Sidebar from "../../../../components/admin/sideBar"
 import type { ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

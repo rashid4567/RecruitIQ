@@ -14,7 +14,7 @@ const SignIn = lazy(
   () => import("../module/auth/presentation/pages/auth/signIn"),
 );
 
-//const SignIn = lazy(()=> import("../pages/auth/SignIn"))
+
 
 const Signup = lazy(
   () => import("../module/auth/presentation/pages/auth/signup"),
@@ -23,8 +23,8 @@ const Signup = lazy(
 const VerifyOTP = lazy(
   () => import("../module/auth/presentation/pages/auth/verifyOtp"),
 );
-const LinkedInCallback = lazy(() => import("../linkedin/LinkedInCallback"));
-const PrivacyPolicy = lazy(() => import("../pages/linkedin/PrivacyPolicy"));
+
+
 
 const ForgotPassword = lazy(
   () => import("../module/auth/presentation/pages/auth/forgot-password"),
@@ -42,8 +42,8 @@ const PublicRoutes = () => (
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
-      <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
-      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+  
+ 
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 

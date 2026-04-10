@@ -1,20 +1,13 @@
-import {
-  Mail,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Mail } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -22,15 +15,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { EmailLog } from "../../../domain/entities/email-log.entity";
+
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
+
 import { EmailLogsTableRow } from "./EmailLogsTableRow";
 import { EmailLogsSkeletonRow } from "./EmailLogsSkeletonRow";
 
 interface EmailLogsTableProps {
-  logs: EmailLog[];
+  logs: any[];
   loading: boolean;
   selectedIds: string[];
   onSelectAll: () => void;
@@ -58,31 +57,21 @@ export function EmailLogsTable({
   perPageOptions,
 }: EmailLogsTableProps) {
   const allSelected = logs.length > 0 && selectedIds.length === logs.length;
-  const someSelected = selectedIds.length > 0 && !allSelected;
 
   return (
-    <Card className="border-slate-200/70 shadow-sm rounded-xl overflow-hidden">
-      <CardHeader className="bg-slate-50/80 px-6 py-4 border-b border-slate-200/70">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <CardTitle className="text-lg font-semibold text-slate-900">
-              Email Activity
-            </CardTitle>
-            <Badge
-              variant="secondary"
-              className="text-xs bg-slate-200 text-slate-700"
-            >
-              {pagination.total} total
-            </Badge>
-          </div>
+    <Card className="border border-slate-200 shadow-sm overflow-hidden">
+      {/* Table Header */}
+      <CardHeader className="bg-slate-50 px-6 py-5 border-b">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-xl font-semibold">Email Activity</CardTitle>
 
-          <div className="flex items-center gap-4 text-sm text-slate-600">
+          <div className="flex items-center gap-3 text-sm text-slate-600">
             <span>Rows per page:</span>
             <Select
               value={pagination.limit.toString()}
               onValueChange={(v) => onLimitChange(Number(v))}
             >
-              <SelectTrigger className="h-8 w-20">
+              <SelectTrigger className="w-20 h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -97,25 +86,23 @@ export function EmailLogsTable({
         </div>
       </CardHeader>
 
+      {/* Table */}
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50/70 hover:bg-slate-50/70">
+            <TableRow className="bg-slate-50">
               <TableHead className="w-12 pl-6">
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={onSelectAll}
-                  aria-label="Select all"
-                />
+                <Checkbox checked={allSelected} onCheckedChange={onSelectAll} />
               </TableHead>
-              <TableHead className="w-44">Sent At</TableHead>
-              <TableHead className="w-72">Recipient</TableHead>
+              <TableHead>Sent At</TableHead>
+              <TableHead>Recipient</TableHead>
               <TableHead>Subject</TableHead>
-              <TableHead className="w-28">Type</TableHead>
-              <TableHead className="w-32">Status</TableHead>
-              <TableHead className="w-28 text-right pr-8">Actions</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right pr-8">Actions</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {loading ? (
               Array(8)
@@ -123,20 +110,11 @@ export function EmailLogsTable({
                 .map((_, i) => <EmailLogsSkeletonRow key={i} />)
             ) : logs.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="h-64 text-center text-slate-500"
-                >
-                  <div className="flex flex-col items-center justify-center py-8">
-                    <Mail className="h-12 w-12 text-slate-300 mb-4" />
-                    <p className="text-lg font-medium">
-                      No email logs match your filters
-                    </p>
-                    <p className="text-sm mt-2">
-                      Try adjusting filters or refresh the list
-                    </p>
-                  </div>
-                </TableCell>
+                <td colSpan={7} className="h-80 text-center py-12">
+                  <Mail className="h-16 w-16 mx-auto text-slate-300 mb-4" />
+                  <p className="text-xl font-medium text-slate-600">No matching emails found</p>
+                  <p className="text-slate-500 mt-1">Try changing your search or filters</p>
+                </td>
               </TableRow>
             ) : (
               logs.map((log) => (
@@ -152,18 +130,24 @@ export function EmailLogsTable({
         </Table>
       </div>
 
-      {/* Pagination */}
+      {/* Pagination - Modern Style */}
       {pagination.totalPages > 1 && (
-        <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm text-slate-600">
-          <div>
-            Showing {(pagination.page - 1) * pagination.limit + 1}–
-            {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-            {pagination.total}
+        <div className="px-6 py-5 bg-slate-50 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-slate-600">
+            Showing{" "}
+            <span className="font-medium text-slate-900">
+              {(pagination.page - 1) * pagination.limit + 1}
+            </span>{" "}
+            –{" "}
+            <span className="font-medium text-slate-900">
+              {Math.min(pagination.page * pagination.limit, pagination.total)}
+            </span>{" "}
+            of <span className="font-medium text-slate-900">{pagination.total}</span> results
           </div>
 
           <div className="flex items-center gap-2">
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               className="h-9 w-9"
               disabled={pagination.page === 1}
@@ -172,7 +156,7 @@ export function EmailLogsTable({
               <ChevronsLeft className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               className="h-9 w-9"
               disabled={pagination.page === 1}
@@ -181,38 +165,33 @@ export function EmailLogsTable({
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            <div className="flex gap-1 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
-              {Array.from(
-                { length: Math.min(7, pagination.totalPages) },
-                (_, i) => {
-                  const num =
-                    i +
-                    Math.max(
-                      1,
-                      Math.min(pagination.page - 3, pagination.totalPages - 6),
-                    );
-                  if (num < 1 || num > pagination.totalPages) return null;
-                  return (
-                    <Button
-                      key={num}
-                      variant={num === pagination.page ? "default" : "ghost"}
-                      size="sm"
-                      className={cn(
-                        "h-8 w-8 p-0 text-sm rounded-md",
-                        num === pagination.page &&
-                          "bg-indigo-600 hover:bg-indigo-700 text-white",
-                      )}
-                      onClick={() => onPageChange(num)}
-                    >
-                      {num}
-                    </Button>
-                  );
-                },
-              )}
+            {/* Page Numbers */}
+            <div className="flex items-center gap-1 px-3">
+              {Array.from({ length: Math.min(7, pagination.totalPages) }, (_, i) => {
+                const num =
+                  i +
+                  Math.max(1, Math.min(pagination.page - 3, pagination.totalPages - 6));
+                if (num < 1 || num > pagination.totalPages) return null;
+
+                return (
+                  <Button
+                    key={num}
+                    variant={num === pagination.page ? "default" : "outline"}
+                    size="sm"
+                    className={cn(
+                      "h-9 w-9 rounded-xl",
+                      num === pagination.page && "bg-indigo-600 hover:bg-indigo-700 text-white"
+                    )}
+                    onClick={() => onPageChange(num)}
+                  >
+                    {num}
+                  </Button>
+                );
+              })}
             </div>
 
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               className="h-9 w-9"
               disabled={pagination.page >= pagination.totalPages}
@@ -221,7 +200,7 @@ export function EmailLogsTable({
               <ChevronRight className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               className="h-9 w-9"
               disabled={pagination.page >= pagination.totalPages}

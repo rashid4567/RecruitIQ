@@ -27,14 +27,17 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
   const id = log.getId() ?? "";
   const failed = log.getStatus() === "FAILED";
 
-  const formatRelativeTime = (ts: string | number) => {
-    const date = new Date(ts);
-    const diff = Date.now() - date.getTime();
-
-    if (diff < 60000) return "just now";
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} h ago`;
-    return date.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+  // NEW: Show Exact Time (No "just now", "min ago", etc.)
+  const formatExactTime = (ts: string | number) => {
+    return new Date(ts).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    // Example Output: "10 Apr 2026, 12:05 PM"
   };
 
   const getStatusBadge = () => {
@@ -88,16 +91,17 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
         />
       </TableCell>
 
-      <TableCell className="text-sm text-slate-600 whitespace-nowrap">
+      {/* Exact Time Display */}
+      <TableCell className="text-sm text-slate-600 whitespace-nowrap font-medium">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span>{formatRelativeTime(log.getTimeStamp())}</span>
+              <span>{formatExactTime(log.getTimeStamp())}</span>
             </TooltipTrigger>
             <TooltipContent>
               {new Date(log.getTimeStamp()).toLocaleString("en-IN", {
-                dateStyle: "medium",
-                timeStyle: "short",
+                dateStyle: "full",
+                timeStyle: "medium",
               })}
             </TooltipContent>
           </Tooltip>

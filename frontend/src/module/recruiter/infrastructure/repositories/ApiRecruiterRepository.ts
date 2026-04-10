@@ -25,20 +25,20 @@ export class ApiRecruiterRepository implements RecruiterRepository {
     jobPostsUsed: recruiter.jobPostsUsed,
   });
 }
-  async updateProfile(profile: any): Promise<any> {
+  async updateProfile(profile: RecruiterProfile): Promise<RecruiterProfile> {
     await api.put("/recruiter/profile", {
       fullName: profile.fullName,
       companyName: profile.companyName,
       companyWebsite: profile.companyWebsite,
-      companySize: profile.companySize,
-      industry: profile.industry,
+      companySize: profile.companySize,       
+      industry: profile.industry,             
+      designation: profile.designation,
       location: profile.location,
       bio: profile.bio,
       linkedinUrl: profile.linkedinUrl,
-      designation: profile.designation,
     });
 
-    return this.getProfile();
+    return this.getProfile();   
   }
 
   async completeProfile(profile: any): Promise<any> {

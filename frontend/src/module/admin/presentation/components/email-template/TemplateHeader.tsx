@@ -9,6 +9,7 @@ interface TemplateHeaderProps {
   canSave: boolean;
   testEmail: string;
   formId: string;
+  cooldown: number;
   onTestEmailChange: (value: string) => void;
   onSendTest: () => void;
   onSave: () => void;
@@ -21,6 +22,7 @@ export function TemplateHeader({
   canSave,
   testEmail,
   formId,
+  cooldown,
   onTestEmailChange,
   onSendTest,
   onSave,
@@ -62,11 +64,11 @@ export function TemplateHeader({
                 variant="secondary"
                 size="sm"
                 onClick={onSendTest}
-                disabled={!formId || !testEmail.trim()}
+                disabled={!formId || !testEmail.trim() || cooldown > 0}
                 className="gap-2 whitespace-nowrap"
               >
                 <Send className="h-4 w-4" />
-                Send Test
+                {cooldown > 0 ? `Wait ${cooldown}s to send next` : "Send Test"}
               </Button>
             </div>
           )}
@@ -78,7 +80,7 @@ export function TemplateHeader({
               "min-w-[140px] gap-2 shadow-md transition-all",
               isSaving
                 ? "bg-indigo-700"
-                : "bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800"
+                : "bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800",
             )}
           >
             {isSaving ? (

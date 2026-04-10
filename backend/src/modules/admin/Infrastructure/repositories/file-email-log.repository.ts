@@ -18,7 +18,7 @@ export class FileEmailLogRepository  implements EmailLogRepository{
                     parsed.to,
                     parsed.subject,
                     parsed.status,
-                    parsed.timestamp,
+                    new Date(parsed.timeStamp),
                     parsed.error,
                 )
             }catch{

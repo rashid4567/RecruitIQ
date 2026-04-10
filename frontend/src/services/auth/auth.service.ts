@@ -30,10 +30,10 @@ export const authService = {
     const res = await api.post("/auth/login", { email, password });
 
     const { accessToken, user } = res.data.data;
-
     localStorage.setItem("authToken", accessToken);
     localStorage.setItem("userRole", user.role);
     localStorage.setItem("userId", user.id);
+
 
     return res.data;
   },
@@ -58,12 +58,17 @@ export const authService = {
     } catch {
       console.warn("Logout request failed, continuing locally");
     } finally {
+      const role = localStorage.getItem("userRole")
       localStorage.removeItem("authToken");
       localStorage.removeItem("userRole");
       localStorage.removeItem("userId");
 
       if (redirect) {
-        window.location.href = "/signin";
+        if(role === "admin"){
+          window.location.href = "/admin/login"
+        }else{
+          window.location.href = "/signin";
+        }
       }
     }
   },

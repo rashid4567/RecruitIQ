@@ -1,7 +1,7 @@
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
 import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../domain/repositories/user.entity";
-import { Email } from "../../../../shared/value-objects.ts/email.vo.ts";
+import { Email } from "../../../../shared/value-objects.ts/email.vo";
 import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
 
 export class MongooseUserRepository implements UserRepository {
@@ -9,7 +9,7 @@ export class MongooseUserRepository implements UserRepository {
     const doc = await UserModel.findById(userId.getValue()).lean();
     if (!doc || !doc.fullName) return null;
 
-    return User.fromPresistance({
+    return User.fromPersistence({
       id: userId,
       fullName: doc.fullName,
       email: Email.create(doc.email),
@@ -24,7 +24,7 @@ export class MongooseUserRepository implements UserRepository {
 
     if (!doc || !doc.fullName) return null;
 
-    return User.fromPresistance({
+    return User.fromPersistence({
       id: UserId.create(doc._id.toString()),
       fullName: doc.fullName,
       email,

@@ -61,7 +61,7 @@ export function ProfessionalInfoSection({
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Current Job Title */}
+    
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <Briefcase className="h-4 w-4 text-purple-500" />
@@ -84,7 +84,7 @@ export function ProfessionalInfoSection({
           )}
         </div>
 
-        {/* Years of Experience */}
+
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <Calendar className="h-4 w-4 text-purple-500" />
@@ -121,7 +121,7 @@ export function ProfessionalInfoSection({
           )}
         </div>
 
-        {/* Education Level */}
+       
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <GraduationCap className="h-4 w-4 text-purple-500" />

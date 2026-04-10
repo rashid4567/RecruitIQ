@@ -10,11 +10,11 @@ export class MongooseRecruiterProfileRepository implements RecruiterProfileRepos
   async findByUserId(userId: UserId){
     const doc = await RecruiterProfileModel.findOne({
       userId : new Types.ObjectId(userId.getValue())
-    })
+    }).lean();
 
     if(!doc)return null;
 
-   return RecruiterProfile.fromPresistence({
+   return RecruiterProfile.fromPersistence({
   userId,
   companyName: doc.companyName ?? "",
   companyWebsite: doc.companyWebsite ?? "",
@@ -32,28 +32,36 @@ export class MongooseRecruiterProfileRepository implements RecruiterProfileRepos
   }
 
 
-  async save(profile : RecruiterProfile){
-    const usereObjectId = new Types.ObjectId(
-      profile.getUserId().getValue()
-    )
+ async save(profile: RecruiterProfile): Promise<void> {
+    const userObjectId = new Types.ObjectId(profile.getUserId().getValue());
+
+    const updateData: any = {
+      userId: userObjectId,
+      companyName: profile.getCompanyName(),
+      companyWebsite: profile.getCompanyWebsite(),
+      designation: profile.getDesignation(),
+      bio: profile.getBio(),
+      linkedinUrl: profile.getLinkedinUrl(),
+      location: profile.getLocation(),
+      subscriptionStatus: profile.getSubscriptionStatus(),
+      jobPostsUsed: profile.getJobPostsUsed(),
+      verificationStatus: profile.getVerificationStatus(),
+    };
+
+    const companySize = profile.getCompanySize();
+    if (companySize !== undefined) {
+      updateData.companySize = companySize;
+    }
+
+    const industry = profile.getIndustry();
+    if (industry !== undefined) {
+      updateData.industry = industry;
+    }
 
     await RecruiterProfileModel.findOneAndUpdate(
-      {userId : usereObjectId},
-      {
-        userId : usereObjectId,
-        companyName : profile.getCompanyName(),
-        companyWebsite : profile.getCompanyWebsite(),
-        companySize : profile.getCompanySize(),
-        designation : profile.getDesignation(),
-        industry : profile.getIndustry(),
-        bio : profile.getBio(),
-        linkedinUrl  : profile.getLinkedinUrl(),
-        location : profile.getLocation(),
-        subscriptionStatus : profile.getSubscriptionStatus(),
-        jobPostsUsed : profile.getJobPostsUsed(),
-        verificationStatus : profile.getVerificationStatus()
-      },
-      {upsert : true, new : true}
-    )
+      { userId: userObjectId },
+      updateData,
+      { upsert: true, new: true }
+    );
   }
 }

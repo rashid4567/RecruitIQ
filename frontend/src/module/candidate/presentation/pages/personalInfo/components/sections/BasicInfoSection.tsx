@@ -38,7 +38,7 @@ export function BasicInfoSection({
       <SectionHeader icon={<User />} title="Basic Information" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* ───────────── Full Name ───────────── */}
+   
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <User className="h-4 w-4 text-blue-500" />
@@ -74,7 +74,7 @@ export function BasicInfoSection({
           )}
         </div>
 
-        {/* ───────────── Email ───────────── */}
+     
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <Mail className="h-4 w-4 text-blue-500" />

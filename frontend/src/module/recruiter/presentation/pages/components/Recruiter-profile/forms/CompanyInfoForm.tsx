@@ -8,15 +8,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Building, 
-  Users, 
-  Award, 
-  Globe, 
+import {
+  Building,
+  Users,
+  Award,
+  Globe,
   ExternalLink,
-  AlertCircle 
+  AlertCircle,
 } from "lucide-react";
-import { COMPANY_SIZES, INDUSTRIES } from "../../../constants/recruiter.constants";
+import {
+  COMPANY_SIZES,
+  INDUSTRIES,
+} from "../../../constants/recruiter.constants";
 
 interface CompanyInfoFormProps {
   register: any;
@@ -28,14 +31,14 @@ interface CompanyInfoFormProps {
   profile?: any;
 }
 
-export function CompanyInfoForm({ 
-  register, 
-  errors, 
+export function CompanyInfoForm({
+  register,
+  errors,
   watch,
   setValue,
   trigger,
   isEditing,
-  profile 
+  profile,
 }: CompanyInfoFormProps) {
   return (
     <div className="space-y-6">
@@ -47,8 +50,13 @@ export function CompanyInfoForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Company Name */}
         <div className="space-y-2">
-          <Label htmlFor="companyName" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-            <span>Company Name <span className="text-red-500">*</span></span>
+          <Label
+            htmlFor="companyName"
+            className="text-sm font-medium text-slate-700 flex items-center justify-between"
+          >
+            <span>
+              Company Name <span className="text-red-500">*</span>
+            </span>
             {errors.companyName && (
               <span className="text-red-500 text-xs font-normal flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
@@ -62,8 +70,8 @@ export function CompanyInfoForm({
               {...register("companyName")}
               disabled={!isEditing}
               className={`h-12 pl-11 ${
-                errors.companyName 
-                  ? "border-red-300 focus:ring-red-500/20" 
+                errors.companyName
+                  ? "border-red-300 focus:ring-red-500/20"
                   : "border-slate-200"
               } ${!isEditing ? "bg-slate-50" : "bg-white"}`}
               placeholder="Acme Inc."
@@ -76,8 +84,13 @@ export function CompanyInfoForm({
 
         {/* Company Size */}
         <div className="space-y-2">
-          <Label htmlFor="companySize" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-            <span>Company Size <span className="text-red-500">*</span></span>
+          <Label
+            htmlFor="companySize"
+            className="text-sm font-medium text-slate-700 flex items-center justify-between"
+          >
+            <span>
+              Company Size <span className="text-red-500">*</span>
+            </span>
             {errors.companySize && (
               <span className="text-red-500 text-xs font-normal flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
@@ -90,15 +103,21 @@ export function CompanyInfoForm({
               disabled={!isEditing}
               value={watch("companySize")?.toString()}
               onValueChange={(value) => {
-                setValue("companySize", parseInt(value, 10), { shouldValidate: true });
+                const numValue = parseInt(value, 10);
+                setValue("companySize", numValue, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
                 trigger("companySize");
               }}
             >
-              <SelectTrigger className={`h-12 pl-11 ${
-                errors.companySize 
-                  ? "border-red-300 focus:ring-red-500/20" 
-                  : "border-slate-200"
-              } ${!isEditing ? "bg-slate-50" : "bg-white"}`}>
+              <SelectTrigger
+                className={`h-12 pl-11 ${
+                  errors.companySize
+                    ? "border-red-300 focus:ring-red-500/20"
+                    : "border-slate-200"
+                } ${!isEditing ? "bg-slate-50" : "bg-white"}`}
+              >
                 <SelectValue placeholder="Select company size" />
               </SelectTrigger>
               <SelectContent>
@@ -106,7 +125,9 @@ export function CompanyInfoForm({
                   <SelectItem key={value} value={value.toString()}>
                     <div className="flex items-center justify-between w-full">
                       <span>{label}</span>
-                      <Badge variant="outline" className="ml-2 text-xs">{range}</Badge>
+                      <Badge variant="outline" className="ml-2 text-xs">
+                        {range}
+                      </Badge>
                     </div>
                   </SelectItem>
                 ))}
@@ -120,8 +141,13 @@ export function CompanyInfoForm({
 
         {/* Industry */}
         <div className="space-y-2">
-          <Label htmlFor="industry" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-            <span>Industry <span className="text-red-500">*</span></span>
+          <Label
+            htmlFor="industry"
+            className="text-sm font-medium text-slate-700 flex items-center justify-between"
+          >
+            <span>
+              Industry <span className="text-red-500">*</span>
+            </span>
             {errors.industry && (
               <span className="text-red-500 text-xs font-normal flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
@@ -138,11 +164,13 @@ export function CompanyInfoForm({
                 trigger("industry");
               }}
             >
-              <SelectTrigger className={`h-12 pl-11 ${
-                errors.industry 
-                  ? "border-red-300 focus:ring-red-500/20" 
-                  : "border-slate-200"
-              } ${!isEditing ? "bg-slate-50" : "bg-white"}`}>
+              <SelectTrigger
+                className={`h-12 pl-11 ${
+                  errors.industry
+                    ? "border-red-300 focus:ring-red-500/20"
+                    : "border-slate-200"
+                } ${!isEditing ? "bg-slate-50" : "bg-white"}`}
+              >
                 <SelectValue placeholder="Select industry" />
               </SelectTrigger>
               <SelectContent>
@@ -161,7 +189,10 @@ export function CompanyInfoForm({
 
         {/* Company Website */}
         <div className="space-y-2">
-          <Label htmlFor="companyWebsite" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+          <Label
+            htmlFor="companyWebsite"
+            className="text-sm font-medium text-slate-700 flex items-center justify-between"
+          >
             <span>Company Website</span>
             {errors.companyWebsite && (
               <span className="text-red-500 text-xs font-normal flex items-center gap-1">
@@ -176,8 +207,8 @@ export function CompanyInfoForm({
               {...register("companyWebsite")}
               disabled={!isEditing}
               className={`h-12 pl-11 ${
-                errors.companyWebsite 
-                  ? "border-red-300 focus:ring-red-500/20" 
+                errors.companyWebsite
+                  ? "border-red-300 focus:ring-red-500/20"
                   : "border-slate-200"
               } ${!isEditing ? "bg-slate-50" : "bg-white"}`}
               placeholder="https://company.com"

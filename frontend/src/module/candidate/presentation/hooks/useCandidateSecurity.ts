@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { updatePasswordUC } from "@/module/auth/presentation/di/auth";
 import { validateUpdatePassword } from "../validators/password.validator";
 
@@ -9,34 +10,29 @@ export function useCandidateSecurity() {
     confirmPassword: "",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordSuccess, setPasswordSuccess] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
 
   const updatePassword = async () => {
-    setPasswordError("");
-    setPasswordSuccess("");
-
     const result = validateUpdatePassword(passwordData);
 
     if (!result.success) {
-      const message = result.error.issues?.[0]?.message || "Invalid input";
-
-      setPasswordError(message);
+      toast.error(result.error.issues?.[0]?.message || "Invalid input");
       return false;
     }
 
     try {
       setIsUpdating(true);
+      setPasswordSuccess(null);
 
       await updatePasswordUC.execute({
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
 
-      setPasswordSuccess("Password updated successfully");
+      toast.success("Password updated successfully! 🎉");
 
+      setPasswordSuccess("Password updated successfully");
       setPasswordData({
         currentPassword: "",
         newPassword: "",
@@ -45,23 +41,26 @@ export function useCandidateSecurity() {
 
       return true;
     } catch (err: any) {
-      setPasswordError(
-        err?.message || "Failed to update password. Please try again.",
-      );
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to update password. Please try again.";
+
+      toast.error(message);
       return false;
     } finally {
       setIsUpdating(false);
     }
   };
 
+  const clearSuccess = () => setPasswordSuccess(null);
+
   return {
     passwordData,
     setPasswordData,
     updatePassword,
-    showPassword,
-    setShowPassword,
-    passwordError,
-    passwordSuccess,
     isUpdating,
+    passwordSuccess,
+    clearSuccess,
   };
 }

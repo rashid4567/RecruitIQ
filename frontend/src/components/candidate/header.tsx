@@ -1,9 +1,9 @@
-import { Menu, X, LogOut, User } from "lucide-react"
+import { Menu, X, LogOut } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { authService } from "@/services/auth/auth.service"
 import { useNavigate } from "react-router-dom"
-import { cn } from "@/lib/utils" // ← assume you have this (clsx + twMerge), otherwise replace with template strings
+import { cn } from "@/lib/utils" 
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -71,7 +71,7 @@ export default function Header() {
             className="flex items-center gap-2.5 cursor-pointer group"
             onClick={() => navigate("/")}
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-700 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-cyan-500/30 transition-all duration-300 transform group-hover:scale-105">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-blue-600 via-cyan-500 to-blue-700 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-cyan-500/30 transition-all duration-300 transform group-hover:scale-105">
               <span className="text-white font-black text-xl">RIQ</span>
             </div>
             <span className="font-extrabold text-xl tracking-tight text-gray-900 hidden sm:block">
@@ -85,7 +85,7 @@ export default function Header() {
               <a
                 key={item}
                 href={item === "Jobs" ? "/jobs" : `#${item.toLowerCase()}`}
-                className="relative text-sm font-medium text-gray-700 hover:text-cyan-700 transition-colors after:absolute after:bottom-[-6px] after:left-0 after:h-0.5 after:bg-gradient-to-r after:from-blue-600 after:to-cyan-500 after:w-0 hover:after:w-full after:transition-all after:duration-300"
+                className="relative text-sm font-medium text-gray-700 hover:text-cyan-700 transition-colors after:absolute after:bottom-[-6px] after:left-0 after:h-0.5 after:bg-linear-to-r after:from-blue-600 after:to-cyan-500 after:w-0 hover:after:w-full after:transition-all after:duration-300"
               >
                 {item}
               </a>
@@ -106,7 +106,7 @@ export default function Header() {
                 >
                   <Avatar className="h-9 w-9 ring-1 ring-gray-200/80 group-hover:ring-cyan-400/60 transition-all">
                     <AvatarImage src="https://github.com/shadcn.png" alt={userName || ""} />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-600 text-white text-sm font-semibold">
+                    <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-600 text-white text-sm font-semibold">
                       {getInitials()}
                     </AvatarFallback>
                   </Avatar>
@@ -137,7 +137,7 @@ export default function Header() {
                 </button>
                 <button
                   onClick={() => navigate("/register")}
-                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  className="px-5 py-2 bg-linear-to-r from-blue-600 to-cyan-600 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 transform hover:scale-105 active:scale-95"
                 >
                   Register
                 </button>
@@ -184,7 +184,7 @@ export default function Header() {
                     className="flex items-center gap-3 w-full text-left"
                   >
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-600 text-white">
+                      <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-600 text-white">
                         {getInitials()}
                       </AvatarFallback>
                     </Avatar>
@@ -221,7 +221,7 @@ export default function Header() {
                       navigate("/register")
                       setIsMenuOpen(false)
                     }}
-                    className="py-3 px-6 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-xl shadow-md text-center"
+                    className="py-3 px-6 bg-linear-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-xl shadow-md text-center"
                   >
                     Register
                   </button>

@@ -27,6 +27,7 @@ export default function EmailTemplateEditor() {
     saveTemplate,
     sendTest,
     isEdit,
+    cooldown,
   } = useEmailTemplateEditor(id);
 
   if (loading) {
@@ -62,12 +63,13 @@ export default function EmailTemplateEditor() {
             onSendTest={sendTest}
             onSave={saveTemplate}
             onBack={() => navigate("/admin/email-templates")}
+            cooldown={cooldown}
           />
 
           <main className="flex-1 p-6 lg:p-8 overflow-auto">
             <div className="max-w-screen-2xl mx-auto">
               <div className="grid lg:grid-cols-12 gap-8">
-                {/* Left – Main Editor Area */}
+           
                 <div className="lg:col-span-8 xl:col-span-9 space-y-8">
                   <TemplateSettings
                     form={form}
@@ -84,7 +86,7 @@ export default function EmailTemplateEditor() {
                   />
                 </div>
 
-                {/* Right Sidebar – Variables */}
+              
                 <div className="lg:col-span-4 xl:col-span-3">
                   <VariablesSidebar
                     variables={AVAILABLE_VARIABLES}

@@ -1,64 +1,105 @@
-import { useState } from "react";
+
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import type { GoogleCredentialResponse } from "@react-oauth/google";
 import { ZodError } from "zod";
 
 import { SignInUC, googleAuthUc } from "../di/auth";
-import { getError } from "@/utils/getError";
 import type { GoogleRoles } from "@/module/auth/domain/constants/google-role";
 import type { SignInFormData } from "@/types/auth/auth.types";
 import { signInSchema } from "../validation/signin.schema";
+
+import type { AuthError } from "../types/auth.error"
 
 export function useSignIn() {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState<AuthError | null>(null);
+  const [success, setSuccess] = useState<string>("");
 
-  const [pendingGoogleCredential, setPendingGoogleCredential] = useState<
-    string | null
-  >(null);
-
+  const [pendingGoogleCredential, setPendingGoogleCredential] = useState<string | null>(null);
   const [showRoleSelector, setShowRoleSelector] = useState(false);
 
   const isAnyLoading = isLoading || googleLoading;
 
+  const getAuthError = useCallback((err: unknown): AuthError => {
+    if (err instanceof ZodError) {
+      return {
+        message: err.issues[0]?.message ?? "Please check your input",
+        type: "generic",
+      };
+    }
+
+    const axiosError = err as any;
+    const code = axiosError?.response?.data?.code;
+    const backendMessage = axiosError?.response?.data?.message ?? "";
+
+    switch (code) {
+      case "INVALID_CREDENTIALS":
+      case "UNAUTHORIZED":
+        return {
+          message: "Invalid email or password. Please try again.",
+          type: "generic",
+        };
+
+      case "ACCOUNT_BLOCKED":
+      case "ACCOUNT_DEACTIVATED":
+      case "ACCOUNT_SUSPENDED":
+        return {
+          message: backendMessage || "Your account has been blocked. Please contact support.",
+          type: "blocked",
+        };
+
+      case "EMAIL_NOT_VERIFIED":
+        return {
+          message: "Please verify your email before signing in.",
+          type: "generic",
+        };
+
+      case "WEAK_PASSWORD":
+        return {
+          message: "Password does not meet security requirements.",
+          type: "generic",
+        };
+
+      default:
+        return {
+          message: backendMessage || "Something went wrong. Please try again.",
+          type: "generic",
+        };
+    }
+  }, []);
+
+  const navigateBasedOnRole = useCallback((role: string) => {
+    if (role === "candidate") navigate("/candidate/home");
+    else if (role === "recruiter") navigate("/recruiter/");
+    else navigate("/");
+  }, [navigate]);
+
+  const clearMessages = useCallback(() => {
+    setError(null);
+    setSuccess("");
+  }, []);
+
   const signIn = async (formData: SignInFormData) => {
+    clearMessages();
+    setIsLoading(true);
+
     try {
       signInSchema.parse(formData);
 
-      setIsLoading(true);
-      setError("");
-      setSuccess("");
-
-      const { user } = await SignInUC.execute(
-        formData.email,
-        formData.password,
-      );
-
-      setSuccess("Successfully signed in! Redirecting...");
+      const { user } = await SignInUC.execute(formData.email, formData.password);
 
       if (formData.rememberMe) {
         localStorage.setItem("rememberMe", "true");
       }
 
-      setTimeout(() => {
-        if (user.role === "candidate") {
-          navigate("/candidate/home");
-        } else {
-          navigate("/recruiter/");
-        }
-      }, 600);
+      setSuccess("Successfully signed in! Redirecting...");
+      setTimeout(() => navigateBasedOnRole(user.role), 900);
     } catch (err: unknown) {
-      if (err instanceof ZodError) {
-        const firstError = err.issues[0]?.message;
-        setError(firstError ?? "Invalid input");
-        return;
-      }
-
-      setError(getError(err, "Invalid email or password. Please try again."));
+      setError(getAuthError(err));
     } finally {
       setIsLoading(false);
     }
@@ -66,40 +107,30 @@ export function useSignIn() {
 
   const handleGoogleResponse = async (response: GoogleCredentialResponse) => {
     const credential = response.credential;
-
     if (!credential) {
-      setError("Google authentication failed. Please try again.");
+      setError({
+        message: "Google authentication failed. Please try again.",
+        type: "generic",
+      });
       return;
     }
 
+    clearMessages();
+    setGoogleLoading(true);
+
     try {
-      setGoogleLoading(true);
-      setError("");
-
       const result = await googleAuthUc.execute(credential);
-
-      setSuccess("Google authentication successful! Redirecting...");
-
-      setTimeout(() => {
-        if (result.user.role === "candidate") {
-          navigate("/candidate/home");
-        } else {
-          navigate("/recruiter/");
-        }
-      }, 500);
+      setSuccess("Google sign in successful! Redirecting...");
+      setTimeout(() => navigateBasedOnRole(result.user.role), 900);
     } catch (err: unknown) {
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        (err as any)?.response?.data?.code === "ROLE_REQUIRED"
-      ) {
+      const axiosErr = err as any;
+
+      if (axiosErr?.response?.data?.code === "ROLE_REQUIRED") {
         setPendingGoogleCredential(credential);
         setShowRoleSelector(true);
-        return;
+      } else {
+        setError(getAuthError(err));
       }
-
-      setError(getError(err, "Google sign-in failed. Please try again."));
     } finally {
       setGoogleLoading(false);
     }
@@ -108,26 +139,15 @@ export function useSignIn() {
   const handleGoogleRoleSelect = async (role: GoogleRoles) => {
     if (!pendingGoogleCredential) return;
 
+    clearMessages();
+    setGoogleLoading(true);
+
     try {
-      setGoogleLoading(true);
-      setError("");
-
-      const { user } = await googleAuthUc.execute(
-        pendingGoogleCredential,
-        role,
-      );
-
+      const { user } = await googleAuthUc.execute(pendingGoogleCredential, role);
       setSuccess("Welcome! Redirecting...");
-
-      setTimeout(() => {
-        if (user.role === "candidate") {
-          navigate("/candidate/home");
-        } else {
-          navigate("/recruiter/");
-        }
-      }, 500);
+      setTimeout(() => navigateBasedOnRole(user.role), 900);
     } catch (err: unknown) {
-      setError(getError(err, "Failed to complete sign-in. Please try again."));
+      setError(getAuthError(err));
     } finally {
       setGoogleLoading(false);
       setPendingGoogleCredential(null);
@@ -145,6 +165,6 @@ export function useSignIn() {
     googleLoading,
     isAnyLoading,
     showRoleSelector,
-    setError,
+    clearMessages,
   };
 }

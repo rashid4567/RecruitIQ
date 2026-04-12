@@ -1,13 +1,13 @@
-"use client";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { useState} from "react";
 import { useSignIn } from "../../hooks/useSignIn";
 import { WelcomePanel } from "../../components/signIn/WelcomePanel";
 import { SignInForm } from "../../components/signIn/SignInForm";
-import { GoogleRoleSelector } from "../../components/signIn/GoogleRoleSelector"; 
-import { AuthAlert } from "../../components/signIn/AuthAlert"; 
+import { GoogleRoleSelector } from "../../components/signIn/GoogleRoleSelector";
+import { AuthAlert } from "../../components/signIn/AuthAlert";
 import { ChevronRight, Shield } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
 export default function SignInPage() {
   const {
     signIn,
@@ -19,7 +19,7 @@ export default function SignInPage() {
     googleLoading,
     isAnyLoading,
     showRoleSelector,
-    setError,
+    clearMessages,
   } = useSignIn();
 
   const navigate = useNavigate();
@@ -33,10 +33,8 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 via-white to-blue-50/50 p-4">
       <div className="w-full max-w-6xl flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
-        {/* Left Panel */}
         <WelcomePanel isAnyLoading={isAnyLoading} />
 
-        {/* Right Panel */}
         <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
           <div className="max-w-md mx-auto w-full">
             <div className="text-center mb-10">
@@ -48,14 +46,12 @@ export default function SignInPage() {
               </p>
             </div>
 
-            {/* Alerts */}
             <AuthAlert
               error={error}
               success={success}
-              onClose={() => setError("")}
+              onClose={clearMessages}
             />
 
-            {/* Role Selector */}
             {showRoleSelector && (
               <GoogleRoleSelector
                 onRoleSelect={handleGoogleRoleSelect}
@@ -63,7 +59,6 @@ export default function SignInPage() {
               />
             )}
 
-            {/* Sign In Form */}
             <SignInForm
               formData={formData}
               setFormData={setFormData}
@@ -71,10 +66,11 @@ export default function SignInPage() {
               isLoading={isLoading}
               isAnyLoading={isAnyLoading}
               onGoogleResponse={handleGoogleResponse}
-              onError={setError}
+              onError={function (error: string): void {
+                throw new Error("Function not implemented.");
+              }}
             />
 
-            {/* Security Info */}
             <div className="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
               <div className="flex items-center gap-3 mb-2">
                 <Shield className="w-5 h-5 text-green-600" />
@@ -88,7 +84,6 @@ export default function SignInPage() {
               </p>
             </div>
 
-            {/* Sign Up Link */}
             <div className="text-center pt-8 mt-8 border-t border-gray-200">
               <p className="text-gray-600 mb-6">
                 New to CareerConnect?{" "}
@@ -101,6 +96,7 @@ export default function SignInPage() {
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </p>
+
               <p className="text-xs text-gray-500">
                 By signing in, you agree to our{" "}
                 <button className="text-blue-600 hover:underline font-medium">

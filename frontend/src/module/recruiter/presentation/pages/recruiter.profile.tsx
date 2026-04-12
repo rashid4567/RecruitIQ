@@ -121,7 +121,7 @@ export default function RecruiterSettingsPage() {
               <Sidebar
                 profile={profile}
                 userStats={userStats}
-                activePath="/recruiter/settings"
+               
               />
             </div>
           </div>

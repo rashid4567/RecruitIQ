@@ -14,18 +14,17 @@ const api = axios.create({
   timeout: 10000,
 });
 
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("authToken");
-
     if (token) {
       config.headers = config.headers ?? {};
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
 function clearAuthAndRedirect(path: string, message?: string) {
@@ -38,10 +37,12 @@ function clearAuthAndRedirect(path: string, message?: string) {
   window.location.href = path;
 }
 
+
 api.interceptors.response.use(
   (response) => {
     const message = response?.data?.message;
 
+   
     if (message && response.config.method !== "get") {
       toast.success(message);
     }
@@ -61,6 +62,7 @@ api.interceptors.response.use(
     const code = error.response.data?.code;
     const message = error.response.data?.message || "Something went wrong";
 
+  
     if (originalRequest?.url?.includes("/auth/refresh")) {
       clearAuthAndRedirect("/signin", message);
       return Promise.reject(error);
@@ -73,7 +75,7 @@ api.interceptors.response.use(
         const refreshRes = await axios.post(
           `${import.meta.env.VITE_API_URL}/auth/refresh`,
           {},
-          { withCredentials: true },
+          { withCredentials: true }
         );
 
         const newAccessToken = refreshRes.data?.data?.accessToken;
@@ -92,8 +94,30 @@ api.interceptors.response.use(
       }
     }
 
+
+    const isAuthError = originalRequest?.url?.includes("/auth/");
+
+    if (isAuthError) {
+
+      if (
+        status === 401 ||
+        status === 403 ||
+        code === "INVALID_CREDENTIALS" ||
+        code === "ACCOUNT_BLOCKED" ||
+        code === "ACCOUNT_DEACTIVATED" ||
+        code === "ACCOUNT_SUSPENDED" ||
+        code === "EMAIL_NOT_VERIFIED"
+      ) {
+        return Promise.reject(error);
+      }
+    }
+
+   
     if (status === 403 && code === "ACCOUNT_DEACTIVATED") {
-      clearAuthAndRedirect("/account-deactivated", message);
+      clearAuthAndRedirect(
+        "/signin",
+        message || "Your account has been deactivated. Please contact support."
+      );
       return Promise.reject(error);
     }
 
@@ -102,16 +126,18 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+
     if (status === 404) {
       toast.error(message || "Requested resource not found");
     } else if (status >= 500) {
       toast.error(message || "Server error. Please try again later.");
     } else {
+
       toast.error(message);
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;

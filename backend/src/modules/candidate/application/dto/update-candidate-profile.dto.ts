@@ -9,8 +9,8 @@ export interface UpdateCandidateProfileDTO {
   educationLevel?: string;
   preferredJobLocations?: string[];
   bio?: string;
-  currentJobLocation ?:string,
-  gender ?:Gender,
+  currentJobLocation? :string,
+  gender? :Gender,
   linkedinUrl?:string,
   portfolioUrl?:string,
 }

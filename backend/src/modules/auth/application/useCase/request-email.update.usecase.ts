@@ -1,8 +1,8 @@
 import { OTPServicePort } from "../ports/otp.service.ports";
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { Email } from "../../../../shared/value-objects.ts/email.vo";
+import { Email } from "../../../../shared/value-objects/email.vo";
 import { OTP_ROLES } from "../../domain/constants/otp-roles.constants";
-import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
+import { ApplicationError } from "../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 
 export class RequestEmailUpdateUseCase {

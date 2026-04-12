@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
-
 import {
   requestEmailUpdateUc,
   verifyEmailUpdateUc,
@@ -10,49 +9,44 @@ export function useEmailUpdateForm(onSuccess?: () => void) {
   const [isOpen, setIsOpen] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [otp, setOtp] = useState("");
-
   const [otpSent, setOtpSent] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-
   const [countdown, setCountdown] = useState(0);
   const [error, setError] = useState("");
 
+  // Countdown Timer
   useEffect(() => {
     if (countdown <= 0) return;
-
-    const timer = setTimeout(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-
+    const timer = setTimeout(() => setCountdown((prev) => prev - 1), 1000);
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  const openModal = () => {
-    resetState();
-    setIsOpen(true);
-  };
-
-  const closeModal = () => {
-    if (isSendingOtp || isVerifyingOtp) return;
-    resetState();
-    setIsOpen(false);
-  };
-
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setNewEmail("");
     setOtp("");
     setOtpSent(false);
     setError("");
     setCountdown(0);
-  };
+  }, []);
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  const openModal = useCallback(() => {
+    resetState();
+    setIsOpen(true);
+  }, [resetState]);
+
+  const closeModal = useCallback(() => {
+    if (isSendingOtp || isVerifyingOtp) return;
+    resetState();
+    setIsOpen(false);
+  }, [isSendingOtp, isVerifyingOtp, resetState]);
+
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const sendOtp = async () => {
-    if (!validateEmail(newEmail)) {
+    const trimmedEmail = newEmail.trim();
+    if (!trimmedEmail || !validateEmail(trimmedEmail)) {
       setError("Please enter a valid email address");
       return;
     }
@@ -60,18 +54,17 @@ export function useEmailUpdateForm(onSuccess?: () => void) {
     try {
       setIsSendingOtp(true);
       setError("");
+      await requestEmailUpdateUc.execute({ email: trimmedEmail });
 
-      await requestEmailUpdateUc.execute({ email: newEmail });
-
+      setNewEmail(trimmedEmail); // Store clean email
       setOtpSent(true);
       setCountdown(60);
 
       toast.success("Verification code sent", {
-        description: "Check your email for the 6-digit code",
+        description: "Please check your inbox",
       });
     } catch (err: any) {
-      console.error("Send OTP error:", err);
-      setError(err.message || "Failed to send verification code");
+      setError(err?.message || "Failed to send verification code");
     } finally {
       setIsSendingOtp(false);
     }
@@ -86,19 +79,13 @@ export function useEmailUpdateForm(onSuccess?: () => void) {
     try {
       setIsVerifyingOtp(true);
       setError("");
+      await verifyEmailUpdateUc.execute({ email: newEmail, otp });
 
-      await verifyEmailUpdateUc.execute({
-        email: newEmail,
-        otp,
-      });
-
-      toast.success("Email updated successfully");
-
+      toast.success("Email updated successfully!");
       onSuccess?.();
       closeModal();
     } catch (err: any) {
-      console.error("Verify OTP error:", err);
-      setError(err.message || "Invalid verification code");
+      setError(err?.message || "Invalid verification code");
     } finally {
       setIsVerifyingOtp(false);
     }
@@ -110,15 +97,11 @@ export function useEmailUpdateForm(onSuccess?: () => void) {
     try {
       setIsSendingOtp(true);
       setError("");
-
       await requestEmailUpdateUc.execute({ email: newEmail });
-
       setCountdown(60);
-
       toast.success("New verification code sent");
     } catch (err: any) {
-      console.error("Resend OTP error:", err);
-      setError(err.message || "Failed to resend code");
+      setError(err?.message || "Failed to resend code");
     } finally {
       setIsSendingOtp(false);
     }

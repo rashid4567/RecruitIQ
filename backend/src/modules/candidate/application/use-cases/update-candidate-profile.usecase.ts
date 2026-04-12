@@ -1,14 +1,12 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
-import { CandidateRespository } from "../../domain/repositories/candidate.repository";
+import { CandidateRepository } from "../../domain/repositories/candidate.repository";
 import { UpdateCandidateProfileDTO } from "../dto/update-candidate-profile.dto";
-import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
-import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
+import { UserId } from "../../../../shared/value-objects/userId.vo";
+import { ApplicationError } from "../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../constants/error-code.constant";
 import { User } from "../../domain/entities/user.entity";
 import { CandidateProfile } from "../../domain/entities/candidate-profile.entity";
 
-
-// ✅ Clean return type (domain objects only)
 export interface UpdateCandidateProfileResult {
   user: User;
   profile: CandidateProfile;
@@ -16,7 +14,7 @@ export interface UpdateCandidateProfileResult {
 
 export class UpdateCandidateProfileUseCase {
   constructor(
-    private readonly candidateRepo: CandidateRespository,
+    private readonly candidateRepo: CandidateRepository,
     private readonly userRepo: UserRepository,
   ) {}
 
@@ -24,25 +22,22 @@ export class UpdateCandidateProfileUseCase {
     userIdRaw: string,
     input: UpdateCandidateProfileDTO,
   ): Promise<UpdateCandidateProfileResult> {
-    
-    // ===== CREATE VALUE OBJECT =====
+    // ✅ Create Value Object
     const userId = UserId.create(userIdRaw);
 
-    // ===== FETCH USER =====
+    // ✅ Fetch user
     const user = await this.userRepo.findById(userId);
     if (!user) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    // ===== FETCH PROFILE =====
+    // ✅ Fetch profile
     const profile = await this.candidateRepo.findByUserId(userId);
     if (!profile) {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_PROFILE_NOT_FOUND);
     }
 
-    // ================================
-    // USER UPDATES
-    // ================================
+    // ✅ Update user fields
     if (input.fullName !== undefined) {
       user.updateFullName(input.fullName);
     }
@@ -51,10 +46,7 @@ export class UpdateCandidateProfileUseCase {
       user.updateProfileImage(input.profileImage);
     }
 
-    // ================================
-    // PROFILE UPDATES
-    // ================================
-
+    // ✅ Update profile fields
     if (input.currentJob !== undefined) {
       profile.updateCurrentJob(input.currentJob);
     }
@@ -67,8 +59,8 @@ export class UpdateCandidateProfileUseCase {
       profile.updateExperienceYears(input.experienceYears);
     }
 
-    // Important: allow empty array validation in domain
-    if (input.skills !== undefined) {
+    // 🔥 Prevent crash on empty array
+    if (input.skills !== undefined && input.skills.length > 0) {
       profile.updateSkills(input.skills);
     }
 
@@ -76,7 +68,10 @@ export class UpdateCandidateProfileUseCase {
       profile.updateEducation(input.educationLevel);
     }
 
-    if (input.preferredJobLocations !== undefined) {
+    if (
+      input.preferredJobLocations !== undefined &&
+      input.preferredJobLocations.length > 0
+    ) {
       profile.updatePreferredLocations(input.preferredJobLocations);
     }
 
@@ -96,22 +91,15 @@ export class UpdateCandidateProfileUseCase {
       profile.updatePortfolioUrl(input.portfolioUrl);
     }
 
-    // ================================
-    // PROFILE COMPLETION CHECK
-    // ================================
-    // Do NOT silently catch errors
-    // Let domain decide completion rules
-    if (profile.canBeCompleted()) {
+    // ✅ Complete profile only once
+    if (!profile.isProfileCompleted() && profile.canBeCompleted()) {
       profile.completeProfile();
     }
 
-    // ================================
-    // SAVE CHANGES
-    // ================================
+    // ⚠️ (Optional improvement: wrap in transaction)
     await this.userRepo.save(user);
     await this.candidateRepo.save(profile);
 
-    // Return domain objects (controller maps response)
     return {
       user,
       profile,

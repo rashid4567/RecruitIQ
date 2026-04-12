@@ -1,8 +1,8 @@
 import { CandidateRespository } from "../../domain/repositories/candidate.repository";
-import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { ERROR_CODES } from "../constants/error-code.constant";
 import { CompleteCandidateProfileDTO } from "../dto/complete-candidate-profile.dto";
-import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
+import { ApplicationError } from "../../../../shared/errors/application.error";
 
 export class CompleteCandidateProfileUseCase {
   constructor(private readonly candidateRepo: CandidateRespository) {}

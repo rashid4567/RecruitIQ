@@ -1,15 +1,15 @@
 import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../domain/repositories/user.repository";
 
-import { Email } from "../../../../shared/value-objects.ts/email.vo";
-import { Password } from "../../../../shared/value-objects.ts/password.vo";
+import { Email } from "../../../../shared/value-objects/email.vo";
+import { Password } from "../../../../shared/value-objects/password.vo";
 
 import { VerificationInput } from "../dto/verification.input.dto";
 import { OTPServicePort } from "../ports/otp.service.ports";
 import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../ports/token.service.ports";
 
-import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
+import { ApplicationError } from "../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 
 import { EmailEvent } from "../../../admin/Domain/constatns/email-enum.events";

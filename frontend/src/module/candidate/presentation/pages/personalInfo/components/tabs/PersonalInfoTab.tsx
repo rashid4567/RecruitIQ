@@ -1,5 +1,3 @@
-
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,7 +31,10 @@ interface PersonalInfoTabProps {
   validationErrors: Record<string, string>;
   isUploading: boolean;
   imagePreview: string | null;
-  onInputChange: <K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => void;
+  onInputChange: <K extends keyof ProfileFormData>(
+    key: K,
+    value: ProfileFormData[K],
+  ) => void;
   onImageUpload: (file: File) => Promise<void>;
   onEditToggle: () => void;
   onSave: () => void;
@@ -85,12 +86,13 @@ export function PersonalInfoTab({
     return "Let's complete your profile";
   };
 
-  const hasValidationErrors = Object.keys(validationErrors).length > 0;
+  const hasValidationErrors = Object.values(validationErrors).some(
+    (v) => v !== undefined && v !== null && v !== "",
+  );
 
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        {/* LEFT COLUMN */}
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-4">
             <ProfileCard
@@ -112,14 +114,9 @@ export function PersonalInfoTab({
           </div>
         </div>
 
-
         <div className="lg:col-span-2 space-y-6">
-
-        
           <Card className="relative border-0 shadow-lg bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
-     
             <div className="absolute inset-0 bg-grid-white/5" />
-
             <CardContent className="p-6 relative">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
@@ -145,7 +142,6 @@ export function PersonalInfoTab({
             </CardContent>
           </Card>
 
-          {/* Form */}
           <Card className="border-0 shadow-xl bg-white">
             <CardContent className="p-8">
               <div className="space-y-8">

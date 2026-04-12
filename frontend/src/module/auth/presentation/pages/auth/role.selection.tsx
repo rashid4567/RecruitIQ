@@ -15,12 +15,12 @@ export default function RoleSelection() {
 
   return (
     <div className="relative min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center px-5 py-8 sm:py-12 overflow-hidden">
-      {/* Background decoration – smaller and softer */}
+ 
       <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-100/15 rounded-full blur-3xl opacity-70" />
       <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-indigo-100/15 rounded-full blur-3xl opacity-70" />
 
       <div className="w-full max-w-4xl relative z-10">
-        {/* Header – more compact */}
+    
         <div className="text-center mb-10 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight bg-linear-to-r from-slate-900 to-indigo-800 bg-clip-text text-transparent mb-3">
             Choose your path
@@ -30,7 +30,7 @@ export default function RoleSelection() {
           </p>
         </div>
 
-        {/* Cards – using ROLE_SELECTION_CONFIG */}
+    
         <div className="grid md:grid-cols-2 gap-5 sm:gap-7 mb-10 sm:mb-12">
           {ROLE_SELECTION_CONFIG.map((role) => {
             const isSelected = selectedRole === role.id;
@@ -104,7 +104,7 @@ export default function RoleSelection() {
           })}
         </div>
 
-        {/* CTA section – more compact */}
+   
         <div className="max-w-md mx-auto space-y-6">
           <div>
             <div className="flex justify-between text-sm font-medium text-slate-600 mb-2.5">

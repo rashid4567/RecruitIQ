@@ -1,8 +1,8 @@
-import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { Gender } from "../type/gender.Types";
 
 export class CandidateProfile {
-  private profileComplete = false;
+  private profileCompleted = false;
 
   private constructor(
     private readonly userId: UserId,
@@ -16,35 +16,36 @@ export class CandidateProfile {
     private gender?: Gender,
     private linkedinUrl?: string,
     private portfolioUrl?: string,
-    profileComplete = false,
+    profileCompleted = false,
   ) {
-    this.profileComplete = profileComplete;
+    this.profileCompleted = profileCompleted;
   }
 
-
+  // ✅ Factory
   public static create(
     userId: UserId,
-    currentJob: string,
+    currentJob?: string,
     experienceYears?: number,
   ): CandidateProfile {
     if (!userId) {
       throw new Error("User id is required");
     }
 
-    if (!currentJob?.trim()) {
-      throw new Error("Current job is required");
-    }
-
     if (experienceYears !== undefined && experienceYears < 0) {
       throw new Error("Experience years cannot be negative");
     }
 
-    return new CandidateProfile(userId, currentJob, experienceYears);
+    return new CandidateProfile(
+      userId,
+      currentJob?.trim() ?? "",
+      experienceYears,
+    );
   }
 
+  // ✅ Persistence mapper
   public static fromPersistence(props: {
     userId: UserId;
-    currentJob: string;
+    currentJob?: string;
     experienceYears?: number;
     skills?: string[];
     educationLevel?: string;
@@ -54,26 +55,25 @@ export class CandidateProfile {
     gender?: Gender;
     linkedinUrl?: string;
     portfolioUrl?: string;
-    profileComplete?: boolean;
+    profileCompleted?: boolean;
   }): CandidateProfile {
     return new CandidateProfile(
       props.userId,
-      props.currentJob ?? "",
+      props.currentJob?.trim() ?? "",
       props.experienceYears,
       props.skills ?? [],
-      props.educationLevel,
+      props.educationLevel?.trim(),
       props.preferredJobLocations ?? [],
-      props.bio,
-      props.currentJobLocation,
+      props.bio?.trim(),
+      props.currentJobLocation?.trim(),
       props.gender,
-      props.linkedinUrl,
-      props.portfolioUrl,
-      props.profileComplete ?? false,
+      props.linkedinUrl?.trim(),
+      props.portfolioUrl?.trim(),
+      props.profileCompleted ?? false,
     );
   }
 
-
-
+  // ✅ Business rule
   public canBeCompleted(): boolean {
     return (
       this.skills.length > 0 &&
@@ -86,11 +86,10 @@ export class CandidateProfile {
     if (!this.canBeCompleted()) {
       throw new Error("Profile cannot be completed. Missing required fields");
     }
-    this.profileComplete = true;
+    this.profileCompleted = true;
   }
 
- 
-
+  // ✅ Update methods
   public updateCurrentJob(currentJob: string): void {
     if (!currentJob?.trim()) {
       throw new Error("Current job cannot be empty");
@@ -109,7 +108,7 @@ export class CandidateProfile {
     if (!skills || skills.length === 0) {
       throw new Error("At least one skill is required");
     }
-    this.skills = [...skills];
+    this.skills = skills.map((s) => s.trim());
   }
 
   public updateEducation(level: string): void {
@@ -123,36 +122,39 @@ export class CandidateProfile {
     if (!locations || locations.length === 0) {
       throw new Error("At least one location is required");
     }
-    this.preferredJobLocations = [...locations];
+    this.preferredJobLocations = locations.map((l) => l.trim());
   }
 
   public updateBio(bio?: string): void {
     if (bio && bio.length > 500) {
       throw new Error("Bio cannot exceed 500 characters");
     }
-    this.bio = bio;
+    this.bio = bio?.trim();
   }
 
   public updateCurrentJobLocation(location?: string): void {
-    this.currentJobLocation = location;
+    this.currentJobLocation = location?.trim();
   }
 
   public updateGender(gender?: Gender): void {
-    const allowed = ["male", "female", "other"];
-    if (gender && !allowed.includes(gender)) {
-      throw new Error("Invalid gender value");
-    }
     this.gender = gender;
   }
 
   public updateLinkedinUrl(url?: string): void {
-    this.linkedinUrl = url;
+    if (url && !url.startsWith("http")) {
+      throw new Error("Invalid LinkedIn URL");
+    }
+    this.linkedinUrl = url?.trim();
   }
 
   public updatePortfolioUrl(url?: string): void {
-    this.portfolioUrl = url;
+    if (url && !url.startsWith("http")) {
+      throw new Error("Invalid portfolio URL");
+    }
+    this.portfolioUrl = url?.trim();
   }
 
+  // ✅ Getters
   public getUserId(): UserId {
     return this.userId;
   }
@@ -198,6 +200,6 @@ export class CandidateProfile {
   }
 
   public isProfileCompleted(): boolean {
-    return this.profileComplete;
+    return this.profileCompleted;
   }
 }

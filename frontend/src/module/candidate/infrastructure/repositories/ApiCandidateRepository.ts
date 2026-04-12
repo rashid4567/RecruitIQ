@@ -6,31 +6,10 @@ export class ApiCandidateRepository implements CandidateRepository {
 
   async getProfile(): Promise<CandidateProfile> {
     const res = await api.get("/candidate/profile");
-    const data = res.data.data;
-
-    return new CandidateProfile({
-      fullName: data.user.fullName,
-      email: data.user.email,
-      emailVerified: data.user.emailVerified,
-      profileImage: data.user.profileImage,
-
-      currentJob: data.candidateProfile.currentJob,
-      experienceYears: data.candidateProfile.experienceYears,
-      educationLevel: data.candidateProfile.educationLevel,
-      skills: data.candidateProfile.skills,
-      preferredJobLocations: data.candidateProfile.preferredJobLocations,
-      currentJobLocation: data.candidateProfile.currentJobLocation,
-      gender: data.candidateProfile.gender,
-      linkedinUrl: data.candidateProfile.linkedinUrl,
-      portfolioUrl: data.candidateProfile.portfolioUrl,
-      bio: data.candidateProfile.bio,
-
-      profileCompleted: data.candidateProfile.profileCompleted,
-    });
+    return CandidateProfile.fromApi(res.data.data);
   }
 
   async updateProfile(profile: CandidateProfile): Promise<CandidateProfile> {
-
     const payload = Object.fromEntries(
       Object.entries({
         fullName: profile.fullName,
@@ -44,47 +23,33 @@ export class ApiCandidateRepository implements CandidateRepository {
         linkedinUrl: profile.linkedinUrl,
         portfolioUrl: profile.portfolioUrl,
         bio: profile.bio,
-      }).filter(([_, value]) => value !== undefined)
+      }).filter(([_, value]) => value !== undefined && value !== null)
     );
 
     const res = await api.put("/candidate/profile", payload);
     const data = res.data.data;
 
-    return new CandidateProfile({
-      fullName: data.user.fullName,
-      email: data.user.email,
-      emailVerified: data.user.emailVerified,
-      profileImage: data.user.profileImage,
-
-      currentJob: data.candidateProfile.currentJob,
-      experienceYears: data.candidateProfile.experienceYears,
-      educationLevel: data.candidateProfile.educationLevel,
-      skills: data.candidateProfile.skills,
-      preferredJobLocations: data.candidateProfile.preferredJobLocations,
-      currentJobLocation: data.candidateProfile.currentJobLocation,
-      gender: data.candidateProfile.gender,
-      linkedinUrl: data.candidateProfile.linkedinUrl,
-      portfolioUrl: data.candidateProfile.portfolioUrl,
-      bio: data.candidateProfile.bio,
-
-      profileCompleted: data.candidateProfile.profileCompleted,
-    });
+    // Update response has different shape from getProfile:
+    // - uses "profile" instead of "candidateProfile"
+    // - email and id are wrapped in { value: "..." }
+    return CandidateProfile.fromUpdateApi(data);
   }
 
   async completeProfile(profile: CandidateProfile): Promise<void> {
-   
-    const payload = {
-      currentJob: profile.currentJob,
-      educationLevel: profile.educationLevel,
-      skills: profile.skills,
-      preferredJobLocations: profile.preferredJobLocations,
-      bio: profile.bio,
-      experienceYears: profile.experienceYears,
-      linkedinUrl: profile.linkedinUrl,
-      portfolioUrl: profile.portfolioUrl,
-      currentJobLocation: profile.currentJobLocation,
-      gender: profile.gender,
-    };
+    const payload = Object.fromEntries(
+      Object.entries({
+        currentJob: profile.currentJob,
+        educationLevel: profile.educationLevel,
+        skills: profile.skills,
+        preferredJobLocations: profile.preferredJobLocations,
+        bio: profile.bio,
+        experienceYears: profile.experienceYears,
+        linkedinUrl: profile.linkedinUrl,
+        portfolioUrl: profile.portfolioUrl,
+        currentJobLocation: profile.currentJobLocation,
+        gender: profile.gender,
+      }).filter(([_, value]) => value !== undefined && value !== null)
+    );
 
     await api.put("/candidate/profile/complete", payload);
   }

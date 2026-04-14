@@ -1,4 +1,7 @@
 export interface CompleteCandidateProfileDTO {
+  currentJobLocation: any;
+  currentJobLocation: unknown;
+  gender: unknown;
   currentJob: string;
   experienceYears?: number;
   educationLevel: string;

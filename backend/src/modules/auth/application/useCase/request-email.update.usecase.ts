@@ -1,7 +1,7 @@
 import { OTPServicePort } from "../ports/otp.service.ports";
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { Email } from "../../../../shared/value-objects/email.vo";
-import { OTP_ROLES } from "../../domain/constants/otp-roles.constants";
+import { OtpRole } from "../../domain/constants/otp-roles.constants";
 import { ApplicationError } from "../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 
@@ -11,19 +11,19 @@ export class RequestEmailUpdateUseCase {
     private readonly otpService: OTPServicePort,
   ) {}
 
-  async execute(userId: string, newEmail: string): Promise<void> {
+  async execute(userId: string, newEmail: string, role: OtpRole): Promise<void> {
     const email = Email.create(newEmail);
 
     const user = await this.userRepo.findById(userId);
-    if (!user) throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND)
+    if (!user) throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
 
     if (user.email.equals(email)) {
-      throw new ApplicationError(ERROR_CODES.NEW_EMAIL_MUST_BE_DIFFERENT_FROM_THE_CURRENT_EMAIL)
+      throw new ApplicationError(ERROR_CODES.NEW_EMAIL_MUST_BE_DIFFERENT_FROM_THE_CURRENT_EMAIL);
     }
 
     const existingUser = await this.userRepo.findByEmail(email);
     if (existingUser) throw new ApplicationError(ERROR_CODES.EMAIL_ALREADY_EXISTS);
 
-    await this.otpService.create(email, OTP_ROLES.CANDIDATE);
+    await this.otpService.create(email, role);
   }
 }

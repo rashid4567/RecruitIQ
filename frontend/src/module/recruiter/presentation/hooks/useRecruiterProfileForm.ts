@@ -1,4 +1,4 @@
-// useRecruiterProfileForm.ts
+
 import { useEffect, useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +20,7 @@ export function useRecruiterProfileForm({
   onProfileUpdated,
 }: UseRecruiterProfileFormProps) {
   const form = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema) as Resolver<ProfileFormData>, // ← fixes resolver error
+    resolver: zodResolver(profileSchema) as Resolver<ProfileFormData>, 
     mode: "onChange",
     defaultValues: {
       fullName: "",

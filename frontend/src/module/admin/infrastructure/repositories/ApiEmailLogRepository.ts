@@ -8,7 +8,7 @@ interface EmailLogApiDto{
     subject : string,
     type : "TEST" | "REAL",
     status : "SENT" | "FAILED",
-    timeStamp?:string,
+    timestamp?:string,
     error?:string,
 }
 
@@ -18,6 +18,7 @@ export class ApiEmailLogRepository implements EmailLogRepository{
         const {data} = await api.get<{data : EmailLogApiDto[]}>(
             "/admin/email-logs"
         )
+        console.log("email log repository :- ", data)
         return data.data.map((log) => this.toDomain(log))
     }
 
@@ -29,7 +30,7 @@ export class ApiEmailLogRepository implements EmailLogRepository{
       subject: dto.subject,
       type: dto.type,
       status: dto.status,
-      timeStamp: dto.timeStamp ?? new Date().toISOString(),
+      timeStamp: dto.timestamp || "",
       error: dto.error,
     });
   }

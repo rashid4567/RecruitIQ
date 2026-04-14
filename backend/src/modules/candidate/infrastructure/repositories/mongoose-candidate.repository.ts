@@ -1,3 +1,4 @@
+
 import { candidateProfileModel } from "../mongoose/models/candidate-profile.model";
 import { CandidateProfile } from "../../domain/entities/candidate-profile.entity";
 import { CandidateRepository } from "../../domain/repositories/candidate.repository";
@@ -11,19 +12,20 @@ export class MongooseCandidateRepository implements CandidateRepository {
 
     if (!doc) return null;
 
+
     return CandidateProfile.fromPersistence({
       userId,
       currentJob: doc.currentJob ?? "",
-      experienceYears: doc.experienceYears ?? 0,
+      experienceYears: doc.experienceYears,
       skills: doc.skills ?? [],
       educationLevel: doc.educationLevel ?? "",
-      preferredJobLocations: doc.preferredJobLocations,
+      preferredJobLocations: doc.preferredJobLocations ?? [],
       bio: doc.bio ?? "",
-      currentJobLocation: doc.currentJobLocation ?? "",
+      currentJobLocation : doc.currentJobLocation ?? "",
       gender: doc.gender ?? undefined,
       linkedinUrl: doc.linkedinUrl ?? "",
       portfolioUrl: doc.portfolioUrl ?? "",
-      profileCompleted: doc.profileCompleted,
+      profileCompleted: doc.profileCompleted ?? false,
     });
   }
 
@@ -33,18 +35,20 @@ export class MongooseCandidateRepository implements CandidateRepository {
     const updated = await candidateProfileModel.findOneAndUpdate(
       { userId },
       {
-        userId,
-        currentJob: profile.getCurrentJob(),
-        experienceYears: profile.getExperienceYears(),
-        skills: profile.getSkills(),
-        educationLevel: profile.getEducationLevel(),
-        preferredJobLocations: profile.getPreferredLocations(),
-        bio: profile.getBio(),
-        currentJobLocation: profile.getCurrentJobLocation(),
-        gender: profile.getGender(),
-        linkedinUrl: profile.getLinkedinUrl(),
-        portfolioUrl: profile.getPortfolioUrl(),
-        profileCompleted: profile.isProfileCompleted(),
+        $set: {
+          userId,
+          currentJob: profile.getCurrentJob(),
+          experienceYears: profile.getExperienceYears(),
+          skills: profile.getSkills(),
+          educationLevel: profile.getEducationLevel(),
+          preferredJobLocations: profile.getPreferredLocations(),
+          bio: profile.getBio(),
+          currentJobLocation: profile.getCurrentJobLocation(),
+          gender: profile.getGender(),
+          linkedinUrl: profile.getLinkedinUrl(),
+          portfolioUrl: profile.getPortfolioUrl(),
+          profileCompleted: profile.isProfileCompleted(),
+        },
       },
       {
         upsert: true,

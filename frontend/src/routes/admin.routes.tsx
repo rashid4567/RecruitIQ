@@ -60,6 +60,7 @@ const AdminRoutes = () => (
             path="/email-templates/edit/:id"
             element={<EmailTemplateEditor />}
           />
+          <Route path="email-templates/:id" element={<EmailTemplateEditor/>}/>
           <Route path="/email-logs" element={<EmailLogs />} />
           <Route path="/activity-logs" element={<ActivityLogs/>}/>
         </Route>

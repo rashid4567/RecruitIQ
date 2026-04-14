@@ -31,7 +31,7 @@ export const completeCandidateProfileSchema = z.object({
 
   currentJobLocation: z.string().min(1).optional(),
 
-  gender: z.enum(["Male", "female", "other"]).optional(),
+  gender: z.enum(["male", "female", "other"]).optional(),
 
   linkedinUrl: z.string().url("Invalid LinkedIn URL").optional(),
 

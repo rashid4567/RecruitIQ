@@ -16,7 +16,6 @@ export class GetRecruiterProfileController {
       const { recruiterId } = req.params;
 
       const recruiter = await this.getRecruiterProfileUC.execute(recruiterId);
-
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "Recruiter profile loaded successfully",

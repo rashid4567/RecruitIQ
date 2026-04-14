@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import Sidebar from "@/components/admin/sideBar";
 import type { EmailTemplate } from "@/module/admin/domain/entities/email-template.entity";
@@ -11,6 +12,7 @@ import { TemplateList } from "../components/email-template.managment/TemplateLis
 import { TemplatePagination } from "../components/email-template.managment/TemplatePagination";
 import { TemplateDialogs } from "../components/email-template.managment/TemplateDialogs";
 import { ErrorState } from "../components/email-template.managment/ErrorState";
+import { TestEmailModal } from "../components/email-template.managment/TestEmailModal"; 
 
 export default function EmailTemplateManagement() {
   const navigate = useNavigate();
@@ -38,14 +40,42 @@ export default function EmailTemplateManagement() {
     sendTestEmail,
   } = useEmailTemplateManagement();
 
-  const handleTestEmail = (template: EmailTemplate) => {
-    const email = prompt("Test recipient email:", "test@example.com");
-    if (!email || !email.includes("@")) {
-      toast.error("Please enter a valid email");
-      return;
-    }
+  const [testModalOpen, setTestModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
+  const [testEmail, setTestEmail] = useState("");
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testError, setTestError] = useState("");
 
-    sendTestEmail(template.getId(), email);
+  
+  const handleTestEmail = (template: EmailTemplate) => {
+    setSelectedTemplate(template);
+    setTestEmail("");       
+    setTestError("");
+    setTestModalOpen(true);
+  };
+
+
+  const handleSendTestEmail = async () => {
+    if (!selectedTemplate || !testEmail.trim()) return;
+
+    setIsSendingTest(true);
+    setTestError("");
+
+    try {
+      await sendTestEmail(selectedTemplate.getId(), testEmail.trim());
+      
+      toast.success(`Test email sent successfully to ${testEmail}`);
+      setTestModalOpen(false);
+      
+    
+      setTestEmail("");
+    } catch (err: any) {
+      const message = err?.message || "Failed to send test email. Please try again.";
+      setTestError(message);
+      toast.error(message);
+    } finally {
+      setIsSendingTest(false);
+    }
   };
 
   const handleView = (id: string) => {
@@ -53,6 +83,7 @@ export default function EmailTemplateManagement() {
   };
 
   const handleEdit = (id: string) => {
+    console.log("handle edit :-", id ? id : "no id found")
     navigate(`/admin/email-templates/edit/${id}`);
   };
 
@@ -74,7 +105,7 @@ export default function EmailTemplateManagement() {
 
             {!error && (
               <div className="grid lg:grid-cols-12 gap-7">
-                {/* Categories */}
+                {/* Categories Sidebar */}
                 <div className="lg:col-span-3">
                   <TemplateSidebar
                     activeCategory={activeCategory}
@@ -82,7 +113,7 @@ export default function EmailTemplateManagement() {
                   />
                 </div>
 
-                {/* Main area */}
+                {/* Main Content */}
                 <div className="lg:col-span-9 space-y-6">
                   <TemplateList
                     loading={loading}
@@ -93,7 +124,7 @@ export default function EmailTemplateManagement() {
                     onPaginationChange={setPagination}
                     onView={handleView}
                     onEdit={handleEdit}
-                    onTestEmail={handleTestEmail}
+                    onTestEmail={handleTestEmail}    
                     onToggle={setToggleTemplate}
                     onDelete={setDeleteId}
                   />
@@ -111,6 +142,7 @@ export default function EmailTemplateManagement() {
           </div>
         </main>
 
+        {/* Dialogs */}
         <TemplateDialogs
           deleteId={deleteId}
           toggleTemplate={toggleTemplate}
@@ -118,6 +150,23 @@ export default function EmailTemplateManagement() {
           onToggleClose={() => setToggleTemplate(null)}
           onDeleteConfirm={executeDelete}
           onToggleConfirm={executeToggle}
+        />
+
+        {/* Test Email Modal */}
+        <TestEmailModal
+          isOpen={testModalOpen}
+          onClose={() => {
+            setTestModalOpen(false);
+            setTestEmail("");
+            setTestError("");
+          }}
+          templateName={selectedTemplate?.getName() || ""}
+          testEmail={testEmail}
+          setTestEmail={setTestEmail}
+          onSendTest={handleSendTestEmail}
+          isSending={isSendingTest}
+          error={testError}
+          setError={setTestError}
         />
       </div>
     </div>

@@ -4,8 +4,15 @@ export interface RecruiterProfileOutput {
   email: string;
   isActive: boolean;
   verificationStatus: "pending" | "verified" | "rejected";
-  company: string;
-  subscriptionStatus: string;
+  subscriptionStatus: "free" | "active" | "expired";
   jobPostsUsed: number;
-  joinedDate: Date;
+  joinedDate?: Date;
+  companyName?: string;
+  companyWebsite?: string;
+  companySize?: number;
+  industry?: string;
+  designation?: string;
+  location?: string;
+  linkedinUrl?: string;
+  bio?: string;
 }

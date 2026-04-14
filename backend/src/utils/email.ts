@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import { logEmail } from "./email-logger";
-//import { logger } from "../shared/logger/logger";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -11,40 +10,61 @@ const transporter = nodemailer.createTransport({
 });
 
 
+const sendEmail = async ({
+  to,
+  subject,
+  html,
+  type,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  type: "REAL" | "TEST";
+}) => {
+  try {
+    const info = await transporter.sendMail({
+      from: `"RecruitIQ${type === "TEST" ? " Test" : ""}" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html,
+    });
+
+    logEmail({
+      type,
+      to,
+      subject,
+      status: "SENT",
+    });
+
+    return info;
+  } catch (err: unknown) {
+    logEmail({
+      type,
+      to,
+      subject,
+      status: "FAILED",
+      error: err instanceof Error ? err.message : "Unknown error",
+    });
+
+    throw err;
+  }
+};
 
 
 export const sendOtp = async (to: string, otp: string) => {
-  try {
-    await transporter.sendMail({
-      from: `"RecruitIQ" <${process.env.EMAIL_USER}>`,
-      to,
-      subject: "Email Verification OTP",
-      html: `
-        <h3>Email Verification</h3>
+  return sendEmail({
+    to,
+    type: "REAL",
+    subject: "Email Verification OTP",
+    html: `
+      <div style="font-family:Arial;padding:20px">
+        <h2 style="color:#0f172a">Email Verification</h2>
         <p>Your OTP is:</p>
-        <h2>${otp}</h2>
+        <div style="font-size:24px;font-weight:bold;letter-spacing:2px">${otp}</div>
         <p>This OTP expires in 10 minutes.</p>
-      `,
-    });
-
-    //logger.debug(`otp is : - ${otp}`)
-
-    logEmail({
-      type: "REAL",
-      to,
-      subject: "Email Verification OTP",
-      status: "SENT",
-    });
-  } catch (err: any) {
-    logEmail({
-      type: "REAL",
-      to,
-      subject: "Email Verification OTP",
-      status: "FAILED",
-      error: err.message,
-    });
-    throw err;
-  }
+      </div>
+    `,
+  });
 };
 
 
@@ -52,40 +72,25 @@ export const sendPasswordLink = async (
   to: string,
   resetLink: string
 ) => {
-  try {
-    await transporter.sendMail({
-      from: `"RecruitIQ" <${process.env.EMAIL_USER}>`,
-      to,
-      subject: "Reset Your Password",
-      html: `
-        <h3>Password Reset Request</h3>
+  return sendEmail({
+    to,
+    type: "REAL",
+    subject: "Reset Your Password",
+    html: `
+      <div style="font-family:Arial;padding:20px">
+        <h2 style="color:#0f172a">Password Reset</h2>
         <p>You requested to reset your password.</p>
         <p>
-          <a href="${resetLink}" target="_blank">
+          <a href="${resetLink}" target="_blank" 
+             style="display:inline-block;padding:10px 16px;background:#0f172a;color:white;text-decoration:none;border-radius:6px">
             Reset Password
           </a>
         </p>
         <p>This link expires in <b>10 minutes</b>.</p>
         <p>If you did not request this, please ignore this email.</p>
-      `,
-    });
-
-    logEmail({
-      type: "REAL",
-      to,
-      subject: "Reset Your Password",
-      status: "SENT",
-    });
-  } catch (err: any) {
-    logEmail({
-      type: "REAL",
-      to,
-      subject: "Reset Your Password",
-      status: "FAILED",
-      error: err.message,
-    });
-    throw err;
-  }
+      </div>
+    `,
+  });
 };
 
 
@@ -94,28 +99,10 @@ export const sendTestEmail = async (
   subject: string,
   html: string
 ) => {
-  try {
-    await transporter.sendMail({
-      from: `"RecruitIQ Test" <${process.env.EMAIL_USER}>`,
-      to,
-      subject: `[TEST] ${subject}`,
-      html,
-    });
-
-    logEmail({
-      type: "TEST",
-      to,
-      subject,
-      status: "SENT",
-    });
-  } catch (err: any) {
-    logEmail({
-      type: "TEST",
-      to,
-      subject,
-      status: "FAILED",
-      error: err.message,
-    });
-    throw err;
-  }
+  return sendEmail({
+    to,
+    subject: `[TEST] ${subject}`,
+    html,
+    type: "TEST",
+  });
 };

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { completeProfileUC } from "../di/candidate";
 import type { CompleteCandidateProfileForm } from "../types/candidate-profile.types";
@@ -7,35 +8,39 @@ export function useCompleteCandidateProfile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const completeProfile = async (
-    formData: CompleteCandidateProfileForm
-  ) => {
+  const completeProfile = async (formData: CompleteCandidateProfileForm) => {
     setIsSubmitting(true);
     setError(null);
 
     try {
+
+      const preferredJobLocations = formData.preferredJobLocations
+        ? formData.preferredJobLocations
+            .split(",")
+            .map((l) => l.trim())
+            .filter(Boolean)
+        : [];
+
       await completeProfileUC.execute({
-        currentJob: formData.currentJob,
-        experienceYears: Number(formData.experienceYears) || undefined,
+        currentJob: formData.currentJob.trim(),
+        experienceYears: formData.experienceYears
+          ? Number(formData.experienceYears)
+          : undefined,
         educationLevel: formData.educationLevel,
         skills: formData.skills,
-        preferredJobLocations: formData.preferredJobLocations
-          ? [formData.preferredJobLocations]
-          : [],
-        bio: formData.bio,
-        linkedinUrl: formData.linkedinUrl || undefined,
+        preferredJobLocations,
+        bio: formData.bio.trim(),
+        linkedinUrl: formData.linkedinUrl?.trim() || undefined,
+        currentJobLocation: undefined,
+        gender: undefined
       });
     } catch (err: unknown) {
-        setError(getError(err))
+      setError(getError(err));
       throw err;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return {
-    completeProfile,
-    isSubmitting,
-    error,
-  };
+  return { completeProfile, isSubmitting, error };
 }

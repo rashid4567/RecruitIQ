@@ -1,9 +1,10 @@
+
 import api from "@/api/axios";
 import type { CandidateRepository } from "../../domain/repositories/CandidateRepository";
+import type { CompleteCandidateProfileDTO } from "../../domain/dto/CompleteCandidateProfileDTO";
 import { CandidateProfile } from "../../domain/entities/candidateProfile";
 
 export class ApiCandidateRepository implements CandidateRepository {
-
   async getProfile(): Promise<CandidateProfile> {
     const res = await api.get("/candidate/profile");
     return CandidateProfile.fromApi(res.data.data);
@@ -23,33 +24,31 @@ export class ApiCandidateRepository implements CandidateRepository {
         linkedinUrl: profile.linkedinUrl,
         portfolioUrl: profile.portfolioUrl,
         bio: profile.bio,
-      }).filter(([_, value]) => value !== undefined && value !== null)
+      }).filter(([_, v]) => v !== undefined && v !== null),
     );
 
     const res = await api.put("/candidate/profile", payload);
-    const data = res.data.data;
-
-    // Update response has different shape from getProfile:
-    // - uses "profile" instead of "candidateProfile"
-    // - email and id are wrapped in { value: "..." }
-    return CandidateProfile.fromUpdateApi(data);
+    return CandidateProfile.fromUpdateApi(res.data.data);
   }
 
-  async completeProfile(profile: CandidateProfile): Promise<void> {
-    const payload = Object.fromEntries(
-      Object.entries({
-        currentJob: profile.currentJob,
-        educationLevel: profile.educationLevel,
-        skills: profile.skills,
-        preferredJobLocations: profile.preferredJobLocations,
-        bio: profile.bio,
-        experienceYears: profile.experienceYears,
-        linkedinUrl: profile.linkedinUrl,
-        portfolioUrl: profile.portfolioUrl,
-        currentJobLocation: profile.currentJobLocation,
-        gender: profile.gender,
-      }).filter(([_, value]) => value !== undefined && value !== null)
-    );
+  async completeProfile(dto: CompleteCandidateProfileDTO): Promise<void> {
+
+    const payload: Record<string, unknown> = {
+      skills: dto.skills ?? [],
+      preferredJobLocations: dto.preferredJobLocations ?? [],
+    };
+
+    if (dto.currentJob) payload.currentJob = dto.currentJob;
+    if (dto.educationLevel) payload.educationLevel = dto.educationLevel;
+    if (dto.bio) payload.bio = dto.bio;
+
+    if (dto.experienceYears !== undefined)
+      payload.experienceYears = dto.experienceYears;
+    if (dto.linkedinUrl) payload.linkedinUrl = dto.linkedinUrl;
+    if (dto.portfolioUrl) payload.portfolioUrl = dto.portfolioUrl;
+    if (dto.currentJobLocation)
+      payload.currentJobLocation = dto.currentJobLocation;
+    if (dto.gender) payload.gender = dto.gender;
 
     await api.put("/candidate/profile/complete", payload);
   }

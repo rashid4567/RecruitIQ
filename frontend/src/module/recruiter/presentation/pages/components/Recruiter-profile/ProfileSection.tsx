@@ -18,8 +18,10 @@ import { EmailUpdateModal } from "./modals/EmailUpdateModal";
 
 export function RecruiterProfileSection() {
   const [isEditing, setIsEditing] = useState(false);
+
   const { profile, isLoading, error, fetchProfile, updateLocalProfile } =
     useRecruiterProfile();
+
   const formVM = useRecruiterProfileForm({
     profile,
     onProfileUpdated: updateLocalProfile,
@@ -31,6 +33,7 @@ export function RecruiterProfileSection() {
   });
 
   const emailVM = useEmailUpdateForm(fetchProfile);
+
   const getInitials = (name: string) => {
     if (!name?.trim()) return "R";
     return name
@@ -42,9 +45,8 @@ export function RecruiterProfileSection() {
   };
 
   const initials = formVM.currentName ? getInitials(formVM.currentName) : "R";
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
+
+  const handleEditClick = () => setIsEditing(true);
 
   const handleCancel = () => {
     formVM.cancel();
@@ -58,6 +60,7 @@ export function RecruiterProfileSection() {
     setIsEditing(false);
     avatarVM.reset();
   };
+
   if (isLoading) {
     return (
       <Card className="border-slate-200/50 shadow-lg">
@@ -77,6 +80,7 @@ export function RecruiterProfileSection() {
       </Card>
     );
   }
+
   if (error || !profile) {
     return (
       <Card className="border-slate-200/50 shadow-lg">
@@ -102,6 +106,11 @@ export function RecruiterProfileSection() {
       </Card>
     );
   }
+
+  function setIsEmailModalOpen(arg0: boolean): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <TooltipProvider>
       <Card className="border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
@@ -131,6 +140,7 @@ export function RecruiterProfileSection() {
                   onEmailUpdateClick={emailVM.openModal}
                 />
               </div>
+
               <div className="lg:w-2/3 space-y-8">
                 <PersonalInfoForm
                   register={formVM.form.register}
@@ -138,6 +148,8 @@ export function RecruiterProfileSection() {
                   touchedFields={formVM.touchedFields}
                   isEditing={isEditing}
                   profile={profile}
+                  currentEmail={profile?.email || ""}
+                  onUpdateEmailClick={emailVM.openModal}
                 />
 
                 <CompanyInfoForm
@@ -179,6 +191,16 @@ export function RecruiterProfileSection() {
         onSendOtp={emailVM.sendOtp}
         onVerifyOtp={emailVM.verifyOtp}
         onResendOtp={emailVM.resendOtp}
+        newEmail={emailVM.newEmail}
+        setNewEmail={emailVM.setNewEmail}
+        otp={emailVM.otp}
+        setOtp={emailVM.setOtp}
+        otpSent={emailVM.otpSent}
+        isSendingOtp={emailVM.isSendingOtp}
+        isVerifyingOtp={emailVM.isVerifyingOtp}
+        countdown={emailVM.countdown}
+        error={emailVM.error}
+        setError={emailVM.setError}
       />
     </TooltipProvider>
   );

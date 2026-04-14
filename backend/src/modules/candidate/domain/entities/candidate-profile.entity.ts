@@ -1,3 +1,4 @@
+// domain/entities/candidate-profile.entity.ts
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { Gender } from "../type/gender.Types";
 
@@ -21,19 +22,16 @@ export class CandidateProfile {
     this.profileCompleted = profileCompleted;
   }
 
-  // ✅ Factory
+  // ── Factories ──────────────────────────────────────────────────────────
+
   public static create(
     userId: UserId,
     currentJob?: string,
     experienceYears?: number,
   ): CandidateProfile {
-    if (!userId) {
-      throw new Error("User id is required");
-    }
-
-    if (experienceYears !== undefined && experienceYears < 0) {
+    if (!userId) throw new Error("User id is required");
+    if (experienceYears !== undefined && experienceYears < 0)
       throw new Error("Experience years cannot be negative");
-    }
 
     return new CandidateProfile(
       userId,
@@ -42,7 +40,6 @@ export class CandidateProfile {
     );
   }
 
-  // ✅ Persistence mapper
   public static fromPersistence(props: {
     userId: UserId;
     currentJob?: string;
@@ -62,18 +59,22 @@ export class CandidateProfile {
       props.currentJob?.trim() ?? "",
       props.experienceYears,
       props.skills ?? [],
-      props.educationLevel?.trim(),
+      props.educationLevel?.trim() || undefined, // ← coerce "" → undefined
       props.preferredJobLocations ?? [],
-      props.bio?.trim(),
-      props.currentJobLocation?.trim(),
+      props.bio?.trim() || undefined, // ← coerce "" → undefined
+      props.currentJobLocation?.trim() || undefined,
       props.gender,
-      props.linkedinUrl?.trim(),
-      props.portfolioUrl?.trim(),
+      props.linkedinUrl?.trim() || undefined,
+      props.portfolioUrl?.trim() || undefined,
       props.profileCompleted ?? false,
     );
   }
 
-  // ✅ Business rule
+  // ── Business rules ─────────────────────────────────────────────────────
+
+  // FIX: previously bio/educationLevel could be "" (falsy) even when the
+  // caller believed they were set, causing this to return false unexpectedly.
+  // fromPersistence now coerces "" → undefined so this check is reliable.
   public canBeCompleted(): boolean {
     return (
       this.skills.length > 0 &&
@@ -84,56 +85,51 @@ export class CandidateProfile {
 
   public completeProfile(): void {
     if (!this.canBeCompleted()) {
-      throw new Error("Profile cannot be completed. Missing required fields");
+      throw new Error(
+        "Profile cannot be completed. Ensure skills, education level, and bio are provided.",
+      );
     }
     this.profileCompleted = true;
   }
 
-  // ✅ Update methods
+  // ── Update methods ─────────────────────────────────────────────────────
+
   public updateCurrentJob(currentJob: string): void {
-    if (!currentJob?.trim()) {
-      throw new Error("Current job cannot be empty");
-    }
+    if (!currentJob?.trim()) throw new Error("Current job cannot be empty");
     this.currentJob = currentJob.trim();
   }
 
   public updateExperienceYears(year?: number): void {
-    if (year !== undefined && year < 0) {
+    if (year !== undefined && year < 0)
       throw new Error("Experience years cannot be negative");
-    }
     this.experienceYears = year;
   }
 
   public updateSkills(skills: string[]): void {
-    if (!skills || skills.length === 0) {
+    if (!skills || skills.length === 0)
       throw new Error("At least one skill is required");
-    }
-    this.skills = skills.map((s) => s.trim());
+    this.skills = skills.map((s) => s.trim()).filter(Boolean);
   }
 
   public updateEducation(level: string): void {
-    if (!level?.trim()) {
-      throw new Error("Education level cannot be empty");
-    }
+    if (!level?.trim()) throw new Error("Education level cannot be empty");
     this.educationLevel = level.trim();
   }
 
   public updatePreferredLocations(locations: string[]): void {
-    if (!locations || locations.length === 0) {
+    if (!locations || locations.length === 0)
       throw new Error("At least one location is required");
-    }
-    this.preferredJobLocations = locations.map((l) => l.trim());
+    this.preferredJobLocations = locations.map((l) => l.trim()).filter(Boolean);
   }
 
   public updateBio(bio?: string): void {
-    if (bio && bio.length > 500) {
+    if (bio && bio.length > 500)
       throw new Error("Bio cannot exceed 500 characters");
-    }
-    this.bio = bio?.trim();
+    this.bio = bio?.trim() || undefined;
   }
 
   public updateCurrentJobLocation(location?: string): void {
-    this.currentJobLocation = location?.trim();
+    this.currentJobLocation = location?.trim() || undefined;
   }
 
   public updateGender(gender?: Gender): void {
@@ -141,64 +137,51 @@ export class CandidateProfile {
   }
 
   public updateLinkedinUrl(url?: string): void {
-    if (url && !url.startsWith("http")) {
-      throw new Error("Invalid LinkedIn URL");
-    }
-    this.linkedinUrl = url?.trim();
+    if (url && !url.startsWith("http")) throw new Error("Invalid LinkedIn URL");
+    this.linkedinUrl = url?.trim() || undefined;
   }
 
   public updatePortfolioUrl(url?: string): void {
-    if (url && !url.startsWith("http")) {
+    if (url && !url.startsWith("http"))
       throw new Error("Invalid portfolio URL");
-    }
-    this.portfolioUrl = url?.trim();
+    this.portfolioUrl = url?.trim() || undefined;
   }
 
-  // ✅ Getters
+  // ── Getters ────────────────────────────────────────────────────────────
+
   public getUserId(): UserId {
     return this.userId;
   }
-
   public getCurrentJob(): string {
     return this.currentJob;
   }
-
   public getExperienceYears(): number | undefined {
     return this.experienceYears;
   }
-
   public getSkills(): string[] {
     return [...this.skills];
   }
-
   public getEducationLevel(): string | undefined {
     return this.educationLevel;
   }
-
   public getPreferredLocations(): string[] {
     return [...this.preferredJobLocations];
   }
-
   public getBio(): string | undefined {
     return this.bio;
   }
-
   public getCurrentJobLocation(): string | undefined {
     return this.currentJobLocation;
   }
-
   public getGender(): Gender | undefined {
     return this.gender;
   }
-
   public getLinkedinUrl(): string | undefined {
     return this.linkedinUrl;
   }
-
   public getPortfolioUrl(): string | undefined {
     return this.portfolioUrl;
   }
-
   public isProfileCompleted(): boolean {
     return this.profileCompleted;
   }

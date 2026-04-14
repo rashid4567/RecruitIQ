@@ -1,6 +1,6 @@
-
-export interface CompleteRecruiterProfileDTO {
-  companyName?: string;    
+export interface UpdateRecruiterProfileDTO {
+  fullName?: string;
+  companyName?: string;
   companyWebsite?: string;
   companySize?: number;
   industry?: string;

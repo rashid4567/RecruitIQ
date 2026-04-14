@@ -1,7 +1,8 @@
+import type { Gender } from "../types/gender.types";
+
 export interface CompleteCandidateProfileDTO {
-  currentJobLocation: any;
-  currentJobLocation: unknown;
-  gender: unknown;
+  currentJobLocation: string;
+  gender: Gender;
   currentJob: string;
   experienceYears?: number;
   educationLevel: string;

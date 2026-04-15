@@ -3,6 +3,7 @@ import { RecruiterRepository } from "../../Domain/repositories/recruiter.reposit
 import {
   Recruiter,
   VerificationStatus,
+  SubscriptionStatus,
 } from "../../Domain/entities/recruiter.entity";
 
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
@@ -16,9 +17,7 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
   ): Promise<{ recruiters: Recruiter[]; total: number }> {
     const match: Record<string, unknown> = { role: "recruiter" };
 
-    if (input.isActive !== undefined) {
-      match.isActive = input.isActive;
-    }
+    if (input.isActive !== undefined) match.isActive = input.isActive;
 
     if (input.search) {
       match.$or = [
@@ -37,27 +36,18 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
           as: "profile",
         },
       },
-      {
-        $unwind: {
-          path: "$profile",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
+      { $unwind: { path: "$profile", preserveNullAndEmptyArrays: true } },
     ];
 
     if (input.verificationStatus) {
       basePipeline.push({
-        $match: {
-          "profile.verificationStatus": input.verificationStatus,
-        },
+        $match: { "profile.verificationStatus": input.verificationStatus },
       });
     }
 
     if (input.subscriptionStatus) {
       basePipeline.push({
-        $match: {
-          "profile.subscriptionStatus": input.subscriptionStatus,
-        },
+        $match: { "profile.subscriptionStatus": input.subscriptionStatus },
       });
     }
 
@@ -73,11 +63,7 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
           },
         },
       },
-      {
-        $sort: {
-          createdAt: input.sort === "oldest" ? 1 : -1,
-        },
-      },
+      { $sort: { createdAt: input.sort === "oldest" ? 1 : -1 } },
     );
 
     const dataPipeline: PipelineStage[] = [
@@ -85,7 +71,6 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
       { $skip: input.skip },
       { $limit: input.limit },
     ];
-
     const countPipeline: PipelineStage[] = [
       ...basePipeline,
       { $count: "total" },
@@ -106,11 +91,9 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
       }),
     );
 
-    return {
-      recruiters,
-      total: count[0]?.total ?? 0,
-    };
+    return { recruiters, total: count[0]?.total ?? 0 };
   }
+
 
   async findById(recruiterId: string): Promise<Recruiter | null> {
     if (!Types.ObjectId.isValid(recruiterId)) return null;
@@ -118,21 +101,33 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
     const user = await UserModel.findOne({
       _id: recruiterId,
       role: "recruiter",
-    });
+    }).lean();
 
     if (!user) return null;
 
     const profile = await RecruiterProfileModel.findOne({
       userId: user._id,
-    });
+    }).lean();
 
     return Recruiter.fromPersistence({
       id: user._id.toString(),
       name: user.fullName ?? "",
       email: user.email,
       isActive: user.isActive,
-      verificationStatus: (profile?.verificationStatus ??
-        "pending") as VerificationStatus,
+      joinedDate: user.createdAt,
+
+      
+      verificationStatus: (profile?.verificationStatus ?? "pending") as VerificationStatus,
+      subscriptionStatus: (profile?.subscriptionStatus ?? "free") as SubscriptionStatus,
+      jobPostsUsed: profile?.jobPostsUsed ?? 0,
+      companyName: profile?.companyName ?? "",
+      companyWebsite: profile?.companyWebsite ?? "",
+      companySize: profile?.companySize ?? 0,
+      industry: profile?.industry ?? "",
+      designation: profile?.designation ?? "",
+      location: profile?.location ?? "",
+      linkedinUrl: profile?.linkedinUrl ?? "",
+      bio: profile?.bio ?? "",
     });
   }
 

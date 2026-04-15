@@ -1,51 +1,57 @@
 import { updatePasswordUC } from "@/module/auth/presentation/di/auth";
 import { useState } from "react";
-import {toast} from "sonner";
+import { toast } from "sonner";
 
+export function useUpdatePassword() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
 
-export function useUpdatePassword(){
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setCofirmPassword] = useState("");
-    const [loading, setLoading] = useState(false);
+  const resetForm = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
 
-    const resetForm = () =>{
-        setCurrentPassword("");
-        setNewPassword("");
-        setCofirmPassword("");
-    }
+  const updatePassword = async () => {
+    try {
+      setLoading(true);
+      setPasswordSuccess(null);
 
-    const updatePassword  = async () =>{
-        try{
-            setLoading(true);
-
-            await updatePasswordUC.execute({
-                currentPassword,
-                newPassword
-            })
-
-            toast.success("Password updated succesfully");
-            resetForm();
-            return true
-        }catch(error : any){
-            toast.error(error?.message || "Failed to update Password");
-            return false;
-        }finally{
-            setLoading(false);
-        }
-    }
-    return{
+      await updatePasswordUC.execute({
         currentPassword,
         newPassword,
-        confirmPassword,
-        loading,
+      });
 
-        setCurrentPassword,
-        setNewPassword,
-        setCofirmPassword,
+      toast.success("Password updated successfully! 🎉");
+      setPasswordSuccess("Password updated successfully");
 
-        updatePassword,
-        resetForm,
-        
+      resetForm();
+      return true;
+    } catch (error: any) {
+      const message = error?.response?.data?.message || error?.message || "Failed to update password";
+      toast.error(message);
+      return false;
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const clearSuccess = () => setPasswordSuccess(null);
+
+  return {
+    currentPassword,
+    newPassword,
+    confirmPassword,
+    loading,
+    passwordSuccess,
+    setCurrentPassword,
+    setNewPassword,
+    setConfirmPassword,
+    updatePassword,
+    resetForm,
+    clearSuccess,
+  };
 }

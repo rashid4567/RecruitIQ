@@ -1,14 +1,14 @@
-import { 
-  Mail, 
-  Search, 
-  X, 
-  Eye, 
-  Edit, 
-  Send, 
-  ToggleLeft, 
-  ToggleRight, 
+import {
+  Mail,
+  Search,
+  X,
+  Eye,
+  Edit,
+  Send,
+  ToggleLeft,
+  ToggleRight,
   Trash2,
-  Plus
+  Plus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -184,7 +184,7 @@ export function TemplateList({
                             year: "numeric",
                             month: "short",
                             day: "numeric",
-                          }
+                          },
                         )}
                       </p>
                     </div>
@@ -193,7 +193,7 @@ export function TemplateList({
                         "px-3 py-1 text-xs font-medium rounded-full",
                         isActive
                           ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                          : "bg-amber-100 text-amber-800 border-amber-200"
+                          : "bg-amber-100 text-amber-800 border-amber-200",
                       )}
                     >
                       {isActive ? "Active" : "Inactive"}
@@ -218,14 +218,7 @@ export function TemplateList({
                       className="h-9 w-9 text-slate-600 hover:text-indigo-700 hover:bg-indigo-50/50"
                       onClick={() => onView(template.getId())}
                     >
-                      <Eye className="h-4.5 w-4.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 text-slate-600 hover:text-indigo-700 hover:bg-indigo-50/50"
-                      onClick={() => onEdit(template.getId())}
-                    >
+                      
                       <Edit className="h-4.5 w-4.5" />
                     </Button>
                     <Button
@@ -243,7 +236,7 @@ export function TemplateList({
                         "h-9 w-9",
                         isActive
                           ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50/50"
-                          : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50"
+                          : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50",
                       )}
                       onClick={() => onToggle(template)}
                     >

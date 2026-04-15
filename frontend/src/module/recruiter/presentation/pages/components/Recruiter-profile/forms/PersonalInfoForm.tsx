@@ -1,14 +1,17 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  User, 
-  Briefcase, 
-  MapPin, 
-  Linkedin, 
+import {
+  User,
+  Briefcase,
+  MapPin,
+  Linkedin,
   ExternalLink,
   Check,
-  AlertCircle 
+  AlertCircle,
+  Mail,
+  Edit3,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface PersonalInfoFormProps {
   register: any;
@@ -16,14 +19,19 @@ interface PersonalInfoFormProps {
   touchedFields: Record<string, boolean>;
   isEditing: boolean;
   profile?: any;
+  // New props for email update modal
+  onUpdateEmailClick: () => void;
+  currentEmail?: string;
 }
 
-export function PersonalInfoForm({ 
-  register, 
-  errors, 
-  touchedFields, 
+export function PersonalInfoForm({
+  register,
+  errors,
+  touchedFields,
   isEditing,
-  profile 
+  profile,
+  onUpdateEmailClick,
+  currentEmail = "",
 }: PersonalInfoFormProps) {
   return (
     <div className="space-y-6">
@@ -50,8 +58,8 @@ export function PersonalInfoForm({
               {...register("fullName")}
               disabled={!isEditing}
               className={`h-12 pl-11 transition-all ${
-                errors.fullName 
-                  ? "border-red-300 focus:ring-red-500/20" 
+                errors.fullName
+                  ? "border-red-300 focus:ring-red-500/20"
                   : "border-slate-200"
               } ${!isEditing ? "bg-slate-50" : "bg-white"}`}
               placeholder="John Doe"
@@ -63,6 +71,49 @@ export function PersonalInfoForm({
               <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
             )}
           </div>
+        </div>
+
+        {/* Email Address - New Field (Same row style as Name) */}
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium text-slate-700 flex items-center justify-between">
+            <span>Email Address <span className="text-red-500">*</span></span>
+            {errors.email && (
+              <span className="text-red-500 text-xs font-normal flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {errors.email.message}
+              </span>
+            )}
+          </Label>
+
+          <div className="relative group">
+            <Input
+              id="email"
+              value={currentEmail}
+              disabled
+              className="h-12 pl-11 bg-slate-50 border-slate-200 text-slate-700 cursor-default"
+              placeholder="you@example.com"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
+              <Mail className="h-4 w-4 text-blue-600" />
+            </div>
+
+            {/* Update Email Button */}
+            <Button
+              type="button"
+              onClick={onUpdateEmailClick}
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-3 text-xs font-medium bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 transition-all flex items-center gap-1.5 shadow-sm"
+              disabled={!isEditing} // Optional: only show when editing
+            >
+              <Edit3 className="h-3.5 w-3.5" />
+              Update
+            </Button>
+          </div>
+
+          {profile?.email && (
+            <p className="text-xs text-slate-500 mt-1">
+              Verified email • Changes require verification
+            </p>
+          )}
         </div>
 
         {/* Designation */}
@@ -82,8 +133,8 @@ export function PersonalInfoForm({
               {...register("designation")}
               disabled={!isEditing}
               className={`h-12 pl-11 ${
-                errors.designation 
-                  ? "border-red-300 focus:ring-red-500/20" 
+                errors.designation
+                  ? "border-red-300 focus:ring-red-500/20"
                   : "border-slate-200"
               } ${!isEditing ? "bg-slate-50" : "bg-white"}`}
               placeholder="Senior Technical Recruiter"
@@ -111,8 +162,8 @@ export function PersonalInfoForm({
               {...register("location")}
               disabled={!isEditing}
               className={`h-12 pl-11 ${
-                errors.location 
-                  ? "border-red-300 focus:ring-red-500/20" 
+                errors.location
+                  ? "border-red-300 focus:ring-red-500/20"
                   : "border-slate-200"
               } ${!isEditing ? "bg-slate-50" : "bg-white"}`}
               placeholder="San Francisco, CA"
@@ -140,8 +191,8 @@ export function PersonalInfoForm({
               {...register("linkedinUrl")}
               disabled={!isEditing}
               className={`h-12 pl-11 ${
-                errors.linkedinUrl 
-                  ? "border-red-300 focus:ring-red-500/20" 
+                errors.linkedinUrl
+                  ? "border-red-300 focus:ring-red-500/20"
                   : "border-slate-200"
               } ${!isEditing ? "bg-slate-50" : "bg-white"}`}
               placeholder="https://linkedin.com/in/username"

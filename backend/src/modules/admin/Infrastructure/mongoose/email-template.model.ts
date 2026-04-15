@@ -5,7 +5,7 @@ const emailTemplateSchema = new Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
     },
     event: {
       type: String,
@@ -30,4 +30,4 @@ const emailTemplateSchema = new Schema(
   { timestamps: true }
 );
 
-export const EmailTemplateModel = model("Email",emailTemplateSchema)
+export const EmailTemplateModel = model("EmailTemplate",emailTemplateSchema)

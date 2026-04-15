@@ -13,7 +13,9 @@ export class UpdateCandidateProfileController {
     try {
       const userId = userIdSchema.parse(req.user?.userId);
       const input = updateCandidateProfileSchema.parse(req.body);
+      console.log("input :-", input)
       const result = await this.updateProfileUC.execute(userId, input);
+      console.log("result :-", result);
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "Profile updated successfully",

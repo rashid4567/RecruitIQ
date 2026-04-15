@@ -1,36 +1,16 @@
+
 import api from "@/api/axios";
 import type { CandidateRepository } from "../../domain/repositories/CandidateRepository";
+import type { CompleteCandidateProfileDTO } from "../../domain/dto/CompleteCandidateProfileDTO";
 import { CandidateProfile } from "../../domain/entities/candidateProfile";
 
 export class ApiCandidateRepository implements CandidateRepository {
-
   async getProfile(): Promise<CandidateProfile> {
     const res = await api.get("/candidate/profile");
-    const data = res.data.data;
-
-    return new CandidateProfile({
-      fullName: data.user.fullName,
-      email: data.user.email,
-      emailVerified: data.user.emailVerified,
-      profileImage: data.user.profileImage,
-
-      currentJob: data.candidateProfile.currentJob,
-      experienceYears: data.candidateProfile.experienceYears,
-      educationLevel: data.candidateProfile.educationLevel,
-      skills: data.candidateProfile.skills,
-      preferredJobLocations: data.candidateProfile.preferredJobLocations,
-      currentJobLocation: data.candidateProfile.currentJobLocation,
-      gender: data.candidateProfile.gender,
-      linkedinUrl: data.candidateProfile.linkedinUrl,
-      portfolioUrl: data.candidateProfile.portfolioUrl,
-      bio: data.candidateProfile.bio,
-
-      profileCompleted: data.candidateProfile.profileCompleted,
-    });
+    return CandidateProfile.fromApi(res.data.data);
   }
 
   async updateProfile(profile: CandidateProfile): Promise<CandidateProfile> {
-
     const payload = Object.fromEntries(
       Object.entries({
         fullName: profile.fullName,
@@ -44,47 +24,31 @@ export class ApiCandidateRepository implements CandidateRepository {
         linkedinUrl: profile.linkedinUrl,
         portfolioUrl: profile.portfolioUrl,
         bio: profile.bio,
-      }).filter(([_, value]) => value !== undefined)
+      }).filter(([_, v]) => v !== undefined && v !== null),
     );
 
     const res = await api.put("/candidate/profile", payload);
-    const data = res.data.data;
-
-    return new CandidateProfile({
-      fullName: data.user.fullName,
-      email: data.user.email,
-      emailVerified: data.user.emailVerified,
-      profileImage: data.user.profileImage,
-
-      currentJob: data.candidateProfile.currentJob,
-      experienceYears: data.candidateProfile.experienceYears,
-      educationLevel: data.candidateProfile.educationLevel,
-      skills: data.candidateProfile.skills,
-      preferredJobLocations: data.candidateProfile.preferredJobLocations,
-      currentJobLocation: data.candidateProfile.currentJobLocation,
-      gender: data.candidateProfile.gender,
-      linkedinUrl: data.candidateProfile.linkedinUrl,
-      portfolioUrl: data.candidateProfile.portfolioUrl,
-      bio: data.candidateProfile.bio,
-
-      profileCompleted: data.candidateProfile.profileCompleted,
-    });
+    return CandidateProfile.fromUpdateApi(res.data.data);
   }
 
-  async completeProfile(profile: CandidateProfile): Promise<void> {
-   
-    const payload = {
-      currentJob: profile.currentJob,
-      educationLevel: profile.educationLevel,
-      skills: profile.skills,
-      preferredJobLocations: profile.preferredJobLocations,
-      bio: profile.bio,
-      experienceYears: profile.experienceYears,
-      linkedinUrl: profile.linkedinUrl,
-      portfolioUrl: profile.portfolioUrl,
-      currentJobLocation: profile.currentJobLocation,
-      gender: profile.gender,
+  async completeProfile(dto: CompleteCandidateProfileDTO): Promise<void> {
+
+    const payload: Record<string, unknown> = {
+      skills: dto.skills ?? [],
+      preferredJobLocations: dto.preferredJobLocations ?? [],
     };
+
+    if (dto.currentJob) payload.currentJob = dto.currentJob;
+    if (dto.educationLevel) payload.educationLevel = dto.educationLevel;
+    if (dto.bio) payload.bio = dto.bio;
+
+    if (dto.experienceYears !== undefined)
+      payload.experienceYears = dto.experienceYears;
+    if (dto.linkedinUrl) payload.linkedinUrl = dto.linkedinUrl;
+    if (dto.portfolioUrl) payload.portfolioUrl = dto.portfolioUrl;
+    if (dto.currentJobLocation)
+      payload.currentJobLocation = dto.currentJobLocation;
+    if (dto.gender) payload.gender = dto.gender;
 
     await api.put("/candidate/profile/complete", payload);
   }

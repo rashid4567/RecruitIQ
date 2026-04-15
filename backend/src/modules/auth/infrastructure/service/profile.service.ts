@@ -1,4 +1,4 @@
-import { candidateProfileModel } from "../../../candidate/infrastructure/monogoose/models/candidate-profile.model";
+import { candidateProfileModel } from "../../../candidate/infrastructure/mongoose/models/candidate-profile.model";
 import { RecruiterProfileModel } from "../../../recruiter/infrastructure/mongoose/model/recruiter-profile.model";
 import { ProfileCreatorPort } from "../../application/ports/profile-creator.port";
 import { SUBSCRIPTION_STATUS, VERIFICATION_STATUS } from "../constants/profileService.constant";

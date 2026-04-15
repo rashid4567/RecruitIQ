@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import {
   Card,
@@ -7,14 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, ShieldCheck } from "lucide-react";
+import { Shield, ShieldCheck, AlertCircle } from "lucide-react";
 import { ChangePasswordForm } from "./ChangePasswordForm";
 import { RecentActivity } from "./RecentActivity";
 
 import { z } from "zod";
 import { useUpdatePassword } from "../../../hooks/useUpdatePassword";
 import { passwordFormSchema, type PasswordFormData } from "../../../validators/password.validator";
-
+import { Link } from "react-router-dom";
 
 interface PasswordValidation {
   length: boolean;
@@ -24,7 +26,6 @@ interface PasswordValidation {
   special: boolean;
 }
 
-
 interface PasswordStrength {
   strength: "Weak" | "Fair" | "Good" | "Strong";
   color: string;
@@ -33,18 +34,18 @@ interface PasswordStrength {
 }
 
 export function SecuritySection() {
-
   const {
     currentPassword,
     newPassword,
     confirmPassword,
     loading,
+    passwordSuccess,
     setCurrentPassword,
     setNewPassword,
-    setCofirmPassword,
+    setConfirmPassword,
     updatePassword,
+    clearSuccess,
   } = useUpdatePassword();
-
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState({
@@ -52,7 +53,7 @@ export function SecuritySection() {
     new: false,
     confirm: false,
   });
-  
+
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
     length: false,
     uppercase: false,
@@ -61,7 +62,7 @@ export function SecuritySection() {
     special: false,
   });
 
-  
+  // Live Password Requirements
   useEffect(() => {
     if (newPassword) {
       setPasswordValidation({
@@ -69,81 +70,54 @@ export function SecuritySection() {
         uppercase: /[A-Z]/.test(newPassword),
         lowercase: /[a-z]/.test(newPassword),
         number: /[0-9]/.test(newPassword),
-        special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword),
+        special: /[^A-Za-z0-9]/.test(newPassword),
+      });
+    } else {
+      setPasswordValidation({
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+        special: false,
       });
     }
   }, [newPassword]);
 
-
-const validateForm = (): { isValid: boolean; errors: Record<string, string> } => {
-  try {
-    passwordFormSchema.parse({
-      currentPassword,
-      newPassword,
-      confirmPassword,
-    });
-
-    return { isValid: true, errors: {} };
-
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const formattedErrors: Record<string, string> = {};
-
-      error.issues.forEach((err) => {
-        if (err.path[0]) {
-          formattedErrors[err.path[0] as string] = err.message;
-        }
+  const validateForm = (): { isValid: boolean; errors: Record<string, string> } => {
+    try {
+      passwordFormSchema.parse({
+        currentPassword,
+        newPassword,
+        confirmPassword,
       });
-
-      return { isValid: false, errors: formattedErrors };
+      return { isValid: true, errors: {} };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const formattedErrors: Record<string, string> = {};
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            formattedErrors[err.path[0] as string] = err.message;
+          }
+        });
+        return { isValid: false, errors: formattedErrors };
+      }
+      return { isValid: false, errors: {} };
     }
-
-    return { isValid: false, errors: {} };
-  }
-};
-
-
-  // ===============================
-  // PASSWORD STRENGTH CALCULATION
-  // ===============================
-  const getPasswordStrength = (): PasswordStrength => {
-    const validCount = Object.values(passwordValidation).filter(Boolean).length;
-    
-    if (validCount <= 2) {
-      return { 
-        strength: "Weak", 
-        color: "text-red-500", 
-        bg: "bg-red-500",
-        score: validCount * 20 
-      };
-    }
-    if (validCount <= 3) {
-      return { 
-        strength: "Fair", 
-        color: "text-amber-500", 
-        bg: "bg-amber-500",
-        score: validCount * 20 
-      };
-    }
-    if (validCount <= 4) {
-      return { 
-        strength: "Good", 
-        color: "text-blue-500", 
-        bg: "bg-blue-500",
-        score: validCount * 20 
-      };
-    }
-    return { 
-      strength: "Strong", 
-      color: "text-emerald-500", 
-      bg: "bg-emerald-500",
-      score: 100 
-    };
   };
 
-  // ===============================
-  // HANDLERS
-  // ===============================
+  const getPasswordStrength = (): PasswordStrength => {
+    const validCount = Object.values(passwordValidation).filter(Boolean).length;
+    const score = Math.min(validCount * 25, 100);
+
+    if (validCount <= 2)
+      return { strength: "Weak", color: "text-red-600", bg: "bg-red-500", score };
+    if (validCount <= 3)
+      return { strength: "Fair", color: "text-amber-600", bg: "bg-amber-500", score };
+    if (validCount <= 4)
+      return { strength: "Good", color: "text-blue-600", bg: "bg-blue-500", score };
+    return { strength: "Strong", color: "text-emerald-600", bg: "bg-emerald-500", score: 100 };
+  };
+
   const handleFieldChange = (field: keyof PasswordFormData, value: string) => {
     switch (field) {
       case "currentPassword":
@@ -153,83 +127,58 @@ const validateForm = (): { isValid: boolean; errors: Record<string, string> } =>
         setNewPassword(value);
         break;
       case "confirmPassword":
-        setCofirmPassword(value);
+        setConfirmPassword(value);
         break;
     }
-    
-    // Clear error for this field
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
   const handleFieldBlur = (field: keyof PasswordFormData) => {
-    switch (field) {
-      case "currentPassword":
-        setTouched(prev => ({ ...prev, current: true }));
-        break;
-      case "newPassword":
-        setTouched(prev => ({ ...prev, new: true }));
-        break;
-      case "confirmPassword":
-        setTouched(prev => ({ ...prev, confirm: true }));
-        break;
-    }
+    const key = field === "currentPassword" ? "current" : field === "newPassword" ? "new" : "confirm";
+    setTouched((prev) => ({ ...prev, [key]: true }));
   };
 
   const handleSubmit = async () => {
     const { isValid, errors: validationErrors } = validateForm();
-    
+
     if (!isValid) {
       setErrors(validationErrors);
-      setTouched({
-        current: true,
-        new: true,
-        confirm: true,
-      });
+      setTouched({ current: true, new: true, confirm: true });
       return;
     }
 
     const success = await updatePassword();
     if (success) {
       setErrors({});
-      setTouched({
-        current: false,
-        new: false,
-        confirm: false,
-      });
+      setTouched({ current: false, new: false, confirm: false });
     }
   };
 
   const validation = validateForm();
   const strength = getPasswordStrength();
 
-  
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* MAIN SECURITY CARD */}
       <Card className="border-slate-200/50 shadow-lg overflow-hidden transition-all hover:shadow-xl">
-        {/* Top accent bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-rose-500 via-purple-500 to-indigo-500" />
+        {/* Top Accent Bar */}
+        <div className="h-1.5 bg-gradient-to-r from-rose-500 via-purple-500 to-indigo-500" />
 
-        <CardHeader className="pb-4 border-b border-slate-100">
+        <CardHeader className="pb-6 border-b border-slate-100">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              {/* Icon */}
-              <div className="h-14 w-14 rounded-xl bg-linear-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-rose-500/25">
+              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-rose-500/30">
                 <Shield className="h-7 w-7 text-white" />
               </div>
-              
-              {/* Title */}
               <div>
                 <CardTitle className="text-2xl text-slate-900">Security Settings</CardTitle>
                 <CardDescription className="text-base mt-1">
-                  Manage your password and account security preferences
+                  Manage your password and keep your account secure
                 </CardDescription>
               </div>
             </div>
 
-            {/* Status Badge */}
             <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 px-3 py-1.5">
               <ShieldCheck className="h-4 w-4 mr-1.5" />
               Active
@@ -237,7 +186,23 @@ const validateForm = (): { isValid: boolean; errors: Record<string, string> } =>
           </div>
         </CardHeader>
 
-        <CardContent className="pt-6 space-y-8">
+        <CardContent className="pt-8 space-y-8">
+          {/* Success Message */}
+          {passwordSuccess && (
+            <div className="flex items-start gap-3 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-700">
+              <ShieldCheck className="w-6 h-6 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="font-medium">{passwordSuccess}</p>
+                <button
+                  onClick={clearSuccess}
+                  className="text-sm underline mt-2 text-emerald-600 hover:text-emerald-800"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
+
           <ChangePasswordForm
             formData={{
               currentPassword,
@@ -256,6 +221,17 @@ const validateForm = (): { isValid: boolean; errors: Record<string, string> } =>
             onFieldBlur={handleFieldBlur}
             onSubmit={handleSubmit}
           />
+
+          {/* Forgot Password Link - Prominently Placed */}
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              className="inline-flex items-center gap-2 text-rose-600 hover:text-rose-700 font-medium text-sm hover:underline transition-colors"
+            >
+              <AlertCircle className="h-4 w-4" />
+              Forgot your password?
+            </Link>
+          </div>
 
           <RecentActivity />
         </CardContent>

@@ -9,7 +9,7 @@ export function TemplateHeader() {
     <header className="bg-white/95 backdrop-blur-sm border-b border-slate-200/70 sticky top-0 z-40 px-6 py-4 shadow-sm">
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="p-2.5 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl shadow-md">
+          <div className="p-2.5 bg-linear-to-br from-indigo-600 to-violet-600 rounded-xl shadow-md">
             <Mail className="h-5 w-5 text-white" />
           </div>
           <div>

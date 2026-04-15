@@ -1,6 +1,6 @@
 import { userRoles } from "../constants/roles.constants";
-import { AuthProvider } from "../../../../shared/value-objects.ts/auth-provider.vo";
-import { Email } from "../../../../shared/value-objects.ts/email.vo";
+import { AuthProvider } from "../../../../shared/value-objects/auth-provider.vo";
+import { Email } from "../../../../shared/value-objects/email.vo";
 import { GoogleId } from "../value.objects.ts/google-id.vo";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { DOMAIN_ERROR_CODES } from "../constants/DomainError";

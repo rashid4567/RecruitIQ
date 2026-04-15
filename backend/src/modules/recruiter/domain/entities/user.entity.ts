@@ -1,5 +1,5 @@
-import { Email } from "../../../../shared/value-objects.ts/email.vo";
-import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
+import { Email } from "../../../../shared/value-objects/email.vo";
+import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { ERROR_CODES } from "../constatns/recruiter.profile.error";
 

@@ -1,9 +1,9 @@
 import { Types } from "mongoose";
 import { UserRepository } from "../../Domain/repositories/user.repository";
-import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
+import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { UserAccount } from "../../Domain/entities/user.entity";
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
-import { Email } from "../../../../shared/value-objects.ts/email.vo.ts";
+import { Email } from "../../../../shared/value-objects/email.vo";
 import { userDoc } from "../types/user.doc.type";
 
 

@@ -1,5 +1,3 @@
-//import type { EmailLogRepository } from "@/module/admin/domain/repositories/email-log.repository";
-
 import type { EmailTempleteRepository } from "../../../domain/repositories/email-template.repository"
 
 export class ToggleEmailTempleteUseCase{

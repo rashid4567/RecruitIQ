@@ -29,6 +29,7 @@ export function useEmailTemplateEditor(id?: string) {
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [testEmail, setTestEmail] = useState("");
+  const [cooldown , setCooldown] = useState(0)
 
   useEffect(() => {
     if (!isEdit) return;
@@ -61,6 +62,15 @@ export function useEmailTemplateEditor(id?: string) {
 
     loadTemplate();
   }, [id, isEdit]);
+
+
+  useEffect(()=>{
+    const timer = setInterval(()=>{
+      setCooldown((prev)=> prev - 1);
+    },1000);
+
+    return()=> clearInterval(timer)
+  },[cooldown]);
 
   const insertVariable = (variable: string) => {
     const ta = textareaRef.current;
@@ -121,6 +131,10 @@ export function useEmailTemplateEditor(id?: string) {
   };
 
   const sendTest = async () => {
+    if(cooldown > 30){
+      toast.error(`Please wait ${cooldown}s before sending the again`);
+      return
+    }
     const result = sendTestEmailSchema.safeParse({
       templateId: form.id,
       email: testEmail,
@@ -135,7 +149,7 @@ export function useEmailTemplateEditor(id?: string) {
 
     try {
       await sendTestEmailUC.execute(result.data.templateId, result.data.email);
-
+      setCooldown(30)
       toast.success("Test email sent!");
     } catch {
       toast.error("Failed to send test email");
@@ -158,5 +172,6 @@ export function useEmailTemplateEditor(id?: string) {
     saveTemplate,
     sendTest,
     isEdit,
+    cooldown,
   };
 }

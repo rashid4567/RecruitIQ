@@ -1,4 +1,4 @@
-import { ApplicationError } from "../../../../../shared/errors/applicatoin.error";
+import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { EmailTemplateRepository } from "../../../Domain/repositories/email-template.repository";
 import { EmailService } from "../../../Domain/services/email.service";
 import { ERROR_CODES } from "../../constants/errorcode.constants";

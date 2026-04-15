@@ -1,5 +1,5 @@
-import { Email } from "../../../../shared/value-objects.ts/email.vo";
-import { UserId } from "../../../../shared/value-objects.ts/userId.vo";
+import { Email } from "../../../../shared/value-objects/email.vo";
+import { UserId } from "../../../../shared/value-objects/userId.vo";
 
 export class User {
   private constructor(
@@ -9,6 +9,7 @@ export class User {
     private profileImage?: string,
   ) {}
 
+  // ✅ Factory
   public static create(
     id: UserId,
     fullName: string,
@@ -19,22 +20,35 @@ export class User {
       throw new Error("Full name is required");
     }
 
-    return new User(id, fullName, email, profileImage);
+    return new User(
+      id,
+      fullName.trim(),
+      email,
+      profileImage?.trim(),
+    );
   }
 
+  // ✅ Persistence mapper
   public static fromPersistence(props: {
     id: UserId;
     fullName: string;
     email: Email;
     profileImage?: string;
   }): User {
-    return new User(props.id, props.fullName, props.email, props.profileImage);
+    return new User(
+      props.id,
+      props.fullName.trim(),
+      props.email,
+      props.profileImage?.trim(),
+    );
   }
+
+  // ✅ Update methods
   public updateFullName(name: string): void {
     if (!name || name.trim().length === 0) {
       throw new Error("Full name cannot be empty");
     }
-    this.fullName = name;
+    this.fullName = name.trim();
   }
 
   public updateEmail(email: Email): void {
@@ -42,9 +56,13 @@ export class User {
   }
 
   public updateProfileImage(image?: string): void {
-    this.profileImage = image;
+    if (image && !image.startsWith("http")) {
+      throw new Error("Invalid profile image URL");
+    }
+    this.profileImage = image?.trim();
   }
 
+  // ✅ Getters
   public getId(): UserId {
     return this.id;
   }

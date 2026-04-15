@@ -45,6 +45,7 @@ export class EmailLog {
         return this.props.error;
     }
     getTimeStamp(){
+        console.log(this.props.timeStamp ? this.props.timeStamp : "no time available" )
         return this.props.timeStamp;
     }
 

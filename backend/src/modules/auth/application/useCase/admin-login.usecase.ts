@@ -1,6 +1,6 @@
 import { USER_ROLES } from "../../domain/constants/roles.constants";
 import { ERROR_CODES } from "../constants/error-codes.constants";
-import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
+import { ApplicationError } from "../../../../shared/errors/application.error";
 import { LoginUseCase } from "./login.useCase";
 
 export class AdminLoginUseCase {

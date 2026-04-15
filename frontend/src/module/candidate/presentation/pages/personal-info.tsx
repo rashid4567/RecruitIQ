@@ -63,9 +63,11 @@ type TabValue = (typeof settingsTabs)[number]["value"];
 export default function CandidateProfilePage() {
   const [activeTab, setActiveTab] = useState<TabValue>("personal-info");
 
-  const { profile, loading, error, loadProfile, updateProfile } =
+  const { profile, loading, isUpdating, error, loadProfile, updateProfile } =
     useCandidateProfile();
+
   const stats = useProfileStats(profile);
+
   const {
     isEditing,
     editData,
@@ -75,6 +77,7 @@ export default function CandidateProfilePage() {
     updateField,
     setValidationErrors,
   } = useProfileEdit(profile);
+
   const {
     uploadImage,
     uploading: isUploading,
@@ -90,6 +93,7 @@ export default function CandidateProfilePage() {
 
   const validateAllWithZod = useCallback((): boolean => {
     if (!profile) return false;
+
     const result = validateProfileForm({
       fullName: editData.fullName ?? profile.fullName,
       email: editData.email ?? profile.email,
@@ -107,16 +111,20 @@ export default function CandidateProfilePage() {
       preferredJobLocations:
         editData.preferredJobLocations ?? profile.preferredJobLocations ?? [],
     });
+
     if (!result.success) {
-      const errors: Record<string, string> = {};
+      const errors: Partial<Record<keyof ProfileFormData, string>> = {};
       result.error.issues.forEach((issue) => {
-        const path = issue.path[0] as string;
-        errors[path] = issue.message;
+        const path = issue.path[0] as keyof ProfileFormData;
+        if (!errors[path]) {
+          errors[path] = issue.message;
+        }
       });
       setValidationErrors(errors);
-      toast.error("Please fix validation errors");
+      toast.error("Please fix the validation errors before saving.");
       return false;
     }
+
     setValidationErrors({});
     return true;
   }, [editData, profile, setValidationErrors]);
@@ -124,15 +132,19 @@ export default function CandidateProfilePage() {
   const handleInputChange = useCallback(
     <K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
       updateField(key, value);
-      const error = validateFieldWithZod(key, value);
-      setValidationErrors((prev) => ({ ...prev, [key]: error || undefined }));
+      const fieldError = validateFieldWithZod(key, value);
+      setValidationErrors((prev) => ({
+        ...prev,
+        [key]: fieldError ?? undefined,
+      }));
     },
     [updateField, validateFieldWithZod, setValidationErrors],
   );
 
   const handleSave = useCallback(async () => {
-    if (!profile || loading) return;
+    if (!profile || isUpdating) return;
     if (!validateAllWithZod()) return;
+
     try {
       const updatedProfile = profile.update(editData);
       await updateProfile(updatedProfile);
@@ -140,11 +152,11 @@ export default function CandidateProfilePage() {
       clearPreview();
       toast.success("Profile updated successfully!");
     } catch {
-      toast.error("Failed to update profile");
+      toast.error("Failed to update profile. Please try again.");
     }
   }, [
     profile,
-    loading,
+    isUpdating,
     editData,
     validateAllWithZod,
     updateProfile,
@@ -228,7 +240,7 @@ export default function CandidateProfilePage() {
                           onEditToggle={startEdit}
                           onSave={handleSave}
                           onCancel={cancelEdit}
-                          loading={loading}
+                          loading={isUpdating}
                         />
                       </div>
                     </TabsContent>

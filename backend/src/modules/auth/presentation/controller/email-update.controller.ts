@@ -14,32 +14,40 @@ export class EmailUpdateController {
   ) {}
 
   requestEmailUpdate = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    try {
-      const userId = req.user?.userId;
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.userId;
+    const role = req.user?.role;
 
-      if (!userId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: "User not found",
-        });
-      }
-
-      const { newEmail } = RequestEmailUpdateSchema.parse(req.body);
-
-      await this.requestEmailUpdateUc.execute(userId, newEmail);
-
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: "OTP sent to new email",
+    if (!userId || !role) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        message: "Unauthorized",
       });
-    } catch (err) {
-      next(err);
     }
-  };
+
+    if (role !== "candidate" && role !== "recruiter") {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        message: "Email update not allowed for this role",
+      });
+    }
+
+    const { newEmail } = RequestEmailUpdateSchema.parse(req.body);
+
+    await this.requestEmailUpdateUc.execute(userId, newEmail, role); // ← now typed correctly
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "OTP sent to new email",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
   verifyEmailUpdate = async (
     req: Request,

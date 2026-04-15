@@ -1,9 +1,9 @@
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
-import { Email } from "../../../../shared/value-objects.ts/email.vo";
-import { Password } from "../../../../shared/value-objects.ts/password.vo";
+import { Email } from "../../../../shared/value-objects/email.vo";
+import { Password } from "../../../../shared/value-objects/password.vo";
 import { ERROR_CODES } from "../constants/error-codes.constants";
-import { ApplicationError } from "../../../../shared/errors/applicatoin.error";
+import { ApplicationError } from "../../../../shared/errors/application.error";
 import { AuthTokenServicePort } from "../ports/token.service.ports";
 
 export class LoginUseCase {

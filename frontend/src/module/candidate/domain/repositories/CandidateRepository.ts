@@ -1,8 +1,8 @@
 import type { CandidateProfile } from "../entities/candidateProfile";
+import type { CompleteCandidateProfileDTO } from "../dto/CompleteCandidateProfileDTO";
 
 export interface CandidateRepository {
   getProfile(): Promise<CandidateProfile>;
-
   updateProfile(profile: CandidateProfile): Promise<CandidateProfile>;
-  completeProfile(profile: CandidateProfile): Promise<void>;
+  completeProfile(dto: CompleteCandidateProfileDTO): Promise<void>;
 }

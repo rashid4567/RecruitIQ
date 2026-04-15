@@ -13,9 +13,9 @@ import { ApplicationError } from "../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../constants/error-codes.constants";
 
 import { EmailEvent } from "../../../admin/Domain/constatns/email-enum.events";
-import { NotificationPort } from "../ports/notification.port";
 import { ActivityTrackerService } from "../../../../shared/ActivityLogger/service/activityTracker.service";
 import { ActivityAction } from "../../../../shared/ActivityLogger/constants/activityActions";
+import { SendEmailByEventUseCase } from "../../../admin/Application/use-Cases/email-template/send-email-by-event.usecase";
 
 export class VerifyRegistrationUseCase {
   constructor(
@@ -23,8 +23,8 @@ export class VerifyRegistrationUseCase {
     private readonly otpRepo: OTPServicePort,
     private readonly passwordHasher: PasswordHasherPort,
     private readonly tokenService: AuthTokenServicePort,
-    private readonly notificationService: NotificationPort,
     private readonly activityTracker: ActivityTrackerService,
+    private readonly sendEmailByEventUC: SendEmailByEventUseCase,
   ) {}
 
   async execute(input: VerificationInput) {
@@ -49,7 +49,6 @@ export class VerifyRegistrationUseCase {
       });
 
       const savedUser = await this.userRepo.save(user);
-
       try {
         this.activityTracker.track({
           userId: savedUser.id!,
@@ -67,19 +66,16 @@ export class VerifyRegistrationUseCase {
       }
 
       try {
-        console.log("📨 Triggering ACCOUNT_CREATED email...");
-
-        await this.notificationService.sendEmail({
-          event: EmailEvent.ACCOUNT_CREATED,
+        await this.sendEmailByEventUC.execute({
           to: savedUser.email.getValue(),
+          event: EmailEvent.ACCOUNT_CREATED,
           variables: {
             name: savedUser.fullName,
+            email: savedUser.email.getValue(),
           },
         });
-
-        console.log("✅ ACCOUNT_CREATED email sent");
       } catch (err) {
-        console.error("❌ Email sending failed:", err);
+        console.error("❌ ACCOUNT_CREATED email failed:", err);
       }
 
       return {

@@ -1,8 +1,7 @@
 import { EmailEvent } from "../../../Domain/constatns/email-enum.events";
 
-export interface CreateEmailTemplateInputDto {
-  name: string;
+export interface sendEmailByInputDto {
+  to: string;
   event: EmailEvent;
-  subject: string;
-  body: string;
+  variables: Record<string, string>;
 }

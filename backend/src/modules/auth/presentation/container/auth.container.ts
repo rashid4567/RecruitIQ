@@ -31,7 +31,6 @@ import { TokenController } from "../controller/token.controller";
 import { ForgotPasswordController } from "../controller/forgot-password.controller";
 import { ChangePasswordController } from "../controller/updatePassword.controller";
 import { sendEmailByEventUC } from "../../../admin/Presentation/containers/email-template.container";
-import { EmailNotificationAdaptor } from "../../infrastructure/adapters/email-notification.adapter";
 import { VerifyEmailUpdateUseCase } from "../../application/useCase/verify-email-update.usecase";
 import { RequestEmailUpdateUseCase } from "../../application/useCase/request-email.update.usecase";
 import { EmailUpdateController } from "../controller/email-update.controller";
@@ -43,8 +42,8 @@ const googleAuthService: GoogleAuthPort = new GoogleService();
 
 const otpService = new OTPService();
 const emailService = new EmailService();
-const activityTracker = new ActivityTrackerService(); 
-const notificationService = new EmailNotificationAdaptor(sendEmailByEventUC);
+const activityTracker = new ActivityTrackerService();
+
 
 const sendOtpUC = new SendRegistrationOTPUseCase(userRepo, otpService);
 
@@ -53,8 +52,8 @@ const verifyRegistrationUC = new VerifyRegistrationUseCase(
   otpService,
   passwordPort,
   tokenService,
-  notificationService,
-  activityTracker
+  activityTracker, 
+  sendEmailByEventUC, 
 );
 
 const loginUC = new LoginUseCase(userRepo, passwordPort, tokenService);
@@ -81,33 +80,30 @@ const googleLoginUc = new GoogleLoginUseCase(
   tokenService,
 );
 
-const requestEmailUpdateUc = new RequestEmailUpdateUseCase(userRepo, otpService);
+const requestEmailUpdateUc = new RequestEmailUpdateUseCase(
+  userRepo,
+  otpService,
+);
 const verifyEmailUpdateUc = new VerifyEmailUpdateUseCase(otpService, userRepo);
 
 const changePasswordUC = new UpdatePasswordUseCase(userRepo, passwordPort);
 
 export const authController = new AuthController(loginUC);
-
 export const otpController = new OtpController(sendOtpUC);
-
 export const registrationController = new RegistrationController(
   verifyRegistrationUC,
 );
-
 export const adminAuthcontroller = new AdminAuthController(adminLoginUC);
-
 export const tokenController = new TokenController(refreshTokenUC);
-
 export const ForgotpasswordController = new ForgotPasswordController(
   forgotPassWordUC,
   resetPasswordUC,
 );
-
 export const changePassowrdController = new ChangePasswordController(
   changePasswordUC,
 );
-
 export const googleController = new GoogleController(googleLoginUc);
-
-
-export const emailUpdateController = new EmailUpdateController(requestEmailUpdateUc, verifyEmailUpdateUc)
+export const emailUpdateController = new EmailUpdateController(
+  requestEmailUpdateUc,
+  verifyEmailUpdateUc,
+);

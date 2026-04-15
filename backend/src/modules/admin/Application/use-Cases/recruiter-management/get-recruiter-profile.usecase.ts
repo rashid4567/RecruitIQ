@@ -15,22 +15,22 @@ export class GetRecruiterProfileUseCase {
 
     
     return {
-      id: recruiter.id,
-      name: recruiter.name,
-      email: recruiter.email,
-      isActive: recruiter.isActive,
-      verificationStatus: recruiter.verificationStatus,
-      subscriptionStatus: recruiter.subscriptionStatus ?? "free",
-      jobPostsUsed: recruiter.jobPostsUsed ?? 0,
-      joinedDate: recruiter.joinedDate,
-      companyName: recruiter.companyName,
-      companyWebsite: recruiter.companyWebsite,
-      companySize: recruiter.companySize,
-      industry: recruiter.industry,
-      designation: recruiter.designation,
-      location: recruiter.location,
-      linkedinUrl: recruiter.linkedinUrl,
-      bio: recruiter.bio,
-    };
+    id: recruiter.id,
+    name: recruiter.name,
+    email: recruiter.email,
+    isActive: recruiter.isActive,
+    verificationStatus: recruiter.verificationStatus,
+    subscriptionStatus: recruiter.subscriptionStatus ?? "free",
+    jobPostsUsed: recruiter.jobPostsUsed ?? 0,
+    joinedDate: recruiter.joinedDate ?? new Date(),
+    companyName: recruiter.companyName ?? "",
+    companyWebsite: recruiter.companyWebsite ?? "",
+    companySize: recruiter.companySize ?? 0,
+    industry: recruiter.industry,
+    designation: recruiter.designation,
+    location: recruiter.location,
+    linkedinUrl: recruiter.linkedinUrl,
+    bio: recruiter.bio,
+  };
   }
 }

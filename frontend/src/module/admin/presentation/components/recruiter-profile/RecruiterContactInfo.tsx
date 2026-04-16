@@ -69,7 +69,7 @@ export function RecruiterContactInfo({
           <div className="lg:col-span-4 flex flex-col items-center lg:items-start gap-5 text-center lg:text-left">
             <div className="relative group">
               <Avatar className="h-28 w-28 ring-2 ring-white shadow-xl transition-transform group-hover:scale-105">
-                <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-violet-600 text-white text-4xl font-bold">
+                <AvatarFallback className="bg-linear-to-br from-indigo-500 to-violet-600 text-white text-4xl font-bold">
                   {getInitials(recruiter.name)}
                 </AvatarFallback>
               </Avatar>

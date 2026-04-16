@@ -16,4 +16,4 @@ export interface RecruiterProfileOutput {
   location?: string;
   linkedinUrl?: string;
   bio?: string;
-}
+} 

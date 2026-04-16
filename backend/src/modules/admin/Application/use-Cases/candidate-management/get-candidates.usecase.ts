@@ -15,7 +15,7 @@ export class GetCandidateUseCase {
   }): Promise<CandidateListResponseDTO> {
 
     const skip = (query.page - 1) * query.limit;
-
+ 
     const { candidates, total } =
       await this.candidateRepo.getCandidates({
         search: query.search,
@@ -26,7 +26,7 @@ export class GetCandidateUseCase {
 
     return {
       candidates: candidates.map<CandidateListItemDTO>((candidate) => ({
-        id: candidate.getId(),     
+        id: candidate.getId().getValue(),    
         name: candidate.getName(),
         email: candidate.getEmail().getValue(),
         isActive: candidate.isActiveAccount(), 

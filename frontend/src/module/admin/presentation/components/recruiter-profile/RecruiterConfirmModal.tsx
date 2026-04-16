@@ -1,4 +1,3 @@
-// components/recruiter-profile/RecruiterConfirmModal.tsx
 import {
   AlertDialog,
   AlertDialogContent,
@@ -32,7 +31,7 @@ export function RecruiterConfirmModal({
 
   const handleConfirm = () => {
     onConfirm();
-    onClose(); // ← close the modal immediately after firing the action
+    onClose(); 
   };
 
   return (
@@ -40,7 +39,7 @@ export function RecruiterConfirmModal({
       <AlertDialogContent className="sm:max-w-md p-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
 
         {/* Dark header */}
-        <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8">
+        <div className="relative bg-linear-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8">
           <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-28 h-28 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
 

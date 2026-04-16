@@ -1,10 +1,11 @@
-// pages/admin/recruiters/RecruiterProfilePage.tsx
 import { useParams, useNavigate } from "react-router-dom";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Sidebar from "@/components/admin/sideBar";
 
 import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
+import { useUserStatus } from "../hooks/useUserStatus"; 
+
 import { RecruiterProfileHeader } from "../components/recruiter-profile/RecruiterProfileHeader";
 import { RecruiterContactInfo } from "../components/recruiter-profile/RecruiterContactInfo";
 import { RecruiterCompanyCard } from "../components/recruiter-profile/RecruiterCompanyCard";
@@ -44,8 +45,12 @@ export default function RecruiterProfilePage() {
     refetch,
     verifyRecruiter,
     rejectRecruiter,
-    toggleActiveStatus,
+  
   } = useRecruiterProfile(id);
+
+  const { toggleUserStatus } = useUserStatus({
+    onSuccess: refetch,
+  });
 
   const [confirm, setConfirm] = useState<ConfirmState>(CONFIRM_CLOSED);
 
@@ -55,7 +60,15 @@ export default function RecruiterProfilePage() {
     confirmText: string,
     variant: ConfirmVariant,
     callback: () => void
-  ) => setConfirm({ open: true, title, description, confirmText, variant, onConfirm: callback });
+  ) =>
+    setConfirm({
+      open: true,
+      title,
+      description,
+      confirmText,
+      variant,
+      onConfirm: callback,
+    });
 
   const closeConfirm = () => setConfirm(CONFIRM_CLOSED);
 
@@ -77,9 +90,12 @@ export default function RecruiterProfilePage() {
       rejectRecruiter
     );
 
+
   const handleToggleActive = () => {
     if (!recruiter) return;
+
     const isActive = recruiter.isActive;
+
     openConfirm(
       isActive ? "Suspend Recruiter" : "Restore Recruiter",
       isActive
@@ -87,13 +103,13 @@ export default function RecruiterProfilePage() {
         : "This will restore full access to the platform.",
       isActive ? "Suspend" : "Restore",
       isActive ? "destructive" : "default",
-      toggleActiveStatus
+      () => toggleUserStatus(recruiter.id, isActive) 
     );
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
         <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
       </div>
     );
@@ -101,7 +117,7 @@ export default function RecruiterProfilePage() {
 
   if (error || !recruiter) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-linear-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
         <AlertCircle className="h-10 w-10 text-rose-400" />
         <p className="text-slate-600 text-sm max-w-xs text-center">
           {error ?? "Recruiter not found."}
@@ -114,12 +130,11 @@ export default function RecruiterProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex">
       <Sidebar />
 
       <main className="flex-1 p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
-
           <RecruiterProfileHeader
             recruiter={recruiter}
             onBack={() => navigate("/admin/recruiters")}
@@ -133,7 +148,6 @@ export default function RecruiterProfilePage() {
             actionLoading={actionLoading}
           />
 
-          {/* Col-spans live here, NOT inside the card components */}
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-1">
               <RecruiterCompanyCard recruiter={recruiter} />
@@ -142,7 +156,6 @@ export default function RecruiterProfilePage() {
               <RecruiterBioCard recruiter={recruiter} />
             </div>
           </div>
-
         </div>
       </main>
 

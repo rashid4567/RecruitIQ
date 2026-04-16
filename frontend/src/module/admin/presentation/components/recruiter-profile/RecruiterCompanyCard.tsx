@@ -1,4 +1,4 @@
-// components/recruiter-profile/RecruiterCompanyCard.tsx
+
 import { BriefcaseBusiness, Building2, FileText, CalendarDays, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Recruiter } from "@/module/admin/domain/entities/recruiter.entity";
@@ -9,7 +9,7 @@ interface RecruiterCompanyCardProps {
 
 export function RecruiterCompanyCard({ recruiter }: RecruiterCompanyCardProps) {
   return (
-    // No col-span here — the parent page grid controls layout
+ 
     <Card className="border-slate-200/60 shadow-sm rounded-2xl">
       <CardHeader className="bg-slate-50/80 px-6 py-4 border-b">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">

@@ -1,4 +1,3 @@
-// components/recruiter-profile/RecruiterConfirmModal.tsx
 import {
   AlertDialog,
   AlertDialogContent,
@@ -32,7 +31,7 @@ export function RecruiterConfirmModal({
 
   const handleConfirm = () => {
     onConfirm();
-    onClose(); // ← close the modal immediately after firing the action
+    onClose(); 
   };
 
   return (

@@ -85,7 +85,7 @@ export default function RecruiterHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
-      <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/70 to-white/0 backdrop-blur-xl"></div>
+      <div className="absolute inset-0 bg-linear-to-b from-white/80 via-white/70 to-white/0 backdrop-blur-xl"></div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 md:h-24">
@@ -94,7 +94,7 @@ export default function RecruiterHeader() {
             className="flex items-center gap-3 group cursor-pointer"
             onClick={() => navigate("/")}
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:shadow-xl group-hover:shadow-blue-500/50 transition-all duration-300 transform group-hover:scale-110">
+            <div className="w-10 h-10 bg-linear-to-br from-blue-600 via-cyan-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:shadow-xl group-hover:shadow-blue-500/50 transition-all duration-300 transform group-hover:scale-110">
               <span className="text-white font-bold text-xl">◇</span>
             </div>
             <span className="font-bold text-xl text-gray-900">RecruitIQ</span>
@@ -109,21 +109,21 @@ export default function RecruiterHeader() {
                   className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
                 >
                   Dashboard
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a
                   href="/recruiter/jobs"
                   className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
                 >
                   My Jobs
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a
                   href="/recruiter/candidates"
                   className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
                 >
                   Candidates
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
                 </a>
               </>
             )}
@@ -132,21 +132,21 @@ export default function RecruiterHeader() {
               className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
             >
               Features
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
             </a>
             <a
               href="#"
               className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
             >
               About Us
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
             </a>
             <a
               href="#"
               className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
             >
               Contact
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
             </a>
           </nav>
 
@@ -158,7 +158,7 @@ export default function RecruiterHeader() {
                   <button className="flex items-center gap-2 hover:bg-gray-100 rounded-full p-2 transition duration-300">
                     <Avatar className="h-10 w-10 border-2 border-blue-500/20 hover:border-blue-500/50 transition duration-300">
                       <AvatarImage src={profileImage || "/placeholder-avatar.png"} />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-semibold">
+                      <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-500 text-white font-semibold">
                         {getInitials()}
                       </AvatarFallback>
                     </Avatar>
@@ -232,7 +232,7 @@ export default function RecruiterHeader() {
                 </button>
                 <button 
                   onClick={() => navigate("/register")}
-                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105"
+                  className="px-5 py-2 bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105"
                 >
                   Register
                 </button>
@@ -307,7 +307,7 @@ export default function RecruiterHeader() {
                   <div className="flex items-center gap-3 px-2">
                     <Avatar className="h-10 w-10 border-2 border-blue-500/20">
                       <AvatarImage src={profileImage || "/placeholder-avatar.png"} />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-semibold">
+                      <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-500 text-white font-semibold">
                         {getInitials()}
                       </AvatarFallback>
                     </Avatar>
@@ -394,7 +394,7 @@ export default function RecruiterHeader() {
                       navigate("/register")
                       setIsMenuOpen(false)
                     }}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg text-center hover:shadow-lg transition-all"
+                    className="px-4 py-2 bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg text-center hover:shadow-lg transition-all"
                   >
                     Register
                   </button>

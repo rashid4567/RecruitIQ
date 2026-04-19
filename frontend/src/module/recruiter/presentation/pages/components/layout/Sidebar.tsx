@@ -22,7 +22,7 @@ export default function Sidebar({ activeItem = "jobs" }: { activeItem?: string }
       {/* Logo */}
       <div className="px-6 py-6 border-b border-gray-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 bg-linear-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -38,7 +38,7 @@ export default function Sidebar({ activeItem = "jobs" }: { activeItem?: string }
             key={item.id}
             className={cn(
               "w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all",
-              activeItem === item.id ? "bg-gradient-to-r from-indigo-50 to-violet-50 text-indigo-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              activeItem === item.id ? "bg-linear-to-r from-indigo-50 to-violet-50 text-indigo-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             )}
           >
             <div className="flex items-center gap-3">
@@ -52,7 +52,7 @@ export default function Sidebar({ activeItem = "jobs" }: { activeItem?: string }
 
       {/* Upgrade Card */}
       <div className="p-4">
-        <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-4 text-white">
+        <div className="bg-linear-to-br from-indigo-600 to-violet-600 rounded-2xl p-4 text-white">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-4 h-4" />
             <span className="text-sm font-semibold">Upgrade to Pro</span>

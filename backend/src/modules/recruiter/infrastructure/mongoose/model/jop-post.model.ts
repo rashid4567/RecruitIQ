@@ -34,7 +34,11 @@ export interface JobPostDocument extends Document {
   department: string;
   positions: number;
 
-  status: "draft" | "active" | "blocked" | "expired";
+  visibility: "active" | "hidden";
+
+  isBlocked: boolean; 
+
+  status: "draft" | "active" | "expired";
 
   postedOn?: Date;
   expiresAt?: Date;
@@ -140,9 +144,22 @@ const JobPostSchema = new Schema<JobPostDocument>(
       min: 1,
     },
 
+    visibility: {
+      type: String,
+      enum: ["active", "hidden"],
+      default: "active",
+      index: true,
+    },
+
+    isBlocked: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
     status: {
       type: String,
-      enum: ["draft", "active", "blocked", "expired"],
+      enum: ["draft", "active", "expired"],
       default: "draft",
       index: true,
     },
@@ -177,16 +194,15 @@ const JobPostSchema = new Schema<JobPostDocument>(
     },
   },
   {
-    timestamps: true, 
-  }
+    timestamps: true,
+  },
 );
 
-
-JobPostSchema.index({ recruiterId: 1, status: 1 });
+JobPostSchema.index({ recruiterId: 1, visibility: 1 });
+JobPostSchema.index({ isBlocked: 1 });
 JobPostSchema.index({ createdAt: -1 });
-JobPostSchema.index({ requiredSkills: 1 }); 
+JobPostSchema.index({ requiredSkills: 1 });
 JobPostSchema.index({ "location.city": 1 });
-
 
 JobPostSchema.index({
   title: "text",
@@ -194,8 +210,7 @@ JobPostSchema.index({
   requiredSkills: "text",
 });
 
-
 export const JobPostModel = mongoose.model<JobPostDocument>(
   "JobPost",
-  JobPostSchema
-);
+  JobPostSchema,
+); 

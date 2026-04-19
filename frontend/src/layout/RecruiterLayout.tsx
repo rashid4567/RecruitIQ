@@ -4,7 +4,7 @@ const RecruiterLayout = () => {
   return (
     <div>
      
-      <nav>Recruiter Navigation</nav>
+      <nav>.</nav>
       <main>
         <Outlet />
       </main>

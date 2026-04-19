@@ -1,15 +1,20 @@
-'use client';
-
-import React from 'react';
-import { LayoutGrid, List, Plus, Search, Filter, ChevronDown, Briefcase } from "lucide-react";
+import {
+  LayoutGrid,
+  List,
+  Plus,
+  Search,
+  Filter,
+  ChevronDown,
+  Briefcase,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useJobs } from '../hooks/jobPost/useJobs';
-import Sidebar from './components/layout/Sidebar';
-import Header from '@/components/candidate/header';
-import StatsOverview from './components/jobPost/StatsOverview';
-import JobCard from './components/jobPost/JobCard';
-import JobListRow from './components/jobPost/JobListRow';
-import QuickViewModal from './components/jobPost/QuickView.modal';
+import { useJobs } from "../hooks/jobPost/useJobs";
+import Sidebar from "./components/layout/Sidebar";
+import Header from "@/components/candidate/header";
+import StatsOverview from "./components/jobPost/StatsOverview";
+import JobCard from "./components/jobPost/JobCard";
+import JobListRow from "./components/jobPost/JobListRow";
+import QuickViewModal from "./components/jobPost/QuickView.modal";
 
 export default function JobsPage() {
   const {
@@ -30,6 +35,7 @@ export default function JobsPage() {
     setActiveTab,
     handleViewClick,
     handleCloseModal,
+    handleJobDeleted,
   } = useJobs();
 
   if (loading) {
@@ -67,12 +73,12 @@ export default function JobsPage() {
         <Header />
 
         <main className="p-8">
-          {/* Stats */}
+   
           <StatsOverview stats={stats} jobs={filteredJobs} />
 
-          {/* Controls */}
           <div className="flex justify-between items-center mb-6">
             <div className="flex gap-3">
+           
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -102,26 +108,34 @@ export default function JobsPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* View Toggle */}
+          
               <div className="bg-white p-1 border border-gray-200 rounded-xl flex">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium transition-all ${viewMode === 'grid' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                  className={`px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium transition-all ${
+                    viewMode === "grid"
+                      ? "bg-gray-900 text-white"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
                 >
                   <LayoutGrid className="w-4 h-4" /> Grid
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                  className={`px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium transition-all ${
+                    viewMode === "list"
+                      ? "bg-gray-900 text-white"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
                 >
                   <List className="w-4 h-4" /> List
                 </button>
               </div>
 
-              {/* Create Job Button */}
+        
               <Button
-                onClick={() => navigate("/recruiter/jobs")}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-6 py-3"
+                onClick={() => navigate("/recruiter/job-editor")}
+                className="flex items-center gap-2 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-6 py-3"
               >
                 <Plus className="w-4 h-4" />
                 Create New Job
@@ -129,15 +143,11 @@ export default function JobsPage() {
             </div>
           </div>
 
-          {/* Jobs Display */}
+   
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredJobs.map((job, index) => (
-                <JobCard
-                  key={index}
-                  job={job}
-                  onViewClick={handleViewClick} // 👈 FIXED
-                />
+              {filteredJobs.map((job) => (
+                <JobCard key={job.id} job={job} onViewClick={handleViewClick} />
               ))}
             </div>
           ) : (
@@ -145,20 +155,30 @@ export default function JobsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50">
-                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Job Title</th>
-                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
-                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Applications</th>
-                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">AI Score</th>
-                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Job Title
+                    </th>
+                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Location
+                    </th>
+                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Applications
+                    </th>
+                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      AI Score
+                    </th>
+                    <th className="text-left py-5 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
                     <th className="w-24"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredJobs.map((job, index) => (
+                  {filteredJobs.map((job) => (
                     <JobListRow
-                      key={index}
+                      key={job.id}
                       job={job}
-                      onViewClick={handleViewClick} // 👈 FIXED
+                      onViewClick={handleViewClick}
                     />
                   ))}
                 </tbody>
@@ -172,12 +192,17 @@ export default function JobsPage() {
               <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
                 <Briefcase className="w-10 h-10 text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No jobs found</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No jobs found
+              </h3>
               <p className="text-gray-500 mb-6 max-w-sm mx-auto">
                 We couldn't find any jobs matching your criteria
               </p>
               <button
-                onClick={() => { setSearchTerm(""); setStatusFilter("All"); }}
+                onClick={() => {
+                  setSearchTerm("");
+                  setStatusFilter("All");
+                }}
                 className="text-blue-600 font-medium hover:text-blue-700"
               >
                 Clear all filters
@@ -187,11 +212,11 @@ export default function JobsPage() {
         </main>
       </div>
 
-      {/* 👇 Your existing QuickViewModal — fully wired */}
       <QuickViewModal
         job={selectedJob}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        onDeleted={handleJobDeleted}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />

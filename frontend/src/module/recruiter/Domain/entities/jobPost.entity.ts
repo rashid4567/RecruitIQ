@@ -1,17 +1,5 @@
-import type { JobStatus, JobType } from "../dto/jobPost.constants";
-
-
-export interface LocationVO {
-  city: string;
-  state: string;
-  country: string;
-}
-
-export interface SalaryVO {
-  min: number;
-  max: number;
-  currency: string;
-}
+import type { LocationVO, SalaryVO } from "../../presentation/types/jobForm.types";
+import type { JobStatus, JobType, JobVisibility } from "../dto/jobPost.dto";
 
 export class JobPost {
   public readonly id: string;
@@ -39,7 +27,9 @@ export class JobPost {
   public readonly department: string;
   public readonly positions: number;
 
-  public readonly status: JobStatus;
+  public readonly visibility: JobVisibility;  // recruiter control
+  public readonly isBlocked: boolean;         // admin control
+  public readonly status: JobStatus;          // system lifecycle
 
   public readonly views: number;
   public readonly applicationsCount: number;
@@ -78,6 +68,8 @@ export class JobPost {
     department?: string;
     positions?: number;
 
+    visibility?: JobVisibility;
+    isBlocked?: boolean;
     status?: JobStatus;
 
     views?: number;
@@ -124,6 +116,8 @@ export class JobPost {
     this.department = params.department ?? "";
     this.positions = params.positions ?? 1;
 
+    this.visibility = params.visibility ?? "active";
+    this.isBlocked = params.isBlocked ?? false;
     this.status = params.status ?? "draft";
 
     this.views = params.views ?? 0;
@@ -157,60 +151,45 @@ export class JobPost {
     externalLink?: string;
   }): JobPost {
     return new JobPost({
-      id: this.id,
-      recruiterId: this.recruiterId,
-
+      ...this.toParams(),
       title: data.title ?? this.title,
       description: data.description ?? this.description,
-
       responsibilities: data.responsibilities ?? this.responsibilities,
       requirements: data.requirements ?? this.requirements,
-
       requiredSkills: data.requiredSkills ?? this.requiredSkills,
       preferredSkills: data.preferredSkills ?? this.preferredSkills,
-
       experienceMin: data.experienceMin ?? this.experienceMin,
       experienceMax: data.experienceMax ?? this.experienceMax,
-
       location: {
         city: data.location?.city ?? this.location.city,
         state: data.location?.state ?? this.location.state,
         country: data.location?.country ?? this.location.country,
       },
       isRemote: data.isRemote ?? this.isRemote,
-
       jobType: data.jobType ?? this.jobType,
-
       salary: {
         min: data.salary?.min ?? this.salary.min,
         max: data.salary?.max ?? this.salary.max,
         currency: data.salary?.currency ?? this.salary.currency,
       },
-
       department: data.department ?? this.department,
       positions: data.positions ?? this.positions,
-
-      status: this.status,
-      views: this.views,
-      applicationsCount: this.applicationsCount,
-      isDeleted: this.isDeleted,
-
-      postedOn: this.postedOn,
       expiresAt: data.expiresAt ?? this.expiresAt,
       externalLink: data.externalLink ?? this.externalLink,
-
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
     });
   }
 
+  // ── Recruiter visibility ──────────────────────────────────────────────────
+
   hide(): JobPost {
-    return new JobPost({ ...this.toParams(), status: "blocked" });
+    return new JobPost({ ...this.toParams(), visibility: "hidden" });
   }
 
   unhide(): JobPost {
-    return new JobPost({ ...this.toParams(), status: "active" });
+    return new JobPost({ ...this.toParams(), visibility: "active" });
   }
+
+  // ── Status helpers ────────────────────────────────────────────────────────
 
   isExpired(): boolean {
     return this.status === "expired";
@@ -224,8 +203,23 @@ export class JobPost {
     return this.status === "draft";
   }
 
+  // ── Visibility helpers ────────────────────────────────────────────────────
+
   isHidden(): boolean {
-    return this.status === "blocked";
+    return this.visibility === "hidden";
+  }
+
+  isBlockedByAdmin(): boolean {
+    return this.isBlocked;
+  }
+
+  isPubliclyVisible(): boolean {
+    return (
+      this.visibility === "active" &&
+      !this.isBlocked &&
+      this.status === "active" &&
+      !this.isDeleted
+    );
   }
 
   private toParams() {
@@ -246,6 +240,8 @@ export class JobPost {
       salary: this.salary,
       department: this.department,
       positions: this.positions,
+      visibility: this.visibility,
+      isBlocked: this.isBlocked,
       status: this.status,
       views: this.views,
       applicationsCount: this.applicationsCount,

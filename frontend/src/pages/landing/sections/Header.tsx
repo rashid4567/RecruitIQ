@@ -82,7 +82,7 @@ export default function Header() {
             className="flex items-center gap-2.5 cursor-pointer group"
             onClick={() => navigate("/")}
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-indigo-600 via-blue-600 to-cyan-500 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
               <span className="text-white font-black text-xl tracking-tighter">RIQ</span>
             </div>
             <span className="font-extrabold text-xl tracking-tighter text-gray-900 hidden sm:block">
@@ -96,7 +96,7 @@ export default function Header() {
               <a
                 key={item}
                 href={item === "Jobs" ? "/jobs" : `#${item.toLowerCase()}`}
-                className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors relative after:absolute after:bottom-[-6px] after:left-0 after:h-0.5 after:bg-blue-600 after:w-0 hover:after:w-full after:transition-all"
+                className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors relative after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:bg-blue-600 after:w-0 hover:after:w-full after:transition-all"
               >
                 {item}
               </a>
@@ -113,7 +113,7 @@ export default function Header() {
                   className="flex items-center gap-3 px-3 py-1.5 rounded-2xl hover:bg-gray-50 transition-all duration-200 group"
                 >
                   <Avatar className="h-9 w-9 ring-1 ring-gray-200 group-hover:ring-blue-500/50 transition-all">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-600 text-white font-semibold text-sm">
+                    <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-600 text-white font-semibold text-sm">
                       {getInitials()}
                     </AvatarFallback>
                   </Avatar>
@@ -148,7 +148,7 @@ export default function Header() {
                 </button>
                 <button
                   onClick={() => navigate("/role-selection")}
-                  className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg hover:shadow-blue-500/30 active:scale-95 transition-all"
+                  className="px-6 py-2.5 bg-linear-to-r from-blue-600 to-cyan-600 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg hover:shadow-blue-500/30 active:scale-95 transition-all"
                 >
                   Get Started
                 </button>
@@ -197,7 +197,7 @@ export default function Header() {
                     className="flex items-center gap-4 w-full text-left"
                   >
                     <Avatar className="h-11 w-11">
-                      <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-600 text-white text-lg font-semibold">
+                      <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-600 text-white text-lg font-semibold">
                         {getInitials()}
                       </AvatarFallback>
                     </Avatar>
@@ -234,7 +234,7 @@ export default function Header() {
                       navigate("/role-selection");
                       setIsMenuOpen(false);
                     }}
-                    className="py-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-2xl text-center shadow-md"
+                    className="py-3.5 bg-linear-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-2xl text-center shadow-md"
                   >
                     Get Started
                   </button>

@@ -7,10 +7,15 @@ export class UpdateJobPostUseCase {
     this.repo = repo;
   }
 
-  async execute(id: string, dto: UpdateJobPostDTO) {
+  async execute(recruiterId: string, id: string, dto: UpdateJobPostDTO) {
     if (!id) throw new Error("Job ID is required");
 
-    // optional validation
+    const job = await this.repo.getJobPostById(id);
+
+    if (job.recruiterId !== recruiterId) {
+      throw new Error("Unauthorized");
+    }
+
     if (
       dto.experienceMin !== undefined &&
       dto.experienceMax !== undefined &&
@@ -19,6 +24,7 @@ export class UpdateJobPostUseCase {
       throw new Error("Invalid experience range");
     }
 
-    return this.repo.updateJobPost(id, dto);
+    const updatedJob = job.update(dto); // domain method
+    return this.repo.updateJobPost(id, updatedJob); // persist the entity
   }
 }

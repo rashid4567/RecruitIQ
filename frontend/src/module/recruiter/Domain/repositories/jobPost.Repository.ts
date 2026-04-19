@@ -1,6 +1,5 @@
 import type { JobPost } from "../entities/jobPost.entity";
 import type { CreateJobPostDTO } from "../dto/jobPost.dto";
-import type { UpdateJobPostDTO } from "../dto/updateJobPost.dto";
 
 export interface JobPostRepository {
   createJobPost(data: CreateJobPostDTO): Promise<JobPost>;
@@ -9,9 +8,11 @@ export interface JobPostRepository {
 
   getJobPostById(id: string): Promise<JobPost>;
 
-  updateJobPost(id: string, data: UpdateJobPostDTO): Promise<JobPost>;
+  updateJobPost(id: string, data: JobPost): Promise<JobPost>;
 
   hideJobPost(id: string): Promise<JobPost>;
 
   unhideJobPost(id: string): Promise<JobPost>;
+
+  deleteJobPost(id : string):Promise<void>
 }

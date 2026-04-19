@@ -1,23 +1,32 @@
 export interface JobCardProps {
   id: string;
-  category: string;
-  status: "Active" | "Paused" | "Expired" | "Draft";
   title: string;
   description: string;
-  postedDate: string;
-  expiresDate: string;
+  category: string;
+  department: string;
+  status: "Active" | "Paused" | "Expired" | "Draft" | "Blocked"; 
+  visibility: "active" | "hidden";                                 
+  isBlocked: boolean;                                              
   location: string;
+  isRemote: boolean;
   jobType: string;
   salary: string;
+  positions: number;
+  experienceMin: number;
+  experienceMax: number;
+  requiredSkills: string[];
+  preferredSkills: string[];
+  responsibilities: string[];
+  requirements: string[];
+  postedDate: string;
+  expiresDate: string;
+  externalLink: string | null;
   views: number;
   applications: number;
   shortlisted: number;
   avgAiScore: number;
   positionsFilled: number;
-  department: string;
-  requiredSkills: string[];
-  // For modal
-  applicants?: Applicant[]; // You can populate this later
+  applicants?: Applicant[];
 }
 
 export interface Applicant {
@@ -29,6 +38,6 @@ export interface Applicant {
   aiScore: number;
   appliedDate: string;
   status: "pending" | "shortlisted" | "rejected" | "interviewed";
-  experience: string;
 }
+
 export type ViewMode = "grid" | "list";

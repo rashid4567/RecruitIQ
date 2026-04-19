@@ -26,6 +26,7 @@ const RecruiterRoutes = () => (
           <Route path="profile" element={<RecruiterSettingsPage />} />
           <Route path="jobs" element= {<MyJobPost/>}/>
           <Route path="job-editor" element={<JobPostEditor/>}/>
+          <Route path="job-editor/:id" element={<JobPostEditor/>}/>
         </Route>
       </Route>
     </Routes>

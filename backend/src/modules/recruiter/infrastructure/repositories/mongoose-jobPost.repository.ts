@@ -4,6 +4,8 @@ import {
   JobPostDocument,
   JobPostModel,
 } from "../mongoose/model/jop-post.model";
+import { DomainError } from "../../../../shared/errors/domain.error";
+import { ERROR_CODES } from "../../domain/constatns/recruiter.profile.error";
 
 export class MongooseJobPostRepository implements JobPostRepository {
   async create(jobPost: JobPost): Promise<JobPost> {
@@ -23,6 +25,8 @@ export class MongooseJobPostRepository implements JobPostRepository {
       salary: jobPost.getSalary(),
       department: jobPost.getDepartment(),
       positions: jobPost.getPositions(),
+      visibility: jobPost.getVisibility(),       // ✅ added
+      isBlocked: jobPost.getIsBlocked(),         // ✅ added
       status: jobPost.getStatus(),
       views: jobPost.getViews(),
       applicationsCount: jobPost.getApplicationsCount(),
@@ -67,7 +71,11 @@ export class MongooseJobPostRepository implements JobPostRepository {
           salary: jobPost.getSalary(),
           department: jobPost.getDepartment(),
           positions: jobPost.getPositions(),
+          visibility: jobPost.getVisibility(),   // ✅ added
+          isBlocked: jobPost.getIsBlocked(),     // ✅ added
           status: jobPost.getStatus(),
+          views: jobPost.getViews(),             // ✅ added
+          applicationsCount: jobPost.getApplicationsCount(), // ✅ added
           postedOn: jobPost.getPostedOn(),
           expiresAt: jobPost.getExpiresAt(),
           externalLink: jobPost.getExternalLink(),
@@ -77,10 +85,23 @@ export class MongooseJobPostRepository implements JobPostRepository {
     );
 
     if (!doc) {
-      throw new Error("Job post not found");
+      throw new DomainError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
 
     return this.toEntity(doc);
+  }
+
+  async delete(id: string): Promise<void> {
+    // ✅ soft delete instead of hard delete
+    const result = await JobPostModel.findOneAndUpdate(
+      { _id: id, isDeleted: false },
+      { $set: { isDeleted: true } },
+      { new: true },
+    );
+
+    if (!result) {
+      throw new DomainError(ERROR_CODES.JOB_POST_NOT_FOUND);
+    }
   }
 
   private toEntity(doc: JobPostDocument): JobPost {
@@ -101,6 +122,8 @@ export class MongooseJobPostRepository implements JobPostRepository {
       salary: doc.salary,
       department: doc.department,
       positions: doc.positions,
+      visibility: doc.visibility,               // ✅ added
+      isBlocked: doc.isBlocked,                 // ✅ added
       status: doc.status,
       views: doc.views,
       applicationsCount: doc.applicationsCount,

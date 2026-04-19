@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { JobPost } from '@/module/recruiter/Domain/entities/jobPost.entity';
 import type { JobCardProps, ViewMode } from '../../types/jobCard.types';
@@ -10,32 +8,52 @@ import { GetJobPostsUseCase } from '@/module/recruiter/Application/use-Cases/job
 const mapJobPostToCard = (job: JobPost): JobCardProps => {
   const locationStr = job.isRemote
     ? "Remote"
-    : `${job.location?.city || ''}${job.location?.state ? `, ${job.location.state}` : ''}${job.location?.country ? `, ${job.location.country}` : ''}`.trim() || "Not specified";
+    : [job.location?.city, job.location?.state, job.location?.country]
+        .filter(Boolean)
+        .join(", ") || "Not specified";
 
-  const statusMap: Record<string, JobCardProps['status']> = {
-    active: "Active",
-    draft: "Draft",
-    expired: "Expired",
-    blocked: "Paused",
+
+  const getDisplayStatus = (): JobCardProps["status"] => {
+    if (job.isBlocked) return "Blocked";
+    if (job.visibility === "hidden") return "Paused";
+    if (job.status === "active") return "Active";
+    if (job.status === "expired") return "Expired";
+    return "Draft";
   };
 
   return {
     id: job.id,
-    description: job.description || "",
-    salary: `${job.salary?.min ?? 0} - ${job.salary?.max ?? 0} ${job.salary?.currency ?? "INR"}`,
-    department: job.department || "General",
-    requiredSkills: job.requiredSkills || [],
-    category: job.department || "General",
-    status: statusMap[job.status || 'draft'] || "Draft",
     title: job.title,
+    description: job.description || "",
+    responsibilities: job.responsibilities || [],
+    requirements: job.requirements || [],
+    requiredSkills: job.requiredSkills || [],
+    preferredSkills: job.preferredSkills || [],
+    experienceMin: job.experienceMin ?? 0,
+    experienceMax: job.experienceMax ?? 0,
+    salary: job.salary
+      ? `${job.salary.min.toLocaleString()} - ${job.salary.max.toLocaleString()} ${job.salary.currency}`
+      : "Not specified",
+    department: job.department || "General",
+    category: job.department || "General",
+    positions: job.positions ?? 1,
+    status: getDisplayStatus(),       
+    visibility: job.visibility,       
+    isBlocked: job.isBlocked,         
+    location: locationStr,
+    isRemote: job.isRemote ?? false,
+    jobType: job.jobType || "full-time",
     postedDate: job.postedOn
-      ? new Date(job.postedOn).toISOString().split('T')[0]
+      ? new Date(job.postedOn).toLocaleDateString("en-IN", {
+          day: "numeric", month: "short", year: "numeric",
+        })
       : "N/A",
     expiresDate: job.expiresAt
-      ? new Date(job.expiresAt).toISOString().split('T')[0]
+      ? new Date(job.expiresAt).toLocaleDateString("en-IN", {
+          day: "numeric", month: "short", year: "numeric",
+        })
       : "No expiry",
-    location: locationStr,
-    jobType: job.jobType || "full-time",
+    externalLink: job.externalLink || null,
     views: job.views || 0,
     applications: job.applicationsCount || 0,
     shortlisted: 0,
@@ -53,35 +71,37 @@ export const useJobs = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<JobCardProps | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "applicants">("overview"); // 👈 NEW
+  const [activeTab, setActiveTab] = useState<"overview" | "applicants">("overview");
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        setLoading(true);
-        const repository = new ApiJobPostRepository();
-        const useCase = new GetJobPostsUseCase(repository);
-        const jobPosts = await useCase.execute();
-        const mappedJobs = jobPosts.map(mapJobPostToCard);
-        setJobs(mappedJobs);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load jobs. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchJobs();
+  const fetchJobs = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const repository = new ApiJobPostRepository();
+      const useCase = new GetJobPostsUseCase(repository);
+      const jobPosts = await useCase.execute();
+      setJobs(jobPosts.map(mapJobPostToCard));
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load jobs. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
 
   const filteredJobs = useMemo(() => {
     return jobs.filter(job => {
       const matchesSearch =
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.category.toLowerCase().includes(searchTerm.toLowerCase());
+        job.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.location.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === "All" || job.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -96,7 +116,7 @@ export const useJobs = () => {
 
   const handleViewClick = (job: JobCardProps) => {
     setSelectedJob(job);
-    setActiveTab("overview"); // always reset to overview on open
+    setActiveTab("overview");
     setIsModalOpen(true);
   };
 
@@ -104,6 +124,13 @@ export const useJobs = () => {
     setIsModalOpen(false);
     setSelectedJob(null);
   };
+
+  const handleJobDeleted = useCallback((deletedId: string) => {
+    setJobs(prev => prev.filter(job => job.id !== deletedId));
+  }, []);
+
+
+  const refetch = fetchJobs;
 
   return {
     viewMode,
@@ -123,5 +150,8 @@ export const useJobs = () => {
     setActiveTab,
     handleViewClick,
     handleCloseModal,
+    handleJobDeleted,    
+    setJobs,             
+    refetch,    
   };
 };

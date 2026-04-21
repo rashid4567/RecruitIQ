@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   X, Edit3, ExternalLink, Trash2, MapPin, Clock, DollarSign,
   Building2, CalendarDays, Star, Mail, Phone, CheckCircle2,
-  XCircle, Download, Users, Eye, Briefcase, Layers,
+  XCircle, Users, Eye, Briefcase, Layers,
   GraduationCap, Globe, ListChecks, Sparkles, AlertTriangle, Loader2,
 } from "lucide-react";
 import type { JobCardProps } from "../../../types/jobCard.types";
@@ -52,7 +52,7 @@ export default function QuickViewModal({
   const conversionRate =
     job.views > 0 ? ((job.applications / job.views) * 100).toFixed(1) : "0.0";
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
+
   const handleEdit = () => {
     onClose();
     navigate(`/recruiter/job-editor/${job.id}`);
@@ -75,7 +75,7 @@ export default function QuickViewModal({
     const success = await deleteJobPost(job.id);
 
     if (success) {
-      onDeleted?.(job.id);   // Automatically removes job from list
+      onDeleted?.(job.id);  
       onClose();
     } else {
       setDeleteError("Failed to delete job. Please try again.");

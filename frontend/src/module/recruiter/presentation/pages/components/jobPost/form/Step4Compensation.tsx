@@ -1,51 +1,40 @@
-// Step4Compensation.tsx
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DollarSign, Calendar, Link as LinkIcon } from "lucide-react";
 import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
 
-interface Step4CompensationProps {
+interface Props {
   formData: JobFormData;
   setFormData: (updater: (prev: JobFormData) => JobFormData) => void;
+  errors: Record<string, string>;
 }
 
-export default function Step4Compensation({ formData, setFormData }: Step4CompensationProps) {
+export default function Step4Compensation({ formData, setFormData, errors }: Props) {
   const currencies = [
-    { code: "INR", symbol: "₹", name: "Indian Rupee" },
-    { code: "USD", symbol: "$", name: "US Dollar" },
-    { code: "EUR", symbol: "€", name: "Euro" },
-    { code: "GBP", symbol: "£", name: "British Pound" },
-    { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
-    { code: "AUD", symbol: "A$", name: "Australian Dollar" },
-    { code: "SGD", symbol: "S$", name: "Singapore Dollar" },
+    { code: "INR", symbol: "₹" },
+    { code: "USD", symbol: "$" },
+    { code: "EUR", symbol: "€" },
+    { code: "GBP", symbol: "£" },
   ];
-
-  const getCurrencySymbol = (code: string) => {
-    return currencies.find(c => c.code === code)?.symbol || "₹";
-  };
 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold">Compensation & Details</h2>
-        <p className="text-gray-500 mt-1">Salary range, deadlines, and external links</p>
+        <h2 className="text-2xl font-bold text-gray-900">Compensation & Details</h2>
+        <p className="text-gray-500 mt-1">Salary and application details</p>
       </div>
 
       <div className="space-y-6">
-        {/* Salary Range */}
+        {/* Salary */}
         <div className="p-6 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl">
-          <Label className="flex items-center gap-2 text-lg font-semibold">
-            <DollarSign className="w-5 h-5 text-emerald-600" />
-            Salary Range (Annual)
+          <Label className="text-lg font-semibold flex items-center gap-2">
+            <DollarSign className="w-5 h-5" /> Salary Range (Annual)
           </Label>
           <div className="grid grid-cols-3 gap-4 mt-4">
             <Select
               value={formData.salary.currency}
-              onValueChange={(v) => setFormData((p) => ({ 
-                ...p, 
-                salary: { ...p.salary, currency: v }
-              }))}
+              onValueChange={(v) => setFormData((p) => ({ ...p, salary: { ...p.salary, currency: v } }))}
             >
               <SelectTrigger className="h-12">
                 <SelectValue />
@@ -53,83 +42,58 @@ export default function Step4Compensation({ formData, setFormData }: Step4Compen
               <SelectContent>
                 {currencies.map((c) => (
                   <SelectItem key={c.code} value={c.code}>
-                    {c.symbol} {c.code} - {c.name}
+                    {c.symbol} {c.code}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                {getCurrencySymbol(formData.salary.currency)}
-              </span>
+              <span className="absolute left-3 top-3.5 text-gray-500">Min</span>
               <Input
                 type="number"
-                placeholder="Min"
                 value={formData.salary.min || ""}
-                onChange={(e) => setFormData((p) => ({ 
-                  ...p, 
-                  salary: { ...p.salary, min: parseInt(e.target.value) || 0 }
-                }))}
-                className="pl-8 h-12"
+                onChange={(e) => setFormData((p) => ({ ...p, salary: { ...p.salary, min: parseInt(e.target.value) || 0 } }))}
+                className={`pl-12 h-12 ${errors["salary.max"] ? "border-red-500" : ""}`}
               />
             </div>
-            
+
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                {getCurrencySymbol(formData.salary.currency)}
-              </span>
+              <span className="absolute left-3 top-3.5 text-gray-500">Max</span>
               <Input
                 type="number"
-                placeholder="Max"
                 value={formData.salary.max || ""}
-                onChange={(e) => setFormData((p) => ({ 
-                  ...p, 
-                  salary: { ...p.salary, max: parseInt(e.target.value) || 0 }
-                }))}
-                className="pl-8 h-12"
+                onChange={(e) => setFormData((p) => ({ ...p, salary: { ...p.salary, max: parseInt(e.target.value) || 0 } }))}
+                className={`pl-12 h-12 ${errors["salary.max"] ? "border-red-500" : ""}`}
               />
             </div>
           </div>
-          {formData.salary.min > formData.salary.max && formData.salary.max > 0 && (
-            <p className="text-red-500 text-sm mt-2">Minimum salary cannot exceed maximum salary</p>
-          )}
+          {errors["salary.max"] && <p className="text-red-500 text-sm mt-2">{errors["salary.max"]}</p>}
         </div>
 
-        {/* Application Deadline */}
+        {/* Deadline */}
         <div>
-          <Label className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Application Deadline
-          </Label>
+          <Label>Application Deadline <span className="text-red-500">*</span></Label>
           <Input
             type="date"
             value={formData.expiresAt}
-            min={new Date().toISOString().split('T')[0]}
+            min={new Date().toISOString().split("T")[0]}
             onChange={(e) => setFormData((p) => ({ ...p, expiresAt: e.target.value }))}
-            className="h-12 mt-2"
+            className={`h-12 mt-2 ${errors.expiresAt ? "border-red-500" : ""}`}
           />
-          <p className="text-xs text-gray-400 mt-1">
-            Applications will close after this date
-          </p>
+          {errors.expiresAt && <p className="text-red-500 text-sm mt-1">{errors.expiresAt}</p>}
         </div>
 
         {/* External Link */}
         <div>
-          <Label className="flex items-center gap-2">
-            <LinkIcon className="w-4 h-4" />
-            External Application Link
-          </Label>
+          <Label>External Application Link (Optional)</Label>
           <Input
             type="url"
             value={formData.externalLink}
             onChange={(e) => setFormData((p) => ({ ...p, externalLink: e.target.value }))}
-            placeholder="https://careers.company.com/apply"
+            placeholder="https://..."
             className="h-12 mt-2"
           />
-          <p className="text-xs text-gray-400 mt-1">
-            If provided, candidates will be redirected to this link to apply
-          </p>
         </div>
       </div>
     </div>

@@ -13,6 +13,7 @@ import {
   MailIcon,
   Settings,
   LogOut,
+  Briefcase ,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -33,6 +34,8 @@ export default function Sidebar() {
     { icon: FileText, label: 'Activity Logs', href: '/admin/activity-logs' },
     { icon: Users, label: 'Recruiter Management', href: '/admin/recruiters' },
     { icon: UsersRound, label: 'Candidate Management', href: '/admin/candidates' },
+    { icon: Briefcase , label: 'JobPost Management', href: '/admin/jobPosts' },
+    
     { icon: Users2, label: 'Subscribers', href: '/admin/subscribers' },
     { icon: CheckCircle2, label: 'Plans Overview', href: '/admin/plans' },
     { icon: Mail, label: 'Email Template Management', href: '/admin/email-templates' },

@@ -32,7 +32,7 @@ const EmailTemplateEditor = lazy(()=> import("../module/admin/presentation/pages
 
 const EmailLogs = lazy(()=> import("../module/admin/presentation/pages/email.logs"))
 const ActivityLogs = lazy(()=>import("../module/admin/presentation/pages/activity-log"))
-
+const JopPostMangment = lazy(()=> import("../module/admin/presentation/pages/jobPost.managment.tsx"))
 const AdminRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
     <Routes>
@@ -63,6 +63,7 @@ const AdminRoutes = () => (
           <Route path="email-templates/:id" element={<EmailTemplateEditor/>}/>
           <Route path="/email-logs" element={<EmailLogs />} />
           <Route path="/activity-logs" element={<ActivityLogs/>}/>
+          <Route path="/jobPosts" element={<JopPostMangment/>}/>
         </Route>
       </Route>
     </Routes>

@@ -70,7 +70,7 @@ export default function JobListRow({
         <div className="flex items-center gap-2">
           <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+              className="h-full bg-linear-to-r from-blue-500 to-indigo-500 rounded-full"
               style={{ width: `${job.avgAiScore}%` }}
             />
           </div>

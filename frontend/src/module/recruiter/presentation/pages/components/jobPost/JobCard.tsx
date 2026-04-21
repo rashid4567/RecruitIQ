@@ -86,8 +86,8 @@ export default function JobCard({
           <p className="text-2xl font-bold text-gray-900">{job.shortlisted}</p>
           <p className="text-xs text-gray-500">Shortlisted</p>
         </div>
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 text-center">
-          <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+        <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-3 text-center">
+          <p className="text-2xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             {job.avgAiScore}%
           </p>
           <p className="text-xs text-gray-500">AI Score</p>
@@ -98,7 +98,7 @@ export default function JobCard({
       <div className="flex gap-2 relative" ref={dropdownRef}>
         <button
           onClick={() => onViewClick(job)}
-          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-medium text-sm hover:shadow-lg hover:shadow-blue-500/25 active:scale-[0.98] transition-all"
+          className="flex-1 bg-linear-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-medium text-sm hover:shadow-lg hover:shadow-blue-500/25 active:scale-[0.98] transition-all"
         >
           Quick View
         </button>

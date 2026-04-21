@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
-  AlertTriangle, CheckCircle2, XCircle,
-  Loader2, Rocket, Save, Sparkles,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  Rocket,
+  Save,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -39,12 +40,10 @@ export default function PublishDialog({
 }: PublishDialogProps) {
   const [state, setState] = useState<DialogState>("confirm");
 
-  // Reset when dialog opens
   useEffect(() => {
     if (open) setState("confirm");
   }, [open]);
 
-  // Sync external submitting state
   useEffect(() => {
     if (isSubmitting) setState("publishing");
   }, [isSubmitting]);
@@ -54,274 +53,155 @@ export default function PublishDialog({
     try {
       await onConfirm();
       setState("success");
-      setTimeout(() => {
-        onOpenChange(false);
-        setState("confirm");
-      }, 2000);
     } catch {
       setState("error");
     }
   };
 
-  const handleRetry = () => {
-    setState("confirm");
-    onRetry ? onRetry() : handleConfirm();
-  };
-
   const handleClose = () => {
     if (state === "publishing") return;
     onOpenChange(false);
-    setState("confirm");
-  };
-
-  // ── Mode-specific copy ───────────────────────────────────────────────────
-  const copy = {
-    title:          isEditMode ? "Save Changes"          : "Publish Job Post",
-    description:    isEditMode ? "Update this job post"  : "Launch this job post",
-    confirmBtn:     isEditMode ? "Save Changes"          : "Publish Job",
-    loadingText:    isEditMode ? "Saving changes..."     : "Publishing your job...",
-    loadingSubtext: isEditMode ? "Updating your post"    : "Making your job live",
-    successTitle:   isEditMode ? "Changes Saved!"        : "Successfully Published!",
-    successSubtext: isEditMode
-      ? "Your job post has been updated"
-      : "Your job is now live and accepting applications",
-    errorTitle:     isEditMode ? "Save Failed"           : "Publish Failed",
-    errorSubtext:   isEditMode
-      ? "We couldn't save your changes. Please try again."
-      : "We couldn't publish your job. Please try again.",
-    whatNext: isEditMode
-      ? [
-          "Changes are immediately reflected",
-          "Active applications won't be affected",
-          "Candidates will see updated details",
-          "Stats and analytics are preserved",
-        ]
-      : [
-          "Job will be visible to all candidates",
-          "Candidates can start applying immediately",
-          "You'll receive notifications for applications",
-          "You can edit or hide the job anytime",
-        ],
+    setTimeout(() => setState("confirm"), 250);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md overflow-hidden p-0">
+      <DialogContent className="sm:max-w-md bg-white rounded-3xl p-0 shadow-2xl border border-gray-100">
         <AnimatePresence mode="wait">
-
-          {/* ── Confirm ── */}
+          {/* Confirm State */}
           {state === "confirm" && (
             <motion.div
               key="confirm"
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-              className="p-6"
+              exit={{ opacity: 0, y: -10 }}
+              className="p-8"
             >
-              <DialogHeader className="text-center mb-6">
-                {/* Icon */}
-                <div className="mx-auto mb-4 relative w-fit">
-                  <div className="absolute inset-0 rounded-full bg-emerald-400 opacity-20 animate-ping" />
-                  <div className={`relative flex h-14 w-14 items-center justify-center rounded-full shadow-lg ${
-                    isEditMode
-                      ? "bg-linear-to-br from-amber-500 to-orange-500"
-                      : "bg-linear-to-br from-emerald-500 to-teal-500"
-                  }`}>
-                    {isEditMode
-                      ? <Save className="h-7 w-7 text-white" />
-                      : <Rocket className="h-7 w-7 text-white" />
-                    }
+              <DialogHeader className="text-center mb-8">
+                <div className="mx-auto mb-4 flex justify-center">
+                  <div
+                    className={`p-4 rounded-2xl ${
+                      isEditMode
+                        ? "bg-amber-100 text-amber-600"
+                        : "bg-emerald-100 text-emerald-600"
+                    }`}
+                  >
+                    {isEditMode ? (
+                      <Save className="w-9 h-9" />
+                    ) : (
+                      <Rocket className="w-9 h-9" />
+                    )}
                   </div>
                 </div>
 
-                <DialogTitle className={`text-xl font-bold bg-clip-text text-transparent ${
-                  isEditMode
-                    ? "bg-linear-to-r from-amber-600 to-orange-600"
-                    : "bg-linear-to-r from-emerald-600 to-teal-600"
-                }`}>
-                  {copy.title}
+                <DialogTitle className="text-2xl font-semibold text-gray-900">
+                  {isEditMode ? "Save Changes?" : "Publish Job Post?"}
                 </DialogTitle>
 
-                <DialogDescription className="text-gray-500 mt-1 text-sm">
-                  {jobTitle
-                    ? <>{copy.description}{" — "}<span className="font-medium text-gray-800">"{jobTitle}"</span></>
-                    : copy.description
-                  }
-                </DialogDescription>
+                {jobTitle && (
+                  <p className="text-gray-500 mt-1">"{jobTitle}"</p>
+                )}
               </DialogHeader>
 
-              {/* What happens next */}
-              <div className={`rounded-xl p-4 mb-6 ${
-                isEditMode ? "bg-amber-50" : "bg-emerald-50"
-              }`}>
-                <p className={`text-xs font-semibold flex items-center gap-1.5 mb-3 ${
-                  isEditMode ? "text-amber-800" : "text-emerald-800"
-                }`}>
-                  <Sparkles className="w-3.5 h-3.5" />
-                  What happens next?
-                </p>
-                <ul className="space-y-2">
-                  {copy.whatNext.map((text, i) => (
-                    <motion.li
-                      key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.07 }}
-                      className={`flex items-center gap-2 text-xs ${
-                        isEditMode ? "text-amber-700" : "text-emerald-700"
-                      }`}
-                    >
-                      <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${
-                        isEditMode ? "text-amber-500" : "text-emerald-500"
-                      }`} />
-                      {text}
-                    </motion.li>
-                  ))}
-                </ul>
+              <div className="text-center text-sm text-gray-600 mb-8">
+                {isEditMode ? (
+                  <p>Your changes will be updated and visible to candidates immediately.</p>
+                ) : (
+                  <p>This job will go live and candidates can start applying right away.</p>
+                )}
               </div>
 
-              <DialogFooter className="flex gap-3 sm:flex-row">
+              <div className="flex gap-3">
                 <Button
                   variant="outline"
                   onClick={handleClose}
-                  className="flex-1"
+                  className="flex-1 h-11"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleConfirm}
-                  className={`flex-1 shadow-md transition-all duration-200 ${
+                  className={`flex-1 h-11 font-medium ${
                     isEditMode
-                      ? "bg-linear-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
-                      : "bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                      ? "bg-amber-600 hover:bg-amber-700"
+                      : "bg-emerald-600 hover:bg-emerald-700"
                   }`}
                 >
-                  {isEditMode
-                    ? <><Save className="w-4 h-4 mr-2" />{copy.confirmBtn}</>
-                    : <><Rocket className="w-4 h-4 mr-2" />{copy.confirmBtn}</>
-                  }
+                  {isEditMode ? "Save Changes" : "Publish Now"}
                 </Button>
-              </DialogFooter>
+              </div>
             </motion.div>
           )}
 
-          {/* ── Publishing / Saving ── */}
+          {/* Publishing State */}
           {state === "publishing" && (
             <motion.div
               key="publishing"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="p-6"
+              className="p-12 flex flex-col items-center justify-center min-h-[280px]"
             >
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <div className="relative mb-6">
-                  <div className={`absolute inset-0 rounded-full blur-xl opacity-20 animate-pulse ${
-                    isEditMode
-                      ? "bg-linear-to-r from-amber-500 to-orange-500"
-                      : "bg-linear-to-r from-emerald-500 to-teal-500"
-                  }`} />
-                  <Loader2 className={`w-14 h-14 animate-spin ${
-                    isEditMode ? "text-amber-500" : "text-emerald-600"
-                  }`} />
-                </div>
-                <p className="text-base font-semibold text-gray-800">{copy.loadingText}</p>
-                <p className="text-sm text-gray-400 mt-1">{copy.loadingSubtext}</p>
-                <div className="flex gap-1 mt-5">
-                  {[0, 1, 2].map((i) => (
-                    <motion.div
-                      key={i}
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        isEditMode ? "bg-amber-400" : "bg-emerald-500"
-                      }`}
-                      animate={{ scale: [1, 1.6, 1] }}
-                      transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.2 }}
-                    />
-                  ))}
-                </div>
-              </div>
+              <Loader2 className="w-10 h-10 animate-spin text-gray-600 mb-6" />
+              <p className="text-lg font-medium text-gray-800">
+                {isEditMode ? "Saving changes..." : "Publishing job..."}
+              </p>
+              <p className="text-gray-500 text-sm mt-1">Please wait</p>
             </motion.div>
           )}
 
-          {/* ── Success ── */}
+          {/* Success State */}
           {state === "success" && (
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              className="p-6"
+              className="p-12 flex flex-col items-center justify-center min-h-[280px] text-center"
             >
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 220, damping: 18 }}
-                  className="relative mb-6"
-                >
-                  <div className="absolute inset-0 rounded-full bg-emerald-400 blur-xl opacity-25 animate-ping" />
-                  <div className="relative flex h-18 w-18 h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-emerald-500 to-teal-500 shadow-lg">
-                    <CheckCircle2 className="h-8 w-8 text-white" />
-                  </div>
-                </motion.div>
-                <p className="text-xl font-bold bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                  {copy.successTitle}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">{copy.successSubtext}</p>
+              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
+                <CheckCircle2 className="w-9 h-9 text-emerald-600" />
               </div>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+                {isEditMode ? "Changes Saved!" : "Job Published!"}
+              </h3>
+              <p className="text-gray-600">
+                {isEditMode
+                  ? "Your job post has been updated successfully."
+                  : "Your job is now live and accepting applications."}
+              </p>
+              <Button onClick={handleClose} className="mt-8 px-8" size="lg">
+                Go to My Jobs
+              </Button>
             </motion.div>
           )}
 
-          {/* ── Error ── */}
+          {/* Error State */}
           {state === "error" && (
             <motion.div
               key="error"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0 }}
-              className="p-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="p-8"
             >
               <div className="flex flex-col items-center text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100 mb-4">
-                  <XCircle className="h-7 w-7 text-red-600" />
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                  <XCircle className="w-9 h-9 text-red-600" />
                 </div>
-                <p className="text-lg font-semibold text-red-800">{copy.errorTitle}</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {error || copy.errorSubtext}
+                <h3 className="text-xl font-semibold text-red-700">Action Failed</h3>
+                <p className="text-gray-600 mt-2 text-sm">
+                  {error || "Something went wrong. Please try again."}
                 </p>
 
-                <div className="mt-5 w-full text-left bg-red-50 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-red-800 mb-2">Possible issues:</p>
-                  <ul className="space-y-1.5">
-                    {[
-                      "Check your internet connection",
-                      "Verify all required fields are filled",
-                      "Try again in a few moments",
-                    ].map((text, i) => (
-                      <li key={i} className="flex items-center gap-2 text-xs text-red-700">
-                        <AlertTriangle className="w-3 h-3 shrink-0" />
-                        {text}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="flex gap-3 mt-5 w-full">
+                <div className="flex gap-3 mt-8 w-full">
                   <Button variant="outline" onClick={handleClose} className="flex-1">
                     Close
                   </Button>
-                  <Button
-                    onClick={handleRetry}
-                    className="flex-1 bg-red-600 hover:bg-red-700"
-                  >
+                  <Button onClick={onRetry || handleConfirm} className="flex-1 bg-red-600 hover:bg-red-700">
                     Try Again
                   </Button>
                 </div>
               </div>
             </motion.div>
           )}
-
         </AnimatePresence>
       </DialogContent>
     </Dialog>

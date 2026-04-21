@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCreateJobPost } from "../hooks/jobPost/useCreateJobPost";
 import { useUpdateJobPost } from "../hooks/jobPost/useUpdateJobPost";
@@ -11,9 +11,10 @@ import Sidebar from "../pages/components/layout/Sidebar";
 import Header from "@/components/candidate/header";
 import JobStepper from "./components/jobPost/form/JobStepper";
 import PublishDialog from "./components/jobPost/PublishDialog";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
+import { jobFormSchema } from "../validators/jobFormSchema";
 
 function CreateMode() {
   const hook = useCreateJobPost();
@@ -21,7 +22,7 @@ function CreateMode() {
 }
 
 function EditMode({ jobId }: { jobId: string }) {
-  const hook = useUpdateJobPost(jobId, "");
+  const hook = useUpdateJobPost(jobId);
   return <JobEditorUI isEditMode={true} {...hook} />;
 }
 
@@ -74,50 +75,69 @@ function JobEditorUI({
   confirmPublish,
   retryPublish,
 }: JobEditorUIProps) {
+  const navigate = useNavigate();
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Validation
+  const validateCurrentStep = (): boolean => {
+    try {
+      const result = jobFormSchema.safeParse(formData);
+      if (!result.success) {
+        const fieldErrors: Record<string, string> = {};
+        result.error.issues.forEach((issue) => {
+          const key = issue.path.join(".");
+          fieldErrors[key] = issue.message;
+        });
+        setErrors(fieldErrors);
+        return false;
+      }
+      setErrors({});
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Keyboard Navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (showConfirmation) return;
-      if (e.key === "ArrowRight" && currentStep < 5) handleNext();
-      else if (e.key === "ArrowLeft" && currentStep > 1) handlePrevious();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [currentStep, handleNext, handlePrevious, showConfirmation]);
+      const targetTag = (e.target as HTMLElement)?.tagName;
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(targetTag || "")) return;
 
-  useEffect(() => {
-    if (isEditMode) return;
-    const onUnload = (e: BeforeUnloadEvent) => {
-      const hasData =
-        formData.title ||
-        formData.description ||
-        formData.requiredSkills.length > 0 ||
-        formData.responsibilities.length > 0;
-      if (hasData && !showConfirmation) {
-        e.preventDefault();
-        e.returnValue = "";
+      if (e.key === "ArrowRight" && currentStep < 5) {
+        if (validateCurrentStep()) setCurrentStep(currentStep + 1);
+      } else if (e.key === "ArrowLeft" && currentStep > 1) {
+        setCurrentStep(currentStep - 1);
       }
     };
-    window.addEventListener("beforeunload", onUnload);
-    return () => window.removeEventListener("beforeunload", onUnload);
-  }, [formData, showConfirmation, isEditMode]);
 
-  const progressPercentage = (currentStep / 5) * 100;
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [currentStep, showConfirmation]);
+
+  const handleCustomNext = () => {
+    if (validateCurrentStep()) {
+      setCurrentStep(Math.min(currentStep + 1, 5));
+    }
+  };
+
+  // Open Confirmation Dialog
+  const openConfirmation = () => {
+    if (validateCurrentStep()) {
+      setShowConfirmation(true);
+    }
+  };
 
   const renderStep = () => {
-    const stepProps = { formData, setFormData };
+    const commonProps = { formData, setFormData, errors };
     switch (currentStep) {
-      case 1:
-        return <Step1BasicInfo {...stepProps} />;
-      case 2:
-        return <Step2Description {...stepProps} />;
-      case 3:
-        return <Step3Requirements {...stepProps} />;
-      case 4:
-        return <Step4Compensation {...stepProps} />;
-      case 5:
-        return <Step5Preview formData={formData} />;
-      default:
-        return null;
+      case 1: return <Step1BasicInfo {...commonProps} />;
+      case 2: return <Step2Description {...commonProps} />;
+      case 3: return <Step3Requirements {...commonProps} />;
+      case 4: return <Step4Compensation {...commonProps} />;
+      case 5: return <Step5Preview formData={formData} />;
+      default: return null;
     }
   };
 
@@ -145,14 +165,7 @@ function JobEditorUI({
               <span className="text-red-500 text-2xl">⚠️</span>
             </div>
             <p className="text-red-500 font-semibold text-lg">{loadError}</p>
-            <p className="text-gray-400 text-sm">
-              Could not load the job post. Please try again.
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => window.location.reload()}
-              className="mt-2 border-red-200 text-red-500 hover:bg-red-50"
-            >
+            <Button variant="outline" onClick={() => window.location.reload()}>
               🔄 Retry
             </Button>
           </div>
@@ -178,29 +191,23 @@ function JobEditorUI({
           </div>
 
           <div className="flex-1 min-w-0">
-         
             {isEditMode && (
               <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2">
-                <span className="text-amber-600 text-sm font-semibold">
-                  ✏️ Editing job post
-                </span>
-                <span className="text-amber-500 text-sm">
-                  — Changes apply only after you confirm
-                </span>
+                <span className="text-amber-600 text-sm font-semibold">✏️ Editing job post</span>
+                <span className="text-amber-500 text-sm">— Changes apply only after you confirm</span>
               </div>
             )}
-
 
             <div className="lg:hidden mb-6">
               <div className="flex justify-between text-sm text-gray-600 mb-2">
                 <span>Step {currentStep} of 5</span>
-                <span>{Math.round(progressPercentage)}% Complete</span>
+                <span>{Math.round((currentStep / 5) * 100)}% Complete</span>
               </div>
               <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <motion.div
                   className="h-full bg-linear-to-r from-indigo-500 to-purple-600"
                   initial={{ width: 0 }}
-                  animate={{ width: `${progressPercentage}%` }}
+                  animate={{ width: `${(currentStep / 5) * 100}%` }}
                   transition={{ duration: 0.3 }}
                 />
               </div>
@@ -213,7 +220,7 @@ function JobEditorUI({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-2xl border border-gray-100 shadow-xl p-8 min-h-150"
+                className="bg-white rounded-2xl border border-gray-100 shadow-xl p-8 min-h-[150px]"
               >
                 {renderStep()}
               </motion.div>
@@ -231,57 +238,37 @@ function JobEditorUI({
 
               {currentStep === 5 ? (
                 <Button
-                  onClick={handlePublish}
+                  onClick={openConfirmation}       
                   disabled={isSubmitting}
-                  className="bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 px-10 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  className="px-10 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      {isEditMode ? "Saving..." : "Publishing..."}
-                    </>
-                  ) : isEditMode ? (
-                    "💾 Save Changes"
-                  ) : (
-                    "🚀 Publish Job"
-                  )}
+                  {isEditMode ? "💾 Save Changes" : "🚀 Publish Job"}
                 </Button>
               ) : (
                 <Button
-                  onClick={handleNext}
-                  className="px-10 bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  onClick={handleCustomNext}
+                  className="px-10 bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   Continue →
                 </Button>
               )}
             </div>
-
-            <div className="flex justify-center gap-2 mt-8 lg:hidden">
-              {[1, 2, 3, 4, 5].map((step) => (
-                <button
-                  key={step}
-                  onClick={() =>
-                    completedSteps.has(step - 1) && setCurrentStep(step)
-                  }
-                  className={`h-2 rounded-full transition-all duration-200 ${
-                    currentStep === step
-                      ? "w-8 bg-indigo-600"
-                      : completedSteps.has(step)
-                        ? "w-2 bg-green-500"
-                        : "w-2 bg-gray-300"
-                  }`}
-                  disabled={!completedSteps.has(step - 1) && step < currentStep}
-                />
-              ))}
-            </div>
           </div>
         </div>
       </div>
 
+      {/* Publish Dialog - This will handle save + redirect */}
       <PublishDialog
         open={showConfirmation}
         onOpenChange={setShowConfirmation}
-        onConfirm={confirmPublish}
+        onConfirm={async () => {
+          try {
+            await confirmPublish();
+            navigate("/recruiter/jobs");           // Redirect after success
+          } catch (err) {
+            // Error already handled in hook
+          }
+        }}
         isSubmitting={isSubmitting}
         jobTitle={formData.title}
         error={publishError}

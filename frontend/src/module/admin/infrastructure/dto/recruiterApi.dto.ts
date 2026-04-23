@@ -9,7 +9,6 @@ export interface RecruiterApiDto {
   email: string;
   isActive: boolean;
 
-  // Profile fields
   companyName?: string;
   companyWebsite?: string;
   companySize?: number;
@@ -19,7 +18,6 @@ export interface RecruiterApiDto {
   linkedinUrl?: string;
   bio?: string;
 
-  // Status fields
   verificationStatus: VerificationStatus;
   subscriptionStatus: SubscriptionStatus;
   jobPostsUsed: number;

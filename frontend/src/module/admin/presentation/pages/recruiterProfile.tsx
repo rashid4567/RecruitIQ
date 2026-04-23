@@ -3,7 +3,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Sidebar from "@/components/admin/sideBar";
 
-import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
+import { useRecruiterProfile } from "../hooks/Recruiter-Hooks/useRecruiterProfile";
 import { useUserStatus } from "../hooks/useUserStatus"; 
 
 import { RecruiterProfileHeader } from "../components/recruiter-profile/RecruiterProfileHeader";

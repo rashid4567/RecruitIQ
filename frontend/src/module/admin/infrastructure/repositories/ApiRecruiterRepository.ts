@@ -4,7 +4,6 @@ import type { RecruiterRepository } from "../../domain/repositories/recruiter.re
 import type { RecruiterApiDto } from "../dto/recruiterApi.dto";
 import type { VerificationStatus } from "../../domain/entities/recruiter.entity";
 
-// Helper to map a raw DTO → Recruiter domain entity (all fields)
 function mapDtoToRecruiter(r: RecruiterApiDto): Recruiter {
   return new Recruiter({
     id: r.id,
@@ -15,8 +14,6 @@ function mapDtoToRecruiter(r: RecruiterApiDto): Recruiter {
     subscriptionStatus: r.subscriptionStatus,
     jobPostsUsed: r.jobPostsUsed,
     joinedDate: r.joinedDate,
-
-    // Extended profile
     companyName: r.companyName,
     companyWebsite: r.companyWebsite,
     companySize: r.companySize,

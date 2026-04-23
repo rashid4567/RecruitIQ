@@ -1,8 +1,7 @@
-// hooks/useRecruiterProfile.ts
+
 import { useState, useEffect, useCallback } from "react";
-import { Recruiter } from "../../domain/entities/recruiter.entity";
-import type { VerificationStatus } from "../../domain/entities/recruiter.entity";
-import { ApiRecruiterRepository } from "../../infrastructure/repositories/ApiRecruiterRepository";
+import { Recruiter } from "../../../domain/entities/recruiter.entity";
+import { ApiRecruiterRepository } from "../../../infrastructure/repositories/ApiRecruiterRepository";
 
 const repository = new ApiRecruiterRepository();
 

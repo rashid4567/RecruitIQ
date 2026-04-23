@@ -1,4 +1,4 @@
-import type { RecruiterRepository } from "../../domain/repositories/recruiter.repository";
+import type { RecruiterRepository } from "../../../domain/repositories/recruiter.repository"
 
 export class VerifyRecruiterUseCase {
     private readonly recruiterRepo: RecruiterRepository 

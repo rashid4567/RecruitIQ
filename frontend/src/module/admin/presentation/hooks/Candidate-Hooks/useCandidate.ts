@@ -4,8 +4,8 @@ import { useDebounce } from "use-debounce";
 import type { Candidate } from "@/module/admin/domain/entities/candidates.entity";
 import type { GetCandidatesQuery } from "@/module/admin/application/dto/get-candidates.query";
 
-import { GetCandidateListUC } from "../di/candidate.di";
-import type { FilterStatusUI, UseCandidatesOptions } from "../types/useCandidate.types";
+import { GetCandidateListUC } from "../../di/candidate.di";
+import type { FilterStatusUI, UseCandidatesOptions } from "../../types/useCandidate.types";
 
 
 export function useCandidates(options?: UseCandidatesOptions) {

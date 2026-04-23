@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useCandidates } from "../hooks/useCandidate";
-import { useUserStatus } from "../hooks/useUserStatus";
+import { useCandidates } from "../hooks/Candidate-Hooks/useCandidate";
+import { useUserStatus } from "../hooks/Candidate-Hooks/useUserStatus";
 import { CandidateTable } from "../components/candidatelist/CandidateTable";
 import { CandidateStatusDialog } from "../components/candidatelist/CandidateStatusDialog";
 

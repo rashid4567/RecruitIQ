@@ -1,6 +1,6 @@
   import { useState } from "react";
   import Sidebar from "@/components/admin/sideBar";
-  import { useEmailLogs } from "../hooks/useEmailLogs";
+  import { useEmailLogs } from "../hooks/EmailLog-Hooks/useEmailLogs";
   import { EmailLogsHeader } from "../components/email-logs/EmailLogsHeader";
   import { EmailLogsFilters } from "../components/email-logs/EmailLogsFilters";
   import { EmailLogsTable } from "../components/email-logs/EmailLogsTable";

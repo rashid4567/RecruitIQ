@@ -5,6 +5,7 @@ import recruiterManagementRouter from "./recruiter-management.routes";
 import EmailTemplaterouter from "./email-template.routes";
 import EmailLogrouter from "./email-logs.routes";
 import ActivityLogRouter from "./activity-log.routes";
+import JobPostRouter from "./jobPost.routes";
 import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
 import { requireAdmin } from "../../../../middlewares/role.middleware";
 
@@ -16,6 +17,7 @@ adminRoutes.use("/candidates", candidateMangmentRouter);
 adminRoutes.use("/recruiters", recruiterManagementRouter);
 adminRoutes.use("/email-templates", EmailTemplaterouter);
 adminRoutes.use("/email-logs", EmailLogrouter);
-adminRoutes.use("/activity-logs", ActivityLogRouter)
+adminRoutes.use("/activity-logs", ActivityLogRouter);
+adminRoutes.use("/job-posts", JobPostRouter);
 
 export default adminRoutes;

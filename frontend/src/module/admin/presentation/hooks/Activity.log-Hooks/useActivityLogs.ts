@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { ActivityLog } from "@/module/admin/domain/entities/activity-log.enitity";
-import { GetActivityLogUC } from "../di/activity-log.di";
-import type { ActivityLogViewModel } from "../types/activityLog.ViewModal";
+import { GetActivityLogUC } from "../../di/activity-log.di";
+import type { ActivityLogViewModel } from "../../types/activityLog.ViewModal";
 
 
 

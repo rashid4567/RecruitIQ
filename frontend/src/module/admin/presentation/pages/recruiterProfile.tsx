@@ -4,7 +4,7 @@ import { useState } from "react";
 import Sidebar from "@/components/admin/sideBar";
 
 import { useRecruiterProfile } from "../hooks/Recruiter-Hooks/useRecruiterProfile";
-import { useUserStatus } from "../hooks/useUserStatus"; 
+import { useUserStatus } from "../hooks/Candidate-Hooks/useUserStatus"; 
 
 import { RecruiterProfileHeader } from "../components/recruiter-profile/RecruiterProfileHeader";
 import { RecruiterContactInfo } from "../components/recruiter-profile/RecruiterContactInfo";

@@ -1,4 +1,4 @@
-// domain/entities/candidate-profile.entity.ts
+
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { Gender } from "../type/gender.Types";
 
@@ -22,7 +22,6 @@ export class CandidateProfile {
     this.profileCompleted = profileCompleted;
   }
 
-  // ── Factories ──────────────────────────────────────────────────────────
 
   public static create(
     userId: UserId,
@@ -59,9 +58,9 @@ export class CandidateProfile {
       props.currentJob?.trim() ?? "",
       props.experienceYears,
       props.skills ?? [],
-      props.educationLevel?.trim() || undefined, // ← coerce "" → undefined
+      props.educationLevel?.trim() || undefined,
       props.preferredJobLocations ?? [],
-      props.bio?.trim() || undefined, // ← coerce "" → undefined
+      props.bio?.trim() || undefined,
       props.currentJobLocation?.trim() || undefined,
       props.gender,
       props.linkedinUrl?.trim() || undefined,
@@ -70,11 +69,7 @@ export class CandidateProfile {
     );
   }
 
-  // ── Business rules ─────────────────────────────────────────────────────
 
-  // FIX: previously bio/educationLevel could be "" (falsy) even when the
-  // caller believed they were set, causing this to return false unexpectedly.
-  // fromPersistence now coerces "" → undefined so this check is reliable.
   public canBeCompleted(): boolean {
     return (
       this.skills.length > 0 &&
@@ -91,8 +86,6 @@ export class CandidateProfile {
     }
     this.profileCompleted = true;
   }
-
-  // ── Update methods ─────────────────────────────────────────────────────
 
   public updateCurrentJob(currentJob: string): void {
     if (!currentJob?.trim()) throw new Error("Current job cannot be empty");
@@ -147,7 +140,6 @@ export class CandidateProfile {
     this.portfolioUrl = url?.trim() || undefined;
   }
 
-  // ── Getters ────────────────────────────────────────────────────────────
 
   public getUserId(): UserId {
     return this.userId;

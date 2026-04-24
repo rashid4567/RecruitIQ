@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Candidate } from "@/module/admin/domain/entities/candidates.entity";
-import { getCandidateProfileUC } from "../di/candidate.di";
-import { blockUserUC, unblockUserUC } from "../di/user.di";
+import { getCandidateProfileUC } from "../../di/candidate.di";
+import { blockUserUC, unblockUserUC } from "../../di/user.di";
 
 export function useCandidateProfile(candidateId?: string) {
   const [profile, setProfile] = useState<Candidate | null>(null);

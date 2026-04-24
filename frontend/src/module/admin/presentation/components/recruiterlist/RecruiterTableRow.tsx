@@ -9,13 +9,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
 
 interface RecruiterTableRowProps {
   recruiter: any;
   isActionLoading?: boolean;
   onAction: (recruiter: any, action: string) => void;
-  onViewProfile: (recruiterId: string) => void;   // ← Added for consistency with CandidateRow
+  onViewProfile: (recruiterId: string) => void;  
 }
 
 export function RecruiterTableRow({

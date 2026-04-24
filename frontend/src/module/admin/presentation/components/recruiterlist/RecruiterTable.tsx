@@ -17,7 +17,7 @@ interface RecruiterTableProps {
   setPagination: any;
   actionLoading: Record<string, boolean>;
   onAction: (recruiter: any, action: string) => void;
-  onViewProfile: (recruiterId: string) => void;     // ← Added
+  onViewProfile: (recruiterId: string) => void;  
 }
 
 export function RecruiterTable({
@@ -72,7 +72,7 @@ export function RecruiterTable({
                   recruiter={recruiter}
                   isActionLoading={actionLoading[recruiter._id || recruiter.id] || false}
                   onAction={onAction}
-                  onViewProfile={onViewProfile}        // ← Passed down
+                  onViewProfile={onViewProfile}       
                 />
               ))
             )}

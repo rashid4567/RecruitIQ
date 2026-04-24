@@ -8,7 +8,7 @@ import RouteLoader from "../components/RouterLoader";
 const CandidateHome = lazy(() => import("../module/candidate/presentation/pages/Home"));
 
 const CompleteProfile = lazy(()=> import("../module/candidate/presentation/pages/comleteProfile"))
-
+const CareerPage = lazy(()=> import("../module/candidate/presentation/pages/jobPost"))
 
 
 const AccountSettingsPage = lazy(
@@ -23,6 +23,7 @@ const CandidateRoutes = () => (
           <Route path="home" element={<CandidateHome />} />
           <Route path="profile/complete" element={<CompleteProfile />} />
           <Route path="profile/setting" element={<AccountSettingsPage />} />
+          <Route path="jobs" element={<CareerPage/>}/>
         </Route>
       </Route>
     </Routes>

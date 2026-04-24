@@ -4,8 +4,7 @@ import { useState } from "react";
 
 import Sidebar from "@/components/admin/sideBar";
 import type { EmailTemplate } from "@/module/admin/domain/entities/email-template.entity";
-import { useEmailTemplateManagement } from "../hooks/useEmailTemplateManagement";
-
+import { useEmailTemplateManagement } from "../hooks/EmailTemplate.Hooks/useEmailTemplateManagement"
 import { TemplateHeader } from "../components/email-template.managment/TemplateHeader";
 import { TemplateSidebar } from "../components/email-template.managment/TemplateSidebar";
 import { TemplateList } from "../components/email-template.managment/TemplateList";

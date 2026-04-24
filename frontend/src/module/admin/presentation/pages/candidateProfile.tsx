@@ -4,7 +4,7 @@ import { XCircle } from "lucide-react";
 import Sidebar from "@/components/admin/sideBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useCandidateProfile } from "../hooks/useCandidateProfile";
+import { useCandidateProfile } from "../hooks/Candidate-Hooks/useCandidateProfile";
 import { toast } from "sonner";
 import { CandidateProfileHeader } from "../components/candidate-profile/CandidateProfileHeader";
 import { CandidateProfileContent } from "../components/candidate-profile/CandidateProfileContent";

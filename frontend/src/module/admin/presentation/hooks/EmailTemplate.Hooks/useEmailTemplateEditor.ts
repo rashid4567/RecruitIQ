@@ -6,13 +6,13 @@ import {
   UpdateEmailTemplateUC,
   GetEmailTemplateUC,
   sendTestEmailUC,
-} from "../di/email-template.di";
+} from "../../di/email-template.di";
 
 import {
   emailTemplateFormSchema,
   sendTestEmailSchema,
   type EmailTemplateForm,
-} from "../../presentation/validaton/emailTemplate.schema";
+} from "../../../presentation/validaton/emailTemplate.schema";
 
 export function useEmailTemplateEditor(id?: string) {
   const isEdit = !!id;

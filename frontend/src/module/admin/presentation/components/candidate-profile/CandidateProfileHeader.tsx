@@ -4,8 +4,6 @@ import {
   Users,
   MessageSquare,
   Zap,
-  Ban,
-  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Candidate } from "../../../domain/entities/candidates.entity";

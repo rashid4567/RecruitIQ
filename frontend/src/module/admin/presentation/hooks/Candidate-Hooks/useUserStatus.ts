@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { blockUserUC, unblockUserUC } from "../di/user.di";
+import { blockUserUC, unblockUserUC } from "../../di/user.di";
 import { getError } from "@/utils/getError";
 
 interface UseUserStatusOptions {

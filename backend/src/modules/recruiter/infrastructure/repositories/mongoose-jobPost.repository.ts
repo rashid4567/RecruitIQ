@@ -25,8 +25,8 @@ export class MongooseJobPostRepository implements JobPostRepository {
       salary: jobPost.getSalary(),
       department: jobPost.getDepartment(),
       positions: jobPost.getPositions(),
-      visibility: jobPost.getVisibility(),       // ✅ added
-      isBlocked: jobPost.getIsBlocked(),         // ✅ added
+      visibility: jobPost.getVisibility(),
+      isBlocked: jobPost.getIsBlocked(),
       status: jobPost.getStatus(),
       views: jobPost.getViews(),
       applicationsCount: jobPost.getApplicationsCount(),
@@ -71,11 +71,11 @@ export class MongooseJobPostRepository implements JobPostRepository {
           salary: jobPost.getSalary(),
           department: jobPost.getDepartment(),
           positions: jobPost.getPositions(),
-          visibility: jobPost.getVisibility(),   // ✅ added
-          isBlocked: jobPost.getIsBlocked(),     // ✅ added
+          visibility: jobPost.getVisibility(),
+          isBlocked: jobPost.getIsBlocked(),
           status: jobPost.getStatus(),
-          views: jobPost.getViews(),             // ✅ added
-          applicationsCount: jobPost.getApplicationsCount(), // ✅ added
+          views: jobPost.getViews(),
+          applicationsCount: jobPost.getApplicationsCount(),
           postedOn: jobPost.getPostedOn(),
           expiresAt: jobPost.getExpiresAt(),
           externalLink: jobPost.getExternalLink(),
@@ -92,7 +92,6 @@ export class MongooseJobPostRepository implements JobPostRepository {
   }
 
   async delete(id: string): Promise<void> {
-    // ✅ soft delete instead of hard delete
     const result = await JobPostModel.findOneAndUpdate(
       { _id: id, isDeleted: false },
       { $set: { isDeleted: true } },
@@ -122,8 +121,8 @@ export class MongooseJobPostRepository implements JobPostRepository {
       salary: doc.salary,
       department: doc.department,
       positions: doc.positions,
-      visibility: doc.visibility,               // ✅ added
-      isBlocked: doc.isBlocked,                 // ✅ added
+      visibility: doc.visibility,
+      isBlocked: doc.isBlocked,
       status: doc.status,
       views: doc.views,
       applicationsCount: doc.applicationsCount,

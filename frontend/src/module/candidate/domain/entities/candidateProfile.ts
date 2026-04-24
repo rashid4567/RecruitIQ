@@ -1,6 +1,6 @@
 import type { Gender } from "../types/gender.types";
 
-// Shape returned by GET /candidate/profile
+
 export interface CandidateProfileApiResponse {
   user: {
     id: string;
@@ -23,8 +23,6 @@ export interface CandidateProfileApiResponse {
     profileCompleted: boolean;
   };
 }
-
-// Shape returned by PUT /candidate/profile (different backend serialization)
 export interface CandidateProfileUpdateApiResponse {
   user: {
     id: { value: string } | string;

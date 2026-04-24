@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import Sidebar from "@/components/admin/sideBar";
-import { useRecruiters } from "../hooks/useRecruiters";
+import { useRecruiters } from "../hooks/Recruiter-Hooks/useRecruiters";
 import { RecruiterManagementHeader } from "../components/recruiterlist/RecruiterManagementHeader";
 import { RecruiterFilters } from "../components/recruiterlist/RecruiterFilters";
 import { RecruiterTable } from "../components/recruiterlist/RecruiterTable";

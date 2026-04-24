@@ -1,4 +1,4 @@
-import { CandidateRespository } from "../../domain/repositories/candidate.repository";
+import { CandidateRepository } from "../../domain/repositories/candidate.repository";
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { ERROR_CODES } from "../constants/error-code.constant";
@@ -7,7 +7,7 @@ import { ApplicationError } from "../../../../shared/errors/application.error";
 
 export class GetCandidateProfileUseCase {
   constructor(
-    private readonly candidateRepo: CandidateRespository,
+    private readonly candidateRepo: CandidateRepository,
     private readonly userRepo: UserRepository,
   ) {}
 

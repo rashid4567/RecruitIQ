@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Sidebar from "@/components/admin/sideBar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useEmailTemplateEditor } from "../hooks/useEmailTemplateEditor";
+import { useEmailTemplateEditor } from "../hooks/EmailTemplate.Hooks/useEmailTemplateEditor";
 import { TemplateHeader } from "../components/email-template/TemplateHeader";
 import { TemplateSettings } from "../components/email-template/TemplateSettings";
 import { EmailBodyEditor } from "../components/email-template/EmailBodyEditor";

@@ -1,14 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDebounce } from "use-debounce";
 import { toast } from "sonner";
-import type { Recruiter } from "../../domain/entities/recruiter.entity";
+import type { Recruiter } from "../../../domain/entities/recruiter.entity";
 import {
   getRecruiterListUC,
   verifyRecruiterUC,
   rejectRecruiterUC,
-} from "../di/recruiter.di";
-import { blockUserUC,  unblockUserUC } from "../di/user.di";
-
+} from "../../di/recruiter.di";
+import { blockUserUC,  unblockUserUC } from "../../di/user.di"
 type FilterTab = "all" | "pending" | "verified" | "blocked";
 
 export function useRecruiters() {

@@ -1,6 +1,6 @@
 import type { JobPostFilters } from "@/module/candidate/domain/dto/JobPostDTO";
 import type { JobPost } from "@/module/candidate/domain/entities/jobPost";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { GetAllJobPostUC } from "../../di/jobPost";
 
 const DEFAULT_FILTERS: JobPostFilters = {
@@ -8,11 +8,14 @@ const DEFAULT_FILTERS: JobPostFilters = {
   limit: 9,
 };
 
+const SEARCH_DEBOUNCE_MS = 400;
+
 interface UseJobPostsReturn {
   jobs: JobPost[];
   loading: boolean;
   error: string | null;
   filters: JobPostFilters;
+  searchInput: string;
   pagination: {
     total: number;
     page: number;
@@ -20,6 +23,7 @@ interface UseJobPostsReturn {
     totalPages: number;
   };
   updateFilters: (partial: Partial<JobPostFilters>) => void;
+  updateSearch: (value: string) => void;
   changePage: (page: number) => void;
   resetFilters: () => void;
   refetch: () => Promise<void>;
@@ -30,12 +34,17 @@ export function useJobPosts(): UseJobPostsReturn {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<JobPostFilters>(DEFAULT_FILTERS);
+
+  const [searchInput, setSearchInput] = useState<string>("");
+
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
     limit: 9,
     totalPages: 0,
   });
+
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchJobs = useCallback(async (currentFilters: JobPostFilters) => {
     setLoading(true);
@@ -61,6 +70,28 @@ export function useJobPosts(): UseJobPostsReturn {
     fetchJobs(filters);
   }, [filters, fetchJobs]);
 
+  const updateSearch = useCallback((value: string) => {
+    setSearchInput(value);
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(() => {
+      setFilters((prev) => ({
+        ...prev,
+        search: value.trim() || undefined,
+        page: 1,
+      }));
+    }, SEARCH_DEBOUNCE_MS);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, []);
+
   const updateFilters = useCallback((partial: Partial<JobPostFilters>) => {
     setFilters((prev) => ({ ...prev, ...partial, page: 1 }));
   }, []);
@@ -71,6 +102,8 @@ export function useJobPosts(): UseJobPostsReturn {
   }, []);
 
   const resetFilters = useCallback(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    setSearchInput("");
     setFilters(DEFAULT_FILTERS);
   }, []);
 
@@ -83,8 +116,10 @@ export function useJobPosts(): UseJobPostsReturn {
     loading,
     error,
     filters,
+    searchInput,
     pagination,
     updateFilters,
+    updateSearch,
     changePage,
     resetFilters,
     refetch,

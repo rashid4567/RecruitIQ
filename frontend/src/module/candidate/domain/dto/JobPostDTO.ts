@@ -1,10 +1,10 @@
-import type { JobPost } from "../entities/jobPost";
+import type { JobPost, JobType } from "../entities/jobPost";
 
 export interface JobPostFilters {
   page?: number;
   limit?: number;
   search?: string;
-  jobType?: string;
+  jobType?: JobType;      
   isRemote?: boolean;
   skills?: string[];
   experienceMin?: number;

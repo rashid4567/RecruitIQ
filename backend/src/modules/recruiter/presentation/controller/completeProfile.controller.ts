@@ -18,6 +18,13 @@ export class CompleteRecruiterProfileController {
       const userId = userIdSchema.parse(req.user?.userId);
       const body = CompleteRecruiterProfileSchema.parse(req.body);
 
+      if(!userId){
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          success : false,
+          message : "User not found",
+        })
+      }
+
       const profile = await this.completeProfileUC.execute(userId, body)
       res.status(HTTP_STATUS.OK).json({
         success : true,

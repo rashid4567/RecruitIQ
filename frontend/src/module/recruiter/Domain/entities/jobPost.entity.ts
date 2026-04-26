@@ -27,9 +27,9 @@ export class JobPost {
   public readonly department: string;
   public readonly positions: number;
 
-  public readonly visibility: JobVisibility;  // recruiter control
-  public readonly isBlocked: boolean;         // admin control
-  public readonly status: JobStatus;          // system lifecycle
+  public readonly visibility: JobVisibility;  
+  public readonly isBlocked: boolean;         
+  public readonly status: JobStatus;         
 
   public readonly views: number;
   public readonly applicationsCount: number;
@@ -179,7 +179,6 @@ export class JobPost {
     });
   }
 
-  // ── Recruiter visibility ──────────────────────────────────────────────────
 
   hide(): JobPost {
     return new JobPost({ ...this.toParams(), visibility: "hidden" });
@@ -189,7 +188,7 @@ export class JobPost {
     return new JobPost({ ...this.toParams(), visibility: "active" });
   }
 
-  // ── Status helpers ────────────────────────────────────────────────────────
+
 
   isExpired(): boolean {
     return this.status === "expired";
@@ -203,7 +202,6 @@ export class JobPost {
     return this.status === "draft";
   }
 
-  // ── Visibility helpers ────────────────────────────────────────────────────
 
   isHidden(): boolean {
     return this.visibility === "hidden";
@@ -220,6 +218,14 @@ export class JobPost {
       this.status === "active" &&
       !this.isDeleted
     );
+  }
+
+  publish():JobPost{
+    return new JobPost({
+      ...this.toParams(),
+      status : "active",
+      postedOn : new Date()
+    })
   }
 
   private toParams() {

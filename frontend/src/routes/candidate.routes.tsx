@@ -5,14 +5,19 @@ import ProtectedRoute from "./protector/ProtectedRoute";
 import CandidateLayout from "../layout/CandidateLayout";
 import RouteLoader from "../components/RouterLoader";
 
-const CandidateHome = lazy(() => import("../module/candidate/presentation/pages/Home"));
+const CandidateHome = lazy(
+  () => import("../module/candidate/presentation/pages/Home"),
+);
 
-const CompleteProfile = lazy(()=> import("../module/candidate/presentation/pages/comleteProfile"))
-const CareerPage = lazy(()=> import("../module/candidate/presentation/pages/jobPost"))
-
+const CompleteProfile = lazy(
+  () => import("../module/candidate/presentation/pages/comleteProfile"),
+);
+const CareerPage = lazy(
+  () => import("../module/candidate/presentation/pages/jobPost"),
+);
 
 const AccountSettingsPage = lazy(
-  () => import("../module/candidate/presentation/pages/personal-info")
+  () => import("../module/candidate/presentation/pages/personal-info"),
 );
 
 const CandidateRoutes = () => (
@@ -23,7 +28,7 @@ const CandidateRoutes = () => (
           <Route path="home" element={<CandidateHome />} />
           <Route path="profile/complete" element={<CompleteProfile />} />
           <Route path="profile/setting" element={<AccountSettingsPage />} />
-          <Route path="jobs" element={<CareerPage/>}/>
+          <Route path="jobs" element={<CareerPage />} />
         </Route>
       </Route>
     </Routes>
@@ -31,7 +36,3 @@ const CandidateRoutes = () => (
 );
 
 export default CandidateRoutes;
-
-
-
-

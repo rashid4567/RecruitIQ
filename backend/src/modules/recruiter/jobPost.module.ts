@@ -2,6 +2,7 @@ import { CreateJobPostUseCase } from "./application/useCase/jobPost/createJobPos
 import { DeleteJobPostUseCase } from "./application/useCase/jobPost/delete-job-post.usecase";
 import { GetJobPostByIdUseCase } from "./application/useCase/jobPost/GetJobPostByIdUseCase";
 import { GetRecruiterJobPostsUseCase } from "./application/useCase/jobPost/GetRecruiterJobPostsUseCase";
+import { PublishJobPostUseCase } from "./application/useCase/jobPost/publish.jobPost.useCase";
 import { ToggleJobPostVisibilityUseCase } from "./application/useCase/jobPost/ToggleJobPostVisibility";
 import { UpdateJobPostUseCase } from "./application/useCase/jobPost/UpdateJobPost";
 import { JobPostRepository } from "./domain/repositories/JobPostRepository";
@@ -11,6 +12,7 @@ import { DeleteJobPostController } from "./presentation/controller/jobPost/delet
 import { GetAllRecruiterController } from "./presentation/controller/jobPost/getAllJobPost.controller";
 import { GetJobPostByIdController } from "./presentation/controller/jobPost/getJobPostById.controller";
 import { UpdateJobPostStatusController } from "./presentation/controller/jobPost/jobPostStatus.controller";
+import { PublishJobPostController } from "./presentation/controller/jobPost/publishJobPost.controller";
 import { UpdateJobPostController } from "./presentation/controller/jobPost/updateJobPost.controller";
 
 const jobPostRepository: JobPostRepository = new MongooseJobPostRepository();
@@ -26,7 +28,7 @@ const toggleJobPostVisibilityUC = new ToggleJobPostVisibilityUseCase(
 
 const getJobPostByIdUC = new GetJobPostByIdUseCase(jobPostRepository);
 const DeleteJobPostUC = new DeleteJobPostUseCase(jobPostRepository);
-
+const publishJobPostUc = new PublishJobPostUseCase(jobPostRepository)
 export const createJobPostContoller = new CreateJobPostController(
   createJobPostUC,
 );
@@ -43,6 +45,8 @@ export const jobPostStatusController = new UpdateJobPostStatusController(
 export const getJobPostByIdController = new GetJobPostByIdController(
   getJobPostByIdUC,
 );
+
+export const publishJobpostController = new PublishJobPostController(publishJobPostUc)
 
 export const deleteJobPostController = new DeleteJobPostController(
   DeleteJobPostUC,

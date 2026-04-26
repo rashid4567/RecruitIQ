@@ -2,7 +2,7 @@ import { Search, Bell, ChevronLeft } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 
-export default function Header() {
+export  function Header() {
   return (
     <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-40">
       <div className="flex items-center gap-4">

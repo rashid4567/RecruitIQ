@@ -111,13 +111,13 @@ export class JobPost {
       salary,
       props.department ?? "",
       props.positions ?? 1,
-      "active",   // visibility: visible by default
-      false,      // isBlocked: not blocked by default
-      "draft",    // status: always starts as draft
+      "active",
+      false,
+      "draft",
       0,
       0,
       false,
-      undefined,  // postedOn: set only when published
+      undefined,
       props.expiresAt,
       props.externalLink,
     );
@@ -183,8 +183,6 @@ export class JobPost {
     );
   }
 
-  // ── Guards ────────────────────────────────────────────────────────────────
-
   private guardNotExpired(): void {
     if (this.status === "expired") {
       throw new DomainError(ERROR_CODES.CANNOT_UPDATE_EXPIRED);
@@ -196,8 +194,6 @@ export class JobPost {
       throw new DomainError(ERROR_CODES.CANNOT_UPDATE_BLOCKED);
     }
   }
-
-  // ── Recruiter: content updates ────────────────────────────────────────────
 
   public updateTitle(value: string): void {
     this.guardNotExpired();
@@ -216,8 +212,10 @@ export class JobPost {
   public updateExperience(min: number, max: number): void {
     this.guardNotExpired();
     this.guardNotBlocked();
-    if (min < 0 || max < 0) throw new DomainError(ERROR_CODES.EXPERIENCE_INVALID);
-    if (min > max) throw new DomainError(ERROR_CODES.EXPERIENCE_MIN_GREATER_THAN_MAX);
+    if (min < 0 || max < 0)
+      throw new DomainError(ERROR_CODES.EXPERIENCE_INVALID);
+    if (min > max)
+      throw new DomainError(ERROR_CODES.EXPERIENCE_MIN_GREATER_THAN_MAX);
     this.experienceMin = min;
     this.experienceMax = max;
   }
@@ -307,11 +305,13 @@ export class JobPost {
     this.externalLink = value?.trim() || undefined;
   }
 
-  // ── Recruiter: lifecycle & visibility control ─────────────────────────────
-
   public publish(): void {
     this.guardNotExpired();
     this.guardNotBlocked();
+
+    if(!this.title || !this.description){
+      throw new DomainError(ERROR_CODES.CANNOT_PUBLISH_INCLOMPLETE_JOB)
+    }
     this.status = "active";
     this.postedOn = new Date();
   }
@@ -327,8 +327,6 @@ export class JobPost {
     this.visibility = "active";
   }
 
-  // ── Admin: moderation control ─────────────────────────────────────────────
-
   public block(): void {
     this.isBlocked = true;
     this.visibility = "hidden";
@@ -336,10 +334,7 @@ export class JobPost {
 
   public unblock(): void {
     this.isBlocked = false;
-    // visibility stays hidden — recruiter must explicitly unhide
   }
-
-  // ── System ────────────────────────────────────────────────────────────────
 
   public expire(): void {
     this.status = "expired";
@@ -358,33 +353,85 @@ export class JobPost {
     this.applicationsCount += 1;
   }
 
-  // ── Getters ───────────────────────────────────────────────────────────────
-
-  public getId(): string | undefined { return this.id; }
-  public getRecruiterId(): string { return this.recruiterId; }
-  public getTitle(): string { return this.title; }
-  public getDescription(): string { return this.description; }
-  public getResponsibilities(): string[] { return this.responsibilities; }
-  public getRequirements(): string[] { return this.requirements; }
-  public getRequiredSkills(): string[] { return this.requiredSkills; }
-  public getPreferredSkills(): string[] { return this.preferredSkills; }
-  public getExperienceMin(): number { return this.experienceMin; }
-  public getExperienceMax(): number { return this.experienceMax; }
-  public getLocation(): LocationVO { return this.location; }
-  public getIsRemote(): boolean { return this.isRemote; }
-  public getJobType(): JobType { return this.jobType; }
-  public getSalary(): SalaryVO { return this.salary; }
-  public getDepartment(): string { return this.department; }
-  public getPositions(): number { return this.positions; }
-  public getVisibility(): JobVisibility { return this.visibility; }
-  public getIsBlocked(): boolean { return this.isBlocked; }
-  public getStatus(): JobStatus { return this.status; }
-  public getViews(): number { return this.views; }
-  public getApplicationsCount(): number { return this.applicationsCount; }
-  public getIsDeleted(): boolean { return this.isDeleted; }
-  public getPostedOn(): Date | undefined { return this.postedOn; }
-  public getExpiresAt(): Date | undefined { return this.expiresAt; }
-  public getExternalLink(): string | undefined { return this.externalLink; }
-  public getCreatedAt(): Date | undefined { return this.createdAt; }
-  public getUpdatedAt(): Date | undefined { return this.updatedAt; }
+  public getId(): string | undefined {
+    return this.id;
+  }
+  public getRecruiterId(): string {
+    return this.recruiterId;
+  }
+  public getTitle(): string {
+    return this.title;
+  }
+  public getDescription(): string {
+    return this.description;
+  }
+  public getResponsibilities(): string[] {
+    return this.responsibilities;
+  }
+  public getRequirements(): string[] {
+    return this.requirements;
+  }
+  public getRequiredSkills(): string[] {
+    return this.requiredSkills;
+  }
+  public getPreferredSkills(): string[] {
+    return this.preferredSkills;
+  }
+  public getExperienceMin(): number {
+    return this.experienceMin;
+  }
+  public getExperienceMax(): number {
+    return this.experienceMax;
+  }
+  public getLocation(): LocationVO {
+    return this.location;
+  }
+  public getIsRemote(): boolean {
+    return this.isRemote;
+  }
+  public getJobType(): JobType {
+    return this.jobType;
+  }
+  public getSalary(): SalaryVO {
+    return this.salary;
+  }
+  public getDepartment(): string {
+    return this.department;
+  }
+  public getPositions(): number {
+    return this.positions;
+  }
+  public getVisibility(): JobVisibility {
+    return this.visibility;
+  }
+  public getIsBlocked(): boolean {
+    return this.isBlocked;
+  }
+  public getStatus(): JobStatus {
+    return this.status;
+  }
+  public getViews(): number {
+    return this.views;
+  }
+  public getApplicationsCount(): number {
+    return this.applicationsCount;
+  }
+  public getIsDeleted(): boolean {
+    return this.isDeleted;
+  }
+  public getPostedOn(): Date | undefined {
+    return this.postedOn;
+  }
+  public getExpiresAt(): Date | undefined {
+    return this.expiresAt;
+  }
+  public getExternalLink(): string | undefined {
+    return this.externalLink;
+  }
+  public getCreatedAt(): Date | undefined {
+    return this.createdAt;
+  }
+  public getUpdatedAt(): Date | undefined {
+    return this.updatedAt;
+  }
 }

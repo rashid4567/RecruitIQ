@@ -83,8 +83,8 @@ export default function JobCard({
           <p className="text-xs text-gray-500">Applications</p>
         </div>
         <div className="bg-gray-50 rounded-xl p-3 text-center">
-          <p className="text-2xl font-bold text-gray-900">{job.shortlisted}</p>
-          <p className="text-xs text-gray-500">Shortlisted</p>
+          <p className="text-2xl font-bold text-gray-900">{job.views}</p>
+          <p className="text-xs text-gray-500">Views</p>
         </div>
         <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-3 text-center">
           <p className="text-2xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">

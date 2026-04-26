@@ -72,7 +72,7 @@ export default function JobsPage() {
       <div className="flex-1 ml-64">
         <Header />
 
-        <main className="p-8">
+        <main className="p-8 mt-6">
    
           <StatsOverview stats={stats} jobs={filteredJobs} />
 

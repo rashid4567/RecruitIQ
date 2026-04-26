@@ -54,6 +54,11 @@ export class ApiJobPostRepository implements JobPostRepository {
     return this.toEntity(res.data.data);
   }
 
+  async publish(id: string): Promise<JobPost> {
+    const res = await api.patch(`/recruiter/jobs/${id}/publish`);
+    return this.toEntity(res.data.data);
+  }
+
   async deleteJobPost(id: string): Promise<void> {
     await api.delete(`/recruiter/jobs/${id}`);
   }

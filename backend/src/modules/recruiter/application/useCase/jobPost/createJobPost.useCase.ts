@@ -22,7 +22,6 @@ export class CreateJobPostUseCase {
       salary: dto.salary,
       department: dto.department,
       positions: dto.positions,
-      status: dto.status,
       expiresAt: dto.expiresAt,
       externalLink: dto.externalLink,
     });

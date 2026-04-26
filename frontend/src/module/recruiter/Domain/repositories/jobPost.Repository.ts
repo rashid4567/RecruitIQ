@@ -13,6 +13,6 @@ export interface JobPostRepository {
   hideJobPost(id: string): Promise<JobPost>;
 
   unhideJobPost(id: string): Promise<JobPost>;
-
+  publish(id : string):Promise<JobPost>
   deleteJobPost(id : string):Promise<void>
 }

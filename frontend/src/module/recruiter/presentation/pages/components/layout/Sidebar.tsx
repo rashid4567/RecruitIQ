@@ -1,4 +1,4 @@
-'use client';
+
 
 import { LayoutDashboard, Briefcase, Users, Calendar, MessageSquare, UserCircle, CreditCard, User, LogOut, Zap, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", id: "dashboard" },
-  { icon: Briefcase, label: "Jobs", id: "jobs", badge: 12 },
+  { icon: Briefcase, label: "Jobs", id: "jobs",  },
   { icon: Users, label: "Applications", id: "applications", badge: 48 },
   { icon: Calendar, label: "Interviews", id: "interviews" },
   { icon: MessageSquare, label: "Interview Chats", id: "interview-chats" },
@@ -18,15 +18,14 @@ const navItems = [
 
 export default function Sidebar({ activeItem = "jobs" }: { activeItem?: string }) {
   return (
-    <aside className="w-72 bg-white border-r border-gray-100 flex flex-col h-screen fixed shadow-xl">
-      {/* Logo */}
+<aside className="w-72 bg-white border-r border-gray-100 flex flex-col h-screen fixed shadow-xl mt-8">
       <div className="px-6 py-6 border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-linear-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="font-bold text-xl text-gray-900">HireFlow</span>
+            <span className="font-bold text-xl text-gray-900">Recruit-IQ</span>
             <p className="text-[10px] text-gray-400 font-medium tracking-wider">AI RECRUITING</p>
           </div>
         </div>

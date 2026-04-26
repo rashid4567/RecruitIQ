@@ -48,7 +48,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         {/* Search field */}
         <div className="flex-1 relative group">
           {/* Animated gradient ring on focus */}
-          <div className="absolute -inset-[1.5px] rounded-[14px] bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-[1px]" />
+          <div className="absolute -inset-[1.5px] rounded-[14px] bg-linear-to-r from-indigo-500 via-violet-500 to-indigo-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-[1px]" />
 
           <div className="relative flex items-center bg-slate-50 border border-slate-200 rounded-[13px] group-focus-within:bg-white group-focus-within:border-transparent transition-all duration-200">
             {/* Search icon */}

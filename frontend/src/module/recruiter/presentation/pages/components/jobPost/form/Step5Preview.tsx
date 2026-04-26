@@ -1,193 +1,226 @@
-// Step5Preview.tsx
-import { Calendar, MapPin, Briefcase, DollarSign, Building2, Users, Link as LinkIcon, Clock } from "lucide-react";
+import {
+  Calendar, MapPin, Briefcase, DollarSign, Building2,
+  Users, Link as LinkIcon, Globe, Wifi, CheckCircle2, AlertTriangle,
+} from "lucide-react";
 import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
 
-interface Step5PreviewProps {
+interface Props {
   formData: JobFormData;
 }
 
-export default function Step5Preview({ formData }: Step5PreviewProps) {
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "Not set";
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+const formatDate = (s: string) => {
+  if (!s) return "Not set";
+  return new Date(s).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" });
+};
 
-  const formatSalary = (min: number, max: number, currency: string) => {
-    if (!min && !max) return "Not specified";
-    const symbol = currency === "INR" ? "₹" : currency === "USD" ? "$" : currency === "EUR" ? "€" : "£";
-    if (min && max) return `${symbol}${min.toLocaleString()} - ${symbol}${max.toLocaleString()} / year`;
-    if (min) return `${symbol}${min.toLocaleString()}+ / year`;
-    if (max) return `Up to ${symbol}${max.toLocaleString()} / year`;
-    return "Not specified";
-  };
+const formatSalary = (min: number, max: number, currency: string) => {
+  const sym = currency === "INR" ? "₹" : currency === "USD" ? "$" : currency === "EUR" ? "€" : "£";
+  if (!min && !max) return null;
+  if (min && max) return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()} / yr`;
+  if (min) return `${sym}${min.toLocaleString()}+ / yr`;
+  return `Up to ${sym}${max.toLocaleString()} / yr`;
+};
 
-  const formatExperience = (min: number, max: number) => {
-    if (!min && !max) return "Not specified";
-    if (min === max && min > 0) return `${min}+ years`;
-    if (min && max) return `${min} - ${max} years`;
-    if (min) return `${min}+ years`;
-    if (max) return `Up to ${max} years`;
-    return "Not specified";
+const formatExp = (min: number, max: number) => {
+  if (!min && !max) return null;
+  if (min === max && min > 0) return `${min}+ yrs`;
+  if (min && max) return `${min}–${max} yrs`;
+  if (min) return `${min}+ yrs`;
+  return `Up to ${max} yrs`;
+};
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <div className="w-1 h-4 bg-indigo-500 rounded-full" />
+        {title}
+      </h4>
+      {children}
+    </div>
+  );
+}
+
+export default function Step5Preview({ formData }: Props) {
+  const salary = formatSalary(formData.salary.min, formData.salary.max, formData.salary.currency);
+  const exp = formatExp(formData.experienceMin, formData.experienceMax);
+
+  const missing: string[] = [];
+  if (!formData.title) missing.push("Job Title");
+  if (!formData.description) missing.push("Description");
+  if (formData.requiredSkills.length === 0) missing.push("Required Skills");
+  if (!formData.expiresAt) missing.push("Application Deadline");
+
+  const jobTypeColors: Record<string, string> = {
+    "full-time": "bg-indigo-100 text-indigo-700",
+    "part-time": "bg-violet-100 text-violet-700",
+    "contract": "bg-amber-100 text-amber-700",
+    "internship": "bg-emerald-100 text-emerald-700",
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold">Preview Your Job Post</h2>
-        <p className="text-gray-500 mt-1">Review all the details before publishing</p>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
+            <CheckCircle2 className="w-4 h-4 text-amber-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Preview & Publish</h2>
+        </div>
+        <p className="text-gray-500 text-sm ml-10">This is how your job post will appear to candidates</p>
       </div>
 
-      <div className="border rounded-2xl p-8 bg-white shadow-sm space-y-6">
-        {/* Header */}
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900">{formData.title || "Untitled Position"}</h3>
-          
-          {/* Job Meta Tags */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm capitalize">
-              {formData.jobType.replace("-", " ")}
-            </span>
-            {formData.isRemote ? (
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">Remote</span>
-            ) : formData.location.city && (
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                {[formData.location.city, formData.location.state].filter(Boolean).join(", ")}
-              </span>
-            )}
-            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-              {formData.department || "General"}
-            </span>
-          </div>
-        </div>
-
-        {/* Key Info Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-xl">
-          <div className="flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-gray-400" />
-            <div>
-              <p className="text-xs text-gray-500">Experience</p>
-              <p className="font-medium">{formatExperience(formData.experienceMin, formData.experienceMax)}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-gray-400" />
-            <div>
-              <p className="text-xs text-gray-500">Salary</p>
-              <p className="font-medium">{formatSalary(formData.salary.min, formData.salary.max, formData.salary.currency)}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-gray-400" />
-            <div>
-              <p className="text-xs text-gray-500">Positions</p>
-              <p className="font-medium">{formData.positions} {formData.positions === 1 ? "opening" : "openings"}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-gray-400" />
-            <div>
-              <p className="text-xs text-gray-500">Deadline</p>
-              <p className="font-medium">{formatDate(formData.expiresAt)}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Description */}
-        {formData.description && (
+      {/* Missing fields warning */}
+      {missing.length > 0 && (
+        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">About the Role</h4>
-            <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">
-              {formData.description}
+            <p className="text-sm font-semibold text-amber-800">Almost there!</p>
+            <p className="text-xs text-amber-600 mt-0.5">
+              Missing: {missing.join(" · ")}
             </p>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Responsibilities */}
-        {formData.responsibilities.length > 0 && (
-          <div>
-            <h4 className="font-semibold text-gray-900 mb-2">Key Responsibilities</h4>
-            <ul className="space-y-2">
-              {formData.responsibilities.map((item, i) => (
-                <li key={i} className="flex gap-2 text-gray-600">
-                  <span className="text-indigo-500">•</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Requirements */}
-        {formData.requirements.length > 0 && (
-          <div>
-            <h4 className="font-semibold text-gray-900 mb-2">Requirements</h4>
-            <ul className="space-y-2">
-              {formData.requirements.map((item, i) => (
-                <li key={i} className="flex gap-2 text-gray-600">
-                  <span className="text-amber-500">•</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Skills */}
-        {formData.requiredSkills.length > 0 && (
-          <div>
-            <h4 className="font-semibold text-gray-900 mb-2">Required Skills</h4>
-            <div className="flex flex-wrap gap-2">
-              {formData.requiredSkills.map((skill, i) => (
-                <span key={i} className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
-                  {skill}
+      {/* Job Card Preview */}
+      <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+        {/* Card Header */}
+        <div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                {formData.title || "Untitled Position"}
+              </h3>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm capitalize`}>
+                  {formData.jobType.replace("-", " ")}
                 </span>
-              ))}
+                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm">
+                  {formData.department || "General"}
+                </span>
+                {formData.isRemote ? (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-400/30 text-emerald-100 backdrop-blur-sm flex items-center gap-1">
+                    <Wifi className="w-3 h-3" /> Remote
+                  </span>
+                ) : formData.location.city ? (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {[formData.location.city, formData.location.state].filter(Boolean).join(", ")}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+              <Briefcase className="w-6 h-6 text-white" />
             </div>
           </div>
-        )}
+        </div>
 
-        {formData.preferredSkills.length > 0 && (
-          <div>
-            <h4 className="font-semibold text-gray-900 mb-2">Preferred Skills</h4>
-            <div className="flex flex-wrap gap-2">
-              {formData.preferredSkills.map((skill, i) => (
-                <span key={i} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                  {skill}
-                </span>
-              ))}
+        {/* Key Metrics */}
+        <div className="grid grid-cols-4 divide-x divide-gray-100 bg-gray-50 border-b border-gray-100">
+          {[
+            { icon: Briefcase, label: "Experience", value: exp || "Any level" },
+            { icon: DollarSign, label: "Salary", value: salary || "Not specified" },
+            { icon: Users, label: "Openings", value: `${formData.positions} ${formData.positions === 1 ? "seat" : "seats"}` },
+            { icon: Calendar, label: "Deadline", value: formatDate(formData.expiresAt) },
+          ].map(({ icon: Icon, label, value }) => (
+            <div key={label} className="flex flex-col items-center p-4 text-center">
+              <Icon className="w-4 h-4 text-gray-400 mb-1" />
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{label}</p>
+              <p className="text-sm font-bold text-gray-800 mt-0.5">{value}</p>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
 
-        {/* External Link */}
-        {formData.externalLink && (
-          <div className="pt-4 border-t">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <LinkIcon className="w-4 h-4" />
-              <span>External Application: </span>
-              <a href={formData.externalLink} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
+        {/* Body */}
+        <div className="p-6 space-y-6 bg-white">
+          {formData.description && (
+            <Section title="About the Role">
+              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+                {formData.description}
+              </p>
+            </Section>
+          )}
+
+          {formData.responsibilities.filter(Boolean).length > 0 && (
+            <Section title="Key Responsibilities">
+              <ul className="space-y-2">
+                {formData.responsibilities.filter(Boolean).map((item, i) => (
+                  <li key={i} className="flex gap-3 text-sm text-gray-600">
+                    <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
+                      {i + 1}
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )}
+
+          {formData.requirements.filter(Boolean).length > 0 && (
+            <Section title="Requirements">
+              <ul className="space-y-2">
+                {formData.requirements.filter(Boolean).map((item, i) => (
+                  <li key={i} className="flex gap-2.5 text-sm text-gray-600">
+                    <span className="text-amber-500 flex-shrink-0 mt-0.5">◆</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )}
+
+          {formData.requiredSkills.length > 0 && (
+            <Section title="Required Skills">
+              <div className="flex flex-wrap gap-2">
+                {formData.requiredSkills.map((skill, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-semibold border border-indigo-100">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {formData.preferredSkills.length > 0 && (
+            <Section title="Preferred Skills">
+              <div className="flex flex-wrap gap-2">
+                {formData.preferredSkills.map((skill, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-violet-50 text-violet-700 rounded-xl text-xs font-semibold border border-violet-100">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {formData.externalLink && (
+            <div className="pt-4 border-t border-gray-100 flex items-center gap-2 text-sm text-gray-500">
+              <LinkIcon className="w-4 h-4 flex-shrink-0" />
+              <span>Apply via:</span>
+              <a
+                href={formData.externalLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-600 hover:text-indigo-800 hover:underline font-medium truncate"
+              >
                 {formData.externalLink}
               </a>
             </div>
-          </div>
-        )}
-
-        {/* Missing Fields Warning */}
-        {(!formData.title || !formData.description || formData.requiredSkills.length === 0) && (
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-            <p className="text-yellow-800 text-sm">
-              ⚠️ Missing required fields: 
-              {!formData.title && " Title"}
-              {!formData.description && " Description"}
-              {formData.requiredSkills.length === 0 && " Required Skills"}
-            </p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      {missing.length === 0 && (
+        <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+          <p className="text-sm font-semibold text-emerald-800">
+            Everything looks great! Ready to publish this job post.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

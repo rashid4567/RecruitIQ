@@ -1,6 +1,7 @@
 
 import type { RecruiterProfile } from "../../Domain/entities/recruiterEntities";
 import type { RecruiterRepository } from "../../Domain/repositories/RecruiterRepository";
+import type { UpdateRecruiterProfileDTO } from "../types/updateProfileTypes";
 
 export class UpdateRecruiterProfileUseCase {   
   private readonly recruiterRepo: RecruiterRepository;
@@ -9,7 +10,7 @@ export class UpdateRecruiterProfileUseCase {
     this.recruiterRepo = recruiterRepo;
   }
 
-  async execute(profile: RecruiterProfile): Promise<RecruiterProfile> {
+  async execute(profile: UpdateRecruiterProfileDTO): Promise<RecruiterProfile> {
     return this.recruiterRepo.updateProfile(profile);
   }
 }

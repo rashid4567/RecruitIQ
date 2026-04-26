@@ -8,13 +8,14 @@ import Step3Requirements from "./components/jobPost/form/Step3Requirements";
 import Step4Compensation from "./components/jobPost/form/Step4Compensation";
 import Step5Preview from "./components/jobPost/form/Step5Preview";
 import Sidebar from "../pages/components/layout/Sidebar";
-import Header from "@/components/candidate/header";
+import { Header } from "../pages/components/layout/Header";
 import JobStepper from "./components/jobPost/form/JobStepper";
 import PublishDialog from "./components/jobPost/PublishDialog";
+import SaveDraftDialog from "./components/jobPost/SaveDraftDialog";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
-import { jobFormSchema } from "../validators/jobFormSchema";
+import { ChevronLeft, ChevronRight, Save, Rocket } from "lucide-react";
 
 function CreateMode() {
   const hook = useCreateJobPost();
@@ -30,7 +31,7 @@ export default function JobEditorPage() {
   const { id: jobId } = useParams<{ id?: string }>();
   return (
     <>
-      <Toaster position="top-right" richColors expand={true} duration={4000} />
+      <Toaster position="top-right" richColors expand duration={4000} />
       {jobId ? <EditMode jobId={jobId} /> : <CreateMode />}
     </>
   );
@@ -45,15 +46,23 @@ type JobEditorUIProps = {
   completedSteps: Set<number>;
   formData: any;
   setFormData: any;
-  showConfirmation: boolean;
-  setShowConfirmation: (v: boolean) => void;
-  isSubmitting: boolean;
+  stepErrors?: Record<string, string>;
+  showSaveDraftModal?: boolean;
+  isSavingDraft?: boolean;
+  saveDraftError?: string | null;
+  draftSavedSuccessfully?: boolean;
+  handleNavigateAway?: () => boolean;
+  handleNext?: () => Record<string, string> | void;
+  handlePrevious?: () => void;
+  saveDraft?: () => Promise<void>;
+  dismissSaveDraftModal?: () => void;
+  showPublishConfirmation: boolean;
+  isPublishing: boolean;
   publishError: string | null;
-  handleNext: () => void;
-  handlePrevious: () => void;
   handlePublish: () => void;
   confirmPublish: () => Promise<void>;
-  retryPublish: () => void;
+  confirmSaveDraft?: () => Promise<void>;
+  dismissPublishConfirmation: () => void;
 };
 
 function JobEditorUI({
@@ -65,69 +74,70 @@ function JobEditorUI({
   completedSteps,
   formData,
   setFormData,
-  showConfirmation,
-  setShowConfirmation,
-  isSubmitting,
-  publishError,
+  stepErrors = {},
+  showSaveDraftModal = false,
+  isSavingDraft = false,
+  saveDraftError = null,
+  draftSavedSuccessfully = false,
+  handleNavigateAway,
   handleNext,
   handlePrevious,
+  saveDraft,
+  dismissSaveDraftModal,
+  showPublishConfirmation,
+  isPublishing,
+  publishError,
   handlePublish,
   confirmPublish,
-  retryPublish,
+  confirmSaveDraft,
+  dismissPublishConfirmation,
 }: JobEditorUIProps) {
   const navigate = useNavigate();
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Validation
-  const validateCurrentStep = (): boolean => {
-    try {
-      const result = jobFormSchema.safeParse(formData);
-      if (!result.success) {
-        const fieldErrors: Record<string, string> = {};
-        result.error.issues.forEach((issue) => {
-          const key = issue.path.join(".");
-          fieldErrors[key] = issue.message;
-        });
-        setErrors(fieldErrors);
-        return false;
-      }
-      setErrors({});
-      return true;
-    } catch {
-      return false;
+ 
+  const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
+  const errors = Object.keys(stepErrors).length > 0 ? stepErrors : localErrors;
+
+  const goNext = () => {
+    if (handleNext) {
+      const result = handleNext();
+      
+      setLocalErrors(result ?? {});
+    } else {
+      if (currentStep < 5) setCurrentStep(currentStep + 1);
     }
   };
 
-  // Keyboard Navigation
+  const goPrev = () => {
+    if (handlePrevious) {
+      handlePrevious();
+    } else if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (showConfirmation) return;
-      const targetTag = (e.target as HTMLElement)?.tagName;
-      if (["INPUT", "TEXTAREA", "SELECT"].includes(targetTag || "")) return;
-
-      if (e.key === "ArrowRight" && currentStep < 5) {
-        if (validateCurrentStep()) setCurrentStep(currentStep + 1);
-      } else if (e.key === "ArrowLeft" && currentStep > 1) {
-        setCurrentStep(currentStep - 1);
-      }
+      if (showPublishConfirmation || showSaveDraftModal) return;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(tag || "")) return;
+      if (e.key === "ArrowRight" && currentStep < 5) goNext();
+      else if (e.key === "ArrowLeft" && currentStep > 1) goPrev();
     };
-
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentStep, showConfirmation]);
+  }, [currentStep, showPublishConfirmation, showSaveDraftModal]);
 
-  const handleCustomNext = () => {
-    if (validateCurrentStep()) {
-      setCurrentStep(Math.min(currentStep + 1, 5));
-    }
-  };
-
-  // Open Confirmation Dialog
-  const openConfirmation = () => {
-    if (validateCurrentStep()) {
-      setShowConfirmation(true);
-    }
-  };
+ 
+  useEffect(() => {
+    if (!handleNavigateAway) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      if (handleNavigateAway()) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [handleNavigateAway]);
 
   const renderStep = () => {
     const commonProps = { formData, setFormData, errors };
@@ -147,8 +157,8 @@ function JobEditorUI({
         <Sidebar activeItem="jobs" />
         <div className="flex-1 ml-72 flex items-center justify-center">
           <div className="text-center">
-            <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-500 text-sm">Loading job post...</p>
+            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-500 text-sm font-medium">Loading job post...</p>
           </div>
         </div>
       </div>
@@ -161,12 +171,12 @@ function JobEditorUI({
         <Sidebar activeItem="jobs" />
         <div className="flex-1 ml-72 flex items-center justify-center">
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto">
               <span className="text-red-500 text-2xl">⚠️</span>
             </div>
-            <p className="text-red-500 font-semibold text-lg">{loadError}</p>
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              🔄 Retry
+            <p className="text-red-500 font-semibold">{loadError}</p>
+            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl">
+              🔄 Try Again
             </Button>
           </div>
         </div>
@@ -175,13 +185,14 @@ function JobEditorUI({
   }
 
   return (
-    <div className="flex min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
+    <div className="flex min-h-screen bg-linear-to-br from-slate-50 via-gray-50 to-gray-100">
       <Sidebar activeItem="jobs" />
 
       <div className="flex-1 ml-72">
         <Header />
 
         <div className="flex gap-8 p-8 max-w-7xl mx-auto">
+          {/* Sidebar Stepper */}
           <div className="hidden lg:block">
             <JobStepper
               currentStep={currentStep}
@@ -190,89 +201,148 @@ function JobEditorUI({
             />
           </div>
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 space-y-5">
+            {/* Edit mode banner */}
             {isEditMode && (
-              <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2">
-                <span className="text-amber-600 text-sm font-semibold">✏️ Editing job post</span>
-                <span className="text-amber-500 text-sm">— Changes apply only after you confirm</span>
+              <div className="px-4 py-3 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-2.5">
+                <span className="text-lg">✏️</span>
+                <div>
+                  <span className="text-amber-800 text-sm font-bold">Editing job post</span>
+                  <span className="text-amber-500 text-sm ml-2">— Changes apply only after you confirm</span>
+                </div>
               </div>
             )}
 
-            <div className="lg:hidden mb-6">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
+            {/* Draft saved banner */}
+            {!isEditMode && draftSavedSuccessfully && (
+              <div className="px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-2.5">
+                <span className="text-emerald-500 text-lg">✓</span>
+                <span className="text-emerald-800 text-sm font-semibold">Draft saved successfully</span>
+              </div>
+            )}
+
+            {/* Mobile progress */}
+            <div className="lg:hidden">
+              <div className="flex justify-between text-sm text-gray-600 mb-2 font-medium">
                 <span>Step {currentStep} of 5</span>
                 <span>{Math.round((currentStep / 5) * 100)}% Complete</span>
               </div>
               <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-linear-to-r from-indigo-500 to-purple-600"
+                  className="h-full bg-linear-to-r from-indigo-500 to-violet-600 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${(currentStep / 5) * 100}%` }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
                 />
               </div>
             </div>
 
+            {/* Step Form Card */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-2xl border border-gray-100 shadow-xl p-8 min-h-[150px]"
+                initial={{ opacity: 0, x: 24, scale: 0.99 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: -24, scale: 0.99 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/60 p-8"
               >
                 {renderStep()}
               </motion.div>
             </AnimatePresence>
 
-            <div className="flex justify-between mt-8 px-4">
+            {/* Navigation Footer */}
+            <div className="flex items-center justify-between px-1">
               <Button
                 variant="outline"
-                onClick={handlePrevious}
-                disabled={currentStep === 1 || isSubmitting}
-                className="px-8 border-2 hover:bg-gray-50 transition-all duration-200"
+                onClick={goPrev}
+                disabled={currentStep === 1 || isPublishing}
+                className="h-11 px-6 rounded-xl border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-40"
               >
-                ← Previous
+                <ChevronLeft className="w-4 h-4" />
+                Previous
               </Button>
 
-              {currentStep === 5 ? (
-                <Button
-                  onClick={openConfirmation}       
-                  disabled={isSubmitting}
-                  className="px-10 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  {isEditMode ? "💾 Save Changes" : "🚀 Publish Job"}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleCustomNext}
-                  className="px-10 bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  Continue →
-                </Button>
-              )}
+              <div className="flex items-center gap-3">
+                {/* Save Draft — create mode only */}
+                {!isEditMode && saveDraft && (
+                  <Button
+                    variant="outline"
+                    onClick={saveDraft}
+                    disabled={isSavingDraft || isPublishing}
+                    className="h-11 px-5 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50/30 font-medium transition-all duration-200 flex items-center gap-2"
+                  >
+                    {isSavingDraft ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        Save Draft
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {currentStep === 5 ? (
+                  <Button
+                    onClick={handlePublish}
+                    disabled={isPublishing}
+                    className="h-11 px-8 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg shadow-emerald-200/60 hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+                  >
+                    {isPublishing ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        Publishing...
+                      </>
+                    ) : (
+                      <>
+                        <Rocket className="w-4 h-4" />
+                        {isEditMode ? "Save Changes" : "Publish Job"}
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={goNext}
+                    disabled={isPublishing}
+                    className="h-11 px-8 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold shadow-lg shadow-indigo-200/60 hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+                  >
+                    Continue
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Publish Dialog - This will handle save + redirect */}
+      {/* Save Draft Modal */}
+      {!isEditMode && dismissSaveDraftModal && saveDraft && (
+        <SaveDraftDialog
+          open={showSaveDraftModal}
+          isSaving={isSavingDraft}
+          error={saveDraftError}
+          onSave={saveDraft}
+          onDiscard={dismissSaveDraftModal}
+        />
+      )}
+
+      {/* Publish Dialog */}
       <PublishDialog
-        open={showConfirmation}
-        onOpenChange={setShowConfirmation}
-        onConfirm={async () => {
-          try {
-            await confirmPublish();
-            navigate("/recruiter/jobs");           // Redirect after success
-          } catch (err) {
-            // Error already handled in hook
-          }
-        }}
-        isSubmitting={isSubmitting}
+        open={showPublishConfirmation}
+        onOpenChange={(open) => { if (!open) dismissPublishConfirmation(); }}
+        onConfirm={confirmPublish}
+        onSaveDraft={isEditMode && confirmSaveDraft ? confirmSaveDraft : undefined}
+        onPublish={isEditMode ? confirmPublish : undefined}
+        onSuccess={() => navigate("/recruiter/jobs")}
+        isSubmitting={isPublishing}
         jobTitle={formData.title}
         error={publishError}
-        onRetry={retryPublish}
+        onRetry={isEditMode && confirmSaveDraft ? confirmSaveDraft : confirmPublish}
         isEditMode={isEditMode}
       />
     </div>

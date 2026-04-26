@@ -14,8 +14,6 @@ const SignIn = lazy(
   () => import("../module/auth/presentation/pages/auth/signIn"),
 );
 
-
-
 const Signup = lazy(
   () => import("../module/auth/presentation/pages/auth/signup"),
 );
@@ -23,8 +21,6 @@ const Signup = lazy(
 const VerifyOTP = lazy(
   () => import("../module/auth/presentation/pages/auth/verifyOtp"),
 );
-
-
 
 const ForgotPassword = lazy(
   () => import("../module/auth/presentation/pages/auth/forgot-password"),
@@ -42,8 +38,7 @@ const PublicRoutes = () => (
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
-  
- 
+
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 

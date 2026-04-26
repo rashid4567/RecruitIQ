@@ -19,10 +19,18 @@ export class MongooseJobPostRepository implements JobPostRepository {
       preferredSkills: jobPost.getPreferredSkills(),
       experienceMin: jobPost.getExperienceMin(),
       experienceMax: jobPost.getExperienceMax(),
-      location: jobPost.getLocation(),
+      location: {
+        city: jobPost.getLocation().city,
+        state: jobPost.getLocation().state,
+        country: jobPost.getLocation().country,
+      },
       isRemote: jobPost.getIsRemote(),
       jobType: jobPost.getJobType(),
-      salary: jobPost.getSalary(),
+      salary: {
+        min: jobPost.getSalary().min,
+        max: jobPost.getSalary().max,
+        currency: jobPost.getSalary().currency,
+      },
       department: jobPost.getDepartment(),
       positions: jobPost.getPositions(),
       visibility: jobPost.getVisibility(),
@@ -65,10 +73,18 @@ export class MongooseJobPostRepository implements JobPostRepository {
           preferredSkills: jobPost.getPreferredSkills(),
           experienceMin: jobPost.getExperienceMin(),
           experienceMax: jobPost.getExperienceMax(),
-          location: jobPost.getLocation(),
+          location: {
+            city: jobPost.getLocation().city,
+            state: jobPost.getLocation().state,
+            country: jobPost.getLocation().country,
+          },
           isRemote: jobPost.getIsRemote(),
           jobType: jobPost.getJobType(),
-          salary: jobPost.getSalary(),
+          salary: {
+            min: jobPost.getSalary().min,
+            max: jobPost.getSalary().max,
+            currency: jobPost.getSalary().currency,
+          },
           department: jobPost.getDepartment(),
           positions: jobPost.getPositions(),
           visibility: jobPost.getVisibility(),
@@ -76,6 +92,7 @@ export class MongooseJobPostRepository implements JobPostRepository {
           status: jobPost.getStatus(),
           views: jobPost.getViews(),
           applicationsCount: jobPost.getApplicationsCount(),
+          isDeleted: jobPost.getIsDeleted(),
           postedOn: jobPost.getPostedOn(),
           expiresAt: jobPost.getExpiresAt(),
           externalLink: jobPost.getExternalLink(),
@@ -91,10 +108,50 @@ export class MongooseJobPostRepository implements JobPostRepository {
     return this.toEntity(doc);
   }
 
+  async publish(id: string): Promise<JobPost> {
+    const doc = await JobPostModel.findOneAndUpdate(
+      {
+        _id: id,
+        isDeleted: false,
+        isBlocked: false,
+        status: "draft",          
+      },
+      {
+        $set: {
+          status: "active",
+          postedOn: new Date(),
+        },
+      },
+      { new: true },
+    );
+
+    if (!doc) {
+
+      const existing = await JobPostModel.findOne({ _id: id, isDeleted: false });
+
+      if (!existing) {
+        throw new DomainError(ERROR_CODES.JOB_POST_NOT_FOUND);
+      }
+      if (existing.isBlocked) {
+        throw new DomainError(ERROR_CODES.CANNOT_UPDATE_BLOCKED);
+      }
+      if (existing.status === "expired") {
+        throw new DomainError(ERROR_CODES.CANNOT_UPDATE_EXPIRED);
+      }
+      if (existing.status === "active") {
+        throw new DomainError(ERROR_CODES.JOB_ALREADY_PUBLISHED);
+      }
+
+      throw new DomainError(ERROR_CODES.JOB_POST_NOT_FOUND);
+    }
+
+    return this.toEntity(doc);
+  }
+
   async delete(id: string): Promise<void> {
     const result = await JobPostModel.findOneAndUpdate(
       { _id: id, isDeleted: false },
-      { $set: { isDeleted: true } },
+      { $set: { isDeleted: true, visibility: "hidden" } },
       { new: true },
     );
 
@@ -115,10 +172,18 @@ export class MongooseJobPostRepository implements JobPostRepository {
       preferredSkills: doc.preferredSkills,
       experienceMin: doc.experienceMin,
       experienceMax: doc.experienceMax,
-      location: doc.location,
+      location: {
+        city: doc.location.city,
+        state: doc.location.state,
+        country: doc.location.country,
+      },
       isRemote: doc.isRemote,
       jobType: doc.jobType,
-      salary: doc.salary,
+      salary: {
+        min: doc.salary.min,
+        max: doc.salary.max,
+        currency: doc.salary.currency,
+      },
       department: doc.department,
       positions: doc.positions,
       visibility: doc.visibility,

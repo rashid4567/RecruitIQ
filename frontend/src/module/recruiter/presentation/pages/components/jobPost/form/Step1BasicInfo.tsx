@@ -1,8 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { MapPin, Building2, Users, Briefcase } from "lucide-react";
+import { MapPin, Users, Briefcase, Building2, Globe, ChevronDown, Check, Wifi } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
 
 interface Props {
@@ -11,118 +10,364 @@ interface Props {
   errors: Record<string, string>;
 }
 
+const departments = [
+  "Engineering",
+  "Product",
+  "Design",
+  "Marketing",
+  "Sales",
+  "Data Science",
+  "HR",
+  "Finance",
+  "Operations",
+];
+
+const jobTypes = [
+  { value: "full-time", label: "Full-time", emoji: "💼", color: "indigo" },
+  { value: "part-time", label: "Part-time", emoji: "⏰", color: "violet" },
+  { value: "contract", label: "Contract", emoji: "📝", color: "amber" },
+  { value: "internship", label: "Internship", emoji: "🎓", color: "emerald" },
+] as const;
+
+function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+  return (
+    <label className="text-sm font-semibold text-gray-700 flex items-center gap-1 mb-2">
+      {children}
+      {required && <span className="text-red-400 ml-0.5">*</span>}
+    </label>
+  );
+}
+
+function ErrorMsg({ msg }: { msg?: string }) {
+  if (!msg) return null;
+  return (
+    <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1.5 font-medium">
+      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-500 flex-shrink-0 text-[10px] font-bold">!</span>
+      {msg}
+    </p>
+  );
+}
+
+function DepartmentDropdown({
+  value,
+  onChange,
+  error,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      setSearch("");
+      setTimeout(() => searchRef.current?.focus(), 50);
+    }
+  }, [open]);
+
+  const filtered = departments.filter((d) =>
+    d.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`w-full h-12 px-4 flex items-center justify-between rounded-xl border-2 bg-white text-left transition-all duration-200 ${
+          open
+            ? "border-indigo-500 ring-4 ring-indigo-50 shadow-sm"
+            : error
+            ? "border-red-400 bg-red-50/50"
+            : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+        }`}
+      >
+        <span className={`flex items-center gap-2.5 text-sm ${value ? "text-gray-900 font-medium" : "text-gray-400"}`}>
+          <Building2 className={`w-4 h-4 flex-shrink-0 ${value ? "text-indigo-500" : "text-gray-300"}`} />
+          {value || "Select department"}
+        </span>
+        <ChevronDown
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div
+          className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-2xl shadow-2xl shadow-gray-200/80 overflow-hidden"
+          style={{ animation: "dropdownIn 0.15s ease-out" }}
+        >
+          {/* Search */}
+          <div className="p-3 border-b border-gray-50">
+            <input
+              ref={searchRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search departments..."
+              className="w-full h-9 px-3 text-sm rounded-lg bg-gray-50 border border-gray-100 outline-none focus:border-indigo-300 focus:bg-white transition-all placeholder:text-gray-400"
+            />
+          </div>
+          <div className="p-2 max-h-56 overflow-y-auto">
+            {filtered.length === 0 ? (
+              <p className="text-center text-gray-400 text-sm py-4">No departments found</p>
+            ) : (
+              filtered.map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => {
+                    onChange(d);
+                    setOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all duration-100 ${
+                    value === d
+                      ? "bg-indigo-50 text-indigo-700 font-semibold"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    {value === d && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 flex-shrink-0" />}
+                    {d}
+                  </span>
+                  {value === d && <Check className="w-4 h-4 text-indigo-500" strokeWidth={2.5} />}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      <ErrorMsg msg={error} />
+      <style>{`
+        @keyframes dropdownIn {
+          from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export default function Step1BasicInfo({ formData, setFormData, errors }: Props) {
   return (
     <div className="space-y-8">
+      {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Basic Information</h2>
-        <p className="text-gray-500 mt-1">Start with the core details of this position</p>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <Briefcase className="w-4 h-4 text-indigo-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Basic Information</h2>
+        </div>
+        <p className="text-gray-500 text-sm ml-10">Start with the core details of this position</p>
       </div>
 
       <div className="space-y-6">
         {/* Job Title */}
         <div>
-          <Label>Job Title <span className="text-red-500">*</span></Label>
+          <FieldLabel required>Job Title</FieldLabel>
           <Input
             value={formData.title}
             onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
             placeholder="e.g., Senior Software Engineer (Backend)"
-            className={`h-12 ${errors.title ? "border-red-500 focus:border-red-500 ring-red-200" : ""}`}
+            className={`h-12 rounded-xl border-2 text-sm font-medium transition-all duration-200 focus:ring-4 focus:ring-indigo-50 placeholder:text-gray-300 placeholder:font-normal ${
+              errors.title
+                ? "border-red-400 bg-red-50/50 focus:border-red-400"
+                : "border-gray-200 focus:border-indigo-500"
+            }`}
           />
-          {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+          <ErrorMsg msg={errors.title} />
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          {/* Department */}
+        {/* Department + Positions */}
+        <div className="grid grid-cols-2 gap-5">
           <div>
-            <Label>Department <span className="text-red-500">*</span></Label>
-            <Select value={formData.department} onValueChange={(v) => setFormData((p) => ({ ...p, department: v }))}>
-              <SelectTrigger className={`h-12 mt-2 ${errors.department ? "border-red-500" : ""}`}>
-                <SelectValue placeholder="Select department" />
-              </SelectTrigger>
-              <SelectContent>
-                {["Engineering", "Product", "Design", "Marketing", "Sales", "Data Science", "HR", "Finance", "Operations"].map((d) => (
-                  <SelectItem key={d} value={d}>{d}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.department && <p className="text-red-500 text-sm mt-1">{errors.department}</p>}
+            <FieldLabel required>Department</FieldLabel>
+            <DepartmentDropdown
+              value={formData.department}
+              onChange={(v) => setFormData((p) => ({ ...p, department: v }))}
+              error={errors.department}
+            />
           </div>
 
-          {/* Positions */}
           <div>
-            <Label>Number of Positions <span className="text-red-500">*</span></Label>
-            <Input
-              type="number"
-              min={1}
-              value={formData.positions}
-              onChange={(e) => setFormData((p) => ({ ...p, positions: parseInt(e.target.value) || 1 }))}
-              className={`h-12 mt-2 ${errors.positions ? "border-red-500" : ""}`}
-            />
-            {errors.positions && <p className="text-red-500 text-sm mt-1">{errors.positions}</p>}
+            <FieldLabel required>
+              <Users className="w-3.5 h-3.5" /> Number of Openings
+            </FieldLabel>
+            <div className="relative">
+              <Input
+                type="number"
+                min={1}
+                max={99}
+                value={formData.positions}
+                onChange={(e) =>
+                  setFormData((p) => ({ ...p, positions: parseInt(e.target.value) || 1 }))
+                }
+                className={`h-12 rounded-xl border-2 text-sm font-medium transition-all duration-200 focus:ring-4 focus:ring-indigo-50 pr-16 ${
+                  errors.positions
+                    ? "border-red-400 bg-red-50/50"
+                    : "border-gray-200 focus:border-indigo-500"
+                }`}
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium pointer-events-none">
+                {formData.positions === 1 ? "seat" : "seats"}
+              </span>
+            </div>
+            <ErrorMsg msg={errors.positions} />
           </div>
         </div>
 
         {/* Employment Type */}
         <div>
-          <Label>Employment Type <span className="text-red-500">*</span></Label>
-          <div className="grid grid-cols-4 gap-3 mt-2">
-            {(["full-time", "part-time", "contract", "internship"] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setFormData((p) => ({ ...p, jobType: t }))}
-                className={`py-3 px-4 rounded-xl border-2 capitalize transition-all ${
-                  formData.jobType === t
-                    ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                {t.replace("-", " ")}
-              </button>
-            ))}
+          <FieldLabel required>
+            <Briefcase className="w-3.5 h-3.5" /> Employment Type
+          </FieldLabel>
+          <div className="grid grid-cols-4 gap-3">
+            {jobTypes.map((t) => {
+              const isSelected = formData.jobType === t.value;
+              const colorClasses: Record<string, { active: string; inactive: string }> = {
+                indigo: {
+                  active: "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-md shadow-indigo-100",
+                  inactive: "border-gray-200 text-gray-500 hover:border-indigo-300 hover:bg-indigo-50/40 hover:text-indigo-600",
+                },
+                violet: {
+                  active: "border-violet-500 bg-violet-50 text-violet-700 shadow-md shadow-violet-100",
+                  inactive: "border-gray-200 text-gray-500 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-600",
+                },
+                amber: {
+                  active: "border-amber-500 bg-amber-50 text-amber-700 shadow-md shadow-amber-100",
+                  inactive: "border-gray-200 text-gray-500 hover:border-amber-300 hover:bg-amber-50/40 hover:text-amber-600",
+                },
+                emerald: {
+                  active: "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-md shadow-emerald-100",
+                  inactive: "border-gray-200 text-gray-500 hover:border-emerald-300 hover:bg-emerald-50/40 hover:text-emerald-600",
+                },
+              };
+              const cls = colorClasses[t.color];
+              return (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => setFormData((p) => ({ ...p, jobType: t.value }))}
+                  className={`flex flex-col items-center py-3.5 px-2 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
+                    isSelected ? cls.active : cls.inactive
+                  }`}
+                >
+                  <span className="text-lg mb-1">{t.emoji}</span>
+                  {t.label}
+                  {isSelected && (
+                    <span className="mt-1 w-1.5 h-1.5 rounded-full bg-current opacity-60" />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Location */}
-        <div className="space-y-4 p-5 bg-gray-50 rounded-2xl">
-          <Label className="text-base">Location Details <span className="text-red-500">*</span></Label>
-          <div className="grid grid-cols-3 gap-4">
-            {["city", "state", "country"].map((field) => (
+        <div className="p-5 bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl border border-gray-100">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
+              <MapPin className="w-3.5 h-3.5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-800">
+                Job Location <span className="text-red-400">*</span>
+              </p>
+              <p className="text-xs text-gray-400">Where will this role be based?</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {(["city", "state", "country"] as const).map((field) => (
               <div key={field}>
-                <Label className="text-sm capitalize">{field}</Label>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-widest block mb-1.5">
+                  {field}
+                </label>
                 <Input
-                  value={formData.location[field as keyof typeof formData.location]}
+                  value={formData.location[field]}
                   onChange={(e) =>
                     setFormData((p) => ({
                       ...p,
                       location: { ...p.location, [field]: e.target.value },
                     }))
                   }
-                  className={`mt-1 ${errors[`location.${field}`] ? "border-red-500" : ""}`}
-                  placeholder={`Enter ${field}`}
+                  placeholder={field === "city" ? "Mumbai" : field === "state" ? "Maharashtra" : "India"}
+                  className={`h-11 rounded-xl border-2 bg-white text-sm transition-all duration-200 focus:ring-4 focus:ring-blue-50 placeholder:text-gray-300 ${
+                    errors[`location.${field}`]
+                      ? "border-red-400 bg-red-50/50"
+                      : "border-gray-200 focus:border-blue-400"
+                  }`}
                 />
-                {errors[`location.${field}`] && (
-                  <p className="text-red-500 text-sm mt-1">{errors[`location.${field}`]}</p>
-                )}
+                <ErrorMsg msg={errors[`location.${field}`]} />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Remote Work */}
-        <div className="flex items-center justify-between p-5 bg-gray-50 rounded-2xl">
-          <div className="flex items-center gap-3">
-            <MapPin className="w-5 h-5 text-indigo-600" />
-            <div>
-              <p className="font-medium">Allow Remote Work</p>
-              <p className="text-sm text-gray-500">Candidates can work from anywhere</p>
+        {/* Remote Work Toggle — FIXED */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setFormData((p) => ({ ...p, isRemote: !p.isRemote }))}
+            className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-300 text-left ${
+              formData.isRemote
+                ? "border-emerald-400 bg-gradient-to-r from-emerald-50 to-teal-50"
+                : "border-gray-200 bg-gray-50/50 hover:border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                  formData.isRemote ? "bg-emerald-100 scale-105" : "bg-gray-100"
+                }`}
+              >
+                {formData.isRemote ? (
+                  <Wifi className="w-5 h-5 text-emerald-600" />
+                ) : (
+                  <Globe className="w-5 h-5 text-gray-400" />
+                )}
+              </div>
+              <div>
+                <p className={`font-semibold text-sm transition-colors duration-300 ${
+                  formData.isRemote ? "text-emerald-800" : "text-gray-700"
+                }`}>
+                  Remote Work Available
+                </p>
+                <p className={`text-xs mt-0.5 transition-colors duration-300 ${
+                  formData.isRemote ? "text-emerald-600" : "text-gray-400"
+                }`}>
+                  {formData.isRemote
+                    ? "Candidates can work from anywhere in the world"
+                    : "On-site presence required at the specified location"}
+                </p>
+              </div>
             </div>
-          </div>
-          <Switch
-            checked={formData.isRemote}
-            onCheckedChange={(c) => setFormData((p) => ({ ...p, isRemote: c }))}
-          />
+
+            {/* Custom Toggle */}
+            <div
+              className={`relative w-12 h-6 rounded-full transition-all duration-300 flex-shrink-0 ${
+                formData.isRemote ? "bg-emerald-500" : "bg-gray-300"
+              }`}
+            >
+              <div
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-300 ${
+                  formData.isRemote ? "left-7" : "left-1"
+                }`}
+              />
+            </div>
+          </button>
         </div>
       </div>
     </div>

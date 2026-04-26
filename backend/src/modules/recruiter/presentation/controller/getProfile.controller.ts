@@ -8,7 +8,7 @@ export class GetRecruiterProfileController {
 
   getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("user :", req.user);
+      
       const userId = userIdSchema.parse(req.user?.userId);
       if (!userId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({

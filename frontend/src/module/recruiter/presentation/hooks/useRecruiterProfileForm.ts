@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +6,10 @@ import type { Path, PathValue } from "react-hook-form";
 
 import { RecruiterProfile } from "@/module/recruiter/Domain/entities/recruiterEntities";
 import { updateRecruiterUc } from "../di/recruiter.di";
-import { profileSchema, type ProfileFormData } from "../validators/recruiter-form.validator";
+import {
+  profileSchema,
+  type ProfileFormData,
+} from "../validators/recruiter-form.validator";
 import { RecruiterProfileFormMapper } from "../mappers/recruiterForm.mapper";
 
 interface UseRecruiterProfileFormProps {
@@ -20,7 +22,7 @@ export function useRecruiterProfileForm({
   onProfileUpdated,
 }: UseRecruiterProfileFormProps) {
   const form = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema) as Resolver<ProfileFormData>, 
+    resolver: zodResolver(profileSchema) as Resolver<ProfileFormData>,
     mode: "onChange",
     defaultValues: {
       fullName: "",
@@ -51,32 +53,23 @@ export function useRecruiterProfileForm({
   const currentName = watch("fullName");
 
   const bioLength = currentBio?.length ?? 0;
+
   const wordCount = useMemo(() => {
     return currentBio?.trim()
       ? currentBio.trim().split(/\s+/).filter(Boolean).length
       : 0;
   }, [currentBio]);
 
-  // ← Remove explicit (data: ProfileFormData) annotation — let handleSubmit infer it
   const submit = handleSubmit(async (data) => {
-    if (!profile) return;
-
     try {
-      const updatedEntity = profile.updateProfile({
-        fullName: data.fullName.trim(),
-        companyName: data.companyName.trim(),
-        companyWebsite: data.companyWebsite?.trim() || undefined,
-        companySize: Number(data.companySize),
-        industry: data.industry,
-        location: data.location?.trim() || undefined,
-        bio: data.bio.trim(),
-        designation: data.designation.trim(),
-        linkedinUrl: data.linkedinUrl?.trim() || undefined,
-      });
+      const payload = RecruiterProfileFormMapper.toApi(data);
 
-      const savedProfile = await updateRecruiterUc.execute(updatedEntity);
+      console.log("Sending payload:", payload);
+
+      const savedProfile = await updateRecruiterUc.execute(payload);
 
       reset(RecruiterProfileFormMapper.toForm(savedProfile));
+
       onProfileUpdated?.(savedProfile);
 
       toast.success("Profile updated successfully!", {
@@ -84,8 +77,12 @@ export function useRecruiterProfileForm({
       });
     } catch (error: any) {
       console.error("Profile update error:", error);
+
       toast.error("Failed to update profile", {
-        description: error?.message || "Please try again later.",
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Please try again later.",
       });
     }
   });
@@ -98,9 +95,12 @@ export function useRecruiterProfileForm({
 
   const updateField = <TField extends Path<ProfileFormData>>(
     key: TField,
-    value: PathValue<ProfileFormData, TField>
+    value: PathValue<ProfileFormData, TField>,
   ) => {
-    setValue(key, value, { shouldValidate: true, shouldDirty: true });
+    setValue(key, value, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   return {

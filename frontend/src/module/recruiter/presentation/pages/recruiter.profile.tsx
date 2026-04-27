@@ -2,19 +2,17 @@ import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Shield, Bell, CreditCard, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import RecruiterHeader from "@/components/recruiter/header";
-import { Sidebar } from "@/components/sidebar/recruiterSidebar";
+
+
+import Sidebar from "../pages/components/layout/Sidebar";
+import Header from "../../../../pages/landing/sections/Header";
 import { RecruiterProfileSection } from "./components/Recruiter-profile/ProfileSection";
+
 import { NotificationsSection } from "./profileSeting/NotificationsSection";
 import { BillingSection } from "./profileSeting/BillingSection";
+
 import { GetRecruiterProfileUc } from "../di/recruiter.di";
 import type { RecruiterProfile } from "@/module/recruiter/Domain/entities/recruiterEntities";
 import { SecuritySection } from "./components/SecuritySection/SecuritySection";
@@ -75,6 +73,9 @@ export default function RecruiterSettingsPage() {
     }
   };
 
+  // ────────────────────────────────────────────────
+  // Loading
+  // ────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50/60">
@@ -86,7 +87,9 @@ export default function RecruiterSettingsPage() {
     );
   }
 
-  
+  // ────────────────────────────────────────────────
+  // Error state
+  // ────────────────────────────────────────────────
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50/60 p-4">
@@ -105,16 +108,19 @@ export default function RecruiterSettingsPage() {
     );
   }
 
+
   return (
     <div className="min-h-screen bg-slate-50/70">
-      <RecruiterHeader />
+      <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Left column - Sidebar */}
           <div className="lg:col-span-3">
             <div className="lg:sticky lg:top-8">
-              <Sidebar profile={profile} userStats={userStats} />
+              <Sidebar
+                
+              />
             </div>
           </div>
 
@@ -129,11 +135,7 @@ export default function RecruiterSettingsPage() {
               </CardHeader>
 
               <CardContent>
-                <Tabs
-                  value={activeTab}
-                  onValueChange={setActiveTab}
-                  className="space-y-6"
-                >
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                   {/* Horizontal Tabs */}
                   <TabsList className="inline-flex h-14 items-center justify-start rounded-lg bg-muted/60 p-1 text-muted-foreground w-full overflow-x-auto scrollbar-thin">
                     {settingsTabs.map((tab) => {
@@ -154,17 +156,11 @@ export default function RecruiterSettingsPage() {
                   {/* Tab content wrapper */}
                   <div className="pt-2">
                     {/* Profile */}
-                    <TabsContent
-                      value="profile"
-                      className="mt-0 space-y-6 focus-visible:outline-none"
-                    >
+                    <TabsContent value="profile" className="mt-0 space-y-6 focus-visible:outline-none">
                       <div>
                         <h2 className="text-xl font-semibold">Profile</h2>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {
-                            settingsTabs.find((t) => t.value === "profile")
-                              ?.description
-                          }
+                          {settingsTabs.find(t => t.value === "profile")?.description}
                         </p>
                         <Separator className="my-5" />
                         <RecruiterProfileSection />
@@ -172,17 +168,11 @@ export default function RecruiterSettingsPage() {
                     </TabsContent>
 
                     {/* Security */}
-                    <TabsContent
-                      value="security"
-                      className="mt-0 space-y-6 focus-visible:outline-none"
-                    >
+                    <TabsContent value="security" className="mt-0 space-y-6 focus-visible:outline-none">
                       <div>
                         <h2 className="text-xl font-semibold">Security</h2>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {
-                            settingsTabs.find((t) => t.value === "security")
-                              ?.description
-                          }
+                          {settingsTabs.find(t => t.value === "security")?.description}
                         </p>
                         <Separator className="my-5" />
                         <SecuritySection />
@@ -190,18 +180,11 @@ export default function RecruiterSettingsPage() {
                     </TabsContent>
 
                     {/* Notifications */}
-                    <TabsContent
-                      value="notifications"
-                      className="mt-0 space-y-6 focus-visible:outline-none"
-                    >
+                    <TabsContent value="notifications" className="mt-0 space-y-6 focus-visible:outline-none">
                       <div>
                         <h2 className="text-xl font-semibold">Notifications</h2>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {
-                            settingsTabs.find(
-                              (t) => t.value === "notifications",
-                            )?.description
-                          }
+                          {settingsTabs.find(t => t.value === "notifications")?.description}
                         </p>
                         <Separator className="my-5" />
                         <NotificationsSection />
@@ -209,19 +192,11 @@ export default function RecruiterSettingsPage() {
                     </TabsContent>
 
                     {/* Billing */}
-                    <TabsContent
-                      value="billing"
-                      className="mt-0 space-y-6 focus-visible:outline-none"
-                    >
+                    <TabsContent value="billing" className="mt-0 space-y-6 focus-visible:outline-none">
                       <div>
-                        <h2 className="text-xl font-semibold">
-                          Billing & Plan
-                        </h2>
+                        <h2 className="text-xl font-semibold">Billing & Plan</h2>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {
-                            settingsTabs.find((t) => t.value === "billing")
-                              ?.description
-                          }
+                          {settingsTabs.find(t => t.value === "billing")?.description}
                         </p>
                         <Separator className="my-5" />
                         <BillingSection />

@@ -314,7 +314,7 @@ export function useCreateJobPost() {
     draftSavedSuccessfully,
     savedDraftId: savedDraftId.current,
     handleNavigateAway,
-    handleNext,          // ← returns errors map
+    handleNext,        
     handlePrevious,
     saveDraft,
     dismissSaveDraftModal,

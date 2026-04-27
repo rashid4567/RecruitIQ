@@ -73,9 +73,7 @@ export default function RecruiterSettingsPage() {
     }
   };
 
-  // ────────────────────────────────────────────────
-  // Loading
-  // ────────────────────────────────────────────────
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50/60">
@@ -87,9 +85,7 @@ export default function RecruiterSettingsPage() {
     );
   }
 
-  // ────────────────────────────────────────────────
-  // Error state
-  // ────────────────────────────────────────────────
+
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50/60 p-4">

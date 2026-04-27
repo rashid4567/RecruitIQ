@@ -19,7 +19,6 @@ interface PersonalInfoFormProps {
   touchedFields: Record<string, boolean>;
   isEditing: boolean;
   profile?: any;
-  // New props for email update modal
   onUpdateEmailClick: () => void;
   currentEmail?: string;
 }
@@ -102,7 +101,7 @@ export function PersonalInfoForm({
               type="button"
               onClick={onUpdateEmailClick}
               className="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-3 text-xs font-medium bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 transition-all flex items-center gap-1.5 shadow-sm"
-              disabled={!isEditing} // Optional: only show when editing
+              disabled={!isEditing} 
             >
               <Edit3 className="h-3.5 w-3.5" />
               Update

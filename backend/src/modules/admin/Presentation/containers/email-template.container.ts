@@ -8,12 +8,12 @@ import { UpdateEmailTemplateUseCase } from "../../Application/use-Cases/email-te
 import { EmailTemplateRepository } from "../../Domain/repositories/email-template.repository";
 import { MongooseEmailTemplateRepository } from "../../Infrastructure/repositories/email-template.repository";
 import { NodemailerEmailService } from "../../Infrastructure/services/nodemailer-email.service";
-import { CreateEmailTemplateController } from "../controller/email-template.mangment/create-email-template.controller";
-import { DeleteEmailTemplateController } from "../controller/email-template.mangment/delete-email-template.controller";
-import { ListEmailTemplateController } from "../controller/email-template.mangment/list-emil.template.controller";
-import { SendTestEmailController } from "../controller/email-template.mangment/send-test-email.controller";
-import { ToggleEmailTemplateController } from "../controller/email-template.mangment/toggle-Email.template.controller";
-import { UpdateEmailTemplateController } from "../controller/email-template.mangment/update-email-Template.controller";
+import { CreateEmailTemplateController } from "../controller/email-template.management/create-email-template.controller";
+import { DeleteEmailTemplateController } from "../controller/email-template.management/delete-email-template.controller";
+import { ListEmailTemplateController } from "../controller/email-template.management/list-emil.template.controller";
+import { SendTestEmailController } from "../controller/email-template.management/send-test-email.controller";
+import { ToggleEmailTemplateController } from "../controller/email-template.management/toggle-Email.template.controller";
+import { UpdateEmailTemplateController } from "../controller/email-template.management/update-email-Template.controller";
 
 const emailService = new NodemailerEmailService();
 

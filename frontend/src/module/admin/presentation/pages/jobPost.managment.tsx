@@ -4,12 +4,12 @@ import Sidebar from "@/components/admin/sideBar";
 import type { JobPostEntity } from "../../domain/entities/jobpost.entity";
 import { useAllJobPosts } from "../hooks/jobPost-Hooks/useAllJobpost";
 import { useUpdateJobPostStatus } from "../hooks/jobPost-Hooks/Useupdatejobpoststatus";
-import { JobPostHeader } from "../components/jobPost.managment/Jobpostheader";
-import { JobPostFilters } from "../components/jobPost.managment/Jobpostfilters";
-import { EmptyState } from "../components/jobPost.managment/Emptystate";
-import { JobPostTable } from "../components/jobPost.managment/Jobposttable";
-import { JobPostDetailModal } from "../components/jobPost.managment/Jobpostdetailmodal";
-import { BlockConfirmDialog } from "../components/jobPost.managment/Blockconfirmdialog";
+import { JobPostHeader } from "../components/jobPost.management/Jobpostheader";
+import { JobPostFilters } from "../components/jobPost.management/Jobpostfilters";
+import { EmptyState } from "../components/jobPost.management/Emptystate";
+import { JobPostTable } from "../components/jobPost.management/Jobposttable";
+import { JobPostDetailModal } from "../components/jobPost.management/Jobpostdetailmodal";
+import { BlockConfirmDialog } from "../components/jobPost.management/Blockconfirmdialog";
 
 const LIMIT = 10;
 

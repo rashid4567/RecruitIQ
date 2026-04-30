@@ -1,16 +1,18 @@
+import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { JobPost } from "../../../domain/entities/job-post.entity";
 import { JobPostRepository } from "../../../domain/repositories/JobPostRepository";
+import { ERROR_CODES } from "../../constants/error.code.constants";
 
 export class GetJobPostByIdUseCase{
     constructor(private readonly jobPostRepo : JobPostRepository){};
 
     async execute(id : string, recruiterId : string):Promise<JobPost>{
         if(!id){
-            throw new Error("Job ID is required")
+            throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND)
         }
 
         if(!recruiterId){
-            throw new Error("Unauthorized")
+            throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND)
         }
 
         const jobPost = await this.jobPostRepo.findById(id);

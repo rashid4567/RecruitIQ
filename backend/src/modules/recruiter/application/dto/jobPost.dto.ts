@@ -1,4 +1,4 @@
-import { JobType } from "../../domain/entities/job-post.entity";
+import { JobStatus, JobType } from "../../domain/entities/job-post.entity";
 
 export interface LocationDTO {
   city?: string;
@@ -44,6 +44,7 @@ export interface UpdateJobPostDTO {
   isRemote?: boolean;
   jobType?: JobType;
   salary?: SalaryDTO;
+  status ?: JobStatus;
   department?: string;
   positions?: number;
   expiresAt?: Date;

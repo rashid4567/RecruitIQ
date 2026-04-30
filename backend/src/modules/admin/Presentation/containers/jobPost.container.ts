@@ -1,12 +1,12 @@
-import { GetAllJobPostsUseCase } from "../../Application/use-Cases/jobPost-mangment/getAll-JobPost.useCase";
-import { GetJobPostByIdUseCase } from "../../Application/use-Cases/jobPost-mangment/getJobPostById.useCase";
-import { BlockJobPostUseCase, UnblockJobPostUseCase } from "../../Application/use-Cases/jobPost-mangment/update-JobPost.status.usecase";
+import { GetAllJobPostsUseCase } from "../../Application/use-Cases/jobPost-management/getAll-JobPost.useCase";
+import { GetJobPostByIdUseCase } from "../../Application/use-Cases/jobPost-management/getJobPostById.useCase";
+import { BlockJobPostUseCase, UnblockJobPostUseCase } from "../../Application/use-Cases/jobPost-management/update-JobPost.status.usecase";
 import { JobPostRepostory } from "../../Domain/repositories/jobPost-repository";
 import { MongooseJobPostRepository } from "../../Infrastructure/repositories/mongoose-jobPost.repository";
-import { BlockJobPostController } from "../controller/jobPost-mangment/blockJobPost.controller";
-import { GetAllJobPostController } from "../controller/jobPost-mangment/getAllJobPost.controller";
-import { GetJobPostByIdController } from "../controller/jobPost-mangment/getJobPostById.controller";
-import { UnblockJobPostController } from "../controller/jobPost-mangment/unblock.JobPost.controller";
+import { BlockJobPostController } from "../controller/jobPost-management/blockJobPost.controller";
+import { GetAllJobPostController } from "../controller/jobPost-management/getAllJobPost.controller";
+import { GetJobPostByIdController } from "../controller/jobPost-management/getJobPostById.controller";
+import { UnblockJobPostController } from "../controller/jobPost-management/unblock.JobPost.controller";
 
 const JobPostRepo : JobPostRepostory = new MongooseJobPostRepository();
 

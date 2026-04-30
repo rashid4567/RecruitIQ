@@ -2,8 +2,8 @@
 
 
 
-import { GetCandidateListUseCase } from "../../application/useCases/candidate-managment/get-candidates.usecase";
-import { GetCandidateProfileUseCase } from "../../application/useCases/candidate-managment/getcandidate.ProfileUseCase";
+import { GetCandidateListUseCase } from "../../application/useCases/candidate-management/get-candidates.usecase";
+import { GetCandidateProfileUseCase } from "../../application/useCases/candidate-management/getcandidate.ProfileUseCase";
 
 import { ApiCandidateRepository } from "../../infrastructure/repositories/ApiCandidateRepository";
 

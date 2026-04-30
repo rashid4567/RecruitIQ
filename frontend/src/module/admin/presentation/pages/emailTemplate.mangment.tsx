@@ -5,13 +5,13 @@ import { useState } from "react";
 import Sidebar from "@/components/admin/sideBar";
 import type { EmailTemplate } from "@/module/admin/domain/entities/email-template.entity";
 import { useEmailTemplateManagement } from "../hooks/EmailTemplate.Hooks/useEmailTemplateManagement"
-import { TemplateHeader } from "../components/email-template.managment/TemplateHeader";
-import { TemplateSidebar } from "../components/email-template.managment/TemplateSidebar";
-import { TemplateList } from "../components/email-template.managment/TemplateList";
-import { TemplatePagination } from "../components/email-template.managment/TemplatePagination";
-import { TemplateDialogs } from "../components/email-template.managment/TemplateDialogs";
-import { ErrorState } from "../components/email-template.managment/ErrorState";
-import { TestEmailModal } from "../components/email-template.managment/TestEmailModal"; 
+import { TemplateHeader } from "../components/email-template.management/TemplateHeader";
+import { TemplateSidebar } from "../components/email-template.management/TemplateSidebar";
+import { TemplateList } from "../components/email-template.management/TemplateList";
+import { TemplatePagination } from "../components/email-template.management/TemplatePagination";
+import { TemplateDialogs } from "../components/email-template.management/TemplateDialogs";
+import { ErrorState } from "../components/email-template.management/ErrorState";
+import { TestEmailModal } from "../components/email-template.management/TestEmailModal"; 
 
 export default function EmailTemplateManagement() {
   const navigate = useNavigate();

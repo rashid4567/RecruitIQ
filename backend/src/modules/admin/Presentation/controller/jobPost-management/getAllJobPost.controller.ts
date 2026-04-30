@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { GetAllJobPostsUseCase } from "../../../Application/use-Cases/jobPost-mangment/getAll-JobPost.useCase";
+import { GetAllJobPostsUseCase } from "../../../Application/use-Cases/jobPost-management/getAll-JobPost.useCase";
 import { JobStatus, JobType } from "../../../Domain/entities/jobPost-entity";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { SortField } from "../../../Domain/repositories/jobPost-repository";

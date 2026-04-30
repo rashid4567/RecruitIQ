@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { BlockJobPostUseCase } from "../../../Application/use-Cases/jobPost-mangment/update-JobPost.status.usecase";
+import { BlockJobPostUseCase } from "../../../Application/use-Cases/jobPost-management/update-JobPost.status.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 

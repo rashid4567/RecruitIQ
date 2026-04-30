@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { GetJobPostByIdUseCase } from "../../../Application/use-Cases/jobPost-mangment/getJobPostById.useCase";
+import { GetJobPostByIdUseCase } from "../../../Application/use-Cases/jobPost-management/getJobPostById.useCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 

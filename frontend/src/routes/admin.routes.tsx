@@ -25,6 +25,8 @@ const CandidateProfile = lazy(
   () => import("../module/admin/presentation/pages/candidateProfile"),
 );
 
+const PlanController = lazy(()=> import("../module/admin/presentation/pages/plan-controller.tsx"))
+const PlanEditor = lazy(()=> import("../module/admin/presentation/pages/subscription.plan.tsx"))
 const EmailTemplateManagement = lazy(()=> import("../module/admin/presentation/pages/emailTemplate.mangment"))
 
 
@@ -64,6 +66,8 @@ const AdminRoutes = () => (
           <Route path="/email-logs" element={<EmailLogs />} />
           <Route path="/activity-logs" element={<ActivityLogs/>}/>
           <Route path="/jobPosts" element={<JopPostMangment/>}/>
+          <Route path="/plans" element={<PlanController/>}/>
+          <Route path="/plans/create" element={<PlanEditor/>}/>
         </Route>
       </Route>
     </Routes>

@@ -8,13 +8,13 @@ import {
   DeleteEmailTemplateUC,
   ToggleEmailTempleteUC,
   sendTestEmailUC,
-} from "../di/email-template.di";
+} from "../../di/email-template.di";
 
 import {
   testEmailSchema,
   deleteTemplateSchema,
   toggleTemplateSchema,
-} from "../validaton/emailTemplateManagement.schema";
+} from "../../validaton/emailTemplateManagement.schema";
 
 export function useEmailTemplateManagement() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);

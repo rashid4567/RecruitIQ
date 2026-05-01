@@ -68,6 +68,7 @@ const AdminRoutes = () => (
           <Route path="/jobPosts" element={<JopPostMangment/>}/>
           <Route path="/plans" element={<PlanController/>}/>
           <Route path="/plans/create" element={<PlanEditor/>}/>
+          <Route path="/plans/edit/:id"  element={<PlanEditor/>}/>
         </Route>
       </Route>
     </Routes>

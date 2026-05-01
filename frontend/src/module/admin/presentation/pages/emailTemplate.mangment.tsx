@@ -92,7 +92,7 @@ export default function EmailTemplateManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex">
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
@@ -104,7 +104,7 @@ export default function EmailTemplateManagement() {
 
             {!error && (
               <div className="grid lg:grid-cols-12 gap-7">
-                {/* Categories Sidebar */}
+           
                 <div className="lg:col-span-3">
                   <TemplateSidebar
                     activeCategory={activeCategory}
@@ -112,7 +112,7 @@ export default function EmailTemplateManagement() {
                   />
                 </div>
 
-                {/* Main Content */}
+         
                 <div className="lg:col-span-9 space-y-6">
                   <TemplateList
                     loading={loading}
@@ -141,7 +141,6 @@ export default function EmailTemplateManagement() {
           </div>
         </main>
 
-        {/* Dialogs */}
         <TemplateDialogs
           deleteId={deleteId}
           toggleTemplate={toggleTemplate}
@@ -150,8 +149,6 @@ export default function EmailTemplateManagement() {
           onDeleteConfirm={executeDelete}
           onToggleConfirm={executeToggle}
         />
-
-        {/* Test Email Modal */}
         <TestEmailModal
           isOpen={testModalOpen}
           onClose={() => {

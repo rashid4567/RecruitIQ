@@ -1,4 +1,7 @@
-import { PlanType, SubscriptionPlan } from "../entities/Subscriptionplan.entity";
+import {
+  PlanType,
+  SubscriptionPlan,
+} from "../entities/Subscriptionplan.entity";
 
 export interface PlanFilterOptions {
   isActive?: boolean;
@@ -8,7 +11,9 @@ export interface PlanFilterOptions {
 
 export interface SubscriptionPlanRepository {
   findById(id: string): Promise<SubscriptionPlan | null>;
-  findByRazorpayPlanId(razorpayPlanId: string): Promise<SubscriptionPlan | null>;
+  findByRazorpayPlanId(
+    razorpayPlanId: string,
+  ): Promise<SubscriptionPlan | null>;
   findAll(filters?: PlanFilterOptions): Promise<SubscriptionPlan[]>;
   findActivePlans(): Promise<SubscriptionPlan[]>;
   findByPlanType(planType: PlanType): Promise<SubscriptionPlan | null>;

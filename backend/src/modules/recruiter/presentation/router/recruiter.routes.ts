@@ -7,6 +7,7 @@ import {
 import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
 import { checkUserActive } from "../../../../middlewares/checkUserActive.middleware";
 import jobPostRouter from "./jobPost.routes";
+import plansRouter from "./plans.routes"
 const router = Router();
 
 router.use(authenticate);
@@ -16,5 +17,6 @@ router.get("/profile", getRecruiterProfile.getProfile);
 router.put("/profile", updaterecruiterController.updateProfile);
 router.put("/complete-profile", completeProfileController.completeProfile);
 router.use("/jobs", jobPostRouter);
-
+router.use("/plans", plansRouter)
+ 
 export default router;

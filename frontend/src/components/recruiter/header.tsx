@@ -1,4 +1,3 @@
-"use client"
 
 import { Menu, X, User, LogOut, Briefcase, LayoutDashboard } from "lucide-react"
 import { useState, useEffect } from "react"

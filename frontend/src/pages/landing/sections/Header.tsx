@@ -16,7 +16,7 @@ import { authService } from "@/services/auth/auth.service";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-// ─── Role-aware nav items ────────────────────────────────────────────────────
+
 function getNavItems(role: string | null) {
   const jobsHref =
     role === "candidate"
@@ -33,7 +33,7 @@ function getNavItems(role: string | null) {
   ];
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+
 function getInitials(name: string | null): string {
   if (!name) return "U";
   return name
@@ -60,7 +60,7 @@ function getRoleBadgeColor(role: string | null): string {
   return "bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200";
 }
 
-// ─── NavLink ─────────────────────────────────────────────────────────────────
+
 const NavLink: React.FC<{
   href: string;
   label: string;
@@ -84,7 +84,6 @@ const NavLink: React.FC<{
   </a>
 );
 
-// ─── Main Component ───────────────────────────────────────────────────────────
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -188,7 +187,7 @@ export default function Header() {
             >
               <div
                 className={cn(
-                  "w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500",
+                  "w-9 h-9 rounded-xl bg-linear-to-br from-blue-600 to-cyan-500",
                   "flex items-center justify-center shadow-md shadow-blue-500/25",
                   "group-hover:shadow-lg group-hover:shadow-cyan-500/35",
                   "transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3",
@@ -198,7 +197,7 @@ export default function Header() {
               </div>
               <span className="hidden sm:block font-bold text-[1.05rem] tracking-tight text-gray-900">
                 Recruit
-                <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                   IQ
                 </span>
               </span>
@@ -241,12 +240,12 @@ export default function Header() {
                           : "border-gray-200 hover:border-cyan-300/60 hover:bg-gray-50",
                       )}
                     >
-                      {/* Avatar with online dot */}
+                   
                       <div className="relative">
                         <Avatar className="h-7 w-7">
                           <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
                           <AvatarFallback
-                            className={cn("bg-gradient-to-br text-white text-[10px] font-bold", roleGrad)}
+                            className={cn("bg-linear-to-br text-white text-[10px] font-bold", roleGrad)}
                           >
                             {initials}
                           </AvatarFallback>
@@ -287,7 +286,7 @@ export default function Header() {
                             <div className="relative">
                               <Avatar className="h-10 w-10">
                                 <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
-                                <AvatarFallback className={cn("bg-gradient-to-br text-white font-bold text-sm", roleGrad)}>
+                                <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-sm", roleGrad)}>
                                   {initials}
                                 </AvatarFallback>
                               </Avatar>
@@ -318,7 +317,7 @@ export default function Header() {
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
                           >
                             <Avatar className="h-4 w-4 shrink-0">
-                              <AvatarFallback className={cn("bg-gradient-to-br text-white text-[8px] font-bold", roleGrad)}>
+                              <AvatarFallback className={cn("bg-linear-to-br text-white text-[8px] font-bold", roleGrad)}>
                                 {initials}
                               </AvatarFallback>
                             </Avatar>
@@ -344,16 +343,16 @@ export default function Header() {
               ) : (
                 <div className="hidden lg:flex items-center gap-2">
                   <button
-                    onClick={() => navigate("/login")}
+                    onClick={() => navigate("/signin")}
                     className="text-sm font-semibold text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100/80 transition-all duration-200"
                   >
                     Sign in
                   </button>
                   <button
-                    onClick={() => navigate("/register")}
+                    onClick={() => navigate("/signup")}
                     className={cn(
                       "px-4 py-2 text-white text-sm font-semibold rounded-xl",
-                      "bg-gradient-to-r from-blue-600 to-cyan-500",
+                      "bg-linear-to-r from-blue-600 to-cyan-500",
                       "shadow-md shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/35",
                       "transition-all duration-200 hover:scale-105 active:scale-95",
                       "flex items-center gap-1.5",
@@ -415,7 +414,7 @@ export default function Header() {
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
                       location.pathname === href
-                        ? "bg-gradient-to-r from-cyan-50 to-blue-50/50 text-cyan-700 font-semibold"
+                        ? "bg-linear-to-r from-cyan-50 to-blue-50/50 text-cyan-700 font-semibold"
                         : "text-gray-700 hover:bg-gray-50 font-medium",
                     )}
                   >
@@ -437,7 +436,7 @@ export default function Header() {
                 ))}
               </nav>
 
-              <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+              <div className="h-px bg-linear-to-r from-transparent via-gray-200 to-transparent" />
 
               {/* Auth section */}
               {isLoggedIn ? (
@@ -447,7 +446,7 @@ export default function Header() {
                     onClick={() => { navigate(getProfilePath()); setIsMenuOpen(false); }}
                     className={cn(
                       "w-full flex items-center gap-4 p-4 rounded-2xl text-left",
-                      "bg-gradient-to-br from-gray-50 to-gray-100/60",
+                      "bg-linear-to-br from-gray-50 to-gray-100/60",
                       "border border-gray-200 hover:border-cyan-300/60 hover:from-cyan-50/50 hover:to-blue-50/30",
                       "transition-all duration-200",
                     )}
@@ -455,7 +454,7 @@ export default function Header() {
                     <div className="relative">
                       <Avatar className="h-12 w-12 shrink-0">
                         <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
-                        <AvatarFallback className={cn("bg-gradient-to-br text-white font-bold text-base", roleGrad)}>
+                        <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-base", roleGrad)}>
                           {initials}
                         </AvatarFallback>
                       </Avatar>
@@ -504,7 +503,7 @@ export default function Header() {
                     onClick={() => { navigate("/register"); setIsMenuOpen(false); }}
                     className={cn(
                       "w-full py-3 px-4 rounded-xl text-white font-semibold",
-                      "bg-gradient-to-r from-blue-600 to-cyan-500",
+                      "bg-linear-to-r from-blue-600 to-cyan-500",
                       "shadow-md shadow-cyan-500/20 active:scale-[0.98] transition-all",
                       "flex items-center justify-center gap-2",
                     )}

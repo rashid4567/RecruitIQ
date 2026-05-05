@@ -1,4 +1,3 @@
-// src/pages/admin/plans/components/subscription-plan-management/PlanSettings.tsx
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import { Star } from "lucide-react";

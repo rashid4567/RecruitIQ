@@ -16,7 +16,7 @@ import { authService } from "@/services/auth/auth.service";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-// ─── Role-aware nav items ────────────────────────────────────────────────────
+
 function getNavItems(role: string | null) {
   const jobsHref =
     role === "candidate"
@@ -136,7 +136,8 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await authService.logout();
-    } catch {
+    } catch(error) {
+       console.error("Logout failed:", error);
     } finally {
       localStorage.removeItem("authToken");
       localStorage.removeItem("userRole");

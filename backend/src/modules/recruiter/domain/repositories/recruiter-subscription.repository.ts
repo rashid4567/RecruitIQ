@@ -34,7 +34,6 @@ export interface SubscribeInput {
   razorpaySubscriptionId?: string;
   razorpayOrderId?: string;
   razorpayCustomerId?: string;
-  trialEndDate?: Date;
   status: SubscriptionStatus;
 }
 
@@ -76,16 +75,33 @@ export interface RenewInput {
 
 export interface RecruiterSubscriptionRepository {
   findById(id: string): Promise<RecruiterSubscription | null>;
-  findActiveByRecruiterId(recruiterId: string): Promise<RecruiterSubscription | null>;
-  findAllByRecruiterId(recruiterId: string, pagination?: PaginationOptions): Promise<PaginatedResult<RecruiterSubscription>>;
-  findByRazorpaySubscriptionId(razorpaySubscriptionId: string): Promise<RecruiterSubscription | null>;
-  findByStatus(status: SubscriptionStatus, pagination?: PaginationOptions): Promise<PaginatedResult<RecruiterSubscription>>;
+  findActiveByRecruiterId(
+    recruiterId: string,
+  ): Promise<RecruiterSubscription | null>;
+  findAllByRecruiterId(
+    recruiterId: string,
+    pagination?: PaginationOptions,
+  ): Promise<PaginatedResult<RecruiterSubscription>>;
+  findByRazorpaySubscriptionId(
+    razorpaySubscriptionId: string,
+  ): Promise<RecruiterSubscription | null>;
+  findByStatus(
+    status: SubscriptionStatus,
+    pagination?: PaginationOptions,
+  ): Promise<PaginatedResult<RecruiterSubscription>>;
   findExpiringWithin(days: number): Promise<RecruiterSubscription[]>;
   create(input: SubscribeInput): Promise<RecruiterSubscription>;
   cancel(input: CancelInput): Promise<RecruiterSubscription>;
   changePlan(input: ChangePlanInput): Promise<RecruiterSubscription>;
   renew(input: RenewInput): Promise<RecruiterSubscription>;
   updateUsage(input: UsageUpdateInput): Promise<RecruiterSubscription>;
-  updateStatus(subscriptionId: string, status: SubscriptionStatus): Promise<RecruiterSubscription>;
-  resetPeriodUsage(subscriptionId: string, newPeriodStart: Date, newPeriodEnd: Date): Promise<RecruiterSubscription>;
+  updateStatus(
+    subscriptionId: string,
+    status: SubscriptionStatus,
+  ): Promise<RecruiterSubscription>;
+  resetPeriodUsage(
+    subscriptionId: string,
+    newPeriodStart: Date,
+    newPeriodEnd: Date,
+  ): Promise<RecruiterSubscription>;
 }

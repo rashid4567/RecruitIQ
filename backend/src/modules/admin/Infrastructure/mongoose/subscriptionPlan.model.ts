@@ -88,7 +88,6 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       enum: Object.values(PlanType),
       required: true,
     },
-
     price: {
       type: Number,
       required: true,
@@ -99,7 +98,6 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       enum: Object.values(Currency),
       default: Currency.INR,
     },
-
     billingCycle: {
       type: String,
       enum: Object.values(BillingCycle),
@@ -110,7 +108,6 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       min: 1,
       default: 1,
     },
-
     jobPostsPerMonth: {
       type: Number,
       min: -1,
@@ -132,10 +129,9 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
 
     razorpayPlanId: {
       type: String,
-      index: true,
+      unique: true,
       sparse: true,
     },
-
     isPopular: {
       type: Boolean,
       default: false,
@@ -153,6 +149,7 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
     timestamps: true,
   },
 );
+
 
 subscriptionPlanSchema.index({ isActive: 1, sortOrder: 1 });
 subscriptionPlanSchema.index({ planType: 1, isActive: 1 });

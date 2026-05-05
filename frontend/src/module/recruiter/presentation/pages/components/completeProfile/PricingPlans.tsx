@@ -78,13 +78,13 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
               selectedPlan === plan.id
                 ? "border-blue-500 shadow-2xl ring-4 ring-blue-500/20 bg-white"
                 : plan.highlighted
-                ? "border-blue-200 bg-gradient-to-br from-blue-50 to-white"
+                ? "border-blue-200 bg-linear-to-br from-blue-50 to-white"
                 : "border-slate-200 bg-white hover:border-slate-300"
             }`}
           >
             {plan.highlighted && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-bold px-5 py-1.5 rounded-full shadow-lg">
+                <span className="bg-linear-to-r from-blue-600 to-cyan-500 text-white text-xs font-bold px-5 py-1.5 rounded-full shadow-lg">
                   MOST POPULAR
                 </span>
               </div>
@@ -130,7 +130,7 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
                   selectedPlan === plan.id
                     ? "bg-blue-600 text-white shadow-lg"
                     : plan.highlighted
-                    ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
+                    ? "bg-linear-to-r from-blue-600 to-cyan-500 text-white"
                     : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 }`}
               >
@@ -142,7 +142,7 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
       </div>
 
       {/* Info Box */}
-      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-5 border border-blue-100">
+      <div className="bg-linear-to-r from-blue-50 to-cyan-50 rounded-2xl p-5 border border-blue-100">
         <div className="flex items-start gap-4">
           <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
             <Check className="h-5 w-5 text-blue-600" />

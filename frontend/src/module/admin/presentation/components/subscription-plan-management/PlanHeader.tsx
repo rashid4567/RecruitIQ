@@ -1,4 +1,4 @@
-// PlanHeader.tsx
+
 import { Pencil, ChevronRight } from "lucide-react";
 
 interface PlanHeaderProps {

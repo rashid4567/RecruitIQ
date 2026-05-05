@@ -1,3 +1,5 @@
+import { DomainError } from "../../../../shared/errors/domain.error";
+import { ERROR_CODES } from "../constatns/recruiter.profile.error";
 
 export enum SubscriptionStatus {
   Active = "active",
@@ -59,8 +61,9 @@ export class RecruiterSubscription {
   private constructor(private readonly props: RecruiterSubscriptionProps) {}
 
   static create(props: RecruiterSubscriptionProps): RecruiterSubscription {
-    if (props.startDate > props.endDate)
-      throw new Error("Subscription startDate must be before endDate.");
+   if (props.startDate > props.endDate) {
+  throw new DomainError(ERROR_CODES.INVALID_SUBSCRIPTION_DATE_RANGE);
+}
     return new RecruiterSubscription(props);
   }
 

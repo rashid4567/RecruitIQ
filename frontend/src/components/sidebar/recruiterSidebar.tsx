@@ -35,7 +35,7 @@ const menuItems = [
 export function Sidebar({ profile, userStats }: SidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
+
 
   const currentPath = location.pathname + location.search;
 
@@ -43,13 +43,13 @@ export function Sidebar({ profile, userStats }: SidebarProps) {
     userStats.profileCompletion > 80 ? "text-emerald-600" :
     userStats.profileCompletion > 60 ? "text-amber-600" : "text-red-600";
 
-  // Proper Logout using authService
+
   const handleLogout = async () => {
     try {
-      await authService.logout(false); // false = don't redirect automatically
+      await authService.logout(false); 
       toast.success("Logged out successfully");
       
-      // Force redirect based on role (safety)
+  
       const role = localStorage.getItem("userRole");
       if (role === "admin") {
         window.location.href = "/admin/login";
@@ -63,7 +63,7 @@ export function Sidebar({ profile, userStats }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
+   
       <div className="lg:hidden fixed top-4 right-4 z-50">
         <Button
           variant="outline"
@@ -75,7 +75,7 @@ export function Sidebar({ profile, userStats }: SidebarProps) {
         </Button>
       </div>
 
-      {/* Modern Sidebar */}
+
       <div className={`
         fixed lg:sticky top-0 left-0 h-screen w-72 bg-white border-r border-slate-200 
         shadow-2xl lg:shadow-none transition-all duration-300 z-50 flex flex-col
@@ -87,7 +87,7 @@ export function Sidebar({ profile, userStats }: SidebarProps) {
     
           <div className="px-6 py-8 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-inner">
+              <div className="w-10 h-10 bg-linear-to-br from-violet-600 via-indigo-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-inner">
                 <span className="text-white font-bold text-3xl tracking-[-2px]">r</span>
               </div>
               <div>
@@ -126,7 +126,7 @@ export function Sidebar({ profile, userStats }: SidebarProps) {
               </div>
               <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full transition-all duration-700"
+                  className="h-full bg-linear-to-r from-violet-500 to-indigo-600 rounded-full transition-all duration-700"
                   style={{ width: `${userStats.profileCompletion}%` }}
                 />
               </div>

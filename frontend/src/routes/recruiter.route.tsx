@@ -19,6 +19,10 @@ const RecruiterSettingsPage = lazy(
   () => import("../module/recruiter/presentation/pages/recruiter.profile"),
 );
 
+const SubscriptionPlans = lazy(() =>
+  import("../module/recruiter/presentation/pages/pricePlaning")
+);
+
 const RecruiterRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
     <Routes>
@@ -30,6 +34,7 @@ const RecruiterRoutes = () => (
           <Route path="jobs" element={<MyJobPost />} />
           <Route path="job-editor" element={<JobPostEditor />} />
           <Route path="job-editor/:id" element={<JobPostEditor />} />
+          <Route path="plans" element={<SubscriptionPlans/>}/>
         </Route>
       </Route>
     </Routes>

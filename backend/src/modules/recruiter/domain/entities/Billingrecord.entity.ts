@@ -1,7 +1,5 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// Domain Entity – BillingRecord
-// Immutable snapshot of a payment event (invoice / charge).
-// ─────────────────────────────────────────────────────────────────────────────
+import { DomainError } from "../../../../shared/errors/domain.error";
+import { ERROR_CODES } from "../constatns/recruiter.profile.error";
 
 export enum BillingStatus {
   Paid = "paid",
@@ -48,11 +46,30 @@ export class BillingRecord {
   private constructor(private readonly props: BillingRecordProps) {}
 
   static create(props: BillingRecordProps): BillingRecord {
-    if (props.amount < 0) throw new Error("Billing amount cannot be negative.");
-    return new BillingRecord(props);
+
+  if (props.amount < 0) {
+    throw new DomainError(ERROR_CODES.BILLING_AMOUNT_NEGATIVE);
   }
 
- get id(): string {
+  if (props.periodEnd <= props.periodStart) {
+    throw new DomainError(ERROR_CODES.INVALID_BILLING_PERIOD);
+  }
+
+  const expectedNet =
+    props.amount + (props.tax || 0) - (props.discount || 0);
+
+  if (props.netAmount !== expectedNet) {
+    throw new DomainError(ERROR_CODES.INVALID_NET_AMOUNT);
+  }
+
+  if (props.status === BillingStatus.Paid && !props.paidAt) {
+    throw new DomainError(ERROR_CODES.PAID_BILLING_MISSING_PAID_AT);
+  }
+
+  return new BillingRecord(props);
+}
+
+  get id(): string {
     return this.props.id;
   }
   get recruiterId(): string {
@@ -116,7 +133,7 @@ export class BillingRecord {
     return this.props.createdAt;
   }
 
-   get isPaid(): boolean {
+  get isPaid(): boolean {
     return this.props.status === BillingStatus.Paid;
   }
   get isFailed(): boolean {
@@ -133,7 +150,7 @@ export class BillingRecord {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: this.props.currency,
-    }).format(this.props.netAmount / 100); 
+    }).format(this.props.netAmount / 100);
   }
 
   toPlainObject(): BillingRecordProps {

@@ -36,7 +36,8 @@ export interface JobPostDocument extends Document {
 
   visibility: "active" | "hidden";
 
-  isBlocked: boolean; 
+  isBlocked: boolean;
+  isDeleted: boolean;
 
   status: "draft" | "active" | "expired";
 
@@ -48,8 +49,6 @@ export interface JobPostDocument extends Document {
   views: number;
   applicationsCount: number;
 
-  isDeleted: boolean;
-
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,7 +59,6 @@ const JobPostSchema = new Schema<JobPostDocument>(
       type: Schema.Types.ObjectId,
       ref: "Recruiter",
       required: true,
-      index: true,
     },
 
     title: {
@@ -127,10 +125,7 @@ const JobPostSchema = new Schema<JobPostDocument>(
     salary: {
       min: { type: Number, min: 0 },
       max: { type: Number, min: 0 },
-      currency: {
-        type: String,
-        default: "INR",
-      },
+      currency: { type: String, default: "INR" },
     },
 
     department: {
@@ -148,34 +143,28 @@ const JobPostSchema = new Schema<JobPostDocument>(
       type: String,
       enum: ["active", "hidden"],
       default: "active",
-      index: true,
     },
 
     isBlocked: {
       type: Boolean,
       default: false,
-      index: true,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
 
     status: {
       type: String,
       enum: ["draft", "active", "expired"],
       default: "draft",
-      index: true,
     },
 
-    postedOn: {
-      type: Date,
-    },
+    postedOn: Date,
+    expiresAt: Date,
 
-    expiresAt: {
-      type: Date,
-      index: true,
-    },
-
-    externalLink: {
-      type: String,
-    },
+    externalLink: String,
 
     views: {
       type: Number,
@@ -186,31 +175,47 @@ const JobPostSchema = new Schema<JobPostDocument>(
       type: Number,
       default: 0,
     },
-
-    isDeleted: {
-      type: Boolean,
-      default: false,
-      index: true,
-    },
   },
   {
     timestamps: true,
   },
 );
 
-JobPostSchema.index({ recruiterId: 1, visibility: 1 });
-JobPostSchema.index({ isBlocked: 1 });
-JobPostSchema.index({ createdAt: -1 });
-JobPostSchema.index({ requiredSkills: 1 });
-JobPostSchema.index({ "location.city": 1 });
+JobPostSchema.index({
+  recruiterId: 1,
+  status: 1,
+  isDeleted: 1,
+  createdAt: -1,
+});
 
+JobPostSchema.index({
+  isBlocked: 1,
+  isDeleted: 1,
+  status: 1,
+  visibility: 1,
+  createdAt: -1,
+});
+
+JobPostSchema.index({ expiresAt: 1 });
 JobPostSchema.index({
   title: "text",
   description: "text",
   requiredSkills: "text",
 });
+JobPostSchema.index({ "location.city": 1 });
+JobPostSchema.index({ requiredSkills: 1 });
+JobPostSchema.index(
+  { createdAt: -1 },
+  {
+    partialFilterExpression: {
+      isDeleted: false,
+      isBlocked: false,
+      status: "active",
+    },
+  },
+);
 
 export const JobPostModel = mongoose.model<JobPostDocument>(
   "JobPost",
   JobPostSchema,
-); 
+);

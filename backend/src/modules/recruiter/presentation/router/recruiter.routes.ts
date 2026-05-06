@@ -17,6 +17,6 @@ router.get("/profile", getRecruiterProfile.getProfile);
 router.put("/profile", updaterecruiterController.updateProfile);
 router.put("/complete-profile", completeProfileController.completeProfile);
 router.use("/jobs", jobPostRouter);
-router.use("/plans", plansRouter)
+router.use("/", plansRouter)
  
 export default router;

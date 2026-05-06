@@ -14,6 +14,7 @@ const api = axios.create({
   timeout: 10000,
 });
 
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("authToken");
@@ -23,7 +24,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
 function clearAuthAndRedirect(path: string, message?: string) {
@@ -36,10 +37,12 @@ function clearAuthAndRedirect(path: string, message?: string) {
   window.location.href = path;
 }
 
+
 api.interceptors.response.use(
   (response) => {
     const message = response?.data?.message;
 
+   
     if (message && response.config.method !== "get") {
       toast.success(message);
     }
@@ -59,9 +62,9 @@ api.interceptors.response.use(
     const code = error.response.data?.code;
     const message = error.response.data?.message || "Something went wrong";
 
-    const isRefreshRequest = originalRequest?.url?.includes("/auth/refresh");
-    if (isRefreshRequest) {
-      clearAuthAndRedirect("/signin", "Session expired. Please login again.");
+  
+    if (originalRequest?.url?.includes("/auth/refresh")) {
+      clearAuthAndRedirect("/signin", message);
       return Promise.reject(error);
     }
 
@@ -69,12 +72,15 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshRes = await api.post("/auth/refresh");
+        const refreshRes = await axios.post(
+          `${import.meta.env.VITE_API_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
 
         const newAccessToken = refreshRes.data?.data?.accessToken;
 
-        if (!newAccessToken)
-          throw new Error("No access token in refresh response");
+        if (!newAccessToken) throw new Error();
 
         localStorage.setItem("authToken", newAccessToken);
 
@@ -89,8 +95,10 @@ api.interceptors.response.use(
     }
 
 
-    const isAuthRoute = originalRequest?.url?.includes("/auth/");
-    if (isAuthRoute) {
+    const isAuthError = originalRequest?.url?.includes("/auth/");
+
+    if (isAuthError) {
+
       if (
         status === 401 ||
         status === 403 ||
@@ -104,11 +112,11 @@ api.interceptors.response.use(
       }
     }
 
-
+   
     if (status === 403 && code === "ACCOUNT_DEACTIVATED") {
       clearAuthAndRedirect(
         "/signin",
-        message || "Your account has been deactivated. Please contact support.",
+        message || "Your account has been deactivated. Please contact support."
       );
       return Promise.reject(error);
     }
@@ -118,17 +126,18 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    
+
     if (status === 404) {
       toast.error(message || "Requested resource not found");
     } else if (status >= 500) {
       toast.error(message || "Server error. Please try again later.");
     } else {
+
       toast.error(message);
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;

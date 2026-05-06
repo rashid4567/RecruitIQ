@@ -29,6 +29,7 @@ export type Currency = (typeof Currency)[keyof typeof Currency];
 
 
 export const SubscriptionStatus = {
+  Pending: "pending",
   Active: "active",
   Cancelled: "cancelled",
   Expired: "expired",
@@ -39,7 +40,6 @@ export const SubscriptionStatus = {
 
 export type SubscriptionStatus =
   (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];
-
 
 
 export const CancellationReason = {

@@ -1,13 +1,13 @@
 import { Router } from "express";
 import {
+  createSubscriptionController,
+  verifyPaymentController,
   getAllPlansController,
   getPlanDetailController,
   cancelSubscriptionController,
   changePlanController,
   getCurrentSubscriptionController,
-  getSubscriptionHistoryController,
   renewSubscriptionController,
-  subscribeController,
   trackUsageController,
   getBillingHistoryController,
   getTotalSpendController,
@@ -19,20 +19,27 @@ import {
 
 const router = Router();
 
-router.get("/", getAllPlansController.getActivePlans);
-router.get("/:planId", getPlanDetailController.getPlanDetail);
-router.post("/subscribe", subscribeController.subscribe);
-router.get("/current", getCurrentSubscriptionController.getCurrentSubscription);
+// Plans
+router.get("/plans",         getAllPlansController.getActivePlans);
+router.get("/plans/:planId", getPlanDetailController.getPlanDetail);
 
-//router.get("/history", getSubscriptionHistoryController.getSubscriptionHistory);
-router.post("/cancel", cancelSubscriptionController.cancelSubscription);
-router.post("/change-plan", changePlanController.changePlan);
-router.post("/renew", renewSubscriptionController.renewSubscription);
-router.patch("/usage", trackUsageController.trackUsage);
-router.get("/billing/history", getBillingHistoryController.getBillingHistory);
-router.get("/billing/total-spend", getTotalSpendController.getTotalSpend);
-router.get("/billing/:billingRecordId", getBillingRecordDetailController.getBillingRecordDetail);
-router.post("/billing/record-payment", recordPaymentController.recordPayment);
-router.post("/billing/record-failed-payment", recordFailedPaymentController.recordFailedPayment);
+// Payment — just these two, no webhook
+router.post("/payment/create-subscription", createSubscriptionController.createSubscription);
+router.post("/payment/verify",              verifyPaymentController.verifyPayment);
+
+// Subscriptions
+router.get( "/subscriptions/current",      getCurrentSubscriptionController.getCurrentSubscription);
+router.post("/subscriptions/cancel",       cancelSubscriptionController.cancelSubscription);
+router.post("/subscriptions/change-plan",  changePlanController.changePlan);
+router.post("/subscriptions/renew",        renewSubscriptionController.renewSubscription);
+router.patch("/subscriptions/usage",       trackUsageController.trackUsage);
+
+// Billing
+router.get( "/billing/history",                 getBillingHistoryController.getBillingHistory);
+router.get( "/billing/total-spend",             getTotalSpendController.getTotalSpend);
+router.get( "/billing/:billingRecordId",         getBillingRecordDetailController.getBillingRecordDetail);
+router.post("/billing/record-payment",           recordPaymentController.recordPayment);
+router.post("/billing/record-failed-payment",    recordFailedPaymentController.recordFailedPayment);
 router.patch("/billing/:billingRecordId/status", updateBillingStatusController.updateBillingStatus);
+
 export default router;

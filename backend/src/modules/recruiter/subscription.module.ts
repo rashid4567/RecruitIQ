@@ -1,5 +1,7 @@
+import { RAZORPAY_KEY_ID,  } from "../../config/razorpay";
 import { CancelSubscriptionUseCase } from "./application/useCase/subscription.plans/Cancelsubscription.usecase";
 import { ChangePlanUseCase } from "./application/useCase/subscription.plans/Changeplan.usecase";
+import { CreateSubscriptionUseCase } from "./application/useCase/subscription.plans/Createsubscription.usecase";
 import { GetAllPlansUseCase } from "./application/useCase/subscription.plans/Getallplans.usecase";
 import { GetBillingHistoryUseCase } from "./application/useCase/subscription.plans/Getbillinghistory.usecase";
 import { GetBillingRecordDetailUseCase } from "./application/useCase/subscription.plans/Getbillingrecorddetail.usecase";
@@ -7,20 +9,24 @@ import { GetCurrentSubscriptionUseCase } from "./application/useCase/subscriptio
 import { GetPlanDetailUseCase } from "./application/useCase/subscription.plans/Getplandetails.usecase";
 import { GetSubscriptionHistoryUseCase } from "./application/useCase/subscription.plans/Getsubscriptionhistory.usecase";
 import { GetTotalSpendUseCase } from "./application/useCase/subscription.plans/Gettotalspend.usecase ";
+
 import { RecordFailedPaymentUseCase } from "./application/useCase/subscription.plans/Recordfailedpayment.usecase";
 import { RecordPaymentUseCase } from "./application/useCase/subscription.plans/Recordpayment.usecase";
 import { RenewSubscriptionUseCase } from "./application/useCase/subscription.plans/Renewsubscription.usecase";
 import { SubscribeUseCase } from "./application/useCase/subscription.plans/Subscribe.usecase";
 import { TrackUsageUseCase } from "./application/useCase/subscription.plans/Trackusage.usecase";
 import { UpdateBillingStatusUseCase } from "./application/useCase/subscription.plans/Updatebillingstatus.usecase";
+import { VerifyPaymentUseCase } from "./application/useCase/subscription.plans/VerifyPayment.usecase";
 import { BillingRecordRepository } from "./domain/repositories/billing.repository";
 import { RecruiterSubscriptionRepository } from "./domain/repositories/recruiter-subscription.repository";
 import { SubscriptionPlanRepository } from "./domain/repositories/Subscription.repository";
+import { RazorpayGateway } from "./infrastructure/payment/razorpay.gateway";
 import { MongooseBillingRecordRepository } from "./infrastructure/repositories/Mongoosebillingrecord.repository";
 import { MongooseRecruiterSubscriptionRepository } from "./infrastructure/repositories/Mongooserecruitersubscription.repository";
 import { MongooseSubscriptionPlanRepository } from "./infrastructure/repositories/Mongoosesubscriptionplan.repository";
 import { CancelSubscriptionController } from "./presentation/controller/Subscriptionplan/CancelSubscription.controller";
 import { ChangePlanController } from "./presentation/controller/Subscriptionplan/ChangePlan.controller";
+import { CreateSubscriptionController } from "./presentation/controller/Subscriptionplan/CreateSubscription.controller";
 import { GetAllPlansController } from "./presentation/controller/Subscriptionplan/GetAllplans.controller";
 import { GetBillingHistoryController } from "./presentation/controller/Subscriptionplan/Getbillinghistory.controller";
 import { GetBillingRecordDetailController } from "./presentation/controller/Subscriptionplan/Getbillingrecorddetail.controller";
@@ -34,6 +40,7 @@ import { RenewSubscriptionController } from "./presentation/controller/Subscript
 import { SubscribeController } from "./presentation/controller/Subscriptionplan/Subscribe.controller";
 import { TrackUsageController } from "./presentation/controller/Subscriptionplan/TrackUsage.controller";
 import { UpdateBillingStatusController } from "./presentation/controller/Subscriptionplan/Updatebillingstatus.controller";
+import { VerifyPaymentController } from "./presentation/controller/Subscriptionplan/VerifyPayment.controller";
 
 const subscriptionRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
@@ -41,6 +48,7 @@ const RecruiterSubscriptionRepo: RecruiterSubscriptionRepository =
   new MongooseRecruiterSubscriptionRepository();
 const BillingRecordRepo: BillingRecordRepository =
   new MongooseBillingRecordRepository();
+const paymentGateway = new RazorpayGateway();
 const getAllPlansUC = new GetAllPlansUseCase(subscriptionRepo);
 const getDetailsUC = new GetPlanDetailUseCase(subscriptionRepo);
 const cancelSubscriptonUC = new CancelSubscriptionUseCase(
@@ -70,6 +78,19 @@ const recordPaymentUC = new RecordPaymentUseCase(BillingRecordRepo);
 const recordpaymentFailedUC = new RecordFailedPaymentUseCase(BillingRecordRepo);
 const updatedBillingUC = new UpdateBillingStatusUseCase(BillingRecordRepo);
 const getToallSpendUC = new GetTotalSpendUseCase(BillingRecordRepo);
+const createSubscriptionUC = new CreateSubscriptionUseCase(
+  RecruiterSubscriptionRepo,
+  subscriptionRepo,
+  paymentGateway,
+  RAZORPAY_KEY_ID,
+);
+
+const verifyPaymentUC = new VerifyPaymentUseCase(
+  RecruiterSubscriptionRepo,
+  BillingRecordRepo,
+  RAZORPAY_KEY_ID,      
+);
+
 
 export const getAllPlansController = new GetAllPlansController(getAllPlansUC);
 export const getPlanDetailController = new GetPlanDetailController(
@@ -105,3 +126,6 @@ export const recordFailedPaymentController = new RecordFailedPaymentController(
 export const updateBillingStatusController = new UpdateBillingStatusController(
   updatedBillingUC,
 );
+export const createSubscriptionController = new CreateSubscriptionController(createSubscriptionUC);
+export const verifyPaymentController      = new VerifyPaymentController(verifyPaymentUC);
+

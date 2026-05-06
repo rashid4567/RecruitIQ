@@ -150,7 +150,7 @@ export class BillingRecord {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: this.props.currency,
-    }).format(this.props.netAmount / 100);
+    }).format(this.props.netAmount);
   }
 
   toPlainObject(): BillingRecordProps {

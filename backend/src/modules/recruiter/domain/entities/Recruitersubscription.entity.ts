@@ -1,7 +1,10 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
+import { Currency } from "../../../admin/Domain/entities/subscription-plan.entity";
 import { ERROR_CODES } from "../constatns/recruiter.profile.error";
+import { BillingCycle, PlanType } from "./Subscriptionplan.entity";
 
 export enum SubscriptionStatus {
+  Pending = "pending",
   Active = "active",
   Cancelled = "cancelled",
   Expired = "expired",
@@ -30,10 +33,11 @@ export interface RecruiterSubscriptionProps {
   recruiterId: string;
   planId: string;
   planName: string;
-  planType: string;
+ planType: PlanType;
+
   price: number;
-  currency: string;
-  billingCycle: string;
+  currency: Currency;
+billingCycle: BillingCycle;
   razorpaySubscriptionId?: string;
   razorpayOrderId?: string;
   razorpayCustomerId?: string;

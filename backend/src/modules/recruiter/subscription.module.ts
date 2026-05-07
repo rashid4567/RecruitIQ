@@ -1,7 +1,7 @@
-import { RAZORPAY_KEY_ID,  } from "../../config/razorpay";
+import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from "../../config/razorpay";
 import { CancelSubscriptionUseCase } from "./application/useCase/subscription.plans/Cancelsubscription.usecase";
 import { ChangePlanUseCase } from "./application/useCase/subscription.plans/Changeplan.usecase";
-import { CreateSubscriptionUseCase } from "./application/useCase/subscription.plans/Createsubscription.usecase";
+import { CreateOrderUseCase } from "./application/useCase/subscription.plans/Createorder.usecase";
 import { GetAllPlansUseCase } from "./application/useCase/subscription.plans/Getallplans.usecase";
 import { GetBillingHistoryUseCase } from "./application/useCase/subscription.plans/Getbillinghistory.usecase";
 import { GetBillingRecordDetailUseCase } from "./application/useCase/subscription.plans/Getbillingrecorddetail.usecase";
@@ -9,7 +9,6 @@ import { GetCurrentSubscriptionUseCase } from "./application/useCase/subscriptio
 import { GetPlanDetailUseCase } from "./application/useCase/subscription.plans/Getplandetails.usecase";
 import { GetSubscriptionHistoryUseCase } from "./application/useCase/subscription.plans/Getsubscriptionhistory.usecase";
 import { GetTotalSpendUseCase } from "./application/useCase/subscription.plans/Gettotalspend.usecase ";
-
 import { RecordFailedPaymentUseCase } from "./application/useCase/subscription.plans/Recordfailedpayment.usecase";
 import { RecordPaymentUseCase } from "./application/useCase/subscription.plans/Recordpayment.usecase";
 import { RenewSubscriptionUseCase } from "./application/useCase/subscription.plans/Renewsubscription.usecase";
@@ -41,65 +40,61 @@ import { SubscribeController } from "./presentation/controller/Subscriptionplan/
 import { TrackUsageController } from "./presentation/controller/Subscriptionplan/TrackUsage.controller";
 import { UpdateBillingStatusController } from "./presentation/controller/Subscriptionplan/Updatebillingstatus.controller";
 import { VerifyPaymentController } from "./presentation/controller/Subscriptionplan/VerifyPayment.controller";
-
 const subscriptionRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
-const RecruiterSubscriptionRepo: RecruiterSubscriptionRepository =
+const recruiterSubscriptionRepo: RecruiterSubscriptionRepository =
   new MongooseRecruiterSubscriptionRepository();
-const BillingRecordRepo: BillingRecordRepository =
+const billingRecordRepo: BillingRecordRepository =
   new MongooseBillingRecordRepository();
 const paymentGateway = new RazorpayGateway();
 const getAllPlansUC = new GetAllPlansUseCase(subscriptionRepo);
 const getDetailsUC = new GetPlanDetailUseCase(subscriptionRepo);
-const cancelSubscriptonUC = new CancelSubscriptionUseCase(
-  RecruiterSubscriptionRepo,
+const cancelSubscriptionUC = new CancelSubscriptionUseCase(
+  recruiterSubscriptionRepo,
 );
-const changPlanUC = new ChangePlanUseCase(
-  RecruiterSubscriptionRepo,
+const changePlanUC = new ChangePlanUseCase(
+  recruiterSubscriptionRepo,
   subscriptionRepo,
 );
 const getCurrentSubscriptionUC = new GetCurrentSubscriptionUseCase(
-  RecruiterSubscriptionRepo,
+  recruiterSubscriptionRepo,
 );
 const getSubscriptionHistoryUC = new GetSubscriptionHistoryUseCase(
-  RecruiterSubscriptionRepo,
+  recruiterSubscriptionRepo,
 );
 const renewSubscriptionUC = new RenewSubscriptionUseCase(
-  RecruiterSubscriptionRepo,
+  recruiterSubscriptionRepo,
 );
 const subscribeUC = new SubscribeUseCase(
-  RecruiterSubscriptionRepo,
+  recruiterSubscriptionRepo,
   subscriptionRepo,
 );
-const trackUsageUC = new TrackUsageUseCase(RecruiterSubscriptionRepo);
-const getBillingUC = new GetBillingHistoryUseCase(BillingRecordRepo);
-const getBillingRecordUC = new GetBillingRecordDetailUseCase(BillingRecordRepo);
-const recordPaymentUC = new RecordPaymentUseCase(BillingRecordRepo);
-const recordpaymentFailedUC = new RecordFailedPaymentUseCase(BillingRecordRepo);
-const updatedBillingUC = new UpdateBillingStatusUseCase(BillingRecordRepo);
-const getToallSpendUC = new GetTotalSpendUseCase(BillingRecordRepo);
-const createSubscriptionUC = new CreateSubscriptionUseCase(
-  RecruiterSubscriptionRepo,
+const trackUsageUC = new TrackUsageUseCase(recruiterSubscriptionRepo);
+const getBillingUC = new GetBillingHistoryUseCase(billingRecordRepo);
+const getBillingRecordUC = new GetBillingRecordDetailUseCase(billingRecordRepo);
+const recordPaymentUC = new RecordPaymentUseCase(billingRecordRepo);
+const recordPaymentFailedUC = new RecordFailedPaymentUseCase(billingRecordRepo);
+const updateBillingUC = new UpdateBillingStatusUseCase(billingRecordRepo);
+const getTotalSpendUC = new GetTotalSpendUseCase(billingRecordRepo);
+const createOrderUC = new CreateOrderUseCase(
+  recruiterSubscriptionRepo,
   subscriptionRepo,
   paymentGateway,
   RAZORPAY_KEY_ID,
 );
-
 const verifyPaymentUC = new VerifyPaymentUseCase(
-  RecruiterSubscriptionRepo,
-  BillingRecordRepo,
-  RAZORPAY_KEY_ID,      
+  recruiterSubscriptionRepo,
+  billingRecordRepo,
+  RAZORPAY_KEY_SECRET,
 );
-
-
 export const getAllPlansController = new GetAllPlansController(getAllPlansUC);
 export const getPlanDetailController = new GetPlanDetailController(
   getDetailsUC,
 );
 export const cancelSubscriptionController = new CancelSubscriptionController(
-  cancelSubscriptonUC,
+  cancelSubscriptionUC,
 );
-export const changePlanController = new ChangePlanController(changPlanUC);
+export const changePlanController = new ChangePlanController(changePlanUC);
 export const getCurrentSubscriptionController =
   new GetCurrentSubscriptionController(getCurrentSubscriptionUC);
 export const getSubscriptionHistoryController =
@@ -115,17 +110,20 @@ export const getBillingHistoryController = new GetBillingHistoryController(
 export const getBillingRecordDetailController =
   new GetBillingRecordDetailController(getBillingRecordUC);
 export const getTotalSpendController = new GetTotalSpendController(
-  getToallSpendUC,
+  getTotalSpendUC,
 );
 export const recordPaymentController = new RecordPaymentController(
   recordPaymentUC,
 );
 export const recordFailedPaymentController = new RecordFailedPaymentController(
-  recordpaymentFailedUC,
+  recordPaymentFailedUC,
 );
 export const updateBillingStatusController = new UpdateBillingStatusController(
-  updatedBillingUC,
+  updateBillingUC,
 );
-export const createSubscriptionController = new CreateSubscriptionController(createSubscriptionUC);
-export const verifyPaymentController      = new VerifyPaymentController(verifyPaymentUC);
-
+export const createSubscriptionController = new CreateSubscriptionController(
+  createOrderUC,
+);
+export const verifyPaymentController = new VerifyPaymentController(
+  verifyPaymentUC,
+);

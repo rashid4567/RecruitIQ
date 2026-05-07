@@ -1,14 +1,19 @@
-export interface CreateSubscriptionInput {
-  planId: string;
-  totalCount: number;
+export interface CreateOrderInput {
+  amount: number;
+  currency: string;
+  receipt: string;
   notes: Record<string, string>;
 }
 
-export interface CreateSubscriptionOutput {
+export interface CreateOrderOutput {
   id: string;
+  amount: number;
+  currency: string;
   status: string;
 }
 
 export interface PaymentGateway {
-  createSubscription(input: CreateSubscriptionInput): Promise<CreateSubscriptionOutput>;
+  createOrder(
+    input: CreateOrderInput
+  ): Promise<CreateOrderOutput>;
 }

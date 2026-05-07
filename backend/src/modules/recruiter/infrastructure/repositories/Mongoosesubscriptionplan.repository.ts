@@ -1,41 +1,74 @@
 import { Types } from "mongoose";
-import { PlanType, SubscriptionPlan } from "../../domain/entities/Subscriptionplan.entity";
-import { PlanFilterOptions, SubscriptionPlanRepository } from "../../domain/repositories/Subscription.repository";
-import { ISubscriptionPlan, SubscriptionPlanModel } from "../../../admin/Infrastructure/mongoose/subscriptionPlan.model";
+
+import {
+  PlanType,
+  SubscriptionPlan,
+} from "../../domain/entities/Subscriptionplan.entity";
+import {
+  PlanFilterOptions,
+  SubscriptionPlanRepository,
+} from "../../domain/repositories/Subscription.repository";
+import {
+  ISubscriptionPlan,
+  SubscriptionPlanModel,
+} from "../../../admin/Infrastructure/mongoose/subscriptionPlan.model";
 
 export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepository {
-
   async findById(id: string): Promise<SubscriptionPlan | null> {
-    if (!Types.ObjectId.isValid(id)) return null;
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
 
     const doc = await SubscriptionPlanModel.findById(id);
-    return doc ? this.toEntity(doc) : null;
-  }
 
-  async findByRazorpayPlanId(razorpayPlanId: string): Promise<SubscriptionPlan | null> {
-    const doc = await SubscriptionPlanModel.findOne({ razorpayPlanId });
     return doc ? this.toEntity(doc) : null;
   }
 
   async findAll(filters?: PlanFilterOptions): Promise<SubscriptionPlan[]> {
     const query: Record<string, unknown> = {
-      name: { $exists: true, $type: "string", $ne: "" },
-      planType: { $exists: true, $ne: null },
+      name: {
+        $exists: true,
+        $type: "string",
+        $ne: "",
+      },
+
+      planType: {
+        $exists: true,
+        $ne: null,
+      },
     };
 
-    if (filters?.isActive !== undefined) query.isActive = filters.isActive;
-    if (filters?.planType) query.planType = filters.planType;
-    if (filters?.currency) query.currency = filters.currency;
+    if (filters?.isActive !== undefined) {
+      query.isActive = filters.isActive;
+    }
+
+    if (filters?.planType) {
+      query.planType = filters.planType;
+    }
+
+    if (filters?.currency) {
+      query.currency = filters.currency;
+    }
 
     const docs = await SubscriptionPlanModel.find(query).sort({ sortOrder: 1 });
+
     return docs.map((doc) => this.toEntity(doc));
   }
 
   async findActivePlans(): Promise<SubscriptionPlan[]> {
     const docs = await SubscriptionPlanModel.find({
       isActive: true,
-      name: { $exists: true, $type: "string", $ne: "" },
-      planType: { $exists: true, $ne: null },
+
+      name: {
+        $exists: true,
+        $type: "string",
+        $ne: "",
+      },
+
+      planType: {
+        $exists: true,
+        $ne: null,
+      },
     }).sort({ sortOrder: 1 });
 
     return docs.map((doc) => this.toEntity(doc));
@@ -45,8 +78,13 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
     const doc = await SubscriptionPlanModel.findOne({
       planType,
       isActive: true,
-      name: { $exists: true, $type: "string", $ne: "" },
+      name: {
+        $exists: true,
+        $type: "string",
+        $ne: "",
+      },
     });
+
     return doc ? this.toEntity(doc) : null;
   }
 
@@ -67,11 +105,11 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
         advancedAnalytics: doc.featuresAccess.advancedAnalytics,
         prioritySupport: doc.featuresAccess.prioritySupport,
       },
+
       features: doc.features.map((f) => ({
         name: f.name,
         included: f.included,
       })),
-      razorpayPlanId: doc.razorpayPlanId,
       isPopular: doc.isPopular,
       sortOrder: doc.sortOrder,
       isActive: doc.isActive,

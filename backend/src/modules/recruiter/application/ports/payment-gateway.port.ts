@@ -1,7 +1,19 @@
-export interface PaymentGateway{
-    createSubscription(input : {
-        planId : string;
-        totalCount : number;
-        notes : Record<string, string>;
-    }):Promise<{id : string}>
+export interface CreateOrderInput {
+  amount: number;
+  currency: string;
+  receipt: string;
+  notes: Record<string, string>;
+}
+
+export interface CreateOrderOutput {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+}
+
+export interface PaymentGateway {
+  createOrder(
+    input: CreateOrderInput
+  ): Promise<CreateOrderOutput>;
 }

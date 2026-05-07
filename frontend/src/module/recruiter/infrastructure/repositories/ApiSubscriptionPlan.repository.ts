@@ -1,14 +1,17 @@
 import api from "@/api/axios";
+
 import type {
   PlanFilterOptions,
   SubscriptionPlanRepository,
 } from "../../Domain/repositories/subscription-plan.repository";
+
 import {
   SubscriptionPlan,
   type FeaturesAccess,
   type PlanFeature,
   type SubscriptionPlanProps,
 } from "../../Domain/entities/SubscriptionPlan.entity";
+
 import type {
   BillingCycle,
   Currency,
@@ -33,23 +36,39 @@ type RawObjectId =
 
 interface RawSubscriptionPlan {
   _id?: RawObjectId;
+
   id?: string;
+
   name?: string;
+
   description?: string;
+
   planType?: string;
+
   price?: number;
+
   currency?: string;
+
   billingCycle?: string;
+
   billingInterval?: number;
+
   jobPostsPerMonth?: number;
+
   screeningCredits?: number;
+
   featuresAccess?: Partial<RawFeaturesAccess>;
+
   features?: RawPlanFeature[];
-  razorpayPlanId?: string;
+
   isPopular?: boolean;
+
   sortOrder?: number;
+
   isActive?: boolean;
+
   createdAt?: string;
+
   updatedAt?: string;
 }
 
@@ -78,9 +97,13 @@ function extractId(raw: RawSubscriptionPlan): string {
     if ("$oid" in raw._id && typeof raw._id.$oid === "string") {
       return raw._id.$oid.trim();
     }
+
     if (typeof raw._id.toString === "function") {
       const s = raw._id.toString();
-      if (s.length > 0 && s !== "[object Object]") return s.trim();
+
+      if (s.length > 0 && s !== "[object Object]") {
+        return s.trim();
+      }
     }
   }
 
@@ -90,6 +113,7 @@ function extractId(raw: RawSubscriptionPlan): string {
 function unwrapList(body: unknown): RawSubscriptionPlan[] {
   if (body !== null && typeof body === "object" && "data" in body) {
     const inner = (body as { data: unknown }).data;
+
     if (Array.isArray(inner)) {
       return inner as RawSubscriptionPlan[];
     }
@@ -105,7 +129,11 @@ function unwrapList(body: unknown): RawSubscriptionPlan[] {
 function unwrapSingle(body: unknown): RawSubscriptionPlan | null {
   if (body !== null && typeof body === "object" && "data" in body) {
     const inner = (body as { data: unknown }).data;
-    if (inner === null) return null;
+
+    if (inner === null) {
+      return null;
+    }
+
     if (typeof inner === "object" && !Array.isArray(inner)) {
       return inner as RawSubscriptionPlan;
     }
@@ -129,65 +157,56 @@ export class ApiSubscriptionPlanRepository implements SubscriptionPlanRepository
 
   async findAll(filters?: PlanFilterOptions): Promise<SubscriptionPlan[]> {
     const params = new URLSearchParams();
-    if (filters?.isActive !== undefined)
+
+    if (filters?.isActive !== undefined) {
       params.set("isActive", String(filters.isActive));
-    if (filters?.planType) params.set("planType", filters.planType);
-    if (filters?.currency) params.set("currency", filters.currency);
-
-    const qs = params.toString() ? `?${params.toString()}` : "";
-
-    try {
-      const res = await api.get<PlanListApiResponse>(`/recruiter/plans${qs}`);
-      const raw = unwrapList(res.data);
-      return this.filterValid(raw).map((p) => this.toEntity(p));
-    } catch (err) {
-      throw err;
     }
+
+    if (filters?.planType) {
+      params.set("planType", filters.planType);
+    }
+
+    if (filters?.currency) {
+      params.set("currency", filters.currency);
+    }
+    const qs = params.toString() ? `?${params.toString()}` : "";
+    const res = await api.get<PlanListApiResponse>(`/recruiter/plans${qs}`);
+    const raw = unwrapList(res.data);
+    return this.filterValid(raw).map((p) => this.toEntity(p));
   }
 
   async findById(id: string): Promise<SubscriptionPlan | null> {
-    try {
-      const res = await api.get<PlanDetailApiResponse>(`/recruiter/plans/${id}`);
-      const raw = unwrapSingle(res.data);
-      if (!raw || !this.hasValidId(raw)) return null;
-      return this.toEntity(raw);
-    } catch (err) {
-      throw err;
+    const res = await api.get<PlanDetailApiResponse>(`/recruiter/plans/${id}`);
+    const raw = unwrapSingle(res.data);
+    if (!raw || !this.hasValidId(raw)) {
+      return null;
     }
+    return this.toEntity(raw);
   }
 
-  async findByActivePlans(): Promise<SubscriptionPlan[]> {
-    try {
-      const res = await api.get<PlanListApiResponse>("/recruiter/plans");
-      const raw = unwrapList(res.data);
-      return this.filterValid(raw).map((p) => this.toEntity(p));
-    } catch (err) {
-      throw err;
-    }
+  async findActivePlans(): Promise<SubscriptionPlan[]> {
+    const res = await api.get<PlanListApiResponse>("/recruiter/plans");
+    const raw = unwrapList(res.data);
+    return this.filterValid(raw).map((p) => this.toEntity(p));
   }
 
   async findByPlanType(planType: PlanType): Promise<SubscriptionPlan | null> {
-    try {
-      const res = await api.get<PlanListApiResponse>(
-        `/recruiter/plans?planType=${planType}&isActive=true`
-      );
-      const raw = unwrapList(res.data);
-      const valid = this.filterValid(raw);
-      if (valid.length === 0) return null;
-      return this.toEntity(valid[0]);
-    } catch (err) {
-      throw err;
+    const res = await api.get<PlanListApiResponse>(
+      `/recruiter/plans?planType=${planType}&isActive=true`,
+    );
+
+    const raw = unwrapList(res.data);
+    const valid = this.filterValid(raw);
+    if (valid.length === 0) {
+      return null;
     }
+    return this.toEntity(valid[0]);
   }
 
   private toEntity(data: RawSubscriptionPlan): SubscriptionPlan {
     const id = extractId(data);
-
     if (!id) {
-      throw new Error(
-        `Cannot create SubscriptionPlan without valid id. name="${data.name ?? "(unnamed)"}". ` +
-          `Ensure backend controller calls plan.toPlainObject() before res.json().`
-      );
+      throw new Error(`Cannot create SubscriptionPlan without valid id.`);
     }
 
     const featuresAccess: FeaturesAccess = {
@@ -214,7 +233,6 @@ export class ApiSubscriptionPlanRepository implements SubscriptionPlanRepository
       screeningCredits: data.screeningCredits ?? 0,
       featuresAccess,
       features,
-      razorpayPlanId: data.razorpayPlanId,
       isPopular: data.isPopular ?? false,
       sortOrder: data.sortOrder ?? 0,
       isActive: data.isActive ?? true,

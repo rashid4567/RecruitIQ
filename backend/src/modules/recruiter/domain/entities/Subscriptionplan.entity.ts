@@ -1,4 +1,5 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
+
 import { ERROR_CODES } from "../constatns/recruiter.profile.error";
 
 export enum BillingCycle {
@@ -34,40 +35,54 @@ export interface PlanFeature {
 
 export interface SubscriptionPlanProps {
   id: string;
+
   name: string;
+
   description?: string;
+
   planType: PlanType;
+
   price: number;
+
   currency: Currency;
+
   billingCycle: BillingCycle;
+
   billingInterval: number;
+
   jobPostsPerMonth: number;
+
   screeningCredits: number;
+
   featuresAccess: FeaturesAccess;
+
   features: PlanFeature[];
-  razorpayPlanId?: string;
+
   isPopular: boolean;
+
   sortOrder: number;
+
   isActive: boolean;
+
   createdAt: Date;
+
   updatedAt: Date;
 }
 
 export class SubscriptionPlan {
   private constructor(private readonly props: SubscriptionPlanProps) {}
 
- static create(props: SubscriptionPlanProps): SubscriptionPlan {
+  static create(props: SubscriptionPlanProps): SubscriptionPlan {
+    if (props.price < 0) {
+      throw new DomainError(ERROR_CODES.PLAN_PRICE_NEGATIVE);
+    }
 
-  if (props.price < 0) {
-    throw new DomainError(ERROR_CODES.PLAN_PRICE_NEGATIVE);
+    if (props.billingInterval < 1) {
+      throw new DomainError(ERROR_CODES.INVALID_BILLING_INTERVAL);
+    }
+
+    return new SubscriptionPlan(props);
   }
-
-  if (props.billingInterval < 1) {
-    throw new DomainError(ERROR_CODES.INVALID_BILLING_INTERVAL);
-  }
-
-  return new SubscriptionPlan(props);
-}
 
   get id(): string {
     return this.props.id;
@@ -110,20 +125,19 @@ export class SubscriptionPlan {
   }
 
   get featuresAccess(): FeaturesAccess {
-    return { ...this.props.featuresAccess };
+    return {
+      ...this.props.featuresAccess,
+    };
   }
 
   get features(): PlanFeature[] {
     return [...this.props.features];
   }
 
-  get razorpayPlanId(): string | undefined {
-    return this.props.razorpayPlanId;
+  get isPopular(): boolean {
+    return this.props.isPopular;
   }
 
- get isPopular(): boolean {
-  return this.props.isPopular;
-}
   get sortOrder(): number {
     return this.props.sortOrder;
   }
@@ -166,7 +180,11 @@ export class SubscriptionPlan {
   toPlainObject(): SubscriptionPlanProps {
     return {
       ...this.props,
-      featuresAccess: { ...this.props.featuresAccess },
+
+      featuresAccess: {
+        ...this.props.featuresAccess,
+      },
+
       features: [...this.props.features],
     };
   }

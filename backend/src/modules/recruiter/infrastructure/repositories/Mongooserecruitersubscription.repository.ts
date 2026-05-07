@@ -20,7 +20,6 @@ import {
 } from "../mongoose/model/Recruitersubscription.model";
 
 export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscriptionRepository {
-
   private assertObjectId(id: string, field = "id") {
     if (!Types.ObjectId.isValid(id)) {
       throw new Error(`Invalid ${field}`);
@@ -36,18 +35,28 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
   }
 
   async findById(id: string): Promise<RecruiterSubscription | null> {
-    if (!Types.ObjectId.isValid(id)) return null;
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
 
     const doc = await RecruiterSubscriptionModel.findById(id);
+
     return doc ? this.toEntity(doc) : null;
   }
 
-  async findActiveByRecruiterId(recruiterId: string): Promise<RecruiterSubscription | null> {
-    if (!Types.ObjectId.isValid(recruiterId)) return null;
+  async findActiveByRecruiterId(
+    recruiterId: string,
+  ): Promise<RecruiterSubscription | null> {
+    if (!Types.ObjectId.isValid(recruiterId)) {
+      return null;
+    }
 
     const doc = await RecruiterSubscriptionModel.findOne({
       recruiterId: new Types.ObjectId(recruiterId),
-      status: { $in: [SubscriptionStatus.Active, SubscriptionStatus.Trialing] },
+
+      status: {
+        $in: [SubscriptionStatus.Active, SubscriptionStatus.Trialing],
+      },
     }).sort({ createdAt: -1 });
 
     return doc ? this.toEntity(doc) : null;
@@ -58,18 +67,19 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
     pagination?: PaginationOptions,
   ): Promise<PaginatedResult<RecruiterSubscription>> {
     this.assertObjectId(recruiterId, "recruiterId");
-
     const page = this.safePage(pagination?.page);
     const limit = this.safeLimit(pagination?.limit);
     const skip = (page - 1) * limit;
-
-    const filter = { recruiterId: new Types.ObjectId(recruiterId) };
+    const filter = {
+      recruiterId: new Types.ObjectId(recruiterId),
+    };
 
     const [docs, total] = await Promise.all([
       RecruiterSubscriptionModel.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
+
       RecruiterSubscriptionModel.countDocuments(filter),
     ]);
 
@@ -82,12 +92,13 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
     };
   }
 
-  async findByRazorpaySubscriptionId(
-    razorpaySubscriptionId: string,
+  async findByRazorpayOrderId(
+    razorpayOrderId: string,
   ): Promise<RecruiterSubscription | null> {
     const doc = await RecruiterSubscriptionModel.findOne({
-      razorpaySubscriptionId,
+      razorpayOrderId,
     });
+
     return doc ? this.toEntity(doc) : null;
   }
 
@@ -96,7 +107,9 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
     pagination?: PaginationOptions,
   ): Promise<PaginatedResult<RecruiterSubscription>> {
     const page = this.safePage(pagination?.page);
+
     const limit = this.safeLimit(pagination?.limit);
+
     const skip = (page - 1) * limit;
 
     const filter = { status };
@@ -106,6 +119,7 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
+
       RecruiterSubscriptionModel.countDocuments(filter),
     ]);
 
@@ -120,11 +134,16 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
 
   async findExpiringWithin(days: number): Promise<RecruiterSubscription[]> {
     const now = new Date();
+
     const cutoff = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
 
     const docs = await RecruiterSubscriptionModel.find({
       status: SubscriptionStatus.Active,
-      endDate: { $gte: now, $lte: cutoff },
+
+      endDate: {
+        $gte: now,
+        $lte: cutoff,
+      },
     });
 
     return docs.map((doc) => this.toEntity(doc));
@@ -153,8 +172,8 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       renewsAt: input.renewsAt,
       autoRenew: input.autoRenew,
       status: input.status,
-      razorpaySubscriptionId: input.razorpaySubscriptionId,
       razorpayOrderId: input.razorpayOrderId,
+      razorpayPaymentId: input.razorpayPaymentId,
       razorpayCustomerId: input.razorpayCustomerId,
     });
 
@@ -181,13 +200,14 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       { new: true },
     );
 
-    if (!doc) throw new Error("Subscription not found");
+    if (!doc) {
+      throw new Error("Subscription not found");
+    }
     return this.toEntity(doc);
   }
 
   async changePlan(input: ChangePlanInput): Promise<RecruiterSubscription> {
     this.assertObjectId(input.subscriptionId, "subscriptionId");
-
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -196,7 +216,9 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
         input.subscriptionId,
       ).session(session);
 
-      if (!old) throw new Error("Subscription not found");
+      if (!old) {
+        throw new Error("Subscription not found");
+      }
 
       await RecruiterSubscriptionModel.findByIdAndUpdate(
         input.subscriptionId,
@@ -231,21 +253,23 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
             endDate: input.newEndDate,
             currentPeriodStart: now,
             currentPeriodEnd: input.newEndDate,
-            autoRenew: true,
+            autoRenew: false,
             status: SubscriptionStatus.Active,
-            razorpaySubscriptionId: input.newRazorpaySubscriptionId,
           },
         ],
         { session },
       );
 
       await session.commitTransaction();
+
       session.endSession();
 
       return this.toEntity(newSub[0]);
     } catch (err) {
       await session.abortTransaction();
+
       session.endSession();
+
       throw err;
     }
   }
@@ -264,6 +288,7 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
           currentPeriodEnd: input.newEndDate,
           renewsAt: input.newRenewsAt,
         },
+
         $unset: {
           cancelledAt: "",
           cancellationReason: "",
@@ -273,7 +298,10 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       { new: true },
     );
 
-    if (!doc) throw new Error("Subscription not found");
+    if (!doc) {
+      throw new Error("Subscription not found");
+    }
+
     return this.toEntity(doc);
   }
 
@@ -281,20 +309,35 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
     this.assertObjectId(input.subscriptionId, "subscriptionId");
 
     const inc: Record<string, number> = {};
-    if (input.jobPostsDelta !== undefined) inc.jobPostsUsed = input.jobPostsDelta;
-    if (input.screeningCreditsDelta !== undefined) inc.screeningCreditsUsed = input.screeningCreditsDelta;
+
+    if (input.jobPostsDelta !== undefined) {
+      inc.jobPostsUsed = input.jobPostsDelta;
+    }
+
+    if (input.screeningCreditsDelta !== undefined) {
+      inc.screeningCreditsUsed = input.screeningCreditsDelta;
+    }
 
     const doc = await RecruiterSubscriptionModel.findOneAndUpdate(
       {
         _id: input.subscriptionId,
+
         jobPostsUsed: { $gte: 0 },
-        screeningCreditsUsed: { $gte: 0 },
+
+        screeningCreditsUsed: {
+          $gte: 0,
+        },
       },
+
       { $inc: inc },
+
       { new: true },
     );
 
-    if (!doc) throw new Error("Subscription not found or invalid update");
+    if (!doc) {
+      throw new Error("Subscription not found or invalid update");
+    }
+
     return this.toEntity(doc);
   }
 
@@ -310,7 +353,10 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       { new: true },
     );
 
-    if (!doc) throw new Error("Subscription not found");
+    if (!doc) {
+      throw new Error("Subscription not found");
+    }
+
     return this.toEntity(doc);
   }
 
@@ -334,7 +380,10 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       { new: true },
     );
 
-    if (!doc) throw new Error("Subscription not found");
+    if (!doc) {
+      throw new Error("Subscription not found");
+    }
+
     return this.toEntity(doc);
   }
 
@@ -348,15 +397,17 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       price: doc.price,
       currency: doc.currency,
       billingCycle: doc.billingCycle,
-      razorpaySubscriptionId: doc.razorpaySubscriptionId,
       razorpayOrderId: doc.razorpayOrderId,
+      razorpayPaymentId: doc.razorpayPaymentId,
       razorpayCustomerId: doc.razorpayCustomerId,
       status: doc.status as SubscriptionStatus,
       startDate: doc.startDate,
       endDate: doc.endDate,
       trialEndDate: doc.trialEndDate,
       cancelledAt: doc.cancelledAt,
-      cancellationReason: doc.cancellationReason as CancellationReason | undefined,
+      cancellationReason: doc.cancellationReason as
+        | CancellationReason
+        | undefined,
       cancellationNote: doc.cancellationNote,
       renewsAt: doc.renewsAt,
       autoRenew: doc.autoRenew,

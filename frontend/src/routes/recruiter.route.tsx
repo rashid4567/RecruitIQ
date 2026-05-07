@@ -22,6 +22,15 @@ const RecruiterSettingsPage = lazy(
 const SubscriptionPlans = lazy(() =>
   import("../module/recruiter/presentation/pages/pricePlaning")
 );
+const SubscriptionSuccess = lazy(()=>
+  import("../module/recruiter/presentation/pages/paymentSuccess")
+)
+
+const SubscriptionFailed = lazy(()=>
+  import("../module/recruiter/presentation/pages/paymentFailed")
+)
+
+
 
 const RecruiterRoutes = () => (
   <Suspense fallback={<RouteLoader />}>
@@ -35,6 +44,8 @@ const RecruiterRoutes = () => (
           <Route path="job-editor" element={<JobPostEditor />} />
           <Route path="job-editor/:id" element={<JobPostEditor />} />
           <Route path="plans" element={<SubscriptionPlans/>}/>
+          <Route path="subscription/success" element={<SubscriptionSuccess/>}/>;
+          <Route path="subscription/failed" element={<SubscriptionFailed/>}/>
         </Route>
       </Route>
     </Routes>

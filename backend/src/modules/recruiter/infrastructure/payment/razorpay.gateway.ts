@@ -1,22 +1,32 @@
 import { razorpay } from "../../../../config/razorpay";
-import { PaymentGateway } from "../../application/ports/payment-gateway.port";
-import { CreateSubscriptionInput, CreateSubscriptionOutput } from "../../application/ports/Paymentgateway.port";
+
+import {
+  PaymentGateway,
+  CreateOrderInput,
+  CreateOrderOutput,
+} from "../../application/ports/payment-gateway.port";
 
 export class RazorpayGateway implements PaymentGateway {
-  async createSubscription(
-    input: CreateSubscriptionInput,
-  ): Promise<CreateSubscriptionOutput> {
-    const sub = await razorpay.subscriptions.create({
-      plan_id: input.planId,
-      total_count: input.totalCount,
-      quantity: 1,
+
+  async createOrder(
+    input: CreateOrderInput
+  ): Promise<CreateOrderOutput> {
+
+    const order = await razorpay.orders.create({
+      amount: input.amount * 100,
+      currency: input.currency,
+      receipt: input.receipt,
       notes: input.notes,
     });
 
-  
     return {
-      id: (sub as { id: string; status: string }).id,
-      status: (sub as { id: string; status: string }).status,
+      id: String(order.id),
+
+      amount: Number(order.amount),
+
+      currency: String(order.currency),
+
+      status: String(order.status),
     };
   }
 }

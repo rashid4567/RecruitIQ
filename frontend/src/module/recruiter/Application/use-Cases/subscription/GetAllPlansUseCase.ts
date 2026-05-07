@@ -1,5 +1,9 @@
 import type { SubscriptionPlan } from "@/module/recruiter/Domain/entities/SubscriptionPlan.entity";
-import type { PlanFilterOptions, SubscriptionPlanRepository } from "@/module/recruiter/Domain/repositories/subscription-plan.repository";
+
+import type {
+  PlanFilterOptions,
+  SubscriptionPlanRepository,
+} from "@/module/recruiter/Domain/repositories/subscription-plan.repository";
 
 export interface GetAllPlansResponse {
   plans: SubscriptionPlan[];
@@ -13,7 +17,6 @@ export interface GetAllPlansInput {
 
 export class GetAllPlansUseCase {
   private readonly planRepo: SubscriptionPlanRepository;
-
   constructor(planRepo: SubscriptionPlanRepository) {
     this.planRepo = planRepo;
   }
@@ -22,16 +25,20 @@ export class GetAllPlansUseCase {
     const plans =
       input?.activeOnly === false
         ? await this.planRepo.findAll(input?.filters)
-        : await this.planRepo.findByActivePlans();
+        : await this.planRepo.findActivePlans();
 
     if (!plans || plans.length === 0) {
-      return { plans: [], total: 0 };
+      return {
+        plans: [],
+        total: 0,
+      };
     }
 
     const sorted = [...plans].sort((a, b) => a.sortOrder - b.sortOrder);
 
     return {
       plans: sorted,
+
       total: sorted.length,
     };
   }

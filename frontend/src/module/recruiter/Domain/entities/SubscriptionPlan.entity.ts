@@ -28,7 +28,6 @@ export interface SubscriptionPlanProps {
   screeningCredits: number;
   featuresAccess: FeaturesAccess;
   features: PlanFeature[];
-  razorpayPlanId?: string;
   isPopular: boolean;
   sortOrder: number;
   isActive: boolean;
@@ -38,7 +37,6 @@ export interface SubscriptionPlanProps {
 
 export class SubscriptionPlan {
   private readonly props: SubscriptionPlanProps;
-
   private constructor(props: SubscriptionPlanProps) {
     this.props = props;
   }
@@ -83,13 +81,12 @@ export class SubscriptionPlan {
     return this.props.screeningCredits;
   }
   get featuresAccess(): FeaturesAccess {
-    return { ...this.props.featuresAccess };
+    return {
+      ...this.props.featuresAccess,
+    };
   }
-  get features(): PlanFeature[] {
+ get features(): PlanFeature[] {
     return [...this.props.features];
-  }
-  get razorpayPlanId(): string | undefined {
-    return this.props.razorpayPlanId;
   }
   get isPopular(): boolean {
     return this.props.isPopular;
@@ -106,11 +103,9 @@ export class SubscriptionPlan {
   get updatedAt(): Date {
     return this.props.updatedAt;
   }
-
   get isFree(): boolean {
     return this.props.planType === PlanType.Free || this.props.price === 0;
   }
-
   get hasUnlimitedJobPosts(): boolean {
     return this.props.jobPostsPerMonth === -1;
   }
@@ -120,17 +115,23 @@ export class SubscriptionPlan {
   }
 
   get displayPrice(): string {
-    if (this.isFree) return "Free";
+    if (this.isFree) {
+      return "Free";
+    }
     return `${this.props.currency} ${this.props.price.toLocaleString()}`;
   }
 
   get displayJobPosts(): string {
-    if (this.hasUnlimitedJobPosts) return "Unlimited";
+    if (this.hasUnlimitedJobPosts) {
+      return "Unlimited";
+    }
     return (this.props.jobPostsPerMonth ?? 0).toString();
   }
 
   get displayScreeningCredits(): string {
-    if (this.hasUnlimitedScreeningCredits) return "Unlimited";
+    if (this.hasUnlimitedScreeningCredits) {
+      return "Unlimited";
+    }
     return (this.props.screeningCredits ?? 0).toString();
   }
 
@@ -147,7 +148,9 @@ export class SubscriptionPlan {
   toPlainObject(): SubscriptionPlanProps {
     return {
       ...this.props,
-      featuresAccess: { ...this.props.featuresAccess },
+      featuresAccess: {
+        ...this.props.featuresAccess,
+      },
       features: [...this.props.features],
     };
   }

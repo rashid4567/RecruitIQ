@@ -12,12 +12,13 @@ export interface CreateSubscriptionRequest {
 }
 
 export interface CreateSubscriptionResponse {
-  razorpaySubscriptionId: string;
+  subscriptionId: string;
   razorpayKeyId: string;
   planName: string;
   amount: number;
   currency: string;
   billingCycle: string;
+  orderId: string;
 }
 
 export class CreateSubscriptionUseCase {
@@ -34,6 +35,7 @@ export class CreateSubscriptionUseCase {
     const existing = await this.subscriptionRepo.findActiveByRecruiterId(
       request.recruiterId,
     );
+
     if (existing) {
       throw new ApplicationError(
         ERROR_CODES.ACTIVE_SUBSCRIPTION_ALREADY_EXISTS,
@@ -41,23 +43,23 @@ export class CreateSubscriptionUseCase {
     }
 
     const plan = await this.planRepo.findById(request.planId);
+
     if (!plan || !plan.isActive) {
       throw new ApplicationError(
         ERROR_CODES.SUBSCRIPTION_PLAN_NOT_FOUND_OR_INACTIVE,
       );
     }
+
     if (plan.isFree) {
       throw new ApplicationError(
         ERROR_CODES.FREE_PLAN_DOES_NOT_REQUIRE_PAYMENT,
       );
     }
-    if (!plan.razorpayPlanId) {
-      throw new ApplicationError(ERROR_CODES.PLAN_NOT_CONFIGURED_FOR_RAZORPAY);
-    }
 
-    const razorpaySubscription = await this.paymentGateway.createSubscription({
-      planId: plan.razorpayPlanId,
-      totalCount: this.getTotalCount(plan.billingCycle),
+    const razorpayOrder = await this.paymentGateway.createOrder({
+      amount: plan.price,
+      currency: plan.currency,
+      receipt: `receipt_${Date.now()}`,
       notes: {
         recruiterId: request.recruiterId,
         planId: plan.id,
@@ -66,13 +68,14 @@ export class CreateSubscriptionUseCase {
     });
 
     const now = new Date();
+
     const endDate = this.calculateEndDate(
       now,
       plan.billingCycle,
       plan.billingInterval,
     );
 
-    await this.subscriptionRepo.create({
+    const subscription = await this.subscriptionRepo.create({
       recruiterId: request.recruiterId,
       planId: plan.id,
       planName: plan.name,
@@ -84,31 +87,20 @@ export class CreateSubscriptionUseCase {
       screeningCreditsLimit: plan.screeningCredits,
       startDate: now,
       endDate,
-      autoRenew: true,
-      razorpaySubscriptionId: razorpaySubscription.id,
+      autoRenew: false,
+      razorpayOrderId: razorpayOrder.id,
       status: SubscriptionStatus.Pending,
     });
 
     return {
-      razorpaySubscriptionId: razorpaySubscription.id,
+      subscriptionId: subscription.id,
       razorpayKeyId: this.razorpayKeyId,
       planName: plan.name,
       amount: plan.price,
       currency: plan.currency,
       billingCycle: plan.billingCycle,
+      orderId: razorpayOrder.id,
     };
-  }
-
-  private getTotalCount(billingCycle: string): number {
-    switch (billingCycle) {
-      case BillingCycle.Yearly:
-        return 12;
-      case BillingCycle.Weekly:
-        return 520;
-      case BillingCycle.Monthly:
-      default:
-        return 120;
-    }
   }
 
   private calculateEndDate(

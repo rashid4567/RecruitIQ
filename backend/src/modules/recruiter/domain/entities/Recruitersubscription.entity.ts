@@ -1,6 +1,9 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
+
 import { Currency } from "../../../admin/Domain/entities/subscription-plan.entity";
+
 import { ERROR_CODES } from "../constatns/recruiter.profile.error";
+
 import { BillingCycle, PlanType } from "./Subscriptionplan.entity";
 
 export enum SubscriptionStatus {
@@ -33,13 +36,12 @@ export interface RecruiterSubscriptionProps {
   recruiterId: string;
   planId: string;
   planName: string;
- planType: PlanType;
-
+  planType: PlanType;
   price: number;
   currency: Currency;
-billingCycle: BillingCycle;
-  razorpaySubscriptionId?: string;
+  billingCycle: BillingCycle;
   razorpayOrderId?: string;
+  razorpayPaymentId?: string;
   razorpayCustomerId?: string;
   status: SubscriptionStatus;
   startDate: Date;
@@ -56,7 +58,6 @@ billingCycle: BillingCycle;
   screeningCreditsLimit: number;
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
-
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,93 +66,121 @@ export class RecruiterSubscription {
   private constructor(private readonly props: RecruiterSubscriptionProps) {}
 
   static create(props: RecruiterSubscriptionProps): RecruiterSubscription {
-   if (props.startDate > props.endDate) {
-  throw new DomainError(ERROR_CODES.INVALID_SUBSCRIPTION_DATE_RANGE);
-}
+    if (props.startDate > props.endDate) {
+      throw new DomainError(ERROR_CODES.INVALID_SUBSCRIPTION_DATE_RANGE);
+    }
+
     return new RecruiterSubscription(props);
   }
 
   get id(): string {
     return this.props.id;
   }
+
   get recruiterId(): string {
     return this.props.recruiterId;
   }
+
   get planId(): string {
     return this.props.planId;
   }
+
   get planName(): string {
     return this.props.planName;
   }
-  get planType(): string {
+
+  get planType(): PlanType {
     return this.props.planType;
   }
+
   get price(): number {
     return this.props.price;
   }
-  get currency(): string {
+
+  get currency(): Currency {
     return this.props.currency;
   }
-  get billingCycle(): string {
+
+  get billingCycle(): BillingCycle {
     return this.props.billingCycle;
   }
-  get razorpaySubscriptionId(): string | undefined {
-    return this.props.razorpaySubscriptionId;
-  }
+
   get razorpayOrderId(): string | undefined {
     return this.props.razorpayOrderId;
   }
+
+  get razorpayPaymentId(): string | undefined {
+    return this.props.razorpayPaymentId;
+  }
+
   get razorpayCustomerId(): string | undefined {
     return this.props.razorpayCustomerId;
   }
+
   get status(): SubscriptionStatus {
     return this.props.status;
   }
+
   get startDate(): Date {
     return this.props.startDate;
   }
+
   get endDate(): Date {
     return this.props.endDate;
   }
+
   get trialEndDate(): Date | undefined {
     return this.props.trialEndDate;
   }
+
   get cancelledAt(): Date | undefined {
     return this.props.cancelledAt;
   }
+
   get cancellationReason(): CancellationReason | undefined {
     return this.props.cancellationReason;
   }
+
   get cancellationNote(): string | undefined {
     return this.props.cancellationNote;
   }
+
   get renewsAt(): Date | undefined {
     return this.props.renewsAt;
   }
+
   get autoRenew(): boolean {
     return this.props.autoRenew;
   }
+
   get jobPostsUsed(): number {
     return this.props.jobPostsUsed;
   }
+
   get screeningCreditsUsed(): number {
     return this.props.screeningCreditsUsed;
   }
+
   get jobPostsLimit(): number {
     return this.props.jobPostsLimit;
   }
+
   get screeningCreditsLimit(): number {
     return this.props.screeningCreditsLimit;
   }
+
   get currentPeriodStart(): Date {
     return this.props.currentPeriodStart;
   }
+
   get currentPeriodEnd(): Date {
     return this.props.currentPeriodEnd;
   }
+
   get createdAt(): Date {
     return this.props.createdAt;
   }
+
   get updatedAt(): Date {
     return this.props.updatedAt;
   }
@@ -175,7 +204,10 @@ export class RecruiterSubscription {
   }
 
   get isInTrial(): boolean {
-    if (!this.props.trialEndDate) return false;
+    if (!this.props.trialEndDate) {
+      return false;
+    }
+
     return (
       this.props.status === SubscriptionStatus.Trialing &&
       this.props.trialEndDate > new Date()
@@ -183,12 +215,18 @@ export class RecruiterSubscription {
   }
 
   get remainingJobPosts(): number | "unlimited" {
-    if (this.props.jobPostsLimit === -1) return "unlimited";
+    if (this.props.jobPostsLimit === -1) {
+      return "unlimited";
+    }
+
     return Math.max(0, this.props.jobPostsLimit - this.props.jobPostsUsed);
   }
 
   get remainingScreeningCredits(): number | "unlimited" {
-    if (this.props.screeningCreditsLimit === -1) return "unlimited";
+    if (this.props.screeningCreditsLimit === -1) {
+      return "unlimited";
+    }
+
     return Math.max(
       0,
       this.props.screeningCreditsLimit - this.props.screeningCreditsUsed,
@@ -196,8 +234,14 @@ export class RecruiterSubscription {
   }
 
   get jobPostUsagePercent(): number {
-    if (this.props.jobPostsLimit === -1) return 0;
-    if (this.props.jobPostsLimit === 0) return 100;
+    if (this.props.jobPostsLimit === -1) {
+      return 0;
+    }
+
+    if (this.props.jobPostsLimit === 0) {
+      return 100;
+    }
+
     return Math.min(
       100,
       (this.props.jobPostsUsed / this.props.jobPostsLimit) * 100,
@@ -205,8 +249,14 @@ export class RecruiterSubscription {
   }
 
   get screeningCreditUsagePercent(): number {
-    if (this.props.screeningCreditsLimit === -1) return 0;
-    if (this.props.screeningCreditsLimit === 0) return 100;
+    if (this.props.screeningCreditsLimit === -1) {
+      return 0;
+    }
+
+    if (this.props.screeningCreditsLimit === 0) {
+      return 100;
+    }
+
     return Math.min(
       100,
       (this.props.screeningCreditsUsed / this.props.screeningCreditsLimit) *
@@ -215,33 +265,52 @@ export class RecruiterSubscription {
   }
 
   canPostJob(): boolean {
-    if (!this.isActive) return false;
-    if (this.props.jobPostsLimit === -1) return true;
+    if (!this.isActive) {
+      return false;
+    }
+
+    if (this.props.jobPostsLimit === -1) {
+      return true;
+    }
+
     return this.props.jobPostsUsed < this.props.jobPostsLimit;
   }
 
   canUseScreeningCredit(): boolean {
-    if (!this.isActive) return false;
-    if (this.props.screeningCreditsLimit === -1) return true;
+    if (!this.isActive) {
+      return false;
+    }
+
+    if (this.props.screeningCreditsLimit === -1) {
+      return true;
+    }
+
     return this.props.screeningCreditsUsed < this.props.screeningCreditsLimit;
   }
 
   daysUntilExpiry(): number {
     const now = new Date();
+
     const diff = this.props.endDate.getTime() - now.getTime();
+
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }
 
   usageSnapshot(): UsageSnapshot {
     return {
       jobPostsUsed: this.props.jobPostsUsed,
+
       screeningCreditsUsed: this.props.screeningCreditsUsed,
+
       periodStart: this.props.currentPeriodStart,
+
       periodEnd: this.props.currentPeriodEnd,
     };
   }
 
   toPlainObject(): RecruiterSubscriptionProps {
-    return { ...this.props };
+    return {
+      ...this.props,
+    };
   }
 }

@@ -1,4 +1,3 @@
-
 import { CollapsibleSection } from "./CollapsibleSection";
 import { Star } from "lucide-react";
 import { Toggle } from "./Toggle";

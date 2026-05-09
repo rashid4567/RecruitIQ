@@ -1,4 +1,3 @@
-// PlanPreview.tsx
 import { Check, X } from "lucide-react";
 
 interface PlanPreviewProps {

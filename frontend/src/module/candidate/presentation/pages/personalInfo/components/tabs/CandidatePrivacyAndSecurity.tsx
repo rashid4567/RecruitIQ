@@ -21,15 +21,14 @@ export function CandidatePrivacyAndSecurity() {
     updatePassword,
     passwordSuccess,
     isUpdating,
-    clearSuccess,          // ← Added from updated hook
+    clearSuccess,
   } = useCandidateSecurity();
 
-  // Local visibility states
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Password strength
+
   const [strength, setStrength] = useState(0);
   const [requirements, setRequirements] = useState({
     length: false,

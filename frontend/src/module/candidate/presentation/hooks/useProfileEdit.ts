@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import type { CandidateProfile } from "../../domain/entities/candidateProfile";
-import type { ProfileFormData } from "../validators/profileValidation";
+import type { ProfileFormData } from "../validators/profileValidation.ts";
 
 export function useProfileEdit(profile: CandidateProfile | null) {
   const [isEditing, setIsEditing] = useState(false);

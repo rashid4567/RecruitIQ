@@ -2,7 +2,7 @@ import { useCompleteProfile } from "../hooks/useCompleteProfileForm"
 import { RecruiterProfileHeader } from "./components/completeProfile/RecruiterProfileHeader"
 import { ProgressBar } from "./components/completeProfile/ProgressBar" 
 import { CompanyForm } from "./components/completeProfile/CompanyForm"
-import { LogoUpload } from "./components/completeProfile/LogoUpload" 
+
 import { PricingPlans } from "./components/completeProfile/PricingPlans" 
 import { ActionButtons } from "./components/completeProfile/ActionButtons"
 
@@ -34,10 +34,7 @@ export default function RecruiterDetails() {
             onChange={handleInputChange}
           />
 
-          <LogoUpload
-            logoPreview={logoPreview}
-            onLogoUpload={handleLogoUpload}
-          />
+    
 
           <PricingPlans
             selectedPlan={selectedPlan}

@@ -5,17 +5,17 @@ import { Separator } from "@/components/ui/separator";
 import { Edit2, Save, X, Loader2 } from "lucide-react";
 
 import type { CandidateProfile } from "@/module/candidate/domain/entities/candidateProfile";
-import type { ProfileFormData } from "../../../../validators/profileValidation";
+import type { ProfileFormData } from "../../../validators/profileValidation.ts";
 
-import { useEmailUpdate } from "../../../../hooks/useEmailUpdate";
-import { ProfileCard } from "../cards/ProfileCard";
-import { ProfileStrengthCard } from "../cards/ProfileStrengthCard";
-import { BasicInfoSection } from "../sections/BasicInfoSection";
-import { ProfessionalInfoSection } from "../sections/ProfessionalInfoSection";
-import { AdditionalInfoSection } from "../sections/AdditionalInfoSection";
-import { SocialSection } from "../sections/SocialSection";
-import { BioSection } from "../sections/BioSection";
-import { EmailVerificationModal } from "../modal/email.update.modal";
+import { useEmailUpdate } from "../../../hooks/useEmailUpdate";
+import { ProfileCard } from "../../../pages/personalInfo/components/cards/ProfileCard";
+import { ProfileStrengthCard } from "../../../pages/personalInfo/components/cards/ProfileStrengthCard";
+import { BasicInfoSection } from "../../../pages/personalInfo/components/sections/BasicInfoSection";
+import { ProfessionalInfoSection } from "../../../pages/personalInfo/components/sections/ProfessionalInfoSection";
+import { AdditionalInfoSection } from "../../../pages/personalInfo/components/sections/AdditionalInfoSection";
+import { SocialSection } from "../../../pages/personalInfo/components/sections/SocialSection";
+import { BioSection } from "../../../pages/personalInfo/components/sections/BioSection";
+import { EmailVerificationModal } from "../../../pages/personalInfo/components/modal/email.update.modal";
 
 export interface ProfileStats {
   experienceYears: number;

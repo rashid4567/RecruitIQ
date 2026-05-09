@@ -1,15 +1,102 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { CreatePlanPayload } from "@/module/admin/application/dto/subscription.plan.dto";
 import {
   createPlanUC,
-
   updatePlanUC,
-  getPlanByIdUC
+  getPlanByIdUC,
 } from "../../di/subscription.plans.di";
+import axios from "axios";
+
 export interface PlanFormData extends CreatePlanPayload {
   razorpayPlanId?: string;
+}
+
+function getErrorMessage(err: unknown): string {
+  if (axios.isAxiosError(err)) {
+    return (
+      err.response?.data?.message ??
+      err.response?.data?.error ??
+      "No internet connection. Please check your network and try again."
+    );
+  }
+
+  return "No internet connection. Please check your network and try again.";
+}
+
+function validatePlanForm(formData: PlanFormData): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  if (!formData.name?.trim()) {
+    errors.name = "Plan name is required.";
+  } else if (formData.name.trim().length < 3) {
+    errors.name = "Plan name must be at least 3 characters.";
+  } else if (formData.name.trim().length > 50) {
+    errors.name = "Plan name must be 50 characters or less.";
+  }
+
+  if (!formData.description?.trim()) {
+    errors.description = "Description is required.";
+  } else if (formData.description.trim().length < 10) {
+    errors.description = "Description must be at least 10 characters.";
+  } else if (formData.description.trim().length > 300) {
+    errors.description = "Description must be 300 characters or less.";
+  }
+
+  if (formData.planType !== "free") {
+    if (formData.price === undefined || formData.price === null) {
+      errors.price = "Price is required.";
+    } else if (isNaN(Number(formData.price))) {
+      errors.price = "Price must be a valid number.";
+    } else if (Number(formData.price) <= 0) {
+      errors.price = "Price must be greater than 0.";
+    } else if (Number(formData.price) > 1_000_000) {
+      errors.price = "Price seems too high. Please double-check.";
+    }
+  }
+
+  if (!formData.billingInterval || formData.billingInterval < 1) {
+    errors.billingInterval = "Billing interval must be at least 1.";
+  } else if (formData.billingInterval > 12) {
+    errors.billingInterval = "Billing interval cannot exceed 12 months.";
+  }
+
+  if (
+    formData.jobPostsPerMonth === undefined ||
+    formData.jobPostsPerMonth < -1
+  ) {
+    errors.jobPostsPerMonth = "Job posts per month cannot be lesser than -1.";
+  } else if (formData.jobPostsPerMonth > 10_000) {
+    errors.jobPostsPerMonth = "Job posts per month seems too high.";
+  }
+
+  if (
+    formData.screeningCredits === undefined ||
+    formData.screeningCredits < -1
+  ) {
+    errors.screeningCredits = "Screening credits cannot be lesser than -1.";
+  } else if (formData.screeningCredits > 100_000) {
+    errors.screeningCredits = "Screening credits seems too high.";
+  }
+
+  if (formData.sortOrder === undefined || formData.sortOrder < 1) {
+    errors.sortOrder = "Sort order must be at least 1.";
+  }
+
+  if (!formData.features || formData.features.length === 0) {
+    errors.features = "At least one feature is required.";
+  } else {
+    const hasEmptyFeature = formData.features.some((f) => !f.name?.trim());
+    if (hasEmptyFeature) {
+      errors.features = "All feature names must be filled in.";
+    }
+  }
+
+  if (formData.planType !== "free" && !formData.razorpayPlanId?.trim()) {
+    errors.razorpayPlanId = "Razorpay Plan ID is required for paid plans.";
+  }
+
+  return errors;
 }
 
 export function usePlanEditor(id?: string) {
@@ -19,7 +106,7 @@ export function usePlanEditor(id?: string) {
   const [formData, setFormData] = useState<PlanFormData>({
     name: "",
     planType: "basic",
-    price: 0o0,
+    price: 0,
     currency: "INR",
     billingCycle: "monthly",
     billingInterval: 1,
@@ -45,18 +132,16 @@ export function usePlanEditor(id?: string) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Load plan for editing
   useEffect(() => {
     if (!isEditMode || !id) return;
 
     const loadPlan = async () => {
       setLoading(true);
       try {
-      
-    
         const plan = await getPlanByIdUC.execute(id);
-
         if (plan) {
           setFormData({
             name: plan.name,
@@ -76,8 +161,7 @@ export function usePlanEditor(id?: string) {
           });
         }
       } catch (err) {
-        console.error("Failed to load plan:", err);
-        alert("Failed to load plan data");
+        setSaveError(getErrorMessage(err));
       } finally {
         setLoading(false);
       }
@@ -86,14 +170,18 @@ export function usePlanEditor(id?: string) {
     loadPlan();
   }, [id, isEditMode]);
 
-  const handleChange = (field: keyof PlanFormData, value: any) => {
+  const handleChange = <K extends keyof PlanFormData>(
+    field: K,
+    value: PlanFormData[K],
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
+    if (saveError) setSaveError(null);
   };
 
   const handleFeaturesAccessChange = (
     key: keyof PlanFormData["featuresAccess"],
-    value: boolean
+    value: boolean,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -101,16 +189,20 @@ export function usePlanEditor(id?: string) {
     }));
   };
 
-  const updateFeature = (index: number, updates: Partial<{ name: string; included: boolean }>) => {
+  const updateFeature = (
+    index: number,
+    updates: Partial<{ name: string; included: boolean }>,
+  ) => {
     const updated = [...formData.features];
     updated[index] = { ...updated[index], ...updates };
     setFormData((prev) => ({ ...prev, features: updated }));
+    if (errors.features) setErrors((prev) => ({ ...prev, features: "" }));
   };
 
   const addFeature = () => {
     setFormData((prev) => ({
       ...prev,
-      features: [...prev.features, { name: "New Feature", included: true }],
+      features: [...prev.features, { name: "", included: true }],
     }));
   };
 
@@ -121,18 +213,15 @@ export function usePlanEditor(id?: string) {
     }));
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.name?.trim()) newErrors.name = "Plan name is required";
-    if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
-    if (!formData.description?.trim()) newErrors.description = "Description is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSave = async () => {
-    if (!validateForm()) return;
+    setSaveError(null);
+    setSaveSuccess(false);
+
+    const validationErrors = validatePlanForm(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
 
     setSaving(true);
     try {
@@ -152,16 +241,14 @@ export function usePlanEditor(id?: string) {
           description: formData.description,
           razorpayPlanId: formData.razorpayPlanId,
         });
-        alert("Plan updated successfully!");
       } else {
-       
         await createPlanUC.execute(formData);
-        alert("Plan created successfully!");
       }
 
-      navigate("/admin/plans");
-    } catch (error: any) {
-      alert(error.message || "Failed to save plan");
+      setSaveSuccess(true);
+      setTimeout(() => navigate("/admin/plans"), 1500);
+    } catch (err) {
+      setSaveError(getErrorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -172,6 +259,8 @@ export function usePlanEditor(id?: string) {
     loading,
     saving,
     errors,
+    saveError,
+    saveSuccess,
     isEditMode,
     handleChange,
     handleFeaturesAccessChange,

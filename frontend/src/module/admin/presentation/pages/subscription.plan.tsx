@@ -22,6 +22,8 @@ export default function PlanEditor() {
     loading,
     saving,
     errors,
+    saveError,
+    saveSuccess,
     isEditMode,
     handleChange,
     handleFeaturesAccessChange,
@@ -42,11 +44,14 @@ export default function PlanEditor() {
     );
   }
 
+  const hasErrors = Object.values(errors).some(Boolean);
+
   return (
     <div className="flex h-screen bg-zinc-50">
       <Sidebar />
 
       <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Top header */}
         <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white shadow-sm">
           <div className="flex h-16 items-center justify-between px-8">
             <div className="flex items-center gap-4">
@@ -95,6 +100,7 @@ export default function PlanEditor() {
           <div className="px-8 py-8 max-w-350 mx-auto">
             <PlanHeader formData={formData} isEditMode={isEditMode} />
 
+            {/* Edit-mode warning */}
             {isEditMode && (
               <div className="mt-6 mb-8 flex gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5">
                 <AlertTriangle className="h-6 w-6 text-amber-600 mt-0.5 shrink-0" />
@@ -107,6 +113,70 @@ export default function PlanEditor() {
                 </div>
               </div>
             )}
+
+            {/* Global save error */}
+            {saveError && (
+              <div className="mt-4 mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+                <svg
+                  className="h-5 w-5 text-red-500 shrink-0 mt-0.5"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.75 3.75a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-3.5zm.75 6.5a.875.875 0 1 1 0-1.75.875.875 0 0 1 0 1.75z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-semibold text-red-700">
+                    Failed to save plan
+                  </p>
+                  <p className="text-sm text-red-600 mt-0.5">{saveError}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Global success */}
+            {saveSuccess && (
+              <div className="mt-4 mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <svg
+                  className="h-5 w-5 text-emerald-500 shrink-0"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm3.28 5.03a.75.75 0 0 0-1.06-1.06L6.75 8.44 5.78 7.47a.75.75 0 0 0-1.06 1.06l1.5 1.5a.75.75 0 0 0 1.06 0l3.5-3.5z" />
+                </svg>
+                <p className="text-sm font-semibold text-emerald-700">
+                  Plan saved successfully! Redirecting…
+                </p>
+              </div>
+            )}
+
+            {/* Validation summary banner */}
+            {hasErrors && (
+              <div className="mt-4 mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+                <svg
+                  className="h-5 w-5 text-red-500 shrink-0 mt-0.5"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.75 3.75a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-3.5zm.75 6.5a.875.875 0 1 1 0-1.75.875.875 0 0 1 0 1.75z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-semibold text-red-700">
+                    Please fix the following errors before saving
+                  </p>
+                  <ul className="mt-1.5 space-y-0.5">
+                    {Object.entries(errors)
+                      .filter(([, msg]) => !!msg)
+                      .map(([field, msg]) => (
+                        <li key={field} className="text-sm text-red-600">
+                          • {msg}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* Main grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-7 space-y-8">
                 <PlanBasicDetails
@@ -116,10 +186,12 @@ export default function PlanEditor() {
                 />
                 <PlanBillingConfig
                   formData={formData}
+                  errors={errors}
                   handleChange={handleChange}
                 />
                 <PlanLimitsQuotas
                   formData={formData}
+                  errors={errors}
                   handleChange={handleChange}
                 />
                 <PlanFeatureAccess
@@ -128,6 +200,7 @@ export default function PlanEditor() {
                 />
                 <PlanFeaturesManagement
                   features={formData.features}
+                  errors={errors}
                   updateFeature={updateFeature}
                   addFeature={addFeature}
                   removeFeature={removeFeature}
@@ -135,12 +208,16 @@ export default function PlanEditor() {
               </div>
               <div className="lg:col-span-5 space-y-8">
                 <PlanPreview formData={formData} />
-                <PlanSettings formData={formData} handleChange={handleChange} />
+                <PlanSettings
+                  formData={formData}
+                  handleChange={handleChange}
+                />
                 <PlanQuotaSummary formData={formData} />
               </div>
             </div>
           </div>
         </div>
+
         <FixedBottomBar
           isEditMode={isEditMode}
           saving={saving}

@@ -1,5 +1,5 @@
 
-import { Pencil, Copy, Crown, Sparkles, Zap, Check, X } from 'lucide-react';
+import { Pencil, Crown, Sparkles, Zap, Check, X } from 'lucide-react';
 import type { UIPlan } from '../../hooks/Subscription.plans.Hooks/useSubscriptionPlans'; 
 import { useNavigate } from 'react-router-dom';
 

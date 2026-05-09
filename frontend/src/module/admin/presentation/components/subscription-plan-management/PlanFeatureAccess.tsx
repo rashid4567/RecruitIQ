@@ -1,5 +1,3 @@
-// src/pages/admin/plans/components/subscription-plan-management/PlanFeatureAccess.tsx
-
 import { CollapsibleSection } from "./CollapsibleSection";
 import { Calendar, BarChart2, ShieldCheck } from "lucide-react";
 import { Toggle } from "./Toggle";

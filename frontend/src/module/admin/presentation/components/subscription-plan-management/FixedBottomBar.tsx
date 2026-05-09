@@ -1,5 +1,3 @@
-// FixedBottomBar.tsx
-
 interface FixedBottomBarProps {
   isEditMode: boolean;
   saving: boolean;
@@ -9,7 +7,7 @@ interface FixedBottomBarProps {
 
 export default function FixedBottomBar({ isEditMode, saving, onSave, onCancel }: FixedBottomBarProps) {
   return (
-    <div className="fixed bottom-0 left-[260px] right-0 border-t border-zinc-200 bg-white px-8 py-4 flex justify-end gap-4 z-40">
+    <div className="fixed bottom-0 left-65 right-0 border-t border-zinc-200 bg-white px-8 py-4 flex justify-end gap-4 z-40">
       <button
         onClick={onCancel}
         className="px-6 py-2.5 text-zinc-700 font-medium hover:bg-zinc-100 rounded-xl"

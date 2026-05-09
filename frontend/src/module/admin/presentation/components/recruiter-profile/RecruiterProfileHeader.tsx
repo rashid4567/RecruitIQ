@@ -1,4 +1,4 @@
-// components/recruiter-profile/RecruiterProfileHeader.tsx
+
 import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Recruiter } from "@/module/admin/domain/entities/recruiter.entity";

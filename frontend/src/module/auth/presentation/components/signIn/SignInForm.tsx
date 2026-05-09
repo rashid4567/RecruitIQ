@@ -10,11 +10,7 @@ import {
   Lock,
   AlertCircle,
   ArrowRight,
-  Building2,
-  Linkedin,
   Loader2,
-  X,
-  Check,
 } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import type { SignInFormData } from "@/types/auth/auth.types";
@@ -323,7 +319,7 @@ export function SignInForm({
       <button
         type="submit"
         disabled={isAnyLoading}
-        className="w-full py-4 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg group"
+        className="w-full py-4 px-4 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg group"
       >
         {isLoading ? (
           <div className="flex items-center justify-center gap-3">
@@ -361,24 +357,7 @@ export function SignInForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => {}}
-            disabled={isAnyLoading}
-            className="p-3.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group"
-          >
-            <Linkedin className="w-5 h-5 text-[#0077B5]" />
-            <span className="text-sm font-semibold text-gray-700">LinkedIn</span>
-          </button>
-          <button
-            onClick={() => {}}
-            disabled={isAnyLoading}
-            className="p-3.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group"
-          >
-            <Building2 className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-semibold text-gray-700">Company SSO</span>
-          </button>
-        </div>
+      
       </div>
     </form>
   );

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
   Search,
@@ -39,12 +37,11 @@ export default function PlansPage() {
   } = useSubscriptionPlans();
 
   const filteredPlans: UIPlan[] = uiPlans.filter((plan: UIPlan) =>
-    plan.name.toLowerCase().includes(searchQuery.toLowerCase())
+    plan.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50">
-
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/80 backdrop-blur-xl">
@@ -120,7 +117,9 @@ export default function PlansPage() {
               <div className="rounded-2xl border border-zinc-200 bg-white p-6 hover:shadow-xl transition-all">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-zinc-500">Active Plans</p>
+                    <p className="text-sm font-medium text-zinc-500">
+                      Active Plans
+                    </p>
                     <p className="text-3xl font-bold tracking-tight text-zinc-900 mt-2">
                       {loading ? "—" : activePlansCount}
                     </p>
@@ -134,7 +133,9 @@ export default function PlansPage() {
               <div className="rounded-2xl border border-zinc-200 bg-white p-6 hover:shadow-xl transition-all">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-zinc-500">Simulated MRR</p>
+                    <p className="text-sm font-medium text-zinc-500">
+                      Simulated MRR
+                    </p>
                     <p className="text-3xl font-bold tracking-tight text-zinc-900 mt-2">
                       {loading ? "—" : `₹${(totalMRR / 1000).toFixed(1)}K`}
                     </p>
@@ -159,7 +160,9 @@ export default function PlansPage() {
             )}
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-zinc-900">All Plans</h3>
+                <h3 className="text-lg font-semibold text-zinc-900">
+                  All Plans
+                </h3>
                 {!loading && (
                   <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600">
                     {filteredPlans.length} plans
@@ -183,8 +186,6 @@ export default function PlansPage() {
                     key={plan.id}
                     plan={plan}
                     onToggle={togglePlanStatus}
-                  
-                    
                     togglingId={togglingId}
                   />
                 ))}
@@ -193,7 +194,9 @@ export default function PlansPage() {
               <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50/50 py-20">
                 <Layers className="h-14 w-14 text-zinc-300" />
                 <h3 className="mt-6 text-xl font-semibold text-zinc-900">
-                  {searchQuery ? "No matching plans found" : "No subscription plans yet"}
+                  {searchQuery
+                    ? "No matching plans found"
+                    : "No subscription plans yet"}
                 </h3>
                 <p className="mt-2 text-zinc-500 text-center max-w-sm">
                   {searchQuery

@@ -1,6 +1,4 @@
-
 import { Pencil, ChevronRight } from "lucide-react";
-
 interface PlanHeaderProps {
   formData: any;
   isEditMode: boolean;

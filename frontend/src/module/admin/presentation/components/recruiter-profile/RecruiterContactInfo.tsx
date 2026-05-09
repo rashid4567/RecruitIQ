@@ -1,4 +1,4 @@
-// components/recruiter-profile/RecruiterContactInfo.tsx
+
 import {
   Mail,
   MapPin,

@@ -1,4 +1,3 @@
-// PlanQuotaSummary.tsx
 import { Briefcase, Brain, Calendar, BarChart2, ShieldCheck, Check, X } from "lucide-react";
 
 interface PlanQuotaSummaryProps {

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
 import {
@@ -11,11 +12,13 @@ import {
   Linkedin,
   Award,
   Upload,
+  CheckCircle,
+  XCircle,
   ChevronRight,
 } from "lucide-react";
 
 import type { CandidateProfile } from "@/module/candidate/domain/entities/candidateProfile";
-import type { ProfileFormData } from "../../../../validators/profileValidation.ts";
+import type { ProfileFormData } from "../../validators/profileValidation"
 
 export interface ProfileStats {
   experienceYears: number;

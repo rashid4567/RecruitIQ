@@ -2,7 +2,6 @@ import {
   Mail,
   Search,
   X,
-  Eye,
   Edit,
   Send,
   ToggleLeft,
@@ -11,7 +10,6 @@ import {
   Plus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";

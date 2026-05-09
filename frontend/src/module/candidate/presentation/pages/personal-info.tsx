@@ -15,7 +15,7 @@ import CandidateSidebar from "@/components/sidebar/candidateSidebar";
 import { CandidatePrivacyAndSecurity } from "./personalInfo/components/tabs/CandidatePrivacyAndSecurity";
 import { NotificationsSection } from "./NotificationsSection";
 import { PrivacySection } from "./PrivacySection";
-import { PersonalInfoTab } from "./personalInfo/components/tabs/PersonalInfoTab";
+import { PersonalInfoTab } from "../components/personalInfo/components/PersonalInfoTab";
 import { Header } from "./personalInfo/components/common/Header";
 import { LoadingState } from "./personalInfo/components/common/LoadingState";
 import { ErrorState } from "./personalInfo/components/common/ErrorState";
@@ -29,7 +29,7 @@ import {
   validateProfileField,
   validateProfileForm,
   type ProfileFormData,
-} from "../validators/profileValidation";
+} from "../validators/profileValidation.ts";
 
 const settingsTabs = [
   {

@@ -49,13 +49,6 @@ export default function RecruiterSettingsPage() {
   const [profile, setProfile] = useState<RecruiterProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const userStats = {
-    totalJobs: 3,
-    activeJobs: 2,
-    totalApplications: 24,
-    interviewsScheduled: 8,
-    profileCompletion: 85,
-  };
 
   useEffect(() => {
     loadProfile();

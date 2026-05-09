@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
+
 import { logger } from "../shared/logger";
 import { ApplicationError } from "../shared/errors/application.error";
 import { DomainError } from "../shared/errors/domain.error";
-
 
 const ERROR_STATUS_MAP: Record<string, number> = {
   USER_ALREADY_EXISTS: 409,
@@ -20,54 +20,78 @@ const ERROR_STATUS_MAP: Record<string, number> = {
   USER_NOT_FOUND: 404,
 };
 
-
 export function errorHandler(
   err: unknown,
   req: Request,
   res: Response,
-  next: NextFunction
-) {
-
+  next: NextFunction,
+): void {
   logger.error({
-    error: err,
+    message: "Request Error",
     method: req.method,
     url: req.originalUrl,
     body: req.body,
+    error: err,
   });
 
+  if (res.headersSent) {
+    next(err);
+    return;
+  }
 
   if (err instanceof ZodError) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       type: "VALIDATION_ERROR",
-      errors: err.issues.map(issue => ({
+      message: "Validation failed",
+      errors: err.issues.map((issue) => ({
         field: issue.path.join("."),
         message: issue.message,
       })),
     });
+
+    return;
   }
 
   if (err instanceof ApplicationError) {
-    return res.status(ERROR_STATUS_MAP[err.code] ?? 400).json({
+    const statusCode = ERROR_STATUS_MAP[err.code] ?? 400;
+
+    res.status(statusCode).json({
       success: false,
       type: "APPLICATION_ERROR",
       code: err.code,
       message: err.message,
     });
+
+    return;
   }
 
   if (err instanceof DomainError) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       type: "DOMAIN_ERROR",
       message: err.message,
     });
+
+    return;
   }
 
- 
-  console.error("Unhandled error:", err);
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    err.code === 11000
+  ) {
+    res.status(409).json({
+      success: false,
+      type: "DATABASE_ERROR",
+      message: "Duplicate field value entered",
+    });
 
-  return res.status(500).json({
+    return;
+  }
+
+  res.status(500).json({
     success: false,
     type: "INTERNAL_SERVER_ERROR",
     message: "Something went wrong",

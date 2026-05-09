@@ -62,7 +62,6 @@ export function SecuritySection() {
     special: false,
   });
 
-  // Live Password Requirements
   useEffect(() => {
     if (newPassword) {
       setPasswordValidation({

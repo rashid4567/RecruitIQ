@@ -135,7 +135,8 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await authService.logout();
-    } catch {
+    } catch(error) {
+      console.error("Logout failed:", error);
     } finally {
       localStorage.removeItem("authToken");
       localStorage.removeItem("userRole");

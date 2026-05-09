@@ -107,9 +107,6 @@ export function RecruiterProfileSection() {
     );
   }
 
-  function setIsEmailModalOpen(arg0: boolean): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <TooltipProvider>

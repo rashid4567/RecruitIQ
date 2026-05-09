@@ -1,9 +1,6 @@
-
 import { CandidateRepository } from "../../domain/repositories/candidate.repository";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
-import { ERROR_CODES } from "../constants/error-code.constant";
 import { CompleteCandidateProfileDTO } from "../dto/complete-candidate-profile.dto";
-import { ApplicationError } from "../../../../shared/errors/application.error";
 import { CandidateProfile } from "../../domain/entities/candidate-profile.entity";
 
 export class CompleteCandidateProfileUseCase {
@@ -19,7 +16,6 @@ export class CompleteCandidateProfileUseCase {
       profile = CandidateProfile.create(id);
     }
 
-
     profile.updateSkills(data.skills);
     profile.updateEducation(data.educationLevel);
     profile.updatePreferredLocations(data.preferredJobLocations);
@@ -28,8 +24,7 @@ export class CompleteCandidateProfileUseCase {
     if (data.currentJobLocation !== undefined)
       profile.updateCurrentJobLocation(data.currentJobLocation);
 
-    if (data.gender !== undefined)
-      profile.updateGender(data.gender);
+    if (data.gender !== undefined) profile.updateGender(data.gender);
 
     if (data.linkedinUrl !== undefined)
       profile.updateLinkedinUrl(data.linkedinUrl);

@@ -2,6 +2,7 @@ import api from "@/api/axios";
 import type { JobPostRepository } from "../../Domain/repositories/jobPost.Repository";
 import type { CreateJobPostDTO } from "../../Domain/dto/jobPost.dto";
 import { JobPost } from "../../Domain/entities/jobPost.entity";
+import type { JobPostApiResponse } from "../../Interface/jobPostApiResponse";
 
 export class ApiJobPostRepository implements JobPostRepository {
   async createJobPost(data: CreateJobPostDTO): Promise<JobPost> {
@@ -11,7 +12,7 @@ export class ApiJobPostRepository implements JobPostRepository {
 
   async getJobPosts(): Promise<JobPost[]> {
     const res = await api.get("/recruiter/jobs");
-    return res.data.data.map((job: any) => this.toEntity(job));
+    return res.data.data.map((job: JobPostApiResponse) => this.toEntity(job));
   }
 
   async getJobPostById(id: string): Promise<JobPost> {
@@ -67,38 +68,26 @@ export class ApiJobPostRepository implements JobPostRepository {
     return new JobPost({
       id: data._id ?? data.id,
       recruiterId: data.recruiterId,
-
       title: data.title,
       description: data.description,
-
       responsibilities: data.responsibilities,
       requirements: data.requirements,
-
       requiredSkills: data.requiredSkills,
       preferredSkills: data.preferredSkills,
-
       experienceMin: data.experienceMin,
       experienceMax: data.experienceMax,
-
       location: data.location,
       isRemote: data.isRemote,
-
       jobType: data.jobType,
-
       salary: data.salary,
-
       department: data.department,
       positions: data.positions,
-
-      visibility: data.visibility ?? "active",  // ✅ added
-      isBlocked: data.isBlocked ?? false,        // ✅ added
+      visibility: data.visibility ?? "active",  
+      isBlocked: data.isBlocked ?? false,        
       status: data.status,
-
       externalLink: data.externalLink,
-
       views: data.views,
       applicationsCount: data.applicationsCount,
-
       postedOn: data.postedOn ? new Date(data.postedOn) : undefined,
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : undefined,
       createdAt: data.createdAt ? new Date(data.createdAt) : undefined,

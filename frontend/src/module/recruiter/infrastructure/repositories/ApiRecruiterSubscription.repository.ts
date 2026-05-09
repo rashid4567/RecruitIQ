@@ -3,6 +3,7 @@ import {
   RecruiterSubscription,
   type RecruiterSubscriptionProps,
 } from "../../Domain/entities/RecruiterSubscription.entity";
+
 import type {
   CancelSubscriptionInput,
   ChangePlanInput,
@@ -13,50 +14,16 @@ import type {
   SubscribeInput,
   TrackUsageInput,
 } from "../../Domain/repositories/recruiter-subscription.repository";
+
 import type {
   CancellationReason,
   SubscriptionStatus,
 } from "../../Domain/constatns/subscription.constants";
 
-interface RawRecruiterSubscription {
-  _id?: string;
-  id?: string;
-  recruiterId: string;
-  planId: string;
-  planName: string;
-  planType: string;
-  price: number;
-  currency: string;
-  billingCycle: string;
-  razorpayOrderId?: string;
-  razorpayPaymentId?: string;
-  razorpayCustomerId?: string;
-  status: string;
-  startDate?: string;
-  endDate?: string;
-  trialEndDate?: string;
-  cancelledAt?: string;
-  cancellationReason?: string;
-  cancellationNote?: string;
-  renewsAt?: string;
-  autoRenew: boolean;
-  jobPostsUsed: number;
-  screeningCreditsUsed: number;
-  jobPostsLimit: number;
-  screeningCreditsLimit: number;
-  currentPeriodStart?: string;
-  currentPeriodEnd?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-interface RawPaginatedSubscriptions {
-  data: RawRecruiterSubscription[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+import type {
+  RawPaginatedSubscriptions,
+  RawRecruiterSubscription,
+} from "../../Interface/RecruiterSubscription";
 
 interface SingleSubscriptionApiResponse {
   data: RawRecruiterSubscription | null;
@@ -75,123 +42,102 @@ interface ChangePlanApiResponse {
 
 export class ApiRecruiterSubscriptionRepository implements RecruiterSubscriptionRepository {
   async getCurrentSubscription(): Promise<RecruiterSubscription | null> {
-    try {
-      const res = await api.get<SingleSubscriptionApiResponse>(
-        "/recruiter/subscriptions/current",
-      );
-      if (!res.data.data) {
-        return null;
-      }
-      return this.toEntity(res.data.data);
-    } catch (err) {
-      throw err;
+    const res = await api.get<SingleSubscriptionApiResponse>(
+      "/recruiter/subscriptions/current",
+    );
+    if (!res.data.data) {
+      return null;
     }
+    return this.toEntity(res.data.data);
   }
 
   async getSubscriptionHistory(
     pagination?: PaginationOptions,
   ): Promise<PaginatedResult<RecruiterSubscription>> {
-    try {
-      const params = new URLSearchParams();
-      if (pagination?.page) {
-        params.set("page", String(pagination.page));
-      }
-      if (pagination?.limit) {
-        params.set("limit", String(pagination.limit));
-      }
-
-      const query = params.toString() ? `?${params.toString()}` : "";
-      const res = await api.get<PaginatedSubscriptionApiResponse>(
-        `/recruiter/subscriptions/history${query}`,
-      );
-
-      const raw = res.data.data;
-      return {
-        data: raw.data.map((item) => this.toEntity(item)),
-        total: raw.total,
-        page: raw.page,
-        limit: raw.limit,
-        totalPages: raw.totalPages,
-      };
-    } catch (err) {
-      throw err;
+    const params = new URLSearchParams();
+    if (pagination?.page) {
+      params.set("page", String(pagination.page));
     }
+    if (pagination?.limit) {
+      params.set("limit", String(pagination.limit));
+    }
+
+    const query = params.toString() ? `?${params.toString()}` : "";
+
+    const res = await api.get<PaginatedSubscriptionApiResponse>(
+      `/recruiter/subscriptions/history${query}`,
+    );
+
+    const raw = res.data.data;
+
+    return {
+      data: raw.data.map((item) => this.toEntity(item)),
+      total: raw.total,
+      page: raw.page,
+      limit: raw.limit,
+      totalPages: raw.totalPages,
+    };
   }
 
   async subscribe(input: SubscribeInput): Promise<RecruiterSubscription> {
-    try {
-      const res = await api.post<SingleSubscriptionApiResponse>(
-        "/recruiter/subscriptions/subscribe",
-        input,
-      );
-      if (!res.data.data) {
-        throw new Error("Subscription creation failed");
-      }
-      return this.toEntity(res.data.data);
-    } catch (err) {
-      throw err;
+    const res = await api.post<SingleSubscriptionApiResponse>(
+      "/recruiter/subscriptions/subscribe",
+      input,
+    );
+
+    if (!res.data.data) {
+      throw new Error("Subscription creation failed");
     }
+
+    return this.toEntity(res.data.data);
   }
 
   async cancel(input: CancelSubscriptionInput): Promise<RecruiterSubscription> {
-    try {
-      const res = await api.patch<SingleSubscriptionApiResponse>(
-        "/recruiter/subscriptions/cancel",
-        input,
-      );
-      if (!res.data.data) {
-        throw new Error("Subscription cancellation failed");
-      }
-      return this.toEntity(res.data.data);
-    } catch (err) {
-      throw err;
+    const res = await api.patch<SingleSubscriptionApiResponse>(
+      "/recruiter/subscriptions/cancel",
+      input,
+    );
+
+    if (!res.data.data) {
+      throw new Error("Subscription cancellation failed");
     }
+    return this.toEntity(res.data.data);
   }
 
   async changePlan(input: ChangePlanInput): Promise<RecruiterSubscription> {
-    try {
-      const res = await api.patch<ChangePlanApiResponse>(
-        "/recruiter/subscriptions/change-plan",
-        input,
-      );
-      return this.toEntity(res.data.data.subscription);
-    } catch (err) {
-      throw err;
-    }
+    const res = await api.patch<ChangePlanApiResponse>(
+      "/recruiter/subscriptions/change-plan",
+      input,
+    );
+
+    return this.toEntity(res.data.data.subscription);
   }
 
   async renew(input: RenewSubscriptionInput): Promise<RecruiterSubscription> {
-    try {
-      const res = await api.patch<SingleSubscriptionApiResponse>(
-        `/recruiter/subscriptions/${input.subscriptionId}/renew`,
-        {
-          newStartDate: input.newStartDate,
-          newEndDate: input.newEndDate,
-          newRenewsAt: input.newRenewsAt,
-        },
-      );
-      if (!res.data.data) {
-        throw new Error("Subscription renewal failed");
-      }
-      return this.toEntity(res.data.data);
-    } catch (err) {
-      throw err;
+    const res = await api.patch<SingleSubscriptionApiResponse>(
+      `/recruiter/subscriptions/${input.subscriptionId}/renew`,
+      {
+        newStartDate: input.newStartDate,
+        newEndDate: input.newEndDate,
+        newRenewsAt: input.newRenewsAt,
+      },
+    );
+
+    if (!res.data.data) {
+      throw new Error("Subscription renewal failed");
     }
+    return this.toEntity(res.data.data);
   }
 
   async trackUsage(input: TrackUsageInput): Promise<RecruiterSubscription> {
-    try {
-      const res = await api.patch<SingleSubscriptionApiResponse>(
-        "/recruiter/subscriptions/track-usage",
-        input,
-      );
-      if (!res.data.data) {
-        throw new Error("Usage tracking failed");
-      }
-      return this.toEntity(res.data.data);
-    } catch (err) {
-      throw err;
+    const res = await api.patch<SingleSubscriptionApiResponse>(
+      "/recruiter/subscriptions/track-usage",
+      input,
+    );
+    if (!res.data.data) {
+      throw new Error("Usage tracking failed");
     }
+    return this.toEntity(res.data.data);
   }
 
   private toEntity(data: RawRecruiterSubscription): RecruiterSubscription {

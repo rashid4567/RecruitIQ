@@ -29,7 +29,7 @@
   import { ApiSubscriptionPlanRepository } from "../../infrastructure/repositories/ApiSubscriptionPlan.repository";
   import { GetAllPlansUseCase } from "../../Application/use-Cases/subscription/GetAllPlansUseCase";
   import { useRazorpay } from "../hooks/subscriptions/useRazorpay";
-  import { useNavigate, useRouteError } from "react-router-dom";
+  import { useNavigate } from "react-router-dom";
 
   // ─── Helper Functions ─────────────────────────────────────────────────────────
 

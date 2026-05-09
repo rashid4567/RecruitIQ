@@ -1,6 +1,6 @@
 import {
-  Calendar, MapPin, Briefcase, DollarSign, Building2,
-  Users, Link as LinkIcon, Globe, Wifi, CheckCircle2, AlertTriangle,
+  Calendar, MapPin, Briefcase, DollarSign, 
+  Users, Link as LinkIcon, Wifi, CheckCircle2, AlertTriangle,
 } from "lucide-react";
 import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
 
@@ -51,12 +51,6 @@ export default function Step5Preview({ formData }: Props) {
   if (formData.requiredSkills.length === 0) missing.push("Required Skills");
   if (!formData.expiresAt) missing.push("Application Deadline");
 
-  const jobTypeColors: Record<string, string> = {
-    "full-time": "bg-indigo-100 text-indigo-700",
-    "part-time": "bg-violet-100 text-violet-700",
-    "contract": "bg-amber-100 text-amber-700",
-    "internship": "bg-emerald-100 text-emerald-700",
-  };
 
   return (
     <div className="space-y-6">

@@ -23,7 +23,7 @@ export class UpdateRecruiterProfileUseCase {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    let profile = await this.recruiterRepo.findByUserId(id);
+    const profile = await this.recruiterRepo.findByUserId(id);
     if (!profile) {
       throw new ApplicationError(ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND);
     }

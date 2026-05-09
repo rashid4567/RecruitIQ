@@ -92,7 +92,7 @@ function buildDtoFromForm(formData: JobFormData) {
   };
 }
 
-/** Returns a flat error map for the given step's fields */
+
 function getStepErrors(step: number, formData: JobFormData): Record<string, string> {
   const errs: Record<string, string> = {};
 
@@ -154,28 +154,8 @@ export function useCreateJobPost() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
 
-  /**
-   * Core validation: returns errors for a given step.
-   * If no errors, marks step as completed.
-   */
-  const validateStep = useCallback(
-    (step: number): boolean => {
-      const errs = getStepErrors(step, formData);
-      if (Object.keys(errs).length === 0) {
-        setCompletedSteps((prev) => new Set([...prev, step]));
-        setStepErrors({});
-        return true;
-      }
-      setStepErrors(errs);
-      return false;
-    },
-    [formData]
-  );
 
-  /**
-   * Navigate to next step — validates current step first.
-   * Returns the errors map so the UI can display them.
-   */
+
   const handleNext = useCallback((): Record<string, string> => {
     const errs = getStepErrors(currentStep, formData);
     if (Object.keys(errs).length === 0) {
@@ -307,7 +287,7 @@ export function useCreateJobPost() {
     completedSteps,
     formData,
     setFormData,
-    stepErrors,          // ← expose for JobEditorUI to pass as `errors`
+    stepErrors,        
     showSaveDraftModal,
     isSavingDraft,
     saveDraftError,

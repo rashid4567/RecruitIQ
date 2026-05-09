@@ -18,12 +18,18 @@ export default function SubscriptionSuccess({
   const [mounted, setMounted] = useState(false);
   const [checkDone, setCheckDone] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const t = setTimeout(() => setCheckDone(true), 900);
-    return () => clearTimeout(t);
-  }, []);
+useEffect(() => {
+  setMounted(true);
 
+  const timer = setTimeout(() => {
+    setCheckDone(true);
+  }, 900);
+
+  return () => {
+    clearTimeout(timer);
+    setMounted(false);
+  };
+}, []);
   const perks = [
     'Unlimited Projects',
     'AI Analytics Engine',

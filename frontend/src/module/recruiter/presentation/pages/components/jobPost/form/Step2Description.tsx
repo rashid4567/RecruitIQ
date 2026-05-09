@@ -1,7 +1,6 @@
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { FileText, Plus, X, ChevronRight } from "lucide-react";
+import { FileText, Plus, X } from "lucide-react";
 import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
 
 interface Props {

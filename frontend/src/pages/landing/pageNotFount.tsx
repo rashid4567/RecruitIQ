@@ -315,7 +315,7 @@ export default function NotFoundPage() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/60 to-sky-50" />
+      <div className="absolute inset-0 bg-linear-to-br from-slate-50 via-blue-50/60 to-sky-50" />
 
       {/* Subtle grid */}
       <div
@@ -484,7 +484,7 @@ export default function NotFoundPage() {
             <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight leading-tight mb-2">
               Page doesn't exist
             </h1>
-            <p className="text-sm text-slate-400 leading-relaxed mb-8 max-w-[240px] mx-auto">
+            <p className="text-sm text-slate-400 leading-relaxed mb-8 max-w-60 mx-auto">
               The page you're looking for has been moved, deleted, or never
               existed.
             </p>

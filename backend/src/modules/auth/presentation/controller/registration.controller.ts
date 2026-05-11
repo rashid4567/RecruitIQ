@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { VerifyRegistrationUseCase } from "../../application/useCase/verify-registration.usecase";
+import { VerifyRegistrationUseCase } from "../../application/useCase/registration/verify-registration.usecase";
 import { RegisterSchema } from "../validators/register.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 

@@ -1,9 +1,9 @@
-import { CandidateRepository } from "../../domain/repositories/candidate.repository";
-import { UserRepository } from "../../domain/repositories/user.repository";
-import { UserId } from "../../../../shared/value-objects/userId.vo";
-import { ERROR_CODES } from "../constants/error-code.constant";
-import { GetCandidateProfileResponseDTO } from "../dto/candidate-profile.dto";
-import { ApplicationError } from "../../../../shared/errors/application.error";
+import { CandidateRepository } from "../../../domain/repositories/candidate.repository";
+import { UserRepository } from "../../../domain/repositories/user.repository";
+import { UserId } from "../../../../../shared/value-objects/userId.vo";
+import { ERROR_CODES } from "../../constants/error-code.constant";
+import { GetCandidateProfileResponseDTO } from "../../dto/candidate-profile.dto";
+import { ApplicationError } from "../../../../../shared/errors/application.error";
 
 export class GetCandidateProfileUseCase {
   constructor(

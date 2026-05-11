@@ -1,7 +1,7 @@
-import { CandidateRepository } from "../../domain/repositories/candidate.repository";
-import { UserId } from "../../../../shared/value-objects/userId.vo";
-import { CompleteCandidateProfileDTO } from "../dto/complete-candidate-profile.dto";
-import { CandidateProfile } from "../../domain/entities/candidate-profile.entity";
+import { CandidateRepository } from "../../../domain/repositories/candidate.repository";
+import { UserId } from "../../../../../shared/value-objects/userId.vo";
+import { CompleteCandidateProfileDTO } from "../../dto/complete-candidate-profile.dto";
+import { CandidateProfile } from "../../../domain/entities/candidate-profile.entity";
 
 export class CompleteCandidateProfileUseCase {
   constructor(private readonly candidateRepo: CandidateRepository) {}

@@ -2,34 +2,17 @@ import Razorpay from "razorpay";
 
 const keyId = process.env.RAZORPAY_KEY_ID;
 
-const keySecret =
-  process.env.RAZORPAY_KEY_SECRET;
+const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
 if (!keyId || !keySecret) {
-
-  throw new Error(
-    "RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set",
-  );
+  throw new Error("RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set");
 }
 
-console.log(
-  "RAZORPAY KEY ID:",
-  keyId,
-);
+export const razorpay = new Razorpay({
+  key_id: keyId,
+  key_secret: keySecret,
+});
 
-console.log(
-  "RAZORPAY SECRET:",
-  keySecret,
-);
+export const RAZORPAY_KEY_ID = keyId;
 
-export const razorpay =
-  new Razorpay({
-    key_id: keyId,
-    key_secret: keySecret,
-  });
-
-export const RAZORPAY_KEY_ID =
-  keyId;
-
-export const RAZORPAY_KEY_SECRET =
-  keySecret;
+export const RAZORPAY_KEY_SECRET = keySecret;

@@ -1,7 +1,7 @@
 import { RecruiterProfileRepository } from "./domain/repositories/recruiter.repository";
-import { GetRecruiterProfileUseCase } from "./application/useCase/get-recruiter-profile.usecase";
-import { UpdateRecruiterProfileUseCase } from "./application/useCase/update-recruiter-profile.usecase";
-import { CompleteRecruiterProfileUseCase } from "./application/useCase/complete-recruiter-profile.usecase";
+import { GetRecruiterProfileUseCase } from "./application/useCase/profile/get-recruiter-profile.usecase";
+import { UpdateRecruiterProfileUseCase } from "./application/useCase/profile/update-recruiter-profile.usecase";
+import { CompleteRecruiterProfileUseCase } from "./application/useCase/profile/complete-recruiter-profile.usecase";
 import { MongooseRecruiterProfileRepository } from "./infrastructure/repositories/mongoose-recruiter.repository";
 import { UpdateRecruiterProfileController } from "./presentation/controller/updateProfile.controller";
 import { UserRepository } from "./domain/repositories/user.entity";

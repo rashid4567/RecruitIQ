@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { LoginUseCase } from "../../application/useCase/login.useCase";
+import { LoginUseCase } from "../../application/useCase/auth/login.useCase";
 import { LoginSchema } from "../validators/login.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 

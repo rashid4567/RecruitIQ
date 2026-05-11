@@ -1,8 +1,8 @@
 
-import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
-import { UserId } from "../../../../shared/value-objects/userId.vo";
-import { CompleteRecruiterProfileDTO } from "../dto/complete-recruiter-profile.dto";
-import { RecruiterProfile } from "../../domain/entities/recruiter-profile.entity";
+import { RecruiterProfileRepository } from "../../../domain/repositories/recruiter.repository";
+import { UserId } from "../../../../../shared/value-objects/userId.vo";
+import { CompleteRecruiterProfileDTO } from "../../dto/complete-recruiter-profile.dto";
+import { RecruiterProfile } from "../../../domain/entities/recruiter-profile.entity";
 
 export class CompleteRecruiterProfileUseCase {
   constructor(private readonly recruiterRepo: RecruiterProfileRepository) {}

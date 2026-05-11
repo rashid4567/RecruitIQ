@@ -2,15 +2,15 @@ import { GoogleAuthPort } from "../../application/ports/google-auth.ports";
 import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../../application/ports/token.service.ports";
 
-import { AdminLoginUseCase } from "../../application/useCase/admin-login.usecase";
-import { GoogleLoginUseCase } from "../../application/useCase/google-login.usecase";
-import { LoginUseCase } from "../../application/useCase/login.useCase";
-import { RefreshTokenUseCase } from "../../application/useCase/refreshToken.useCase";
-import { SendRegistrationOTPUseCase } from "../../application/useCase/send-registration-otp.usecase";
-import { VerifyRegistrationUseCase } from "../../application/useCase/verify-registration.usecase";
-import { ForgotPasswordUseCase } from "../../application/useCase/forgot-password.usecase";
-import { ResetPasswordUseCase } from "../../application/useCase/reset-password.usecase";
-import { UpdatePasswordUseCase } from "../../application/useCase/update-password.usecase";
+import { AdminLoginUseCase } from "../../application/useCase/auth/admin-login.usecase";
+import { GoogleLoginUseCase } from "../../application/useCase/google/google-login.usecase"; 
+import { LoginUseCase } from "../../application/useCase/auth/login.useCase";
+import { RefreshTokenUseCase } from "../../application/useCase/token/refreshToken.useCase";
+import { SendRegistrationOTPUseCase } from "../../application/useCase/registration/send-registration-otp.usecase";
+import { VerifyRegistrationUseCase } from "../../application/useCase/registration/verify-registration.usecase";
+import { ForgotPasswordUseCase } from "../../application/useCase/password/forgot-password.usecase";
+import { ResetPasswordUseCase } from "../../application/useCase/password/reset-password.usecase";
+import { UpdatePasswordUseCase } from "../../application/useCase/password/update-password.usecase";
 import { ActivityTrackerService } from "../../../../shared/ActivityLogger/service/activityTracker.service";
 
 import { UserRepository } from "../../domain/repositories/user.repository";
@@ -31,8 +31,8 @@ import { TokenController } from "../controller/token.controller";
 import { ForgotPasswordController } from "../controller/forgot-password.controller";
 import { ChangePasswordController } from "../controller/updatePassword.controller";
 import { sendEmailByEventUC } from "../../../admin/Presentation/containers/email-template.container";
-import { VerifyEmailUpdateUseCase } from "../../application/useCase/verify-email-update.usecase";
-import { RequestEmailUpdateUseCase } from "../../application/useCase/request-email.update.usecase";
+import { VerifyEmailUpdateUseCase } from "../../application/useCase/email/verify-email-update.usecase";
+import { RequestEmailUpdateUseCase } from "../../application/useCase/email/request-email.update.usecase";
 import { EmailUpdateController } from "../controller/email-update.controller";
 
 const userRepo: UserRepository = new MongooseUserRepository();

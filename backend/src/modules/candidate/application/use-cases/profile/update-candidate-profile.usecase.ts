@@ -1,11 +1,11 @@
-import { UserRepository } from "../../domain/repositories/user.repository";
-import { CandidateRepository } from "../../domain/repositories/candidate.repository";
-import { UpdateCandidateProfileDTO } from "../dto/update-candidate-profile.dto";
-import { UserId } from "../../../../shared/value-objects/userId.vo";
-import { ApplicationError } from "../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../constants/error-code.constant";
-import { User } from "../../domain/entities/user.entity";
-import { CandidateProfile } from "../../domain/entities/candidate-profile.entity";
+import { UserRepository } from "../../../domain/repositories/user.repository";
+import { CandidateRepository } from "../../../domain/repositories/candidate.repository";
+import { UpdateCandidateProfileDTO } from "../../dto/update-candidate-profile.dto";
+import { UserId } from "../../../../../shared/value-objects/userId.vo";
+import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { ERROR_CODES } from "../../constants/error-code.constant";
+import { User } from "../../../domain/entities/user.entity";
+import { CandidateProfile } from "../../../domain/entities/candidate-profile.entity";
 
 export interface UpdateCandidateProfileResult {
   user: User;
@@ -22,22 +22,18 @@ export class UpdateCandidateProfileUseCase {
     userIdRaw: string,
     input: UpdateCandidateProfileDTO,
   ): Promise<UpdateCandidateProfileResult> {
-    // ✅ Create Value Object
     const userId = UserId.create(userIdRaw);
 
-    // ✅ Fetch user
     const user = await this.userRepo.findById(userId);
     if (!user) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    // ✅ Fetch profile
     const profile = await this.candidateRepo.findByUserId(userId);
     if (!profile) {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_PROFILE_NOT_FOUND);
     }
 
-    // ✅ Update user fields
     if (input.fullName !== undefined) {
       user.updateFullName(input.fullName);
     }
@@ -46,7 +42,6 @@ export class UpdateCandidateProfileUseCase {
       user.updateProfileImage(input.profileImage);
     }
 
-    // ✅ Update profile fields
     if (input.currentJob !== undefined) {
       profile.updateCurrentJob(input.currentJob);
     }
@@ -59,7 +54,6 @@ export class UpdateCandidateProfileUseCase {
       profile.updateExperienceYears(input.experienceYears);
     }
 
-    // 🔥 Prevent crash on empty array
     if (input.skills !== undefined && input.skills.length > 0) {
       profile.updateSkills(input.skills);
     }
@@ -91,12 +85,10 @@ export class UpdateCandidateProfileUseCase {
       profile.updatePortfolioUrl(input.portfolioUrl);
     }
 
-    // ✅ Complete profile only once
     if (!profile.isProfileCompleted() && profile.canBeCompleted()) {
       profile.completeProfile();
     }
 
-    // ⚠️ (Optional improvement: wrap in transaction)
     await this.userRepo.save(user);
     await this.candidateRepo.save(profile);
 

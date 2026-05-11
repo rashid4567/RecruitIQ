@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { RequestEmailUpdateUseCase } from "../../application/useCase/request-email.update.usecase";
-import { VerifyEmailUpdateUseCase } from "../../application/useCase/verify-email-update.usecase";
+import { RequestEmailUpdateUseCase } from "../../application/useCase/email/request-email.update.usecase";
+import { VerifyEmailUpdateUseCase } from "../../application/useCase/email/verify-email-update.usecase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import {
   RequestEmailUpdateSchema,

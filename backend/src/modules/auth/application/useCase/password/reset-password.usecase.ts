@@ -1,9 +1,9 @@
-import { UserRepository } from "../../domain/repositories/user.repository";
-import { Password } from "../../../../shared/value-objects/password.vo";
-import { ApplicationError } from "../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../constants/error-codes.constants";
-import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
-import { AuthTokenServicePort } from "../ports/token.service.ports";
+import { UserRepository } from "../../../domain/repositories/user.repository";
+import { Password } from "../../../../../shared/value-objects/password.vo";
+import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { ERROR_CODES } from "../../constants/error-codes.constants";
+import { PasswordHasherPort } from "../../../domain/ports/password-hasher.port";
+import { AuthTokenServicePort } from "../../ports/token.service.ports";
 
 export class ResetPasswordUseCase {
   constructor(

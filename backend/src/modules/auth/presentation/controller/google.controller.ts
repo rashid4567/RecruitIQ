@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { GoogleLoginUseCase } from "../../application/useCase/google-login.usecase";
+import { GoogleLoginUseCase } from "../../application/useCase/google/google-login.usecase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { GoogleLoginSchema } from "../validators/google-login.schema";
 

@@ -37,21 +37,21 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
-      {/* Backdrop */}
+
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Drawer panel */}
+
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Filter jobs"
         className="absolute right-0 top-0 bottom-0 w-72 bg-white shadow-2xl flex flex-col"
       >
-        {/* Header */}
+
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
@@ -67,7 +67,6 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
           </button>
         </div>
 
-        {/* Scrollable filter content */}
         <div className="flex-1 overflow-y-auto p-5">
           <FilterSidebar
             filters={filters}
@@ -75,8 +74,6 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
             onReset={handleReset}
           />
         </div>
-
-        {/* Sticky footer — Apply button closes the drawer */}
         <div className="shrink-0 px-5 py-4 border-t border-slate-100 bg-white">
           <button
             type="button"

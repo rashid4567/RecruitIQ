@@ -13,7 +13,6 @@ export class RecruiterProfile {
   public readonly bio?: string;
   public readonly designation?: string;
   public readonly linkedinUrl?: string;
-
   public readonly subscriptionStatus: SubscriptionStatus;
   public readonly verificationStatus: VerificationStatus;
   public readonly jobPostsUsed: number; 
@@ -21,7 +20,6 @@ export class RecruiterProfile {
   constructor(params: {
     fullName: string;
     email: string;
-
     companyName?: string;
     companyWebsite?: string;
     companySize?: number;
@@ -30,14 +28,12 @@ export class RecruiterProfile {
     bio?: string;
     designation?: string;
     linkedinUrl?: string;
-
     subscriptionStatus?: SubscriptionStatus;
     verificationStatus?: VerificationStatus;
     jobPostsUsed?: number; 
   }) {
     this.fullName = params.fullName;
     this.email = params.email;
-
     this.companyName = params.companyName;
     this.companyWebsite = params.companyWebsite;
     this.companySize = params.companySize;
@@ -46,7 +42,6 @@ export class RecruiterProfile {
     this.bio = params.bio;
     this.linkedinUrl = params.linkedinUrl;
     this.designation = params.designation;
-
     this.subscriptionStatus = params.subscriptionStatus ?? "free";
     this.verificationStatus = params.verificationStatus ?? "pending";
     this.jobPostsUsed = params.jobPostsUsed ?? 0;
@@ -75,7 +70,6 @@ export class RecruiterProfile {
       bio: data.bio ?? this.bio,
       linkedinUrl: data.linkedinUrl ?? this.linkedinUrl,
       designation: data.designation ?? this.designation,
-
       subscriptionStatus: this.subscriptionStatus,
       verificationStatus: this.verificationStatus,
       jobPostsUsed: this.jobPostsUsed,
@@ -97,14 +91,12 @@ export class RecruiterProfile {
     return new RecruiterProfile({
       fullName : this.fullName,
       email : this.email,
-
       companyName : data.companyName,
       companyWebsite : data.companyWebsite,
       companySize : data.companySize,
       industry : data.industry,
       designation : data.designation,
       bio : data.bio,
-
       subscriptionStatus : "free",
       verificationStatus : "pending",
       jobPostsUsed : 0,

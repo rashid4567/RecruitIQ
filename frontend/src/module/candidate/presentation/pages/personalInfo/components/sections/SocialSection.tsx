@@ -4,6 +4,7 @@ import {
   Globe,
   ChevronRight,
   AlertCircle,
+  CheckCircle2,
   Link2,
 } from "lucide-react";
 import { SectionHeader } from "../common/SectionHeader";
@@ -21,15 +22,57 @@ interface SocialSectionProps {
     key: K,
     value: ProfileFormData[K],
   ) => void;
+  onFieldBlur: (field: keyof ProfileFormData) => void;
+  getFieldError: (field: keyof ProfileFormData) => string | undefined;
+  isFieldValid: (field: keyof ProfileFormData) => boolean;
 }
+
+// ── Shared helpers ──────────────────────────────────────────────────────────
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return (
+    <p className="flex items-center gap-1 text-xs text-red-500 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+      <AlertCircle className="h-3 w-3 shrink-0" />
+      {message}
+    </p>
+  );
+}
+
+function inputClass(error?: string, valid?: boolean) {
+  if (error)
+    return "pl-10 h-12 border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 pr-10";
+  if (valid)
+    return "pl-10 h-12 border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 pr-10";
+  return "pl-10 h-12 border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20";
+}
+
+function TrailingIcon({ error, valid }: { error?: string; valid?: boolean }) {
+  if (error)
+    return (
+      <AlertCircle className="absolute right-3 top-3.5 h-5 w-5 text-red-500 pointer-events-none" />
+    );
+  if (valid)
+    return (
+      <CheckCircle2 className="absolute right-3 top-3.5 h-5 w-5 text-green-500 pointer-events-none" />
+    );
+  return null;
+}
+
+// ── Component ───────────────────────────────────────────────────────────────
 
 export function SocialSection({
   isEditing,
   profile,
   editData,
-  validationErrors,
   onInputChange,
+  onFieldBlur,
+  getFieldError,
+  isFieldValid,
 }: SocialSectionProps) {
+  const err = (f: keyof ProfileFormData) => getFieldError(f);
+  const valid = (f: keyof ProfileFormData) => isFieldValid(f);
+
   return (
     <div className="space-y-6">
       <SectionHeader
@@ -40,31 +83,33 @@ export function SocialSection({
       />
 
       <div className="grid grid-cols-1 gap-6">
-        {/* LinkedIn */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <Linkedin className="h-4 w-4 text-[#0A66C2]" />
             LinkedIn Profile
           </label>
+
           {isEditing ? (
-            <div className="relative group">
-              <Input
-                value={editData.linkedinUrl ?? profile.linkedinUrl ?? ""}
-                onChange={(e) => onInputChange("linkedinUrl", e.target.value)}
-                className={`pl-10 h-12 ${
-                  validationErrors.linkedinUrl
-                    ? "border-red-500 focus:ring-red-500/20"
-                    : "border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                }`}
-                placeholder="https://linkedin.com/in/username"
-              />
-              <Linkedin className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 group-hover:text-[#0A66C2] transition-colors" />
-              {validationErrors.linkedinUrl && (
-                <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {validationErrors.linkedinUrl}
-                </p>
-              )}
+            <div className="space-y-0">
+              <div className="relative group">
+                <Input
+                  value={editData.linkedinUrl ?? profile.linkedinUrl ?? ""}
+                  onChange={(e) => onInputChange("linkedinUrl", e.target.value)}
+                  onBlur={() => onFieldBlur("linkedinUrl")}
+                  className={inputClass(
+                    err("linkedinUrl"),
+                    valid("linkedinUrl"),
+                  )}
+                  placeholder="https://linkedin.com/in/username"
+                  aria-invalid={!!err("linkedinUrl")}
+                />
+                <Linkedin className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 group-hover:text-[#0A66C2] transition-colors pointer-events-none" />
+                <TrailingIcon
+                  error={err("linkedinUrl")}
+                  valid={valid("linkedinUrl")}
+                />
+              </div>
+              <FieldError message={err("linkedinUrl")} />
             </div>
           ) : profile.linkedinUrl ? (
             <a
@@ -85,32 +130,35 @@ export function SocialSection({
             </div>
           )}
         </div>
-
-        {/* Portfolio */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <Globe className="h-4 w-4 text-indigo-500" />
             Portfolio Website
           </label>
+
           {isEditing ? (
-            <div className="relative group">
-              <Input
-                value={editData.portfolioUrl ?? profile.portfolioUrl ?? ""}
-                onChange={(e) => onInputChange("portfolioUrl", e.target.value)}
-                className={`pl-10 h-12 ${
-                  validationErrors.portfolioUrl
-                    ? "border-red-500 focus:ring-red-500/20"
-                    : "border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                }`}
-                placeholder="https://yourportfolio.com"
-              />
-              <Globe className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
-              {validationErrors.portfolioUrl && (
-                <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {validationErrors.portfolioUrl}
-                </p>
-              )}
+            <div className="space-y-0">
+              <div className="relative group">
+                <Input
+                  value={editData.portfolioUrl ?? profile.portfolioUrl ?? ""}
+                  onChange={(e) =>
+                    onInputChange("portfolioUrl", e.target.value)
+                  }
+                  onBlur={() => onFieldBlur("portfolioUrl")}
+                  className={inputClass(
+                    err("portfolioUrl"),
+                    valid("portfolioUrl"),
+                  )}
+                  placeholder="https://yourportfolio.com"
+                  aria-invalid={!!err("portfolioUrl")}
+                />
+                <Globe className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 group-hover:text-indigo-500 transition-colors pointer-events-none" />
+                <TrailingIcon
+                  error={err("portfolioUrl")}
+                  valid={valid("portfolioUrl")}
+                />
+              </div>
+              <FieldError message={err("portfolioUrl")} />
             </div>
           ) : profile.portfolioUrl ? (
             <a

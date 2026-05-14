@@ -1,27 +1,26 @@
-
 import { subscribtionStatus } from "../constatns/subscribtionStatus.contsants";
 import { verificationStatus } from "../constatns/verificationStatus.constants";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { ERROR_CODES } from "../constatns/recruiter.profile.error";
 
+export interface RecruiterProfileProps {
+  userId: UserId;
+  companyName?: string;
+  companyWebsite?: string;
+  companySize?: number;
+  industry?: string;
+  designation?: string;
+  bio?: string;
+  linkedinUrl?: string;
+  location?: string;
+  subscriptionStatus: subscribtionStatus;
+  jobPostsUsed: number;
+  verificationStatus: verificationStatus;
+}
+
 export class RecruiterProfile {
-  private constructor(
-    private readonly userId: UserId,
-    private companyName?: string,
-    private companyWebsite?: string,
-    private companySize?: number,
-    private industry?: string,
-    private designation?: string,
-    private bio?: string,
-    private linkedinUrl?: string,
-    private location?: string,
-    private subscriptionStatus: subscribtionStatus = "free",
-    private jobPostsUsed: number = 0,
-    private verificationStatus: verificationStatus = "pending",
-  ) {}
-
-
+  private constructor(private props: RecruiterProfileProps) {}
 
   public static create(
     userId: UserId,
@@ -34,137 +33,122 @@ export class RecruiterProfile {
     if (!companyWebsite?.trim()) {
       throw new DomainError(ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
     }
-    return new RecruiterProfile(
+    return new RecruiterProfile({
       userId,
-      companyName.trim(),
-      companyWebsite.trim(),
-    );
+      companyName: companyName.trim(),
+      companyWebsite: companyWebsite.trim(),
+      subscriptionStatus: "free",
+      jobPostsUsed: 0,
+      verificationStatus: "pending",
+    });
   }
 
 
-  public static fromPersistence(props: {
-    userId: UserId;
-    companyName?: string;
-    companyWebsite?: string;
-    companySize?: number;
-    industry?: string;
-    designation?: string;
-    bio?: string;
-    linkedinUrl?: string;
-    location?: string;
-    subscriptionStatus?: subscribtionStatus;
-    jobPostsUsed?: number;
-    verificationStatus?: verificationStatus;
-  }): RecruiterProfile {
-    return new RecruiterProfile(
-      props.userId,
-      props.companyName?.trim() || undefined, 
-      props.companyWebsite?.trim() || undefined,
-      props.companySize,
-      props.industry?.trim() || undefined,
-      props.designation?.trim() || undefined,
-      props.bio?.trim() || undefined,
-      props.linkedinUrl?.trim() || undefined,
-      props.location?.trim() || undefined,
-      props.subscriptionStatus ?? "free",
-      props.jobPostsUsed ?? 0,
-      props.verificationStatus ?? "pending",
-    );
+  public static createEmpty(userId: UserId): RecruiterProfile {
+    return new RecruiterProfile({
+      userId,
+      subscriptionStatus: "free",
+      jobPostsUsed: 0,
+      verificationStatus: "pending",
+    });
   }
 
+
+  public static reconstitute(props: RecruiterProfileProps): RecruiterProfile {
+    return new RecruiterProfile({ ...props });
+  }
+
+  private assertNotEmpty(value: string | undefined, errorCode: string): void {
+    if (!value?.trim()) throw new DomainError(errorCode);
+  }
 
 
   public updateCompanyName(name: string): void {
-    if (!name?.trim()) {
-      throw new DomainError(ERROR_CODES.COMPANY_NAME_REQUIRED);
-    }
-    this.companyName = name.trim();
+    this.assertNotEmpty(name, ERROR_CODES.COMPANY_NAME_REQUIRED);
+    this.props.companyName = name.trim();
   }
 
   public updateCompanyWebsite(url: string): void {
-    if (!url?.trim()) {
-      throw new DomainError(ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
-    }
-    this.companyWebsite = url.trim();
+    this.assertNotEmpty(url, ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
+    this.props.companyWebsite = url.trim();
   }
 
   public updateIndustry(value: string): void {
-    this.industry = value?.trim() || undefined;
+    this.props.industry = value?.trim() || undefined;
   }
 
   public updateCompanySize(size: number): void {
-    if (size < 0) {
-      throw new DomainError(ERROR_CODES.COMPANY_SIZE_INVALID);
-    }
-    this.companySize = size;
+    if (size < 0) throw new DomainError(ERROR_CODES.COMPANY_SIZE_INVALID);
+    this.props.companySize = size;
   }
 
   public updateDesignation(value: string): void {
-    if (!value?.trim()) {
-      throw new DomainError(ERROR_CODES.DESIGNATION_REQUIRED);
-    }
-    this.designation = value.trim();
+    this.assertNotEmpty(value, ERROR_CODES.DESIGNATION_REQUIRED);
+    this.props.designation = value.trim();
   }
 
   public updateBio(value: string): void {
-    this.bio = value?.trim() || undefined;
+    this.props.bio = value?.trim() || undefined;
   }
 
   public updateLinkedinUrl(value: string): void {
-    this.linkedinUrl = value?.trim() || undefined;
+    this.props.linkedinUrl = value?.trim() || undefined;
   }
 
   public updateLocation(value: string): void {
-    this.location = value?.trim() || undefined;
+    this.props.location = value?.trim() || undefined;
   }
 
   public incrementJobPostsUsed(): void {
-    this.jobPostsUsed += 1;
+    this.props.jobPostsUsed += 1;
   }
 
   public activateSubscription(status: subscribtionStatus): void {
-    this.subscriptionStatus = status;
+    this.props.subscriptionStatus = status;
   }
 
   public verify(): void {
-    this.verificationStatus = "verified";
+    this.props.verificationStatus = "verified";
   }
 
- 
   public getUserId(): UserId {
-    return this.userId;
+    return this.props.userId;
   }
   public getCompanyName(): string | undefined {
-    return this.companyName;
+    return this.props.companyName;
   }
   public getCompanyWebsite(): string | undefined {
-    return this.companyWebsite;
+    return this.props.companyWebsite;
   }
   public getIndustry(): string | undefined {
-    return this.industry;
+    return this.props.industry;
   }
   public getCompanySize(): number | undefined {
-    return this.companySize;
+    return this.props.companySize;
   }
   public getDesignation(): string | undefined {
-    return this.designation;
+    return this.props.designation;
   }
   public getBio(): string | undefined {
-    return this.bio;
+    return this.props.bio;
   }
   public getLinkedinUrl(): string | undefined {
-    return this.linkedinUrl;
+    return this.props.linkedinUrl;
   }
   public getLocation(): string | undefined {
-    return this.location;
+    return this.props.location;
   }
   public getSubscriptionStatus(): subscribtionStatus {
-    return this.subscriptionStatus;
+    return this.props.subscriptionStatus;
   }
   public getJobPostsUsed(): number {
-    return this.jobPostsUsed;
+    return this.props.jobPostsUsed;
   }
   public getVerificationStatus(): verificationStatus {
-    return this.verificationStatus;
+    return this.props.verificationStatus;
+  }
+
+  public getProps(): Readonly<RecruiterProfileProps> {
+    return { ...this.props };
   }
 }

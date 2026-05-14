@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
-import { GetRecruiterProfileUseCase } from "../../application/useCase/get-recruiter-profile.usecase";
+import { GetRecruiterProfileUseCase } from "../../application/useCase/profile/get-recruiter-profile.usecase";
 import { userIdSchema } from "../validator/userId.validator";
 
 export class GetRecruiterProfileController {

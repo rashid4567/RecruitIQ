@@ -94,7 +94,7 @@ export const profileFormSchema = z.object({
   skills: skillsSchema,
   preferredJobLocations: preferredLocationsSchema,
 
-    profileImage: z.string().optional(),
+  profileImage: z.string().optional(),
 });
 
 export type ProfileFormData = z.infer<typeof profileFormSchema>;
@@ -108,12 +108,9 @@ export function validateProfileField(
   value: unknown,
 ): string {
   const fieldSchema = profileFormSchema.shape[field];
-
   const result = fieldSchema.safeParse(value);
-
   if (!result.success) {
-    return result.error.issues[0]?.message || "Invalid value";
+    return result.error.issues[0]?.message ?? "Invalid value";
   }
-
   return "";
 }

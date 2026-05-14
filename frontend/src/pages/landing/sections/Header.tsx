@@ -16,13 +16,12 @@ import { authService } from "@/services/auth/auth.service";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-
 function getNavItems(role: string | null) {
   const jobsHref =
     role === "candidate"
-      ? "/candidate/job"
+      ? "/candidate/jobs"
       : role === "recruiter"
-        ? "/recruiter/job"
+        ? "/recruiter/jobs"
         : "/jobs";
 
   return [
@@ -32,7 +31,6 @@ function getNavItems(role: string | null) {
     { label: "Contact", href: "#contact", icon: Mail },
   ];
 }
-
 
 function getInitials(name: string | null): string {
   if (!name) return "U";
@@ -55,11 +53,11 @@ function getRoleColor(role: string | null): string {
 }
 
 function getRoleBadgeColor(role: string | null): string {
-  if (role === "recruiter") return "bg-violet-100 text-violet-700 ring-1 ring-violet-200";
+  if (role === "recruiter")
+    return "bg-violet-100 text-violet-700 ring-1 ring-violet-200";
   if (role === "admin") return "bg-rose-100 text-rose-700 ring-1 ring-rose-200";
   return "bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200";
 }
-
 
 const NavLink: React.FC<{
   href: string;
@@ -115,7 +113,10 @@ export default function Header() {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
         setIsProfileOpen(false);
       }
     };
@@ -129,13 +130,15 @@ export default function Header() {
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isMenuOpen]);
 
   const handleLogout = async () => {
     try {
       await authService.logout();
-    } catch(error) {
+    } catch (error) {
       console.error("Logout failed:", error);
     } finally {
       localStorage.removeItem("authToken");
@@ -180,8 +183,6 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-
-            {/* ── Logo ── */}
             <button
               onClick={() => navigate("/")}
               className="flex items-center gap-2.5 group focus:outline-none"
@@ -194,7 +195,9 @@ export default function Header() {
                   "transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3",
                 )}
               >
-                <span className="text-white font-black text-sm tracking-tighter">IQ</span>
+                <span className="text-white font-black text-sm tracking-tighter">
+                  IQ
+                </span>
               </div>
               <span className="hidden sm:block font-bold text-[1.05rem] tracking-tight text-gray-900">
                 Recruit
@@ -204,7 +207,6 @@ export default function Header() {
               </span>
             </button>
 
-            {/* ── Desktop Nav ── */}
             <nav className="hidden lg:flex items-center gap-0.5">
               {NAV_ITEMS.map(({ label, href }) => (
                 <NavLink
@@ -216,20 +218,11 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* ── Right Actions ── */}
             <div className="flex items-center gap-2">
               {isLoggedIn ? (
                 <>
-                  {/* Dashboard shortcut pill */}
-                  <button
-                    onClick={() => navigate(getDashboardPath())}
-                    className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-600 rounded-lg border border-gray-200 hover:border-cyan-300 hover:text-cyan-700 hover:bg-cyan-50/60 transition-all duration-200"
-                  >
-                    <LayoutDashboard className="w-3.5 h-3.5" />
-                    Dashboard
-                  </button>
+                 
 
-                  {/* Profile dropdown */}
                   <div ref={profileRef} className="relative hidden lg:block">
                     <button
                       onClick={() => setIsProfileOpen((p) => !p)}
@@ -241,12 +234,17 @@ export default function Header() {
                           : "border-gray-200 hover:border-cyan-300/60 hover:bg-gray-50",
                       )}
                     >
-                   
                       <div className="relative">
                         <Avatar className="h-7 w-7">
-                          <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
+                          <AvatarImage
+                            src="https://github.com/shadcn.png"
+                            alt={userName ?? ""}
+                          />
                           <AvatarFallback
-                            className={cn("bg-linear-to-br text-white text-[10px] font-bold", roleGrad)}
+                            className={cn(
+                              "bg-linear-to-br text-white text-[10px] font-bold",
+                              roleGrad,
+                            )}
                           >
                             {initials}
                           </AvatarFallback>
@@ -258,7 +256,12 @@ export default function Header() {
                         <p className="text-sm font-semibold text-gray-900 max-w-28 truncate leading-none">
                           {userName ?? "Profile"}
                         </p>
-                        <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block", roleBadge)}>
+                        <span
+                          className={cn(
+                            "text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block",
+                            roleBadge,
+                          )}
+                        >
                           {roleLabel}
                         </span>
                       </div>
@@ -271,7 +274,6 @@ export default function Header() {
                       />
                     </button>
 
-                    {/* Dropdown Panel */}
                     {isProfileOpen && (
                       <div
                         className={cn(
@@ -281,21 +283,35 @@ export default function Header() {
                           "animate-in fade-in slide-in-from-top-2 duration-150",
                         )}
                       >
-                        {/* User card */}
                         <div className="px-4 py-3 mb-1">
                           <div className="flex items-center gap-3">
                             <div className="relative">
                               <Avatar className="h-10 w-10">
-                                <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
-                                <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-sm", roleGrad)}>
+                                <AvatarImage
+                                  src="https://github.com/shadcn.png"
+                                  alt={userName ?? ""}
+                                />
+                                <AvatarFallback
+                                  className={cn(
+                                    "bg-linear-to-br text-white font-bold text-sm",
+                                    roleGrad,
+                                  )}
+                                >
                                   {initials}
                                 </AvatarFallback>
                               </Avatar>
                               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-gray-900 truncate">{userName ?? "User"}</p>
-                              <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full inline-block mt-0.5", roleBadge)}>
+                              <p className="text-sm font-semibold text-gray-900 truncate">
+                                {userName ?? "User"}
+                              </p>
+                              <span
+                                className={cn(
+                                  "text-[10px] font-semibold px-1.5 py-0.5 rounded-full inline-block mt-0.5",
+                                  roleBadge,
+                                )}
+                              >
                                 {roleLabel}
                               </span>
                             </div>
@@ -304,21 +320,21 @@ export default function Header() {
 
                         <div className="h-px bg-gray-100 mx-3" />
 
-                        {/* Links */}
                         <div className="py-1.5 px-1.5 space-y-0.5">
                           <button
-                            onClick={() => { navigate(getDashboardPath()); setIsProfileOpen(false); }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
-                          >
-                            <LayoutDashboard className="w-4 h-4 shrink-0 text-gray-400" />
-                            Dashboard
-                          </button>
-                          <button
-                            onClick={() => { navigate(getProfilePath()); setIsProfileOpen(false); }}
+                            onClick={() => {
+                              navigate(getProfilePath());
+                              setIsProfileOpen(false);
+                            }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
                           >
                             <Avatar className="h-4 w-4 shrink-0">
-                              <AvatarFallback className={cn("bg-linear-to-br text-white text-[8px] font-bold", roleGrad)}>
+                              <AvatarFallback
+                                className={cn(
+                                  "bg-linear-to-br text-white text-[8px] font-bold",
+                                  roleGrad,
+                                )}
+                              >
                                 {initials}
                               </AvatarFallback>
                             </Avatar>
@@ -365,7 +381,6 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Hamburger */}
               <button
                 onClick={() => setIsMenuOpen((p) => !p)}
                 aria-label="Toggle menu"
@@ -376,10 +391,20 @@ export default function Header() {
                   isMenuOpen && "bg-gray-100 border-gray-300",
                 )}
               >
-                <span className={cn("absolute transition-all duration-200", isMenuOpen ? "opacity-0 rotate-45" : "opacity-100")}>
+                <span
+                  className={cn(
+                    "absolute transition-all duration-200",
+                    isMenuOpen ? "opacity-0 rotate-45" : "opacity-100",
+                  )}
+                >
                   <Menu className="w-4.5 h-4.5 text-gray-700" />
                 </span>
-                <span className={cn("absolute transition-all duration-200", isMenuOpen ? "opacity-100" : "opacity-0 -rotate-45")}>
+                <span
+                  className={cn(
+                    "absolute transition-all duration-200",
+                    isMenuOpen ? "opacity-100" : "opacity-0 -rotate-45",
+                  )}
+                >
                   <X className="w-4.5 h-4.5 text-gray-700" />
                 </span>
               </button>
@@ -388,7 +413,6 @@ export default function Header() {
         </div>
       </header>
 
-      {/* ── Mobile Drawer ── */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" aria-modal="true">
           <div
@@ -404,8 +428,6 @@ export default function Header() {
             )}
           >
             <div className="max-w-7xl mx-auto px-4 pt-5 pb-10 space-y-6">
-
-              {/* Nav links */}
               <nav className="space-y-1">
                 {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
                   <a
@@ -439,12 +461,13 @@ export default function Header() {
 
               <div className="h-px bg-linear-to-r from-transparent via-gray-200 to-transparent" />
 
-              {/* Auth section */}
               {isLoggedIn ? (
                 <div className="space-y-2">
-                  {/* Profile card */}
                   <button
-                    onClick={() => { navigate(getProfilePath()); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      navigate(getProfilePath());
+                      setIsMenuOpen(false);
+                    }}
                     className={cn(
                       "w-full flex items-center gap-4 p-4 rounded-2xl text-left",
                       "bg-linear-to-br from-gray-50 to-gray-100/60",
@@ -454,25 +477,42 @@ export default function Header() {
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12 shrink-0">
-                        <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
-                        <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-base", roleGrad)}>
+                        <AvatarImage
+                          src="https://github.com/shadcn.png"
+                          alt={userName ?? ""}
+                        />
+                        <AvatarFallback
+                          className={cn(
+                            "bg-linear-to-br text-white font-bold text-base",
+                            roleGrad,
+                          )}
+                        >
                           {initials}
                         </AvatarFallback>
                       </Avatar>
                       <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 truncate text-base">{userName ?? "Your Account"}</p>
-                      <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block", roleBadge)}>
+                      <p className="font-semibold text-gray-900 truncate text-base">
+                        {userName ?? "Your Account"}
+                      </p>
+                      <span
+                        className={cn(
+                          "text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block",
+                          roleBadge,
+                        )}
+                      >
                         {roleLabel}
                       </span>
                     </div>
                     <ArrowRight className="w-4 h-4 text-gray-400 shrink-0" />
                   </button>
 
-                  {/* Dashboard link */}
                   <button
-                    onClick={() => { navigate(getDashboardPath()); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      navigate(getDashboardPath());
+                      setIsMenuOpen(false);
+                    }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
                   >
                     <span className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
@@ -481,9 +521,11 @@ export default function Header() {
                     Dashboard
                   </button>
 
-                  {/* Sign out */}
                   <button
-                    onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50/80 font-medium transition-colors text-left"
                   >
                     <span className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
@@ -495,13 +537,19 @@ export default function Header() {
               ) : (
                 <div className="space-y-2.5">
                   <button
-                    onClick={() => { navigate("/login"); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      navigate("/login");
+                      setIsMenuOpen(false);
+                    }}
                     className="w-full py-3 px-4 rounded-xl border border-gray-200 text-gray-800 font-semibold hover:bg-gray-50 transition-colors"
                   >
                     Sign in
                   </button>
                   <button
-                    onClick={() => { navigate("/register"); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      navigate("/register");
+                      setIsMenuOpen(false);
+                    }}
                     className={cn(
                       "w-full py-3 px-4 rounded-xl text-white font-semibold",
                       "bg-linear-to-r from-blue-600 to-cyan-500",

@@ -5,6 +5,7 @@ import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ERROR_CODES } from "../../constants/error.code.constants";
 import { RecruiterProfileReponse } from "../../dto/recruiter-profile.dto";
 import { UpdateRecruiterProfileDTO } from "../../dto/update-recruiter-profile.dto";
+import { RecruiterProfile } from "../../../domain/entities/recruiter-profile.entity";
 
 export class UpdateRecruiterProfileUseCase {
   constructor(
@@ -23,11 +24,10 @@ export class UpdateRecruiterProfileUseCase {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    const profile = await this.recruiterRepo.findByUserId(id);
-    if (!profile) {
-      throw new ApplicationError(ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND);
-    }
 
+    const profile =
+      (await this.recruiterRepo.findByUserId(id)) ??
+      RecruiterProfile.createEmpty(id);
 
     if (input.fullName !== undefined) {
       user.updateFullName(input.fullName);
@@ -61,7 +61,6 @@ export class UpdateRecruiterProfileUseCase {
       profile.updateLinkedinUrl(input.linkedinUrl);
     }
 
-   
     await this.userRepo.save(user);
     await this.recruiterRepo.save(profile);
 

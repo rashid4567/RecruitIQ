@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Shield, Bell, Lock } from "lucide-react";
 import { toast } from "sonner";
@@ -62,12 +62,10 @@ type TabValue = (typeof settingsTabs)[number]["value"];
 
 export default function CandidateProfilePage() {
   const [activeTab, setActiveTab] = useState<TabValue>("personal-info");
-
   const { profile, loading, isUpdating, error, loadProfile, updateProfile } =
     useCandidateProfile();
 
   const stats = useProfileStats(profile);
-
   const {
     isEditing,
     editData,
@@ -75,6 +73,9 @@ export default function CandidateProfilePage() {
     startEdit,
     cancelEdit,
     updateField,
+    touchField,
+    getFieldError,
+    isFieldValid,
     setValidationErrors,
   } = useProfileEdit(profile);
 
@@ -84,17 +85,21 @@ export default function CandidateProfilePage() {
     preview: imagePreview,
     clearPreview,
   } = useImageUpload((imageData) => updateField("profileImage", imageData));
-
-  const validateFieldWithZod = useCallback(
-    <K extends keyof ProfileFormData>(field: K, value: ProfileFormData[K]) =>
-      validateProfileField(field, value),
-    [],
+  const handleInputChange = useCallback(
+    <K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
+      updateField(key, value);
+      const fieldError = validateProfileField(key, value);
+      setValidationErrors((prev) => ({
+        ...prev,
+        [key]: fieldError || undefined,
+      }));
+    },
+    [updateField, setValidationErrors],
   );
-
   const validateAllWithZod = useCallback((): boolean => {
     if (!profile) return false;
 
-    const result = validateProfileForm({
+    const merged = {
       fullName: editData.fullName ?? profile.fullName,
       email: editData.email ?? profile.email,
       currentJob: editData.currentJob ?? profile.currentJob,
@@ -110,15 +115,15 @@ export default function CandidateProfilePage() {
       skills: editData.skills ?? profile.skills ?? [],
       preferredJobLocations:
         editData.preferredJobLocations ?? profile.preferredJobLocations ?? [],
-    });
+    };
+
+    const result = validateProfileForm(merged);
 
     if (!result.success) {
       const errors: Partial<Record<keyof ProfileFormData, string>> = {};
       result.error.issues.forEach((issue) => {
         const path = issue.path[0] as keyof ProfileFormData;
-        if (!errors[path]) {
-          errors[path] = issue.message;
-        }
+        if (!errors[path]) errors[path] = issue.message;
       });
       setValidationErrors(errors);
       toast.error("Please fix the validation errors before saving.");
@@ -128,18 +133,6 @@ export default function CandidateProfilePage() {
     setValidationErrors({});
     return true;
   }, [editData, profile, setValidationErrors]);
-
-  const handleInputChange = useCallback(
-    <K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
-      updateField(key, value);
-      const fieldError = validateFieldWithZod(key, value);
-      setValidationErrors((prev) => ({
-        ...prev,
-        [key]: fieldError ?? undefined,
-      }));
-    },
-    [updateField, validateFieldWithZod, setValidationErrors],
-  );
 
   const handleSave = useCallback(async () => {
     if (!profile || isUpdating) return;
@@ -227,6 +220,7 @@ export default function CandidateProfilePage() {
                           }
                         </p>
                         <Separator className="my-5" />
+
                         <PersonalInfoTab
                           profile={profile}
                           stats={stats}
@@ -236,6 +230,9 @@ export default function CandidateProfilePage() {
                           isUploading={isUploading}
                           imagePreview={imagePreview}
                           onInputChange={handleInputChange}
+                          onFieldBlur={touchField}
+                          getFieldError={getFieldError}
+                          isFieldValid={isFieldValid}
                           onImageUpload={uploadImage}
                           onEditToggle={startEdit}
                           onSave={handleSave}
@@ -244,7 +241,6 @@ export default function CandidateProfilePage() {
                         />
                       </div>
                     </TabsContent>
-
                     <TabsContent
                       value="security"
                       className="mt-0 space-y-6 focus-visible:outline-none"
@@ -261,7 +257,6 @@ export default function CandidateProfilePage() {
                         <CandidatePrivacyAndSecurity />
                       </div>
                     </TabsContent>
-
                     <TabsContent
                       value="notifications"
                       className="mt-0 space-y-6 focus-visible:outline-none"

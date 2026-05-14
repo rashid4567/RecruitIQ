@@ -35,6 +35,9 @@ interface PersonalInfoTabProps {
     key: K,
     value: ProfileFormData[K],
   ) => void;
+  onFieldBlur: (field: keyof ProfileFormData) => void;
+  getFieldError: (field: keyof ProfileFormData) => string | undefined;
+  isFieldValid: (field: keyof ProfileFormData) => boolean;
   onImageUpload: (file: File) => Promise<void>;
   onEditToggle: () => void;
   onSave: () => void;
@@ -51,6 +54,9 @@ export function PersonalInfoTab({
   isUploading,
   imagePreview,
   onInputChange,
+  onFieldBlur,
+  getFieldError,
+  isFieldValid,
   onImageUpload,
   onEditToggle,
   onSave,
@@ -86,13 +92,15 @@ export function PersonalInfoTab({
     return "Let's complete your profile";
   };
 
-  const hasValidationErrors = Object.values(validationErrors).some(
-    (v) => v !== undefined && v !== null && v !== "",
+
+  const hasVisibleErrors = (Object.keys(validationErrors) as Array<keyof ProfileFormData>).some(
+    (field) => !!getFieldError(field),
   );
 
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+     
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-4">
             <ProfileCard
@@ -114,7 +122,9 @@ export function PersonalInfoTab({
           </div>
         </div>
 
+
         <div className="lg:col-span-2 space-y-6">
+
           <Card className="relative border-0 shadow-lg bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
             <div className="absolute inset-0 bg-grid-white/5" />
             <CardContent className="p-6 relative">
@@ -142,9 +152,11 @@ export function PersonalInfoTab({
             </CardContent>
           </Card>
 
+
           <Card className="border-0 shadow-xl bg-white">
             <CardContent className="p-8">
               <div className="space-y-8">
+       
                 <BasicInfoSection
                   isEditing={isEditing}
                   profile={profile}
@@ -152,46 +164,72 @@ export function PersonalInfoTab({
                   validationErrors={validationErrors}
                   sendingOtp={sendingOtp}
                   onInputChange={onInputChange}
+                  onFieldBlur={onFieldBlur}
+                  getFieldError={getFieldError}
+                  isFieldValid={isFieldValid}
                   onVerifyEmail={handleVerifyClick}
                 />
+
                 <Separator className="bg-slate-200" />
+
+          
                 <ProfessionalInfoSection
                   isEditing={isEditing}
                   profile={profile}
                   editData={editData}
                   validationErrors={validationErrors}
                   onInputChange={onInputChange}
+                  onFieldBlur={onFieldBlur}
+                  getFieldError={getFieldError}
+                  isFieldValid={isFieldValid}
                 />
+
                 <Separator className="bg-slate-200" />
+
+      
                 <AdditionalInfoSection
                   isEditing={isEditing}
                   profile={profile}
                   editData={editData}
                   validationErrors={validationErrors}
                   onInputChange={onInputChange}
+                  onFieldBlur={onFieldBlur}
+                  getFieldError={getFieldError}
+                  isFieldValid={isFieldValid}
                 />
+
                 <Separator className="bg-slate-200" />
+
                 <SocialSection
                   isEditing={isEditing}
                   profile={profile}
                   editData={editData}
                   validationErrors={validationErrors}
                   onInputChange={onInputChange}
+                  onFieldBlur={onFieldBlur}
+                  getFieldError={getFieldError}
+                  isFieldValid={isFieldValid}
                 />
+
                 <Separator className="bg-slate-200" />
+
+
                 <BioSection
                   isEditing={isEditing}
                   profile={profile}
                   editData={editData}
                   validationErrors={validationErrors}
                   onInputChange={onInputChange}
+                  onFieldBlur={onFieldBlur}
+                  getFieldError={getFieldError}
+                  isFieldValid={isFieldValid}
                 />
 
                 {isEditing && (
                   <div className="flex items-center gap-4 pt-6">
                     <Button
                       onClick={onSave}
-                      disabled={loading || hasValidationErrors}
+                      disabled={loading || hasVisibleErrors}
                       size="lg"
                       className="flex-1 h-12 bg-linear-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl transition-all duration-300 disabled:opacity-50"
                     >

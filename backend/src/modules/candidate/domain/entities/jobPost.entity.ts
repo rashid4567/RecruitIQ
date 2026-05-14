@@ -1,4 +1,3 @@
-
 export type JobType = "full-time" | "part-time" | "contract" | "internship";
 export type JobStatus = "draft" | "active" | "expired";
 export type JobVisibility = "active" | "hidden";
@@ -18,56 +17,42 @@ export interface JobSalary {
 export interface JobPostProps {
   id: string;
   recruiterId: string;
-
   title: string;
   description: string;
-
   responsibilities: string[];
   requirements: string[];
-
   requiredSkills: string[];
   preferredSkills: string[];
-
   experienceMin: number;
   experienceMax: number;
-
   location: JobLocation;
   isRemote: boolean;
-
   jobType: JobType;
   salary: JobSalary;
-
   department: string;
   positions: number;
-
   visibility: JobVisibility;
   isBlocked: boolean;
   status: JobStatus;
-
   postedOn?: Date;
   expiresAt?: Date;
   externalLink?: string;
-
   views: number;
   applicationsCount: number;
-
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-
 export class JobPostEntity {
   private readonly props: JobPostProps;
-
   private constructor(props: JobPostProps) {
     this.validate(props);
     this.props = Object.freeze(props);
   }
-static create(props: JobPostProps): JobPostEntity {
+  static create(props: JobPostProps): JobPostEntity {
     return new JobPostEntity(props);
   }
-
   private validate(props: JobPostProps) {
     if (!props.title) throw new Error("Job title is required");
 
@@ -162,7 +147,6 @@ static create(props: JobPostProps): JobPostEntity {
     return this.props.updatedAt;
   }
 
- 
   isExpired(): boolean {
     if (!this.props.expiresAt) return false;
     return this.props.expiresAt.getTime() < Date.now();
@@ -182,7 +166,6 @@ static create(props: JobPostProps): JobPostEntity {
     return !this.props.isDeleted && !this.isExpired();
   }
 
-
   toCandidateView() {
     return {
       id: this.id,
@@ -194,7 +177,6 @@ static create(props: JobPostProps): JobPostEntity {
     };
   }
 
- 
   toObject(): JobPostProps {
     return { ...this.props };
   }

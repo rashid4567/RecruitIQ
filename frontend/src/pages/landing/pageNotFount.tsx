@@ -314,10 +314,8 @@ export default function NotFoundPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Background */}
       <div className="absolute inset-0 bg-linear-to-br from-slate-50 via-blue-50/60 to-sky-50" />
 
-      {/* Subtle grid */}
       <div
         className="absolute inset-0 opacity-[0.035]"
         style={{
@@ -327,21 +325,18 @@ export default function NotFoundPage() {
         }}
       />
 
-      {/* Three.js */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
         style={{ zIndex: 1 }}
       />
 
-      {/* Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-6">
         <div
           className={`max-w-sm w-full transition-all duration-1000 ease-out ${
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          {/* Glass card */}
           <div
             className="rounded-3xl px-9 py-11 text-center"
             style={{
@@ -353,7 +348,6 @@ export default function NotFoundPage() {
                 "0 8px 64px rgba(59,130,246,0.12), 0 2px 12px rgba(59,130,246,0.08), inset 0 1px 0 rgba(255,255,255,0.9)",
             }}
           >
-            {/* Error badge */}
             <div className="flex justify-center mb-6">
               <span
                 className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase text-blue-600"
@@ -367,12 +361,10 @@ export default function NotFoundPage() {
               </span>
             </div>
 
-            {/* Big 404 ghost text + icon */}
             <div
               className="relative flex justify-center items-center mb-6 select-none"
               style={{ height: 108 }}
             >
-              {/* Ghost 404 */}
               <span
                 aria-hidden
                 className="absolute font-black pointer-events-none leading-none"
@@ -389,7 +381,6 @@ export default function NotFoundPage() {
                 404
               </span>
 
-              {/* Floating icon */}
               <div
                 className="relative z-10 w-20 h-20 rounded-2xl flex flex-col items-center justify-center gap-1"
                 style={{
@@ -400,7 +391,6 @@ export default function NotFoundPage() {
                   animation: "floatIcon 3.5s ease-in-out infinite",
                 }}
               >
-                {/* Compass/search SVG */}
                 <svg
                   width="34"
                   height="34"
@@ -480,7 +470,6 @@ export default function NotFoundPage() {
               </div>
             </div>
 
-            {/* Heading */}
             <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight leading-tight mb-2">
               Page doesn't exist
             </h1>
@@ -489,7 +478,6 @@ export default function NotFoundPage() {
               existed.
             </p>
 
-            {/* Single back button */}
             <button
               onClick={handleBack}
               className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white w-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:shadow-md"
@@ -513,7 +501,6 @@ export default function NotFoundPage() {
               Back
             </button>
 
-            {/* Divider + footer */}
             <div className="mt-8 flex items-center gap-3">
               <div
                 className="flex-1 h-px"
@@ -532,7 +519,6 @@ export default function NotFoundPage() {
             </div>
           </div>
 
-          {/* Subtle hint below card */}
           <p className="mt-5 text-center text-xs text-slate-400">
             Lost?{" "}
             <a

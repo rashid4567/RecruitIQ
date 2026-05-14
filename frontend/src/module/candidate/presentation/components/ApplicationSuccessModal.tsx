@@ -43,14 +43,12 @@ const ApplicationSuccessModal: React.FC<ApplicationSuccessModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-auto p-8">
-        {/* Success Icon */}
         <div className="flex justify-center mb-6">
           <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-blue-500" />
           </div>
         </div>
 
-        {/* Title */}
         <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
           Your application has been submitted successfully!
         </h2>
@@ -59,7 +57,6 @@ const ApplicationSuccessModal: React.FC<ApplicationSuccessModalProps> = ({
           your submission.
         </p>
 
-        {/* Tracking ID */}
         <div className="flex items-center justify-center gap-3 bg-gray-100 rounded-lg px-4 py-3 mb-8">
           <span className="text-sm text-gray-500">Tracking ID:</span>
           <span className="font-mono font-medium text-gray-900">
@@ -74,7 +71,7 @@ const ApplicationSuccessModal: React.FC<ApplicationSuccessModalProps> = ({
           </button>
         </div>
 
-        {/* What happens next */}
+  
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-center text-gray-900 mb-6">
             What happens next?
@@ -103,7 +100,7 @@ const ApplicationSuccessModal: React.FC<ApplicationSuccessModalProps> = ({
           </div>
         </div>
 
-        {/* Buttons */}
+   
         <div className="flex gap-3">
           <Button
             className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"

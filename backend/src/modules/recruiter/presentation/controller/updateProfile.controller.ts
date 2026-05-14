@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { userIdSchema } from "../validator/userId.validator";
 import { UpdateRecruiterProfileSchema } from "../validator/updateRecruiterProfile-validator";
-import { UpdateRecruiterProfileUseCase } from "../../application/useCase/update-recruiter-profile.usecase";
+import { UpdateRecruiterProfileUseCase } from "../../application/useCase/profile/update-recruiter-profile.usecase";
 
 export class UpdateRecruiterProfileController {
   constructor(

@@ -7,7 +7,6 @@ import { subscribtionStatus } from "../../domain/constatns/subscribtionStatus.co
 import { verificationStatus } from "../../domain/constatns/verificationStatus.constants";
 
 export class MongooseRecruiterProfileRepository implements RecruiterProfileRepository {
-
   async findByUserId(userId: UserId): Promise<RecruiterProfile | null> {
     const doc = await RecruiterProfileModel.findOne({
       userId: new Types.ObjectId(userId.getValue()),
@@ -15,25 +14,27 @@ export class MongooseRecruiterProfileRepository implements RecruiterProfileRepos
 
     if (!doc) return null;
 
-   
-    return RecruiterProfile.fromPersistence({
+    return RecruiterProfile.reconstitute({
       userId,
-      companyName: doc.companyName ?? "",
-      companyWebsite: doc.companyWebsite ?? "",
-      companySize: doc.companySize ?? 0,
-      industry: doc.industry ?? "",
-      designation: doc.designation ?? "",
-      bio: doc.bio ?? "",
-      linkedinUrl: doc.linkedinUrl ?? "",
-      location: doc.location ?? "",
-      subscriptionStatus: (doc.subscriptionStatus ?? "free") as subscribtionStatus,
+      companyName: doc.companyName || undefined,
+      companyWebsite: doc.companyWebsite || undefined,
+      companySize: doc.companySize ?? undefined,
+      industry: doc.industry || undefined,
+      designation: doc.designation || undefined,
+      bio: doc.bio || undefined,
+      linkedinUrl: doc.linkedinUrl || undefined,
+      location: doc.location || undefined,
+      subscriptionStatus: (doc.subscriptionStatus ??
+        "free") as subscribtionStatus,
       jobPostsUsed: doc.jobPostsUsed ?? 0,
-      verificationStatus: (doc.verificationStatus ?? "pending") as verificationStatus,
+      verificationStatus: (doc.verificationStatus ??
+        "pending") as verificationStatus,
     });
   }
 
   async save(profile: RecruiterProfile): Promise<void> {
     const userObjectId = new Types.ObjectId(profile.getUserId().getValue());
+
     await RecruiterProfileModel.findOneAndUpdate(
       { userId: userObjectId },
       {

@@ -85,7 +85,7 @@ const Collapsible: React.FC<{
   );
 };
 
-// Loading Skeleton Component
+
 const LoadingSkeleton: React.FC = () => (
   <div className="animate-pulse">
     <div className="mb-6">
@@ -124,7 +124,7 @@ export default function JobDetailModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center overflow-y-auto py-8">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 my-auto">
-        {/* Header */}
+
         <div className="border-b border-gray-200 p-4 sticky top-0 bg-white rounded-t-lg z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -149,13 +149,13 @@ export default function JobDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+
         <div className="p-6 max-h-[calc(100vh-120px)] overflow-y-auto">
           {loading ? (
             <LoadingSkeleton />
           ) : (
             <>
-              {/* Breadcrumb */}
+
               <div className="mb-4 pb-3 border-b border-gray-200">
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-gray-500">jobs</span>
@@ -165,7 +165,7 @@ export default function JobDetailModal({
               </div>
 
               <div className="flex flex-col lg:flex-row gap-8">
-                {/* Left Column - Job Details */}
+  
                 <div className="flex-1">
                   <div className="mb-6">
                     <div className="flex items-start justify-between flex-wrap gap-4">
@@ -175,7 +175,7 @@ export default function JobDetailModal({
                         </h1>
                         <p className="text-gray-600 mb-3">{job.department}</p>
 
-                        {/* Job Meta Info */}
+       
                         <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                           <div className="flex items-center gap-1.5">
                             <MapPin className="w-4 h-4" />
@@ -218,7 +218,7 @@ export default function JobDetailModal({
                     </div>
                   </div>
 
-                  {/* Job Description Sections */}
+
                   <div className="space-y-4">
                     {job.description && (
                       <Collapsible title="Job Description" defaultOpen>
@@ -300,7 +300,7 @@ export default function JobDetailModal({
                     )}
                   </div>
 
-                  {/* External Link */}
+
                   {job.externalLink && (
                     <div className="mt-6 pt-4 border-t border-gray-200">
                       <a
@@ -316,9 +316,9 @@ export default function JobDetailModal({
                   )}
                 </div>
 
-                {/* Right Column - Sidebar */}
+  
                 <div className="w-full lg:w-80 space-y-6">
-                  {/* AI Match Score */}
+
                   <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
                     <h3 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Award className="w-5 h-5 text-blue-500" />
@@ -360,7 +360,7 @@ export default function JobDetailModal({
                     </p>
                   </div>
 
-                  {/* Job Details Summary */}
+      
                   <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
                     <h3 className="text-md font-semibold text-gray-900 mb-3">
                       Job Summary
@@ -422,7 +422,7 @@ export default function JobDetailModal({
                     </div>
                   </div>
 
-                  {/* Skills Tags */}
+
                   {job.requiredSkills && job.requiredSkills.length > 0 && (
                     <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
                       <h3 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">

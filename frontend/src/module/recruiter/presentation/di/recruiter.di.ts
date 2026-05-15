@@ -1,6 +1,6 @@
-import { CompleteRecruiterProfileUseCase } from "../../Application/use-Cases/CompleteProfile-useCase"; 
-import { GetRecruiterProfileUseCase } from "../../Application/use-Cases/getProfile-useCase";
-import { UpdateRecruiterProfileUseCase } from "../../Application/use-Cases/updateProfile-useCase";
+import { CompleteRecruiterProfileUseCase } from "../../Application/use-Cases/profile/CompleteProfile-useCase"; 
+import { GetRecruiterProfileUseCase } from "../../Application/use-Cases/profile/getProfile-useCase";
+import { UpdateRecruiterProfileUseCase } from "../../Application/use-Cases/profile/updateProfile-useCase";
 import { ApiRecruiterRepository } from "../../infrastructure/repositories/ApiRecruiterRepository";
 
 const recruiterRepo = new ApiRecruiterRepository();

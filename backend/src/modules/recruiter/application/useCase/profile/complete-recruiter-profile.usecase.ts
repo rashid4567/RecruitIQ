@@ -5,14 +5,21 @@ import { CompleteRecruiterProfileDTO } from "../../dto/complete-recruiter-profil
 import { RecruiterProfile } from "../../../domain/entities/recruiter-profile.entity";
 
 export class CompleteRecruiterProfileUseCase {
-  constructor(private readonly recruiterRepo: RecruiterProfileRepository) {}
+  constructor(
+    private readonly recruiterRepo: RecruiterProfileRepository
+  ) {}
 
-  async execute(userId: string, data: CompleteRecruiterProfileDTO): Promise<void> {
+  async execute(
+    userId: string,
+    data: CompleteRecruiterProfileDTO
+  ): Promise<void> {
+
     const id = UserId.create(userId);
 
     let profile = await this.recruiterRepo.findByUserId(id);
+
     if (!profile) {
-      profile = RecruiterProfile.fromPersistence({ userId: id });
+      profile = RecruiterProfile.createEmpty(id);
     }
 
     if (data.companyName !== undefined) {
@@ -39,15 +46,13 @@ export class CompleteRecruiterProfileUseCase {
       profile.updateLocation(data.location);
     }
 
-    if(data.linkedinUrl !== undefined){
-      profile.updateLinkedinUrl(data.linkedinUrl)
+    if (data.linkedinUrl !== undefined) {
+      profile.updateLinkedinUrl(data.linkedinUrl);
     }
 
     if (data.bio !== undefined) {
       profile.updateBio(data.bio);
     }
-
- 
 
     await this.recruiterRepo.save(profile);
   }

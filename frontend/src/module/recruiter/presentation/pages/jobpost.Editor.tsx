@@ -7,8 +7,8 @@ import Step2Description from "./components/jobPost/form/Step2Description";
 import Step3Requirements from "./components/jobPost/form/Step3Requirements";
 import Step4Compensation from "./components/jobPost/form/Step4Compensation";
 import Step5Preview from "./components/jobPost/form/Step5Preview";
-import Sidebar from "../pages/components/layout/Sidebar";
-import { Header } from "../pages/components/layout/Header";
+import Sidebar from "./components/layout/Sidebar";
+import { Header } from "./components/layout/Header";
 import JobStepper from "./components/jobPost/form/JobStepper";
 import PublishDialog from "./components/jobPost/PublishDialog";
 import SaveDraftDialog from "./components/jobPost/SaveDraftDialog";
@@ -94,14 +94,13 @@ function JobEditorUI({
 }: JobEditorUIProps) {
   const navigate = useNavigate();
 
- 
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
   const errors = Object.keys(stepErrors).length > 0 ? stepErrors : localErrors;
 
   const goNext = () => {
     if (handleNext) {
       const result = handleNext();
-      
+
       setLocalErrors(result ?? {});
     } else {
       if (currentStep < 5) setCurrentStep(currentStep + 1);
@@ -116,7 +115,6 @@ function JobEditorUI({
     }
   };
 
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (showPublishConfirmation || showSaveDraftModal) return;
@@ -129,7 +127,6 @@ function JobEditorUI({
     return () => window.removeEventListener("keydown", onKey);
   }, [currentStep, showPublishConfirmation, showSaveDraftModal]);
 
- 
   useEffect(() => {
     if (!handleNavigateAway) return;
     const handler = (e: BeforeUnloadEvent) => {
@@ -142,12 +139,18 @@ function JobEditorUI({
   const renderStep = () => {
     const commonProps = { formData, setFormData, errors };
     switch (currentStep) {
-      case 1: return <Step1BasicInfo {...commonProps} />;
-      case 2: return <Step2Description {...commonProps} />;
-      case 3: return <Step3Requirements {...commonProps} />;
-      case 4: return <Step4Compensation {...commonProps} />;
-      case 5: return <Step5Preview formData={formData} />;
-      default: return null;
+      case 1:
+        return <Step1BasicInfo {...commonProps} />;
+      case 2:
+        return <Step2Description {...commonProps} />;
+      case 3:
+        return <Step3Requirements {...commonProps} />;
+      case 4:
+        return <Step4Compensation {...commonProps} />;
+      case 5:
+        return <Step5Preview formData={formData} />;
+      default:
+        return null;
     }
   };
 
@@ -155,10 +158,12 @@ function JobEditorUI({
     return (
       <div className="flex min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
         <Sidebar activeItem="jobs" />
-        <div className="flex-1 ml-72 flex items-center justify-center">
+        <div className="flex-1 overflow-x-hidden flex items-center justify-center">
           <div className="text-center">
             <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-500 text-sm font-medium">Loading job post...</p>
+            <p className="text-gray-500 text-sm font-medium">
+              Loading job post...
+            </p>
           </div>
         </div>
       </div>
@@ -169,13 +174,17 @@ function JobEditorUI({
     return (
       <div className="flex min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
         <Sidebar activeItem="jobs" />
-        <div className="flex-1 ml-72 flex items-center justify-center">
+        <div className="flex-1 overflow-x-hidden flex items-center justify-center">
           <div className="text-center space-y-4">
             <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto">
               <span className="text-red-500 text-2xl">⚠️</span>
             </div>
             <p className="text-red-500 font-semibold">{loadError}</p>
-            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl">
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}
+              className="rounded-xl"
+            >
               🔄 Try Again
             </Button>
           </div>
@@ -188,11 +197,10 @@ function JobEditorUI({
     <div className="flex min-h-screen bg-linear-to-br from-slate-50 via-gray-50 to-gray-100">
       <Sidebar activeItem="jobs" />
 
-      <div className="flex-1 ml-72">
+      <div className="flex-1 overflow-x-hidden">
         <Header />
 
-        <div className="flex gap-8 p-8 max-w-7xl mx-auto">
-          {/* Sidebar Stepper */}
+        <div className="flex gap-8 p-8 max-w-7xl mx-auto w-full">
           <div className="hidden lg:block">
             <JobStepper
               currentStep={currentStep}
@@ -202,26 +210,29 @@ function JobEditorUI({
           </div>
 
           <div className="flex-1 min-w-0 space-y-5">
-            {/* Edit mode banner */}
             {isEditMode && (
               <div className="px-4 py-3 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-2.5">
                 <span className="text-lg">✏️</span>
                 <div>
-                  <span className="text-amber-800 text-sm font-bold">Editing job post</span>
-                  <span className="text-amber-500 text-sm ml-2">— Changes apply only after you confirm</span>
+                  <span className="text-amber-800 text-sm font-bold">
+                    Editing job post
+                  </span>
+                  <span className="text-amber-500 text-sm ml-2">
+                    — Changes apply only after you confirm
+                  </span>
                 </div>
               </div>
             )}
 
-            {/* Draft saved banner */}
             {!isEditMode && draftSavedSuccessfully && (
               <div className="px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-2.5">
                 <span className="text-emerald-500 text-lg">✓</span>
-                <span className="text-emerald-800 text-sm font-semibold">Draft saved successfully</span>
+                <span className="text-emerald-800 text-sm font-semibold">
+                  Draft saved successfully
+                </span>
               </div>
             )}
 
-            {/* Mobile progress */}
             <div className="lg:hidden">
               <div className="flex justify-between text-sm text-gray-600 mb-2 font-medium">
                 <span>Step {currentStep} of 5</span>
@@ -237,7 +248,6 @@ function JobEditorUI({
               </div>
             </div>
 
-            {/* Step Form Card */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
@@ -251,7 +261,6 @@ function JobEditorUI({
               </motion.div>
             </AnimatePresence>
 
-            {/* Navigation Footer */}
             <div className="flex items-center justify-between px-1">
               <Button
                 variant="outline"
@@ -264,7 +273,6 @@ function JobEditorUI({
               </Button>
 
               <div className="flex items-center gap-3">
-                {/* Save Draft — create mode only */}
                 {!isEditMode && saveDraft && (
                   <Button
                     variant="outline"
@@ -320,7 +328,6 @@ function JobEditorUI({
         </div>
       </div>
 
-      {/* Save Draft Modal */}
       {!isEditMode && dismissSaveDraftModal && saveDraft && (
         <SaveDraftDialog
           open={showSaveDraftModal}
@@ -331,18 +338,23 @@ function JobEditorUI({
         />
       )}
 
-      {/* Publish Dialog */}
       <PublishDialog
         open={showPublishConfirmation}
-        onOpenChange={(open) => { if (!open) dismissPublishConfirmation(); }}
+        onOpenChange={(open) => {
+          if (!open) dismissPublishConfirmation();
+        }}
         onConfirm={confirmPublish}
-        onSaveDraft={isEditMode && confirmSaveDraft ? confirmSaveDraft : undefined}
+        onSaveDraft={
+          isEditMode && confirmSaveDraft ? confirmSaveDraft : undefined
+        }
         onPublish={isEditMode ? confirmPublish : undefined}
         onSuccess={() => navigate("/recruiter/jobs")}
         isSubmitting={isPublishing}
         jobTitle={formData.title}
         error={publishError}
-        onRetry={isEditMode && confirmSaveDraft ? confirmSaveDraft : confirmPublish}
+        onRetry={
+          isEditMode && confirmSaveDraft ? confirmSaveDraft : confirmPublish
+        }
         isEditMode={isEditMode}
       />
     </div>

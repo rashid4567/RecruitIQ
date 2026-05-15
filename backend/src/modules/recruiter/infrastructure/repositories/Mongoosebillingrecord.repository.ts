@@ -11,17 +11,24 @@ import {
   PaginationOptions,
   PaginatedResult,
 } from "../../../admin/Domain/repositories/jobPost-repository";
-import { BillingFilterOptions, BillingRecordRepository, CreateBillingRecordInput } from "../../domain/repositories/billing.repository";
-import { BillingRecordModel, IBillingRecord } from "../mongoose/model/Billingrecord.model";
+import {
+  BillingFilterOptions,
+  BillingRecordRepository,
+  CreateBillingRecordInput,
+} from "../../domain/repositories/billing.repository";
+import {
+  BillingRecordModel,
+  IBillingRecord,
+} from "../mongoose/model/Billingrecord.model";
 
-export class MongooseBillingRecordRepository
-  implements BillingRecordRepository
-{
-  // ── helpers ───────────────────────────────────────────────────────────────
-  private safePage(p?: number)  { return Math.max(1, p ?? 1); }
-  private safeLimit(l?: number) { return Math.min(50, Math.max(1, l ?? 10)); }
+export class MongooseBillingRecordRepository implements BillingRecordRepository {
+  private safePage(p?: number) {
+    return Math.max(1, p ?? 1);
+  }
+  private safeLimit(l?: number) {
+    return Math.min(50, Math.max(1, l ?? 10));
+  }
 
-  // ── findById ──────────────────────────────────────────────────────────────
   async findById(id: string): Promise<BillingRecord | null> {
     if (!Types.ObjectId.isValid(id)) return null;
 
@@ -29,7 +36,6 @@ export class MongooseBillingRecordRepository
     return doc ? this.toEntity(doc) : null;
   }
 
-  // ── findByRazorpayPaymentId ───────────────────────────────────────────────
   async findByRazorpayPaymentId(
     paymentId: string,
   ): Promise<BillingRecord | null> {
@@ -39,7 +45,6 @@ export class MongooseBillingRecordRepository
     return doc ? this.toEntity(doc) : null;
   }
 
-  // ── findByRecruiterId ─────────────────────────────────────────────────────
   async findByRecruiterId(
     recruiterId: string,
     filters?: BillingFilterOptions,
@@ -53,18 +58,18 @@ export class MongooseBillingRecordRepository
       recruiterId: new Types.ObjectId(recruiterId),
     };
 
-    if (filters?.status)    query.status    = filters.status;
+    if (filters?.status) query.status = filters.status;
     if (filters?.eventType) query.eventType = filters.eventType;
     if (filters?.fromDate || filters?.toDate) {
       query.createdAt = {
         ...(filters.fromDate && { $gte: filters.fromDate }),
-        ...(filters.toDate   && { $lte: filters.toDate }),
+        ...(filters.toDate && { $lte: filters.toDate }),
       };
     }
 
-    const page  = this.safePage(pagination?.page);
+    const page = this.safePage(pagination?.page);
     const limit = this.safeLimit(pagination?.limit);
-    const skip  = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
     const [docs, total] = await Promise.all([
       BillingRecordModel.find(query)
@@ -75,7 +80,7 @@ export class MongooseBillingRecordRepository
     ]);
 
     return {
-      data:       docs.map((doc) => this.toEntity(doc)),
+      data: docs.map((doc) => this.toEntity(doc)),
       total,
       page,
       limit,
@@ -83,7 +88,6 @@ export class MongooseBillingRecordRepository
     };
   }
 
-  // ── findBySubscriptionId ──────────────────────────────────────────────────
   async findBySubscriptionId(
     subscriptionId: string,
     pagination?: PaginationOptions,
@@ -93,9 +97,9 @@ export class MongooseBillingRecordRepository
     }
 
     const query = { subscriptionId: new Types.ObjectId(subscriptionId) };
-    const page  = this.safePage(pagination?.page);
+    const page = this.safePage(pagination?.page);
     const limit = this.safeLimit(pagination?.limit);
-    const skip  = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
     const [docs, total] = await Promise.all([
       BillingRecordModel.find(query)
@@ -106,7 +110,7 @@ export class MongooseBillingRecordRepository
     ]);
 
     return {
-      data:       docs.map((doc) => this.toEntity(doc)),
+      data: docs.map((doc) => this.toEntity(doc)),
       total,
       page,
       limit,
@@ -116,25 +120,25 @@ export class MongooseBillingRecordRepository
 
   async create(input: CreateBillingRecordInput): Promise<BillingRecord> {
     const doc = await BillingRecordModel.create({
-      recruiterId:       new Types.ObjectId(input.recruiterId),
-      subscriptionId:    new Types.ObjectId(input.subscriptionId),
-      planId:            new Types.ObjectId(input.planId),
-      planName:          input.planName,
-      amount:            input.amount,
-      currency:          input.currency,
-      tax:               input.tax,
-      discount:          input.discount,
-      netAmount:         input.netAmount,
+      recruiterId: new Types.ObjectId(input.recruiterId),
+      subscriptionId: new Types.ObjectId(input.subscriptionId),
+      planId: new Types.ObjectId(input.planId),
+      planName: input.planName,
+      amount: input.amount,
+      currency: input.currency,
+      tax: input.tax,
+      discount: input.discount,
+      netAmount: input.netAmount,
       razorpayPaymentId: input.razorpayPaymentId,
-      razorpayOrderId:   input.razorpayOrderId,
+      razorpayOrderId: input.razorpayOrderId,
       razorpayInvoiceId: input.razorpayInvoiceId,
-      invoiceUrl:        input.invoiceUrl,
-      eventType:         input.eventType,
-      status:            input.status,
-      failureReason:     input.failureReason,
-      periodStart:       input.periodStart,
-      periodEnd:         input.periodEnd,
-      paidAt:            input.paidAt,
+      invoiceUrl: input.invoiceUrl,
+      eventType: input.eventType,
+      status: input.status,
+      failureReason: input.failureReason,
+      periodStart: input.periodStart,
+      periodEnd: input.periodEnd,
+      paidAt: input.paidAt,
     });
 
     return this.toEntity(doc);
@@ -147,9 +151,9 @@ export class MongooseBillingRecordRepository
   ): Promise<BillingRecord> {
     const set: Record<string, unknown> = { status };
 
-    if (extras?.paidAt)        set.paidAt        = extras.paidAt;
-    if (extras?.failureReason) set.failureReason  = extras.failureReason;
-    if (extras?.invoiceUrl)    set.invoiceUrl      = extras.invoiceUrl;
+    if (extras?.paidAt) set.paidAt = extras.paidAt;
+    if (extras?.failureReason) set.failureReason = extras.failureReason;
+    if (extras?.invoiceUrl) set.invoiceUrl = extras.invoiceUrl;
 
     const doc = await BillingRecordModel.findByIdAndUpdate(
       billingRecordId,
@@ -161,7 +165,6 @@ export class MongooseBillingRecordRepository
     return this.toEntity(doc);
   }
 
-
   async sumPaidAmount(
     recruiterId: string,
     fromDate?: Date,
@@ -171,13 +174,13 @@ export class MongooseBillingRecordRepository
 
     const match: Record<string, unknown> = {
       recruiterId: new Types.ObjectId(recruiterId),
-      status:      BillingStatus.Paid,
+      status: BillingStatus.Paid,
     };
 
     if (fromDate || toDate) {
       match.paidAt = {
         ...(fromDate && { $gte: fromDate }),
-        ...(toDate   && { $lte: toDate }),
+        ...(toDate && { $lte: toDate }),
       };
     }
 
@@ -189,30 +192,29 @@ export class MongooseBillingRecordRepository
     return result[0]?.total ?? 0;
   }
 
-  
   private toEntity(doc: IBillingRecord): BillingRecord {
     const props: BillingRecordProps = {
-      id:                (doc._id as Types.ObjectId).toString(),
-      recruiterId:       doc.recruiterId.toString(),
-      subscriptionId:    doc.subscriptionId.toString(),
-      planId:            doc.planId.toString(),
-      planName:          doc.planName,
-      amount:            doc.amount,
-      currency:          doc.currency,
-      tax:               doc.tax,
-      discount:          doc.discount,
-      netAmount:         doc.netAmount,
+      id: (doc._id as Types.ObjectId).toString(),
+      recruiterId: doc.recruiterId.toString(),
+      subscriptionId: doc.subscriptionId.toString(),
+      planId: doc.planId.toString(),
+      planName: doc.planName,
+      amount: doc.amount,
+      currency: doc.currency,
+      tax: doc.tax,
+      discount: doc.discount,
+      netAmount: doc.netAmount,
       razorpayPaymentId: doc.razorpayPaymentId,
-      razorpayOrderId:   doc.razorpayOrderId,
+      razorpayOrderId: doc.razorpayOrderId,
       razorpayInvoiceId: doc.razorpayInvoiceId,
-      invoiceUrl:        doc.invoiceUrl,
-      eventType:         doc.eventType as BillingEventType,
-      status:            doc.status as BillingStatus,
-      failureReason:     doc.failureReason,
-      periodStart:       doc.periodStart,
-      periodEnd:         doc.periodEnd,
-      paidAt:            doc.paidAt,
-      createdAt:         doc.createdAt,
+      invoiceUrl: doc.invoiceUrl,
+      eventType: doc.eventType as BillingEventType,
+      status: doc.status as BillingStatus,
+      failureReason: doc.failureReason,
+      periodStart: doc.periodStart,
+      periodEnd: doc.periodEnd,
+      paidAt: doc.paidAt,
+      createdAt: doc.createdAt,
     };
 
     return BillingRecord.create(props);

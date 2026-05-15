@@ -25,7 +25,6 @@ const userSchema = new Schema(
       },
     },
 
-    
     googleId: {
       type: String,
       index: true,
@@ -53,9 +52,8 @@ const userSchema = new Schema(
       type: Boolean,
       default: true,
     },
-
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const UserModel = model("User", userSchema);

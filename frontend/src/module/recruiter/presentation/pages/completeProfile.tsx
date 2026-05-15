@@ -1,4 +1,4 @@
-import { useCompleteProfile } from "../hooks/useCompleteProfileForm"
+import { useCompleteProfile } from "../hooks/profile/useCompleteProfileForm"
 import { RecruiterProfileHeader } from "./components/completeProfile/RecruiterProfileHeader"
 import { ProgressBar } from "./components/completeProfile/ProgressBar" 
 import { CompanyForm } from "./components/completeProfile/CompanyForm"
@@ -12,16 +12,14 @@ export default function RecruiterDetails() {
     errors,
     selectedPlan,
     isSubmitting,
-    logoPreview,
     progress,
     setSelectedPlan,
     handleInputChange,
-    handleLogoUpload,
     handleSubmit,
   } = useCompleteProfile();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 py-8">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-slate-50 py-8">
       <div className="relative max-w-6xl mx-auto px-4">
         <ProgressBar progress={progress} />
 

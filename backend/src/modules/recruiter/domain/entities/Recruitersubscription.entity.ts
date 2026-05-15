@@ -1,10 +1,6 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
-
-import { Currency } from "../../../admin/Domain/entities/subscription-plan.entity";
-
 import { ERROR_CODES } from "../constatns/recruiter.profile.error";
-
-import { BillingCycle, PlanType } from "./Subscriptionplan.entity";
+import { BillingCycle, PlanType ,Currency} from "./Subscriptionplan.entity";
 
 export enum SubscriptionStatus {
   Pending = "pending",
@@ -256,14 +252,12 @@ export class RecruiterSubscription {
     if (this.props.screeningCreditsLimit === 0) {
       return 100;
     }
-
     return Math.min(
       100,
       (this.props.screeningCreditsUsed / this.props.screeningCreditsLimit) *
         100,
     );
   }
-
   canPostJob(): boolean {
     if (!this.isActive) {
       return false;
@@ -272,7 +266,6 @@ export class RecruiterSubscription {
     if (this.props.jobPostsLimit === -1) {
       return true;
     }
-
     return this.props.jobPostsUsed < this.props.jobPostsLimit;
   }
 
@@ -280,30 +273,23 @@ export class RecruiterSubscription {
     if (!this.isActive) {
       return false;
     }
-
     if (this.props.screeningCreditsLimit === -1) {
       return true;
     }
-
     return this.props.screeningCreditsUsed < this.props.screeningCreditsLimit;
   }
 
   daysUntilExpiry(): number {
     const now = new Date();
-
     const diff = this.props.endDate.getTime() - now.getTime();
-
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }
 
   usageSnapshot(): UsageSnapshot {
     return {
       jobPostsUsed: this.props.jobPostsUsed,
-
       screeningCreditsUsed: this.props.screeningCreditsUsed,
-
       periodStart: this.props.currentPeriodStart,
-
       periodEnd: this.props.currentPeriodEnd,
     };
   }

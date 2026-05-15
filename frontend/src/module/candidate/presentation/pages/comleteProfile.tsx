@@ -33,7 +33,6 @@ export default function CompleteCandidateProfile() {
   });
 
   const [skillInput, setSkillInput] = useState("");
-  // Separate validation error for skills so it shows inline
   const [skillsError, setSkillsError] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -42,13 +41,11 @@ export default function CompleteCandidateProfile() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear field error on change
     if (formErrors[name]) {
       setFormErrors((prev) => { const next = { ...prev }; delete next[name]; return next; });
     }
   };
 
-  // Shared skill-add logic used by both Enter key and the Add button
   const addSkill = () => {
     const trimmed = skillInput.trim();
     if (!trimmed) return;
@@ -73,7 +70,6 @@ export default function CompleteCandidateProfile() {
     }));
   };
 
-  // Client-side validation before submit
   const validate = (): boolean => {
     const errors: Record<string, string> = {};
 
@@ -93,9 +89,6 @@ export default function CompleteCandidateProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // FIX: guard before sending — gives the user a clear error instead of
-    // letting an empty skills array reach the backend and get a Zod error back.
     if (!validate()) return;
 
     try {
@@ -112,7 +105,7 @@ export default function CompleteCandidateProfile() {
       });
       navigate("/candidate/home");
     } catch {
-      // error state is set in the hook; nothing extra needed here
+
     }
   };
 
@@ -120,7 +113,7 @@ export default function CompleteCandidateProfile() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
 
-        {/* Header */}
+   
         <div className="flex items-center justify-between mb-8">
           <button
             type="button"

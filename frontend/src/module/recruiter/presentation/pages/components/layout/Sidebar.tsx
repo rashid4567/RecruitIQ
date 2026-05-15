@@ -23,7 +23,7 @@ const navItems = [
   { icon: Calendar,        label: "Interviews",       id: "interviews",       path: "/recruiter/interviews" },
   { icon: MessageSquare,   label: "Interview Chats",  id: "interview-chats",  path: "/recruiter/chats" },
   { icon: UserCircle,      label: "Candidates",       id: "candidates",       path: "/recruiter/candidates" },
-  { icon: CreditCard,      label: "Billing",          id: "billing",          path: "/recruiter/billing" },
+  { icon: CreditCard,      label: "Billing",          id: "billing",          path: "/recruiter/plans" },
   { icon: User,            label: "Profile",          id: "profile",          path: "/recruiter/settings" },
 ];
 

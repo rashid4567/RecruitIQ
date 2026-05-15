@@ -114,7 +114,7 @@ export class MongooseJobPostRepository implements JobPostRepository {
         _id: id,
         isDeleted: false,
         isBlocked: false,
-        status: "draft",          
+        status: "draft",
       },
       {
         $set: {
@@ -126,8 +126,10 @@ export class MongooseJobPostRepository implements JobPostRepository {
     );
 
     if (!doc) {
-
-      const existing = await JobPostModel.findOne({ _id: id, isDeleted: false });
+      const existing = await JobPostModel.findOne({
+        _id: id,
+        isDeleted: false,
+      });
 
       if (!existing) {
         throw new DomainError(ERROR_CODES.JOB_POST_NOT_FOUND);

@@ -5,12 +5,12 @@ import { toast } from "sonner";
 import type { Path, PathValue } from "react-hook-form";
 
 import { RecruiterProfile } from "@/module/recruiter/Domain/entities/recruiterEntities";
-import { updateRecruiterUc } from "../di/recruiter.di";
+import { updateRecruiterUc } from "../../di/recruiter.di";
 import {
   profileSchema,
   type ProfileFormData,
-} from "../validators/recruiter-form.validator";
-import { RecruiterProfileFormMapper } from "../mappers/recruiterForm.mapper";
+} from "../../validators/recruiter-form.validator";
+import { RecruiterProfileFormMapper } from "../../mappers/recruiterForm.mapper";
 
 interface UseRecruiterProfileFormProps {
   profile: RecruiterProfile | null;

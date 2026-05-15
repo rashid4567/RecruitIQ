@@ -1,16 +1,32 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { JobPost } from "../../../domain/entities/job-post.entity";
 import { JobPostRepository } from "../../../domain/repositories/JobPostRepository";
+import { RecruiterSubscriptionRepository } from "../../../domain/repositories/recruiter-subscription.repository";
 import { ERROR_CODES } from "../../constants/error.code.constants";
 import { CreateJobPostDTO } from "../../dto/jobPost.dto";
 
 export class CreateJobPostUseCase {
-  constructor(private readonly jobPostRepo: JobPostRepository) {}
+  constructor(
+    private readonly jobPostRepo: JobPostRepository,
+    private readonly subscriptionRepo: RecruiterSubscriptionRepository,
+  ) {}
 
   async execute(recruiterId: string, dto: CreateJobPostDTO): Promise<JobPost> {
-
     if (!recruiterId) {
       throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_FOUND);
+    }
+
+    const subscription =
+      await this.subscriptionRepo.findActiveByRecruiterId(recruiterId);
+
+    if (!subscription) {
+      throw new ApplicationError(
+        ERROR_CODES.NO_ACTIVE_SUBSCRIPTION_FOUND_FOR_THIS_RECRUITER,
+      );
+    }
+
+    if (!subscription.canPostJob()) {
+      throw new ApplicationError(ERROR_CODES.JOB_POST_LIMIT_EXCEEDED);
     }
 
     if (!dto.title || dto.title.trim().length < 3) {
@@ -21,12 +37,10 @@ export class CreateJobPostUseCase {
       throw new ApplicationError(ERROR_CODES.INVALID_JOB_DESCRIPTION);
     }
 
- 
     if (dto.experienceMin > dto.experienceMax) {
       throw new ApplicationError(ERROR_CODES.INVALID_EXPERIENCE_RANGE);
     }
 
-   
     const jobPost = JobPost.create({
       recruiterId,
       title: dto.title.trim(),
@@ -47,6 +61,12 @@ export class CreateJobPostUseCase {
       externalLink: dto.externalLink,
     });
 
-    return this.jobPostRepo.create(jobPost);
+    const created = await this.jobPostRepo.create(jobPost);
+    await this.subscriptionRepo.updateUsage({
+      subscriptionId: subscription.id,
+      jobPostsDelta: 1,
+    });
+
+    return created;
   }
 }

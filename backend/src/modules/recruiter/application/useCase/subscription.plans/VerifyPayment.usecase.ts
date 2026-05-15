@@ -4,6 +4,9 @@ import { ERROR_CODES } from "../../constants/error.code.constants";
 import { RecruiterSubscriptionRepository } from "../../../domain/repositories/recruiter-subscription.repository";
 import { BillingRecordRepository } from "../../../domain/repositories/billing.repository";
 import { SubscriptionStatus } from "../../../domain/entities/Recruitersubscription.entity";
+import { RecruiterProfileRepository } from "../../../domain/repositories/recruiter.repository";
+import { UserId } from "../../../../../shared/value-objects/userId.vo";
+
 
 import {
   BillingEventType,
@@ -26,7 +29,9 @@ export class VerifyPaymentUseCase {
   constructor(
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
     private readonly billingRepo: BillingRecordRepository,
+    private readonly recruiterRepo : RecruiterProfileRepository,
     private readonly razorpayKeySecret: string,
+    
   ) {}
 
   async execute(request: VerifyPaymentRequest): Promise<VerifyPaymentResponse> {
@@ -65,6 +70,16 @@ export class VerifyPaymentUseCase {
       subscription.id,
       SubscriptionStatus.Active,
     );
+
+    const profile = await this.recruiterRepo.findByUserId(
+      UserId.create(subscription.recruiterId)
+    )
+
+    if(profile){
+      profile.updateSubscriptionStatus("active");
+
+      await this.recruiterRepo.save(profile);
+    }
 
     const existingBilling = await this.billingRepo.findByRazorpayPaymentId(
       request.razorpay_payment_id,

@@ -40,7 +40,7 @@ export class MongooseUserRepository implements UserRepository {
         email: user.getEmail().getValue(),
         profileImage: user.getProfileImage(),
       },
-      { upsert: false }
+      { upsert: false },
     );
   }
 }

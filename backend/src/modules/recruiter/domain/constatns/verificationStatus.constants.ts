@@ -1,7 +1,8 @@
 export const VerificationStatus = {
-    PENDING : "pending",
-    VERIFIED : "verfied",
-    REJECTED : "rejected",
-}
+  PENDING: "pending",
+  VERIFIED: "verfied",
+  REJECTED: "rejected",
+};
 
-export type verificationStatus = typeof VerificationStatus[keyof typeof VerificationStatus]
+export type verificationStatus =
+  (typeof VerificationStatus)[keyof typeof VerificationStatus];

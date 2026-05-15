@@ -58,7 +58,7 @@ export default function SubscriptionFailed({
         overflow: "hidden",
       }}
     >
-      {/* Ambient orbs */}
+     
       <div
         style={{
           position: "absolute",
@@ -110,7 +110,7 @@ export default function SubscriptionFailed({
         }}
       >
         <div style={{ width: "100%", maxWidth: 720 }}>
-          {/* Badge */}
+        
           <div
             style={{
               textAlign: "center",
@@ -152,7 +152,6 @@ export default function SubscriptionFailed({
             </span>
           </div>
 
-          {/* Card */}
           <div
             style={{
               background: "#ffffff",
@@ -168,7 +167,7 @@ export default function SubscriptionFailed({
               transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
             }}
           >
-            {/* Header */}
+          
             <div
               style={{
                 padding: "2.5rem 2.5rem 2rem",
@@ -193,7 +192,7 @@ export default function SubscriptionFailed({
                 }}
               />
 
-              {/* Icon */}
+           
               <div
                 style={{
                   display: "inline-flex",

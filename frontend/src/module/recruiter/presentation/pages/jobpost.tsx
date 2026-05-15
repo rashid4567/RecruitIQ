@@ -69,16 +69,14 @@ export default function JobsPage() {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar activeItem="jobs" />
 
-      <div className="flex-1 ml-64">
+      <div className="flex-1 overflow-x-hidden">
         <Header />
 
-        <main className="p-8 mt-6">
-   
+        <main className="p-8 mt-6 max-w-7xl mx-auto w-full">
           <StatsOverview stats={stats} jobs={filteredJobs} />
 
           <div className="flex justify-between items-center mb-6">
             <div className="flex gap-3">
-           
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -108,7 +106,6 @@ export default function JobsPage() {
             </div>
 
             <div className="flex items-center gap-3">
-          
               <div className="bg-white p-1 border border-gray-200 rounded-xl flex">
                 <button
                   onClick={() => setViewMode("grid")}
@@ -132,7 +129,6 @@ export default function JobsPage() {
                 </button>
               </div>
 
-        
               <Button
                 onClick={() => navigate("/recruiter/job-editor")}
                 className="flex items-center gap-2 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-6 py-3"
@@ -143,7 +139,6 @@ export default function JobsPage() {
             </div>
           </div>
 
-   
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredJobs.map((job) => (
@@ -186,7 +181,7 @@ export default function JobsPage() {
             </div>
           )}
 
-          {/* Empty State */}
+   
           {filteredJobs.length === 0 && (
             <div className="text-center py-20">
               <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-6">

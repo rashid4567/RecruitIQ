@@ -128,7 +128,6 @@ export default function RecruiterSettingsPage() {
 
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <div className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
-            {/* Title row */}
             <div className="flex items-center gap-3 px-8 pt-5 pb-2">
               <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
                 <Settings className="h-4 w-4 text-slate-600" />
@@ -143,7 +142,6 @@ export default function RecruiterSettingsPage() {
               </div>
             </div>
 
-            {/* Tab strip */}
             <div className="flex items-end gap-0.5 px-6 overflow-x-auto scrollbar-none">
               {settingsTabs.map((tab) => {
                 const Icon = tab.icon;
@@ -159,7 +157,6 @@ export default function RecruiterSettingsPage() {
                         : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50",
                     )}
                   >
-                    {/* Icon badge */}
                     <div
                       className={cn(
                         "w-6 h-6 rounded-md flex items-center justify-center transition-colors shrink-0",
@@ -179,7 +176,6 @@ export default function RecruiterSettingsPage() {
                       {tab.label}
                     </span>
 
-                    {/* Active dot indicator */}
                     {active && (
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-600" />
                     )}
@@ -191,7 +187,6 @@ export default function RecruiterSettingsPage() {
 
           <div className="flex-1 overflow-y-auto">
             <div className="px-8 py-7 max-w-6xl">
-              {/* Section heading */}
               <div className="flex items-center gap-3 mb-6">
                 <div
                   className={cn(
@@ -210,8 +205,6 @@ export default function RecruiterSettingsPage() {
                   </p>
                 </div>
               </div>
-
-              {/* Content card */}
               <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm">
                 <div className="p-8 lg:p-10">
                   {activeTab === "profile" && <RecruiterProfileSection />}

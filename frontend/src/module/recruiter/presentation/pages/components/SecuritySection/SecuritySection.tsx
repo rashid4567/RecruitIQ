@@ -14,7 +14,7 @@ import { ChangePasswordForm } from "./ChangePasswordForm";
 import { RecentActivity } from "./RecentActivity";
 
 import { z } from "zod";
-import { useUpdatePassword } from "../../../hooks/useUpdatePassword";
+import { useUpdatePassword } from "../../../hooks/profile/useUpdatePassword";
 import { passwordFormSchema, type PasswordFormData } from "../../../validators/password.validator";
 import { Link } from "react-router-dom";
 

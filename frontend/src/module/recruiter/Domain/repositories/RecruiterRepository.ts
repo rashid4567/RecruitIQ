@@ -4,8 +4,6 @@ import type { UpdateRecruiterProfileDTO } from "../dto/updateRecruiterProfile.dt
 
 export interface RecruiterRepository {
   getProfile(): Promise<RecruiterProfile>;
-
   updateProfile(data: UpdateRecruiterProfileDTO): Promise<RecruiterProfile>;
-
   completeProfile(data: CompleteRecruiterProfileDTO): Promise<RecruiterProfile>;
 }

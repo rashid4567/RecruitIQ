@@ -35,37 +35,21 @@ export interface PlanFeature {
 
 export interface SubscriptionPlanProps {
   id: string;
-
   name: string;
-
   description?: string;
-
   planType: PlanType;
-
   price: number;
-
   currency: Currency;
-
   billingCycle: BillingCycle;
-
   billingInterval: number;
-
   jobPostsPerMonth: number;
-
   screeningCredits: number;
-
   featuresAccess: FeaturesAccess;
-
   features: PlanFeature[];
-
   isPopular: boolean;
-
   sortOrder: number;
-
   isActive: boolean;
-
   createdAt: Date;
-
   updatedAt: Date;
 }
 

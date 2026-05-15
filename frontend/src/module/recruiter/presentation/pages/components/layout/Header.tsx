@@ -1,38 +1,108 @@
-import { Search, Bell, ChevronLeft } from "lucide-react";
+import {
+
+  Bell,
+  ChevronLeft,
+} from "lucide-react";
+
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
 
-export  function Header() {
+import { useNavigate } from "react-router-dom";
+
+interface HeaderProps {
+  title?: string;
+  recruiterName?: string;
+  recruiterRole?: string;
+  profileImage?: string;
+}
+
+export function Header({
+  title = "Create New Job",
+  recruiterName,
+  recruiterRole,
+  profileImage,
+}: HeaderProps) {
+
+  const navigate = useNavigate();
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   return (
-    <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-40">
-      <div className="flex items-center gap-4">
-        <a href="/jobs" className="flex items-center gap-2 text-gray-500 hover:text-gray-900">
-          <ChevronLeft className="w-5 h-5" /> Back to Jobs
-        </a>
-        <Separator orientation="vertical" className="h-6" />
-        <h1 className="text-lg font-semibold text-gray-900">Create New Job</h1>
-      </div>
+    <header className="sticky top-0 z-40 h-16 border-b border-gray-200/70 bg-white/80 backdrop-blur-xl">
 
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input placeholder="Search..." className="w-64 pl-9 bg-gray-50" />
-        </div>
-        <button className="p-2.5 hover:bg-gray-100 rounded-xl relative">
-          <Bell className="w-5 h-5 text-gray-500" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
-        </button>
-        <Separator orientation="vertical" className="h-8" />
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-sm font-semibold">Rashid Khan</p>
-            <p className="text-xs text-gray-500">Talent Lead</p>
-          </div>
-          <img
-            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=128&h=128&fit=crop&crop=face"
-            alt="Profile"
-            className="w-10 h-10 rounded-xl object-cover ring-2 ring-gray-100"
+      <div className="flex h-full items-center justify-between px-6 lg:px-8">
+
+        {/* Left Section */}
+        <div className="flex items-center gap-4 min-w-0">
+
+          <button
+            onClick={handleGoBack}
+            className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back
+          </button>
+
+          <Separator
+            orientation="vertical"
+            className="hidden h-6 sm:block"
           />
+
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-semibold text-gray-900">
+              {title}
+            </h1>
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="flex items-center gap-3 lg:gap-4">
+
+                   {/* Notification */}
+          <button className="relative rounded-xl p-2.5 transition-colors hover:bg-gray-100">
+
+            <Bell className="h-5 w-5 text-gray-600" />
+
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+          </button>
+
+          <Separator
+            orientation="vertical"
+            className="hidden h-8 sm:block"
+          />
+
+          {/* Recruiter Profile */}
+          <div className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white px-2 py-1.5 transition-all hover:border-gray-200 hover:shadow-sm">
+
+            <div className="hidden text-right sm:block">
+
+              <p className="text-sm font-semibold text-gray-900">
+                {recruiterName || "Recruiter"}
+              </p>
+
+              <p className="text-xs text-gray-500">
+                {recruiterRole || "Recruiter"}
+              </p>
+            </div>
+
+            <div className="h-10 w-10 overflow-hidden rounded-xl bg-gray-100 ring-2 ring-gray-100">
+
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
+
+                  {recruiterName?.charAt(0)?.toUpperCase() || "R"}
+
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </header>

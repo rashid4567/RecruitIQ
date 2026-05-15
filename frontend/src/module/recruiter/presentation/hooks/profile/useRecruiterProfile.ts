@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { RecruiterProfile } from "@/module/recruiter/Domain/entities/recruiterEntities";
-import { GetRecruiterProfileUc } from "../di/recruiter.di";
+import { GetRecruiterProfileUc } from "../../di/recruiter.di";
 
 export function useRecruiterProfile() {
   const [profile, setProfile] = useState<RecruiterProfile | null>(null);

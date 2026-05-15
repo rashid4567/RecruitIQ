@@ -7,6 +7,7 @@ import { ToggleJobPostVisibilityUseCase } from "./application/useCase/jobPost/To
 import { UpdateJobPostUseCase } from "./application/useCase/jobPost/UpdateJobPost";
 import { JobPostRepository } from "./domain/repositories/JobPostRepository";
 import { MongooseJobPostRepository } from "./infrastructure/repositories/mongoose-jobPost.repository";
+import { MongooseRecruiterSubscriptionRepository } from "./infrastructure/repositories/Mongooserecruitersubscription.repository";
 import { CreateJobPostController } from "./presentation/controller/jobPost/createJobPost.controller";
 import { DeleteJobPostController } from "./presentation/controller/jobPost/delete-jobPost.controller";
 import { GetAllRecruiterController } from "./presentation/controller/jobPost/getAllJobPost.controller";
@@ -16,8 +17,8 @@ import { PublishJobPostController } from "./presentation/controller/jobPost/publ
 import { UpdateJobPostController } from "./presentation/controller/jobPost/updateJobPost.controller";
 
 const jobPostRepository: JobPostRepository = new MongooseJobPostRepository();
-
-const createJobPostUC = new CreateJobPostUseCase(jobPostRepository);
+const recruiterSubscriptionRepo = new MongooseRecruiterSubscriptionRepository();
+const createJobPostUC = new CreateJobPostUseCase(jobPostRepository, recruiterSubscriptionRepo);
 const getRecruiterJobPostsUC = new GetRecruiterJobPostsUseCase(
   jobPostRepository,
 );

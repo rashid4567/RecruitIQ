@@ -18,8 +18,10 @@ import { UpdateBillingStatusUseCase } from "./application/useCase/subscription.p
 import { VerifyPaymentUseCase } from "./application/useCase/subscription.plans/VerifyPayment.usecase";
 import { BillingRecordRepository } from "./domain/repositories/billing.repository";
 import { RecruiterSubscriptionRepository } from "./domain/repositories/recruiter-subscription.repository";
+import { RecruiterProfileRepository } from "./domain/repositories/recruiter.repository";
 import { SubscriptionPlanRepository } from "./domain/repositories/Subscription.repository";
 import { RazorpayGateway } from "./infrastructure/payment/razorpay.gateway";
+import { MongooseRecruiterProfileRepository } from "./infrastructure/repositories/mongoose-recruiter.repository";
 import { MongooseBillingRecordRepository } from "./infrastructure/repositories/Mongoosebillingrecord.repository";
 import { MongooseRecruiterSubscriptionRepository } from "./infrastructure/repositories/Mongooserecruitersubscription.repository";
 import { MongooseSubscriptionPlanRepository } from "./infrastructure/repositories/Mongoosesubscriptionplan.repository";
@@ -40,17 +42,21 @@ import { SubscribeController } from "./presentation/controller/Subscriptionplan/
 import { TrackUsageController } from "./presentation/controller/Subscriptionplan/TrackUsage.controller";
 import { UpdateBillingStatusController } from "./presentation/controller/Subscriptionplan/Updatebillingstatus.controller";
 import { VerifyPaymentController } from "./presentation/controller/Subscriptionplan/VerifyPayment.controller";
+
 const subscriptionRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
 const recruiterSubscriptionRepo: RecruiterSubscriptionRepository =
   new MongooseRecruiterSubscriptionRepository();
 const billingRecordRepo: BillingRecordRepository =
   new MongooseBillingRecordRepository();
+const RecruiterRepo: RecruiterProfileRepository =
+  new MongooseRecruiterProfileRepository();
 const paymentGateway = new RazorpayGateway();
 const getAllPlansUC = new GetAllPlansUseCase(subscriptionRepo);
 const getDetailsUC = new GetPlanDetailUseCase(subscriptionRepo);
 const cancelSubscriptionUC = new CancelSubscriptionUseCase(
   recruiterSubscriptionRepo,
+  RecruiterRepo,
 );
 const changePlanUC = new ChangePlanUseCase(
   recruiterSubscriptionRepo,
@@ -58,12 +64,14 @@ const changePlanUC = new ChangePlanUseCase(
 );
 const getCurrentSubscriptionUC = new GetCurrentSubscriptionUseCase(
   recruiterSubscriptionRepo,
+  RecruiterRepo,
 );
 const getSubscriptionHistoryUC = new GetSubscriptionHistoryUseCase(
   recruiterSubscriptionRepo,
 );
 const renewSubscriptionUC = new RenewSubscriptionUseCase(
   recruiterSubscriptionRepo,
+  RecruiterRepo,
 );
 const subscribeUC = new SubscribeUseCase(
   recruiterSubscriptionRepo,
@@ -85,6 +93,7 @@ const createOrderUC = new CreateOrderUseCase(
 const verifyPaymentUC = new VerifyPaymentUseCase(
   recruiterSubscriptionRepo,
   billingRecordRepo,
+  RecruiterRepo,
   RAZORPAY_KEY_SECRET,
 );
 export const getAllPlansController = new GetAllPlansController(getAllPlansUC);

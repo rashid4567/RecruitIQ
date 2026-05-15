@@ -6,9 +6,7 @@ import {
 export interface PlanFilterOptions {
 
   isActive?: boolean;
-
   planType?: PlanType;
-
   currency?: string;
 }
 

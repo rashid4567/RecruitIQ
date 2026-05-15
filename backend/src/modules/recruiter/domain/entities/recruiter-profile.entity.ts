@@ -1,8 +1,9 @@
-import { subscribtionStatus } from "../constatns/subscribtionStatus.contsants";
+import { subscriptionStatus } from "../constatns/subscriptionStatus.constants";
 import { verificationStatus } from "../constatns/verificationStatus.constants";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { ERROR_CODES } from "../constatns/recruiter.profile.error";
+
 
 export interface RecruiterProfileProps {
   userId: UserId;
@@ -14,12 +15,13 @@ export interface RecruiterProfileProps {
   bio?: string;
   linkedinUrl?: string;
   location?: string;
-  subscriptionStatus: subscribtionStatus;
+  subscriptionStatus: subscriptionStatus;
   jobPostsUsed: number;
   verificationStatus: verificationStatus;
 }
 
 export class RecruiterProfile {
+  
   private constructor(private props: RecruiterProfileProps) {}
 
   public static create(
@@ -32,7 +34,7 @@ export class RecruiterProfile {
     }
     if (!companyWebsite?.trim()) {
       throw new DomainError(ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
-    }
+    } 
     return new RecruiterProfile({
       userId,
       companyName: companyName.trim(),
@@ -103,13 +105,14 @@ export class RecruiterProfile {
     this.props.jobPostsUsed += 1;
   }
 
-  public activateSubscription(status: subscribtionStatus): void {
-    this.props.subscriptionStatus = status;
-  }
-
-  public verify(): void {
-    this.props.verificationStatus = "verified";
-  }
+ public updateSubscriptionStatus(status: subscriptionStatus): void {
+  this.props.subscriptionStatus = status;
+}
+ public updateVerificationStatus(
+   status: verificationStatus
+): void {
+   this.props.verificationStatus = status;
+}
 
   public getUserId(): UserId {
     return this.props.userId;
@@ -138,7 +141,7 @@ export class RecruiterProfile {
   public getLocation(): string | undefined {
     return this.props.location;
   }
-  public getSubscriptionStatus(): subscribtionStatus {
+  public getSubscriptionStatus(): subscriptionStatus {
     return this.props.subscriptionStatus;
   }
   public getJobPostsUsed(): number {

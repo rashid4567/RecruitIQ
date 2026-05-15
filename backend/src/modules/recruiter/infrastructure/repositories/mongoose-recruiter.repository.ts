@@ -3,7 +3,7 @@ import { RecruiterProfile } from "../../domain/entities/recruiter-profile.entity
 import { RecruiterProfileRepository } from "../../domain/repositories/recruiter.repository";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { RecruiterProfileModel } from "../mongoose/model/recruiter-profile.model";
-import { subscribtionStatus } from "../../domain/constatns/subscribtionStatus.contsants";
+import { subscriptionStatus } from "../../domain/constatns/subscriptionStatus.constants";
 import { verificationStatus } from "../../domain/constatns/verificationStatus.constants";
 
 export class MongooseRecruiterProfileRepository implements RecruiterProfileRepository {
@@ -25,7 +25,7 @@ export class MongooseRecruiterProfileRepository implements RecruiterProfileRepos
       linkedinUrl: doc.linkedinUrl || undefined,
       location: doc.location || undefined,
       subscriptionStatus: (doc.subscriptionStatus ??
-        "free") as subscribtionStatus,
+        "free") as subscriptionStatus,
       jobPostsUsed: doc.jobPostsUsed ?? 0,
       verificationStatus: (doc.verificationStatus ??
         "pending") as verificationStatus,

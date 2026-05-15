@@ -8,29 +8,25 @@ const RecruiterHome = lazy(() => import("../pages/landing/landingPage"));
 const RecruiterDetails = lazy(
   () => import("../module/recruiter/presentation/pages/completeProfile"),
 );
-
 const MyJobPost = lazy(
   () => import("../module/recruiter/presentation/pages/jobpost"),
 );
-
 const JobPostEditor = lazy(
-  () => import("../module/recruiter/presentation/pages/createJobPost"),
+  () => import("../module/recruiter/presentation/pages/jobpost.Editor"),
 );
-
 const RecruiterSettingsPage = lazy(
   () => import("../module/recruiter/presentation/pages/recruiter.profile"),
 );
-
 const SubscriptionPlans = lazy(
   () => import("../module/recruiter/presentation/pages/pricePlaning"),
 );
-
 const SubscriptionSuccess = lazy(
-  () => import("../module/recruiter/presentation/pages/paymentSuccess"),
+  () =>
+    import("../module/recruiter/presentation/pages/components/Billing/paymentSuccess"),
 );
-
 const SubscriptionFailed = lazy(
-  () => import("../module/recruiter/presentation/pages/paymentFailed"),
+  () =>
+    import("../module/recruiter/presentation/pages/components/Billing/paymentFailed"),
 );
 
 const RecruiterRoutes = () => {
@@ -40,24 +36,16 @@ const RecruiterRoutes = () => {
         <Route element={<ProtectedRoute allowedRoles={["recruiter"]} />}>
           <Route element={<RecruiterLayout />}>
             <Route index element={<RecruiterHome />} />
-
             <Route path="complete-profile" element={<RecruiterDetails />} />
-
             <Route path="profile" element={<RecruiterSettingsPage />} />
-
             <Route path="jobs" element={<MyJobPost />} />
-
             <Route path="job-editor" element={<JobPostEditor />} />
-
             <Route path="job-editor/:id" element={<JobPostEditor />} />
-
             <Route path="plans" element={<SubscriptionPlans />} />
-
             <Route
               path="subscription/success"
               element={<SubscriptionSuccess />}
             />
-
             <Route
               path="subscription/failed"
               element={<SubscriptionFailed />}

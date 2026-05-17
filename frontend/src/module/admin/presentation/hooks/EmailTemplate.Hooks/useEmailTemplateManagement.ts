@@ -38,16 +38,21 @@ export function useEmailTemplateManagement() {
     setLoading(true);
     setError(null);
 
-    try {
-      const data = await GetEmailTemplateUC.execute();
-      setTemplates(data ?? []);
-    } catch (err: any) {
-      const msg = err?.message || "Failed to load templates";
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
+   try {
+  const data = await GetEmailTemplateUC.execute();
+
+  setTemplates(data ?? []);
+} catch (err: unknown) {
+  const msg =
+    err instanceof Error
+      ? err.message
+      : "Failed to load templates";
+
+  setError(msg);
+  toast.error(msg);
+} finally {
+  setLoading(false);
+}
   }, []);
 
   useEffect(() => {

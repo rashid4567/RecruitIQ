@@ -27,7 +27,7 @@ interface SocialSectionProps {
   isFieldValid: (field: keyof ProfileFormData) => boolean;
 }
 
-// ── Shared helpers ──────────────────────────────────────────────────────────
+
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -59,7 +59,7 @@ function TrailingIcon({ error, valid }: { error?: string; valid?: boolean }) {
   return null;
 }
 
-// ── Component ───────────────────────────────────────────────────────────────
+
 
 export function SocialSection({
   isEditing,

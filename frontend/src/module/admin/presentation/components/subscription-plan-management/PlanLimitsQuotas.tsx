@@ -5,7 +5,7 @@ import type { PlanFormData } from "../../hooks/Subscription.plans.Hooks/usePlanE
 interface PlanLimitsQuotasProps {
   formData: PlanFormData;
   errors: Record<string, string>;
-  handleChange: (field: keyof PlanFormData, value: any) => void;
+  handleChange: (field: keyof PlanFormData, value: string | number) => void;
 }
 
 function ErrorMsg({ message }: { message?: string }) {
@@ -58,7 +58,7 @@ export default function PlanLimitsQuotas({
           )}
         </div>
 
-        {/* Screening Credits */}
+   
         <div>
           <label className="text-sm font-medium text-zinc-700 mb-2 block">
             <span className="flex items-center gap-1.5">

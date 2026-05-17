@@ -1,3 +1,25 @@
+export type JobType =
+  | "full-time"
+  | "part-time"
+  | "contract"
+  | "internship";
+
+export type JobVisibility =
+  | "active"
+  | "hidden";
+
+export type JobStatus =
+  | "draft"
+  | "published"
+  | "closed"
+  | "expired";
+
+export interface SalaryApiResponse {
+  min: number;
+  max: number;
+  currency: string;
+}
+
 export interface JobPostApiResponse {
   _id?: string;
   id?: string;
@@ -12,17 +34,13 @@ export interface JobPostApiResponse {
   experienceMax: number;
   location: string;
   isRemote: boolean;
-  jobType: string;
-  salary?: {
-    min?: number;
-    max?: number;
-    currency?: string;
-  };
+  jobType: JobType;
+  salary?: SalaryApiResponse;
   department?: string;
   positions: number;
-  visibility?: string;
+  visibility?: JobVisibility;
   isBlocked?: boolean;
-  status: string;
+  status: JobStatus;
   externalLink?: string;
   views?: number;
   applicationsCount?: number;

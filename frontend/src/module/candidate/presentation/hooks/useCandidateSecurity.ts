@@ -40,12 +40,9 @@ export function useCandidateSecurity() {
       });
 
       return true;
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to update password. Please try again.";
-
+    } catch (err: unknown) {
+      
+      const message = err instanceof Error ? err.message : "Failed to update password. Please try again.";
       toast.error(message);
       return false;
     } finally {

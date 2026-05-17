@@ -1,7 +1,7 @@
 
 import { ArrowRight, Loader2 } from "lucide-react";
 import type { SubscriptionPlan } from "@/module/recruiter/Domain/entities/SubscriptionPlan.entity";
-import { getDisplayPrice, getDisplayJobPosts, getDisplayScreeningCredits, getPlanCTA, planIcons } from "./Pricing.utils";
+import { getDisplayPrice, getDisplayJobPosts, getDisplayScreeningCredits, getPlanCTA } from "./Pricing.utils";
 import FeatureComparison from "./FeatureComparison";
 
 interface Props {
@@ -33,7 +33,6 @@ export default function SelectedPlanDetail({
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
                   {(() => {
-                    const IconComponent = planIcons[selectedPlan.planType] ?? (() => import("lucide-react").then(m => m.Rocket));
                   
                     return <div className="w-8 h-8 text-white">★</div>; 
                   })()}

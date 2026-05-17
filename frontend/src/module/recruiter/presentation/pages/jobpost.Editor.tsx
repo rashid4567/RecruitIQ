@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCreateJobPost } from "../hooks/jobPost/useCreateJobPost";
 import { useUpdateJobPost } from "../hooks/jobPost/useUpdateJobPost";
+import type { JobFormData } from "../hooks/jobPost/useCreateJobPost";
 import Step1BasicInfo from "./components/jobPost/form/Step1BasicInfo";
 import Step2Description from "./components/jobPost/form/Step2Description";
 import Step3Requirements from "./components/jobPost/form/Step3Requirements";
@@ -13,6 +14,7 @@ import JobStepper from "./components/jobPost/form/JobStepper";
 import PublishDialog from "./components/jobPost/PublishDialog";
 import SaveDraftDialog from "./components/jobPost/SaveDraftDialog";
 import { useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Rocket } from "lucide-react";
@@ -44,8 +46,8 @@ type JobEditorUIProps = {
   currentStep: number;
   setCurrentStep: (step: number) => void;
   completedSteps: Set<number>;
-  formData: any;
-  setFormData: any;
+  formData: JobFormData;
+  setFormData: Dispatch<SetStateAction<JobFormData>>;
   stepErrors?: Record<string, string>;
   showSaveDraftModal?: boolean;
   isSavingDraft?: boolean;
@@ -100,7 +102,6 @@ function JobEditorUI({
   const goNext = () => {
     if (handleNext) {
       const result = handleNext();
-
       setLocalErrors(result ?? {});
     } else {
       if (currentStep < 5) setCurrentStep(currentStep + 1);

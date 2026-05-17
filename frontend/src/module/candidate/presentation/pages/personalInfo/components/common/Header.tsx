@@ -2,8 +2,15 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { XCircle } from "lucide-react";
 
+interface ProfileInfo {
+  fullName: string;
+  email: string;
+  profileImage?: string;
+  emailVerified?: boolean;
+}
+
 interface HeaderProps {
-  profile: any;
+  profile: ProfileInfo | null;
   error: string | null;
   onRetry: () => void;
 }

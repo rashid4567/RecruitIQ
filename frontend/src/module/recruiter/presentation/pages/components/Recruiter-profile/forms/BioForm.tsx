@@ -1,10 +1,14 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, AlertCircle, Sparkles, TrendingUp } from "lucide-react";
+import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
+interface BioFormValues {
+  bio: string;
+}
 interface BioSectionProps {
-  register: any;
-  errors: Record<string, any>;
+  register: UseFormRegister<BioFormValues>;
+  errors: FieldErrors<BioFormValues>;
   bioLength: number;
   wordCount: number;
   isEditing: boolean;
@@ -34,9 +38,8 @@ export function BioSection({
 
   return (
     <section className="space-y-5">
-      {/* Section heading */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md shadow-amber-500/25">
+        <div className="w-9 h-9 rounded-xl bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md shadow-amber-500/25">
           <FileText className="h-4 w-4 text-white" />
         </div>
         <div>
@@ -50,7 +53,6 @@ export function BioSection({
       </div>
 
       <div className="relative rounded-2xl border border-slate-200 bg-white overflow-hidden transition-all duration-200 focus-within:border-blue-400 focus-within:shadow-md focus-within:shadow-blue-500/10">
-        {/* Top bar */}
         <div className="flex items-center justify-between px-4 pt-3.5 pb-2 border-b border-slate-100 bg-slate-50/60">
           <Label
             htmlFor="bio"
@@ -73,7 +75,6 @@ export function BioSection({
           </div>
         </div>
 
-        {/* Textarea */}
         <Textarea
           id="bio"
           {...register("bio")}
@@ -88,7 +89,6 @@ export function BioSection({
           placeholder="Describe your professional background, specialisation areas, and what sets you apart as a recruiter. Candidates want to know your hiring philosophy and the kinds of roles you typically fill..."
         />
 
-        {/* Progress bar */}
         <div className="h-1 bg-slate-100">
           <div
             className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
@@ -96,7 +96,6 @@ export function BioSection({
           />
         </div>
 
-        {/* Footer hints */}
         <div className="px-4 py-2 bg-slate-50/60 border-t border-slate-100">
           {errors.bio ? (
             <p className="text-rose-500 text-xs flex items-center gap-1.5">
@@ -119,7 +118,9 @@ export function BioSection({
             </p>
           ) : (
             <p className="text-slate-400 text-xs">
-              Click <span className="font-medium text-slate-500">Edit Profile</span> to update your bio
+              Click{" "}
+              <span className="font-medium text-slate-500">Edit Profile</span>{" "}
+              to update your bio
             </p>
           )}
         </div>

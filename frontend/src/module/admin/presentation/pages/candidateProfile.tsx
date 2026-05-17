@@ -15,15 +15,8 @@ const CandidateProfileView: React.FC = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
   const navigate = useNavigate();
 
-  const {
-    profile,
-    loading,
-    error,
-    actionLoading,
-    refresh,
-    block,
-    unblock,
-  } = useCandidateProfile(candidateId);
+  const { profile, loading, error, actionLoading, refresh, block, unblock } =
+    useCandidateProfile(candidateId);
 
   const [blockDialogOpen, setBlockDialogOpen] = useState(false);
   const [unblockDialogOpen, setUnblockDialogOpen] = useState(false);
@@ -31,26 +24,36 @@ const CandidateProfileView: React.FC = () => {
   const handleBlockCandidate = async () => {
     try {
       await block();
+
       toast.success("Candidate blocked", {
         description: `${profile?.name} can no longer access the platform.`,
         icon: <ShieldAlert className="w-4 h-4 text-rose-600" />,
       });
+
       setBlockDialogOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to block candidate");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to block candidate";
+
+      toast.error(message);
     }
   };
 
   const handleUnblockCandidate = async () => {
     try {
       await unblock();
+
       toast.success("Candidate unblocked", {
         description: `${profile?.name} can now access the platform.`,
         icon: <ShieldCheck className="w-4 h-4 text-emerald-600" />,
       });
+
       setUnblockDialogOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to unblock candidate");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to unblock candidate";
+
+      toast.error(message);
     }
   };
 
@@ -64,7 +67,9 @@ const CandidateProfileView: React.FC = () => {
               <div className="absolute inset-0 border-4 border-indigo-200 rounded-full animate-pulse" />
               <div className="absolute inset-2 border-4 border-indigo-600 rounded-full animate-spin border-t-transparent" />
             </div>
-            <p className="text-lg font-medium text-indigo-700">Loading candidate profile...</p>
+            <p className="text-lg font-medium text-indigo-700">
+              Loading candidate profile...
+            </p>
           </div>
         </div>
       </div>
@@ -83,10 +88,13 @@ const CandidateProfileView: React.FC = () => {
                 {error ? "Failed to Load Profile" : "Profile Not Found"}
               </h2>
               <p className="text-gray-600">
-                {error || "The candidate profile could not be found or may have been removed."}
+                {error ||
+                  "The candidate profile could not be found or may have been removed."}
               </p>
               <Button
-                onClick={() => (error ? refresh() : navigate("/admin/candidates"))}
+                onClick={() =>
+                  error ? refresh() : navigate("/admin/candidates")
+                }
                 className="bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg"
               >
                 {error ? "Try Again" : "Back to Candidates"}
@@ -111,7 +119,12 @@ const CandidateProfileView: React.FC = () => {
         />
 
         <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
-          <CandidateProfileContent profile={profile} />
+          <CandidateProfileContent
+            profile={profile}
+            onBlockClick={() => setBlockDialogOpen(true)}
+            onUnblockClick={() => setUnblockDialogOpen(true)}
+            actionLoading={actionLoading}
+          />
         </main>
       </div>
 

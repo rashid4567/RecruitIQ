@@ -1,7 +1,13 @@
 import { Check, X } from "lucide-react";
+import type { PlanFormData } from "../../hooks/Subscription.plans.Hooks/usePlanEditor";
+
+interface PlanFeature {
+  name: string;
+  included: boolean;
+}
 
 interface PlanPreviewProps {
-  formData: any;
+  formData: PlanFormData;
 }
 
 export default function PlanPreview({ formData }: PlanPreviewProps) {
@@ -31,12 +37,12 @@ export default function PlanPreview({ formData }: PlanPreviewProps) {
         )}
 
         <ul className="space-y-3 text-sm text-zinc-600">
-          {formData.features.slice(0, 6).map((f: any, i: number) => (
+          {formData.features.slice(0, 6).map((f: PlanFeature, i: number) => (
             <li key={i} className="flex items-center gap-2">
               {f.included ? (
-                <Check className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                <Check className="h-4 w-4 text-emerald-600 shrink-0" />
               ) : (
-                <X className="h-4 w-4 text-zinc-400 flex-shrink-0" />
+                <X className="h-4 w-4 text-zinc-400 shrink-0" />
               )}
               <span className={f.included ? "" : "text-zinc-400 line-through"}>
                 {f.name}

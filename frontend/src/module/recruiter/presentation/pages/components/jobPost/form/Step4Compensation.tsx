@@ -12,7 +12,7 @@ function ErrorMsg({ msg }: { msg?: string }) {
   if (!msg) return null;
   return (
     <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1.5 font-medium">
-      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-500 flex-shrink-0 text-[10px] font-bold">!</span>
+      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-500 shrink-0 text-[10px] font-bold">!</span>
       {msg}
     </p>
   );
@@ -53,8 +53,8 @@ export default function Step4Compensation({ formData, setFormData, errors }: Pro
       </div>
 
       <div className="space-y-7">
-        {/* Salary Section */}
-        <div className="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100">
+      
+        <div className="p-5 bg-linear-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100">
           <div className="flex items-center gap-2 mb-1">
             <DollarSign className="w-4 h-4 text-emerald-600" />
             <label className="text-sm font-bold text-gray-800">Salary Range (Annual)</label>
@@ -62,7 +62,7 @@ export default function Step4Compensation({ formData, setFormData, errors }: Pro
           </div>
           <p className="text-xs text-gray-400 mb-4 ml-6">Transparent salary info increases applications by up to 40%</p>
 
-          {/* Currency Selector */}
+    
           <div className="mb-4">
             <label className="text-xs font-semibold text-emerald-700/80 uppercase tracking-wider block mb-2">
               Currency
@@ -91,7 +91,7 @@ export default function Step4Compensation({ formData, setFormData, errors }: Pro
             </div>
           </div>
 
-          {/* Min / Max inputs */}
+     
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold text-emerald-700/80 uppercase tracking-wider block mb-1.5">
@@ -147,7 +147,6 @@ export default function Step4Compensation({ formData, setFormData, errors }: Pro
             </div>
           </div>
 
-          {/* Range display */}
           {(formData.salary.min > 0 || formData.salary.max > 0) && (
             <div className="mt-3 px-4 py-2.5 bg-white rounded-xl border border-emerald-100 flex items-center justify-between">
               <span className="text-xs text-gray-500 font-medium">Displayed as:</span>
@@ -164,7 +163,7 @@ export default function Step4Compensation({ formData, setFormData, errors }: Pro
           <ErrorMsg msg={errors["salary.max"]} />
         </div>
 
-        {/* Application Deadline */}
+        
         <div>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-5 h-5 rounded-md bg-rose-100 flex items-center justify-center">
@@ -200,7 +199,6 @@ export default function Step4Compensation({ formData, setFormData, errors }: Pro
           <ErrorMsg msg={errors.expiresAt} />
         </div>
 
-        {/* External Application Link */}
         <div>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-5 h-5 rounded-md bg-blue-100 flex items-center justify-center">

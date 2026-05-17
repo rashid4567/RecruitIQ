@@ -1,4 +1,3 @@
-
 import api from "@/api/axios";
 import type { CandidateRepository } from "../../domain/repositories/CandidateRepository";
 import type { CompleteCandidateProfileDTO } from "../../domain/dto/CompleteCandidateProfileDTO";
@@ -24,7 +23,7 @@ export class ApiCandidateRepository implements CandidateRepository {
         linkedinUrl: profile.linkedinUrl,
         portfolioUrl: profile.portfolioUrl,
         bio: profile.bio,
-      }).filter(([_, v]) => v !== undefined && v !== null),
+      }).filter(([, v]) => v !== undefined && v !== null),
     );
 
     const res = await api.put("/candidate/profile", payload);
@@ -32,7 +31,6 @@ export class ApiCandidateRepository implements CandidateRepository {
   }
 
   async completeProfile(dto: CompleteCandidateProfileDTO): Promise<void> {
-
     const payload: Record<string, unknown> = {
       skills: dto.skills ?? [],
       preferredJobLocations: dto.preferredJobLocations ?? [],

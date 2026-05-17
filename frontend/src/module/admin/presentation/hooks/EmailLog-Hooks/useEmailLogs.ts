@@ -12,28 +12,41 @@ export function useEmailLogs() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const fetchLogs = useCallback(
-    async (isRefresh = false) => {
-      isRefresh ? setRefreshing(true) : setLoading(true);
-      setError(null);
-      try {
-        const data = await useCase.execute();
-        const sorted = [...data].sort(
-          (a, b) =>
-            new Date(b.getTimeStamp()).getTime() -
-            new Date(a.getTimeStamp()).getTime(),
-        );
-        setLogs(sorted);
-      } catch (err: any) {
-        const msg = err?.message || "Failed to load email logs";
-        setError(msg);
-        toast.error(msg);
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    },
-    [useCase],
-  );
+  async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
+    setError(null);
+
+    try {
+      const data = await useCase.execute();
+
+      const sorted = [...data].sort(
+        (a, b) =>
+          new Date(b.getTimeStamp()).getTime() -
+          new Date(a.getTimeStamp()).getTime(),
+      );
+
+      setLogs(sorted);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Failed to load email logs";
+
+      setError(msg);
+
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  },
+  [useCase],
+);
 
   useEffect(() => {
     fetchLogs();

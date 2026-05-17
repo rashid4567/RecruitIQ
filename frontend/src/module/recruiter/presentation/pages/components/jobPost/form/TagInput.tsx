@@ -73,10 +73,10 @@ export default function TagInput({
 
   return (
     <div ref={containerRef} className="relative mt-2">
-      {/* Main Input Area */}
+  
       <div
         onClick={() => inputRef.current?.focus()}
-        className={`min-h-[52px] p-3 border-2 rounded-2xl bg-white cursor-text transition-all duration-200 ${
+        className={`min-h-13 p-3 border-2 rounded-2xl bg-white cursor-text transition-all duration-200 ${
           focused
             ? `${c.ring} shadow-sm`
             : "border-gray-200 hover:border-gray-300"
@@ -125,7 +125,7 @@ export default function TagInput({
               if (e.key === "Escape") setShowSuggestions(false);
             }}
             placeholder={tags.length === 0 ? placeholder : "Add more..."}
-            className="flex-1 min-w-[120px] outline-none text-sm py-0.5 px-1 bg-transparent text-gray-800 placeholder:text-gray-400"
+            className="flex-1 min-w-30 outline-none text-sm py-0.5 px-1 bg-transparent text-gray-800 placeholder:text-gray-400"
           />
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function TagInput({
         Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded-md text-gray-500 text-xs font-mono">Enter</kbd> to add · <kbd className="px-1.5 py-0.5 bg-gray-100 rounded-md text-gray-500 text-xs font-mono">Backspace</kbd> to remove last
       </p>
 
-      {/* Suggestions Dropdown */}
+    
       {showSuggestions && filteredSuggestions.length > 0 && (
         <div className="absolute z-20 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl shadow-gray-200/80 overflow-hidden">
           <div className="px-3 py-2 border-b border-gray-50 flex items-center gap-1.5">

@@ -27,7 +27,7 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
   const id = log.getId() ?? "";
   const failed = log.getStatus() === "FAILED";
 
-  // NEW: Show Exact Time (No "just now", "min ago", etc.)
+
   const formatExactTime = (ts: string | number) => {
     return new Date(ts).toLocaleString("en-IN", {
       day: "2-digit",
@@ -37,7 +37,7 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
       minute: "2-digit",
       hour12: true,
     });
-    // Example Output: "10 Apr 2026, 12:05 PM"
+
   };
 
   const getStatusBadge = () => {
@@ -90,8 +90,6 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
           aria-label={`Select email to ${log.getRecipient()}`}
         />
       </TableCell>
-
-      {/* Exact Time Display */}
       <TableCell className="text-sm text-slate-600 whitespace-nowrap font-medium">
         <TooltipProvider>
           <Tooltip>

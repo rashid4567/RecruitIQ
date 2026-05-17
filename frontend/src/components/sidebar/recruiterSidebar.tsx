@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { 
   Home, Briefcase, Users, User, Shield, Bell, CreditCard, 
   LogOut, Menu, X 
@@ -58,6 +58,8 @@ export function Sidebar({ profile, userStats }: SidebarProps) {
       }
     } catch (error) {
       toast.error("Logout failed. Please try again.");
+      console.log(error);
+      
     }
   };
 

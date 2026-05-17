@@ -59,8 +59,8 @@ export function useAllJobPosts({ limit = 10 }: UseAllJobPostsOptions = {}) {
       });
       setJobPosts(result.jobPosts);
       setTotal(result.total);
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? "Failed to fetch job posts");
+    } catch (err: unknown) {
+     setError(err instanceof Error ? err.message : "Failed to load activity logs");
     } finally {
       setLoading(false);
     }

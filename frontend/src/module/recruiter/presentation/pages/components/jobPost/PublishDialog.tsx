@@ -180,7 +180,7 @@ export default function PublishDialog({
                     className="w-full text-left p-4 rounded-2xl border-2 border-indigo-100 bg-indigo-50 hover:border-indigo-300 hover:bg-indigo-100 transition-all duration-200 group"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 bg-indigo-100 group-hover:bg-indigo-200 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
+                      <div className="w-9 h-9 bg-indigo-100 group-hover:bg-indigo-200 rounded-xl flex items-center justify-center shrink-0 transition-colors">
                         <BookmarkIcon className="w-5 h-5 text-indigo-600" />
                       </div>
                       <div>
@@ -201,7 +201,7 @@ export default function PublishDialog({
                     className="w-full text-left p-4 rounded-2xl border-2 border-emerald-100 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100 transition-all duration-200 group"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 bg-emerald-100 group-hover:bg-emerald-200 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
+                      <div className="w-9 h-9 bg-emerald-100 group-hover:bg-emerald-200 rounded-xl flex items-center justify-center shrink-0 transition-colors">
                         <Rocket className="w-5 h-5 text-emerald-600" />
                       </div>
                       <div>
@@ -258,7 +258,7 @@ export default function PublishDialog({
               key="publishing"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="p-12 flex flex-col items-center justify-center min-h-[280px]"
+              className="p-12 flex flex-col items-center justify-center min-h-70"
             >
               <Loader2 className="w-10 h-10 animate-spin text-gray-600 mb-6" />
               <p className="text-lg font-medium text-gray-800">
@@ -278,7 +278,7 @@ export default function PublishDialog({
               key="success"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-12 flex flex-col items-center justify-center min-h-[280px] text-center"
+              className="p-12 flex flex-col items-center justify-center min-h-70 text-center"
             >
               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-9 h-9 text-emerald-600" />

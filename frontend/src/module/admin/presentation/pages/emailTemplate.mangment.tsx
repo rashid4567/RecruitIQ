@@ -68,8 +68,8 @@ export default function EmailTemplateManagement() {
       
     
       setTestEmail("");
-    } catch (err: any) {
-      const message = err?.message || "Failed to send test email. Please try again.";
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to send the Teast email . Please try again."
       setTestError(message);
       toast.error(message);
     } finally {

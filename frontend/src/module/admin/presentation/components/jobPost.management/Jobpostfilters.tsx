@@ -33,9 +33,7 @@ export function JobPostFilters({
 }: JobPostFiltersProps) {
   return (
     <div className="mb-6 space-y-3">
-      {/* Tab bar + search */}
       <div className="flex flex-col xl:flex-row xl:items-center gap-3">
-        {/* Tabs */}
         <div className="flex items-center gap-1 p-1 bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto shrink-0">
           {TABS.map((tab) => (
             <button
@@ -45,7 +43,7 @@ export function JobPostFilters({
                 "px-4 py-2 text-sm font-semibold rounded-lg transition-all whitespace-nowrap",
                 activeTab === tab.id
                   ? "bg-linear-to-br from-indigo-600 to-violet-600 text-white shadow-sm"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-50",
               )}
             >
               {tab.label}
@@ -53,7 +51,6 @@ export function JobPostFilters({
           ))}
         </div>
 
-        {/* Search + refresh */}
         <div className="flex items-center gap-2 flex-1">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -80,13 +77,14 @@ export function JobPostFilters({
             disabled={loading}
             className="gap-1.5 h-10 rounded-xl text-slate-600 border-slate-200"
           >
-            <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
+            <RefreshCw
+              className={cn("h-3.5 w-3.5", loading && "animate-spin")}
+            />
             Refresh
           </Button>
         </div>
       </div>
 
-      {/* Result count */}
       <p className="text-sm text-slate-500">
         {loading ? (
           <span className="flex items-center gap-2">

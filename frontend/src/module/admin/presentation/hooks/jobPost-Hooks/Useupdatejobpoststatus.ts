@@ -1,8 +1,10 @@
 import { useCallback, useState } from "react";
+
 import { blockJobPostUC, unblockJobPostUC } from "../../di/jobPost.di";
 
 interface UseUpdateJobPostStatusOptions {
   onSuccess?: (id: string, isBlocked: boolean) => void;
+
   onError?: (message: string) => void;
 }
 
@@ -11,24 +13,44 @@ export const useUpdateJobPostStatus = ({
   onError,
 }: UseUpdateJobPostStatusOptions = {}) => {
   const [loading, setLoading] = useState(false);
+
   const [pendingId, setPendingId] = useState<string | null>(null);
 
   const toggleBlock = useCallback(
     async (id: string, currentlyBlocked: boolean) => {
       setLoading(true);
       setPendingId(id);
+
       try {
         if (currentlyBlocked) {
           await unblockJobPostUC.execute(id);
+
           onSuccess?.(id, false);
         } else {
           await blockJobPostUC.execute(id);
-          onSuccess?.(id, false);
+
+          onSuccess?.(id, true);
         }
-      } catch (err: any) {
-        onError?.(
-          err?.response?.data?.message ?? err?.message ?? "Operation failed",
-        );
+      } catch (err: unknown) {
+        let message = "Operation failed";
+
+        if (err instanceof Error) {
+          message = err.message;
+        }
+
+        if (typeof err === "object" && err !== null && "response" in err) {
+          const axiosError = err as {
+            response?: {
+              data?: {
+                message?: string;
+              };
+            };
+          };
+
+          message = axiosError.response?.data?.message ?? message;
+        }
+
+        onError?.(message);
       } finally {
         setLoading(false);
         setPendingId(null);

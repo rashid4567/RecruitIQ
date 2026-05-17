@@ -8,24 +8,28 @@ import {
 } from "@/components/ui/table";
 import { RecruiterTableRow } from "./RecruiterTableRow";
 import { RecruiterSkeletonRow } from "./RecruiterSkeletonRow";
+import type { Recruiter } from "../../../domain/entities/recruiter.entity";
+import type { RecruiterAction } from "./RecruiterActionDialog";
+
+interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+}
 
 interface RecruiterTableProps {
-  recruiters: any[];
+  recruiters: Recruiter[];
   loading: boolean;
-  error: string | null;
-  pagination: any;
-  setPagination: any;
+  pagination: Pagination;
   actionLoading: Record<string, boolean>;
-  onAction: (recruiter: any, action: string) => void;
-  onViewProfile: (recruiterId: string) => void;  
+  onAction: (recruiter: Recruiter, action: RecruiterAction) => void;
+  onViewProfile: (recruiterId: string) => void;
 }
 
 export function RecruiterTable({
   recruiters,
   loading,
-  error,
   pagination,
-  setPagination,
   actionLoading,
   onAction,
   onViewProfile,
@@ -68,19 +72,17 @@ export function RecruiterTable({
             ) : (
               recruiters.map((recruiter) => (
                 <RecruiterTableRow
-                  key={recruiter._id || recruiter.id}
+                  key={recruiter.id}
                   recruiter={recruiter}
-                  isActionLoading={actionLoading[recruiter._id || recruiter.id] || false}
+                  isActionLoading={actionLoading[recruiter.id] || false}
                   onAction={onAction}
-                  onViewProfile={onViewProfile}       
+                  onViewProfile={onViewProfile}
                 />
               ))
             )}
           </TableBody>
         </Table>
       </div>
-
-      {/* Pagination can be added here later */}
     </Card>
   );
 }

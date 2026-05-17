@@ -15,8 +15,8 @@ export function useJobPostById(id: string | null) {
     try {
       const result = await getJobPostByIdUC.execute(id);
       setJob(result);
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? "Failed to fetch job post");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load activity logs");
     } finally {
       setLoading(false);
     }

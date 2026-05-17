@@ -20,7 +20,8 @@ import type { CompleteCandidateProfileForm } from "../types/candidate-profile.ty
 
 export default function CompleteCandidateProfile() {
   const navigate = useNavigate();
-  const { completeProfile, isSubmitting, error } = useCompleteCandidateProfile();
+  const { completeProfile, isSubmitting, error } =
+    useCompleteCandidateProfile();
 
   const [formData, setFormData] = useState<CompleteCandidateProfileForm>({
     currentJob: "",
@@ -37,12 +38,18 @@ export default function CompleteCandidateProfile() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleTextChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (formErrors[name]) {
-      setFormErrors((prev) => { const next = { ...prev }; delete next[name]; return next; });
+      setFormErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
     }
   };
 
@@ -73,14 +80,17 @@ export default function CompleteCandidateProfile() {
   const validate = (): boolean => {
     const errors: Record<string, string> = {};
 
-    if (!formData.educationLevel) errors.educationLevel = "Please select your education level.";
-    if (!formData.bio.trim()) errors.bio = "Please write a short professional summary.";
+    if (!formData.educationLevel)
+      errors.educationLevel = "Please select your education level.";
+    if (!formData.bio.trim())
+      errors.bio = "Please write a short professional summary.";
     if (!formData.preferredJobLocations?.trim())
-      errors.preferredJobLocations = "Please enter at least one preferred location.";
+      errors.preferredJobLocations =
+        "Please enter at least one preferred location.";
 
     if (formData.skills.length === 0) {
       setSkillsError("Please add at least one skill.");
-      errors.skills = "required"; // sentinel
+      errors.skills = "required";
     }
 
     setFormErrors(errors);
@@ -104,16 +114,14 @@ export default function CompleteCandidateProfile() {
         linkedinUrl: formData.linkedinUrl?.trim() || undefined,
       });
       navigate("/candidate/home");
-    } catch {
-
+    } catch (err) {
+      console.log(err);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-
-   
         <div className="flex items-center justify-between mb-8">
           <button
             type="button"
@@ -129,10 +137,9 @@ export default function CompleteCandidateProfile() {
           <div className="w-10" />
         </div>
 
-        {/* API error banner */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-red-800 text-sm">
-            <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+            <AlertCircle className="h-5 w-5 mt-0.5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -142,8 +149,6 @@ export default function CompleteCandidateProfile() {
           className="bg-white rounded-2xl shadow-lg border border-slate-200/70 overflow-hidden"
         >
           <div className="p-6 sm:p-8 space-y-7">
-
-            {/* Current Job */}
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <Briefcase className="h-4 w-4" />
@@ -158,7 +163,6 @@ export default function CompleteCandidateProfile() {
               />
             </div>
 
-            {/* Experience Years */}
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <Clock className="h-4 w-4" />
@@ -178,7 +182,6 @@ export default function CompleteCandidateProfile() {
               </select>
             </div>
 
-            {/* Education */}
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <GraduationCap className="h-4 w-4" />
@@ -189,7 +192,9 @@ export default function CompleteCandidateProfile() {
                 value={formData.educationLevel}
                 onChange={handleTextChange}
                 className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none bg-white ${
-                  formErrors.educationLevel ? "border-red-400" : "border-slate-300"
+                  formErrors.educationLevel
+                    ? "border-red-400"
+                    : "border-slate-300"
                 }`}
               >
                 <option value="">Select level</option>
@@ -200,15 +205,17 @@ export default function CompleteCandidateProfile() {
                 <option value="phd">PhD or equivalent</option>
               </select>
               {formErrors.educationLevel && (
-                <p className="text-xs text-red-600">{formErrors.educationLevel}</p>
+                <p className="text-xs text-red-600">
+                  {formErrors.educationLevel}
+                </p>
               )}
             </div>
 
-            {/* Preferred Location(s) */}
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <MapPin className="h-4 w-4" />
-                Preferred Job Location(s) <span className="text-red-500">*</span>
+                Preferred Job Location(s){" "}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 name="preferredJobLocations"
@@ -216,24 +223,27 @@ export default function CompleteCandidateProfile() {
                 onChange={handleTextChange}
                 placeholder="e.g. Remote, Kochi, Bengaluru"
                 className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition-all placeholder:text-slate-400 ${
-                  formErrors.preferredJobLocations ? "border-red-400" : "border-slate-300"
+                  formErrors.preferredJobLocations
+                    ? "border-red-400"
+                    : "border-slate-300"
                 }`}
               />
-              <p className="text-xs text-slate-500">Separate multiple locations with commas</p>
+              <p className="text-xs text-slate-500">
+                Separate multiple locations with commas
+              </p>
               {formErrors.preferredJobLocations && (
-                <p className="text-xs text-red-600">{formErrors.preferredJobLocations}</p>
+                <p className="text-xs text-red-600">
+                  {formErrors.preferredJobLocations}
+                </p>
               )}
             </div>
 
-            {/* Skills */}
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <Sparkles className="h-4 w-4" />
                 Key Skills <span className="text-red-500">*</span>
               </label>
 
-              {/* FIX: added an explicit Add button alongside Enter key,
-                  so users on mobile or who don't know to press Enter can add skills */}
               <div className="flex gap-2">
                 <input
                   value={skillInput}
@@ -280,11 +290,11 @@ export default function CompleteCandidateProfile() {
               )}
             </div>
 
-            {/* Bio */}
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <FileText className="h-4 w-4" />
-                Professional Summary / Bio <span className="text-red-500">*</span>
+                Professional Summary / Bio{" "}
+                <span className="text-red-500">*</span>
               </label>
               <textarea
                 name="bio"
@@ -292,7 +302,7 @@ export default function CompleteCandidateProfile() {
                 onChange={handleTextChange}
                 rows={4}
                 placeholder="Highlight your experience, key achievements, career goals..."
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none resize-y min-h-[110px] placeholder:text-slate-400 ${
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none resize-y min-h-27.5 placeholder:text-slate-400 ${
                   formErrors.bio ? "border-red-400" : "border-slate-300"
                 }`}
               />
@@ -301,11 +311,11 @@ export default function CompleteCandidateProfile() {
               )}
             </div>
 
-            {/* LinkedIn */}
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <Linkedin className="h-4 w-4" />
-                LinkedIn Profile <span className="text-slate-400 font-normal">(optional)</span>
+                LinkedIn Profile{" "}
+                <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <input
                 name="linkedinUrl"
@@ -315,10 +325,8 @@ export default function CompleteCandidateProfile() {
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition-all placeholder:text-slate-400"
               />
             </div>
-
           </div>
 
-          {/* Actions */}
           <div className="px-6 sm:px-8 py-6 bg-slate-50/70 border-t border-slate-200 flex flex-col sm:flex-row gap-4">
             <button
               type="button"
@@ -330,7 +338,7 @@ export default function CompleteCandidateProfile() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2"
+              className="flex-1 py-3 px-6 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

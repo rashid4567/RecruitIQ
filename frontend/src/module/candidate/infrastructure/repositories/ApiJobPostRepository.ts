@@ -4,25 +4,26 @@ import type {
   JobPostFilters,
   PaginatedJobPosts,
 } from "../../domain/dto/JobPostDTO";
+import type { JobPostApiDto } from "@/module/admin/infrastructure/dto/jobPost.api.dto";
 
 import { JobPost } from "../../domain/entities/jobPost";
 import type { jobPostRepository } from "../../domain/repositories/jobPost.Repository";
 
 export class ApiJobPostRepository implements jobPostRepository {
-async getAll(filters: JobPostFilters): Promise<PaginatedJobPosts> {
-  const params = this.buildParams(filters);
-  const res = await api.get("/candidate/jobs", { params });
+  async getAll(filters: JobPostFilters): Promise<PaginatedJobPosts> {
+    const params = this.buildParams(filters);
+    const res = await api.get("/candidate/jobs", { params });
 
-  const { data, total, page, limit, totalPages } = res.data; 
+    const { data, total, page, limit, totalPages } = res.data;
 
-  return {
-    data: data.map((item: any) => JobPost.fromApi(item)),
-    total,
-    page,
-    limit,
-    totalPages,
-  };
-}
+    return {
+      data: data.map((item: JobPostApiDto) => JobPost.fromApi(item)),
+      total,
+      page,
+      limit,
+      totalPages,
+    };
+  }
   async getById(id: string): Promise<JobPost> {
     const res = await api.get(`/candidate/jobs/${id}`);
     return JobPost.fromDetailApi(res.data.data);
@@ -58,7 +59,7 @@ async getAll(filters: JobPostFilters): Promise<PaginatedJobPosts> {
             : undefined,
         department: filters.department || undefined,
       } as Record<string, string | undefined>).filter(
-        ([_, v]) => v !== undefined,
+        ([, v]) => v !== undefined,
       ),
     ) as Record<string, string>;
   }

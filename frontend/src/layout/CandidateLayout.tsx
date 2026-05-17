@@ -5,7 +5,7 @@ import api from "../api/axios";
 const CandidateLayout = () => {
   const token = localStorage.getItem("authToken");
   const [isChecking, setIsChecking] = useState(true);
-  const [isProfileCompleted, setIsProfileCompleted] = useState(false);
+  const [, setIsProfileCompleted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {

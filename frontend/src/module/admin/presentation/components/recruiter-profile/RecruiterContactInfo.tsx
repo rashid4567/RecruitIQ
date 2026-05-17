@@ -65,7 +65,6 @@ export function RecruiterContactInfo({
       <CardContent className="p-6 lg:p-10">
         <div className="grid lg:grid-cols-12 gap-10">
 
-          {/* ── Avatar + Name + Badges ── */}
           <div className="lg:col-span-4 flex flex-col items-center lg:items-start gap-5 text-center lg:text-left">
             <div className="relative group">
               <Avatar className="h-28 w-28 ring-2 ring-white shadow-xl transition-transform group-hover:scale-105">
@@ -108,7 +107,7 @@ export function RecruiterContactInfo({
             </div>
           </div>
 
-          {/* ── Contact Info + Actions ── */}
+
           <div className="lg:col-span-8 space-y-8">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               <InfoItem icon={Mail} label="Email" value={recruiter.email} />
@@ -143,7 +142,7 @@ export function RecruiterContactInfo({
               />
             </div>
 
-            {/* ── Action Buttons ── */}
+    
             <div className="flex flex-wrap gap-3">
               {recruiter.verificationStatus === "pending" && (
                 <>

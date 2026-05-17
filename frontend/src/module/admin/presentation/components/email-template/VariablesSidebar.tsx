@@ -67,7 +67,7 @@ export function VariablesSidebar({ variables, onInsertVariable }: VariablesSideb
 
         <Separator className="my-6" />
 
-        <div className="p-4 bg-gradient-to-br from-blue-50/70 to-indigo-50/40 rounded-xl border border-blue-100/60">
+        <div className="p-4 bg-linear-to-br from-blue-50/70 to-indigo-50/40 rounded-xl border border-blue-100/60">
           <h4 className="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
             Pro Tip

@@ -13,30 +13,65 @@ export type VerifyOTPState = {
   role: UserRole;
 };
 
+type AxiosLikeError = {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+      error?: string;
+    };
+  };
+  message?: string;
+};
+
 type StoredTimerState = {
   startedAt: number;
   email: string;
 };
 
-function extractAxiosError(err: unknown): { status: number | undefined; message: string } {
-  if (!err) return { status: undefined, message: "" };
 
-  const axiosResponse = (err as any)?.response;
+function extractAxiosError(
+  err: unknown,
+): {
+  status: number | undefined;
+  message: string;
+} {
+  if (!err) {
+    return {
+      status: undefined,
+      message: "",
+    };
+  }
 
+  const axiosResponse = (
+    err as AxiosLikeError
+  ).response;
 
   if (axiosResponse) {
-    const status: number = axiosResponse.status;
-  
+    const status: number =
+      axiosResponse.status ?? 0;
+
     const serverMessage: string =
       axiosResponse.data?.message ??
       axiosResponse.data?.error ??
       "";
-    return { status, message: serverMessage.toLowerCase() };
+
+    return {
+      status,
+      message:
+        serverMessage.toLowerCase(),
+    };
   }
 
-  
-  const axiosMessage = (err as any)?.message?.toLowerCase?.() ?? "";
-  return { status: undefined, message: axiosMessage };
+  const axiosMessage =
+    (err as AxiosLikeError)
+      .message
+      ?.toLowerCase?.() ?? "";
+
+  return {
+    status: undefined,
+    message: axiosMessage,
+  };
 }
 
 function classifyError(err: unknown): string {

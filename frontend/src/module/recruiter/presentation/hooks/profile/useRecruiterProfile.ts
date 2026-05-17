@@ -18,12 +18,11 @@ export function useRecruiterProfile() {
 
       setProfile(data);
       return data;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      
       console.error("Profile fetch error:", err);
-
-      const message = err?.message || "Failed to load profile";
+      const message = err instanceof Error ? err.message : "Failed to load profile";
       setError(message);
-
       toast.error("Failed to load profile", {
         description: message,
       });

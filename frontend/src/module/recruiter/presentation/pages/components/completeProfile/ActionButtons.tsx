@@ -25,7 +25,7 @@ export function ActionButtons({ onSubmit, isSubmitting, progress }: ActionButton
         className={`flex-1 py-4 rounded-2xl font-semibold text-white transition-all flex items-center justify-center gap-3 ${
           isSubmitting || progress < 100
             ? "bg-slate-400 cursor-not-allowed"
-            : "bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-xl"
+            : "bg-linear-to-r from-blue-600 to-blue-700 hover:shadow-xl"
         }`}
       >
         {isSubmitting ? (

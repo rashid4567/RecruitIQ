@@ -37,7 +37,7 @@ export default function PlanCard({ plan, onToggle, togglingId }: PlanCardProps) 
             {plan.icon === "zap" && <Zap className="h-6 w-6 text-white" />}
           </div>
 
-          {/* Status Toggle */}
+
           <button
             onClick={() => onToggle(plan.id)}
             disabled={togglingId === plan.id}

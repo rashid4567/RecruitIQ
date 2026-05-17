@@ -133,7 +133,7 @@ const FilterOption: React.FC<{
     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150 select-none
       ${checked ? "bg-indigo-50 ring-1 ring-indigo-200" : "hover:bg-slate-50"}`}
   >
-    {/* Hidden native checkbox — handles all a11y + click correctly */}
+ 
     <input
       type="checkbox"
       id={id}
@@ -142,7 +142,7 @@ const FilterOption: React.FC<{
       className="sr-only"
     />
 
-    {/* Custom visual checkbox */}
+
     <span
       aria-hidden="true"
       className={`w-4 h-4 rounded-[5px] border-2 flex items-center justify-center shrink-0 transition-all duration-150
@@ -248,7 +248,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
   return (
     <aside className={`w-60 shrink-0 ${className}`}>
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-bold text-slate-900">Filters</h2>
@@ -270,7 +270,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
         )}
       </div>
 
-      {/* Panel */}
+ 
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden px-4 divide-y divide-slate-100">
         {/* Department */}
         <FilterSection title="Department" badge={filters.department ? 1 : 0}>
@@ -287,7 +287,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </div>
         </FilterSection>
 
-        {/* Experience */}
+      
         <FilterSection
           title="Experience"
           badge={filters.experienceMin !== undefined ? 1 : 0}
@@ -306,12 +306,12 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </div>
         </FilterSection>
 
-        {/* Job Type */}
+        
         <FilterSection
           title="Job Type"
           badge={(filters.jobType ? 1 : 0) + (filters.isRemote ? 1 : 0)}
         >
-          {/* Pills for job type */}
+      
           <div className="flex flex-wrap gap-2 mb-3">
             {JOB_TYPES.map((type) => (
               <JobTypePill
@@ -325,7 +325,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             ))}
           </div>
 
-          {/* Remote toggle */}
+
           <label
             htmlFor="remote-toggle"
             className={`flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150 select-none
@@ -352,7 +352,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 Remote Only
               </span>
             </div>
-            {/* Toggle switch */}
+ 
             <span
               aria-hidden="true"
               className={`relative inline-flex w-9 h-5 rounded-full transition-colors duration-200 shrink-0
@@ -367,7 +367,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
         </FilterSection>
       </div>
 
-      {/* Active filter chips — quick remove */}
       {activeCount > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-3 px-1">
           {filters.department && (

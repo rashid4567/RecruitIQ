@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-interface UseImageUploadOptions {
-  maxSizeMB?: number;
-  allowedTypes?: string[];
-  onSuccess?: (imageData: string) => void;
-  onError?: (error: Error) => void;
-}
 
 export function useImageUpload(onSuccess?: (img: string) => void) {
   const [uploading, setUploading] = useState(false);

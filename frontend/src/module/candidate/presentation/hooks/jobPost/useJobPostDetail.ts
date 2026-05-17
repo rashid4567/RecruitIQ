@@ -28,8 +28,9 @@ export function useJobPostDetail(jobId: string | null): UseJobPostDetailReturn {
     try {
       const result = await GetJobPostById.execute(jobId);
       setJob(result);
-    } catch (err: any) {
-      setError(err.message ?? "Failed to fetch job details");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to feath job details";
+      setError(message);
       console.error("Error fetching job details:", err);
       setJob(null);
     } finally {

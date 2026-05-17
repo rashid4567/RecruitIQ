@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
+import type { ZodIssue } from "zod";
 
 import {
   CreateEmailTemplateUC,
@@ -29,7 +30,7 @@ export function useEmailTemplateEditor(id?: string) {
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [testEmail, setTestEmail] = useState("");
-  const [cooldown , setCooldown] = useState(0)
+  const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -63,14 +64,13 @@ export function useEmailTemplateEditor(id?: string) {
     loadTemplate();
   }, [id, isEdit]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCooldown((prev) => prev - 1);
+    }, 1000);
 
-  useEffect(()=>{
-    const timer = setInterval(()=>{
-      setCooldown((prev)=> prev - 1);
-    },1000);
-
-    return()=> clearInterval(timer)
-  },[cooldown]);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const insertVariable = (variable: string) => {
     const ta = textareaRef.current;
@@ -82,7 +82,7 @@ export function useEmailTemplateEditor(id?: string) {
     const newValue =
       form.body.slice(0, start) + `{{${variable}}}` + form.body.slice(end);
 
-    setForm((prev: any) => ({ ...prev, body: newValue }));
+    setForm((prev: EmailTemplateForm) => ({ ...prev, body: newValue }));
 
     setTimeout(() => {
       ta.focus();
@@ -104,7 +104,7 @@ export function useEmailTemplateEditor(id?: string) {
 
     if (!result.success) {
       toast.error(
-        result.error.issues.map((e: { message: any }) => e.message).join("\n"),
+        result.error.issues.map((e: ZodIssue) => e.message).join("\n"),
       );
       return;
     }
@@ -119,7 +119,10 @@ export function useEmailTemplateEditor(id?: string) {
         });
       } else {
         const created = await CreateEmailTemplateUC.execute(result.data);
-        setForm((prev: any) => ({ ...prev, id: created.getId() }));
+        setForm((prev: EmailTemplateForm) => ({
+          ...prev,
+          id: created.getId(),
+        }));
       }
 
       toast.success("Template saved successfully");
@@ -131,10 +134,11 @@ export function useEmailTemplateEditor(id?: string) {
   };
 
   const sendTest = async () => {
-    if(cooldown > 30){
-      toast.error(`Please wait ${cooldown}s before sending the again`);
-      return
+    if (cooldown > 30) {
+      toast.error(`Please wait ${cooldown}s before sending again`);
+      return;
     }
+
     const result = sendTestEmailSchema.safeParse({
       templateId: form.id,
       email: testEmail,
@@ -142,14 +146,14 @@ export function useEmailTemplateEditor(id?: string) {
 
     if (!result.success) {
       toast.error(
-        result.error.issues.map((e: { message: any }) => e.message).join("\n"),
+        result.error.issues.map((e: ZodIssue) => e.message).join("\n"),
       );
       return;
     }
 
     try {
       await sendTestEmailUC.execute(result.data.templateId, result.data.email);
-      setCooldown(30)
+      setCooldown(30);
       toast.success("Test email sent!");
     } catch {
       toast.error("Failed to send test email");

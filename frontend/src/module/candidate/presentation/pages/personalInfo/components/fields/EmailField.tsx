@@ -18,7 +18,6 @@ export function EmailField({
   isEditing,
   email,
   profileEmail,
-  emailVerified = false,
   validationError,
   sendingOtp = false,
   onEmailChange,

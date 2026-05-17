@@ -1,11 +1,11 @@
 import { CollapsibleSection } from "./CollapsibleSection";
 import { Star } from "lucide-react";
 import { Toggle } from "./Toggle";
-import type { PlanFormData } from "../../hooks/Subscription.plans.Hooks/usePlanEditor"; 
+import type { PlanFormData } from "../../hooks/Subscription.plans.Hooks/usePlanEditor";
 
 interface PlanSettingsProps {
   formData: PlanFormData;
-  handleChange: (field: keyof PlanFormData, value: any) => void;
+  handleChange: (field: keyof PlanFormData, value: string | number | boolean) => void;
 }
 
 export default function PlanSettings({ formData, handleChange }: PlanSettingsProps) {

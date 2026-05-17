@@ -18,8 +18,8 @@ export function useCandidateProfile(candidateId?: string) {
     try {
       const data = await getCandidateProfileUC.execute(candidateId);
       setProfile(data);
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to load profile");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load profile");
     } finally {
       setLoading(false);
     }

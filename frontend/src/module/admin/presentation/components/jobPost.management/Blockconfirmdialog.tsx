@@ -34,7 +34,6 @@ export function BlockConfirmDialog({
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
      <AlertDialogContent className="p-0 gap-0 rounded-2xl max-w-100 overflow-hidden border border-slate-200 shadow-xl bg-white text-slate-900">
-        {/* Colour accent strip at the top */}
         <div
           className={cn(
             "h-1 w-full",
@@ -43,10 +42,8 @@ export function BlockConfirmDialog({
         />
 
         <div className="px-6 pt-6 pb-5 space-y-5">
-          {/* Icon + title */}
           <AlertDialogHeader className="space-y-0 p-0">
             <div className="flex items-start gap-4">
-              {/* Icon badge */}
               <div
                 className={cn(
                   "mt-0.5 w-11 h-11 rounded-xl flex items-center justify-center shrink-0",
@@ -74,8 +71,6 @@ export function BlockConfirmDialog({
               </div>
             </div>
           </AlertDialogHeader>
-
-          {/* Job chip */}
           <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200">
             <div className="w-7 h-7 rounded-lg bg-slate-200 flex items-center justify-center shrink-0">
               <Briefcase className="w-3.5 h-3.5 text-slate-500" />
@@ -88,7 +83,6 @@ export function BlockConfirmDialog({
                 {job.department}
               </p>
             </div>
-            {/* Current status pill */}
             <span
               className={cn(
                 "ml-auto shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full",
@@ -100,11 +94,7 @@ export function BlockConfirmDialog({
               {isUnblocking ? "Blocked" : "Active"}
             </span>
           </div>
-
-          {/* Divider */}
           <div className="border-t border-slate-100" />
-
-          {/* Footer */}
           <AlertDialogFooter className="p-0 flex-row justify-end gap-2">
             <AlertDialogCancel
               disabled={loading}

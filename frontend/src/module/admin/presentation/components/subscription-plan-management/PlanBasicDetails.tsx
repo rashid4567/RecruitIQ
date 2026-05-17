@@ -6,7 +6,7 @@ export const PLAN_TYPES = ["free", "basic", "pro", "enterprise"] as const;
 interface PlanBasicDetailsProps {
   formData: PlanFormData;
   errors: Record<string, string>;
-  handleChange: (field: keyof PlanFormData, value: any) => void;
+  handleChange: (field: keyof PlanFormData, value: string | number) => void;
 }
 
 export default function PlanBasicDetails({
@@ -17,7 +17,6 @@ export default function PlanBasicDetails({
   return (
     <CollapsibleSection title="Basic Details" defaultOpen>
       <div className="space-y-5">
-        {/* Plan Name */}
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1.5">
             Plan Name <span className="text-red-500">*</span>
@@ -35,7 +34,11 @@ export default function PlanBasicDetails({
           />
           {errors.name && (
             <p className="flex items-center gap-1.5 mt-1.5 text-sm text-red-600">
-              <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+              <svg
+                className="h-3.5 w-3.5 shrink-0"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
                 <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.75 3.75a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-3.5zm.75 6.5a.875.875 0 1 1 0-1.75.875.875 0 0 1 0 1.75z" />
               </svg>
               {errors.name}
@@ -43,7 +46,6 @@ export default function PlanBasicDetails({
           )}
         </div>
 
-        {/* Description */}
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1.5">
             Description <span className="text-red-500">*</span>
@@ -62,7 +64,11 @@ export default function PlanBasicDetails({
           <div className="flex items-start justify-between mt-1.5">
             {errors.description ? (
               <p className="flex items-center gap-1.5 text-sm text-red-600">
-                <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+                <svg
+                  className="h-3.5 w-3.5 shrink-0"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
                   <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.75 3.75a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-3.5zm.75 6.5a.875.875 0 1 1 0-1.75.875.875 0 0 1 0 1.75z" />
                 </svg>
                 {errors.description}
@@ -76,7 +82,6 @@ export default function PlanBasicDetails({
           </div>
         </div>
 
-        {/* Plan Type + Price */}
         <div className="grid grid-cols-2 gap-5">
           <div>
             <label className="block text-sm font-medium text-zinc-700 mb-1.5">
@@ -114,13 +119,19 @@ export default function PlanBasicDetails({
             />
             {errors.price ? (
               <p className="flex items-center gap-1.5 mt-1.5 text-sm text-red-600">
-                <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+                <svg
+                  className="h-3.5 w-3.5 shrink-0"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
                   <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.75 3.75a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-3.5zm.75 6.5a.875.875 0 1 1 0-1.75.875.875 0 0 1 0 1.75z" />
                 </svg>
                 {errors.price}
               </p>
             ) : formData.planType === "free" ? (
-              <p className="text-xs text-zinc-400 mt-1">Free plans have no price</p>
+              <p className="text-xs text-zinc-400 mt-1">
+                Free plans have no price
+              </p>
             ) : null}
           </div>
         </div>

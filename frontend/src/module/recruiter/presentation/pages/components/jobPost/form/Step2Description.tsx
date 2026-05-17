@@ -13,7 +13,7 @@ function ErrorMsg({ msg }: { msg?: string }) {
   if (!msg) return null;
   return (
     <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1.5 font-medium">
-      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-500 flex-shrink-0 text-[10px] font-bold">!</span>
+      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-500 shrink-0 text-[10px] font-bold">!</span>
       {msg}
     </p>
   );
@@ -39,7 +39,7 @@ function ListEditor({ items, onAdd, onUpdate, onRemove, placeholder, dotColor, a
           className="flex items-center gap-3 group"
           style={{ animation: "fadeSlideIn 0.15s ease-out" }}
         >
-          <div className={`w-7 h-7 rounded-lg ${dotColor} flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm`}>
+          <div className={`w-7 h-7 rounded-lg ${dotColor} flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm`}>
             {i + 1}
           </div>
           <Input
@@ -122,7 +122,7 @@ export default function Step2Description({ formData, setFormData, errors }: Prop
               value={formData.description}
               onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
               placeholder="Write a compelling overview of this role — what you're building, the impact this person will have, and what makes this opportunity unique..."
-              className={`min-h-[160px] rounded-xl border-2 text-sm resize-none transition-all duration-200 focus:ring-4 focus:ring-indigo-50 placeholder:text-gray-300 leading-relaxed ${
+              className={`min-h-40 rounded-xl border-2 text-sm resize-none transition-all duration-200 focus:ring-4 focus:ring-indigo-50 placeholder:text-gray-300 leading-relaxed ${
                 errors.description
                   ? "border-red-400 bg-red-50/50 focus:border-red-400"
                   : "border-gray-200 focus:border-indigo-500"

@@ -14,7 +14,7 @@ import { BlockConfirmDialog } from "../components/jobPost.management/Blockconfir
 const LIMIT = 10;
 
 export default function JobPostManagement() {
-  // ── Data ──────────────────────────────────────────────────
+
   const {
     jobPosts,
     total,
@@ -30,7 +30,7 @@ export default function JobPostManagement() {
     totalPages,
   } = useAllJobPosts({ limit: LIMIT });
 
-  // ── Status updates ─────────────────────────────────────────
+
   const { pendingId, toggleBlock, loading: blockLoading } = useUpdateJobPostStatus({
     onSuccess: (_, isBlocked) => {
       toast.success(isBlocked ? "Job post blocked" : "Job post unblocked");
@@ -39,19 +39,18 @@ export default function JobPostManagement() {
     onError: (msg) => toast.error(msg),
   });
 
-  // ── Modal state ────────────────────────────────────────────
+
   const [selectedJob, setSelectedJob]       = useState<JobPostEntity | null>(null);
   const [isDetailOpen, setIsDetailOpen]     = useState(false);
   const [jobToBlock, setJobToBlock]         = useState<JobPostEntity | null>(null);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
 
-  // ── Handlers ───────────────────────────────────────────────
   const handleViewJob = (job: JobPostEntity) => {
     setSelectedJob(job);
     setIsDetailOpen(true);
   };
 
-  // Both the table row switch/dropdown AND the detail modal call this
+
   const handleToggleBlock = (job: JobPostEntity) => {
     setJobToBlock(job);
     setIsBlockDialogOpen(true);
@@ -69,12 +68,11 @@ export default function JobPostManagement() {
     setJobToBlock(null);
   };
 
-  // ── Error ──────────────────────────────────────────────────
   if (error) toast.error(error);
 
-  // ── Render ─────────────────────────────────────────────────
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-indigo-50/30 flex">
       <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0">
@@ -114,7 +112,7 @@ export default function JobPostManagement() {
         </main>
       </div>
 
-      {/* Detail modal */}
+
       <JobPostDetailModal
         job={selectedJob}
         isOpen={isDetailOpen}
@@ -122,7 +120,7 @@ export default function JobPostManagement() {
         onToggleBlock={handleToggleBlock}
       />
 
-      {/* Block / unblock confirm dialog */}
+  
       <BlockConfirmDialog
         job={jobToBlock}
         isOpen={isBlockDialogOpen}

@@ -21,7 +21,6 @@ import {
 import { useSignUp } from "../../hooks/useSignUp";
 import { useNavigate } from "react-router-dom";
 
-
 interface RoleCopy {
   headline: string;
   sub: string;
@@ -156,12 +155,15 @@ export default function SignUpPage() {
   } = useSignUp();
 
   const copy =
-    (ROLE_COPY as Record<string, RoleCopy>)[formData.role] ?? ROLE_COPY.candidate;
+    (ROLE_COPY as Record<string, RoleCopy>)[formData.role] ??
+    ROLE_COPY.candidate;
 
   const strengthIndex = Math.round((passwordStrength / 100) * 5);
   const strengthLabel = STRENGTH_LABELS[strengthIndex] ?? "";
 
-  const handleGoogleResponse = async (credentialResponse: { credential?: string }) => {
+  const handleGoogleResponse = async (credentialResponse: {
+    credential?: string;
+  }) => {
     if (credentialResponse.credential) {
       await googleSignUp(credentialResponse.credential);
     }
@@ -173,30 +175,36 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-100 via-indigo-50/60 to-purple-50/40 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-5xl bg-white/80 backdrop-blur-3xl rounded-3xl shadow-2xl shadow-indigo-200/30 overflow-hidden border border-white/60 grid lg:grid-cols-[1fr_1.1fr]">
-
-      
         <div
           className={`relative hidden lg:flex flex-col justify-between p-10 xl:p-14 bg-linear-to-br ${copy.gradientFrom} ${copy.gradientTo} text-white overflow-hidden transition-all duration-700`}
         >
-        
           <div className="absolute inset-0 opacity-10 pointer-events-none">
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <pattern id="mesh" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-                  <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" strokeWidth="0.5" />
+                <pattern
+                  id="mesh"
+                  x="0"
+                  y="0"
+                  width="60"
+                  height="60"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 60 0 L 0 0 0 60"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="0.5"
+                  />
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#mesh)" />
             </svg>
           </div>
 
-          {/* Floating orbs */}
           <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
           <div className="absolute bottom-10 -left-20 w-72 h-72 rounded-full bg-white/8 blur-3xl pointer-events-none" />
 
-          {/* Top section */}
           <div className="relative z-10">
-            {/* Logo */}
             <div className="flex items-center gap-3 mb-12">
               <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center border border-white/30 shadow-lg">
                 <Sparkles className="w-5 h-5" />
@@ -206,21 +214,20 @@ export default function SignUpPage() {
               </span>
             </div>
 
-            {/* Step badge */}
             <div className="inline-flex items-center gap-2 bg-white/15 border border-white/20 text-white/80 text-[10px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full mb-8 backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
               Step 2 of 5 · Create account
             </div>
 
-            {/* Dynamic headline */}
             <h2 className="text-3xl xl:text-4xl font-extrabold leading-tight mb-4 tracking-tight">
               {copy.headline}
             </h2>
-            <p className={`text-base leading-relaxed mb-10 ${copy.accentColor} max-w-xs`}>
+            <p
+              className={`text-base leading-relaxed mb-10 ${copy.accentColor} max-w-xs`}
+            >
               {copy.sub}
             </p>
 
-            {/* Stats row */}
             <div className="grid grid-cols-3 gap-3 mb-10">
               {copy.stats.map((stat) => (
                 <div
@@ -228,14 +235,15 @@ export default function SignUpPage() {
                   className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl px-3 py-4 text-center"
                 >
                   <div className="text-xl font-extrabold">{stat.value}</div>
-                  <div className={`text-[11px] font-medium mt-0.5 ${copy.accentColor}`}>
+                  <div
+                    className={`text-[11px] font-medium mt-0.5 ${copy.accentColor}`}
+                  >
                     {stat.label}
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Trust list */}
             <ul className="space-y-3">
               {TRUST_ITEMS.map(({ icon: Icon, text }) => (
                 <li key={text} className="flex items-center gap-3 text-sm">
@@ -248,26 +256,29 @@ export default function SignUpPage() {
             </ul>
           </div>
 
-          {/* Bottom quote */}
           <div className="relative z-10 mt-10 border-t border-white/15 pt-6">
             <p className="text-xs text-white/50 italic leading-relaxed">
-              "CareerConnect helped me land a senior role in 3 weeks — the matching is genuinely impressive."
+              "CareerConnect helped me land a senior role in 3 weeks — the
+              matching is genuinely impressive."
             </p>
             <div className="flex items-center gap-2.5 mt-3">
-              <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">A</div>
+              <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
+                A
+              </div>
               <div>
-                <div className="text-xs font-semibold text-white/80">Anjali M.</div>
-                <div className={`text-[10px] ${copy.accentColor}`}>Senior Engineer · Hired 2024</div>
+                <div className="text-xs font-semibold text-white/80">
+                  Anjali M.
+                </div>
+                <div className={`text-[10px] ${copy.accentColor}`}>
+                  Senior Engineer · Hired 2024
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-
         <div className="p-6 sm:p-9 lg:p-10 xl:p-12 flex flex-col overflow-y-auto bg-white/50 backdrop-blur-xl">
-          <div className="max-w-[420px] mx-auto w-full space-y-6">
-
-            {/* ── Header */}
+          <div className="max-w-105 mx-auto w-full space-y-6">
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
                 Create your account
@@ -277,7 +288,6 @@ export default function SignUpPage() {
               </p>
             </div>
 
-            {/* ── Role switcher */}
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2.5">
                 I want to
@@ -285,8 +295,18 @@ export default function SignUpPage() {
               <div className="grid grid-cols-2 gap-3">
                 {(
                   [
-                    { value: "candidate" as const, label: "Find a job", icon: GraduationCap, sub: "I'm a job seeker" },
-                    { value: "recruiter" as const, label: "Hire talent", icon: Building2, sub: "I'm a recruiter" },
+                    {
+                      value: "candidate" as const,
+                      label: "Find a job",
+                      icon: GraduationCap,
+                      sub: "I'm a job seeker",
+                    },
+                    {
+                      value: "recruiter" as const,
+                      label: "Hire talent",
+                      icon: Building2,
+                      sub: "I'm a recruiter",
+                    },
                   ] as const
                 ).map((r) => {
                   const isActive = formData.role === r.value;
@@ -321,12 +341,17 @@ export default function SignUpPage() {
                         >
                           {r.label}
                         </div>
-                        <div className="text-[11px] text-gray-400 mt-0.5">{r.sub}</div>
+                        <div className="text-[11px] text-gray-400 mt-0.5">
+                          {r.sub}
+                        </div>
                       </div>
 
                       {isActive && (
                         <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                          <Check
+                            className="w-2.5 h-2.5 text-white"
+                            strokeWidth={3}
+                          />
                         </div>
                       )}
                     </button>
@@ -335,7 +360,6 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            {/* ── Alert */}
             {(error || success) && (
               <div
                 className={[
@@ -354,13 +378,14 @@ export default function SignUpPage() {
               </div>
             )}
 
-            {/* ── Form */}
             <form
-              onSubmit={(e) => { e.preventDefault(); submit(); }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                submit();
+              }}
               className="space-y-4"
               noValidate
             >
-              {/* Full name */}
               <FloatInput
                 id="fullName"
                 name="fullName"
@@ -371,7 +396,6 @@ export default function SignUpPage() {
                 icon={<User className="w-4 h-4" />}
               />
 
-              {/* Email */}
               <FloatInput
                 id="email"
                 name="email"
@@ -383,7 +407,6 @@ export default function SignUpPage() {
                 icon={<Mail className="w-4 h-4" />}
               />
 
-              {/* Password */}
               <div className="space-y-2.5">
                 <FloatInput
                   id="password"
@@ -399,7 +422,9 @@ export default function SignUpPage() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="text-gray-400 hover:text-gray-600 transition-colors p-0.5"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                     >
                       {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                     </button>
@@ -408,7 +433,6 @@ export default function SignUpPage() {
 
                 {formData.password && (
                   <div className="space-y-2.5">
-                    {/* Strength bar with label */}
                     <div className="flex items-center gap-3">
                       <div className="flex-1 flex gap-1">
                         {[1, 2, 3, 4, 5].map((i) => (
@@ -420,12 +444,12 @@ export default function SignUpPage() {
                                 ? strengthIndex <= 1
                                   ? "bg-rose-400"
                                   : strengthIndex <= 2
-                                  ? "bg-amber-400"
-                                  : strengthIndex <= 3
-                                  ? "bg-yellow-400"
-                                  : strengthIndex <= 4
-                                  ? "bg-emerald-400"
-                                  : "bg-emerald-500"
+                                    ? "bg-amber-400"
+                                    : strengthIndex <= 3
+                                      ? "bg-yellow-400"
+                                      : strengthIndex <= 4
+                                        ? "bg-emerald-400"
+                                        : "bg-emerald-500"
                                 : "bg-gray-200",
                             ].join(" ")}
                           />
@@ -437,15 +461,14 @@ export default function SignUpPage() {
                           strengthIndex <= 1
                             ? "text-rose-500"
                             : strengthIndex <= 3
-                            ? "text-amber-500"
-                            : "text-emerald-600",
+                              ? "text-amber-500"
+                              : "text-emerald-600",
                         ].join(" ")}
                       >
                         {strengthLabel}
                       </span>
                     </div>
 
-                    {/* Check list — two columns */}
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                       {passwordChecks.map((check, i) => (
                         <div key={i} className="flex items-center gap-1.5">
@@ -456,9 +479,15 @@ export default function SignUpPage() {
                             ].join(" ")}
                           >
                             {check.ok ? (
-                              <Check className="w-2 h-2 text-emerald-600" strokeWidth={3.5} />
+                              <Check
+                                className="w-2 h-2 text-emerald-600"
+                                strokeWidth={3.5}
+                              />
                             ) : (
-                              <X className="w-2 h-2 text-gray-400" strokeWidth={3} />
+                              <X
+                                className="w-2 h-2 text-gray-400"
+                                strokeWidth={3}
+                              />
                             )}
                           </span>
                           <span
@@ -473,7 +502,6 @@ export default function SignUpPage() {
                 )}
               </div>
 
-              {/* Confirm password */}
               <FloatInput
                 id="confirmPassword"
                 name="confirmPassword"
@@ -495,7 +523,6 @@ export default function SignUpPage() {
                 }
               />
 
-              {/* Passwords match indicator */}
               {formData.confirmPassword && (
                 <div
                   className={`flex items-center gap-1.5 text-[11px] font-medium -mt-1 ${
@@ -505,14 +532,19 @@ export default function SignUpPage() {
                   }`}
                 >
                   {formData.password === formData.confirmPassword ? (
-                    <><Check className="w-3 h-3" strokeWidth={3} /> Passwords match</>
+                    <>
+                      <Check className="w-3 h-3" strokeWidth={3} /> Passwords
+                      match
+                    </>
                   ) : (
-                    <><X className="w-3 h-3" strokeWidth={3} /> Passwords don't match</>
+                    <>
+                      <X className="w-3 h-3" strokeWidth={3} /> Passwords don't
+                      match
+                    </>
                   )}
                 </div>
               )}
 
-              {/* Terms */}
               <label className="flex items-start gap-3 cursor-pointer group">
                 <div className="relative mt-0.5">
                   <input
@@ -532,7 +564,10 @@ export default function SignUpPage() {
                     ].join(" ")}
                   >
                     {formData.termsAccepted && (
-                      <Check className="w-2.5 h-2.5 text-white" strokeWidth={3.5} />
+                      <Check
+                        className="w-2.5 h-2.5 text-white"
+                        strokeWidth={3.5}
+                      />
                     )}
                   </div>
                 </div>
@@ -556,7 +591,6 @@ export default function SignUpPage() {
                 </span>
               </label>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -583,7 +617,6 @@ export default function SignUpPage() {
               </button>
             </form>
 
-            {/* ── Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
@@ -595,7 +628,6 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            {/* ── Google */}
             <div className="flex justify-center">
               <GoogleLogin
                 onSuccess={handleGoogleResponse}
@@ -609,7 +641,6 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* ── Sign in link */}
             <p className="text-center text-xs text-gray-400">
               Already have an account?{" "}
               <button
@@ -623,7 +654,6 @@ export default function SignUpPage() {
               </button>
             </p>
 
-            {/* ── Security footer */}
             <div className="flex items-center justify-center gap-1.5 py-1">
               <ShieldCheck className="w-3.5 h-3.5 text-gray-300" />
               <p className="text-[10px] text-gray-300 tracking-wide">

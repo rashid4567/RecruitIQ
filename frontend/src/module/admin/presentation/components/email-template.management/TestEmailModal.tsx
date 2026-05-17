@@ -46,8 +46,8 @@ export function TestEmailModal({
             exit={{ opacity: 0, y: 20 }}
             className="bg-white"
           >
-            {/* Dark Header */}
-            <div className="relative bg-gradient-to-br from-indigo-600 to-slate-900 px-8 pt-10 pb-8 overflow-hidden">
+          
+            <div className="relative bg-linear-to-br from-indigo-600 to-slate-900 px-8 pt-10 pb-8 overflow-hidden">
               <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2" />
               <div className="absolute bottom-0 left-0 w-28 h-28 rounded-full bg-white/10 translate-y-1/2 -translate-x-1/2" />
 
@@ -62,7 +62,7 @@ export function TestEmailModal({
               </div>
             </div>
 
-            {/* Body */}
+
             <div className="px-8 py-8 space-y-6">
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
@@ -114,7 +114,7 @@ export function TestEmailModal({
                 A test email will be sent using the current template. This helps you preview how it looks before sending to real users.
               </div>
 
-              {/* Buttons */}
+  
               <div className="flex gap-3 pt-2">
                 <Button
                   variant="outline"

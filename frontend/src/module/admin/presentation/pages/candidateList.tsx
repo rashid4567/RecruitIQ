@@ -75,8 +75,9 @@ export default function CandidateManagement() {
         candidateName: "",
         action: "block",
       });
-    } catch (err: any) {
-      toast.error(err?.message || `Failed to ${action} candidate`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : `Failed to ${action} candidate`;
+      toast.error(message);
     }
   };
 
@@ -85,7 +86,7 @@ export default function CandidateManagement() {
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
-        {/* Header */}
+
         <header className="bg-white border-b border-slate-200/70 sticky top-0 z-40 px-6 py-4 shadow-sm">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -126,7 +127,6 @@ export default function CandidateManagement() {
           </div>
         </header>
 
-        {/* Filters */}
         <div className="sticky top-18 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-3.5 shadow-sm">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="relative flex-1 min-w-0">
@@ -172,7 +172,6 @@ export default function CandidateManagement() {
           </div>
         </div>
 
-        {/* Main content */}
         <main className="flex-1 p-6">
           <div className="max-w-7xl mx-auto">
             {error ? (
@@ -209,7 +208,7 @@ export default function CandidateManagement() {
           </div>
         </main>
 
-        {/* Confirmation Dialog */}
+
         <CandidateStatusDialog
           open={confirmationDialog.open}
           candidateName={confirmationDialog.candidateName}

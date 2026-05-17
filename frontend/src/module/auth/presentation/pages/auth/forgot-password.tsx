@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Mail, ArrowLeft, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import {
+  Mail,
+  ArrowLeft,
+  CheckCircle2,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { forgotPasswordUc } from "../../di/auth";
 
 const ForgotPassword = () => {
@@ -32,14 +38,17 @@ const ForgotPassword = () => {
 
     try {
       await forgotPasswordUc.execute(email.trim());
-
       setIsSubmitted(true);
       toast.success("Reset link sent", {
-        description: "Check your inbox (and spam folder) for the reset instructions.",
+        description:
+          "Check your inbox (and spam folder) for the reset instructions.",
         duration: 6000,
       });
-    } catch (err: any) {
-      const msg = err.message || "Something went wrong. Please try again.";
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.";
       toast.error("Couldn't send reset link", { description: msg });
     } finally {
       setLoading(false);
@@ -52,10 +61,9 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300">
-          {/* Header / Back + Step */}
           <div className="px-8 pt-8 pb-4 flex items-center justify-between">
             <Link
               to="/signin"
@@ -64,10 +72,11 @@ const ForgotPassword = () => {
               <ArrowLeft className="h-4 w-4 mr-1.5 transition-transform group-hover:-translate-x-1" />
               Back to Sign in
             </Link>
-            <span className="text-xs font-medium text-gray-500">Step 1 of 2</span>
+            <span className="text-xs font-medium text-gray-500">
+              Step 1 of 2
+            </span>
           </div>
 
-          {/* Illustration / Icon area */}
           <div className="px-8 pb-6 text-center">
             <div
               className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500 ${
@@ -91,7 +100,9 @@ const ForgotPassword = () => {
               {isSubmitted ? (
                 <>
                   We sent password reset instructions to{" "}
-                  <span className="font-medium text-gray-900 break-all">{email}</span>
+                  <span className="font-medium text-gray-900 break-all">
+                    {email}
+                  </span>
                 </>
               ) : (
                 "Enter your email and we'll send you a link to reset your password."
@@ -99,7 +110,6 @@ const ForgotPassword = () => {
             </p>
           </div>
 
-          {/* Form or Success state */}
           <div className="px-8 pb-10">
             {!isSubmitted ? (
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -131,13 +141,18 @@ const ForgotPassword = () => {
                       `}
                       disabled={loading}
                       aria-invalid={!!errors.email}
-                      aria-describedby={errors.email ? "email-error" : undefined}
+                      aria-describedby={
+                        errors.email ? "email-error" : undefined
+                      }
                     />
                   </div>
 
                   {errors.email && (
-                    <div className="mt-2 flex items-center text-sm text-red-600" id="email-error">
-                      <AlertCircle className="h-4 w-4 mr-1.5 flex-shrink-0" />
+                    <div
+                      className="mt-2 flex items-center text-sm text-red-600"
+                      id="email-error"
+                    >
+                      <AlertCircle className="h-4 w-4 mr-1.5 shrink-0" />
                       {errors.email}
                     </div>
                   )}
@@ -148,7 +163,7 @@ const ForgotPassword = () => {
                   disabled={loading}
                   className={`
                     w-full flex items-center justify-center gap-2 py-3.5 px-4 
-                    bg-gradient-to-r from-blue-600 to-blue-700 
+                    bg-linear-to-r from-blue-600 to-blue-700 
                     hover:from-blue-700 hover:to-blue-800 
                     text-white font-medium rounded-xl shadow-lg shadow-blue-200/30 
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
@@ -169,7 +184,8 @@ const ForgotPassword = () => {
             ) : (
               <div className="space-y-6">
                 <div className="text-center text-sm text-gray-600">
-                  Didn't receive the email? Check your spam folder or try resending.
+                  Didn't receive the email? Check your spam folder or try
+                  resending.
                 </div>
 
                 <button
@@ -177,7 +193,7 @@ const ForgotPassword = () => {
                   disabled={loading}
                   className={`
                     w-full flex items-center justify-center gap-2 py-3.5 px-4 
-                    bg-gradient-to-r from-blue-600 to-blue-700 
+                    bg-linear-to-r from-blue-600 to-blue-700 
                     hover:from-blue-700 hover:to-blue-800 
                     text-white font-medium rounded-xl shadow-lg shadow-blue-200/30 
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
@@ -207,7 +223,6 @@ const ForgotPassword = () => {
           </div>
         </div>
 
-        {/* Optional subtle footer hint */}
         <p className="mt-6 text-center text-sm text-gray-500">
           Secure • Encrypted • We never store your password
         </p>

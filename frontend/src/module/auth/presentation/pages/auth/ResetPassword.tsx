@@ -161,7 +161,6 @@ const ResetPassword = () => {
 
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
 
-          {/* Top bar */}
           <div className="flex items-center justify-between mb-7">
             <button
               type="button"
@@ -212,7 +211,6 @@ const ResetPassword = () => {
             {password && (
               <div className="bg-slate-50 rounded-xl border border-slate-100 p-4 space-y-3">
 
-                {/* Bar + label row */}
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                     <div
@@ -228,7 +226,6 @@ const ResetPassword = () => {
                   </span>
                 </div>
 
-                {/* Requirements — 2-col grid */}
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                   {requirements.map((req) => (
                     <div
@@ -249,7 +246,6 @@ const ResetPassword = () => {
               </div>
             )}
 
-            {/* Confirm password */}
             <div>
               <label htmlFor="cpw" className="block text-sm font-medium text-slate-700 mb-1.5">
                 Confirm password
@@ -277,7 +273,7 @@ const ResetPassword = () => {
               ) : null}
             </div>
 
-            {/* Submit */}
+  
             <button
               type="submit"
               disabled={!isSubmitEnabled || loading}
@@ -305,7 +301,6 @@ const ResetPassword = () => {
           </form>
         </div>
 
-        {/* Footer */}
         <p className="text-center text-xs text-slate-400 mt-4">
           Didn't request a reset?{" "}
           <button

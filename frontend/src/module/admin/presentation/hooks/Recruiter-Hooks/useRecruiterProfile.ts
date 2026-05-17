@@ -31,8 +31,8 @@ export function useRecruiterProfile(
       setError(null);
       const data = await repository.getProfile(recruiterId);
       setRecruiter(data);
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to load recruiter profile.");
+    } catch (err: unknown) {
+       setError(err instanceof Error ? err.message : "Failed to load activity logs");
     } finally {
       setLoading(false);
     }
@@ -53,8 +53,8 @@ export function useRecruiterProfile(
       await action();
       const updated = await repository.getProfile(recruiterId);
       setRecruiter(updated);
-    } catch (err: any) {
-      setError(err?.message ?? "Action failed. Please try again.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load activity logs");
       await fetchProfile();
     } finally {
       setActionLoading(false);

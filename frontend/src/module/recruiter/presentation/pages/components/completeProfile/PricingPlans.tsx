@@ -1,5 +1,4 @@
-"use client";
-
+import type React from "react";
 import { useState, useEffect } from "react";
 import {
   Check,
@@ -27,7 +26,6 @@ import { useRazorpay } from "../../../hooks/subscriptions/useRazorpay";
 import { ApiSubscriptionPlanRepository } from "@/module/recruiter/infrastructure/repositories/ApiSubscriptionPlan.repository";
 import { GetAllPlansUseCase } from "@/module/recruiter/Application/use-Cases/subscription/GetAllPlansUseCase";
 
-// ─── Plan type → icon + color theme map ──────────────────────────────────────
 
 const planMeta: Record<
   string,
@@ -59,7 +57,7 @@ const planMeta: Record<
   },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+
 
 function getDisplayPrice(plan: SubscriptionPlan): {
   amount: string;
@@ -135,14 +133,14 @@ function getPlanFeatures(
   return items.slice(0, 6);
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+
 
 interface PricingPlansProps {
   selectedPlan: "free" | "active";
   onPlanSelect: (plan: "free" | "active") => void;
 }
 
-// ─── Plan Card ────────────────────────────────────────────────────────────────
+
 
 interface PlanCardProps {
   plan: SubscriptionPlan;
@@ -165,26 +163,25 @@ function PlanCard({
   const { amount, hasMonth } = getDisplayPrice(plan);
 
   return (
-    <div
-      onClick={() => onSelect(plan)}
-      className={[
-        "relative flex flex-col rounded-2xl border cursor-pointer transition-all duration-200 overflow-hidden",
-        "hover:-translate-y-1",
-        isSelected
-          ? "shadow-lg ring-2 ring-offset-1"
-          : "shadow-sm hover:shadow-md",
-      ].join(" ")}
-      style={
-        isSelected
-          ? {
-              borderColor: meta.accent,
-              // @ts-ignore
-              "--tw-ring-color": meta.accent + "40",
-            }
-          : { borderColor: "#e5e7eb" }
-      }
-    >
-      {/* Popular badge */}
+  <div
+    onClick={() => onSelect(plan)}
+    className={[
+      "relative flex flex-col rounded-2xl border cursor-pointer transition-all duration-200 overflow-hidden",
+      "hover:-translate-y-1",
+      isSelected
+        ? "shadow-lg ring-2 ring-offset-1"
+        : "shadow-sm hover:shadow-md",
+    ].join(" ")}
+    style={
+      isSelected
+        ? ({
+            borderColor: meta.accent,
+            "--tw-ring-color": `${meta.accent}40`,
+          } as React.CSSProperties)
+        : { borderColor: "#e5e7eb" }
+    }
+  >
+     
       {plan.isPopular && (
         <div
           className="absolute top-0 inset-x-0 py-1.5 text-center text-[10px] font-semibold tracking-widest text-white uppercase"
@@ -194,7 +191,7 @@ function PlanCard({
         </div>
       )}
 
-      {/* Accent top bar (non-popular) */}
+     
       {!plan.isPopular && (
         <div
           className="h-1 w-full"
@@ -208,10 +205,10 @@ function PlanCard({
           plan.isPopular ? "pt-9" : "",
         ].join(" ")}
       >
-        {/* Header */}
+
         <div className="flex items-start gap-3">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
             style={{ backgroundColor: meta.iconBg }}
           >
             <PlanIcon
@@ -229,7 +226,6 @@ function PlanCard({
           </div>
         </div>
 
-        {/* Price */}
         <div>
           <div className="flex items-baseline gap-1">
             <span className="text-[28px] font-bold text-gray-900 leading-none">
@@ -247,17 +243,15 @@ function PlanCard({
           </p>
         </div>
 
-        {/* Divider */}
         <div className="border-t border-gray-100" />
 
-        {/* Features */}
         <ul className="flex flex-col gap-2.5 flex-1">
           {features.map((feat, i) => {
             const Icon = feat.icon;
             return (
               <li key={i} className="flex items-start gap-2.5">
                 <span
-                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                  className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5"
                   style={{ backgroundColor: meta.accent + "18" }}
                 >
                   <Icon
@@ -273,7 +267,6 @@ function PlanCard({
           })}
         </ul>
 
-        {/* CTA button */}
         {isSelected ? (
           <button
             type="button"
@@ -319,7 +312,7 @@ function PlanCard({
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+
 
 export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) {
   const navigate = useNavigate();
@@ -338,7 +331,6 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
     onDismiss: () => {},
   });
 
-  // ─── Fetch ──────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -381,10 +373,9 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
     };
 
     fetchPlans();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
-  // ─── Handlers ───────────────────────────────────────────────────────────────
 
   const handlePlanSelect = (plan: SubscriptionPlan) => {
     setSelectedPlanId(plan.id);
@@ -400,8 +391,6 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
     await initiatePayment(plan.id);
   };
 
-  // ─── Loading ─────────────────────────────────────────────────────────────────
-
   if (loading) {
     return (
       <div className="space-y-6">
@@ -413,8 +402,6 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
       </div>
     );
   }
-
-  // ─── Error ───────────────────────────────────────────────────────────────────
 
   if (error) {
     return (
@@ -441,7 +428,6 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
     );
   }
 
-  // ─── Empty ───────────────────────────────────────────────────────────────────
 
   if (plans.length === 0) {
     return (
@@ -454,13 +440,11 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
     );
   }
 
-  // ─── Main render ─────────────────────────────────────────────────────────────
+
 
   return (
     <div className="space-y-6">
       <PricingHeader />
-
-      {/* 4-column plan grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {plans.map((plan) => (
           <PlanCard
@@ -474,9 +458,9 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
         ))}
       </div>
 
-      {/* Info strip */}
+    
       <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4">
-        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
           <Check className="w-4 h-4 text-blue-500" />
         </div>
         <div>
@@ -493,7 +477,6 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
   );
 }
 
-// ─── Header sub-component ─────────────────────────────────────────────────────
 
 function PricingHeader() {
   return (

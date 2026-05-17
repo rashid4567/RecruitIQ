@@ -66,9 +66,9 @@ export function useSubscriptionPlans() {
 
       setPlans(result.plans);
       setUiPlans(result.plans.map(mapToUIPlan));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to fetch plans:", err);
-      setError(err?.message ?? "Failed to load subscription plans");
+      setError(err instanceof Error ? err.message : "Failed to load activity logs");
       setUiPlans([]);
     } finally {
       setLoading(false);
@@ -87,8 +87,8 @@ export function useSubscriptionPlans() {
       }
 
       await fetchPlans();
-    } catch (err: any) {
-      alert(err?.message ?? "Failed to update plan status");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to load activity logs");
     } finally {
       setTogglingId(null);
     }

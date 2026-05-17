@@ -29,13 +29,13 @@ export function EmailLogsFilters({
   onTypeFilterChange,
   onClearFilters,
 }: EmailLogsFiltersProps) {
-  const hasActiveFilters = search.trim() || statusFilter !== "ALL" || typeFilter !== "ALL";
+  const hasActiveFilters =
+    search.trim() || statusFilter !== "ALL" || typeFilter !== "ALL";
 
   return (
-    <div className="sticky top-[97px] z-40 bg-white border-b border-slate-200 px-6 py-5 shadow-sm">
+    <div className="sticky top-24.25 z-40 bg-white border-b border-slate-200 px-6 py-5 shadow-sm">
       <div className="max-w-screen-2xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search */}
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
             <Input
@@ -54,7 +54,6 @@ export function EmailLogsFilters({
             )}
           </div>
 
-          {/* Status & Type Filters */}
           <div className="flex flex-wrap gap-3">
             <Select value={statusFilter} onValueChange={onStatusFilterChange}>
               <SelectTrigger className="h-12 w-52 bg-slate-50 border-slate-200 rounded-2xl">
@@ -91,25 +90,33 @@ export function EmailLogsFilters({
           </div>
         </div>
 
-        {/* Active Filters */}
         {hasActiveFilters && (
           <div className="mt-4 flex flex-wrap gap-2">
             {search && (
               <Badge variant="secondary" className="px-4 py-2 text-sm">
                 "{search}"
-                <X className="ml-2 h-4 w-4 cursor-pointer" onClick={() => onSearchChange("")} />
+                <X
+                  className="ml-2 h-4 w-4 cursor-pointer"
+                  onClick={() => onSearchChange("")}
+                />
               </Badge>
             )}
             {statusFilter !== "ALL" && (
               <Badge variant="secondary" className="px-4 py-2 text-sm">
                 {statusFilter === "SENT" ? "✅ Sent" : "❌ Failed"}
-                <X className="ml-2 h-4 w-4 cursor-pointer" onClick={() => onStatusFilterChange("ALL")} />
+                <X
+                  className="ml-2 h-4 w-4 cursor-pointer"
+                  onClick={() => onStatusFilterChange("ALL")}
+                />
               </Badge>
             )}
             {typeFilter !== "ALL" && (
               <Badge variant="secondary" className="px-4 py-2 text-sm">
                 {typeFilter === "TEST" ? "🧪 Test" : "📧 Production"}
-                <X className="ml-2 h-4 w-4 cursor-pointer" onClick={() => onTypeFilterChange("ALL")} />
+                <X
+                  className="ml-2 h-4 w-4 cursor-pointer"
+                  onClick={() => onTypeFilterChange("ALL")}
+                />
               </Badge>
             )}
           </div>

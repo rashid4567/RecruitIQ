@@ -37,6 +37,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       localStorage.removeItem("userRole");
       localStorage.removeItem("userId");
       localStorage.removeItem("profileCompleted");
+      console.log(error);
     } finally {
       setIsChecking(false);
     }

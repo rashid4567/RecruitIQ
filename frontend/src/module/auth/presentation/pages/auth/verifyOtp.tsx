@@ -13,15 +13,17 @@ import {
 } from "lucide-react";
 import { useVerifyOtp } from "../../hooks/useVerifyOtp";
 
-// ─── Success Screen ───────────────────────────────────────────────────────────
 function SuccessScreen() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-linear-to-br from-emerald-50 via-white to-teal-50 flex items-center justify-center p-6">
       <div className="text-center">
         <div className="relative mx-auto mb-8 w-32 h-32">
           <div className="absolute inset-0 bg-emerald-300/30 rounded-full blur-2xl animate-pulse" />
           <div className="relative w-32 h-32 rounded-full bg-white border-2 border-emerald-100 shadow-2xl shadow-emerald-100 flex items-center justify-center">
-            <CheckCircle className="w-16 h-16 text-emerald-500 animate-scale-pop" strokeWidth={1.5} />
+            <CheckCircle
+              className="w-16 h-16 text-emerald-500 animate-scale-pop"
+              strokeWidth={1.5}
+            />
           </div>
           <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-amber-400 animate-spin-slow" />
         </div>
@@ -51,16 +53,14 @@ function SuccessScreen() {
   );
 }
 
-// ─── Loading Screen ───────────────────────────────────────────────────────────
 function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50/70 via-purple-50/60 to-blue-50/50 flex items-center justify-center">
+    <div className="min-h-screen bg-linear-to-br from-indigo-50/70 via-purple-50/60 to-blue-50/50 flex items-center justify-center">
       <Loader2 className="w-9 h-9 text-indigo-500 animate-spin" />
     </div>
   );
 }
 
-// ─── Timer Arc ────────────────────────────────────────────────────────────────
 function TimerArc({
   progress,
   timeLeft,
@@ -78,16 +78,27 @@ function TimerArc({
     <div className="flex items-center gap-2.5">
       <div className="relative w-12 h-12 shrink-0">
         <svg viewBox="0 0 56 56" className="-rotate-90 w-full h-full">
-          <circle cx="28" cy="28" r={r} fill="none"
+          <circle
+            cx="28"
+            cy="28"
+            r={r}
+            fill="none"
             stroke={isUrgent ? "rgba(239,68,68,0.12)" : "rgba(99,102,241,0.1)"}
-            strokeWidth="3" />
-          <circle cx="28" cy="28" r={r} fill="none"
+            strokeWidth="3"
+          />
+          <circle
+            cx="28"
+            cy="28"
+            r={r}
+            fill="none"
             stroke={isUrgent ? "#f87171" : "url(#tg)"}
             strokeWidth="3"
             strokeDasharray={circ}
             strokeDashoffset={circ * (1 - progress / 100)}
             strokeLinecap="round"
-            style={{ transition: "stroke-dashoffset 1s linear, stroke 0.4s ease" }}
+            style={{
+              transition: "stroke-dashoffset 1s linear, stroke 0.4s ease",
+            }}
           />
           <defs>
             <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -97,16 +108,22 @@ function TimerArc({
           </defs>
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-[9px] font-mono font-bold tabular-nums leading-none ${isUrgent ? "text-rose-500" : "text-indigo-600"}`}>
+          <span
+            className={`text-[9px] font-mono font-bold tabular-nums leading-none ${isUrgent ? "text-rose-500" : "text-indigo-600"}`}
+          >
             {formatTime(timeLeft)}
           </span>
         </div>
       </div>
       <div className="leading-tight">
-        <p className={`text-[11px] font-medium ${isUrgent ? "text-rose-500" : "text-gray-400"}`}>
+        <p
+          className={`text-[11px] font-medium ${isUrgent ? "text-rose-500" : "text-gray-400"}`}
+        >
           {isUrgent ? "Expiring soon!" : "Code expires in"}
         </p>
-        <p className={`text-sm font-bold tabular-nums ${isUrgent ? "text-rose-600" : "text-gray-700"}`}>
+        <p
+          className={`text-sm font-bold tabular-nums ${isUrgent ? "text-rose-600" : "text-gray-700"}`}
+        >
           {formatTime(timeLeft)}
         </p>
       </div>
@@ -114,7 +131,6 @@ function TimerArc({
   );
 }
 
-// ─── Single OTP Box ───────────────────────────────────────────────────────────
 function OtpBox({
   digit,
   idx,
@@ -123,7 +139,6 @@ function OtpBox({
   handleKeyDown,
   isVerifying,
   hasError,
-  isFocused,
 }: {
   digit: string;
   idx: number;
@@ -139,7 +154,6 @@ function OtpBox({
 
   return (
     <div className="relative group">
-      {/* Glow layer — only on filled */}
       {filled && (
         <div className="absolute inset-0 rounded-2xl bg-indigo-400/20 blur-md scale-110 pointer-events-none" />
       )}
@@ -157,7 +171,7 @@ function OtpBox({
         aria-label={`Digit ${idx + 1} of 6`}
         disabled={isVerifying}
         className={[
-          "relative w-12 h-[60px] sm:w-[52px] sm:h-16",
+          "relative w-12 h-15 sm:w-13 sm:h-16",
           "text-center text-[26px] font-bold tracking-tight",
           "rounded-2xl border-2 outline-none",
           "transition-all duration-200",
@@ -170,16 +184,17 @@ function OtpBox({
         ].join(" ")}
       />
 
-      {/* Bottom accent bar */}
-      <div className={[
-        "absolute bottom-1.5 left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all duration-300",
-        filled ? "w-5 bg-indigo-500" : "w-0 bg-transparent",
-      ].join(" ")} />
+
+      <div
+        className={[
+          "absolute bottom-1.5 left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all duration-300",
+          filled ? "w-5 bg-indigo-500" : "w-0 bg-transparent",
+        ].join(" ")}
+      />
     </div>
   );
 }
 
-// ─── OTP Input Group ──────────────────────────────────────────────────────────
 function OtpInput({
   otp,
   setInputRef,
@@ -215,7 +230,6 @@ function OtpInput({
   );
 }
 
-// ─── Step Progress ────────────────────────────────────────────────────────────
 function StepProgress() {
   return (
     <div className="flex items-center gap-1.5">
@@ -236,7 +250,6 @@ function StepProgress() {
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
 export default function VerifyOTP() {
   const navigate = useNavigate();
   const {
@@ -263,31 +276,26 @@ export default function VerifyOTP() {
 
   const otpFilled = otp.join("").length === 6;
   const filledCount = otp.filter(Boolean).length;
-  const isSuccessMsg = !!error && (error.includes("sent") || error.includes("inbox"));
+  const isSuccessMsg =
+    !!error && (error.includes("sent") || error.includes("inbox"));
   const hasError = !!error && !isSuccessMsg;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50/80 via-purple-50/70 to-blue-50/60 flex flex-col relative overflow-hidden">
-
-      {/* ── Background atmosphere ── */}
+    <div className="min-h-screen bg-linear-to-br from-indigo-50/80 via-purple-50/70 to-blue-50/60 flex flex-col relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {/* Top-right blob */}
-        <div className="absolute -top-48 -right-40 w-[480px] h-[480px] rounded-full bg-gradient-to-br from-indigo-300/20 to-purple-300/15 blur-3xl animate-float" />
-        {/* Bottom-left blob */}
-        <div className="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-gradient-to-br from-purple-200/20 to-pink-200/10 blur-3xl animate-float-slow" />
-        {/* Center soft wash */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[500px] rounded-full bg-gradient-to-br from-blue-100/15 to-indigo-100/10 blur-3xl" />
-        {/* Dot grid texture */}
+        <div className="absolute -top-48 -right-40 w-120 h-120 rounded-full bg-linear-to-br from-indigo-300/20 to-purple-300/15 blur-3xl animate-float" />
+        <div className="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-linear-to-br from-purple-200/20 to-pink-200/10 blur-3xl animate-float-slow" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-125 rounded-full bg-linear-to-br from-blue-100/15 to-indigo-100/10 blur-3xl" />
         <div
           className="absolute inset-0 opacity-[0.018]"
           style={{
-            backgroundImage: "radial-gradient(circle, #6366f1 1px, transparent 1px)",
+            backgroundImage:
+              "radial-linear(circle, #6366f1 1px, transparent 1px)",
             backgroundSize: "28px 28px",
           }}
         />
       </div>
 
-      {/* ── Top nav ── */}
       <nav className="relative z-10 flex items-center justify-between px-6 pt-6 pb-2">
         <button
           onClick={() => navigate(-1)}
@@ -299,19 +307,17 @@ export default function VerifyOTP() {
 
         <StepProgress />
 
-        <span className="text-xs font-semibold text-gray-400 tabular-nums">2 / 5</span>
+        <span className="text-xs font-semibold text-gray-400 tabular-nums">
+          2 / 5
+        </span>
       </nav>
 
-      {/* ── Page content ── */}
       <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-6">
-        <div className="w-full max-w-[420px] animate-fade-up">
-
-          {/* ── Header section ── */}
+        <div className="w-full max-w-105 animate-fade-up">
           <div className="text-center mb-7">
-            {/* Icon */}
             <div className="relative inline-flex mb-5">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-[20px] blur-xl opacity-30 scale-110 animate-pulse" />
-              <div className="relative w-[68px] h-[68px] bg-gradient-to-br from-indigo-600 to-purple-600 rounded-[20px] shadow-xl shadow-indigo-300/40 flex items-center justify-center">
+              <div className="absolute inset-0 bg-linear-to-br from-indigo-500 to-purple-500 rounded-4xl blur-xl opacity-30 scale-110 animate-pulse" />
+              <div className="relative w-17 h-17 bg-linear-to-br from-indigo-600 to-purple-600 rounded-4xl shadow-xl shadow-indigo-300/40 flex items-center justify-center">
                 <KeyRound className="w-8 h-8 text-white" strokeWidth={1.75} />
               </div>
             </div>
@@ -323,12 +329,13 @@ export default function VerifyOTP() {
               We sent a 6-digit code to
             </p>
 
-            {/* Email pill */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full border border-indigo-100 shadow-md shadow-indigo-50">
               <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
                 <Mail className="w-3 h-3 text-indigo-500" />
               </div>
-              <span className="text-sm font-semibold text-gray-800 tracking-tight">{maskedEmail}</span>
+              <span className="text-sm font-semibold text-gray-800 tracking-tight">
+                {maskedEmail}
+              </span>
             </div>
 
             <p className="text-[11px] text-gray-400 mt-2.5">
@@ -336,21 +343,14 @@ export default function VerifyOTP() {
             </p>
           </div>
 
-          {/* ── Main OTP card ── */}
           <div className="relative mb-4">
-            {/* Card outer glow — the "highlight" */}
-            <div className="absolute -inset-[2px] rounded-[28px] bg-gradient-to-br from-indigo-400/40 via-purple-400/30 to-blue-400/20 blur-sm pointer-events-none" />
-            <div className="absolute -inset-[1px] rounded-[28px] bg-gradient-to-br from-indigo-300/60 via-purple-300/40 to-blue-300/30 pointer-events-none" />
+            <div className="absolute -inset-0.5 rounded-[28px] bg-linear-to-br from-indigo-400/40 via-purple-400/30 to-blue-400/20 blur-sm pointer-events-none" />
+            <div className="absolute -inset-px rounded-[28px] bg-linear-to-br from-indigo-300/60 via-purple-300/40 to-blue-300/30 pointer-events-none" />
 
-            {/* Card itself */}
             <div className="relative bg-white/80 backdrop-blur-2xl rounded-[26px] border border-white/90 shadow-2xl shadow-indigo-200/50 overflow-hidden">
-
-              {/* Card top shimmer strip */}
-              <div className="h-[3px] w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-400" />
+              <div className="h-0.75 w-full bg-linear-to-r from-indigo-500 via-purple-500 to-blue-400" />
 
               <div className="px-7 pt-7 pb-7">
-
-                {/* Progress dots for filled digits */}
                 <div className="flex justify-center gap-1.5 mb-5">
                   {otp.map((d, i) => (
                     <div
@@ -363,12 +363,10 @@ export default function VerifyOTP() {
                   ))}
                 </div>
 
-                {/* Label */}
                 <p className="text-center text-[11px] font-semibold text-gray-400 uppercase tracking-[0.12em] mb-4">
                   Verification Code
                 </p>
 
-                {/* OTP inputs */}
                 <OtpInput
                   otp={otp}
                   setInputRef={setInputRef}
@@ -379,10 +377,9 @@ export default function VerifyOTP() {
                   hasError={hasError}
                 />
 
-                {/* Progress bar */}
                 <div className="mt-5 mb-1 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
+                    className="h-full bg-linear-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
                     style={{ width: `${(filledCount / 6) * 100}%` }}
                   />
                 </div>
@@ -392,15 +389,19 @@ export default function VerifyOTP() {
                     : `${filledCount} of 6 digits entered`}
                 </p>
 
-                {/* Divider */}
-                <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-5" />
+                <div className="h-px bg-linear-to-r from-transparent via-gray-200 to-transparent mb-5" />
 
-                {/* Timer + resend row */}
                 <div className="flex items-center justify-between mb-6">
-                  <TimerArc progress={progress} timeLeft={timeLeft} formatTime={formatTime} />
+                  <TimerArc
+                    progress={progress}
+                    timeLeft={timeLeft}
+                    formatTime={formatTime}
+                  />
 
                   <div className="text-right">
-                    <p className="text-[11px] text-gray-400 mb-1">Didn't get the code?</p>
+                    <p className="text-[11px] text-gray-400 mb-1">
+                      Didn't get the code?
+                    </p>
                     {timeLeft <= 0 ? (
                       <button
                         onClick={resendOtp}
@@ -408,21 +409,28 @@ export default function VerifyOTP() {
                         className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors disabled:opacity-50 group"
                       >
                         {isResending ? (
-                          <><Loader2 className="w-3.5 h-3.5 animate-spin" />Sending…</>
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            Sending…
+                          </>
                         ) : (
-                          <><RotateCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />Resend code</>
+                          <>
+                            <RotateCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
+                            Resend code
+                          </>
                         )}
                       </button>
                     ) : (
                       <p className="text-xs text-gray-400">
                         Resend in{" "}
-                        <span className="font-bold text-gray-600 tabular-nums">{formatTime(timeLeft)}</span>
+                        <span className="font-bold text-gray-600 tabular-nums">
+                          {formatTime(timeLeft)}
+                        </span>
                       </p>
                     )}
                   </div>
                 </div>
 
-                {/* Error / success banner */}
                 {error && (
                   <div
                     className={[
@@ -433,25 +441,31 @@ export default function VerifyOTP() {
                         : "bg-rose-50 border-rose-200/80 text-rose-700",
                     ].join(" ")}
                   >
-                    {isSuccessMsg
-                      ? <CheckCircle className="w-4 h-4 mt-0.5 shrink-0 text-emerald-500" strokeWidth={1.5} />
-                      : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-rose-500" strokeWidth={1.5} />
-                    }
+                    {isSuccessMsg ? (
+                      <CheckCircle
+                        className="w-4 h-4 mt-0.5 shrink-0 text-emerald-500"
+                        strokeWidth={1.5}
+                      />
+                    ) : (
+                      <AlertCircle
+                        className="w-4 h-4 mt-0.5 shrink-0 text-rose-500"
+                        strokeWidth={1.5}
+                      />
+                    )}
                     <span className="font-medium leading-snug">{error}</span>
                   </div>
                 )}
 
-                {/* CTA button */}
                 <button
                   onClick={verifyOtp}
                   disabled={!otpFilled || isVerifying}
                   className={[
-                    "w-full h-[52px] rounded-2xl font-semibold text-[15px]",
+                    "w-full h-13 rounded-2xl font-semibold text-[15px]",
                     "flex items-center justify-center gap-2",
                     "transition-all duration-200",
                     otpFilled && !isVerifying
                       ? [
-                          "bg-gradient-to-r from-indigo-600 to-purple-600",
+                          "bg-linear-to-r from-indigo-600 to-purple-600",
                           "hover:from-indigo-700 hover:to-purple-700",
                           "text-white",
                           "shadow-lg shadow-indigo-300/50",
@@ -478,12 +492,13 @@ export default function VerifyOTP() {
             </div>
           </div>
 
-          {/* ── Trust footer ── */}
           <div className="flex items-center justify-center gap-2 text-[11px] text-gray-400">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" strokeWidth={1.5} />
+            <ShieldCheck
+              className="w-3.5 h-3.5 text-emerald-500 shrink-0"
+              strokeWidth={1.5}
+            />
             <span>End-to-end encrypted · Secure · No spam</span>
           </div>
-
         </div>
       </div>
 

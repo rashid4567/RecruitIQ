@@ -54,7 +54,7 @@ export default function Step5Preview({ formData }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div>
         <div className="flex items-center gap-2 mb-1">
           <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
@@ -65,10 +65,9 @@ export default function Step5Preview({ formData }: Props) {
         <p className="text-gray-500 text-sm ml-10">This is how your job post will appear to candidates</p>
       </div>
 
-      {/* Missing fields warning */}
       {missing.length > 0 && (
         <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
-          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-amber-800">Almost there!</p>
             <p className="text-xs text-amber-600 mt-0.5">
@@ -78,10 +77,9 @@ export default function Step5Preview({ formData }: Props) {
         </div>
       )}
 
-      {/* Job Card Preview */}
       <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-        {/* Card Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-6">
+
+        <div className="bg-linear-to-r from-indigo-600 to-violet-600 p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-xl font-bold text-white">
@@ -106,13 +104,12 @@ export default function Step5Preview({ formData }: Props) {
                 ) : null}
               </div>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shrink-0">
               <Briefcase className="w-6 h-6 text-white" />
             </div>
           </div>
         </div>
 
-        {/* Key Metrics */}
         <div className="grid grid-cols-4 divide-x divide-gray-100 bg-gray-50 border-b border-gray-100">
           {[
             { icon: Briefcase, label: "Experience", value: exp || "Any level" },
@@ -128,7 +125,7 @@ export default function Step5Preview({ formData }: Props) {
           ))}
         </div>
 
-        {/* Body */}
+
         <div className="p-6 space-y-6 bg-white">
           {formData.description && (
             <Section title="About the Role">
@@ -143,7 +140,7 @@ export default function Step5Preview({ formData }: Props) {
               <ul className="space-y-2">
                 {formData.responsibilities.filter(Boolean).map((item, i) => (
                   <li key={i} className="flex gap-3 text-sm text-gray-600">
-                    <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
+                    <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
                       {i + 1}
                     </span>
                     {item}
@@ -158,7 +155,7 @@ export default function Step5Preview({ formData }: Props) {
               <ul className="space-y-2">
                 {formData.requirements.filter(Boolean).map((item, i) => (
                   <li key={i} className="flex gap-2.5 text-sm text-gray-600">
-                    <span className="text-amber-500 flex-shrink-0 mt-0.5">◆</span>
+                    <span className="text-amber-500 shrink-0 mt-0.5">◆</span>
                     {item}
                   </li>
                 ))}
@@ -192,7 +189,7 @@ export default function Step5Preview({ formData }: Props) {
 
           {formData.externalLink && (
             <div className="pt-4 border-t border-gray-100 flex items-center gap-2 text-sm text-gray-500">
-              <LinkIcon className="w-4 h-4 flex-shrink-0" />
+              <LinkIcon className="w-4 h-4 shrink-0" />
               <span>Apply via:</span>
               <a
                 href={formData.externalLink}
@@ -209,7 +206,7 @@ export default function Step5Preview({ formData }: Props) {
 
       {missing.length === 0 && (
         <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
-          <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
           <p className="text-sm font-semibold text-emerald-800">
             Everything looks great! Ready to publish this job post.
           </p>

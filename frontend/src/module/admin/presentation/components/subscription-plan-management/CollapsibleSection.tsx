@@ -36,7 +36,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
     <div
       className={`rounded-2xl border border-zinc-200 bg-white overflow-hidden ${className}`}
     >
-      {/* Header */}
+      
       <button
         onClick={toggle}
         className={`
@@ -47,7 +47,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         `}
       >
         <div className="flex items-center gap-3">
-          {/* Custom Icon or Default Chevron */}
+
           {icon ? (
             <div className="text-zinc-400">{icon}</div>
           ) : (
@@ -60,14 +60,9 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
             </div>
           )}
           
-          {/* Title */}
           <h3 className="font-semibold text-zinc-900">{title}</h3>
-          
-          {/* Badge */}
           {badge && <div className="ml-2">{badge}</div>}
         </div>
-
-        {/* Optional: Additional indicator */}
         <div className="text-zinc-400">
           {isOpen ? (
             <ChevronDown className="h-5 w-5" />
@@ -77,7 +72,6 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         </div>
       </button>
 
-      {/* Content */}
       <div
         className={`
           transition-all duration-200 ease-in-out
@@ -90,7 +84,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   );
 };
 
-// Optional: Alternative Styling Variants
+
 export const CollapsibleSectionCard: React.FC<CollapsibleSectionProps> = (props) => {
   return (
     <CollapsibleSection

@@ -17,20 +17,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { EmailTemplate } from "@/module/admin/domain/entities/email-template.entity";
 import { cn } from "@/lib/utils";
 
+interface TemplatePagination {
+  page: number;
+  limit: number;
+}
 interface TemplateListProps {
   loading: boolean;
   templates: EmailTemplate[];
   search: string;
   onSearchChange: (value: string) => void;
-  pagination: { page: number; limit: number };
-  onPaginationChange: (pagination: any) => void;
+  pagination: TemplatePagination;
+  onPaginationChange: (pagination: TemplatePagination) => void;
   onView: (id: string) => void;
   onEdit: (id: string) => void;
   onTestEmail: (template: EmailTemplate) => void;
   onToggle: (template: EmailTemplate) => void;
   onDelete: (id: string) => void;
 }
-
 export function TemplateList({
   loading,
   templates,
@@ -39,7 +42,6 @@ export function TemplateList({
   pagination,
   onPaginationChange,
   onView,
-  onEdit,
   onTestEmail,
   onToggle,
   onDelete,
@@ -85,7 +87,6 @@ export function TemplateList({
 
   return (
     <div className="space-y-6">
-      {/* Search + controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
@@ -132,7 +133,6 @@ export function TemplateList({
         </div>
       </div>
 
-      {/* Grid */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array(9)
@@ -205,7 +205,7 @@ export function TemplateList({
                     {getEventDisplay(template.getEvent())}
                   </Badge>
 
-                  <p className="text-sm text-slate-600 line-clamp-3 min-h-[4.5rem]">
+                  <p className="text-sm text-slate-600 line-clamp-3 min-h-18">
                     {template.getSubject()}
                   </p>
 
@@ -216,7 +216,6 @@ export function TemplateList({
                       className="h-9 w-9 text-slate-600 hover:text-indigo-700 hover:bg-indigo-50/50"
                       onClick={() => onView(template.getId())}
                     >
-                      
                       <Edit className="h-4.5 w-4.5" />
                     </Button>
                     <Button

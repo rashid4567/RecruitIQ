@@ -7,8 +7,17 @@ import {
   verifyRecruiterUC,
   rejectRecruiterUC,
 } from "../../di/recruiter.di";
-import { blockUserUC,  unblockUserUC } from "../../di/user.di"
+import { blockUserUC, unblockUserUC } from "../../di/user.di";
+
 type FilterTab = "all" | "pending" | "verified" | "blocked";
+
+interface RecruiterQuery {
+  page: number;
+  limit: number;
+  search?: string;
+  verificationStatus?: "pending" | "verified";
+  isActive?: boolean;
+}
 
 export function useRecruiters() {
   const [recruiters, setRecruiters] = useState<Recruiter[]>([]);
@@ -31,7 +40,7 @@ export function useRecruiters() {
     setError(null);
 
     try {
-      const query: any = { page: pagination.page, limit: pagination.limit };
+      const query: RecruiterQuery = { page: pagination.page, limit: pagination.limit };
       if (debouncedSearch) query.search = debouncedSearch;
       if (tab !== "all") {
         if (tab === "pending") query.verificationStatus = "pending";
@@ -47,8 +56,8 @@ export function useRecruiters() {
         total: res.total ?? 0,
         totalPages: res.total ? Math.ceil(res.total / p.limit) : 1,
       }));
-    } catch (err: any) {
-      const msg = err?.message || "Failed to load recruiters";
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to load recruiters";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -80,8 +89,8 @@ export function useRecruiters() {
           break;
       }
       await fetchRecruiters();
-    } catch (err: any) {
-      toast.error(err?.message || "Action failed");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Action failed");
     } finally {
       setActionLoading((prev) => ({ ...prev, [id]: false }));
     }

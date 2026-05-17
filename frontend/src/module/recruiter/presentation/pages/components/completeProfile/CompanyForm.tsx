@@ -5,23 +5,77 @@ import {
   Briefcase,
   MapPin,
   FileText,
+  type LucideIcon,
 } from "lucide-react";
 
+export interface CompanyFormData {
+  companyName: string;
+  companyWebsite: string;
+  companySize: "" | "1-10" | "11-50" | "51-200" | "201-500" | "501+";
+  industry:
+    | ""
+    | "Technology"
+    | "Finance"
+    | "Healthcare"
+    | "Retail"
+    | "Manufacturing"
+    | "Education"
+    | "Marketing"
+    | "Consulting"
+    | "Other";
+  designation: string;
+  location: string;
+  bio: string;
+}
+
+export interface CompanyFormErrors {
+  companyName?: string;
+  companyWebsite?: string;
+  industry?: string;
+  designation?: string;
+  location?: string;
+  bio?: string;
+}
+
+type FormChangeEvent = React.ChangeEvent<
+  HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+>;
+interface FormFieldProps {
+  label: string;
+  icon: LucideIcon;
+  name: keyof CompanyFormData;
+  value: string;
+  onChange: (e: FormChangeEvent) => void;
+  error?: string;
+  placeholder?: string;
+  type?: React.HTMLInputTypeAttribute;
+}
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface FormFieldSelectProps {
+  label: string;
+  icon: LucideIcon;
+  name: keyof CompanyFormData;
+  value: string;
+  onChange: (e: FormChangeEvent) => void;
+  error?: string;
+  options: SelectOption[];
+}
+
 interface CompanyFormProps {
-  formData: any;
-  errors: any;
-  onChange: (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => void;
+  formData: CompanyFormData;
+  errors: CompanyFormErrors;
+  onChange: (e: FormChangeEvent) => void;
 }
 
 export function CompanyForm({ formData, errors, onChange }: CompanyFormProps) {
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-slate-100">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Company Name */}
         <FormField
           label="Company Name *"
           icon={Building}
@@ -42,7 +96,6 @@ export function CompanyForm({ formData, errors, onChange }: CompanyFormProps) {
           placeholder="https://www.acmecorp.com"
           type="url"
         />
-
         <div className="space-y-3">
           <label className="text-sm font-semibold text-slate-900 flex items-center gap-2">
             <Users className="h-4 w-4 text-blue-500" />
@@ -55,15 +108,14 @@ export function CompanyForm({ formData, errors, onChange }: CompanyFormProps) {
             className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select company size</option>
-            <option value="1-10">1-10 employees</option>
-            <option value="11-50">11-50 employees</option>
-            <option value="51-200">51-200 employees</option>
-            <option value="201-500">201-500 employees</option>
+            <option value="1-10">1–10 employees</option>
+            <option value="11-50">11–50 employees</option>
+            <option value="51-200">51–200 employees</option>
+            <option value="201-500">201–500 employees</option>
             <option value="501+">501+ employees</option>
           </select>
         </div>
 
-        {/* Industry */}
         <FormFieldSelect
           label="Industry *"
           icon={Briefcase}
@@ -85,7 +137,6 @@ export function CompanyForm({ formData, errors, onChange }: CompanyFormProps) {
           ]}
         />
 
-        {/* Designation */}
         <FormField
           label="Your Designation *"
           icon={Briefcase}
@@ -96,7 +147,6 @@ export function CompanyForm({ formData, errors, onChange }: CompanyFormProps) {
           placeholder="Talent Acquisition Lead"
         />
 
-        {/* Location */}
         <FormField
           label="Location"
           icon={MapPin}
@@ -108,7 +158,6 @@ export function CompanyForm({ formData, errors, onChange }: CompanyFormProps) {
         />
       </div>
 
-      {/* Bio */}
       <div className="mt-8 space-y-3">
         <label className="text-sm font-semibold text-slate-900 flex items-center gap-2">
           <FileText className="h-4 w-4 text-blue-500" />
@@ -150,7 +199,7 @@ function FormField({
   error,
   placeholder,
   type = "text",
-}: any) {
+}: FormFieldProps) {
   return (
     <div className="space-y-3">
       <label className="text-sm font-semibold text-slate-900 flex items-center gap-2">
@@ -182,7 +231,7 @@ function FormFieldSelect({
   onChange,
   error,
   options,
-}: any) {
+}: FormFieldSelectProps) {
   return (
     <div className="space-y-3">
       <label className="text-sm font-semibold text-slate-900 flex items-center gap-2">
@@ -199,7 +248,7 @@ function FormFieldSelect({
             : "border-slate-300 focus:ring-blue-500"
         }`}
       >
-        {options.map((opt: any) => (
+        {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>

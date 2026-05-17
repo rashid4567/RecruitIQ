@@ -1,6 +1,14 @@
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { MapPin, Users, Briefcase, Building2, Globe, ChevronDown, Check, Wifi } from "lucide-react";
+import {
+  MapPin,
+  Users,
+  Briefcase,
+  Building2,
+  Globe,
+  ChevronDown,
+  Check,
+  Wifi,
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
 
@@ -29,7 +37,13 @@ const jobTypes = [
   { value: "internship", label: "Internship", emoji: "🎓", color: "emerald" },
 ] as const;
 
-function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+function FieldLabel({
+  children,
+  required,
+}: {
+  children: React.ReactNode;
+  required?: boolean;
+}) {
   return (
     <label className="text-sm font-semibold text-gray-700 flex items-center gap-1 mb-2">
       {children}
@@ -42,7 +56,9 @@ function ErrorMsg({ msg }: { msg?: string }) {
   if (!msg) return null;
   return (
     <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1.5 font-medium">
-      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-500 flex-shrink-0 text-[10px] font-bold">!</span>
+      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-500 shrink-0 text-[10px] font-bold">
+        !
+      </span>
       {msg}
     </p>
   );
@@ -64,7 +80,8 @@ function DepartmentDropdown({
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -78,7 +95,7 @@ function DepartmentDropdown({
   }, [open]);
 
   const filtered = departments.filter((d) =>
-    d.toLowerCase().includes(search.toLowerCase())
+    d.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -90,16 +107,20 @@ function DepartmentDropdown({
           open
             ? "border-indigo-500 ring-4 ring-indigo-50 shadow-sm"
             : error
-            ? "border-red-400 bg-red-50/50"
-            : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+              ? "border-red-400 bg-red-50/50"
+              : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
         }`}
       >
-        <span className={`flex items-center gap-2.5 text-sm ${value ? "text-gray-900 font-medium" : "text-gray-400"}`}>
-          <Building2 className={`w-4 h-4 flex-shrink-0 ${value ? "text-indigo-500" : "text-gray-300"}`} />
+        <span
+          className={`flex items-center gap-2.5 text-sm ${value ? "text-gray-900 font-medium" : "text-gray-400"}`}
+        >
+          <Building2
+            className={`w-4 h-4 shrink-0 ${value ? "text-indigo-500" : "text-gray-300"}`}
+          />
           {value || "Select department"}
         </span>
         <ChevronDown
-          className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -108,7 +129,6 @@ function DepartmentDropdown({
           className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-2xl shadow-2xl shadow-gray-200/80 overflow-hidden"
           style={{ animation: "dropdownIn 0.15s ease-out" }}
         >
-          {/* Search */}
           <div className="p-3 border-b border-gray-50">
             <input
               ref={searchRef}
@@ -121,7 +141,9 @@ function DepartmentDropdown({
           </div>
           <div className="p-2 max-h-56 overflow-y-auto">
             {filtered.length === 0 ? (
-              <p className="text-center text-gray-400 text-sm py-4">No departments found</p>
+              <p className="text-center text-gray-400 text-sm py-4">
+                No departments found
+              </p>
             ) : (
               filtered.map((d) => (
                 <button
@@ -138,10 +160,17 @@ function DepartmentDropdown({
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    {value === d && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 flex-shrink-0" />}
+                    {value === d && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                    )}
                     {d}
                   </span>
-                  {value === d && <Check className="w-4 h-4 text-indigo-500" strokeWidth={2.5} />}
+                  {value === d && (
+                    <Check
+                      className="w-4 h-4 text-indigo-500"
+                      strokeWidth={2.5}
+                    />
+                  )}
                 </button>
               ))
             )}
@@ -160,27 +189,35 @@ function DepartmentDropdown({
   );
 }
 
-export default function Step1BasicInfo({ formData, setFormData, errors }: Props) {
+export default function Step1BasicInfo({
+  formData,
+  setFormData,
+  errors,
+}: Props) {
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
           <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center">
             <Briefcase className="w-4 h-4 text-indigo-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Basic Information</h2>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Basic Information
+          </h2>
         </div>
-        <p className="text-gray-500 text-sm ml-10">Start with the core details of this position</p>
+        <p className="text-gray-500 text-sm ml-10">
+          Start with the core details of this position
+        </p>
       </div>
 
       <div className="space-y-6">
-        {/* Job Title */}
         <div>
           <FieldLabel required>Job Title</FieldLabel>
           <Input
             value={formData.title}
-            onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
+            onChange={(e) =>
+              setFormData((p) => ({ ...p, title: e.target.value }))
+            }
             placeholder="e.g., Senior Software Engineer (Backend)"
             className={`h-12 rounded-xl border-2 text-sm font-medium transition-all duration-200 focus:ring-4 focus:ring-indigo-50 placeholder:text-gray-300 placeholder:font-normal ${
               errors.title
@@ -191,7 +228,6 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
           <ErrorMsg msg={errors.title} />
         </div>
 
-        {/* Department + Positions */}
         <div className="grid grid-cols-2 gap-5">
           <div>
             <FieldLabel required>Department</FieldLabel>
@@ -213,7 +249,10 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
                 max={99}
                 value={formData.positions}
                 onChange={(e) =>
-                  setFormData((p) => ({ ...p, positions: parseInt(e.target.value) || 1 }))
+                  setFormData((p) => ({
+                    ...p,
+                    positions: parseInt(e.target.value) || 1,
+                  }))
                 }
                 className={`h-12 rounded-xl border-2 text-sm font-medium transition-all duration-200 focus:ring-4 focus:ring-indigo-50 pr-16 ${
                   errors.positions
@@ -229,7 +268,6 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
           </div>
         </div>
 
-        {/* Employment Type */}
         <div>
           <FieldLabel required>
             <Briefcase className="w-3.5 h-3.5" /> Employment Type
@@ -237,22 +275,33 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
           <div className="grid grid-cols-4 gap-3">
             {jobTypes.map((t) => {
               const isSelected = formData.jobType === t.value;
-              const colorClasses: Record<string, { active: string; inactive: string }> = {
+              const colorClasses: Record<
+                string,
+                { active: string; inactive: string }
+              > = {
                 indigo: {
-                  active: "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-md shadow-indigo-100",
-                  inactive: "border-gray-200 text-gray-500 hover:border-indigo-300 hover:bg-indigo-50/40 hover:text-indigo-600",
+                  active:
+                    "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-md shadow-indigo-100",
+                  inactive:
+                    "border-gray-200 text-gray-500 hover:border-indigo-300 hover:bg-indigo-50/40 hover:text-indigo-600",
                 },
                 violet: {
-                  active: "border-violet-500 bg-violet-50 text-violet-700 shadow-md shadow-violet-100",
-                  inactive: "border-gray-200 text-gray-500 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-600",
+                  active:
+                    "border-violet-500 bg-violet-50 text-violet-700 shadow-md shadow-violet-100",
+                  inactive:
+                    "border-gray-200 text-gray-500 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-600",
                 },
                 amber: {
-                  active: "border-amber-500 bg-amber-50 text-amber-700 shadow-md shadow-amber-100",
-                  inactive: "border-gray-200 text-gray-500 hover:border-amber-300 hover:bg-amber-50/40 hover:text-amber-600",
+                  active:
+                    "border-amber-500 bg-amber-50 text-amber-700 shadow-md shadow-amber-100",
+                  inactive:
+                    "border-gray-200 text-gray-500 hover:border-amber-300 hover:bg-amber-50/40 hover:text-amber-600",
                 },
                 emerald: {
-                  active: "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-md shadow-emerald-100",
-                  inactive: "border-gray-200 text-gray-500 hover:border-emerald-300 hover:bg-emerald-50/40 hover:text-emerald-600",
+                  active:
+                    "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-md shadow-emerald-100",
+                  inactive:
+                    "border-gray-200 text-gray-500 hover:border-emerald-300 hover:bg-emerald-50/40 hover:text-emerald-600",
                 },
               };
               const cls = colorClasses[t.color];
@@ -260,7 +309,9 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
                 <button
                   key={t.value}
                   type="button"
-                  onClick={() => setFormData((p) => ({ ...p, jobType: t.value }))}
+                  onClick={() =>
+                    setFormData((p) => ({ ...p, jobType: t.value }))
+                  }
                   className={`flex flex-col items-center py-3.5 px-2 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
                     isSelected ? cls.active : cls.inactive
                   }`}
@@ -276,8 +327,7 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
           </div>
         </div>
 
-        {/* Location */}
-        <div className="p-5 bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl border border-gray-100">
+        <div className="p-5 bg-linear-to-br from-slate-50 to-gray-50 rounded-2xl border border-gray-100">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
               <MapPin className="w-3.5 h-3.5 text-blue-600" />
@@ -286,7 +336,9 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
               <p className="text-sm font-semibold text-gray-800">
                 Job Location <span className="text-red-400">*</span>
               </p>
-              <p className="text-xs text-gray-400">Where will this role be based?</p>
+              <p className="text-xs text-gray-400">
+                Where will this role be based?
+              </p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
@@ -303,7 +355,13 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
                       location: { ...p.location, [field]: e.target.value },
                     }))
                   }
-                  placeholder={field === "city" ? "Mumbai" : field === "state" ? "Maharashtra" : "India"}
+                  placeholder={
+                    field === "city"
+                      ? "Mumbai"
+                      : field === "state"
+                        ? "Maharashtra"
+                        : "India"
+                  }
                   className={`h-11 rounded-xl border-2 bg-white text-sm transition-all duration-200 focus:ring-4 focus:ring-blue-50 placeholder:text-gray-300 ${
                     errors[`location.${field}`]
                       ? "border-red-400 bg-red-50/50"
@@ -316,14 +374,15 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
           </div>
         </div>
 
-        {/* Remote Work Toggle — FIXED */}
         <div>
           <button
             type="button"
-            onClick={() => setFormData((p) => ({ ...p, isRemote: !p.isRemote }))}
+            onClick={() =>
+              setFormData((p) => ({ ...p, isRemote: !p.isRemote }))
+            }
             className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-300 text-left ${
               formData.isRemote
-                ? "border-emerald-400 bg-gradient-to-r from-emerald-50 to-teal-50"
+                ? "border-emerald-400 bg-linear-to-r from-emerald-50 to-teal-50"
                 : "border-gray-200 bg-gray-50/50 hover:border-gray-300 hover:bg-gray-50"
             }`}
           >
@@ -340,14 +399,18 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
                 )}
               </div>
               <div>
-                <p className={`font-semibold text-sm transition-colors duration-300 ${
-                  formData.isRemote ? "text-emerald-800" : "text-gray-700"
-                }`}>
+                <p
+                  className={`font-semibold text-sm transition-colors duration-300 ${
+                    formData.isRemote ? "text-emerald-800" : "text-gray-700"
+                  }`}
+                >
                   Remote Work Available
                 </p>
-                <p className={`text-xs mt-0.5 transition-colors duration-300 ${
-                  formData.isRemote ? "text-emerald-600" : "text-gray-400"
-                }`}>
+                <p
+                  className={`text-xs mt-0.5 transition-colors duration-300 ${
+                    formData.isRemote ? "text-emerald-600" : "text-gray-400"
+                  }`}
+                >
                   {formData.isRemote
                     ? "Candidates can work from anywhere in the world"
                     : "On-site presence required at the specified location"}
@@ -355,9 +418,8 @@ export default function Step1BasicInfo({ formData, setFormData, errors }: Props)
               </div>
             </div>
 
-            {/* Custom Toggle */}
             <div
-              className={`relative w-12 h-6 rounded-full transition-all duration-300 flex-shrink-0 ${
+              className={`relative w-12 h-6 rounded-full transition-all duration-300 shrink-0 ${
                 formData.isRemote ? "bg-emerald-500" : "bg-gray-300"
               }`}
             >

@@ -1,6 +1,8 @@
 import { Pencil, ChevronRight } from "lucide-react";
+import type { PlanFormData } from "../../hooks/Subscription.plans.Hooks/usePlanEditor";
+
 interface PlanHeaderProps {
-  formData: any;
+  formData: Pick<PlanFormData, "name" | "isPopular">;
   isEditMode: boolean;
 }
 

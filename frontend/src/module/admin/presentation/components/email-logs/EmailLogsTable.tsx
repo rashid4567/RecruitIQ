@@ -1,5 +1,6 @@
 import { Mail } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import type { EmailLog } from "../../../domain/entities/email-log.entity";
 import {
   Table,
   TableBody,
@@ -29,7 +30,7 @@ import { EmailLogsTableRow } from "./EmailLogsTableRow";
 import { EmailLogsSkeletonRow } from "./EmailLogsSkeletonRow";
 
 interface EmailLogsTableProps {
-  logs: any[];
+  logs: EmailLog[];
   loading: boolean;
   selectedIds: string[];
   onSelectAll: () => void;
@@ -60,7 +61,7 @@ export function EmailLogsTable({
 
   return (
     <Card className="border border-slate-200 shadow-sm overflow-hidden">
-      {/* Table Header */}
+
       <CardHeader className="bg-slate-50 px-6 py-5 border-b">
         <div className="flex justify-between items-center">
           <CardTitle className="text-xl font-semibold">Email Activity</CardTitle>
@@ -86,7 +87,7 @@ export function EmailLogsTable({
         </div>
       </CardHeader>
 
-      {/* Table */}
+
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -130,7 +131,7 @@ export function EmailLogsTable({
         </Table>
       </div>
 
-      {/* Pagination - Modern Style */}
+
       {pagination.totalPages > 1 && (
         <div className="px-6 py-5 bg-slate-50 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-sm text-slate-600">
@@ -165,7 +166,7 @@ export function EmailLogsTable({
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            {/* Page Numbers */}
+
             <div className="flex items-center gap-1 px-3">
               {Array.from({ length: Math.min(7, pagination.totalPages) }, (_, i) => {
                 const num =

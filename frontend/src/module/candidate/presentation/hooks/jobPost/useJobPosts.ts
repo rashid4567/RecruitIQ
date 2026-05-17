@@ -58,8 +58,9 @@ export function useJobPosts(): UseJobPostsReturn {
         limit: result.limit,
         totalPages: result.totalPages,
       });
-    } catch (err: any) {
-      setError(err.message ?? "Failed to fetch jobs");
+    } catch (err : unknown) {
+      const message = err instanceof Error ? err.message : "Failed to fetch jobs";
+      setError(message);
       console.error("Error fetching jobs:", err);
     } finally {
       setLoading(false);

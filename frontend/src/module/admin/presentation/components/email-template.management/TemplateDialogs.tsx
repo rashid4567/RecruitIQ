@@ -6,7 +6,6 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
@@ -33,11 +32,9 @@ export function TemplateDialogs({
 
   return (
     <>
-      {/* ===================== DELETE DIALOG ===================== */}
       <AlertDialog open={!!deleteId} onOpenChange={onDeleteClose}>
         <AlertDialogContent className="sm:max-w-md p-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
-          {/* Dark Gradient Header */}
-          <div className="relative bg-gradient-to-br from-rose-600 to-rose-700 px-8 pt-10 pb-8 overflow-hidden">
+          <div className="relative bg-linear-to-br from-rose-600 to-rose-700 px-8 pt-10 pb-8 overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-28 h-28 rounded-full bg-white/10 translate-y-1/2 -translate-x-1/2" />
 
@@ -54,10 +51,9 @@ export function TemplateDialogs({
             </div>
           </div>
 
-          {/* Body */}
           <div className="px-8 py-8 space-y-6 bg-white">
             <div className="text-slate-600 text-[15px] leading-relaxed">
-              Are you sure you want to permanently delete this email template? 
+              Are you sure you want to permanently delete this email template?
               All associated data will be lost.
             </div>
 
@@ -76,20 +72,25 @@ export function TemplateDialogs({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* ===================== TOGGLE DIALOG ===================== */}
       <AlertDialog open={!!toggleTemplate} onOpenChange={onToggleClose}>
         <AlertDialogContent className="sm:max-w-md p-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
-          {/* Dark Gradient Header */}
-          <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8 overflow-hidden">
+          {/* Dark linear Header */}
+          <div className="relative bg-linear-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8 overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-28 h-28 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
 
             <div className="relative flex flex-col items-center text-center">
               <div className="h-14 w-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-4">
                 {isActive ? (
-                  <ToggleLeft className="h-7 w-7 text-amber-400" strokeWidth={2} />
+                  <ToggleLeft
+                    className="h-7 w-7 text-amber-400"
+                    strokeWidth={2}
+                  />
                 ) : (
-                  <ToggleRight className="h-7 w-7 text-emerald-400" strokeWidth={2} />
+                  <ToggleRight
+                    className="h-7 w-7 text-emerald-400"
+                    strokeWidth={2}
+                  />
                 )}
               </div>
               <AlertDialogTitle className="text-2xl font-bold text-white">
@@ -103,7 +104,6 @@ export function TemplateDialogs({
             </div>
           </div>
 
-          {/* Body */}
           <div className="px-8 py-8 bg-white">
             <div className="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100">
               <Shield className="h-6 w-6 text-slate-400 mt-0.5 shrink-0" />
@@ -124,7 +124,7 @@ export function TemplateDialogs({
                   "flex-1 h-12 rounded-2xl font-semibold text-white shadow-lg",
                   isActive
                     ? "bg-amber-600 hover:bg-amber-700 shadow-amber-600/30"
-                    : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30"
+                    : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30",
                 )}
               >
                 {isActive ? "Deactivate Template" : "Activate Template"}

@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
+import type { CredentialResponse } from "@react-oauth/google";
 import type { SignInFormData } from "@/types/auth/auth.types";
 
 interface SignInFormProps {
@@ -21,7 +20,7 @@ interface SignInFormProps {
   onSubmit: (data: SignInFormData) => Promise<void>;
   isLoading: boolean;
   isAnyLoading: boolean;
-  onGoogleResponse: (response: any) => Promise<void>;
+  onGoogleResponse: (response: CredentialResponse) => Promise<void>;
   onError: (error: string) => void;
 }
 
@@ -49,7 +48,9 @@ export function SignInForm({
   });
   const [passwordScore, setPasswordScore] = useState(0);
 
-  const validateEmail = (email: string): { isValid: boolean; message?: string } => {
+  const validateEmail = (
+    email: string,
+  ): { isValid: boolean; message?: string } => {
     if (!email.trim()) {
       return { isValid: false, message: "Email is required" };
     }
@@ -194,7 +195,6 @@ export function SignInForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Email Field */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Email Address
@@ -226,7 +226,6 @@ export function SignInForm({
         )}
       </div>
 
-      {/* Password Field */}
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="block text-sm font-semibold text-gray-700">
@@ -254,7 +253,9 @@ export function SignInForm({
             onBlur={() => handleBlur("password")}
             data-error={!!fieldErrors.password}
             className={`w-full pl-10 pr-12 py-3.5 border ${
-              fieldErrors.password ? "border-red-300 bg-red-50" : "border-gray-300"
+              fieldErrors.password
+                ? "border-red-300 bg-red-50"
+                : "border-gray-300"
             } rounded-xl focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all duration-200`}
             disabled={isAnyLoading}
             autoComplete="current-password"
@@ -265,11 +266,14 @@ export function SignInForm({
             className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
             disabled={isAnyLoading}
           >
-            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
           </button>
         </div>
 
-        {/* Password Strength Indicator */}
         {formData.password && (
           <div className="mt-3 space-y-2 animate-slide-down">
             <div className="flex items-center justify-between">
@@ -297,7 +301,6 @@ export function SignInForm({
         )}
       </div>
 
-      {/* Remember Me */}
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <input
@@ -309,13 +312,15 @@ export function SignInForm({
             disabled={isAnyLoading}
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
-          <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
+          <label
+            htmlFor="rememberMe"
+            className="ml-2 block text-sm text-gray-700"
+          >
             Remember me for 30 days
           </label>
         </div>
       </div>
 
-      {/* Submit Button */}
       <button
         type="submit"
         disabled={isAnyLoading}
@@ -334,7 +339,6 @@ export function SignInForm({
         )}
       </button>
 
-      {/* SEPARATOR */}
       <div className="my-8 flex items-center">
         <div className="flex-1 border-t border-gray-300"></div>
         <span className="px-4 text-sm text-gray-500 font-medium">
@@ -343,7 +347,6 @@ export function SignInForm({
         <div className="flex-1 border-t border-gray-300"></div>
       </div>
 
-      {/* SOCIAL SIGN IN */}
       <div className="space-y-4">
         <div className="w-full flex justify-center">
           <GoogleLogin
@@ -356,8 +359,6 @@ export function SignInForm({
             logo_alignment="center"
           />
         </div>
-
-      
       </div>
     </form>
   );

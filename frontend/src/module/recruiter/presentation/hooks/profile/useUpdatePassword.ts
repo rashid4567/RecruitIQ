@@ -30,8 +30,8 @@ export function useUpdatePassword() {
 
       resetForm();
       return true;
-    } catch (error: any) {
-      const message = error?.response?.data?.message || error?.message || "Failed to update password";
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to update password';
       toast.error(message);
       return false;
     } finally {

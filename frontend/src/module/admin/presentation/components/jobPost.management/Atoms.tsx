@@ -1,33 +1,9 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import type { JobStatus, JobType } from "../../../domain/entities/jobpost.entity"
-
-
-export const formatDate = (d?: string) =>
-  d
-    ? new Date(d).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-    : "—";
-
-export const formatSalary = (s: { currency: string; min: number; max: number }) =>
-  `${s.currency} ${s.min.toLocaleString()} – ${s.max.toLocaleString()}`;
-
-export const locationLabel = (
-  loc: { city: string; state: string; country: string },
-  isRemote: boolean
-) => {
-  if (isRemote) return "Remote";
-  return (
-    [loc.city, loc.state, loc.country].filter(Boolean).join(", ") ||
-    "Not specified"
-  );
-};
-
-export const expRange = (min: number, max: number) => `${min} – ${max} yrs`;
-
+import type {
+  JobStatus,
+  JobType,
+} from "../../../domain/entities/jobpost.entity";
 
 interface StatusBadgeProps {
   status: JobStatus;
@@ -66,7 +42,7 @@ export function StatusBadge({ status, isBlocked }: StatusBadgeProps) {
     <span
       className={cn(
         "inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full border",
-        c.cls
+        c.cls,
       )}
     >
       <span className={cn("w-1.5 h-1.5 rounded-full", c.dot)} />
@@ -99,7 +75,7 @@ export function TypeBadge({ jobType, isRemote }: TypeBadgeProps) {
     <span
       className={cn(
         "px-2.5 py-1 text-xs font-semibold rounded-lg border",
-        cfg[jobType] ?? "bg-gray-50 text-gray-700 border-gray-200"
+        cfg[jobType] ?? "bg-gray-50 text-gray-700 border-gray-200",
       )}
     >
       {jobType.charAt(0).toUpperCase() + jobType.slice(1)}
@@ -113,7 +89,11 @@ interface SkillBadgesProps {
   variant?: "required" | "preferred";
 }
 
-export function SkillBadges({ skills, max = 3, variant = "required" }: SkillBadgesProps) {
+export function SkillBadges({
+  skills,
+  max = 3,
+  variant = "required",
+}: SkillBadgesProps) {
   const shown = skills.slice(0, max);
   const rest = skills.length - max;
 
@@ -130,12 +110,13 @@ export function SkillBadges({ skills, max = 3, variant = "required" }: SkillBadg
         </Badge>
       ))}
       {rest > 0 && (
-        <span className="text-xs text-slate-400 flex items-center">+{rest}</span>
+        <span className="text-xs text-slate-400 flex items-center">
+          +{rest}
+        </span>
       )}
     </div>
   );
 }
-
 
 export function ApplicationsBar({ count }: { count: number }) {
   const pct = Math.min((count / 100) * 100, 100);

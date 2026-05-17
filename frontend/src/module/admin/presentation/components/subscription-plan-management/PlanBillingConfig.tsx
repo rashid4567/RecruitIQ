@@ -5,14 +5,18 @@ import type { PlanFormData } from "../../hooks/Subscription.plans.Hooks/usePlanE
 interface PlanBillingConfigProps {
   formData: PlanFormData;
   errors: Record<string, string>;
-  handleChange: (field: keyof PlanFormData, value: any) => void;
+  handleChange: (field: keyof PlanFormData, value: string | number) => void;
 }
 
 function ErrorMsg({ message }: { message?: string }) {
   if (!message) return null;
   return (
     <p className="flex items-center gap-1.5 mt-1.5 text-sm text-red-600">
-      <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+      <svg
+        className="h-3.5 w-3.5 shrink-0"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+      >
         <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.75 3.75a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-3.5zm.75 6.5a.875.875 0 1 1 0-1.75.875.875 0 0 1 0 1.75z" />
       </svg>
       {message}
@@ -75,7 +79,9 @@ export default function PlanBillingConfig({
             {errors.billingInterval ? (
               <ErrorMsg message={errors.billingInterval} />
             ) : (
-              <p className="text-xs text-zinc-400 mt-1">e.g. 1 = every 1 month</p>
+              <p className="text-xs text-zinc-400 mt-1">
+                e.g. 1 = every 1 month
+              </p>
             )}
           </div>
         </div>
@@ -112,7 +118,7 @@ export default function PlanBillingConfig({
             onChange={(e) => handleChange("razorpayPlanId", e.target.value)}
             disabled={formData.planType === "free"}
             className={`font-mono text-sm disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400 ${fieldCls(
-              "razorpayPlanId"
+              "razorpayPlanId",
             )}`}
             placeholder="plan_XXXXXXXXXXXX"
           />

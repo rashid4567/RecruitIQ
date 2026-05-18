@@ -64,15 +64,12 @@ export class Recruiter {
   canBeVerified(): boolean {
     return this.verificationStatus === "pending";
   }
-
   canBeRejected(): boolean {
     return this.verificationStatus === "pending";
   }
-
   canBeActivated(): boolean {
     return !this.isActive;
   }
-
   verify(): Recruiter {
     if (!this.canBeVerified()) throw new Error("Cannot verify recruiter");
     return Recruiter.fromPersistence({
@@ -80,7 +77,6 @@ export class Recruiter {
       verificationStatus: "verified",
     });
   }
-
   reject(): Recruiter {
     if (!this.canBeRejected()) throw new Error("Cannot reject recruiter");
     return Recruiter.fromPersistence({

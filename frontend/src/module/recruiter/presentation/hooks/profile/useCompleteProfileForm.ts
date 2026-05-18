@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { completeProfileUC } from "../di/recruiter.di";
+import { completeProfileUC } from "../../di/recruiter.di";
 
 interface FormData {
   companyName: string;

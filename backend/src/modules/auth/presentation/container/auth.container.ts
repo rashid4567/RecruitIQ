@@ -3,7 +3,7 @@ import { PasswordHasherPort } from "../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../../application/ports/token.service.ports";
 
 import { AdminLoginUseCase } from "../../application/useCase/auth/admin-login.usecase";
-import { GoogleLoginUseCase } from "../../application/useCase/google/google-login.usecase"; 
+import { GoogleLoginUseCase } from "../../application/useCase/google/google-login.usecase";
 import { LoginUseCase } from "../../application/useCase/auth/login.useCase";
 import { RefreshTokenUseCase } from "../../application/useCase/token/refreshToken.useCase";
 import { SendRegistrationOTPUseCase } from "../../application/useCase/registration/send-registration-otp.usecase";
@@ -44,7 +44,6 @@ const otpService = new OTPService();
 const emailService = new EmailService();
 const activityTracker = new ActivityTrackerService();
 
-
 const sendOtpUC = new SendRegistrationOTPUseCase(userRepo, otpService);
 
 const verifyRegistrationUC = new VerifyRegistrationUseCase(
@@ -52,8 +51,8 @@ const verifyRegistrationUC = new VerifyRegistrationUseCase(
   otpService,
   passwordPort,
   tokenService,
-  activityTracker, 
-  sendEmailByEventUC, 
+  activityTracker,
+  sendEmailByEventUC,
 );
 
 const loginUC = new LoginUseCase(userRepo, passwordPort, tokenService);

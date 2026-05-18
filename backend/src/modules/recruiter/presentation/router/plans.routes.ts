@@ -15,26 +15,23 @@ import {
   recordPaymentController,
   recordFailedPaymentController,
   updateBillingStatusController,
-} from "../../subscription.module";
+} from "../container/subscription.module";
 
 const router = Router();
 
-// Plans
 router.get("/plans",         getAllPlansController.getActivePlans);
 router.get("/plans/:planId", getPlanDetailController.getPlanDetail);
 
-// Payment — just these two, no webhook
+
 router.post("/payment/create-subscription", createSubscriptionController.createSubscription);
 router.post("/payment/verify",              verifyPaymentController.verifyPayment);
 
-// Subscriptions
 router.get( "/subscriptions/current",      getCurrentSubscriptionController.getCurrentSubscription);
 router.post("/subscriptions/cancel",       cancelSubscriptionController.cancelSubscription);
 router.post("/subscriptions/change-plan",  changePlanController.changePlan);
 router.post("/subscriptions/renew",        renewSubscriptionController.renewSubscription);
 router.patch("/subscriptions/usage",       trackUsageController.trackUsage);
 
-// Billing
 router.get( "/billing/history",                 getBillingHistoryController.getBillingHistory);
 router.get( "/billing/total-spend",             getTotalSpendController.getTotalSpend);
 router.get( "/billing/:billingRecordId",         getBillingRecordDetailController.getBillingRecordDetail);

@@ -32,15 +32,22 @@ export function useRecruiters() {
     total: 0,
     totalPages: 1,
   });
-
-  const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
+  const [actionLoading, setActionLoading] = useState<Record<string, boolean>>(
+    {},
+  );
+  useEffect(() => {
+    setPagination((p) => ({ ...p, page: 1 }));
+  }, [debouncedSearch, tab]);
 
   const fetchRecruiters = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const query: RecruiterQuery = { page: pagination.page, limit: pagination.limit };
+      const query: RecruiterQuery = {
+        page: pagination.page,
+        limit: pagination.limit,
+      };
       if (debouncedSearch) query.search = debouncedSearch;
       if (tab !== "all") {
         if (tab === "pending") query.verificationStatus = "pending";
@@ -57,13 +64,18 @@ export function useRecruiters() {
         totalPages: res.total ? Math.ceil(res.total / p.limit) : 1,
       }));
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load recruiters";
+      const msg =
+        err instanceof Error ? err.message : "Failed to load recruiters";
       setError(msg);
       toast.error(msg);
     } finally {
       setLoading(false);
     }
   }, [pagination.page, pagination.limit, debouncedSearch, tab]);
+
+  const setPage = useCallback((page: number) => {
+    setPagination((p) => ({ ...p, page }));
+  }, []);
 
   const performAction = async (recruiter: Recruiter, action: string) => {
     const id = recruiter.id;
@@ -110,6 +122,7 @@ export function useRecruiters() {
     setTab,
     pagination,
     setPagination,
+    setPage,
     actionLoading,
     performAction,
     fetchRecruiters,

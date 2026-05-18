@@ -59,6 +59,7 @@ export default function RecruiterManagement() {
             loading={recruitersData.loading}
             pagination={recruitersData.pagination}
             actionLoading={recruitersData.actionLoading}
+            onPageChange={(page) => recruitersData.setPage(page)}
             onAction={handleAction}
             onViewProfile={handleViewProfile}
           />
@@ -69,7 +70,9 @@ export default function RecruiterManagement() {
           recruiter={confirm.recruiter}
           action={confirm.action}
           onConfirm={handleConfirmAction}
-          onCancel={() => setConfirm({ open: false, recruiter: null, action: null })}
+          onCancel={() =>
+            setConfirm({ open: false, recruiter: null, action: null })
+          }
         />
       </div>
     </div>

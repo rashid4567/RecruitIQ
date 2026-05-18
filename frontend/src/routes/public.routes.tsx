@@ -34,29 +34,20 @@ const PublicRoutes = () => {
     <Suspense fallback={<RouteLoader />}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-
         <Route path="/role-selection" element={<RoleSelection />} />
-
         <Route path="/signin" element={<SignIn />} />
-
         <Route path="/signup" element={<Signup />} />
-
         <Route path="/verify-otp" element={<VerifyOTP />} />
-
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
         <Route path="/reset-password" element={<ResetPassword />} />
-
         <Route
           path="/candidate/signup"
           element={<NavigateToSignupWithRole role="candidate" />}
         />
-
         <Route
           path="/recruiter/signup"
           element={<NavigateToSignupWithRole role="recruiter" />}
         />
-
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>

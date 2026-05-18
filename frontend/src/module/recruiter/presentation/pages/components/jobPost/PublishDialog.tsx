@@ -141,7 +141,7 @@ export default function PublishDialog({
       <DialogContent className="sm:max-w-md bg-white rounded-3xl p-0 shadow-2xl border border-gray-100">
         <AnimatePresence mode="wait">
 
-          {/* ── Confirm ─────────────────────────────────────────────────────── */}
+      
           {state === "confirm" && (
             <motion.div
               key="confirm"
@@ -174,7 +174,7 @@ export default function PublishDialog({
               {isEditMode ? (
            
                 <div className="space-y-3 mb-6">
-                  {/* Save as Draft */}
+          
                   <button
                     onClick={handleSaveDraft}
                     className="w-full text-left p-4 rounded-2xl border-2 border-indigo-100 bg-indigo-50 hover:border-indigo-300 hover:bg-indigo-100 transition-all duration-200 group"
@@ -195,7 +195,6 @@ export default function PublishDialog({
                     </div>
                   </button>
 
-                  {/* Save & Publish */}
                   <button
                     onClick={handlePublish}
                     className="w-full text-left p-4 rounded-2xl border-2 border-emerald-100 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100 transition-all duration-200 group"
@@ -252,7 +251,7 @@ export default function PublishDialog({
             </motion.div>
           )}
 
-          {/* ── Publishing ──────────────────────────────────────────────────── */}
+        
           {state === "publishing" && (
             <motion.div
               key="publishing"
@@ -272,7 +271,7 @@ export default function PublishDialog({
             </motion.div>
           )}
 
-          {/* ── Success ─────────────────────────────────────────────────────── */}
+  
           {state === "success" && (
             <motion.div
               key="success"
@@ -307,7 +306,6 @@ export default function PublishDialog({
             </motion.div>
           )}
 
-          {/* ── Error ───────────────────────────────────────────────────────── */}
           {state === "error" && (
             <motion.div
               key="error"

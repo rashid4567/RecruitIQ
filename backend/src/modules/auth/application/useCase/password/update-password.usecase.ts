@@ -21,9 +21,11 @@ export class UpdatePasswordUseCase {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    if (!user.isLocalUser()) {
-      throw new ApplicationError(ERROR_CODES.PASSWORD_CHANGE_NOT_ALLOWED);
-    }
+   if (!user.isLocalUser()) {
+  throw new ApplicationError(
+    ERROR_CODES.GOOGLE_ACCOUNT_PASSWORD_CHANGE_NOT_ALLOWED
+  );
+}
 
     const currentPassword = Password.create(params.current);
     const nextPassword = Password.create(params.next);

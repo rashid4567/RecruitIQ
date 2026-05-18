@@ -43,7 +43,7 @@ export function AccountInfoCard({
 
   return (
     <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-      {/* ── Card header ─────────────────────────────────────────── */}
+  
       <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-100 bg-slate-50/60">
         <div className="h-7 w-7 rounded-lg bg-emerald-100 flex items-center justify-center">
           <Shield className="h-3.5 w-3.5 text-emerald-600" />
@@ -52,19 +52,19 @@ export function AccountInfoCard({
       </div>
 
       <div className="p-5 space-y-4">
-        {/* ── Email row ────────────────────────────────────────────── */}
+
         <button
           type="button"
           onClick={onEmailUpdateClick}
           className="group w-full text-left rounded-xl border border-slate-200 bg-slate-50/50 hover:border-blue-300 hover:bg-blue-50/40 transition-all duration-200 p-4"
         >
           <div className="flex items-center gap-3">
-            {/* Icon */}
+          
             <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0 group-hover:bg-blue-200 transition-colors">
               <Mail className="h-4.5 w-4.5 text-blue-600" />
             </div>
 
-            {/* Text */}
+    
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-slate-500 mb-0.5">Email address</p>
               <p
@@ -81,7 +81,7 @@ export function AccountInfoCard({
               </div>
             </div>
 
-            {/* Arrow */}
+    
             <div className="flex items-center gap-2 shrink-0">
               <span className="text-xs font-semibold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
                 Update
@@ -91,9 +91,9 @@ export function AccountInfoCard({
           </div>
         </button>
 
-        {/* ── Stats row ────────────────────────────────────────────── */}
+
         <div className="grid grid-cols-2 gap-3">
-          {/* Job Posts */}
+      
           <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
@@ -109,7 +109,6 @@ export function AccountInfoCard({
             <p className="text-xs text-slate-500 mt-1">Job posts</p>
           </div>
 
-          {/* Plan */}
           <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
             <div className="flex items-center justify-between mb-3">
               <div className={`h-8 w-8 rounded-lg ${plan.bg} flex items-center justify-center`}>
@@ -126,7 +125,7 @@ export function AccountInfoCard({
           </div>
         </div>
 
-        {/* ── Plan badge / upgrade prompt ──────────────────────────── */}
+       
         {subscriptionStatus?.toLowerCase() === "free" ? (
           <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-3.5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">

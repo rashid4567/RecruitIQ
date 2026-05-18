@@ -1,5 +1,5 @@
-import type { CandidateRepository } from "../../domain/repositories/candidate.repository";
-import type { GetCandidatesQuery } from "../dto/get-candidates.query";
+import type { CandidateRepository } from "@/module/admin/domain/repositories/candidate.repository";
+import type { GetCandidatesQuery } from "../../dto/get-candidates.query"; 
 
 export class GetCandidateListUseCase{
     private readonly candiateRepo : CandidateRepository

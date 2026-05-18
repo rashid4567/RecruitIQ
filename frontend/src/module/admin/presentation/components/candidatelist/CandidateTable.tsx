@@ -43,7 +43,7 @@ export function CandidateTable({
           </CardDescription>
         </CardHeader>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px]">
+          <table className="w-full min-w-225">
             <TableHeader />
             <tbody className="divide-y divide-slate-100 bg-white">
               {Array(5).fill(0).map((_, i) => <CandidateSkeleton key={i} />)}
@@ -91,7 +91,7 @@ export function CandidateTable({
       </CardHeader>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px]">
+        <table className="w-full min-w-225">
           <TableHeader />
           <tbody className="divide-y divide-slate-100 bg-white">
             {candidates.map((candidate) => (

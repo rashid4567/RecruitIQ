@@ -5,7 +5,7 @@ import {
   candidateController,
   getprofileController,
   updateprofileController,
-} from "../../candidate.module";
+} from "../container/candidate.module"
 import jobPostRouter from "./jobPost.routes";
 
 const router = Router();

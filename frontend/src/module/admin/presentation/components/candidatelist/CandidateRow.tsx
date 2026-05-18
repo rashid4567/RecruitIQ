@@ -63,8 +63,8 @@ export function CandidateRow({
     return Math.max(0, (candidate.skills?.length || 0) - 3);
   };
 
-  const getLocation = (candidate: Candidate): string =>
-    candidate.location || "—";
+  const getLocation = (candidate: Candidate): string[] =>
+    candidate.preferredJobLocations || "—";
 
   return (
     <tr className="hover:bg-indigo-50/30 transition-colors duration-200 group">
@@ -118,7 +118,7 @@ export function CandidateRow({
       <td className="px-5 py-5 text-slate-700 text-sm">
         <div className="flex items-center gap-2">
           <Briefcase className="h-4 w-4 text-slate-400" />
-          {getExperienceDisplay(candidate.experience)}
+          {getExperienceDisplay(candidate.experienceYears)}
         </div>
       </td>
 

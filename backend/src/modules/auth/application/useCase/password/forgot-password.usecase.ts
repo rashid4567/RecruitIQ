@@ -18,23 +18,22 @@ export class ForgotPasswordUseCase {
 
     const user = await this.userRepo.findByEmail(email);
     if (!user) {
-      return;
+     throw new ApplicationError(
+        ERROR_CODES.USER_NOT_FOUND
+      );
     }
-
-    if(!user.id){
-      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND)
+    if (!user.id) {
+      throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND);
     }
 
     if (!user.authProvider.isLocal()) {
-      throw new ApplicationError(ERROR_CODES.PASSWORD_RESET_NOT_ALLOWED);
+      throw new ApplicationError(
+        ERROR_CODES.GOOGLE_ACCOUNT_PASSWORD_RESET_NOT_ALLOWED,
+      );
     }
 
-    const token =
-      this.tokenService.generatePasswordResetToken(user.id);
+    const token = this.tokenService.generatePasswordResetToken(user.id);
 
-    await this.emailService.sendPasswordResetLink(
-      email.getValue(),
-      token,
-    );
+    await this.emailService.sendPasswordResetLink(email.getValue(), token);
   }
 }

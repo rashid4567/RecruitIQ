@@ -33,7 +33,6 @@ import {
 import type { JobCardProps } from "../../../types/jobCard.types";
 import { useDeleteJobPost } from "../../../hooks/jobPost/useDeleteJopPost";
 
-// ── Status config with Blocked included ─────────────────────────────────────
 type JobStatus = "Active" | "Paused" | "Expired" | "Draft" | "Blocked";
 
 const statusConfig: Record<
@@ -115,7 +114,6 @@ const applicantStatusConfig: Record<
 
 type DeleteState = "idle" | "confirm" | "deleting" | "error";
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
 function SectionTitle({
   icon,
   children,
@@ -133,7 +131,6 @@ function SectionTitle({
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
 export default function QuickViewModal({
   job,
   isOpen,
@@ -191,30 +188,24 @@ export default function QuickViewModal({
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 transition-opacity"
         onClick={onClose}
       />
 
-      {/* Drawer */}
       <div
         className="fixed right-0 top-0 h-full w-full max-w-170 bg-white shadow-2xl z-50 flex flex-col"
         style={{ animation: "drawerSlideIn 0.28s cubic-bezier(0.32,0.72,0,1)" }}
       >
-        {/* ── Header ── */}
         <div className="relative px-7 pt-7 pb-5 border-b border-gray-100 shrink-0">
-          {/* Top linear bar */}
           <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-indigo-500 via-violet-500 to-blue-500" />
 
           <div className="flex items-start gap-4">
-            {/* Job Icon */}
             <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-indigo-100 to-violet-100 flex items-center justify-center shrink-0 mt-0.5">
               <Briefcase className="w-5 h-5 text-indigo-600" />
             </div>
 
             <div className="flex-1 min-w-0">
-              {/* Badges row */}
               <div className="flex items-center flex-wrap gap-1.5 mb-2">
                 <span
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border ${status.bg} ${status.text} ${status.badge}`}
@@ -241,7 +232,6 @@ export default function QuickViewModal({
                 {job.title}
               </h2>
 
-              {/* Meta line */}
               <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2">
                 {[
                   {
@@ -278,7 +268,6 @@ export default function QuickViewModal({
           </div>
         </div>
 
-        {/* ── Tabs ── */}
         <div className="flex gap-0 border-b border-gray-100 px-7 bg-white shrink-0">
           {(["overview", "applicants"] as const).map((tab) => (
             <button
@@ -313,12 +302,9 @@ export default function QuickViewModal({
           ))}
         </div>
 
-        {/* ── Scrollable Body ── */}
         <div className="flex-1 overflow-y-auto">
-          {/* ══ OVERVIEW TAB ══ */}
           {activeTab === "overview" && (
             <div className="p-7 space-y-7">
-              {/* Stats Grid */}
               <div className="grid grid-cols-4 gap-3">
                 {[
                   {
@@ -365,7 +351,6 @@ export default function QuickViewModal({
                 ))}
               </div>
 
-              {/* Conversion Rate */}
               <div className="flex items-center gap-4 px-5 py-3.5 bg-linear-to-r from-indigo-50 to-violet-50 rounded-2xl border border-indigo-100/60">
                 <TrendingUp className="w-4 h-4 text-indigo-500 shrink-0" />
                 <span className="text-xs font-semibold text-indigo-700 shrink-0">
@@ -384,7 +369,6 @@ export default function QuickViewModal({
                 </span>
               </div>
 
-              {/* Description */}
               {job.description && (
                 <div>
                   <SectionTitle icon={<Briefcase className="w-3.5 h-3.5" />}>
@@ -396,7 +380,6 @@ export default function QuickViewModal({
                 </div>
               )}
 
-              {/* Responsibilities */}
               {job.responsibilities?.length > 0 && (
                 <div>
                   <SectionTitle icon={<ListChecks className="w-3.5 h-3.5" />}>
@@ -418,7 +401,6 @@ export default function QuickViewModal({
                 </div>
               )}
 
-              {/* Requirements */}
               {job.requirements?.length > 0 && (
                 <div>
                   <SectionTitle icon={<CheckCircle2 className="w-3.5 h-3.5" />}>
@@ -440,7 +422,6 @@ export default function QuickViewModal({
                 </div>
               )}
 
-              {/* Skills */}
               <div className="grid grid-cols-2 gap-5">
                 <div>
                   <SectionTitle icon={<Layers className="w-3.5 h-3.5" />}>
@@ -484,7 +465,6 @@ export default function QuickViewModal({
                 </div>
               </div>
 
-              {/* Meta Grid */}
               <div>
                 <SectionTitle icon={<Building2 className="w-3.5 h-3.5" />}>
                   Job Details
@@ -544,7 +524,6 @@ export default function QuickViewModal({
             </div>
           )}
 
-          {/* ══ APPLICANTS TAB ══ */}
           {activeTab === "applicants" && (
             <div className="p-7">
               {job.applicants && job.applicants.length > 0 ? (
@@ -566,10 +545,6 @@ export default function QuickViewModal({
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
-                              {/* <div>
-                                <h4 className="font-bold text-gray-900 text-sm leading-tight">{applicant.name}</h4>
-                                <p className="text-xs text-gray-500 mt-0.5">{applicant.experience}</p>
-                              </div> */}
                               <span
                                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg shrink-0 ${appStatus.bg} ${appStatus.text}`}
                               >
@@ -636,9 +611,7 @@ export default function QuickViewModal({
           )}
         </div>
 
-        {/* ── Footer ── */}
         <div className="border-t border-gray-100 bg-gray-50/60 shrink-0">
-          {/* Delete confirmation banner */}
           {deleteState !== "idle" && (
             <div
               className={`px-6 py-3.5 border-b flex items-center gap-3 transition-all ${
@@ -700,7 +673,6 @@ export default function QuickViewModal({
             </div>
           )}
 
-          {/* Action buttons */}
           <div className="p-5 flex items-center gap-3">
             <button
               onClick={handleEdit}

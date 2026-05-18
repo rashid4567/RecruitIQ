@@ -20,6 +20,19 @@ interface BioSectionProps {
 
 const MAX_BIO_LENGTH = 500;
 
+function FieldError({ message, id }: { message?: string; id?: string }) {
+  if (!message) return null;
+  return (
+    <p
+      id={id}
+      className="flex items-center gap-1 text-xs text-red-500 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-150"
+    >
+      <AlertCircle className="h-3 w-3 shrink-0" />
+      {message}
+    </p>
+  );
+}
+
 export function BioSection({
   isEditing,
   profile,
@@ -37,17 +50,17 @@ export function BioSection({
   const valid = isFieldValid("bio");
 
   const textareaClass = [
-    "w-full p-4 rounded-lg border min-h-[120px] resize-y transition-colors",
+    "w-full p-4 rounded-lg border min-h-[120px] resize-y transition-colors text-sm",
     "focus:outline-none focus:ring-2",
     error
-      ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+      ? "border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50/30"
       : valid
         ? "border-green-400 focus:border-green-500 focus:ring-green-500/20"
         : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20",
   ].join(" ");
 
   const counterClass = [
-    "text-xs px-2 py-1 rounded-full",
+    "text-xs px-2 py-1 rounded-full font-medium",
     remaining < 20
       ? "text-red-600 bg-red-50"
       : remaining < 80
@@ -67,7 +80,6 @@ export function BioSection({
       <div className="space-y-2">
         {isEditing ? (
           <div className="space-y-1.5">
-            {/* Textarea */}
             <div className="relative">
               <textarea
                 value={currentValue}
@@ -80,6 +92,7 @@ export function BioSection({
                 aria-describedby={error ? "bio-error" : undefined}
               />
 
+              {/* Status icon top-right */}
               {error && (
                 <AlertCircle className="absolute top-3 right-3 h-4 w-4 text-red-500 pointer-events-none" />
               )}
@@ -88,26 +101,17 @@ export function BioSection({
               )}
             </div>
 
+            {/* Error + counter row */}
             <div className="flex items-center justify-between">
-              {error ? (
-                <p
-                  id="bio-error"
-                  className="flex items-center gap-1 text-xs text-red-500 animate-in fade-in slide-in-from-top-1 duration-150"
-                >
-                  <AlertCircle className="h-3 w-3 shrink-0" />
-                  {error}
-                </p>
-              ) : (
-                <span />
-              )}
-
+              <FieldError message={error} id="bio-error" />
+              {!error && <span />}
               <span className={counterClass}>
                 {charCount}/{MAX_BIO_LENGTH}
               </span>
             </div>
           </div>
         ) : (
-          <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-slate-700 leading-relaxed whitespace-pre-wrap">
+          <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-slate-700 leading-relaxed whitespace-pre-wrap text-sm">
             {profile.bio || (
               <span className="text-slate-400 italic">No bio provided</span>
             )}

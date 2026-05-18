@@ -46,7 +46,7 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
 
   async findActiveByRecruiterId(
     recruiterId: string,
-  ): Promise<RecruiterSubscription | null>{
+  ): Promise<RecruiterSubscription | null> {
     if (!Types.ObjectId.isValid(recruiterId)) {
       return null;
     }
@@ -133,13 +133,13 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
   }
 
   async findExpiredActive(): Promise<RecruiterSubscription[]> {
-  const docs = await RecruiterSubscriptionModel.find({
-    status: { $in: [SubscriptionStatus.Active, SubscriptionStatus.Trialing] },
-    endDate: { $lte: new Date() },
-  });
+    const docs = await RecruiterSubscriptionModel.find({
+      status: { $in: [SubscriptionStatus.Active, SubscriptionStatus.Trialing] },
+      endDate: { $lte: new Date() },
+    });
 
-  return docs.map((doc) => this.toEntity(doc));
-}
+    return docs.map((doc) => this.toEntity(doc));
+  }
 
   async findExpiringWithin(days: number): Promise<RecruiterSubscription[]> {
     const now = new Date();

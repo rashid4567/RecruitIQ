@@ -24,10 +24,13 @@ interface BasicInfoSectionProps {
   isFieldValid: (field: keyof ProfileFormData) => boolean;
 }
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({ message, id }: { message?: string; id?: string }) {
   if (!message) return null;
   return (
-    <p className="flex items-center gap-1 text-xs text-red-500 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+    <p
+      id={id}
+      className="flex items-center gap-1 text-xs text-red-500 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-150"
+    >
       <AlertCircle className="h-3 w-3 shrink-0" />
       {message}
     </p>
@@ -36,7 +39,7 @@ function FieldError({ message }: { message?: string }) {
 
 function inputClass(error?: string, valid?: boolean) {
   if (error)
-    return "pl-10 h-12 border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 pr-10";
+    return "pl-10 h-12 border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 pr-10 bg-red-50/30";
   if (valid)
     return "pl-10 h-12 border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 pr-10";
   return "pl-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
@@ -77,6 +80,7 @@ export function BasicInfoSection({
       <SectionHeader icon={<User />} title="Basic Information" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Full Name */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <User className="h-4 w-4 text-blue-500" />
@@ -97,21 +101,21 @@ export function BasicInfoSection({
                   className={inputClass(fullNameError, fullNameValid)}
                   aria-required
                   aria-invalid={!!fullNameError}
-                  aria-describedby={
-                    fullNameError ? "fullName-error" : undefined
-                  }
+                  aria-describedby={fullNameError ? "fullName-error" : undefined}
                 />
                 <User className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 group-hover:text-blue-500 transition-colors pointer-events-none" />
                 <TrailingIcon error={fullNameError} valid={fullNameValid} />
               </div>
-              <FieldError message={fullNameError} />
+              <FieldError message={fullNameError} id="fullName-error" />
             </div>
           ) : (
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900">
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900 text-sm">
               {profile.fullName}
             </div>
           )}
         </div>
+
+        {/* Email */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <Mail className="h-4 w-4 text-blue-500" />

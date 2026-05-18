@@ -3,7 +3,7 @@ import {
   completeProfileController,
   getRecruiterProfile,
   updaterecruiterController,
-} from "../../recruiter.module";
+} from "../container/recruiter.module";
 import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
 import { checkUserActive } from "../../../../middlewares/checkUserActive.middleware";
 import jobPostRouter from "./jobPost.routes";

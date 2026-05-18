@@ -43,9 +43,7 @@ function mapDtoToSubscriptionPlan(
   });
 }
 
-export class ApiSubscriptionPlanRepository
-  implements SubscriptionPlanRepository
-{
+export class ApiSubscriptionPlanRepository implements SubscriptionPlanRepository {
   async getPlans(query: {
     page: number;
     limit: number;
@@ -64,10 +62,7 @@ export class ApiSubscriptionPlanRepository
       data?.data ??
       [];
 
-    const total: number =
-      data?.data?.total ??
-      data?.total ??
-      rawPlans.length;
+    const total: number = data?.data?.total ?? data?.total ?? rawPlans.length;
 
     return {
       plans: rawPlans.map(mapDtoToSubscriptionPlan),
@@ -75,9 +70,7 @@ export class ApiSubscriptionPlanRepository
     };
   }
 
-  async getPlanById(
-    planId: string,
-  ): Promise<SubscriptionPlan | null> {
+  async getPlanById(planId: string): Promise<SubscriptionPlan | null> {
     try {
       const { data } = await api.get(`/admin/plans/${planId}`);
 
@@ -91,9 +84,7 @@ export class ApiSubscriptionPlanRepository
     }
   }
 
-  async getPlanByType(
-    planType: PlanType,
-  ): Promise<SubscriptionPlan | null> {
+  async getPlanByType(planType: PlanType): Promise<SubscriptionPlan | null> {
     try {
       const { data } = await api.get("/admin/plans", {
         params: {
@@ -122,20 +113,13 @@ export class ApiSubscriptionPlanRepository
     }
   }
 
-  async create(
-    plan: SubscriptionPlan,
-  ): Promise<SubscriptionPlan> {
-    const { data } = await api.post(
-      "/admin/plans",
-      plan.toPrimitives(),
-    );
+  async create(plan: SubscriptionPlan): Promise<SubscriptionPlan> {
+    const { data } = await api.post("/admin/plans", plan.toPrimitives());
 
     return mapDtoToSubscriptionPlan(data.data);
   }
 
-  async update(
-    plan: SubscriptionPlan,
-  ): Promise<SubscriptionPlan> {
+  async update(plan: SubscriptionPlan): Promise<SubscriptionPlan> {
     const { data } = await api.put(
       `/admin/plans/${plan.id}`,
       plan.toPrimitives(),

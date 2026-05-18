@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   getJobPostByIdController,
   getJobPostController,
-} from "../../jobPost.module";
+} from "../container/jobPost.module";
 
 const jobPostRouter = Router();
 

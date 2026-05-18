@@ -42,10 +42,10 @@ export default function Sidebar({ activeItem }: SidebarProps) {
 
   return (
     <aside className="w-64 bg-white border-r border-slate-100 flex flex-col h-screen sticky top-0 shadow-sm">
-      {/* ── Logo ──────────────────────────────────────────────── */}
+   
       <div className="px-5 py-5 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-200">
+          <div className="w-9 h-9 bg-linear-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-200">
             <Zap className="w-4.5 h-4.5 text-white" />
           </div>
           <div>
@@ -59,7 +59,6 @@ export default function Sidebar({ activeItem }: SidebarProps) {
         </div>
       </div>
 
-      {/* ── Nav ───────────────────────────────────────────────── */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const active = isActive(item);
@@ -111,9 +110,8 @@ export default function Sidebar({ activeItem }: SidebarProps) {
         })}
       </nav>
 
-      {/* ── Upgrade card ──────────────────────────────────────── */}
       <div className="px-3 pb-3">
-        <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-4 text-white shadow-lg shadow-indigo-200">
+        <div className="bg-linear-to-br from-indigo-600 to-violet-600 rounded-2xl p-4 text-white shadow-lg shadow-indigo-200">
           <div className="flex items-center gap-2 mb-1.5">
             <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
             <span className="text-sm font-semibold">Upgrade to Pro</span>
@@ -130,7 +128,7 @@ export default function Sidebar({ activeItem }: SidebarProps) {
         </div>
       </div>
 
-      {/* ── Logout ────────────────────────────────────────────── */}
+   
       <div className="px-3 pb-4 pt-1 border-t border-slate-100">
         <button className="flex items-center gap-3 text-slate-500 hover:text-red-600 w-full px-3 py-2.5 rounded-xl hover:bg-red-50 transition-all text-sm font-medium">
           <div className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-red-100 flex items-center justify-center transition-colors">

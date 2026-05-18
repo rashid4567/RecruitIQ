@@ -37,10 +37,13 @@ const educationOptions = [
   { value: "phd", label: "PhD" },
 ];
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({ message, id }: { message?: string; id?: string }) {
   if (!message) return null;
   return (
-    <p className="flex items-center gap-1 text-xs text-red-500 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+    <p
+      id={id}
+      className="flex items-center gap-1 text-xs text-red-500 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-150"
+    >
       <AlertCircle className="h-3 w-3 shrink-0" />
       {message}
     </p>
@@ -49,10 +52,20 @@ function FieldError({ message }: { message?: string }) {
 
 function inputClass(error?: string, valid?: boolean) {
   if (error)
-    return "pl-10 h-12 border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 pr-10";
+    return "pl-10 h-12 border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 pr-10 bg-red-50/30";
   if (valid)
     return "pl-10 h-12 border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 pr-10";
   return "pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20";
+}
+
+function selectClass(error?: string, valid?: boolean) {
+  const base =
+    "w-full pl-10 h-12 border rounded-md bg-white text-slate-900 appearance-none cursor-pointer transition-colors focus:outline-none";
+  if (error)
+    return `${base} border-red-400 focus:border-red-500 ring-2 ring-red-500/20 bg-red-50/30`;
+  if (valid)
+    return `${base} border-green-400 focus:border-green-500 ring-2 ring-green-500/20`;
+  return `${base} border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20`;
 }
 
 function TrailingIcon({ error, valid }: { error?: string; valid?: boolean }) {
@@ -106,6 +119,7 @@ export function ProfessionalInfoSection({
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Current Job Title */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <Briefcase className="h-4 w-4 text-purple-500" />
@@ -122,24 +136,21 @@ export function ProfessionalInfoSection({
                   className={inputClass(err("currentJob"), valid("currentJob"))}
                   placeholder="e.g., Senior Software Engineer"
                   aria-invalid={!!err("currentJob")}
-                  aria-describedby={
-                    err("currentJob") ? "currentJob-error" : undefined
-                  }
+                  aria-describedby={err("currentJob") ? "currentJob-error" : undefined}
                 />
                 <Briefcase className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 group-hover:text-purple-500 transition-colors pointer-events-none" />
-                <TrailingIcon
-                  error={err("currentJob")}
-                  valid={valid("currentJob")}
-                />
+                <TrailingIcon error={err("currentJob")} valid={valid("currentJob")} />
               </div>
-              <FieldError message={err("currentJob")} />
+              <FieldError message={err("currentJob")} id="currentJob-error" />
             </div>
           ) : (
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900">
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900 text-sm">
               {profile.currentJob || "Not specified"}
             </div>
           )}
         </div>
+
+        {/* Years of Experience */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <Calendar className="h-4 w-4 text-purple-500" />
@@ -151,37 +162,30 @@ export function ProfessionalInfoSection({
               <div className="relative group">
                 <Input
                   type="number"
-                  value={
-                    editData.experienceYears ?? profile.experienceYears ?? ""
-                  }
+                  value={editData.experienceYears ?? profile.experienceYears ?? ""}
                   onChange={(e) => handleExperienceYearsChange(e.target.value)}
                   onBlur={blur("experienceYears")}
-                  className={inputClass(
-                    err("experienceYears"),
-                    valid("experienceYears"),
-                  )}
+                  className={inputClass(err("experienceYears"), valid("experienceYears"))}
                   placeholder="e.g., 5"
                   min="0"
                   max="50"
                   step="1"
                   aria-invalid={!!err("experienceYears")}
+                  aria-describedby={err("experienceYears") ? "experienceYears-error" : undefined}
                 />
                 <Calendar className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 group-hover:text-purple-500 transition-colors pointer-events-none" />
-                <TrailingIcon
-                  error={err("experienceYears")}
-                  valid={valid("experienceYears")}
-                />
+                <TrailingIcon error={err("experienceYears")} valid={valid("experienceYears")} />
               </div>
-              <FieldError message={err("experienceYears")} />
+              <FieldError message={err("experienceYears")} id="experienceYears-error" />
             </div>
           ) : (
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900">
-              {profile.experienceYears
-                ? `${profile.experienceYears} years`
-                : "Not specified"}
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900 text-sm">
+              {profile.experienceYears ? `${profile.experienceYears} years` : "Not specified"}
             </div>
           )}
         </div>
+
+        {/* Education Level */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <GraduationCap className="h-4 w-4 text-purple-500" />
@@ -192,24 +196,12 @@ export function ProfessionalInfoSection({
             <div className="space-y-0">
               <div className="relative group">
                 <select
-                  value={
-                    editData.educationLevel ?? profile.educationLevel ?? ""
-                  }
-                  onChange={(e) =>
-                    onInputChange("educationLevel", e.target.value)
-                  }
+                  value={editData.educationLevel ?? profile.educationLevel ?? ""}
+                  onChange={(e) => onInputChange("educationLevel", e.target.value)}
                   onBlur={blur("educationLevel")}
                   aria-invalid={!!err("educationLevel")}
-                  className={[
-                    "w-full pl-10 h-12 border rounded-md bg-white",
-                    "text-slate-900 appearance-none cursor-pointer",
-                    "transition-colors focus:outline-none",
-                    err("educationLevel")
-                      ? "border-red-400 focus:border-red-500 ring-2 ring-red-500/20"
-                      : valid("educationLevel")
-                        ? "border-green-400 focus:border-green-500 ring-2 ring-green-500/20"
-                        : "border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
-                  ].join(" ")}
+                  aria-describedby={err("educationLevel") ? "educationLevel-error" : undefined}
+                  className={selectClass(err("educationLevel"), valid("educationLevel"))}
                 >
                   <option value="">Select education level</option>
                   {educationOptions.map((opt) => (
@@ -219,21 +211,22 @@ export function ProfessionalInfoSection({
                   ))}
                 </select>
                 <GraduationCap className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 group-hover:text-purple-500 transition-colors pointer-events-none" />
-                {err("educationLevel") && (
+                {err("educationLevel") ? (
                   <AlertCircle className="absolute right-8 top-3.5 h-5 w-5 text-red-500 pointer-events-none" />
-                )}
-                {!err("educationLevel") && valid("educationLevel") && (
+                ) : valid("educationLevel") ? (
                   <CheckCircle2 className="absolute right-8 top-3.5 h-5 w-5 text-green-500 pointer-events-none" />
-                )}
+                ) : null}
               </div>
-              <FieldError message={err("educationLevel")} />
+              <FieldError message={err("educationLevel")} id="educationLevel-error" />
             </div>
           ) : (
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900">
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900 text-sm">
               {getEducationLabel(profile.educationLevel)}
             </div>
           )}
         </div>
+
+        {/* Current Location */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <MapPin className="h-4 w-4 text-purple-500" />
@@ -244,32 +237,21 @@ export function ProfessionalInfoSection({
             <div className="space-y-0">
               <div className="relative group">
                 <Input
-                  value={
-                    editData.currentJobLocation ??
-                    profile.currentJobLocation ??
-                    ""
-                  }
-                  onChange={(e) =>
-                    onInputChange("currentJobLocation", e.target.value)
-                  }
+                  value={editData.currentJobLocation ?? profile.currentJobLocation ?? ""}
+                  onChange={(e) => onInputChange("currentJobLocation", e.target.value)}
                   onBlur={blur("currentJobLocation")}
-                  className={inputClass(
-                    err("currentJobLocation"),
-                    valid("currentJobLocation"),
-                  )}
+                  className={inputClass(err("currentJobLocation"), valid("currentJobLocation"))}
                   placeholder="e.g., San Francisco, CA"
                   aria-invalid={!!err("currentJobLocation")}
+                  aria-describedby={err("currentJobLocation") ? "currentJobLocation-error" : undefined}
                 />
                 <MapPin className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 group-hover:text-purple-500 transition-colors pointer-events-none" />
-                <TrailingIcon
-                  error={err("currentJobLocation")}
-                  valid={valid("currentJobLocation")}
-                />
+                <TrailingIcon error={err("currentJobLocation")} valid={valid("currentJobLocation")} />
               </div>
-              <FieldError message={err("currentJobLocation")} />
+              <FieldError message={err("currentJobLocation")} id="currentJobLocation-error" />
             </div>
           ) : (
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900">
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900 text-sm">
               {profile.currentJobLocation || "Not specified"}
             </div>
           )}

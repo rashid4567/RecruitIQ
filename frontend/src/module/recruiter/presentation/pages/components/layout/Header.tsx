@@ -33,7 +33,7 @@ export function Header({
 
       <div className="flex h-full items-center justify-between px-6 lg:px-8">
 
-        {/* Left Section */}
+  
         <div className="flex items-center gap-4 min-w-0">
 
           <button
@@ -56,10 +56,10 @@ export function Header({
           </div>
         </div>
 
-        {/* Right Section */}
+    
         <div className="flex items-center gap-3 lg:gap-4">
 
-                   {/* Notification */}
+       
           <button className="relative rounded-xl p-2.5 transition-colors hover:bg-gray-100">
 
             <Bell className="h-5 w-5 text-gray-600" />
@@ -72,7 +72,6 @@ export function Header({
             className="hidden h-8 sm:block"
           />
 
-          {/* Recruiter Profile */}
           <div className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white px-2 py-1.5 transition-all hover:border-gray-200 hover:shadow-sm">
 
             <div className="hidden text-right sm:block">

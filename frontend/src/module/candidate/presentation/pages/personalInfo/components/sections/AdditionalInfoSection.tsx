@@ -32,10 +32,13 @@ interface AdditionalInfoSectionProps {
   isFieldValid: (field: keyof ProfileFormData) => boolean;
 }
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({ message, id }: { message?: string; id?: string }) {
   if (!message) return null;
   return (
-    <p className="flex items-center gap-1 text-xs text-red-500 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+    <p
+      id={id}
+      className="flex items-center gap-1 text-xs text-red-500 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-150"
+    >
       <AlertCircle className="h-3 w-3 shrink-0" />
       {message}
     </p>
@@ -44,9 +47,9 @@ function FieldError({ message }: { message?: string }) {
 
 function selectClass(error?: string, valid?: boolean) {
   const base =
-    "w-full p-3 pl-10 h-12 rounded-lg border bg-white appearance-none cursor-pointer transition-colors focus:outline-none";
+    "w-full p-3 pl-10 h-12 rounded-lg border bg-white appearance-none cursor-pointer transition-colors focus:outline-none text-sm";
   if (error)
-    return `${base} border-red-400 focus:border-red-500 ring-2 ring-red-500/20`;
+    return `${base} border-red-400 focus:border-red-500 ring-2 ring-red-500/20 bg-red-50/30`;
   if (valid)
     return `${base} border-green-400 focus:border-green-500 ring-2 ring-green-500/20`;
   return `${base} border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20`;
@@ -123,7 +126,7 @@ function TagInput({
   }
 
   const borderClass = error
-    ? "border-red-400 ring-2 ring-red-500/20"
+    ? "border-red-400 ring-2 ring-red-500/20 bg-red-50/30"
     : valid
       ? "border-green-400 ring-2 ring-green-500/20"
       : `border-slate-200 focus-within:ring-2 ${ringStyles[tagColor]}`;
@@ -225,6 +228,7 @@ export function AdditionalInfoSection({
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Gender */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <User className="h-4 w-4 text-amber-500" />
@@ -239,6 +243,7 @@ export function AdditionalInfoSection({
                   onChange={(e) => handleGenderChange(e.target.value)}
                   onBlur={() => onFieldBlur("gender")}
                   aria-invalid={!!err("gender")}
+                  aria-describedby={err("gender") ? "gender-error" : undefined}
                   className={selectClass(err("gender"), valid("gender"))}
                 >
                   <option value="">Select gender</option>
@@ -253,14 +258,16 @@ export function AdditionalInfoSection({
                   <CheckCircle2 className="absolute right-8 top-3.5 h-5 w-5 text-green-500 pointer-events-none" />
                 ) : null}
               </div>
-              <FieldError message={err("gender")} />
+              <FieldError message={err("gender")} id="gender-error" />
             </>
           ) : (
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900">
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900 text-sm">
               {formatGender(profile.gender)}
             </div>
           )}
         </div>
+
+        {/* Skills */}
         <div className="space-y-1.5 md:col-span-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <Award className="h-4 w-4 text-amber-500" />
@@ -279,7 +286,7 @@ export function AdditionalInfoSection({
                 icon={<Award className="h-5 w-5" />}
                 tagColor="amber"
               />
-              <FieldError message={err("skills")} />
+              <FieldError message={err("skills")} id="skills-error" />
             </>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -293,13 +300,15 @@ export function AdditionalInfoSection({
                   </Badge>
                 ))
               ) : (
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-400 w-full">
+                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-400 w-full text-sm">
                   No skills added
                 </div>
               )}
             </div>
           )}
         </div>
+
+        {/* Preferred Job Locations */}
         <div className="space-y-1.5 md:col-span-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
             <MapPin className="h-4 w-4 text-amber-500" />
@@ -310,9 +319,7 @@ export function AdditionalInfoSection({
             <>
               <TagInput
                 tags={currentLocations}
-                onChange={(tags) =>
-                  onInputChange("preferredJobLocations", tags)
-                }
+                onChange={(tags) => onInputChange("preferredJobLocations", tags)}
                 onBlur={() => onFieldBlur("preferredJobLocations")}
                 placeholder="New York, London, Remote…"
                 error={err("preferredJobLocations")}
@@ -320,7 +327,10 @@ export function AdditionalInfoSection({
                 icon={<MapPin className="h-5 w-5" />}
                 tagColor="purple"
               />
-              <FieldError message={err("preferredJobLocations")} />
+              <FieldError
+                message={err("preferredJobLocations")}
+                id="preferredJobLocations-error"
+              />
             </>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -334,7 +344,7 @@ export function AdditionalInfoSection({
                   </Badge>
                 ))
               ) : (
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-400 w-full">
+                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-400 w-full text-sm">
                   No preferred locations added
                 </div>
               )}

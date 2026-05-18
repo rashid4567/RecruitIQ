@@ -4,11 +4,15 @@ import type { JobCardProps } from "../../../types/jobCard.types";
 import { useJobActions } from "../../../hooks/jobPost/useJobActions";
 
 const statusConfig = {
-  Active:  { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
-  Paused:  { bg: "bg-amber-50",   text: "text-amber-700",   dot: "bg-amber-500"   },
-  Expired: { bg: "bg-red-50",     text: "text-red-700",     dot: "bg-red-500"     },
-  Draft:   { bg: "bg-gray-50",    text: "text-gray-600",    dot: "bg-gray-400"    },
-  Blocked: { bg: "bg-rose-50",    text: "text-rose-700",    dot: "bg-rose-500"    },
+  Active: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    dot: "bg-emerald-500",
+  },
+  Paused: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
+  Expired: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
+  Draft: { bg: "bg-gray-50", text: "text-gray-600", dot: "bg-gray-400" },
+  Blocked: { bg: "bg-rose-50", text: "text-rose-700", dot: "bg-rose-500" },
 };
 
 export default function JobCard({
@@ -30,7 +34,10 @@ export default function JobCard({
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -40,31 +47,28 @@ export default function JobCard({
 
   return (
     <div className="group bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-xl hover:shadow-gray-200/50 hover:border-gray-200 transition-all duration-300">
-
-      {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-lg">
           {job.category}
         </span>
-        <span className={`px-3 py-1 text-xs font-medium rounded-lg flex items-center gap-1.5 ${status.bg} ${status.text}`}>
+        <span
+          className={`px-3 py-1 text-xs font-medium rounded-lg flex items-center gap-1.5 ${status.bg} ${status.text}`}
+        >
           <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
           {job.status}
         </span>
       </div>
 
-      {/* Admin blocked banner */}
       {isBlocked && (
         <div className="mb-3 px-3 py-2 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-600 font-medium">
           ⚠️ This job has been blocked by admin
         </div>
       )}
 
-      {/* Title */}
       <h3 className="text-lg font-semibold text-gray-900 mb-4 line-clamp-2 group-hover:text-blue-600 transition-colors">
         {job.title}
       </h3>
 
-      {/* Info */}
       <div className="flex items-center gap-4 text-sm text-gray-500 mb-5">
         <div className="flex items-center gap-1.5">
           <MapPin className="w-4 h-4" />
@@ -76,7 +80,6 @@ export default function JobCard({
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-5">
         <div className="bg-gray-50 rounded-xl p-3 text-center">
           <p className="text-2xl font-bold text-gray-900">{job.applications}</p>
@@ -94,7 +97,6 @@ export default function JobCard({
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-2 relative" ref={dropdownRef}>
         <button
           onClick={() => onViewClick(job)}
@@ -110,10 +112,8 @@ export default function JobCard({
           <MoreVertical className="w-4 h-4 text-gray-400" />
         </button>
 
-        {/* Dropdown */}
         {open && (
           <div className="absolute right-0 top-14 w-44 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
-            {/* Hide / Unhide — disabled if admin blocked */}
             <button
               onClick={async () => {
                 await toggleHide(job, onJobUpdated);
@@ -135,7 +135,6 @@ export default function JobCard({
               )}
             </button>
 
-            {/* Blocked reason */}
             {isBlocked && (
               <div className="px-4 py-2 text-xs text-rose-500 border-t border-gray-100">
                 Blocked by admin — cannot change visibility

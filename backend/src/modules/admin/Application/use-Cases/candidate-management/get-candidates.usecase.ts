@@ -30,6 +30,9 @@ export class GetCandidateUseCase {
         name: candidate.getName(),
         email: candidate.getEmail().getValue(),
         isActive: candidate.isActiveAccount(), 
+        skills : candidate.getSkills(),
+        preferredJobLocations : candidate.getPreferredJobLocations(),
+      
       })),
 
       pagination: {

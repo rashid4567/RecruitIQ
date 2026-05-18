@@ -7,7 +7,7 @@ import {
   jobPostStatusController,
   publishJobpostController,
   updateJobPostController,
-} from "../../jobPost.module";
+} from "../container/jobPost.module"
 
 const router = Router();
 

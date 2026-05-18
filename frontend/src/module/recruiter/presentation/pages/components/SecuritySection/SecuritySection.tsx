@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -55,34 +55,16 @@ export function SecuritySection() {
     confirm: false,
   });
 
-  const [passwordValidation, setPasswordValidation] =
-    useState<PasswordValidation>({
-      length: false,
-      uppercase: false,
-      lowercase: false,
-      number: false,
-      special: false,
-    });
-
-  useEffect(() => {
-    if (newPassword) {
-      setPasswordValidation({
-        length: newPassword.length >= 8,
-        uppercase: /[A-Z]/.test(newPassword),
-        lowercase: /[a-z]/.test(newPassword),
-        number: /[0-9]/.test(newPassword),
-        special: /[^A-Za-z0-9]/.test(newPassword),
-      });
-    } else {
-      setPasswordValidation({
-        length: false,
-        uppercase: false,
-        lowercase: false,
-        number: false,
-        special: false,
-      });
-    }
-  }, [newPassword]);
+  const passwordValidation = useMemo<PasswordValidation>(
+    () => ({
+      length: newPassword.length >= 8,
+      uppercase: /[A-Z]/.test(newPassword),
+      lowercase: /[a-z]/.test(newPassword),
+      number: /[0-9]/.test(newPassword),
+      special: /[^A-Za-z0-9]/.test(newPassword),
+    }),
+    [newPassword]
+  );
 
   const validateForm = (): {
     isValid: boolean;

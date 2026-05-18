@@ -10,17 +10,6 @@ interface JwtPayload {
   exp?: number;
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        userId: string;
-        role: "admin" | "recruiter" | "candidate";
-      };
-    }
-  }
-}
-
 export const authenticate = (
   req: Request,
   res: Response,

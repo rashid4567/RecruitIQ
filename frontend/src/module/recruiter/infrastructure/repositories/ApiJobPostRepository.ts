@@ -64,9 +64,12 @@ export class ApiJobPostRepository implements JobPostRepository {
     await api.delete(`/recruiter/jobs/${id}`);
   }
 
-  private toEntity(data: any): JobPost {
+  private toEntity(data: JobPostApiResponse): JobPost {
+    const id = data._id ?? data.id;
+    if (!id) throw new Error("JobPost API response missing id");
+
     return new JobPost({
-      id: data._id ?? data.id,
+      id,
       recruiterId: data.recruiterId,
       title: data.title,
       description: data.description,

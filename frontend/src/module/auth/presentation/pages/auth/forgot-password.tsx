@@ -172,6 +172,7 @@ const ForgotPassword = () => {
                           email &&
                           !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
                         ) {
+                          handleEmailChange(email.trim());
                         }
                       }}
                       placeholder="name@example.com"

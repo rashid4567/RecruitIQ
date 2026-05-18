@@ -18,9 +18,7 @@ export class ForgotPasswordUseCase {
 
     const user = await this.userRepo.findByEmail(email);
     if (!user) {
-     throw new ApplicationError(
-        ERROR_CODES.USER_NOT_FOUND
-      );
+      throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
     if (!user.id) {
       throw new ApplicationError(ERROR_CODES.USER_ID_NOT_FOUND);

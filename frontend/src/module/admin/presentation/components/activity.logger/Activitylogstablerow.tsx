@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils";
 
 import { ActivityLog } from "../../types/Activitylog.types";
 import {
-  getValue,
   getUserName,
   getRole,
   getUserIdSafe,
@@ -34,9 +33,10 @@ interface ActivityLogsTableRowProps {
 
 export function ActivityLogsTableRow({ log }: ActivityLogsTableRowProps) {
   const navigate = useNavigate();
-  const action = getValue(log, "getAction", "action") || "";
+  const action = log.getAction();
   const severity = getSeverity(action);
   const cfg = severityConfig[severity];
+  const timestamp = log.getTimestamp();
 
   return (
     <TableRow
@@ -53,14 +53,10 @@ export function ActivityLogsTableRow({ log }: ActivityLogsTableRowProps) {
       <TableCell className="text-sm text-slate-600 whitespace-nowrap">
         <Tooltip>
           <TooltipTrigger asChild>
-            <span>
-              {formatRelativeTime(getValue(log, "getTimestamp", "timestamp"))}
-            </span>
+            <span>{formatRelativeTime(timestamp)}</span>
           </TooltipTrigger>
           <TooltipContent>
-            {new Date(
-              getValue(log, "getTimestamp", "timestamp") || 0
-            ).toLocaleString()}
+            {new Date(timestamp).toLocaleString()}
           </TooltipContent>
         </Tooltip>
       </TableCell>
@@ -82,10 +78,7 @@ export function ActivityLogsTableRow({ log }: ActivityLogsTableRowProps) {
                 const role = getRole(log);
                 if (role.includes("candidate"))
                   navigate(`/admin/candidates/${uid}`);
-                else if (
-                  role.includes("recruiter") ||
-                  role.includes("admin")
-                )
+                else if (role.includes("recruiter") || role.includes("admin"))
                   navigate(`/admin/recruiters/${uid}`);
               }}
             >
@@ -95,7 +88,7 @@ export function ActivityLogsTableRow({ log }: ActivityLogsTableRowProps) {
                   severity === "error" ? "bg-rose-600" : "bg-indigo-600"
                 )}
               >
-                {getUserName(log)?.slice(0, 2).toUpperCase() || "?"}
+                {getUserName(log).slice(0, 2).toUpperCase() || "?"}
               </div>
               <div className="min-w-0">
                 <div className="font-medium truncate max-w-65">
@@ -119,7 +112,7 @@ export function ActivityLogsTableRow({ log }: ActivityLogsTableRowProps) {
             <User className="h-4 w-4 text-slate-400" />
           )}
           <span className="truncate max-w-45">
-            {getValue(log, "getEntity", "entity") || "—"}
+            {log.getEntity() ?? "—"}
           </span>
         </div>
       </TableCell>

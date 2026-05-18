@@ -40,12 +40,17 @@ export default function RecruiterHeader() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { isLoggedIn, userRole, userName, profileImage } =
-      readAuthFromStorage();
-    setIsLoggedIn(isLoggedIn);
-    setUserRole(userRole);
-    setUserName(userName);
-    setProfileImage(profileImage);
+    const handleStorageChange = () => {
+      const { isLoggedIn, userRole, userName, profileImage } =
+        readAuthFromStorage();
+      setIsLoggedIn(isLoggedIn);
+      setUserRole(userRole);
+      setUserName(userName);
+      setProfileImage(profileImage);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const handleLogout = async () => {

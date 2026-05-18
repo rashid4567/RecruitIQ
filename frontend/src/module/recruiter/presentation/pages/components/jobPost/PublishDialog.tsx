@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -50,17 +49,7 @@ export default function PublishDialog({
   const [state, setState] = useState<DialogState>("confirm");
   const [lastEditAction, setLastEditAction] = useState<EditAction>(null);
 
-  useEffect(() => {
-    if (open) {
-      setState("confirm");
-      setLastEditAction(null);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (isSubmitting) setState("publishing");
-  }, [isSubmitting]);
-
+  const currentState: DialogState = isSubmitting && state === "confirm" ? "publishing" : state;
 
   const handleConfirm = async () => {
     setState("publishing");
@@ -72,7 +61,6 @@ export default function PublishDialog({
       setState("error");
     }
   };
-
 
   const handleSaveDraft = async () => {
     if (!onSaveDraft) return;
@@ -87,7 +75,6 @@ export default function PublishDialog({
     }
   };
 
-
   const handlePublish = async () => {
     if (!onPublish) return;
     setLastEditAction("publish");
@@ -100,7 +87,6 @@ export default function PublishDialog({
       setState("error");
     }
   };
-
 
   const handleRetry = async () => {
     if (onRetry) {
@@ -123,14 +109,13 @@ export default function PublishDialog({
   };
 
   const handleClose = () => {
-    if (state === "publishing") return;
+    if (currentState === "publishing") return;
     onOpenChange(false);
     setTimeout(() => {
       setState("confirm");
       setLastEditAction(null);
     }, 250);
   };
-
 
   const handleGoToJobs = () => {
     onOpenChange(false);
@@ -141,8 +126,7 @@ export default function PublishDialog({
       <DialogContent className="sm:max-w-md bg-white rounded-3xl p-0 shadow-2xl border border-gray-100">
         <AnimatePresence mode="wait">
 
-      
-          {state === "confirm" && (
+          {currentState === "confirm" && (
             <motion.div
               key="confirm"
               initial={{ opacity: 0, y: 10 }}
@@ -172,9 +156,7 @@ export default function PublishDialog({
               </DialogHeader>
 
               {isEditMode ? (
-           
                 <div className="space-y-3 mb-6">
-          
                   <button
                     onClick={handleSaveDraft}
                     className="w-full text-left p-4 rounded-2xl border-2 border-indigo-100 bg-indigo-50 hover:border-indigo-300 hover:bg-indigo-100 transition-all duration-200 group"
@@ -216,7 +198,6 @@ export default function PublishDialog({
                   </button>
                 </div>
               ) : (
-         
                 <p className="text-center text-sm text-gray-600 mb-8">
                   This job will go live and candidates can start applying right
                   away.
@@ -251,8 +232,7 @@ export default function PublishDialog({
             </motion.div>
           )}
 
-        
-          {state === "publishing" && (
+          {currentState === "publishing" && (
             <motion.div
               key="publishing"
               initial={{ opacity: 0 }}
@@ -271,8 +251,7 @@ export default function PublishDialog({
             </motion.div>
           )}
 
-  
-          {state === "success" && (
+          {currentState === "success" && (
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -306,7 +285,7 @@ export default function PublishDialog({
             </motion.div>
           )}
 
-          {state === "error" && (
+          {currentState === "error" && (
             <motion.div
               key="error"
               initial={{ opacity: 0 }}

@@ -49,8 +49,7 @@ export function useRecruiterProfileForm({
     }
   }, [profile, reset]);
 
-  const currentBio = watch("bio");
-  const currentName = watch("fullName");
+  const [currentBio, currentName] = watch(["bio", "fullName"]);
 
   const bioLength = currentBio?.length ?? 0;
 
@@ -63,26 +62,21 @@ export function useRecruiterProfileForm({
   const submit = handleSubmit(async (data) => {
     try {
       const payload = RecruiterProfileFormMapper.toApi(data);
-
-      console.log("Sending payload:", payload);
-
       const savedProfile = await updateRecruiterUc.execute(payload);
 
       reset(RecruiterProfileFormMapper.toForm(savedProfile));
-
       onProfileUpdated?.(savedProfile);
 
       toast.success("Profile updated successfully!", {
         description: "Your changes have been saved.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update profile";
       console.error("Profile update error:", error);
 
       toast.error("Failed to update profile", {
-        description:
-          error?.response?.data?.message ||
-          error?.message ||
-          "Please try again later.",
+        description: message,
       });
     }
   });

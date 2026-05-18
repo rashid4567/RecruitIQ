@@ -7,9 +7,7 @@ export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+ 
 
   const checkAuth = () => {
     const token = localStorage.getItem("authToken");
@@ -19,6 +17,10 @@ export const useAuth = () => {
     setUserRole(role);
     setIsLoading(false);
   };
+
+   useEffect(() => {
+    checkAuth();
+  }, []);
 
   const logout = () => {
     localStorage.removeItem("authToken");

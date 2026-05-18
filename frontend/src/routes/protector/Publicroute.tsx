@@ -1,6 +1,6 @@
-// src/routes/protector/PublicRoute.tsx
+
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth"; 
 
 export const ROLE_HOME: Record<string, string> = {
   admin: "/admin/dashboard",

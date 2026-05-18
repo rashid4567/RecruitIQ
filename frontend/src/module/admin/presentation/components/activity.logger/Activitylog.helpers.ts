@@ -1,40 +1,41 @@
-import { ActivityLog } from "@/module/admin/domain/entities/activity-log.enitity";
+import { ActivityLog, type MetadataValue } from "@/module/admin/domain/entities/activity-log.enitity";
 
-export const getValue = (obj: any, method: string, field: string) =>
-  typeof obj?.[method] === "function" ? obj[method]() : obj?.[field] ?? null;
+type Metadata = Record<string, MetadataValue>;
+
+const getMeta = (log: ActivityLog): Metadata =>
+  log.getMetadata() ?? {};
 
 export const getUserName = (log: ActivityLog): string => {
-  const meta = getValue(log, "getMetadata", "metadata") || {};
+  const meta = getMeta(log);
   return (
-    meta.fullName ||
-    meta.userName ||
-    meta.name ||
-    getValue(log, "getUserId", "userId") ||
+    (meta.fullName as string) ||
+    (meta.userName as string) ||
+    (meta.name as string) ||
+    log.getUserId() ||
     "System"
   );
 };
 
 export const getRole = (log: ActivityLog): string => {
-  const meta = getValue(log, "getMetadata", "metadata") || {};
-  const role =
-    meta.role || getValue(log, "getRole", "role") || "system";
-  return (role as string).toLowerCase();
+  const meta = getMeta(log);
+  const role = (meta.role as string) ?? "system";
+  return role.toLowerCase();
 };
 
 export const getUserIdSafe = (log: ActivityLog): string =>
-  getValue(log, "getUserId", "userId") || "";
+  log.getUserId() ?? "";
 
 export const getDescription = (log: ActivityLog): string => {
   const user = getUserName(log);
-  const action = (getValue(log, "getAction", "action") || "").toUpperCase();
-  const meta = getValue(log, "getMetadata", "metadata") || {};
+  const action = log.getAction().toUpperCase();
+  const meta = getMeta(log);
 
   const templates: Record<string, string> = {
-    JOB_POSTED: `${user} created job posting • ${meta.jobTitle || meta.title || "—"}`,
+    JOB_POSTED: `${user} created job posting • ${(meta.jobTitle as string) || (meta.title as string) || "—"}`,
     PROFILE_UPDATE: `${user} updated profile information`,
     USER_CREATED: `${user} registered new account`,
     INTERVIEW_SCHEDULED: `${user} scheduled interview session`,
-    SYSTEM_ERROR: `Critical error in ${meta.module || "core system"}`,
+    SYSTEM_ERROR: `Critical error in ${(meta.module as string) || "core system"}`,
     LOGIN_SUCCESS: `${user} signed in`,
     LOGIN_FAILED: `${user} login attempt failed`,
     LOGOUT: `${user} signed out`,
@@ -42,7 +43,7 @@ export const getDescription = (log: ActivityLog): string => {
   };
 
   return (
-    templates[action] ||
+    templates[action] ??
     `${user} • ${action.replace(/_/g, " ").toLowerCase()}`
   );
 };
@@ -53,11 +54,7 @@ export const getSeverity = (action: string = ""): Severity => {
   const a = action.toUpperCase();
   if (a.includes("ERROR") || a.includes("FAIL") || a.includes("CRITICAL"))
     return "error";
-  if (
-    a.includes("CREATED") ||
-    a.includes("POSTED") ||
-    a.includes("SUCCESS")
-  )
+  if (a.includes("CREATED") || a.includes("POSTED") || a.includes("SUCCESS"))
     return "success";
   if (
     a.includes("UPDATE") ||

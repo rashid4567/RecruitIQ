@@ -4,7 +4,6 @@ import type { VerificationStatus } from "../constatns/verificationStatus";
 export class RecruiterProfile {
   public readonly fullName: string;
   public readonly email: string;
-
   public readonly companyName?: string;
   public readonly companyWebsite?: string;
   public readonly companySize?: number;
@@ -61,7 +60,6 @@ export class RecruiterProfile {
     return new RecruiterProfile({
       fullName: data.fullName ?? this.fullName,
       email: this.email,
-
       companyName: data.companyName ?? this.companyName,
       companyWebsite: data.companyWebsite ?? this.companyWebsite,
       companySize: data.companySize ?? this.companySize,

@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { ActivityLog } from "@/module/admin/domain/entities/activity-log.enitity";
 import { ApiActivityLogRepository } from "../../../infrastructure/repositories/Api-Activity.log.repository";
 import { GetActivityLogUseCase } from "../../../application/useCases/activityLogs/GetActivity-logs.usecase";
-import { getValue } from "../../components/activity.logger/Activitylog.helpers"; 
+import { getUserName } from "../../components/activity.logger/Activitylog.helpers";
 
 interface PaginationState {
   page: number;
@@ -38,17 +38,14 @@ export function useActivityLogs() {
         const data = await useCase.execute();
         const sorted = [...data].sort(
           (a, b) =>
-            new Date(
-              getValue(b, "getTimestamp", "timestamp") || 0
-            ).getTime() -
-            new Date(
-              getValue(a, "getTimestamp", "timestamp") || 0
-            ).getTime()
+            new Date(b.getTimestamp()).getTime() -
+            new Date(a.getTimestamp()).getTime()
         );
         setLogs(sorted);
         setPagination((p) => ({ ...p, page: 1, total: sorted.length }));
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Could not load activity logs";
+        const message =
+          err instanceof Error ? err.message : "Could not load activity logs";
         setError(message);
       } finally {
         setLoading(false);
@@ -63,17 +60,11 @@ export function useActivityLogs() {
   }, [fetchLogs]);
 
   const filtered = logs.filter((log) => {
-    const desc = (getValue(log, "getAction", "action") || "").toLowerCase();
-    const name = (
-      getValue(log, "getMetadata", "metadata")?.fullName ||
-      getValue(log, "getUserId", "userId") ||
-      ""
-    ).toLowerCase();
-    const role = (
-      getValue(log, "getMetadata", "metadata")?.role || ""
-    ).toLowerCase();
     const q = search.toLowerCase();
-    return desc.includes(q) || name.includes(q) || role.includes(q);
+    const action = log.getAction().toLowerCase();
+    const name = getUserName(log).toLowerCase();
+    const role = ((log.getMetadata()?.role as string) ?? "").toLowerCase();
+    return action.includes(q) || name.includes(q) || role.includes(q);
   });
 
   const totalPages = Math.ceil(filtered.length / pagination.limit);
@@ -94,24 +85,16 @@ export function useActivityLogs() {
 
   const stats = useMemo(() => {
     const errors = logs.filter((l) => {
-      const a = (getValue(l, "getAction", "action") || "").toUpperCase();
-      return (
-        a.includes("ERROR") || a.includes("FAIL") || a.includes("CRITICAL")
-      );
+      const a = l.getAction().toUpperCase();
+      return a.includes("ERROR") || a.includes("FAIL") || a.includes("CRITICAL");
     }).length;
 
     const today = logs.filter((l) => {
-      const d = new Date(getValue(l, "getTimestamp", "timestamp") || 0);
+      const d = new Date(l.getTimestamp());
       return d.toDateString() === new Date().toDateString();
     }).length;
 
-    const mostRecentUser =
-      logs[0]
-        ? getValue(logs[0], "getMetadata", "metadata")?.fullName ||
-          getValue(logs[0], "getMetadata", "metadata")?.userName ||
-          getValue(logs[0], "getUserId", "userId") ||
-          "—"
-        : "—";
+    const mostRecentUser = logs[0] ? getUserName(logs[0]) : "—";
 
     return { total: logs.length, errors, today, mostRecentUser };
   }, [logs]);

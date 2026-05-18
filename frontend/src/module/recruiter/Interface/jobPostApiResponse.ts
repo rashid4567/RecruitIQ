@@ -1,24 +1,10 @@
-export type JobType =
-  | "full-time"
-  | "part-time"
-  | "contract"
-  | "internship";
+import type { LocationVO, SalaryVO } from "../presentation/types/jobForm.types";
 
-export type JobVisibility =
-  | "active"
-  | "hidden";
+export type JobType = "full-time" | "part-time" | "contract" | "internship";
 
-export type JobStatus =
-  | "draft"
-  | "published"
-  | "closed"
-  | "expired";
+export type JobVisibility = "active" | "hidden";
 
-export interface SalaryApiResponse {
-  min: number;
-  max: number;
-  currency: string;
-}
+export type JobStatus = "draft" | "active" | "expired";
 
 export interface JobPostApiResponse {
   _id?: string;
@@ -32,10 +18,10 @@ export interface JobPostApiResponse {
   preferredSkills?: string[];
   experienceMin: number;
   experienceMax: number;
-  location: string;
+  location?: Partial<LocationVO>;
   isRemote: boolean;
   jobType: JobType;
-  salary?: SalaryApiResponse;
+  salary?: Partial<SalaryVO>;
   department?: string;
   positions: number;
   visibility?: JobVisibility;

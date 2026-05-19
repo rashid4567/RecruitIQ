@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { HTTP_STATUS } from "../constants/httpStatus";
 
 export const requireAdmin = (
   req: Request,
@@ -6,7 +7,7 @@ export const requireAdmin = (
   next: NextFunction
 ) => {
   if (req.user?.role !== "admin") {
-    return res.status(403).json({
+    return res.status(HTTP_STATUS.FORBIDDEN).json({
       success: false,
       message: "Admin access only",
     });

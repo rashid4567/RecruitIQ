@@ -1,4 +1,3 @@
-
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import {
   SubscriptionPlan,

@@ -2,10 +2,10 @@ import { EmailTemplateRepository } from "../../../Domain/repositories/email-temp
 
 export class GetEmailTemplatesUseCase{
     constructor(
-        private readonly EmailTemplateRepo : EmailTemplateRepository,
+        private readonly emailTemplateRepo : EmailTemplateRepository,
     ){};
     async execute(){
-        return this.EmailTemplateRepo.findAll()
+        return this.emailTemplateRepo.findAll()
     }
 }
 

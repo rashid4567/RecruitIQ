@@ -3,9 +3,7 @@ import { EmailTemplateRepository } from "../../Domain/repositories/email-templat
 import { EmailEvent } from "../../Domain/constatns/email-enum.events";
 import { EmailTemplateModel } from "../mongoose/email-template.model";
 
-export class MongooseEmailTemplateRepository
-  implements EmailTemplateRepository
-{
+export class MongooseEmailTemplateRepository implements EmailTemplateRepository {
   async create(template: EmailTemplate) {
     const doc = await EmailTemplateModel.create(template);
     return new EmailTemplate(
@@ -15,7 +13,7 @@ export class MongooseEmailTemplateRepository
       doc.subject,
       doc.body,
       doc.isActive,
-      doc.createdAt
+      doc.createdAt,
     );
   }
 
@@ -23,7 +21,7 @@ export class MongooseEmailTemplateRepository
     const doc = await EmailTemplateModel.findByIdAndUpdate(
       template.id,
       { subject: template.subject, body: template.body },
-      { new: true }
+      { new: true },
     );
     if (!doc) throw new Error("Template not found");
     return new EmailTemplate(
@@ -33,7 +31,7 @@ export class MongooseEmailTemplateRepository
       doc.subject,
       doc.body,
       doc.isActive,
-      doc.createdAt
+      doc.createdAt,
     );
   }
   async findById(id: string) {
@@ -46,7 +44,7 @@ export class MongooseEmailTemplateRepository
           doc.subject,
           doc.body,
           doc.isActive,
-          doc.createdAt
+          doc.createdAt,
         )
       : null;
   }
@@ -63,8 +61,8 @@ export class MongooseEmailTemplateRepository
           d.subject,
           d.body,
           d.isActive,
-          d.createdAt
-        )
+          d.createdAt,
+        ),
     );
   }
 
@@ -82,7 +80,7 @@ export class MongooseEmailTemplateRepository
           doc.subject,
           doc.body,
           doc.isActive,
-          doc.createdAt
+          doc.createdAt,
         )
       : null;
   }

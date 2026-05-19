@@ -1,5 +1,7 @@
+import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { EmailTemplate } from "../../../Domain/entities/email-template.entity";
 import { EmailTemplateRepository } from "../../../Domain/repositories/email-template.repository";
+import { ERROR_CODES } from "../../constants/errorcode.constants";
 import { CreateEmailTemplateInputDto } from "../../dto/email.template/createEmailTemplate.input.dto";
 
 export class CreateEmailTemplateUseCase {
@@ -12,7 +14,7 @@ export class CreateEmailTemplateUseCase {
       input.event,
     );
     if (existing) {
-      throw new Error(`Email template for event ${input.event} already exists`);
+      throw new ApplicationError(ERROR_CODES.EMAIL_TEMPLATE_EXISTS);
     }
 
     const template = new EmailTemplate(

@@ -8,17 +8,17 @@ export class BlockJobPostUseCase {
 
   async execute(id: string): Promise<JobPost> {
     if (!id) {
-      throw new ApplicationError(ERROR_CODES.JOB_POST_ID_NOT_FOUND)
+      throw new ApplicationError(ERROR_CODES.JOB_POST_ID_NOT_FOUND);
     }
 
     const jobPost = await this.repo.findById(id);
 
     if (!jobPost) {
-      throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND)
+      throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
 
     if (jobPost.isBlockedJob()) {
-      throw new ApplicationError(ERROR_CODES.JOB_POST_ALREADY_BLOCKED)
+      throw new ApplicationError(ERROR_CODES.JOB_POST_ALREADY_BLOCKED);
     }
 
     return this.repo.updateStatus(id, true);
@@ -30,17 +30,17 @@ export class UnblockJobPostUseCase {
 
   async execute(id: string): Promise<JobPost> {
     if (!id) {
-      throw new ApplicationError(ERROR_CODES.JOB_POST_ID_NOT_FOUND)
+      throw new ApplicationError(ERROR_CODES.JOB_POST_ID_NOT_FOUND);
     }
 
     const jobPost = await this.repo.findById(id);
 
     if (!jobPost) {
-      throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND)
+      throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
 
     if (!jobPost.isBlockedJob()) {
-      throw new ApplicationError(ERROR_CODES.JOB_POST_IS_NOT_BLOCKED)
+      throw new ApplicationError(ERROR_CODES.JOB_POST_IS_NOT_BLOCKED);
     }
 
     return this.repo.updateStatus(id, false);

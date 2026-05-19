@@ -1,3 +1,6 @@
+import { ERROR_CODES } from "../../../../constants/errorcode.constants";
+import { DomainError } from "../../../../shared/errors/domain.error";
+
 export type VerificationStatus = "pending" | "verified" | "rejected";
 export type SubscriptionStatus = "free" | "active" | "expired";
 
@@ -71,14 +74,14 @@ export class Recruiter {
     return !this.isActive;
   }
   verify(): Recruiter {
-    if (!this.canBeVerified()) throw new Error("Cannot verify recruiter");
+    if (!this.canBeVerified()) throw new DomainError(ERROR_CODES.RECRUITER_CANNOT_BE_VERIFIED);
     return Recruiter.fromPersistence({
       ...this.toProps(),
       verificationStatus: "verified",
     });
   }
   reject(): Recruiter {
-    if (!this.canBeRejected()) throw new Error("Cannot reject recruiter");
+    if (!this.canBeRejected()) throw new DomainError(ERROR_CODES.RECRUITER_CANNOT_BE_REJECTED);
     return Recruiter.fromPersistence({
       ...this.toProps(),
       verificationStatus: "rejected",

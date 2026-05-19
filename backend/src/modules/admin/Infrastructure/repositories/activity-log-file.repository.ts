@@ -15,7 +15,6 @@ export class ActivityLogFileRepository implements ActivityLogRepository {
       return lines.map((line) => {
         const data = JSON.parse(line);
 
-       
         const logData = data.message || {};
 
         return new ActivityLog(
@@ -24,7 +23,7 @@ export class ActivityLogFileRepository implements ActivityLogRepository {
           logData.entityType,
           logData.entityId,
           logData.metadata,
-          new Date(data.timestamp)
+          new Date(data.timestamp),
         );
       });
     } catch (err) {

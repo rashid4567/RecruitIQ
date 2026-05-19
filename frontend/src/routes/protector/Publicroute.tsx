@@ -1,6 +1,5 @@
-
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth"; 
+import { useAuth } from "@/hooks/useAuth";
 
 export const ROLE_HOME: Record<string, string> = {
   admin: "/admin/dashboard",

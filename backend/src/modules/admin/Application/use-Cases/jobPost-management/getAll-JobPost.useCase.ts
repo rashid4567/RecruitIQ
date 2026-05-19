@@ -1,7 +1,6 @@
 import { JobPostRepostory } from "../../../Domain/repositories/jobPost-repository";
 import { GetJobPostsQuery } from "../../dto/recruiter.dto/jobPost.query";
 
-
 export class GetAllJobPostsUseCase {
   constructor(private readonly repo: JobPostRepostory) {}
 
@@ -13,9 +12,8 @@ export class GetAllJobPostsUseCase {
       {
         search: query.search,
         status: query.status,
-        isBlocked: query.isBlocked !== undefined
-          ? query.isBlocked === true
-          : undefined,
+        isBlocked:
+          query.isBlocked !== undefined ? query.isBlocked === true : undefined,
         jobType: query.jobType,
         recruiterId: query.recruiterId,
         location: query.location,

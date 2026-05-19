@@ -309,8 +309,8 @@ export class JobPost {
     this.guardNotExpired();
     this.guardNotBlocked();
 
-    if(!this.title || !this.description){
-      throw new DomainError(ERROR_CODES.CANNOT_PUBLISH_INCLOMPLETE_JOB)
+    if (!this.title || !this.description) {
+      throw new DomainError(ERROR_CODES.CANNOT_PUBLISH_INCLOMPLETE_JOB);
     }
     this.status = "active";
     this.postedOn = new Date();

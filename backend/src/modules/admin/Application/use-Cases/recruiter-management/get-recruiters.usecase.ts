@@ -1,7 +1,6 @@
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
+import { AccountStatus } from "../../../Domain/constatns/verification.status";
 import { GetRecruitersQuery } from "../../dto/recruiter.dto/get-recruiters.query";
-
-
 
 export class GetRecruitersUseCase {
   constructor(private readonly repo: RecruiterRepository) {}
@@ -12,7 +11,7 @@ export class GetRecruitersUseCase {
 
     const result = await this.repo.getRecruiters({
       search: query.search,
-      verificationStatus: query.verificationStatus ,
+      verificationStatus: query.verificationStatus as AccountStatus | undefined,
       subscriptionStatus: query.subscriptionStatus,
       isActive:
         query.isActive !== undefined
@@ -25,11 +24,7 @@ export class GetRecruitersUseCase {
 
     return {
       recruiters: result.recruiters,
-      pagination: {
-        page,
-        limit,
-        total: result.total,
-      },
+      pagination: { page, limit, total: result.total },
     };
   }
 }

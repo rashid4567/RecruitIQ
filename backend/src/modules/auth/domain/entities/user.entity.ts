@@ -79,7 +79,7 @@ export class User {
 
   updateEmail(email: Email): User {
     if (!this.authProvider.isLocal()) {
-      throw new Error("Email update not allowed for social login");
+      throw new DomainError(DOMAIN_ERROR_CODES.EMAIL_UPDATE_NOT_ALLOWED);
     }
 
     if (this.email.getValue() === email.getValue()) {

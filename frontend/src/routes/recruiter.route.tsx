@@ -9,10 +9,10 @@ const RecruiterDetails = lazy(
   () => import("../module/recruiter/presentation/pages/completeProfile"),
 );
 const MyJobPost = lazy(
-  () => import("../module/recruiter/presentation/pages/jobpost"),
+  () => import("../module/jobs/presentation/pages/jobpost"),
 );
 const JobPostEditor = lazy(
-  () => import("../module/recruiter/presentation/pages/jobpost.Editor"),
+  () => import("../module/jobs/presentation/pages/jobpost.Editor"),
 );
 const RecruiterSettingsPage = lazy(
   () => import("../module/recruiter/presentation/pages/recruiter.profile"),

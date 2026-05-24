@@ -1,6 +1,6 @@
 import { JobPost } from "../../../domain/entities/job-post.entity";
 import { JobPostRepository } from "../../../domain/repositories/JobPostRepository";
-import { UpdateJobPostDTO } from "../../dto/jobPost.dto";
+import { UpdateJobPostDTO } from "../../../../job/application/dto/jobPost.dto";
 
 export class UpdateJobPostUseCase {
   constructor(private readonly jobPostRepo: JobPostRepository) {}

@@ -96,7 +96,7 @@ const ActivityLogs = lazy(
 const JobPostManagement = lazy(
   () =>
     import(
-      "../module/admin/presentation/pages/jobPost.managment.tsx"
+      "../module/jobs/presentation/pages/jobPost.managment.tsx"
     )
 );
 

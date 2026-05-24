@@ -23,7 +23,7 @@ import type {
 import type {
   RawPaginatedSubscriptions,
   RawRecruiterSubscription,
-} from "../../Interface/RecruiterSubscription";
+} from "../Interface/RecruiterSubscription";
 
 interface SingleSubscriptionApiResponse {
   data: RawRecruiterSubscription | null;

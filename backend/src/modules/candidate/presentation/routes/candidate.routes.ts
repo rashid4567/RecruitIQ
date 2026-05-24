@@ -6,7 +6,7 @@ import {
   getprofileController,
   updateprofileController,
 } from "../container/candidate.module"
-import jobPostRouter from "./jobPost.routes";
+import jobPostRouter from "../../../job/presentation/router/candidate.jobPost.routes";
 
 const router = Router();
 

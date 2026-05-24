@@ -35,10 +35,7 @@ export function EmailLogsHeader({ onRefresh, isRefreshing }: EmailLogsHeaderProp
             Refresh
           </Button>
 
-          <Button className="bg-indigo-600 hover:bg-indigo-700 shadow-sm flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Export CSV
-          </Button>
+          
         </div>
       </div>
     </header>

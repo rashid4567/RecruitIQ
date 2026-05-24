@@ -3,7 +3,7 @@ import { JobPostRepository } from "../../domain/repositories/JobPostRepository";
 import {
   JobPostDocument,
   JobPostModel,
-} from "../mongoose/model/job-post.model";
+} from "../../../job/infrastructure/mongoose/job-post.model";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { ERROR_CODES } from "../../domain/constatns/recruiter.profile.error";
 

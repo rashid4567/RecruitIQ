@@ -7,7 +7,7 @@ import {
 import {
   JobPostDocument,
   JobPostModel,
-} from "../../../recruiter/infrastructure/mongoose/model/job-post.model";
+} from "../../../job/infrastructure/mongoose/job-post.model";
 import {
   JobPostEntity,
   JobPostProps,

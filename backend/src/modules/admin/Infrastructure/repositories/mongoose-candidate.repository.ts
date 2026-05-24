@@ -3,7 +3,7 @@ import { CandidateRepository } from "../../Domain/repositories/candidate.reposit
 import { Candidate } from "../../Domain/entities/candidate.entity";
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { Email } from "../../../auth/domain/value.objects/email.vo";
 
 export class MongooseCandidateRepository implements CandidateRepository {
   async getCandidates(input: {

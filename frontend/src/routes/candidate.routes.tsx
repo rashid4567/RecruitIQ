@@ -14,7 +14,7 @@ const CompleteProfile = lazy(
 );
 
 const CareerPage = lazy(
-  () => import("../module/candidate/presentation/pages/jobPost"),
+  () => import("../module/jobs/presentation/pages/candidate-jobPost"),
 );
 
 const AccountSettingsPage = lazy(

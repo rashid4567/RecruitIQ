@@ -1,6 +1,6 @@
 import { PasswordHasherPort } from "../../../domain/ports/password-hasher.port";
 import { UserRepository } from "../../../domain/repositories/user.repository";
-import { Password } from "../../../../../shared/value-objects/password.vo";
+import { Password } from "../../../domain/value.objects/password-hash.vo";
 import { ERROR_CODES } from "../../constants/error-codes.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 

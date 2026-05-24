@@ -6,7 +6,7 @@ import {
 } from "../container/recruiter.module";
 import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
 import { checkUserActive } from "../../../../middlewares/checkUserActive.middleware";
-import jobPostRouter from "./jobPost.routes";
+import jobPostRouter from "../../../job/presentation/router/jobPost.routes";
 import plansRouter from "./plans.routes"
 const router = Router();
 

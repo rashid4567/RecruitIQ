@@ -21,6 +21,7 @@ export class RegistrationController {
         data: result,
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };

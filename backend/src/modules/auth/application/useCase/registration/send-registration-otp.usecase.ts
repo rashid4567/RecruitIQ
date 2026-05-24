@@ -1,5 +1,5 @@
 import { UserRepository } from "../../../domain/repositories/user.repository";
-import { Email } from "../../../../../shared/value-objects/email.vo";
+import { Email } from "../../../domain/value.objects/email.vo";
 import { ERROR_CODES } from "../../constants/error-codes.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { OTPServicePort } from "../../ports/otp.service.ports";

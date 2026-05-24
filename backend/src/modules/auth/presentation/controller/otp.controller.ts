@@ -19,6 +19,7 @@ export class OtpController {
         message: "OTP sent successfully",
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };

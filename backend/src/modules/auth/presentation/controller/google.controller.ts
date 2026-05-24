@@ -24,6 +24,7 @@ export class GoogleController {
         },
       });
     } catch (err) {
+      console.log("error",err)
       return next(err);
     }
   };

@@ -2,98 +2,308 @@ import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 
 import { logger } from "../shared/logger";
-import { ApplicationError } from "../shared/errors/application.error";
-import { DomainError } from "../shared/errors/domain.error";
 
-const ERROR_STATUS_MAP: Record<string, number> = {
+import { ApplicationError }
+from "../shared/errors/application.error";
+
+import { DomainError }
+from "../shared/errors/domain.error";
+
+const ERROR_STATUS_MAP:
+Record<string, number> = {
+
   USER_ALREADY_EXISTS: 409,
+
   PASSWORD_RESET_NOT_ALLOWED: 403,
+
   INVALID_OTP: 400,
+
   ROLE_REQUIRED: 400,
+
   GOOGLE_LOGIN_NOT_ALLOWED_FOR_ADMIN: 403,
+
   EMAIL_ALREADY_EXISTS: 409,
+
   ROLE_MISMATCH: 409,
+
   ACCOUNT_DEACTIVATED: 403,
+
   INVALID_CURRENT_PASSWORD: 400,
+
   PASSWORD_CHANGE_NOT_ALLOWED: 403,
+
   PASSWORD_NOT_SET: 400,
+
   USER_NOT_FOUND: 404,
 };
 
 export function errorHandler(
   err: unknown,
+
   req: Request,
+
   res: Response,
+
   next: NextFunction,
 ): void {
+
+  console.log(
+    "\n===== ERROR START ====="
+  );
+
+  console.log(
+    "METHOD:",
+    req.method
+  );
+
+  console.log(
+    "URL:",
+    req.originalUrl
+  );
+
+  console.log(
+    "BODY:",
+    req.body
+  );
+
+  console.log(
+    "PARAMS:",
+    req.params
+  );
+
+  console.log(
+    "QUERY:",
+    req.query
+  );
+
+  console.log(
+    "RAW ERROR:",
+    err
+  );
+
+  if (
+    err instanceof Error
+  ) {
+
+    console.log(
+      "NAME:",
+      err.name
+    );
+
+    console.log(
+      "MESSAGE:",
+      err.message
+    );
+
+    console.log(
+      "STACK:"
+    );
+
+    console.log(
+      err.stack
+    );
+  }
+
+  console.log(
+    "===== ERROR END =====\n"
+  );
+
   logger.error({
-    message: "Request Error",
-    method: req.method,
-    url: req.originalUrl,
-    body: req.body,
-    error: err,
+
+    message:
+    "Request Error",
+
+    method:
+    req.method,
+
+    url:
+    req.originalUrl,
+
+    body:
+    req.body,
+
+    params:
+    req.params,
+
+    query:
+    req.query,
+
+    error:
+
+    err instanceof Error
+
+    ? {
+
+        name:
+        err.name,
+
+        message:
+        err.message,
+
+        stack:
+        err.stack,
+
+      }
+
+    : err,
   });
 
-  if (res.headersSent) {
+  if (
+    res.headersSent
+  ) {
+
     next(err);
+
     return;
   }
 
-  if (err instanceof ZodError) {
-    res.status(400).json({
-      success: false,
-      type: "VALIDATION_ERROR",
-      message: "Validation failed",
-      errors: err.issues.map((issue) => ({
-        field: issue.path.join("."),
-        message: issue.message,
+  /* ---------- ZOD ---------- */
+
+  if (
+    err instanceof ZodError
+  ) {
+
+    res.status(400)
+    .json({
+
+      success:false,
+
+      type:
+      "VALIDATION_ERROR",
+
+      message:
+      "Validation failed",
+
+      errors:
+
+      err.issues.map(
+      issue => ({
+
+        field:
+        issue.path.join(
+          "."
+        ),
+
+        message:
+        issue.message,
+
       })),
     });
 
     return;
   }
 
-  if (err instanceof ApplicationError) {
-    const statusCode = ERROR_STATUS_MAP[err.code] ?? 400;
-
-    res.status(statusCode).json({
-      success: false,
-      type: "APPLICATION_ERROR",
-      code: err.code,
-      message: err.message,
-    });
-
-    return;
-  }
-
-  if (err instanceof DomainError) {
-    res.status(400).json({
-      success: false,
-      type: "DOMAIN_ERROR",
-      message: err.message,
-    });
-
-    return;
-  }
+  /* ---------- APPLICATION ---------- */
 
   if (
-    typeof err === "object" &&
-    err !== null &&
-    "code" in err &&
-    err.code === 11000
+    err instanceof ApplicationError
   ) {
-    res.status(409).json({
-      success: false,
-      type: "DATABASE_ERROR",
-      message: "Duplicate field value entered",
+
+    const statusCode =
+
+    ERROR_STATUS_MAP[
+      err.code
+    ] ?? 400;
+
+    res
+    .status(
+      statusCode
+    )
+    .json({
+
+      success:false,
+
+      type:
+      "APPLICATION_ERROR",
+
+      code:
+      err.code,
+
+      message:
+      err.message,
     });
 
     return;
   }
 
-  res.status(500).json({
-    success: false,
-    type: "INTERNAL_SERVER_ERROR",
-    message: "Something went wrong",
+  /* ---------- DOMAIN ---------- */
+
+  if (
+    err instanceof DomainError
+  ) {
+
+    res
+    .status(400)
+    .json({
+
+      success:false,
+
+      type:
+      "DOMAIN_ERROR",
+
+      message:
+      err.message,
+    });
+
+    return;
+  }
+
+  /* ---------- MONGO ---------- */
+
+  if (
+
+    typeof err ===
+    "object"
+
+    &&
+
+    err !== null
+
+    &&
+
+    "code" in err
+
+    &&
+
+    err.code === 11000
+
+  ) {
+
+    res
+    .status(409)
+    .json({
+
+      success:false,
+
+      type:
+      "DATABASE_ERROR",
+
+      message:
+      "Duplicate field value entered",
+    });
+
+    return;
+  }
+
+  /* ---------- UNKNOWN ---------- */
+
+  const message =
+
+  err instanceof Error
+
+  ? err.message
+
+  : "Something went wrong";
+
+  res
+  .status(500)
+  .json({
+
+    success:false,
+
+    type:
+    "INTERNAL_SERVER_ERROR",
+
+    message,
   });
 }

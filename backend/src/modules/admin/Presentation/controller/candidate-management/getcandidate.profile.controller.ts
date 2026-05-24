@@ -21,7 +21,7 @@ export class GetCandidateProfileController {
                 data :profile,
             })
         }catch(err){
-           //logger.error(err);
+           console.log("err", err)
             return next(err)
         }
     }

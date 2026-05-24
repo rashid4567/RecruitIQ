@@ -1,10 +1,10 @@
 import { User } from "../../domain/entities/user.entity";
-import { UserRepository } from "../../domain/repositories/user.repository";
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { UserRepository } from "../../domain/repositories/user.repository"; 
+import { Email } from "../../domain/value.objects/email.vo"; 
 import { UserModel } from "../mongoose/model/user.model";
 import { userRoles } from "../../domain/constants/roles.constants";
 import { AuthProvider } from "../../../../shared/value-objects/auth-provider.vo";
-import { GoogleId } from "../../domain/value.objects.ts/google-id.vo";
+import { GoogleId } from "../../domain/value.objects/google-id.vo";
 import { Types } from "mongoose";
 
 export interface UserDocument {

@@ -21,6 +21,7 @@ export class ForgotPasswordController {
         message: "Password reset email sent",
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };
@@ -35,6 +36,7 @@ export class ForgotPasswordController {
         message: "Password reset successfully",
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };

@@ -1,6 +1,6 @@
 
 
-import type { JobPostFilters, PaginatedJobPosts } from "../../domain/dto/JobPostDTO";
+import type { JobPostFilters, PaginatedJobPosts } from "../../../jobs/domain/dto/JobPostDTO";
 import type { jobPostRepository } from "../../domain/repositories/jobPost.Repository";
 
 export class GetAllJobPostUseCase{

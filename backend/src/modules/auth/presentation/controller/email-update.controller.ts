@@ -45,6 +45,7 @@ export class EmailUpdateController {
       message: "OTP sent to new email",
     });
   } catch (err) {
+    console.log("error",err)
     next(err);
   }
 };
@@ -82,6 +83,7 @@ export class EmailUpdateController {
         message: "Email updated successfully",
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };

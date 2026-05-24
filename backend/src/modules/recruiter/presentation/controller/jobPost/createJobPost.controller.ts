@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { CreateJobPostUseCase } from "../../../application/useCase/jobPost/createJobPost.useCase";
+import { CreateJobPostUseCase } from "../../../../job/application/usecase/job/createJobPost.useCase";
 
 export class CreateJobPostController {
   constructor(private readonly createUc: CreateJobPostUseCase) {}

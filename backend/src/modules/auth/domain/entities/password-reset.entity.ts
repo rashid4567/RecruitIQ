@@ -1,6 +1,6 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { DOMAIN_ERROR_CODES } from "../constants/DomainError";
-import { ResetToken } from "../value.objects.ts/reset-token.vo";
+import { ResetToken } from "../value.objects/reset-token.vo";
 
 export class PasswordReset {
   private constructor(

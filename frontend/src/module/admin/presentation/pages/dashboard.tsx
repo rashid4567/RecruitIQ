@@ -1,8 +1,6 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { Settings, Bell, Users, Building, FileText, User, Briefcase, TrendingUp, BarChart3, DollarSign, Zap, Target, Activity, Calendar, Clock, ArrowUpRight, ArrowDownRight, RefreshCw, Download } from "lucide-react"
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts"
+import { useEffect, useState } from "react"
+import { Bell, Users, FileText, User, Briefcase, TrendingUp, BarChart3, DollarSign, Zap, Target, Activity, Clock, ArrowUpRight, ArrowDownRight, RefreshCw, Download } from "lucide-react"
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts"
 import Sidebar from "../../../../components/admin/sideBar"
 import type { ReactNode } from "react"
 import { Button } from "@/components/ui/button"
@@ -62,7 +60,7 @@ const StatCard = ({ icon, label, value, change, changeType, color }: StatCardPro
 )
 
 export default function AdminDashboard() {
-  const [sidebarOpen] = useState(true)
+
   const [currentTime, setCurrentTime] = useState('')
 
   useEffect(() => {
@@ -80,7 +78,7 @@ export default function AdminDashboard() {
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
+
         <div className="bg-white border-b border-gray-200 px-8 py-6">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -120,9 +118,8 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 overflow-auto px-8 py-6">
-          {/* Stats Grid */}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <StatCard
               icon={<Users className="w-6 h-6 text-indigo-600" />}
@@ -193,9 +190,8 @@ export default function AdminDashboard() {
             />
           </div>
 
-          {/* Charts and Additional Info */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Revenue Breakdown */}
+
             <Card className="border border-gray-200 shadow-sm lg:col-span-2">
               <CardHeader className="border-b border-gray-100">
                 <CardTitle className="flex items-center gap-3">
@@ -221,7 +217,6 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            {/* Revenue Breakdown */}
             <Card className="border border-gray-200 shadow-sm">
               <CardHeader className="border-b border-gray-100">
                 <CardTitle className="flex items-center gap-3">
@@ -266,7 +261,6 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            {/* Recent Activity */}
             <Card className="border border-gray-200 shadow-sm lg:col-span-2">
               <CardHeader className="border-b border-gray-100">
                 <CardTitle className="flex items-center gap-3">
@@ -280,8 +274,8 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   {recentActivity.map((activity, index) => (
                     <div key={index} className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                      <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                      <div className="shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
                           <Bell className="w-5 h-5 text-indigo-600" />
                         </div>
                       </div>
@@ -296,7 +290,6 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            {/* Quick Stats */}
             <Card className="border border-gray-200 shadow-sm">
               <CardHeader className="border-b border-gray-100">
                 <CardTitle className="flex items-center gap-3">

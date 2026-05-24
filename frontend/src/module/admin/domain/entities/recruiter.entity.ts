@@ -11,8 +11,6 @@ export class Recruiter {
   public readonly subscriptionStatus: SubscriptionStatus;
   public readonly jobPostsUsed: number;
   public readonly joinedDate: string;
-
-  // Extended profile fields (from RecruiterProfile)
   public readonly companyName?: string;
   public readonly companyWebsite?: string;
   public readonly companySize?: number;

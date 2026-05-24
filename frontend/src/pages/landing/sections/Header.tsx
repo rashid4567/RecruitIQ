@@ -1,242 +1,498 @@
-import { Menu, X, LogOut } from "lucide-react";
-import { useState, useEffect } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Menu,
+  X,
+  LogOut,
+  ChevronDown,
+  Briefcase,
+  Sparkles,
+  Users,
+  Mail,
+  ArrowRight,
+  LayoutDashboard,
+} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authService } from "@/services/auth/auth.service";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
-type UserRole = "admin" | "recruiter" | "candidate" | null;
+
+function getNavItems(role: string | null) {
+  const jobsHref =
+    role === "candidate"
+      ? "/candidate/jobs"
+      : role === "recruiter"
+        ? "/recruiter/jobs"
+        : "/jobs";
+
+  return [
+    { label: "Features", href: "#features", icon: Sparkles },
+    { label: "Jobs", href: jobsHref, icon: Briefcase },
+    { label: "About", href: "#about", icon: Users },
+    { label: "Contact", href: "#contact", icon: Mail },
+  ];
+}
+
+
+function getInitials(name: string | null): string {
+  if (!name) return "U";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function getRoleDisplay(role: string | null): string {
+  return role ? role.charAt(0).toUpperCase() + role.slice(1) : "User";
+}
+
+function getRoleColor(role: string | null): string {
+  if (role === "recruiter") return "from-violet-500 to-purple-600";
+  if (role === "admin") return "from-rose-500 to-red-600";
+  return "from-blue-500 to-cyan-500";
+}
+
+function getRoleBadgeColor(role: string | null): string {
+  if (role === "recruiter") return "bg-violet-100 text-violet-700 ring-1 ring-violet-200";
+  if (role === "admin") return "bg-rose-100 text-rose-700 ring-1 ring-rose-200";
+  return "bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200";
+}
+
+
+const NavLink: React.FC<{
+  href: string;
+  label: string;
+  active: boolean;
+  onClick?: () => void;
+}> = ({ href, label, active, onClick }) => (
+  <a
+    href={href}
+    onClick={onClick}
+    className={cn(
+      "relative text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-200",
+      active
+        ? "text-cyan-600 bg-cyan-50"
+        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80",
+    )}
+  >
+    {label}
+    {active && (
+      <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-cyan-500" />
+    )}
+  </a>
+);
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState<UserRole>(null);
-  const [userName, setUserName] = useState<string>("");
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const profileRef = useRef<HTMLDivElement>(null);
 
-  // Load user data from localStorage
+  const NAV_ITEMS = getNavItems(userRole);
+
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    const role = localStorage.getItem("userRole") as UserRole;
-    const name = localStorage.getItem("userFullName") || "";
-
+    const role = localStorage.getItem("userRole");
+    const fullName = localStorage.getItem("userFullName");
     setIsLoggedIn(!!token);
     setUserRole(role);
-    setUserName(name);
+    setUserName(fullName || null);
   }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isMenuOpen]);
 
   const handleLogout = async () => {
     try {
       await authService.logout();
+    } catch(error) {
+      console.error("Logout failed:", error);
+    } finally {
       localStorage.removeItem("authToken");
       localStorage.removeItem("userRole");
       localStorage.removeItem("userFullName");
-
       setIsLoggedIn(false);
       setUserRole(null);
-      setUserName("");
-
+      setUserName(null);
+      setIsProfileOpen(false);
       navigate("/");
-    } catch (err) {
-      console.error("Logout failed:", err);
     }
   };
 
-  const getProfilePath = (): string => {
-    switch (userRole) {
-      case "admin":
-        return "/admin-dashboard";
-      case "recruiter":
-        return "/recruiter/profile";
-      case "candidate":
-        return "/candidate/profile";
-      default:
-        return "/profile";
-    }
+  const getProfilePath = () => {
+    if (userRole === "candidate") return "/candidate/profile/setting";
+    if (userRole === "recruiter") return "/recruiter/profile";
+    if (userRole === "admin") return "/admin-dashboard";
+    return "/profile";
   };
 
-  const getDisplayName = (): string => {
-    if (!userName) return "Account";
-    const parts = userName.trim().split(/\s+/);
-    return parts.length >= 2
-      ? `${parts[0]} ${parts[parts.length - 1][0]}.`
-      : parts[0];
+  const getDashboardPath = () => {
+    if (userRole === "candidate") return "/candidate/dashboard";
+    if (userRole === "recruiter") return "/recruiter-dashboard";
+    if (userRole === "admin") return "/admin-dashboard";
+    return "/";
   };
 
-  const getInitials = (): string => {
-    if (!userName) return "U";
-    return userName
-      .split(/\s+/)
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  const initials = getInitials(userName);
+  const roleLabel = getRoleDisplay(userRole);
+  const roleGrad = getRoleColor(userRole);
+  const roleBadge = getRoleBadgeColor(userRole);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-18">
-          {/* Logo */}
-          <div
-            className="flex items-center gap-2.5 cursor-pointer group"
-            onClick={() => navigate("/")}
-          >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
-              <span className="text-white font-black text-xl tracking-tighter">RIQ</span>
-            </div>
-            <span className="font-extrabold text-xl tracking-tighter text-gray-900 hidden sm:block">
-              Recruit<span className="text-blue-600">IQ</span>
-            </span>
-          </div>
+    <>
+      <header
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          scrolled
+            ? "bg-white/98 backdrop-blur-xl shadow-sm shadow-gray-200/80 border-b border-gray-200/60"
+            : "bg-white/95 backdrop-blur-md border-b border-gray-100/60",
+        )}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {["Features", "Jobs", "Companies", "About"].map((item) => (
-              <a
-                key={item}
-                href={item === "Jobs" ? "/jobs" : `#${item.toLowerCase()}`}
-                className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors relative after:absolute after:bottom-[-6px] after:left-0 after:h-0.5 after:bg-blue-600 after:w-0 hover:after:w-full after:transition-all"
-              >
-                {item}
-              </a>
-            ))}
-          </nav>
 
-          {/* Right Side - Auth / Profile */}
-          <div className="flex items-center gap-4">
-            {isLoggedIn ? (
-              <div className="flex items-center gap-3 sm:gap-4">
-                {/* Profile Button */}
-                <button
-                  onClick={() => navigate(getProfilePath())}
-                  className="flex items-center gap-3 px-3 py-1.5 rounded-2xl hover:bg-gray-50 transition-all duration-200 group"
-                >
-                  <Avatar className="h-9 w-9 ring-1 ring-gray-200 group-hover:ring-blue-500/50 transition-all">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-600 text-white font-semibold text-sm">
-                      {getInitials()}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="hidden sm:block text-left">
-                    <p className="text-sm font-semibold text-gray-900 leading-tight">
-                      {getDisplayName()}
-                    </p>
-                    <p className="text-xs text-gray-500 capitalize tracking-wide">
-                      {userRole}
-                    </p>
-                  </div>
-                </button>
-
-                {/* Logout Button */}
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                  title="Sign out"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span className="hidden sm:inline">Sign out</span>
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 sm:gap-4">
-                <button
-                  onClick={() => navigate("/signin")}
-                  className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  Sign in
-                </button>
-                <button
-                  onClick={() => navigate("/role-selection")}
-                  className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg hover:shadow-blue-500/30 active:scale-95 transition-all"
-                >
-                  Get Started
-                </button>
-              </div>
-            )}
-
-            {/* Mobile Menu Toggle */}
             <button
-              className="lg:hidden p-2 text-gray-700 hover:text-blue-600 rounded-xl transition-colors"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle navigation menu"
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2.5 group focus:outline-none"
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              <div
+                className={cn(
+                  "w-9 h-9 rounded-xl bg-linear-to-br from-blue-600 to-cyan-500",
+                  "flex items-center justify-center shadow-md shadow-blue-500/25",
+                  "group-hover:shadow-lg group-hover:shadow-cyan-500/35",
+                  "transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3",
+                )}
+              >
+                <span className="text-white font-black text-sm tracking-tighter">IQ</span>
+              </div>
+              <span className="hidden sm:block font-bold text-[1.05rem] tracking-tight text-gray-900">
+                Recruit
+                <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                  IQ
+                </span>
+              </span>
             </button>
-          </div>
-        </div>
-      </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg">
-          <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
-            {/* Mobile Nav Links */}
-            <nav className="flex flex-col gap-4">
-              {["Features", "Jobs", "Companies", "About"].map((item) => (
-                <a
-                  key={item}
-                  href={item === "Jobs" ? "/jobs" : `#${item.toLowerCase()}`}
-                  className="text-base font-medium text-gray-700 hover:text-blue-600 py-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item}
-                </a>
+            <nav className="hidden lg:flex items-center gap-0.5">
+              {NAV_ITEMS.map(({ label, href }) => (
+                <NavLink
+                  key={label}
+                  href={href}
+                  label={label}
+                  active={location.pathname === href}
+                />
               ))}
             </nav>
 
-            {/* Mobile Auth Section */}
-            <div className="pt-6 border-t border-gray-200">
+     
+            <div className="flex items-center gap-2">
               {isLoggedIn ? (
-                <div className="space-y-5">
-                  <button
-                    onClick={() => {
-                      navigate(getProfilePath());
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center gap-4 w-full text-left"
-                  >
-                    <Avatar className="h-11 w-11">
-                      <AvatarFallback className="bg-gradient-to-br from-blue-600 to-cyan-600 text-white text-lg font-semibold">
-                        {getInitials()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold text-gray-900">{userName || "Your Account"}</p>
-                      <p className="text-sm text-gray-500 capitalize">{userRole}</p>
-                    </div>
-                  </button>
+                <>
+        
+              
 
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center gap-3 text-red-600 hover:text-red-700 font-medium w-full py-3"
-                  >
-                    <LogOut className="h-5 w-5" />
-                    Sign out
-                  </button>
-                </div>
+                  <div ref={profileRef} className="relative hidden lg:block">
+                    <button
+                      onClick={() => setIsProfileOpen((p) => !p)}
+                      className={cn(
+                        "flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl",
+                        "border transition-all duration-200 focus:outline-none",
+                        isProfileOpen
+                          ? "border-cyan-300/70 bg-cyan-50/50 shadow-sm shadow-cyan-500/10"
+                          : "border-gray-200 hover:border-cyan-300/60 hover:bg-gray-50",
+                      )}
+                    >
+                   
+                      <div className="relative">
+                        <Avatar className="h-7 w-7">
+                          <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
+                          <AvatarFallback
+                            className={cn("bg-linear-to-br text-white text-[10px] font-bold", roleGrad)}
+                          >
+                            {initials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white" />
+                      </div>
+
+                      <div className="text-left hidden md:block">
+                        <p className="text-sm font-semibold text-gray-900 max-w-28 truncate leading-none">
+                          {userName ?? "Profile"}
+                        </p>
+                        <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block", roleBadge)}>
+                          {roleLabel}
+                        </span>
+                      </div>
+
+                      <ChevronDown
+                        className={cn(
+                          "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
+                          isProfileOpen && "rotate-180",
+                        )}
+                      />
+                    </button>
+
+                    
+                    {isProfileOpen && (
+                      <div
+                        className={cn(
+                          "absolute right-0 top-[calc(100%+8px)] w-60",
+                          "bg-white rounded-2xl border border-gray-200/80",
+                          "shadow-xl shadow-gray-900/8 py-1.5 z-50",
+                          "animate-in fade-in slide-in-from-top-2 duration-150",
+                        )}
+                      >
+                   
+                        <div className="px-4 py-3 mb-1">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
+                                <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-sm", roleGrad)}>
+                                  {initials}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 truncate">{userName ?? "User"}</p>
+                              <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full inline-block mt-0.5", roleBadge)}>
+                                {roleLabel}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="h-px bg-gray-100 mx-3" />
+
+           
+                        <div className="py-1.5 px-1.5 space-y-0.5">
+                          <button
+                            onClick={() => { navigate(getDashboardPath()); setIsProfileOpen(false); }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
+                          >
+                            <LayoutDashboard className="w-4 h-4 shrink-0 text-gray-400" />
+                            Dashboard
+                          </button>
+                          <button
+                            onClick={() => { navigate(getProfilePath()); setIsProfileOpen(false); }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
+                          >
+                            <Avatar className="h-4 w-4 shrink-0">
+                              <AvatarFallback className={cn("bg-linear-to-br text-white text-[8px] font-bold", roleGrad)}>
+                                {initials}
+                              </AvatarFallback>
+                            </Avatar>
+                            View profile
+                          </button>
+                        </div>
+
+                        <div className="h-px bg-gray-100 mx-3" />
+
+                        <div className="py-1.5 px-1.5">
+                          <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
+                          >
+                            <LogOut className="w-4 h-4 shrink-0" />
+                            Sign out
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
               ) : (
-                <div className="flex flex-col gap-4">
+                <div className="hidden lg:flex items-center gap-2">
                   <button
-                    onClick={() => {
-                      navigate("/signin");
-                      setIsMenuOpen(false);
-                    }}
-                    className="text-base font-medium text-gray-700 hover:text-blue-600 py-3 text-left"
+                    onClick={() => navigate("/signin")}
+                    className="text-sm font-semibold text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100/80 transition-all duration-200"
                   >
                     Sign in
                   </button>
                   <button
-                    onClick={() => {
-                      navigate("/role-selection");
-                      setIsMenuOpen(false);
-                    }}
-                    className="py-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-2xl text-center shadow-md"
+                    onClick={() => navigate("/signup")}
+                    className={cn(
+                      "px-4 py-2 text-white text-sm font-semibold rounded-xl",
+                      "bg-linear-to-r from-blue-600 to-cyan-500",
+                      "shadow-md shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/35",
+                      "transition-all duration-200 hover:scale-105 active:scale-95",
+                      "flex items-center gap-1.5",
+                    )}
                   >
-                    Get Started
+                    Get started
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+   
+              <button
+                onClick={() => setIsMenuOpen((p) => !p)}
+                aria-label="Toggle menu"
+                aria-expanded={isMenuOpen}
+                className={cn(
+                  "lg:hidden relative w-9 h-9 flex items-center justify-center rounded-lg",
+                  "border border-gray-200 hover:bg-gray-50 transition-all duration-200",
+                  isMenuOpen && "bg-gray-100 border-gray-300",
+                )}
+              >
+                <span className={cn("absolute transition-all duration-200", isMenuOpen ? "opacity-0 rotate-45" : "opacity-100")}>
+                  <Menu className="w-4.5 h-4.5 text-gray-700" />
+                </span>
+                <span className={cn("absolute transition-all duration-200", isMenuOpen ? "opacity-100" : "opacity-0 -rotate-45")}>
+                  <X className="w-4.5 h-4.5 text-gray-700" />
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden" aria-modal="true">
+          <div
+            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+            onClick={() => setIsMenuOpen(false)}
+          />
+
+          <div
+            className={cn(
+              "absolute top-16 left-0 right-0 bottom-0",
+              "bg-white/99 backdrop-blur-md overflow-y-auto",
+              "animate-in slide-in-from-top-1 fade-in duration-200",
+            )}
+          >
+            <div className="max-w-7xl mx-auto px-4 pt-5 pb-10 space-y-6">
+
+      
+              <nav className="space-y-1">
+                {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
+                      location.pathname === href
+                        ? "bg-linear-to-r from-cyan-50 to-blue-50/50 text-cyan-700 font-semibold"
+                        : "text-gray-700 hover:bg-gray-50 font-medium",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                        location.pathname === href
+                          ? "bg-cyan-100 text-cyan-700"
+                          : "bg-gray-100 text-gray-500",
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </span>
+                    {label}
+                    {location.pathname === href && (
+                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                    )}
+                  </a>
+                ))}
+              </nav>
+
+              <div className="h-px bg-linear-to-r from-transparent via-gray-200 to-transparent" />
+
+         
+              {isLoggedIn ? (
+                <div className="space-y-2">
+       
+                  <button
+                    onClick={() => { navigate(getProfilePath()); setIsMenuOpen(false); }}
+                    className={cn(
+                      "w-full flex items-center gap-4 p-4 rounded-2xl text-left",
+                      "bg-linear-to-br from-gray-50 to-gray-100/60",
+                      "border border-gray-200 hover:border-cyan-300/60 hover:from-cyan-50/50 hover:to-blue-50/30",
+                      "transition-all duration-200",
+                    )}
+                  >
+                    <div className="relative">
+                      <Avatar className="h-12 w-12 shrink-0">
+                        <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
+                        <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-base", roleGrad)}>
+                          {initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 truncate text-base">{userName ?? "Your Account"}</p>
+                      <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block", roleBadge)}>
+                        {roleLabel}
+                      </span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-gray-400 shrink-0" />
+                  </button>
+
+                 
+
+                  <button
+                    onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50/80 font-medium transition-colors text-left"
+                  >
+                    <span className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
+                      <LogOut className="w-4 h-4" />
+                    </span>
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  <button
+                    onClick={() => { navigate("/login"); setIsMenuOpen(false); }}
+                    className="w-full py-3 px-4 rounded-xl border border-gray-200 text-gray-800 font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    Sign in
+                  </button>
+                  <button
+                    onClick={() => { navigate("/register"); setIsMenuOpen(false); }}
+                    className={cn(
+                      "w-full py-3 px-4 rounded-xl text-white font-semibold",
+                      "bg-linear-to-r from-blue-600 to-cyan-500",
+                      "shadow-md shadow-cyan-500/20 active:scale-[0.98] transition-all",
+                      "flex items-center justify-center gap-2",
+                    )}
+                  >
+                    Get started
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               )}
@@ -244,6 +500,6 @@ export default function Header() {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }

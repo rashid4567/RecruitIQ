@@ -1,7 +1,17 @@
-import { GetRecruitersInput } from "../../Application/dto/recruiter.dto/get-recruiters.input";
-import { Recruiter } from "../entities/recruiter.entity";
 
+import { Recruiter } from "../entities/recruiter.entity";
+import {AccountStatus} from "../constatns/verification.status"
 import { VerificationStatus } from "../entities/recruiter.entity";
+
+export interface GetRecruitersInput {
+  search?: string;
+  verificationStatus?: AccountStatus;
+  subscriptionStatus?: string;
+  isActive?: boolean;
+  skip: number;
+  limit: number;
+  sort?: "latest" | "oldest";
+}
 
 export interface RecruiterRepository {
 

@@ -1,4 +1,4 @@
-// components/recruiter-profile/RecruiterProfileHeader.tsx
+
 import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Recruiter } from "@/module/admin/domain/entities/recruiter.entity";
@@ -8,7 +8,7 @@ interface RecruiterProfileHeaderProps {
   onBack: () => void;
 }
 
-export function RecruiterProfileHeader({ recruiter, onBack }: RecruiterProfileHeaderProps) {
+export function RecruiterProfileHeader({ onBack }: RecruiterProfileHeaderProps) {
   return (
     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex items-center gap-3">

@@ -132,7 +132,7 @@ export function EmailVerificationModal({
               transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
               className="flex flex-col items-center text-center px-8 py-12 bg-white space-y-5"
             >
-              {/* Animated success ring */}
+           
               <div className="relative">
                 <div className="h-24 w-24 rounded-full bg-emerald-50 flex items-center justify-center">
                   <motion.div
@@ -195,13 +195,13 @@ export function EmailVerificationModal({
               transition={{ duration: 0.2 }}
               className="bg-white"
             >
-              {/* Top decorative section */}
-              <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8 text-white overflow-hidden">
-                {/* Background decoration */}
+     
+              <div className="relative bg-linear-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8 text-white overflow-hidden">
+             
                 <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
                 <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
 
-                {/* Close button */}
+      
                 <button
                   onClick={handleClose}
                   disabled={isProcessing}
@@ -225,9 +225,9 @@ export function EmailVerificationModal({
                 </div>
               </div>
 
-              {/* Form section */}
+            
               <div className="px-8 py-7 space-y-6">
-                {/* OTP label */}
+             
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
@@ -240,7 +240,7 @@ export function EmailVerificationModal({
                     )}
                   </div>
 
-                  {/* OTP slots */}
+         
                   <InputOTP
                     maxLength={6}
                     value={otp}
@@ -271,7 +271,7 @@ export function EmailVerificationModal({
                     </InputOTPGroup>
                   </InputOTP>
 
-                  {/* Error message */}
+           
                   <AnimatePresence>
                     {error && (
                       <motion.div
@@ -288,7 +288,7 @@ export function EmailVerificationModal({
                   </AnimatePresence>
                 </div>
 
-                {/* Verify button */}
+              
                 <Button
                   onClick={handleSubmit}
                   disabled={otp.length !== 6 || isProcessing}
@@ -312,7 +312,7 @@ export function EmailVerificationModal({
                   )}
                 </Button>
 
-                {/* Resend section */}
+             
                 <div className="flex items-center justify-center gap-2">
                   <p className="text-sm text-slate-400">Didn't get the code?</p>
 
@@ -333,7 +333,7 @@ export function EmailVerificationModal({
                     </button>
                   ) : (
                     <div className="flex items-center gap-2">
-                      {/* Circular countdown */}
+              
                       <div className="relative h-5 w-5">
                         <svg className="h-5 w-5 -rotate-90" viewBox="0 0 20 20">
                           <circle

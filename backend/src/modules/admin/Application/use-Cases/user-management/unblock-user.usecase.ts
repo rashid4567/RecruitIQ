@@ -10,7 +10,7 @@ export class UnblockUserUseCase{
 
     async execute(userId : string){
           if (!userId || userId === "[object Object]") {
-    throw new ApplicationError("Invalid user id");
+    throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
   }
         const id = UserId.create(userId);
         const user = await this.userRepo.findById(id);

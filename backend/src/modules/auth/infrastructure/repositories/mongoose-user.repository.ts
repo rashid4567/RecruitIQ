@@ -1,10 +1,10 @@
 import { User } from "../../domain/entities/user.entity";
-import { UserRepository } from "../../domain/repositories/user.repository";
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { UserRepository } from "../../domain/repositories/user.repository"; 
+import { Email } from "../../domain/value.objects/email.vo"; 
 import { UserModel } from "../mongoose/model/user.model";
 import { userRoles } from "../../domain/constants/roles.constants";
 import { AuthProvider } from "../../../../shared/value-objects/auth-provider.vo";
-import { GoogleId } from "../../domain/value.objects.ts/google-id.vo";
+import { GoogleId } from "../../domain/value.objects/google-id.vo";
 import { Types } from "mongoose";
 
 export interface UserDocument {
@@ -19,12 +19,11 @@ export interface UserDocument {
   profileImage?: string | null;
 }
 
-
-
 export class MongooseUserRepository implements UserRepository {
-
   async findByEmail(email: Email): Promise<User | null> {
-    const doc = await UserModel.findOne({ email: email.getValue() }).lean<UserDocument>();
+    const doc = await UserModel.findOne({
+      email: email.getValue(),
+    }).lean<UserDocument>();
     return doc ? this.toDomain(doc) : null;
   }
 
@@ -34,7 +33,6 @@ export class MongooseUserRepository implements UserRepository {
   }
 
   async save(user: User): Promise<User> {
-
     if (!user.id) {
       const doc = await UserModel.create({
         email: user.email.getValue(),
@@ -60,7 +58,7 @@ export class MongooseUserRepository implements UserRepository {
         googleId: user.googleId?.getValue(),
         password: user.getPasswordHash() ?? null,
       },
-      { new: true }
+      { new: true },
     ).lean<UserDocument>();
 
     if (!doc) {

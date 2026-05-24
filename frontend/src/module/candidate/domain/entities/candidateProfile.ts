@@ -1,6 +1,6 @@
 import type { Gender } from "../types/gender.types";
 
-// Shape returned by GET /candidate/profile
+
 export interface CandidateProfileApiResponse {
   user: {
     id: string;
@@ -23,8 +23,6 @@ export interface CandidateProfileApiResponse {
     profileCompleted: boolean;
   };
 }
-
-// Shape returned by PUT /candidate/profile (different backend serialization)
 export interface CandidateProfileUpdateApiResponse {
   user: {
     id: { value: string } | string;
@@ -104,7 +102,7 @@ export class CandidateProfile {
     this.profileCompleted = params.profileCompleted;
   }
 
-  // For GET /candidate/profile
+  
   static fromApi(data: CandidateProfileApiResponse): CandidateProfile {
     if (!data?.user || !data?.candidateProfile) {
       throw new Error(`Invalid API response shape: ${JSON.stringify(data)}`);
@@ -131,13 +129,12 @@ export class CandidateProfile {
     });
   }
 
-  // For PUT /candidate/profile (backend returns wrapped values and "profile" key)
+
   static fromUpdateApi(data: CandidateProfileUpdateApiResponse): CandidateProfile {
     if (!data?.user || !data?.profile) {
       throw new Error(`Invalid update API response shape: ${JSON.stringify(data)}`);
     }
 
-    // email and id may be wrapped in { value: "..." } objects
     const email =
       typeof data.user.email === "string"
         ? data.user.email
@@ -146,7 +143,7 @@ export class CandidateProfile {
     return new CandidateProfile({
       fullName: data.user.fullName.trim(),
       email,
-      emailVerified: false, // not returned by update endpoint, keep existing
+      emailVerified: false, 
       profileImage: data.user.profileImage ?? undefined,
 
       currentJob: data.profile.currentJob ?? undefined,

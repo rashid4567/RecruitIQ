@@ -6,40 +6,57 @@ export class Candidate {
   public readonly email: string;
   public readonly status: CandidateStatus;
   public readonly registeredDate: string;
-  public readonly jobTitle?: string;
-  public readonly experience: number;
+  public readonly currentJob?: string;
+  public readonly experienceYears: number;
+  public readonly educationLevel?: string;
   public readonly skills: string[];
-  public readonly summary?: string;
-  public readonly location?: string;
-
+  public readonly preferredJobLocations: string[];
+  public readonly bio?: string;
+  public readonly currentJobLocation?: string;
+  public readonly gender?: string;
+  public readonly linkedinUrl?: string;
+  public readonly portfolioUrl?: string;
+  public readonly profileCompleted: boolean;
   constructor(params: {
     userId: string;
     name: string;
     email: string;
     status: CandidateStatus;
     registeredDate: string;
-
-    jobTitle?: string;
-    experience?: number;
+    currentJob?: string;
+    experienceYears?: number;
+    educationLevel?: string;
     skills?: string[];
-    summary?: string;
-    location?: string;
+    preferredJobLocations?: string[];
+    bio?: string;
+    currentJobLocation?: string;
+    gender?: string;
+    linkedinUrl?: string;
+    portfolioUrl?: string;
+    profileCompleted?: boolean;
   }) {
     if (!params.userId) {
       throw new Error("Candidate userId is required");
     }
-
     this.userId = params.userId;
     this.name = params.name;
     this.email = params.email;
     this.status = params.status;
     this.registeredDate = params.registeredDate;
-
-    this.jobTitle = params.jobTitle;
-    this.experience = params.experience ?? 0;
+    this.currentJob = params.currentJob;
+    this.experienceYears = params.experienceYears ?? 0;
+    this.educationLevel = params.educationLevel;
     this.skills = params.skills ?? [];
-    this.summary = params.summary;
-    this.location = params.location;
+    this.preferredJobLocations =
+      params.preferredJobLocations ?? [];
+    this.bio = params.bio;
+    this.currentJobLocation =
+      params.currentJobLocation;
+    this.gender = params.gender;
+    this.linkedinUrl = params.linkedinUrl;
+    this.portfolioUrl = params.portfolioUrl;
+    this.profileCompleted =
+      params.profileCompleted ?? false;
   }
 
   isActive(): boolean {
@@ -51,7 +68,11 @@ export class Candidate {
   }
 
   hasProfile(): boolean {
-    return Boolean(this.summary || this.skills.length);
+    return Boolean(
+      this.bio ||
+      this.skills.length ||
+      this.currentJob
+    );
   }
 
   withStatus(status: CandidateStatus): Candidate {
@@ -59,13 +80,22 @@ export class Candidate {
       userId: this.userId,
       name: this.name,
       email: this.email,
-      registeredDate: this.registeredDate,
       status,
-      jobTitle: this.jobTitle,
-      experience: this.experience,
+      registeredDate: this.registeredDate,
+      currentJob: this.currentJob,
+      experienceYears: this.experienceYears,
+      educationLevel: this.educationLevel,
       skills: this.skills,
-      summary: this.summary,
-      location: this.location,
+      preferredJobLocations:
+        this.preferredJobLocations,
+      bio: this.bio,
+      currentJobLocation:
+        this.currentJobLocation,
+      gender: this.gender,
+      linkedinUrl: this.linkedinUrl,
+      portfolioUrl: this.portfolioUrl,
+      profileCompleted:
+        this.profileCompleted,
     });
   }
 }

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
-import { CompleteCandidateProfileUseCase } from "../../application/use-cases/complete-candidate-profile.usecase";
+import { CompleteCandidateProfileUseCase } from "../../application/use-cases/profile/complete-candidate-profile.usecase";
 import { userIdSchema } from "../validator/userId.validatort";
 import { completeCandidateProfileSchema } from "../validator/completeCandidateProfile-validator";
 

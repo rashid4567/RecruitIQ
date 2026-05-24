@@ -10,7 +10,7 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useCandidateSecurity } from "../../../../hooks/useCandidateSecurity";
 import { Link } from "react-router-dom";
 
@@ -21,58 +21,36 @@ export function CandidatePrivacyAndSecurity() {
     updatePassword,
     passwordSuccess,
     isUpdating,
-    clearSuccess,          // ← Added from updated hook
+    clearSuccess,
   } = useCandidateSecurity();
 
-  // Local visibility states
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Password strength
-  const [strength, setStrength] = useState(0);
-  const [requirements, setRequirements] = useState({
-    length: false,
-    uppercase: false,
-    lowercase: false,
-    number: false,
-    special: false,
-  });
+  const pwd = passwordData.newPassword || "";
 
-  useEffect(() => {
-    const pwd = passwordData.newPassword || "";
-    const hasLength = pwd.length >= 8;
-    const hasUpper = /[A-Z]/.test(pwd);
-    const hasLower = /[a-z]/.test(pwd);
-    const hasNumber = /[0-9]/.test(pwd);
-    const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
+  const requirements = {
+    length: pwd.length >= 8,
+    uppercase: /[A-Z]/.test(pwd),
+    lowercase: /[a-z]/.test(pwd),
+    number: /[0-9]/.test(pwd),
+    special: /[^A-Za-z0-9]/.test(pwd),
+  };
 
-    setRequirements({
-      length: hasLength,
-      uppercase: hasUpper,
-      lowercase: hasLower,
-      number: hasNumber,
-      special: hasSpecial,
-    });
-
-    const score =
-      (hasLength ? 20 : 0) +
-      (hasUpper ? 20 : 0) +
-      (hasLower ? 20 : 0) +
-      (hasNumber ? 20 : 0) +
-      (hasSpecial ? 20 : 0);
-
-    setStrength(score);
-  }, [passwordData.newPassword]);
+  const strength =
+    (requirements.length ? 20 : 0) +
+    (requirements.uppercase ? 20 : 0) +
+    (requirements.lowercase ? 20 : 0) +
+    (requirements.number ? 20 : 0) +
+    (requirements.special ? 20 : 0);
 
   const passwordsMatch =
     passwordData.newPassword &&
     passwordData.newPassword === passwordData.confirmPassword;
 
   const isFormValid =
-    passwordsMatch &&
-    strength >= 60 &&
-    passwordData.currentPassword.length > 0;
+    passwordsMatch && strength >= 60 && passwordData.currentPassword.length > 0;
 
   const getStrengthInfo = () => {
     if (strength <= 20) return { label: "Very Weak", color: "text-red-600" };
@@ -99,7 +77,7 @@ export function CandidatePrivacyAndSecurity() {
 
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="p-8 md:p-12 space-y-10">
-            {/* Success Message */}
+        
             {passwordSuccess && (
               <div className="flex items-start gap-3 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-700">
                 <CheckCircle2 className="w-6 h-6 mt-0.5 shrink-0" />
@@ -116,9 +94,12 @@ export function CandidatePrivacyAndSecurity() {
             )}
 
             <div className="space-y-8">
-              {/* Current Password */}
+        
               <div className="space-y-2">
-                <Label htmlFor="currentPassword" className="text-base font-medium">
+                <Label
+                  htmlFor="currentPassword"
+                  className="text-base font-medium"
+                >
                   Current Password
                 </Label>
                 <div className="relative">
@@ -146,7 +127,7 @@ export function CandidatePrivacyAndSecurity() {
                 </div>
               </div>
 
-              {/* New Password */}
+         
               <div className="space-y-2">
                 <Label htmlFor="newPassword" className="text-base font-medium">
                   New Password
@@ -175,11 +156,13 @@ export function CandidatePrivacyAndSecurity() {
                   </button>
                 </div>
 
-                {/* Strength Indicator */}
+            
                 {passwordData.newPassword && (
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center justify-between text-sm">
-                      <span className={`font-semibold ${getStrengthInfo().color}`}>
+                      <span
+                        className={`font-semibold ${getStrengthInfo().color}`}
+                      >
                         {getStrengthInfo().label}
                       </span>
                       <span className="text-gray-500 font-medium">
@@ -190,7 +173,7 @@ export function CandidatePrivacyAndSecurity() {
                   </div>
                 )}
 
-                {/* Requirements */}
+          
                 {passwordData.newPassword && (
                   <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm">
                     {[
@@ -198,7 +181,10 @@ export function CandidatePrivacyAndSecurity() {
                       { key: "uppercase", text: "One uppercase letter (A-Z)" },
                       { key: "lowercase", text: "One lowercase letter (a-z)" },
                       { key: "number", text: "One number (0-9)" },
-                      { key: "special", text: "One special character (@$!%*?&)" },
+                      {
+                        key: "special",
+                        text: "One special character (@$!%*?&)",
+                      },
                     ].map((req) => (
                       <li
                         key={req.key}
@@ -220,9 +206,12 @@ export function CandidatePrivacyAndSecurity() {
                 )}
               </div>
 
-              {/* Confirm Password */}
+
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-base font-medium">
+                <Label
+                  htmlFor="confirmPassword"
+                  className="text-base font-medium"
+                >
                   Confirm New Password
                 </Label>
                 <div className="relative">
@@ -273,7 +262,6 @@ export function CandidatePrivacyAndSecurity() {
               </div>
             </div>
 
-            {/* Forgot Password Link */}
             <div className="text-right">
               <Link
                 to="/forgot-password"
@@ -283,11 +271,11 @@ export function CandidatePrivacyAndSecurity() {
               </Link>
             </div>
 
-            {/* Submit Button */}
+         
             <Button
               onClick={updatePassword}
               disabled={isUpdating || !isFormValid}
-              className="w-full py-7 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg disabled:opacity-70"
+              className="w-full py-7 text-lg font-semibold bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg disabled:opacity-70"
             >
               {isUpdating ? (
                 <>

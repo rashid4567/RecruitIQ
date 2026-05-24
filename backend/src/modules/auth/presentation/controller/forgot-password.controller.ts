@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { ForgotPasswordUseCase } from "../../application/useCase/forgot-password.usecase";
-import { ResetPasswordUseCase } from "../../application/useCase/reset-password.usecase";
+import { ForgotPasswordUseCase } from "../../application/useCase/password/forgot-password.usecase";
+import { ResetPasswordUseCase } from "../../application/useCase/password/reset-password.usecase"; 
 import { ForgotPasswordSchema } from "../validators/forgot-password.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { ResetPasswordSchema } from "../validators/reset-password.schema";
@@ -21,6 +21,7 @@ export class ForgotPasswordController {
         message: "Password reset email sent",
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };
@@ -35,6 +36,7 @@ export class ForgotPasswordController {
         message: "Password reset successfully",
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };

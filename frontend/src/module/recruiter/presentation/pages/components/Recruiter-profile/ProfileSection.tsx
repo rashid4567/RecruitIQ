@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2, RefreshCw, AlertTriangle } from "lucide-react";
-import { useRecruiterProfile } from "../../../hooks/useRecruiterProfile";
-import { useRecruiterProfileForm } from "../../../hooks/useRecruiterProfileForm";
-import { useAvatarUpload } from "../../../hooks/useAvatarUpload";
-import { useEmailUpdateForm } from "../../../hooks/useEmailUpdate";
+import { useRecruiterProfile } from "../../../hooks/profile/useRecruiterProfile";
+import { useRecruiterProfileForm } from "../../../hooks/profile/useRecruiterProfileForm"; 
+import { useAvatarUpload } from "../../../hooks/profile/useAvatarUpload";
+import { useEmailUpdateForm } from "../../../hooks/profile/useEmailUpdate";
 import { Button } from "@/components/ui/button";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileAvatarSection } from "./avatar/AvatarSection";
@@ -107,9 +107,6 @@ export function RecruiterProfileSection() {
     );
   }
 
-  function setIsEmailModalOpen(arg0: boolean): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <TooltipProvider>

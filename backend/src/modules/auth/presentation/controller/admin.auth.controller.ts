@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AdminLoginUseCase } from "../../application/useCase/admin-login.usecase";
+import { AdminLoginUseCase } from "../../application/useCase/auth/admin-login.usecase";
 import { LoginSchema } from "../validators/login.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { USER_ROLES } from "../../domain/constants/roles.constants"; 
@@ -34,6 +34,7 @@ export class AdminAuthController {
         },
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };

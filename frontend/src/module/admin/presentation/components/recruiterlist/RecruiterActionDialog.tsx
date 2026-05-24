@@ -10,11 +10,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ShieldCheck, XCircle, Ban, ShieldOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { Recruiter } from "../../../domain/entities/recruiter.entity";
+export type RecruiterAction = "verify" | "reject" | "block" | "unblock";
 
 interface RecruiterActionDialogProps {
   open: boolean;
-  recruiter: any;
-  action: string | null;
+  recruiter: Recruiter | null;
+  action: RecruiterAction | null;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -30,7 +32,16 @@ export function RecruiterActionDialog({
 
   const name = recruiter.companyName || recruiter.name || "this recruiter";
 
-  const config = {
+  const config: Record<
+    RecruiterAction,
+    {
+      title: string;
+      description: string;
+      icon: React.ElementType;
+      accentColor: "emerald" | "red";
+      confirmText: string;
+    }
+  > = {
     verify: {
       title: "Verify Recruiter",
       description: `Grant verified status and full platform access to ${name}.`,
@@ -61,37 +72,33 @@ export function RecruiterActionDialog({
     },
   };
 
-  const current = config[action as keyof typeof config];
+  const current = config[action];
   const Icon = current.icon;
   const isDestructive = current.accentColor === "red";
 
   return (
     <AlertDialog open={open} onOpenChange={onCancel}>
       <AlertDialogContent className="max-w-md p-0 gap-0 border border-neutral-200/80 bg-white shadow-2xl rounded-xl overflow-hidden">
-        {/* Accent Line */}
         <div
           className={cn(
             "h-1 w-full",
-            isDestructive ? "bg-red-500" : "bg-emerald-500"
+            isDestructive ? "bg-red-500" : "bg-emerald-500",
           )}
         />
 
-        {/* Main Content */}
         <div className="p-6">
           <div className="flex items-start gap-4">
-            {/* Icon Container */}
             <div
               className={cn(
                 "shrink-0 w-11 h-11 rounded-lg flex items-center justify-center",
                 isDestructive
                   ? "bg-red-100 text-red-600"
-                  : "bg-emerald-100 text-emerald-600"
+                  : "bg-emerald-100 text-emerald-600",
               )}
             >
               <Icon className="h-5 w-5" strokeWidth={2} />
             </div>
 
-            {/* Text Content */}
             <AlertDialogHeader className="space-y-1.5 text-left p-0 flex-1">
               <AlertDialogTitle className="text-base font-semibold text-neutral-900">
                 {current.title}
@@ -103,10 +110,8 @@ export function RecruiterActionDialog({
           </div>
         </div>
 
-        {/* Divider */}
         <div className="h-px bg-neutral-100" />
 
-        {/* Footer */}
         <AlertDialogFooter className="p-4 bg-neutral-50/50 flex-row gap-2 sm:justify-end">
           <AlertDialogCancel className="h-9 px-4 rounded-md border border-neutral-200 bg-white text-neutral-600 text-sm font-medium hover:bg-neutral-100 hover:text-neutral-900 transition-colors m-0">
             Cancel
@@ -117,7 +122,7 @@ export function RecruiterActionDialog({
               "h-9 px-4 rounded-md text-sm font-medium text-white transition-colors m-0",
               isDestructive
                 ? "bg-red-600 hover:bg-red-700"
-                : "bg-emerald-600 hover:bg-emerald-700"
+                : "bg-emerald-600 hover:bg-emerald-700",
             )}
           >
             {current.confirmText}

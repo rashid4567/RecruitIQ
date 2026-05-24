@@ -1,6 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import {
   Lock,
   Eye,
@@ -14,312 +12,306 @@ import {
   Check,
   X,
 } from "lucide-react";
-import { resetPasswordUC } from "../../di/auth";
+import { cn } from "@/lib/utils";
+import { usePasswordReset } from "../../hooks/usePasswordReset";
+import type { StrengthLevel } from "../../hooks/usePasswordReset";
 
-interface PasswordRequirement {
-  label: string;
-  test: (password: string) => boolean;
+
+
+interface PasswordInputProps {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  show: boolean;
+  onToggle: () => void;
+  placeholder?: string;
+  state: "idle" | "ok" | "error";
+  autoComplete?: string;
 }
 
+function PasswordInput({
+  id,
+  value,
+  onChange,
+  show,
+  onToggle,
+  placeholder = "••••••••",
+  state,
+  autoComplete,
+}: PasswordInputProps) {
+  return (
+    <div className="relative">
+      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+      <input
+        id={id}
+        type={show ? "text" : "password"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        className={cn(
+          "w-full pl-10 pr-11 py-3 rounded-xl text-sm border transition-all duration-150",
+          "focus:outline-none focus:ring-2 focus:ring-indigo-400/40",
+          state === "ok"    && "border-emerald-400 bg-emerald-50/30",
+          state === "error" && "border-rose-400    bg-rose-50/30",
+          state === "idle"  && "border-slate-200   bg-white hover:border-slate-300"
+        )}
+      />
+      <button
+        type="button"
+        onClick={onToggle}
+        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+        aria-label={show ? "Hide password" : "Show password"}
+      >
+        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+}
+
+
+
+const BAR_COLOR: Record<StrengthLevel, string> = {
+  "empty":     "bg-slate-200",
+  "very-weak": "bg-rose-500",
+  "weak":      "bg-amber-400",
+  "fair":      "bg-amber-500",
+  "strong":    "bg-indigo-500",
+  "excellent": "bg-emerald-500",
+};
+
+
 const ResetPassword = () => {
-  const [params] = useSearchParams();
-  const token = params.get("token");
-
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [validatingToken, setValidatingToken] = useState(!!token);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const [errors, setErrors] = useState<{ password?: string; confirm?: string }>({});
-
   const navigate = useNavigate();
 
-  const passwordRequirements: PasswordRequirement[] = [
-    { label: "At least 8 characters", test: (pwd) => pwd.length >= 8 },
-    { label: "One uppercase letter", test: (pwd) => /[A-Z]/.test(pwd) },
-    { label: "One lowercase letter", test: (pwd) => /[a-z]/.test(pwd) },
-    { label: "One number", test: (pwd) => /\d/.test(pwd) },
-    { label: "One special character", test: (pwd) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/.test(pwd) },
-  ];
+  const {
+    token,
+    validatingToken,
+    password,
+    confirmPassword,
+    setPassword,
+    setConfirmPassword,
+    showPassword,
+    showConfirmPassword,
+    toggleShowPassword,
+    toggleShowConfirmPassword,
+    requirements,
+    strength,
+    errors,
+    isSubmitEnabled,
+    handleSubmit,
+    loading,
+  } = usePasswordReset();
 
-  const [requirements, setRequirements] = useState(
-    passwordRequirements.map((req) => ({ ...req, met: false }))
-  );
 
-  const calculateStrength = useCallback((pwd: string) => {
-    const metCount = passwordRequirements.filter((req) => req.test(pwd)).length;
-    return (metCount / passwordRequirements.length) * 100;
-  }, []);
-
-  const [strength, setStrength] = useState(0);
-
-  // Real-time password mismatch validation
-  useEffect(() => {
-    if (confirmPassword) {
-      if (password !== confirmPassword) {
-        setErrors((prev) => ({
-          ...prev,
-          confirm: "Passwords do not match",
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, confirm: undefined }));
-      }
-    } else {
-      setErrors((prev) => ({ ...prev, confirm: undefined }));
-    }
-  }, [password, confirmPassword]);
-
-  // Token validation
-  useEffect(() => {
-    if (!token) {
-      setValidatingToken(false);
-      return;
-    }
-    const timer = setTimeout(() => setValidatingToken(false), 1200);
-    return () => clearTimeout(timer);
-  }, [token]);
-
-  // Update strength and requirements
-  useEffect(() => {
-    const newStrength = calculateStrength(password);
-    setStrength(newStrength);
-    setRequirements(
-      passwordRequirements.map((req) => ({
-        ...req,
-        met: req.test(password),
-      }))
-    );
-  }, [password, calculateStrength]);
-
-  const getStrengthConfig = (val: number) => {
-    if (val < 40) return { color: "bg-rose-500", text: "Very weak", textColor: "text-rose-700" };
-    if (val < 70) return { color: "bg-amber-500", text: "Fair", textColor: "text-amber-700" };
-    if (val < 90) return { color: "bg-blue-500", text: "Strong", textColor: "text-blue-700" };
-    return { color: "bg-emerald-500", text: "Excellent", textColor: "text-emerald-700" };
-  };
-
-  const validateForm = () => {
-    const newErrors: typeof errors = {};
-
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (strength < 60) {
-      newErrors.password = "Password is too weak";
-    }
-
-    if (!confirmPassword) {
-      newErrors.confirm = "Please confirm your password";
-    } else if (password !== confirmPassword) {
-      newErrors.confirm = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setLoading(true);
-    try {
-      await resetPasswordUC.execute(token!, password.trim());
-      toast.success("Password reset successful!", {
-        description: "Redirecting you to sign in...",
-        icon: <CheckCircle2 className="h-5 w-5" />,
-      });
-      setTimeout(() => navigate("/signin"), 1800);
-    } catch (err: any) {
-      toast.error("Reset failed", {
-        description: err.message || "Link may be invalid or expired.",
-        icon: <ShieldAlert className="h-5 w-5" />,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Loading & Invalid Token States
   if (validatingToken) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <KeyRound className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold">Verifying reset link...</h2>
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mt-6" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-100 flex items-center justify-center">
+            <KeyRound className="h-8 w-8 text-indigo-600" />
+          </div>
+          <div>
+            <p className="text-base font-semibold text-slate-900">Verifying your link…</p>
+            <p className="text-sm text-slate-500 mt-1">This will only take a moment</p>
+          </div>
+          <Loader2 className="h-6 w-6 animate-spin text-indigo-500 mt-2" />
         </div>
       </div>
     );
   }
 
+
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-10 text-center">
-          <ShieldAlert className="h-16 w-16 text-rose-600 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-slate-900 mb-4">Invalid Link</h1>
-          <p className="text-slate-600 mb-8">This password reset link is invalid or has expired.</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-10 text-center max-w-sm w-full">
+          <div className="w-16 h-16 rounded-2xl bg-rose-100 flex items-center justify-center mx-auto mb-5">
+            <ShieldAlert className="h-8 w-8 text-rose-600" />
+          </div>
+          <h1 className="text-xl font-bold text-slate-900 mb-2">Invalid link</h1>
+          <p className="text-sm text-slate-500 mb-7">
+            This password reset link is invalid or has expired. Please request a new one.
+          </p>
           <button
             onClick={() => navigate("/signin")}
-            className="w-full py-4 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-2xl"
+            className="w-full py-3 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-colors"
           >
-            Back to Sign In
+            Back to sign in
           </button>
         </div>
       </div>
     );
   }
 
-  const strengthConfig = getStrengthConfig(strength);
+
+  const passwordFieldState: "idle" | "ok" | "error" =
+    errors.password                                              ? "error"
+    : password && (strength.level === "strong" || strength.level === "excellent") ? "ok"
+    : "idle";
+
+  const confirmFieldState: "idle" | "ok" | "error" =
+    errors.confirm                                  ? "error"
+    : confirmPassword && password === confirmPassword ? "ok"
+    : "idle";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-10 border border-slate-100">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8">
+    <div className="min-h-screen bg-slate-50/80 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+
+          <div className="flex items-center justify-between mb-7">
             <button
+              type="button"
               onClick={() => navigate("/signin")}
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 text-sm font-medium"
+              className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to sign in
             </button>
-            <div className="text-xs font-medium text-emerald-600">Secure Reset</div>
+            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+              Secure reset
+            </span>
           </div>
 
-          <div className="text-center mb-10">
-            <div className="mx-auto mb-6 w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center">
-              <KeyRound className="h-10 w-10 text-blue-600" />
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+              <KeyRound className="h-6 w-6 text-indigo-600" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900">Set New Password</h1>
-            <p className="text-slate-600 mt-2">Create a strong password for your account</p>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900 leading-none">Set new password</h1>
+              <p className="text-sm text-slate-500 mt-1">Create a strong password for your account</p>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* New Password */}
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">New Password</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full pl-11 pr-12 py-3.5 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all
-                    ${errors.password ? "border-red-400" : password ? "border-emerald-400" : "border-slate-200"}`}
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
+              <label htmlFor="pw" className="block text-sm font-medium text-slate-700 mb-1.5">
+                New password
+              </label>
+              <PasswordInput
+                id="pw"
+                value={password}
+                onChange={setPassword}
+                show={showPassword}
+                onToggle={toggleShowPassword}
+                autoComplete="new-password"
+                state={passwordFieldState}
+              />
               {errors.password && (
-                <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="h-4 w-4" />
+                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-600">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                   {errors.password}
                 </p>
               )}
             </div>
 
-            {/* Password Strength */}
             {password && (
-              <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 space-y-4">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium">Password Strength</span>
-                  <span className={`font-semibold ${strengthConfig.textColor}`}>
-                    {strengthConfig.text}
+              <div className="bg-slate-50 rounded-xl border border-slate-100 p-4 space-y-3">
+
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        BAR_COLOR[strength.level]
+                      )}
+                      style={{ width: `${strength.pct}%` }}
+                    />
+                  </div>
+                  <span className={cn("text-xs font-semibold w-16 text-right shrink-0", strength.color)}>
+                    {strength.label}
                   </span>
                 </div>
-                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-500 ${strengthConfig.color}`}
-                    style={{ width: `${strength}%` }}
-                  />
-                </div>
-                <div className="space-y-2 text-sm">
-                  {requirements.map((req, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      {req.met ? (
-                        <Check className="h-4 w-4 text-emerald-500" />
-                      ) : (
-                        <X className="h-4 w-4 text-slate-300" />
+
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  {requirements.map((req) => (
+                    <div
+                      key={req.label}
+                      className={cn(
+                        "flex items-center gap-1.5 text-[12px] transition-colors",
+                        req.met ? "text-emerald-700" : "text-slate-400"
                       )}
-                      <span className={req.met ? "text-emerald-700" : "text-slate-600"}>
-                        {req.label}
-                      </span>
+                    >
+                      {req.met
+                        ? <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                        : <X    className="h-3.5 w-3.5 shrink-0 text-slate-300" />
+                      }
+                      {req.label}
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Confirm Password</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={`w-full pl-11 pr-12 py-3.5 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all
-                    ${errors.confirm ? "border-red-400" : confirmPassword && password === confirmPassword ? "border-emerald-400" : "border-slate-200"}`}
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
+              <label htmlFor="cpw" className="block text-sm font-medium text-slate-700 mb-1.5">
+                Confirm password
+              </label>
+              <PasswordInput
+                id="cpw"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                show={showConfirmPassword}
+                onToggle={toggleShowConfirmPassword}
+                autoComplete="new-password"
+                state={confirmFieldState}
+              />
 
-              {/* Real-time Password Match Feedback */}
               {errors.confirm ? (
-                <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="h-4 w-4" />
+                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-600">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                   {errors.confirm}
                 </p>
               ) : confirmPassword && password === confirmPassword ? (
-                <p className="mt-2 text-sm text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Passwords match perfectly
+                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-emerald-600">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  Passwords match
                 </p>
               ) : null}
             </div>
 
-            {/* Submit Button */}
+  
             <button
               type="submit"
-              disabled={loading || strength < 60 || password !== confirmPassword || !password || !confirmPassword}
-              className="w-full py-4 rounded-2xl font-semibold text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 disabled:bg-slate-200 disabled:text-slate-400 transition-all flex items-center justify-center gap-2"
+              disabled={!isSubmitEnabled || loading}
+              className={cn(
+                "w-full py-3 rounded-xl text-sm font-semibold transition-all duration-150",
+                "flex items-center justify-center gap-2",
+                isSubmitEnabled && !loading
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-[0.99]"
+                  : "bg-slate-100 text-slate-400 cursor-not-allowed"
+              )}
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Resetting Password...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Resetting…
                 </>
               ) : (
                 <>
-                  <Lock className="h-5 w-5" />
-                  Reset Password
+                  <Lock className="h-4 w-4" />
+                  Reset password
                 </>
               )}
             </button>
+
           </form>
         </div>
+
+        <p className="text-center text-xs text-slate-400 mt-4">
+          Didn't request a reset?{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/signin")}
+            className="underline hover:text-slate-600 transition-colors"
+          >
+            Sign in instead
+          </button>
+        </p>
+
       </div>
     </div>
   );

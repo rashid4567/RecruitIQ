@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { LoginUseCase } from "../../application/useCase/login.useCase";
+import { LoginUseCase } from "../../application/useCase/auth/login.useCase";
 import { LoginSchema } from "../validators/login.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 
@@ -27,6 +27,7 @@ export class AuthController {
         },
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };
@@ -39,13 +40,15 @@ export class AuthController {
     });
   };
 
-  private setRefreshCookie(res: Response, refreshToken: string) {
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-  }
+ private setRefreshCookie(res: Response, refreshToken: string) {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: isProduction,       
+    sameSite: isProduction ? "strict" : "lax", 
+    path: "/",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+}
 }

@@ -1,7 +1,7 @@
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
 import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../domain/repositories/user.entity";
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { Email } from "../../../auth/domain/value.objects/email.vo";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 
 export class MongooseUserRepository implements UserRepository {
@@ -40,7 +40,7 @@ export class MongooseUserRepository implements UserRepository {
         email: user.getEmail().getValue(),
         profileImage: user.getProfileImage(),
       },
-      { upsert: false }
+      { upsert: false },
     );
   }
 }

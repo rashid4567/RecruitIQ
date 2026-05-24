@@ -1,13 +1,6 @@
-import {
-  ChevronLeft,
-  Download,
-  Users,
-  MessageSquare,
-  Zap,
-  Ban,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowLeft, RefreshCw, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Candidate } from "../../../domain/entities/candidates.entity";
 
 interface CandidateProfileHeaderProps {
@@ -19,42 +12,70 @@ interface CandidateProfileHeaderProps {
 
 export function CandidateProfileHeader({
   profile,
+  actionLoading,
   onRefresh,
   onBack,
 }: CandidateProfileHeaderProps) {
+  const isBlocked = profile.status === "Blocked";
+
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b border-indigo-100 px-4 sm:px-8 py-5 sticky top-0 z-10 shadow-sm">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
+        <div className="flex items-center gap-3 min-w-0">
           <Button
             variant="ghost"
             size="icon"
             onClick={onBack}
-            className="hover:bg-indigo-50"
+            className="shrink-0 rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Users className="w-7 h-7 text-indigo-600" />
-              Candidate Profile
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">{profile.name}</p>
+
+          <div className="hidden sm:flex items-center gap-2 text-sm text-gray-400 select-none">
+            <span
+              onClick={onBack}
+              className="cursor-pointer hover:text-indigo-600 transition-colors"
+            >
+              Candidates
+            </span>
+            <span>/</span>
+            <span className="text-gray-900 font-semibold truncate max-w-45">
+              {profile.name}
+            </span>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" size="sm" className="gap-2">
-            <MessageSquare className="w-4 h-4" />
-            Message
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="w-4 h-4" />
-            CV
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2" onClick={onRefresh}>
-            <Zap className="w-4 h-4" />
-            Refresh
+        <p className="sm:hidden text-base font-semibold text-gray-900 truncate max-w-40">
+          {profile.name}
+        </p>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <Badge
+            className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border-0 ${
+              isBlocked
+                ? "bg-rose-100 text-rose-700"
+                : "bg-emerald-100 text-emerald-700"
+            }`}
+          >
+            {isBlocked ? (
+              <ShieldAlert className="w-3.5 h-3.5" />
+            ) : (
+              <ShieldCheck className="w-3.5 h-3.5" />
+            )}
+            {isBlocked ? "Blocked" : "Active"}
+          </Badge>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onRefresh}
+            disabled={actionLoading}
+            className="rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+            title="Refresh profile"
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${actionLoading ? "animate-spin" : ""}`}
+            />
           </Button>
         </div>
       </div>

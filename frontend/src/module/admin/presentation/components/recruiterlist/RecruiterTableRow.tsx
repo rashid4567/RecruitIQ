@@ -9,13 +9,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+import type { Recruiter } from "../../../domain/entities/recruiter.entity";
+import type { RecruiterAction } from "./RecruiterActionDialog";
 
 interface RecruiterTableRowProps {
-  recruiter: any;
+  recruiter: Recruiter;
   isActionLoading?: boolean;
-  onAction: (recruiter: any, action: string) => void;
-  onViewProfile: (recruiterId: string) => void;   // ← Added for consistency with CandidateRow
+  onAction: (recruiter: Recruiter, action: RecruiterAction) => void;
+  onViewProfile: (recruiterId: string) => void;
 }
 
 export function RecruiterTableRow({
@@ -24,7 +25,6 @@ export function RecruiterTableRow({
   onAction,
   onViewProfile,
 }: RecruiterTableRowProps) {
-  
   const isActive = recruiter.isActive ?? true;
 
   const getVerificationBadge = (status?: string) => {
@@ -49,11 +49,9 @@ export function RecruiterTableRow({
     .toUpperCase()
     .slice(0, 2);
 
-  const recruiterId = recruiter._id || recruiter.id;
-
   const handleViewProfile = () => {
-    if (recruiterId) {
-      onViewProfile(recruiterId);
+    if (recruiter.id) {
+      onViewProfile(recruiter.id);
     } else {
       console.error("Recruiter ID is missing");
     }
@@ -61,35 +59,35 @@ export function RecruiterTableRow({
 
   return (
     <tr className="hover:bg-indigo-50/30 transition-colors duration-200 group border-b last:border-0">
-      {/* Recruiter Info */}
+    
       <td className="px-6 py-5">
         <div className="flex items-center gap-3.5">
           <Avatar className="h-11 w-11 ring-2 ring-white shadow-sm">
             <AvatarFallback
               className={cn(
                 "text-white font-semibold text-sm",
-                isActive 
-                  ? "bg-gradient-to-br from-emerald-500 to-emerald-600" 
-                  : "bg-gradient-to-br from-rose-500 to-rose-600"
+                isActive
+                  ? "bg-linear-to-br from-emerald-500 to-emerald-600"
+                  : "bg-linear-to-br from-rose-500 to-rose-600"
               )}
             >
               {initials || "?"}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <div className="font-medium text-slate-900 truncate max-w-[220px]">
+            <div className="font-medium text-slate-900 truncate max-w-55">
               {recruiter.companyName || recruiter.name}
             </div>
-            <div className="text-sm text-slate-500 mt-0.5 truncate max-w-[220px]">
+            <div className="text-sm text-slate-500 mt-0.5 truncate max-w-55">
               {recruiter.email}
             </div>
           </div>
         </div>
       </td>
 
-      {/* Verification Status */}
+
       <td className="px-5 py-5">
-        <Badge 
+        <Badge
           className={cn(
             "px-3.5 py-1 text-xs font-medium rounded-full",
             badge.className
@@ -99,19 +97,17 @@ export function RecruiterTableRow({
         </Badge>
       </td>
 
-      {/* Subscription */}
       <td className="px-5 py-5">
         <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
           {recruiter.subscriptionStatus || "—"}
         </Badge>
       </td>
 
-      {/* Jobs Posted */}
+ 
       <td className="px-5 py-5 text-center font-medium text-slate-700">
         {recruiter.jobPostsUsed || 0}
       </td>
 
-      {/* Status */}
       <td className="px-5 py-5 text-center">
         <div className="flex items-center justify-center gap-3">
           <div
@@ -133,38 +129,35 @@ export function RecruiterTableRow({
         </div>
       </td>
 
-      {/* Joined Date */}
+
       <td className="px-5 py-5 text-slate-600 text-sm">
-        {recruiter.joinedDate 
+        {recruiter.joinedDate
           ? new Date(recruiter.joinedDate).toLocaleDateString("en-IN", {
               month: "short",
               day: "numeric",
-              year: "numeric"
-            }) 
-          : "—"
-        }
+              year: "numeric",
+            })
+          : "—"}
       </td>
 
-      {/* Actions */}
+    
       <td className="px-6 py-5 text-right pr-8">
         <div className="flex items-center justify-end gap-2">
-          {/* View Profile Button */}
           <Button
             variant="ghost"
             size="icon"
             className="h-9 w-9 rounded-lg hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 transition-colors"
             onClick={handleViewProfile}
-            disabled={isActionLoading || !recruiterId}
+            disabled={isActionLoading || !recruiter.id}
             title="View Recruiter Profile"
           >
             <Eye className="h-4 w-4" />
           </Button>
 
-          {/* More Actions Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="icon"
                 className="h-9 w-9 rounded-lg hover:bg-indigo-100 text-slate-600 hover:text-indigo-700"
                 disabled={isActionLoading}
@@ -175,13 +168,13 @@ export function RecruiterTableRow({
             <DropdownMenuContent align="end" className="w-48">
               {recruiter.verificationStatus === "pending" && (
                 <>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => onAction(recruiter, "verify")}
                     className="text-emerald-600 focus:text-emerald-600"
                   >
                     <ShieldCheck className="mr-2 h-4 w-4" /> Verify
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => onAction(recruiter, "reject")}
                     className="text-rose-600 focus:text-rose-600"
                   >
@@ -190,17 +183,13 @@ export function RecruiterTableRow({
                 </>
               )}
 
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => onAction(recruiter, isActive ? "block" : "unblock")}
               >
                 {isActive ? (
-                  <>
-                    <Ban className="mr-2 h-4 w-4" /> Block Recruiter
-                  </>
+                  <><Ban className="mr-2 h-4 w-4" /> Block Recruiter</>
                 ) : (
-                  <>
-                    <Shield className="mr-2 h-4 w-4" /> Unblock Recruiter
-                  </>
+                  <><Shield className="mr-2 h-4 w-4" /> Unblock Recruiter</>
                 )}
               </DropdownMenuItem>
             </DropdownMenuContent>

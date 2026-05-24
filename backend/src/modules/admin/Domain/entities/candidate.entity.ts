@@ -8,7 +8,6 @@ export class Candidate {
     private readonly email: Email,
     private readonly isActive: boolean,
 
-
     private readonly currentJob?: string,
     private readonly experienceYears?: number,
     private readonly educationLevel?: string,
@@ -20,23 +19,38 @@ export class Candidate {
     private readonly linkedinUrl?: string,
     private readonly portfolioUrl?: string,
     private readonly profileCompleted?: boolean,
+  
   ) {}
-
 
   static fromList(props: {
     id: UserId;
     name: string;
     email: Email;
     isActive: boolean;
+    skills?: string[];
+    preferredJobLocations?: string[];
+
   }): Candidate {
     return new Candidate(
       props.id,
       props.name,
       props.email,
       props.isActive,
+      undefined,
+      undefined,
+      undefined,
+
+      props.skills ?? [],
+      props.preferredJobLocations ?? [],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+     
     );
   }
-
 
   static fromProfile(props: {
     id: UserId;
@@ -73,7 +87,6 @@ export class Candidate {
       props.profileCompleted,
     );
   }
-
 
   getId() {
     return this.id;
@@ -130,6 +143,8 @@ export class Candidate {
   getPortfolioUrl() {
     return this.portfolioUrl;
   }
+
+
 
   isProfileCompleted() {
     return this.profileCompleted;

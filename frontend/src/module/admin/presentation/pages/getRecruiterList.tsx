@@ -1,28 +1,35 @@
-
 import { useState } from "react";
 import Sidebar from "@/components/admin/sideBar";
-import { useRecruiters } from "../hooks/useRecruiters";
+import { useRecruiters } from "../hooks/Recruiter-Hooks/useRecruiters";
 import { RecruiterManagementHeader } from "../components/recruiterlist/RecruiterManagementHeader";
 import { RecruiterFilters } from "../components/recruiterlist/RecruiterFilters";
 import { RecruiterTable } from "../components/recruiterlist/RecruiterTable";
 import { RecruiterActionDialog } from "../components/recruiterlist/RecruiterActionDialog";
+import type { RecruiterAction } from "../components/recruiterlist/RecruiterActionDialog";
+import type { Recruiter } from "../../domain/entities/recruiter.entity";
 import { useNavigate } from "react-router-dom";
+
+interface ConfirmState {
+  open: boolean;
+  recruiter: Recruiter | null;
+  action: RecruiterAction | null;
+}
 
 export default function RecruiterManagement() {
   const recruitersData = useRecruiters();
   const navigate = useNavigate();
 
-  const [confirm, setConfirm] = useState<{
-    open: boolean;
-    recruiter: any;
-    action: string | null;
-  }>({ open: false, recruiter: null, action: null });
+  const [confirm, setConfirm] = useState<ConfirmState>({
+    open: false,
+    recruiter: null,
+    action: null,
+  });
 
   const handleViewProfile = (recruiterId: string) => {
     navigate(`/admin/recruiters/${recruiterId}`);
   };
 
-  const handleAction = (recruiter: any, action: string) => {
+  const handleAction = (recruiter: Recruiter, action: RecruiterAction) => {
     setConfirm({ open: true, recruiter, action });
   };
 
@@ -50,12 +57,11 @@ export default function RecruiterManagement() {
           <RecruiterTable
             recruiters={recruitersData.recruiters}
             loading={recruitersData.loading}
-            error={recruitersData.error}
             pagination={recruitersData.pagination}
-            setPagination={recruitersData.setPagination}
             actionLoading={recruitersData.actionLoading}
+            onPageChange={(page) => recruitersData.setPage(page)}
             onAction={handleAction}
-            onViewProfile={handleViewProfile}  
+            onViewProfile={handleViewProfile}
           />
         </main>
 
@@ -64,7 +70,9 @@ export default function RecruiterManagement() {
           recruiter={confirm.recruiter}
           action={confirm.action}
           onConfirm={handleConfirmAction}
-          onCancel={() => setConfirm({ open: false, recruiter: null, action: null })}
+          onCancel={() =>
+            setConfirm({ open: false, recruiter: null, action: null })
+          }
         />
       </div>
     </div>

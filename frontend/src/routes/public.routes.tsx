@@ -1,9 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
-
 import RouteLoader from "../components/RouterLoader";
 import NavigateToSignupWithRole from "./protector/NavigateToSignupWithRole";
-
+import NotFoundPage from "../pages/landing/pageNotFount";
 const LandingPage = lazy(() => import("../pages/landing/landingPage"));
 
 const RoleSelection = lazy(
@@ -14,8 +13,6 @@ const SignIn = lazy(
   () => import("../module/auth/presentation/pages/auth/signIn"),
 );
 
-
-
 const Signup = lazy(
   () => import("../module/auth/presentation/pages/auth/signup"),
 );
@@ -23,8 +20,6 @@ const Signup = lazy(
 const VerifyOTP = lazy(
   () => import("../module/auth/presentation/pages/auth/verifyOtp"),
 );
-
-
 
 const ForgotPassword = lazy(
   () => import("../module/auth/presentation/pages/auth/forgot-password"),
@@ -34,29 +29,29 @@ const ResetPassword = lazy(
   () => import("../module/auth/presentation/pages/auth/ResetPassword"),
 );
 
-const PublicRoutes = () => (
-  <Suspense fallback={<RouteLoader />}>
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/role-selection" element={<RoleSelection />} />
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/verify-otp" element={<VerifyOTP />} />
-  
- 
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-
-      <Route
-        path="/candidate/signup"
-        element={<NavigateToSignupWithRole role="candidate" />}
-      />
-      <Route
-        path="/recruiter/signup"
-        element={<NavigateToSignupWithRole role="recruiter" />}
-      />
-    </Routes>
-  </Suspense>
-);
+const PublicRoutes = () => {
+  return (
+    <Suspense fallback={<RouteLoader />}>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/role-selection" element={<RoleSelection />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/candidate/signup"
+          element={<NavigateToSignupWithRole role="candidate" />}
+        />
+        <Route
+          path="/recruiter/signup"
+          element={<NavigateToSignupWithRole role="recruiter" />}
+        />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Suspense>
+  );
+};
 
 export default PublicRoutes;

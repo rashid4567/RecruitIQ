@@ -1,62 +1,39 @@
-
 import api from "@/api/axios";
-
 import type { CandidateRepository } from "../../domain/repositories/candidate.repository";
 import type { GetCandidatesQuery } from "../../application/dto/get-candidates.query";
 import type { PaginationCandidate } from "../../application/dto/pagination-candidate.dto";
-
 import { Candidate } from "../../domain/entities/candidates.entity";
-
-interface CandidateListApiDto {
-  id: unknown;
-  name: string;
-  email: string;
-  isActive: boolean;
-  createdAt: string;
-}
-
-interface CandidateProfileApiDto {
-  id: unknown;
-  name: string;
-  email: string;
-  isActive: boolean;
-  createdAt?: string;
-  currentJob?: string;
-  experienceYears?: number | { value: number };
-  skills?: string[];
-  bio?: string;
-  currentJobLocation?: string;
-}
+import type {
+  CandidateListApiDto,
+  CandidateProfileApiDto,
+  CandidateResponseApiDto,
+} from "../dto/candidateProfile.dto";
 
 export class ApiCandidateRepository implements CandidateRepository {
-
-  async getCandidates(
-    query: GetCandidatesQuery
-  ): Promise<PaginationCandidate> {
-
+  async getCandidates(query: GetCandidatesQuery): Promise<PaginationCandidate> {
     const cleanedQuery = this.cleanQuery(query);
 
     const { data } = await api.get<{
-      data: {
-        candidates: CandidateListApiDto[];
-        total: number;
-      };
+      data: CandidateResponseApiDto;
     }>("/admin/candidates", {
       params: cleanedQuery,
     });
 
+    const pagination = data.data.pagination;
+
     return {
-      candidates: data.data.candidates.map(c =>
-        this.toListCandidate(c)
-      ),
-      total: data.data.total,
+      candidates: data.data.candidates.map((c) => this.toListCandidate(c)),
+      page: pagination.page,
+      limit: pagination.limit,
+      total: pagination.total,
+      totalPages: Math.ceil(pagination.total / pagination.limit),
     };
   }
 
   async getProfile(candidateId: string): Promise<Candidate> {
-    const { data } = await api.get<{ data: CandidateProfileApiDto }>(
-      `/admin/candidates/${candidateId}`
-    );
+    const { data } = await api.get<{
+      data: CandidateProfileApiDto;
+    }>(`/admin/candidates/${candidateId}`);
 
     return this.toProfileCandidate(data.data);
   }
@@ -75,18 +52,23 @@ export class ApiCandidateRepository implements CandidateRepository {
     await api.patch(`/admin/candidates/${candidateId}/unblock`);
   }
 
-
   private normalizeId(id: unknown): string {
     if (typeof id === "string") return id;
     if (typeof id === "object" && id !== null) {
-      return (id as any)._id ?? (id as any).value ?? String(id);
+      const normalized = id as { _id?: string; value?: string };
+      return normalized._id ?? normalized.value ?? String(id);
     }
     return String(id);
   }
 
-  private cleanQuery<T extends Record<string, any>>(query: T): T {
+  private normalizeExperience(exp?: number | { value: number }): number {
+    if (exp === undefined || exp === null) return 0;
+    return Math.max(0, typeof exp === "number" ? exp : (exp?.value ?? 0));
+  }
+
+  private cleanQuery<T extends object>(query: T): T {
     return Object.fromEntries(
-      Object.entries(query).filter(([, value]) => value !== undefined)
+      Object.entries(query).filter(([, value]) => value !== undefined),
     ) as T;
   }
 
@@ -97,6 +79,17 @@ export class ApiCandidateRepository implements CandidateRepository {
       email: c.email,
       status: c.isActive ? "Active" : "Blocked",
       registeredDate: c.createdAt,
+      currentJob: c.currentJob,
+      experienceYears: this.normalizeExperience(c.experienceYears),
+      educationLevel: c.educationLevel,
+      skills: c.skills ?? [],
+      preferredJobLocations: c.preferredJobLocations ?? [],
+      bio: c.bio,
+      currentJobLocation: c.currentJobLocation,
+      gender: c.gender,
+      linkedinUrl: c.linkedinUrl,
+      portfolioUrl: c.portfolioUrl,
+      profileCompleted: c.profileCompleted ?? false,
     });
   }
 
@@ -107,16 +100,17 @@ export class ApiCandidateRepository implements CandidateRepository {
       email: c.email,
       status: c.isActive ? "Active" : "Blocked",
       registeredDate: c.createdAt ?? "",
-      jobTitle: c.currentJob,
-      experience: Math.max(
-        0,
-        typeof c.experienceYears === "number"
-          ? c.experienceYears
-          : c.experienceYears?.value ?? 0
-      ),
+      currentJob: c.currentJob,
+      experienceYears: this.normalizeExperience(c.experienceYears),
+      educationLevel: c.educationLevel,
       skills: c.skills ?? [],
-      summary: c.bio,
-      location: c.currentJobLocation,
+      preferredJobLocations: c.preferredJobLocations ?? [],
+      bio: c.bio,
+      currentJobLocation: c.currentJobLocation,
+      gender: c.gender,
+      linkedinUrl: c.linkedinUrl,
+      portfolioUrl: c.portfolioUrl,
+      profileCompleted: c.profileCompleted ?? false,
     });
   }
 }

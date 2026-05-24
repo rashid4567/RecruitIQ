@@ -1,73 +1,130 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, AlertCircle } from "lucide-react";
+import { FileText, AlertCircle, Sparkles, TrendingUp } from "lucide-react";
+import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
+interface BioFormValues {
+  bio: string;
+}
 interface BioSectionProps {
-  register: any;
-  errors: Record<string, any>;
+  register: UseFormRegister<BioFormValues>;
+  errors: FieldErrors<BioFormValues>;
   bioLength: number;
   wordCount: number;
   isEditing: boolean;
 }
 
-export function BioSection({ 
-  register, 
-  errors, 
-  bioLength, 
-  wordCount, 
-  isEditing 
+export function BioSection({
+  register,
+  errors,
+  bioLength,
+  wordCount,
+  isEditing,
 }: BioSectionProps) {
-  return (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-        <FileText className="h-5 w-5 text-amber-500" />
-        Professional Bio
-      </h3>
+  const pct = Math.min((bioLength / 500) * 100, 100);
+  const progressColor =
+    bioLength > 450
+      ? "bg-rose-500"
+      : bioLength > 350
+        ? "bg-amber-400"
+        : "bg-emerald-500";
 
-      <div className="space-y-2">
-        <Label htmlFor="bio" className="text-sm font-medium text-slate-700 flex items-center justify-between">
-          <span>About You & Your Company <span className="text-red-500">*</span></span>
-          <div className="flex items-center gap-2">
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              bioLength > 450 
-                ? "bg-red-100 text-red-700" 
-                : bioLength > 400
-                ? "bg-amber-100 text-amber-700"
-                : "bg-green-100 text-green-700"
-            }`}>
+  const labelColor =
+    bioLength > 450
+      ? "text-rose-600 bg-rose-50 ring-1 ring-rose-200"
+      : bioLength > 350
+        ? "text-amber-600 bg-amber-50 ring-1 ring-amber-200"
+        : "text-emerald-700 bg-emerald-50 ring-1 ring-emerald-200";
+
+  return (
+    <section className="space-y-5">
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md shadow-amber-500/25">
+          <FileText className="h-4 w-4 text-white" />
+        </div>
+        <div>
+          <h3 className="text-base font-semibold text-slate-900 leading-none">
+            Professional Bio
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Tell candidates what makes you a great recruiter
+          </p>
+        </div>
+      </div>
+
+      <div className="relative rounded-2xl border border-slate-200 bg-white overflow-hidden transition-all duration-200 focus-within:border-blue-400 focus-within:shadow-md focus-within:shadow-blue-500/10">
+        <div className="flex items-center justify-between px-4 pt-3.5 pb-2 border-b border-slate-100 bg-slate-50/60">
+          <Label
+            htmlFor="bio"
+            className="text-xs font-semibold text-slate-600 flex items-center gap-1.5"
+          >
+            <Sparkles className="h-3 w-3 text-amber-500" />
+            About You &amp; Your Company
+            <span className="text-rose-500 ml-0.5">*</span>
+          </Label>
+          <div className="flex items-center gap-2.5">
+            <span className="flex items-center gap-1 text-xs text-slate-500">
+              <TrendingUp className="h-3 w-3" />
+              {wordCount} words
+            </span>
+            <span
+              className={`text-xs font-semibold px-2.5 py-0.5 rounded-full transition-all duration-300 ${labelColor}`}
+            >
               {bioLength}/500
             </span>
-            <span className="text-xs text-slate-500">{wordCount} words</span>
           </div>
-        </Label>
-        
+        </div>
+
         <Textarea
           id="bio"
           {...register("bio")}
           disabled={!isEditing}
-          rows={5}
-          className={`min-h-35 resize-y ${
-            errors.bio 
-              ? "border-red-300 focus:ring-red-500/20" 
-              : "border-slate-200"
-          } ${!isEditing ? "bg-slate-50" : "bg-white"}`}
-          placeholder="Tell us about your professional background, expertise, and what makes you unique as a recruiter..."
+          rows={6}
+          className={`
+            resize-none border-0 rounded-none bg-transparent focus-visible:ring-0
+            focus-visible:ring-offset-0 text-sm text-slate-800 placeholder:text-slate-400
+            px-4 py-3 leading-relaxed
+            ${!isEditing ? "cursor-default text-slate-600" : ""}
+          `}
+          placeholder="Describe your professional background, specialisation areas, and what sets you apart as a recruiter. Candidates want to know your hiring philosophy and the kinds of roles you typically fill..."
         />
-        
-        {errors.bio && (
-          <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-            <AlertCircle className="h-3 w-3" />
-            {errors.bio.message}
-          </p>
-        )}
-        
-        {bioLength < 10 && isEditing && (
-          <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
-            <AlertCircle className="h-3 w-3" />
-            Minimum 10 characters required
-          </p>
-        )}
+
+        <div className="h-1 bg-slate-100">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+
+        <div className="px-4 py-2 bg-slate-50/60 border-t border-slate-100">
+          {errors.bio ? (
+            <p className="text-rose-500 text-xs flex items-center gap-1.5">
+              <AlertCircle className="h-3 w-3 shrink-0" />
+              {errors.bio.message}
+            </p>
+          ) : bioLength < 10 && isEditing ? (
+            <p className="text-amber-600 text-xs flex items-center gap-1.5">
+              <AlertCircle className="h-3 w-3 shrink-0" />
+              Minimum 10 characters required
+            </p>
+          ) : bioLength > 450 ? (
+            <p className="text-rose-500 text-xs flex items-center gap-1.5">
+              <AlertCircle className="h-3 w-3 shrink-0" />
+              Approaching character limit — {500 - bioLength} remaining
+            </p>
+          ) : isEditing ? (
+            <p className="text-slate-400 text-xs">
+              A compelling bio increases candidate response rates by up to 40%
+            </p>
+          ) : (
+            <p className="text-slate-400 text-xs">
+              Click{" "}
+              <span className="font-medium text-slate-500">Edit Profile</span>{" "}
+              to update your bio
+            </p>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

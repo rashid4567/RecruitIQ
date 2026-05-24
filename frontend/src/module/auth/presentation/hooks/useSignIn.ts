@@ -1,4 +1,4 @@
-
+import type { AxiosError } from "axios";
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import type { GoogleCredentialResponse } from "@react-oauth/google";
@@ -32,7 +32,10 @@ export function useSignIn() {
       };
     }
 
-    const axiosError = err as any;
+   const axiosError = err as AxiosError<{
+  code?: string;
+  message?: string;
+}>;
     const code = axiosError?.response?.data?.code;
     const backendMessage = axiosError?.response?.data?.message ?? "";
 
@@ -123,7 +126,10 @@ export function useSignIn() {
       setSuccess("Google sign in successful! Redirecting...");
       setTimeout(() => navigateBasedOnRole(result.user.role), 900);
     } catch (err: unknown) {
-      const axiosErr = err as any;
+      const axiosErr = err as AxiosError<{
+  code?: string;
+  message?: string;
+}>;
 
       if (axiosErr?.response?.data?.code === "ROLE_REQUIRED") {
         setPendingGoogleCredential(credential);

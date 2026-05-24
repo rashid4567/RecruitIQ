@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -14,8 +12,11 @@ import { ChangePasswordForm } from "./ChangePasswordForm";
 import { RecentActivity } from "./RecentActivity";
 
 import { z } from "zod";
-import { useUpdatePassword } from "../../../hooks/useUpdatePassword";
-import { passwordFormSchema, type PasswordFormData } from "../../../validators/password.validator";
+import { useUpdatePassword } from "../../../hooks/profile/useUpdatePassword";
+import {
+  passwordFormSchema,
+  type PasswordFormData,
+} from "../../../validators/password.validator";
 import { Link } from "react-router-dom";
 
 interface PasswordValidation {
@@ -54,36 +55,21 @@ export function SecuritySection() {
     confirm: false,
   });
 
-  const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
-    length: false,
-    uppercase: false,
-    lowercase: false,
-    number: false,
-    special: false,
-  });
+  const passwordValidation = useMemo<PasswordValidation>(
+    () => ({
+      length: newPassword.length >= 8,
+      uppercase: /[A-Z]/.test(newPassword),
+      lowercase: /[a-z]/.test(newPassword),
+      number: /[0-9]/.test(newPassword),
+      special: /[^A-Za-z0-9]/.test(newPassword),
+    }),
+    [newPassword]
+  );
 
-  // Live Password Requirements
-  useEffect(() => {
-    if (newPassword) {
-      setPasswordValidation({
-        length: newPassword.length >= 8,
-        uppercase: /[A-Z]/.test(newPassword),
-        lowercase: /[a-z]/.test(newPassword),
-        number: /[0-9]/.test(newPassword),
-        special: /[^A-Za-z0-9]/.test(newPassword),
-      });
-    } else {
-      setPasswordValidation({
-        length: false,
-        uppercase: false,
-        lowercase: false,
-        number: false,
-        special: false,
-      });
-    }
-  }, [newPassword]);
-
-  const validateForm = (): { isValid: boolean; errors: Record<string, string> } => {
+  const validateForm = (): {
+    isValid: boolean;
+    errors: Record<string, string>;
+  } => {
     try {
       passwordFormSchema.parse({
         currentPassword,
@@ -110,12 +96,32 @@ export function SecuritySection() {
     const score = Math.min(validCount * 25, 100);
 
     if (validCount <= 2)
-      return { strength: "Weak", color: "text-red-600", bg: "bg-red-500", score };
+      return {
+        strength: "Weak",
+        color: "text-red-600",
+        bg: "bg-red-500",
+        score,
+      };
     if (validCount <= 3)
-      return { strength: "Fair", color: "text-amber-600", bg: "bg-amber-500", score };
+      return {
+        strength: "Fair",
+        color: "text-amber-600",
+        bg: "bg-amber-500",
+        score,
+      };
     if (validCount <= 4)
-      return { strength: "Good", color: "text-blue-600", bg: "bg-blue-500", score };
-    return { strength: "Strong", color: "text-emerald-600", bg: "bg-emerald-500", score: 100 };
+      return {
+        strength: "Good",
+        color: "text-blue-600",
+        bg: "bg-blue-500",
+        score,
+      };
+    return {
+      strength: "Strong",
+      color: "text-emerald-600",
+      bg: "bg-emerald-500",
+      score: 100,
+    };
   };
 
   const handleFieldChange = (field: keyof PasswordFormData, value: string) => {
@@ -136,7 +142,12 @@ export function SecuritySection() {
   };
 
   const handleFieldBlur = (field: keyof PasswordFormData) => {
-    const key = field === "currentPassword" ? "current" : field === "newPassword" ? "new" : "confirm";
+    const key =
+      field === "currentPassword"
+        ? "current"
+        : field === "newPassword"
+          ? "new"
+          : "confirm";
     setTouched((prev) => ({ ...prev, [key]: true }));
   };
 
@@ -162,17 +173,18 @@ export function SecuritySection() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <Card className="border-slate-200/50 shadow-lg overflow-hidden transition-all hover:shadow-xl">
-        {/* Top Accent Bar */}
-        <div className="h-1.5 bg-gradient-to-r from-rose-500 via-purple-500 to-indigo-500" />
+        <div className="h-1.5 bg-linear-to-r from-rose-500 via-purple-500 to-indigo-500" />
 
         <CardHeader className="pb-6 border-b border-slate-100">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-rose-500/30">
+              <div className="h-14 w-14 rounded-2xl bg-linear-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-rose-500/30">
                 <Shield className="h-7 w-7 text-white" />
               </div>
               <div>
-                <CardTitle className="text-2xl text-slate-900">Security Settings</CardTitle>
+                <CardTitle className="text-2xl text-slate-900">
+                  Security Settings
+                </CardTitle>
                 <CardDescription className="text-base mt-1">
                   Manage your password and keep your account secure
                 </CardDescription>
@@ -187,7 +199,6 @@ export function SecuritySection() {
         </CardHeader>
 
         <CardContent className="pt-8 space-y-8">
-          {/* Success Message */}
           {passwordSuccess && (
             <div className="flex items-start gap-3 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-700">
               <ShieldCheck className="w-6 h-6 mt-0.5 shrink-0" />
@@ -222,7 +233,6 @@ export function SecuritySection() {
             onSubmit={handleSubmit}
           />
 
-          {/* Forgot Password Link - Prominently Placed */}
           <div className="flex justify-end">
             <Link
               to="/forgot-password"

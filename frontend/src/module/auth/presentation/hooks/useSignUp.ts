@@ -93,8 +93,9 @@ export function useSignUp() {
       setSuccess("OTP sent successfully! Check your inbox.");
 
       navigate("/verify-otp", { state: formData });
-    } catch (err: any) {
-      setError(err?.message || "Failed to send OTP. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to send OTP . Please try again";
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -114,8 +115,9 @@ export function useSignUp() {
           ? "/candidate/home"
           : "/recruiter/dashboard",
       );
-    } catch (err: any) {
-      setError(err?.message || "Google sign-up failed");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Google sing-up Failed";
+      setError(message);
     } finally {
       setGoogleLoading(false);
     }

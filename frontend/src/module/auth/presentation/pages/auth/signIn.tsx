@@ -67,7 +67,7 @@ export default function SignInPage() {
               isAnyLoading={isAnyLoading}
               onGoogleResponse={handleGoogleResponse}
               onError={function (error: string): void {
-                throw new Error("Function not implemented.");
+                throw new Error(error ?? "Function not implemented.");
               }}
             />
 

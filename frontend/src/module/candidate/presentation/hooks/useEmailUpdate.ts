@@ -26,11 +26,9 @@ export function useEmailUpdate() {
   const [sendingOtp, setSendingOtp] = useState<boolean>(false);
   const [verifyingOtp, setVerifyingOtp] = useState<boolean>(false);
 
-  /**
-   * Request OTP for email update
-   */
+
   const sendOtp = async (email: string): Promise<boolean> => {
-    if (sendingOtp) return false; // prevent duplicate calls
+    if (sendingOtp) return false;
 
     setSendingOtp(true);
 
@@ -55,14 +53,12 @@ export function useEmailUpdate() {
     }
   };
 
-  /**
-   * Verify OTP and update email
-   */
+
   const verifyOtp = async (
     email: string,
     otp: string
   ): Promise<boolean> => {
-    if (verifyingOtp) return false; // prevent duplicate calls
+    if (verifyingOtp) return false; 
 
     setVerifyingOtp(true);
 

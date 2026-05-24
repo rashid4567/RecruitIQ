@@ -1,4 +1,3 @@
-// constants/settingTab.ts
 export type SettingsTab =
   | "Personal Info"
   | "Security"

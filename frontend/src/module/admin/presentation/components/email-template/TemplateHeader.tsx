@@ -77,10 +77,10 @@ export function TemplateHeader({
             onClick={onSave}
             disabled={!canSave || isSaving}
             className={cn(
-              "min-w-[140px] gap-2 shadow-md transition-all",
+              "min-w-35 gap-2 shadow-md transition-all",
               isSaving
                 ? "bg-indigo-700"
-                : "bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800",
+                : "bg-linear-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800",
             )}
           >
             {isSaving ? (

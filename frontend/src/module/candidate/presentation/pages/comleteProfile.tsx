@@ -1,4 +1,3 @@
-// pages/CompleteCandidateProfile.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,13 +14,39 @@ import {
   Linkedin,
   Plus,
 } from "lucide-react";
+import {  type ZodIssue } from "zod";
 
 import { useCompleteCandidateProfile } from "../hooks/useCompleteCandidateProfile";
 import type { CompleteCandidateProfileForm } from "../types/candidate-profile.types";
+import { candidateProfileSchema } from "../validators/complete-profile.validation";
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return (
+    <p className="flex items-center gap-1.5 text-xs text-red-600 mt-1.5 font-medium animate-in fade-in slide-in-from-top-1 duration-150">
+      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+      {message}
+    </p>
+  );
+}
+
+function inputCls(hasError: boolean, extra = "") {
+  return [
+    "w-full px-4 py-3 border rounded-xl outline-none transition-all placeholder:text-slate-400",
+    "focus:ring-2",
+    hasError
+      ? "border-red-400 bg-red-50/50 focus:ring-red-200 focus:border-red-500"
+      : "border-slate-300 bg-white focus:ring-blue-500 focus:border-blue-400",
+    extra,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
 
 export default function CompleteCandidateProfile() {
   const navigate = useNavigate();
-  const { completeProfile, isSubmitting, error } = useCompleteCandidateProfile();
+  const { completeProfile, isSubmitting, error } =
+    useCompleteCandidateProfile();
 
   const [formData, setFormData] = useState<CompleteCandidateProfileForm>({
     currentJob: "",
@@ -34,28 +59,32 @@ export default function CompleteCandidateProfile() {
   });
 
   const [skillInput, setSkillInput] = useState("");
-  // Separate validation error for skills so it shows inline
-  const [skillsError, setSkillsError] = useState<string | null>(null);
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const clearError = (name: string) =>
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
 
   const handleTextChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear field error on change
-    if (formErrors[name]) {
-      setFormErrors((prev) => { const next = { ...prev }; delete next[name]; return next; });
-    }
+    if (submitted) clearError(name);
   };
 
-  // Shared skill-add logic used by both Enter key and the Add button
   const addSkill = () => {
     const trimmed = skillInput.trim();
     if (!trimmed) return;
     if (!formData.skills.includes(trimmed)) {
       setFormData((prev) => ({ ...prev, skills: [...prev.skills, trimmed] }));
-      setSkillsError(null);
+      if (submitted) clearError("skills");
     }
     setSkillInput("");
   };
@@ -67,36 +96,35 @@ export default function CompleteCandidateProfile() {
     }
   };
 
-  const handleRemoveSkill = (skillToRemove: string) => {
+  const removeSkill = (skill: string) =>
     setFormData((prev) => ({
       ...prev,
-      skills: prev.skills.filter((s) => s !== skillToRemove),
+      skills: prev.skills.filter((s) => s !== skill),
     }));
-  };
 
-  // Client-side validation before submit
   const validate = (): boolean => {
-    const errors: Record<string, string> = {};
+    const result = candidateProfileSchema.safeParse({
+      ...formData,
+      linkedinUrl: formData.linkedinUrl?.trim() || undefined,
+    });
 
-    if (!formData.educationLevel) errors.educationLevel = "Please select your education level.";
-    if (!formData.bio.trim()) errors.bio = "Please write a short professional summary.";
-    if (!formData.preferredJobLocations?.trim())
-      errors.preferredJobLocations = "Please enter at least one preferred location.";
-
-    if (formData.skills.length === 0) {
-      setSkillsError("Please add at least one skill.");
-      errors.skills = "required"; // sentinel
+    if (result.success) {
+      setFieldErrors({});
+      return true;
     }
 
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    const errors: Record<string, string> = {};
+    result.error.issues.forEach((issue: ZodIssue) => {
+      const key = issue.path[0] as string;
+      if (!errors[key]) errors[key] = issue.message;
+    });
+    setFieldErrors(errors);
+    return false;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // FIX: guard before sending — gives the user a clear error instead of
-    // letting an empty skills array reach the backend and get a Zod error back.
+    setSubmitted(true);
     if (!validate()) return;
 
     try {
@@ -112,16 +140,16 @@ export default function CompleteCandidateProfile() {
         linkedinUrl: formData.linkedinUrl?.trim() || undefined,
       });
       navigate("/candidate/home");
-    } catch {
-      // error state is set in the hook; nothing extra needed here
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+  const errorCount = Object.keys(fieldErrors).length;
 
-        {/* Header */}
+  return (
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <button
             type="button"
@@ -137,46 +165,63 @@ export default function CompleteCandidateProfile() {
           <div className="w-10" />
         </div>
 
-        {/* API error banner */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-red-800 text-sm">
-            <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-red-800 text-sm">
+            <AlertCircle className="h-5 w-5 mt-0.5 shrink-0" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {submitted && errorCount > 0 && (
+          <div className="mb-5 p-4 bg-red-50 border border-red-300 rounded-xl flex items-start gap-3 text-sm">
+            <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-red-500" />
+            <div>
+              <p className="font-semibold text-red-800">
+                Please fix {errorCount} error{errorCount > 1 ? "s" : ""} before
+                continuing.
+              </p>
+              <ul className="mt-1.5 space-y-0.5 list-disc list-inside text-red-700">
+                {Object.values(fieldErrors).map((msg, i) => (
+                  <li key={i}>{msg}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         )}
 
         <form
           onSubmit={handleSubmit}
+          noValidate
           className="bg-white rounded-2xl shadow-lg border border-slate-200/70 overflow-hidden"
         >
-          <div className="p-6 sm:p-8 space-y-7">
-
-            {/* Current Job */}
-            <div className="space-y-2">
+          <div className="p-6 sm:p-8 space-y-6">
+            <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <Briefcase className="h-4 w-4" />
+                <Briefcase className="h-4 w-4 text-slate-400" />
                 Current / Most Recent Job Title
+                <span className="text-red-500">*</span>
               </label>
               <input
                 name="currentJob"
                 value={formData.currentJob}
                 onChange={handleTextChange}
                 placeholder="e.g. Full Stack Developer"
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition-all placeholder:text-slate-400"
+                className={inputCls(!!fieldErrors.currentJob)}
               />
+              <FieldError message={fieldErrors.currentJob} />
             </div>
 
-            {/* Experience Years */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <Clock className="h-4 w-4" />
+                <Clock className="h-4 w-4 text-slate-400" />
                 Years of Professional Experience
+                <span className="text-red-500">*</span>
               </label>
               <select
                 name="experienceYears"
                 value={formData.experienceYears ?? ""}
                 onChange={handleTextChange}
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none bg-white"
+                className={inputCls(!!fieldErrors.experienceYears)}
               >
                 <option value="">Select range</option>
                 <option value="0">0 – 2 years</option>
@@ -184,21 +229,20 @@ export default function CompleteCandidateProfile() {
                 <option value="5">5 – 10 years</option>
                 <option value="10">10+ years</option>
               </select>
+              <FieldError message={fieldErrors.experienceYears} />
             </div>
 
-            {/* Education */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <GraduationCap className="h-4 w-4" />
-                Highest Education Level <span className="text-red-500">*</span>
+                <GraduationCap className="h-4 w-4 text-slate-400" />
+                Highest Education Level
+                <span className="text-red-500">*</span>
               </label>
               <select
                 name="educationLevel"
                 value={formData.educationLevel}
                 onChange={handleTextChange}
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none bg-white ${
-                  formErrors.educationLevel ? "border-red-400" : "border-slate-300"
-                }`}
+                className={inputCls(!!fieldErrors.educationLevel)}
               >
                 <option value="">Select level</option>
                 <option value="highschool">High School</option>
@@ -207,78 +251,68 @@ export default function CompleteCandidateProfile() {
                 <option value="master">Master's Degree</option>
                 <option value="phd">PhD or equivalent</option>
               </select>
-              {formErrors.educationLevel && (
-                <p className="text-xs text-red-600">{formErrors.educationLevel}</p>
-              )}
+              <FieldError message={fieldErrors.educationLevel} />
             </div>
 
-            {/* Preferred Location(s) */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <MapPin className="h-4 w-4" />
-                Preferred Job Location(s) <span className="text-red-500">*</span>
+                <MapPin className="h-4 w-4 text-slate-400" />
+                Preferred Job Location(s)
+                <span className="text-red-500">*</span>
               </label>
               <input
                 name="preferredJobLocations"
                 value={formData.preferredJobLocations ?? ""}
                 onChange={handleTextChange}
                 placeholder="e.g. Remote, Kochi, Bengaluru"
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition-all placeholder:text-slate-400 ${
-                  formErrors.preferredJobLocations ? "border-red-400" : "border-slate-300"
-                }`}
+                className={inputCls(!!fieldErrors.preferredJobLocations)}
               />
-              <p className="text-xs text-slate-500">Separate multiple locations with commas</p>
-              {formErrors.preferredJobLocations && (
-                <p className="text-xs text-red-600">{formErrors.preferredJobLocations}</p>
-              )}
+              <p className="text-xs text-slate-400">
+                Separate multiple locations with commas
+              </p>
+              <FieldError message={fieldErrors.preferredJobLocations} />
             </div>
 
-            {/* Skills */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <Sparkles className="h-4 w-4" />
-                Key Skills <span className="text-red-500">*</span>
+                <Sparkles className="h-4 w-4 text-slate-400" />
+                Key Skills
+                <span className="text-red-500">*</span>
               </label>
 
-              {/* FIX: added an explicit Add button alongside Enter key,
-                  so users on mobile or who don't know to press Enter can add skills */}
               <div className="flex gap-2">
                 <input
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={handleSkillKeyDown}
-                  placeholder="e.g. React, Node.js, AWS"
-                  className={`flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition-all placeholder:text-slate-400 ${
-                    skillsError ? "border-red-400" : "border-slate-300"
-                  }`}
+                  placeholder="e.g. React, Node.js, AWS — press Enter to add"
+                  className={inputCls(!!fieldErrors.skills)}
                 />
                 <button
                   type="button"
                   onClick={addSkill}
-                  className="px-4 py-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors font-medium flex items-center gap-1.5"
+                  className="px-4 py-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl hover:bg-blue-100 active:bg-blue-200 transition-colors font-medium flex items-center gap-1.5 shrink-0"
                 >
                   <Plus className="h-4 w-4" />
                   Add
                 </button>
               </div>
 
-              {skillsError && (
-                <p className="text-xs text-red-600">{skillsError}</p>
-              )}
+              <FieldError message={fieldErrors.skills} />
 
               {formData.skills.length > 0 && (
-                <div className="flex flex-wrap gap-2.5 mt-3">
+                <div className="flex flex-wrap gap-2 pt-2">
                   {formData.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 text-blue-800 rounded-full text-sm font-medium border border-blue-200/70 shadow-sm"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-800 rounded-full text-sm font-medium border border-blue-200/80"
                     >
                       {skill}
                       <button
                         type="button"
-                        onClick={() => handleRemoveSkill(skill)}
-                        className="text-blue-700 hover:text-blue-900 transition-colors"
-                        aria-label={`Remove skill ${skill}`}
+                        onClick={() => removeSkill(skill)}
+                        className="text-blue-500 hover:text-blue-900 transition-colors"
+                        aria-label={`Remove ${skill}`}
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>
@@ -288,46 +322,54 @@ export default function CompleteCandidateProfile() {
               )}
             </div>
 
-            {/* Bio */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <FileText className="h-4 w-4" />
-                Professional Summary / Bio <span className="text-red-500">*</span>
+                <FileText className="h-4 w-4 text-slate-400" />
+                Professional Summary / Bio
+                <span className="text-red-500">*</span>
               </label>
               <textarea
                 name="bio"
                 value={formData.bio}
                 onChange={handleTextChange}
                 rows={4}
-                placeholder="Highlight your experience, key achievements, career goals..."
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none resize-y min-h-[110px] placeholder:text-slate-400 ${
-                  formErrors.bio ? "border-red-400" : "border-slate-300"
-                }`}
+                placeholder="Highlight your experience, key achievements, and career goals..."
+                className={inputCls(!!fieldErrors.bio, "resize-y min-h-27.5")}
               />
-              {formErrors.bio && (
-                <p className="text-xs text-red-600">{formErrors.bio}</p>
-              )}
+              <div className="flex items-start justify-between gap-2">
+                <FieldError message={fieldErrors.bio} />
+                <span
+                  className={`text-xs shrink-0 ml-auto tabular-nums ${
+                    formData.bio.length > 1000
+                      ? "text-red-500 font-semibold"
+                      : "text-slate-400"
+                  }`}
+                >
+                  {formData.bio.length} / 1000
+                </span>
+              </div>
             </div>
 
-            {/* LinkedIn */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <Linkedin className="h-4 w-4" />
-                LinkedIn Profile <span className="text-slate-400 font-normal">(optional)</span>
+                <Linkedin className="h-4 w-4 text-slate-400" />
+                LinkedIn Profile
+                <span className="text-slate-400 font-normal text-xs">
+                  (optional)
+                </span>
               </label>
               <input
                 name="linkedinUrl"
                 value={formData.linkedinUrl ?? ""}
                 onChange={handleTextChange}
                 placeholder="https://www.linkedin.com/in/your-profile"
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition-all placeholder:text-slate-400"
+                className={inputCls(!!fieldErrors.linkedinUrl)}
               />
+              <FieldError message={fieldErrors.linkedinUrl} />
             </div>
-
           </div>
 
-          {/* Actions */}
-          <div className="px-6 sm:px-8 py-6 bg-slate-50/70 border-t border-slate-200 flex flex-col sm:flex-row gap-4">
+          <div className="px-6 sm:px-8 py-6 bg-slate-50/70 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
             <button
               type="button"
               onClick={() => navigate(-1)}
@@ -338,7 +380,7 @@ export default function CompleteCandidateProfile() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2"
+              className="flex-1 py-3 px-6 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

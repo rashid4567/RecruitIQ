@@ -36,8 +36,8 @@ export function CandidateStatusDialog({
             className={cn(
               "absolute inset-0 transition-all duration-300",
               isBlock
-                ? "bg-gradient-to-br from-red-50 via-white to-red-50/30 dark:from-red-950/30 dark:via-background dark:to-red-950/20"
-                : "bg-gradient-to-br from-green-50 via-white to-green-50/30 dark:from-green-950/30 dark:via-background dark:to-green-950/20"
+                ? "bg-linear-to-br from-red-50 via-white to-red-50/30 dark:from-red-950/30 dark:via-background dark:to-red-950/20"
+                : "bg-linear-to-br from-green-50 via-white to-green-50/30 dark:from-green-950/30 dark:via-background dark:to-green-950/20"
             )}
           ></div>
           <div
@@ -65,14 +65,14 @@ export function CandidateStatusDialog({
               className={cn(
                 "relative w-20 h-20 rounded-full flex items-center justify-center shadow-xl",
                 isBlock
-                  ? "bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700"
-                  : "bg-gradient-to-br from-green-500 to-green-600 dark:from-green-600 dark:to-green-700"
+                  ? "bg-linear-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700"
+                  : "bg-linear-to-br from-green-500 to-green-600 dark:from-green-600 dark:to-green-700"
               )}
             >
               <div className="absolute inset-0 rounded-full opacity-20 blur-md" style={{
                 background: isBlock
-                  ? 'radial-gradient(circle, rgba(239,68,68,0.5))'
-                  : 'radial-gradient(circle, rgba(34,197,94,0.5))'
+                  ? 'radial-linear(circle, rgba(239,68,68,0.5))'
+                  : 'radial-linear(circle, rgba(34,197,94,0.5))'
               }}></div>
               {isBlock ? (
                 <AlertTriangle className="w-10 h-10 text-white relative z-10" />
@@ -88,7 +88,7 @@ export function CandidateStatusDialog({
           </h2>
 
           {/* Divider */}
-          <div className="h-1 w-12 mx-auto mb-6 bg-gradient-to-r from-transparent via-foreground/20 to-transparent rounded-full"></div>
+          <div className="h-1 w-12 mx-auto mb-6 bg-linear-to-r from-transparent via-foreground/20 to-transparent rounded-full"></div>
 
           {/* Description */}
           <p className="text-center text-muted-foreground mb-6 leading-relaxed">
@@ -158,8 +158,8 @@ export function CandidateStatusDialog({
               className={cn(
                 "flex-1 h-11 text-base font-semibold transition-all duration-200 text-white shadow-lg hover:shadow-xl",
                 isBlock
-                  ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 dark:from-red-600 dark:to-red-700 dark:hover:from-red-700 dark:hover:to-red-800"
-                  : "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 dark:from-green-600 dark:to-green-700 dark:hover:from-green-700 dark:hover:to-green-800"
+                  ? "bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 dark:from-red-600 dark:to-red-700 dark:hover:from-red-700 dark:hover:to-red-800"
+                  : "bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 dark:from-green-600 dark:to-green-700 dark:hover:from-green-700 dark:hover:to-green-800"
               )}
             >
               {loading ? (

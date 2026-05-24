@@ -1,14 +1,35 @@
-import { EmailServicePort } from "../../application/ports/email.service.port";
-import { sendPasswordLink } from "../../../../utils/email";
+import { EmailServicePort } from
+"../../application/ports/email.service.port";
+import { PasswordResetEmailService } from "../../application/services/password-reset-email.service";
 
-export class EmailService implements EmailServicePort {
+
+export class AuthEmailService
+implements EmailServicePort {
+
+  constructor(
+   private readonly passwordResetEmailService : PasswordResetEmailService
+  ) {}
+
   async sendPasswordResetLink(
     email: string,
-    token: string
+    token: string,
   ): Promise<void> {
-    await sendPasswordLink(
+
+    const frontendUrl =
+      process.env.FRONTEND_URL;
+
+    if (!frontendUrl) {
+      throw new Error(
+        "FRONTEND_URL not configured",
+      );
+    }
+
+    const resetLink =
+      `${frontendUrl}/reset-password?token=${token}`;
+
+    await this.passwordResetEmailService.send(
       email,
-      `${process.env.FRONTEND_URL}/reset-password?token=${token}`
+      resetLink,
     );
   }
-}
+} 

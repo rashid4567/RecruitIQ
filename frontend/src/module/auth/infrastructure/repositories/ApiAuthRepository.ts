@@ -47,7 +47,9 @@ export class ApiAuthRepository implements AuthRepository {
         accessToken,
         user: new AuthUser(userData.id, userData.role, userData.fullName),
       };
-    } catch (error) {
+    } catch (error : unknown) {
+      console.log(error instanceof Error ? error.message : "Facing issue with the google login")
+      
       throw error;
     }
   }

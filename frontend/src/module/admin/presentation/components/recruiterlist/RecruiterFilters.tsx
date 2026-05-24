@@ -26,7 +26,7 @@ export function RecruiterFilters({
   ];
 
   return (
-    <div className="sticky top-[97px] z-40 bg-white border-b border-slate-200 px-6 py-5 shadow-sm">
+    <div className="sticky top-24.25 z-40 bg-white border-b border-slate-200 px-6 py-5 shadow-sm">
       <div className="max-w-screen-2xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
           {/* Tab Filters */}
@@ -54,7 +54,7 @@ export function RecruiterFilters({
             ))}
           </div>
 
-          {/* Search Bar */}
+   
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
             <Input

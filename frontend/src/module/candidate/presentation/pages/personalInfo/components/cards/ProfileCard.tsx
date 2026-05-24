@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
 import {
@@ -12,13 +11,11 @@ import {
   Linkedin,
   Award,
   Upload,
-  CheckCircle,
-  XCircle,
   ChevronRight,
 } from "lucide-react";
 
 import type { CandidateProfile } from "@/module/candidate/domain/entities/candidateProfile";
-import type { ProfileFormData } from "../../../../validators/profileValidation";
+import type { ProfileFormData } from "../../../../validators/profileValidation.ts";
 
 export interface ProfileStats {
   experienceYears: number;
@@ -35,10 +32,9 @@ export interface ProfileCardProps {
 
   onInputChange: <K extends keyof ProfileFormData>(
     key: K,
-    value: ProfileFormData[K]
+    value: ProfileFormData[K],
   ) => void;
 
-  // ✅ FIX — accept email
   onVerifyEmail: (email: string) => void;
 
   onImageUpload: (file: File) => Promise<void>;
@@ -60,9 +56,6 @@ export function ProfileCard({
   imagePreview,
   isUploading,
 }: ProfileCardProps) {
-  /**
-   * Get initials for avatar fallback
-   */
   const getInitials = (name: string) =>
     name
       .split(" ")
@@ -72,9 +65,6 @@ export function ProfileCard({
       .toUpperCase()
       .slice(0, 2);
 
-  /**
-   * Profile status helpers
-   */
   const getStatusColor = (percentage: number) => {
     if (percentage >= 90) return "text-green-600";
     if (percentage >= 70) return "text-amber-600";
@@ -90,15 +80,11 @@ export function ProfileCard({
     return "Needs attention";
   };
 
-  /**
-   * Email to verify (edited or profile)
-   */
   const emailToVerify = editData.email ?? profile.email;
 
   return (
     <Card className="border-0 shadow-xl bg-linear-to-br from-white to-blue-50/50 backdrop-blur-sm hover:shadow-2xl transition-all">
       <CardContent className="p-6">
-        {/* Avatar */}
         <div className="relative mb-6">
           <div className="relative w-32 h-32 mx-auto group">
             <Avatar className="h-full w-full ring-4 ring-blue-500/20 shadow-xl">
@@ -137,15 +123,12 @@ export function ProfileCard({
             )}
           </div>
 
-          {/* Name */}
           <div className="text-center mt-4 space-y-2">
             <h2 className="text-xl font-bold text-gray-900">
               {isEditing ? (
                 <Input
                   value={editData.fullName ?? profile.fullName}
-                  onChange={(e) =>
-                    onInputChange("fullName", e.target.value)
-                  }
+                  onChange={(e) => onInputChange("fullName", e.target.value)}
                   className="text-center"
                   disabled={loading}
                 />
@@ -153,18 +136,15 @@ export function ProfileCard({
                 profile.fullName
               )}
             </h2>
-
-            
           </div>
         </div>
 
-        {/* Progress */}
         <div className="mb-6 space-y-3">
           <div className="flex justify-between">
             <span className="text-sm font-medium">Profile Status</span>
             <span
               className={`text-sm font-semibold ${getStatusColor(
-                stats.completionPercentage
+                stats.completionPercentage,
               )}`}
             >
               {stats.completionPercentage}% —{" "}
@@ -175,7 +155,6 @@ export function ProfileCard({
           <Progress value={stats.completionPercentage} className="h-2" />
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Stat label="Years Experience" value={stats.experienceYears}>
             <Calendar className="h-6 w-6 text-blue-600" />
@@ -186,15 +165,12 @@ export function ProfileCard({
           </Stat>
         </div>
 
-        {/* Contact */}
         <div className="space-y-3">
           <div className="p-3 rounded-xl border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-blue-600" />
-                <p className="text-sm font-medium truncate">
-                  {profile.email}
-                </p>
+                <p className="text-sm font-medium truncate">{profile.email}</p>
               </div>
 
               {!profile.emailVerified && (
@@ -228,9 +204,6 @@ export function ProfileCard({
   );
 }
 
-/**
- * Small stat component
- */
 function Stat({
   children,
   value,

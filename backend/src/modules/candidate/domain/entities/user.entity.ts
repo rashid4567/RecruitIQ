@@ -9,7 +9,7 @@ export class User {
     private profileImage?: string,
   ) {}
 
-  // ✅ Factory
+
   public static create(
     id: UserId,
     fullName: string,
@@ -28,7 +28,6 @@ export class User {
     );
   }
 
-  // ✅ Persistence mapper
   public static fromPersistence(props: {
     id: UserId;
     fullName: string;
@@ -43,7 +42,6 @@ export class User {
     );
   }
 
-  // ✅ Update methods
   public updateFullName(name: string): void {
     if (!name || name.trim().length === 0) {
       throw new Error("Full name cannot be empty");
@@ -62,7 +60,7 @@ export class User {
     this.profileImage = image?.trim();
   }
 
-  // ✅ Getters
+
   public getId(): UserId {
     return this.id;
   }

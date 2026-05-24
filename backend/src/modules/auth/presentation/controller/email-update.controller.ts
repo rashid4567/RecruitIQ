@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { RequestEmailUpdateUseCase } from "../../application/useCase/request-email.update.usecase";
-import { VerifyEmailUpdateUseCase } from "../../application/useCase/verify-email-update.usecase";
+import { RequestEmailUpdateUseCase } from "../../application/useCase/email/request-email.update.usecase";
+import { VerifyEmailUpdateUseCase } from "../../application/useCase/email/verify-email-update.usecase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import {
   RequestEmailUpdateSchema,
@@ -45,6 +45,7 @@ export class EmailUpdateController {
       message: "OTP sent to new email",
     });
   } catch (err) {
+    console.log("error",err)
     next(err);
   }
 };
@@ -82,6 +83,7 @@ export class EmailUpdateController {
         message: "Email updated successfully",
       });
     } catch (err) {
+      console.log("error",err)
       next(err);
     }
   };

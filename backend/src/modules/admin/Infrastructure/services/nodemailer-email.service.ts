@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
-import { EmailService } from "../../Domain/services/email.service";
-import { logEmail } from "../../../../utils/email-logger";
+import { EmailService } from "../../../email/application/ports/email.service";
+import { logEmail } from "../../../email/infrastructure/logging/email-logger";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",

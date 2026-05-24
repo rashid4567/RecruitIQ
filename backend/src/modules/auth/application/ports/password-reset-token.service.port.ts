@@ -1,4 +1,4 @@
-import { ResetToken } from "../../domain/value.objects.ts/reset-token.vo";
+import { ResetToken } from "../../domain/value.objects/reset-token.vo";
 
 export interface PasswordResetTokenServicePort{
     generate(userId : string):ResetToken;

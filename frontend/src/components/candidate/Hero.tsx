@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+
 import { ArrowRight } from "lucide-react"
 
 export default function Hero() {
-  const [email, setEmail] = useState("")
+  
 
   return (
     <section className="pt-40 md:pt-56 pb-20 md:pb-32 relative">

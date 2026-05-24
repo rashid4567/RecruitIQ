@@ -20,7 +20,7 @@ export const checkUserActive = async (
 
     const user = await UserModel.findById(userId).select("isActive role");
     if (!user) {
-      return res.status(404).json({
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
         success: false,
         message: "User not found",
         code: "USER_NOT_FOUND",

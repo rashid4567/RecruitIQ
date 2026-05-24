@@ -1,35 +1,35 @@
 import { CandidateRepository } from "../../../Domain/repositories/candidate.repository";
-import { CandidateListItemDTO, CandidateListResponseDTO } from "../../dto/candidate.dto/candidate-list-response.dto";
-
+import {
+  CandidateListItemDTO,
+  CandidateListResponseDTO,
+} from "../../dto/candidate.dto/candidate-list-response.dto";
 
 export class GetCandidateUseCase {
-  constructor(
-    private readonly candidateRepo: CandidateRepository
-  ) {}
+  constructor(private readonly candidateRepo: CandidateRepository) {}
 
   async execute(query: {
     search?: string;
     limit: number;
     page: number;
-    status?: boolean
+    status?: boolean;
   }): Promise<CandidateListResponseDTO> {
-
     const skip = (query.page - 1) * query.limit;
- 
-    const { candidates, total } =
-      await this.candidateRepo.getCandidates({
-        search: query.search,
-        status: query.status,
-        skip,
-        limit: query.limit,
-      });
+
+    const { candidates, total } = await this.candidateRepo.getCandidates({
+      search: query.search,
+      status: query.status,
+      skip,
+      limit: query.limit,
+    });
 
     return {
       candidates: candidates.map<CandidateListItemDTO>((candidate) => ({
-        id: candidate.getId().getValue(),    
+        id: candidate.getId().getValue(),
         name: candidate.getName(),
         email: candidate.getEmail().getValue(),
-        isActive: candidate.isActiveAccount(), 
+        isActive: candidate.isActiveAccount(),
+        skills: candidate.getSkills(),
+        preferredJobLocations: candidate.getPreferredJobLocations(),
       })),
 
       pagination: {

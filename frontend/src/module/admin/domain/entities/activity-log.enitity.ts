@@ -1,45 +1,53 @@
+export type MetadataValue =
+  | string
+  | number
+  | boolean
+  | null
+  | MetadataValue[]
+  | { [key: string]: MetadataValue };
+
 export interface ActivityLogProps {
   userId: string;
   action: string;
   entityType?: string;
   entityId?: string;
-  metadata?: Record<string, any>; 
-  timestamp: string;              
+  metadata?: Record<string, MetadataValue>;
+  timestamp: string;
 }
 
 export class ActivityLog {
-    public readonly props: ActivityLogProps
-  constructor(
-    props: ActivityLogProps
-  ) {
+  public readonly props: ActivityLogProps;
+
+  constructor(props: ActivityLogProps) {
     this.props = props;
   }
 
-  getUserId() {
+  getUserId(): string {
     return this.props.userId;
   }
 
-  getAction() {
+  getAction(): string {
     return this.props.action;
   }
 
-  getEntity() {
+  getEntity(): string | undefined {
     return this.props.entityType;
   }
 
-  getEntityId() {  
+  getEntityId(): string | undefined {
     return this.props.entityId;
   }
 
-  getMetadata() {
+  getMetadata(): Record<string, MetadataValue> | undefined {
     return this.props.metadata;
   }
 
-  getTimestamp() {
+  getTimestamp(): string {
     return this.props.timestamp;
   }
 
-  getUserName() {
-    return this.props.metadata?.userName || this.props.userId;
+  getUserName(): string {
+    const name = this.props.metadata?.userName;
+    return typeof name === 'string' ? name : this.props.userId;
   }
 }

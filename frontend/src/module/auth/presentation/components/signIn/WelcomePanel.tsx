@@ -1,5 +1,3 @@
-"use client";
-
 import { useNavigate } from "react-router-dom";
 import { Key, Briefcase, GraduationCap, ArrowRight } from "lucide-react";
 
@@ -11,7 +9,7 @@ export function WelcomePanel({ isAnyLoading }: WelcomePanelProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="md:w-1/2 bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-700 text-white p-8 md:p-12 flex flex-col justify-between relative overflow-hidden">
+    <div className="md:w-1/2 bg-linear-to-br from-indigo-600 via-blue-600 to-purple-700 text-white p-8 md:p-12 flex flex-col justify-between relative overflow-hidden">
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-white/50 blur-xl"></div>
         <div className="absolute bottom-10 right-10 w-48 h-48 rounded-full bg-white/50 blur-xl"></div>

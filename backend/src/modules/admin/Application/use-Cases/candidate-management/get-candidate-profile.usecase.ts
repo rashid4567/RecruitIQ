@@ -1,4 +1,6 @@
+import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { CandidateRepository } from "../../../Domain/repositories/candidate.repository";
+import { ERROR_CODES } from "../../constants/errorcode.constants";
 import { CandidateProfileResponseDTO } from "../../dto/candidate.dto/candidate-profile-response.dto";
 
 
@@ -11,7 +13,7 @@ export class GetCandidateprofileUseCase {
     const profile = await this.candidateRepo.findProfileById(candidateId);
 
     if (!profile) {
-      throw new Error("Candidate profile is not found");
+      throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
     }
 
     return {

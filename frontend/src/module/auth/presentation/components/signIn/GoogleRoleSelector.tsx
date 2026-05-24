@@ -10,7 +10,7 @@ interface GoogleRoleSelectorProps {
 
 export function GoogleRoleSelector({ onRoleSelect, googleLoading }: GoogleRoleSelectorProps) {
   return (
-    <div className="mb-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm animate-fade-in">
+    <div className="mb-6 p-5 bg-linear-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm animate-fade-in">
       <div className="flex items-center gap-3 mb-4">
         <User className="w-5 h-5 text-blue-600" />
         <div>

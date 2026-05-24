@@ -1,8 +1,8 @@
 import { userRoles } from "../constants/roles.constants";
 import { AuthProvider } from "../../../../shared/value-objects/auth-provider.vo";
-import { Email } from "../../../../shared/value-objects/email.vo";
-import { GoogleId } from "../value.objects.ts/google-id.vo";
-import { DomainError } from "../../../../shared/errors/domain.error";
+import { Email } from "../value.objects/email.vo";
+import { GoogleId } from "../value.objects/google-id.vo";
+import { DomainError } from "../../../../shared/errors/domain.error"
 import { DOMAIN_ERROR_CODES } from "../constants/DomainError";
 
 export class User {
@@ -79,7 +79,7 @@ export class User {
 
   updateEmail(email: Email): User {
     if (!this.authProvider.isLocal()) {
-      throw new Error("Email update not allowed for social login");
+      throw new DomainError(DOMAIN_ERROR_CODES.EMAIL_UPDATE_NOT_ALLOWED);
     }
 
     if (this.email.getValue() === email.getValue()) {

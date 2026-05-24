@@ -1,40 +1,37 @@
-"use client"
-
-import type React from "react"
-import { useState } from "react"
-import { Eye, EyeOff } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import type React from "react";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { authService } from "../../../../services/auth/auth.service";
-import { getError } from "@/utils/getError"
-import { toast } from "sonner"
+import { getError } from "@/utils/getError";
+import { toast } from "sonner";
 
 export default function AdminLogin() {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    try{
-        await authService.adminLogin(email, password);
-        console.log("Role : ", localStorage.getItem("userRole"));
-        console.log("Token : ", localStorage.getItem("authToken"))
-        toast.success("login succesfully")
-        navigate("/admin/dashboard");
-    }catch(err: unknown){
-        toast.error(getError(err || "Admin login failed"))
-    }finally{
-        setIsLoading(false)
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await authService.adminLogin(email, password);
+      console.log("Role : ", localStorage.getItem("userRole"));
+      console.log("Token : ", localStorage.getItem("authToken"));
+      toast.success("login succesfully");
+      navigate("/admin/dashboard");
+    } catch (err: unknown) {
+      toast.error(getError(err || "Admin login failed"));
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
-      {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/5 rounded-full animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/5 rounded-full animate-blob animation-delay-2000"></div>
@@ -43,9 +40,7 @@ export default function AdminLogin() {
 
       <div className="relative w-full max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          {/* Left Side - Branding */}
           <div className="hidden lg:flex flex-col justify-between h-screen lg:h-auto lg:min-h-96 bg-linear-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-3xl p-12 relative overflow-hidden shadow-2xl">
-            {/* linear overlay */}
             <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
 
             <div className="relative z-10">
@@ -60,30 +55,35 @@ export default function AdminLogin() {
               </div>
 
               <div className="mb-12">
-                <h1 className="text-4xl font-bold text-white mb-3">RecruitAI Admin</h1>
-                <p className="text-white/80 text-lg">AI-Powered Recruitment Platform</p>
+                <h1 className="text-4xl font-bold text-white mb-3">
+                  RecruitAI Admin
+                </h1>
+                <p className="text-white/80 text-lg">
+                  AI-Powered Recruitment Platform
+                </p>
               </div>
             </div>
 
-            {/* Image placeholder */}
             <div className="relative z-10 mb-12">
               <div className="bg-linear-to-br from-pink-400 to-orange-500 rounded-xl h-40 flex items-center justify-center overflow-hidden">
                 <div className="text-center">
                   <div className="text-6xl mb-2">📊</div>
-                  <p className="text-white/90 font-semibold">Analytics Dashboard</p>
+                  <p className="text-white/90 font-semibold">
+                    Analytics Dashboard
+                  </p>
                 </div>
               </div>
             </div>
 
             <div className="relative z-10">
-              <p className="text-white/60 text-sm">© 2025 RecruitIQ. All rights reserved.</p>
+              <p className="text-white/60 text-sm">
+                © 2025 RecruitIQ. All rights reserved.
+              </p>
             </div>
           </div>
 
-          {/* Right Side - Login Form */}
           <div className="flex flex-col justify-center">
             <div className="bg-white rounded-3xl shadow-xl p-8 md:p-10 backdrop-blur-xl">
-              {/* Logo for mobile */}
               <div className="flex lg:hidden items-center gap-2 mb-8">
                 <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <span className="text-xl font-bold text-white">⚡</span>
@@ -94,14 +94,19 @@ export default function AdminLogin() {
               </div>
 
               <div className="mb-8">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Super Admin Login</h1>
-                <p className="text-gray-600">Manage your recruitment platform</p>
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                  Super Admin Login
+                </h1>
+                <p className="text-gray-600">
+                  Manage your recruitment platform
+                </p>
               </div>
 
               <form onSubmit={handleLogin} className="space-y-6">
-                {/* Email */}
                 <div className="group">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">Email</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Email
+                  </label>
                   <div className="relative">
                     <input
                       type="email"
@@ -111,13 +116,16 @@ export default function AdminLogin() {
                       className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/10 transition-all duration-300 text-gray-900 placeholder-gray-500"
                       required
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">✉️</span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                      ✉️
+                    </span>
                   </div>
                 </div>
 
-                {/* Password */}
                 <div className="group">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">Password</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Password
+                  </label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
@@ -137,7 +145,6 @@ export default function AdminLogin() {
                   </div>
                 </div>
 
-                {/* Remember & Forgot */}
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -148,12 +155,14 @@ export default function AdminLogin() {
                     />
                     <span className="text-sm text-gray-700">Remember me</span>
                   </label>
-                  <a href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                  <a
+                    href="#"
+                    className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                  >
                     Forgot password?
                   </a>
                 </div>
 
-                {/* Login Button */}
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -169,10 +178,11 @@ export default function AdminLogin() {
                   )}
                 </button>
 
-                {/* Security Info */}
                 <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-xl">
                   <span className="text-blue-600">🔒</span>
-                  <p className="text-xs text-blue-700">Secured with 256-bit encryption</p>
+                  <p className="text-xs text-blue-700">
+                    Secured with 256-bit encryption
+                  </p>
                 </div>
               </form>
             </div>
@@ -180,5 +190,5 @@ export default function AdminLogin() {
         </div>
       </div>
     </div>
-  )
+  );
 }

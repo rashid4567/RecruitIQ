@@ -1,4 +1,11 @@
-import { Network, Bookmark, Zap, Lock, Sparkles, TrendingUp } from "lucide-react"
+import {
+  Network,
+  Bookmark,
+  Zap,
+  Lock,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 
 const features = [
   {
@@ -37,36 +44,43 @@ const features = [
     description:
       "Track key recruitment metrics, visualize pipeline health, and identify bottlenecks with intuitive dashboards and customizable reports.",
   },
-]
+];
 
 export default function Features() {
   return (
     <section className="py-20 md:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">Intelligent Features for Modern Hiring</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+            Intelligent Features for Modern Hiring
+          </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Unlock the power of AI to streamline your recruitment process and elevate your talent acquisition strategy.
+            Unlock the power of AI to streamline your recruitment process and
+            elevate your talent acquisition strategy.
           </p>
         </div>
-
-        {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => {
-            const Icon = feature.icon
+            const Icon = feature.icon;
             return (
-              <div key={index} className="bg-gray-200 rounded-2xl p-8 hover:shadow-lg transition duration-300">
+              <div
+                key={index}
+                className="bg-gray-200 rounded-2xl p-8 hover:shadow-lg transition duration-300"
+              >
                 <div className="w-12 h-12 bg-blue-200 rounded-lg flex items-center justify-center mb-6">
                   <Icon className="w-6 h-6 text-blue-600" strokeWidth={2} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-700 leading-relaxed text-sm">{feature.description}</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-700 leading-relaxed text-sm">
+                  {feature.description}
+                </p>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,5 +1,4 @@
-import { EmailService } from "../../../email/application/ports/email.service";
-
+import { EmailService } from "../ports/email.service";
 import { otpTemplate } from "../templates/otp.template";
 
 export class OtpEmailService {

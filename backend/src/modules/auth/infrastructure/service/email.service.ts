@@ -1,6 +1,6 @@
 import { EmailServicePort } from
 "../../application/ports/email.service.port";
-import { PasswordResetEmailService } from "../../application/services/password-reset-email.service";
+import { PasswordResetEmailService } from "../../../email/application/services/password-reset-email.service";
 
 
 export class AuthEmailService

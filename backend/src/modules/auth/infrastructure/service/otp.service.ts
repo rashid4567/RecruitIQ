@@ -5,7 +5,7 @@ import { Email } from "../../domain/value.objects/email.vo";
 import { INFRA_ERRORS } from "../constants/error-messages.constants";
 import { otpModel } from "../mongoose/model/otp.model";
 import { OtpRole } from "../../domain/constants/otp-roles.constants";
-import { OtpEmailService } from "../../application/services/otp-email.service";
+import { OtpEmailService } from "../../../email/application/services/otp-email.service";
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
 
 export class OTPService implements OTPServicePort {

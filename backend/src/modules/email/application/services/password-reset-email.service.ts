@@ -1,5 +1,4 @@
 import { EmailService } from "../../../email/application/ports/email.service";
-
 import { passwordResetTemplate } from "../templates/password-reset.template";
 
 export class PasswordResetEmailService {
@@ -12,11 +11,8 @@ export class PasswordResetEmailService {
   ) {
     await this.emailService.send({
       to,
-
       subject: "Reset Password",
-
       body: passwordResetTemplate(link),
-
       type: "REAL",
     });
   }

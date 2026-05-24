@@ -13,8 +13,8 @@ import { RefreshTokenUseCase } from "../../application/useCase/token/refreshToke
 import { GoogleLoginUseCase } from "../../application/useCase/google/google-login.usecase";
 import { RequestEmailUpdateUseCase } from "../../application/useCase/email/request-email.update.usecase";
 import { VerifyEmailUpdateUseCase } from "../../application/useCase/email/verify-email-update.usecase";
-import { OtpEmailService } from "../../application/services/otp-email.service";
-import { PasswordResetEmailService } from "../../application/services/password-reset-email.service";
+import { OtpEmailService } from "../../../email/application/services/otp-email.service";
+import { PasswordResetEmailService } from "../../../email/application/services/password-reset-email.service";
 import { MongooseUserRepository } from "../../infrastructure/repositories/mongoose-user.repository";
 import { GoogleService } from "../../infrastructure/service/google-auth.service";
 import { OTPService } from "../../infrastructure/service/otp.service";

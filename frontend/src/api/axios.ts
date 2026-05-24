@@ -7,27 +7,38 @@ interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "/api",
+
   withCredentials: true,
+
   headers: {
     "Content-Type": "application/json",
   },
+
   timeout: 10000,
 });
 
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("authToken");
+
     if (token) {
       config.headers = config.headers ?? {};
+
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
-  (error) => Promise.reject(error),
+
+  (error) => {
+    return Promise.reject(error);
+  },
 );
 
 function clearAuthAndRedirect(path: string, message?: string) {
-  if (message) toast.error(message);
+  if (message) {
+    toast.error(message);
+  }
 
   localStorage.removeItem("authToken");
   localStorage.removeItem("userRole");
@@ -51,80 +62,61 @@ api.interceptors.response.use(
     const originalRequest = error.config as AxiosRequestConfigWithRetry;
 
     if (!error.response) {
-      toast.error("Network error. Please check your internet connection.");
+      toast.error("Network error. Check internet connection.");
+
       return Promise.reject(error);
     }
 
     const status = error.response.status;
+
     const code = error.response.data?.code;
-    const message = error.response.data?.message || "Something went wrong";
+
+    const message = error.response.data?.message;
 
     if (originalRequest?.url?.includes("/auth/refresh")) {
-      clearAuthAndRedirect("/signin", message);
+      clearAuthAndRedirect("/signin", message || "Session expired");
+
       return Promise.reject(error);
     }
 
-    if (status === 401 && code === "TOKEN_EXPIRED" && !originalRequest._retry) {
+    if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        const refreshRes = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/refresh`,
-          {},
-          { withCredentials: true },
-        );
+        const refreshRes = await api.post("/auth/refresh", {});
 
         const newAccessToken = refreshRes.data?.data?.accessToken;
 
-        if (!newAccessToken) throw new Error();
+        if (!newAccessToken) {
+          throw new Error("NO ACCESS TOKEN");
+        }
 
         localStorage.setItem("authToken", newAccessToken);
 
         originalRequest.headers = originalRequest.headers ?? {};
+
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return api(originalRequest);
-      } catch {
-        clearAuthAndRedirect("/signin", "Session expired. Please login again.");
-        return Promise.reject(error);
-      }
-    }
+      } catch (refreshError) {
+        clearAuthAndRedirect("/signin", "Session expired. Login again.");
 
-    const isAuthError = originalRequest?.url?.includes("/auth/");
-
-    if (isAuthError) {
-      if (
-        status === 401 ||
-        status === 403 ||
-        code === "INVALID_CREDENTIALS" ||
-        code === "ACCOUNT_BLOCKED" ||
-        code === "ACCOUNT_DEACTIVATED" ||
-        code === "ACCOUNT_SUSPENDED" ||
-        code === "EMAIL_NOT_VERIFIED"
-      ) {
-        return Promise.reject(error);
+        return Promise.reject(refreshError);
       }
     }
 
     if (status === 403 && code === "ACCOUNT_DEACTIVATED") {
-      clearAuthAndRedirect(
-        "/signin",
-        message || "Your account has been deactivated. Please contact support.",
-      );
-      return Promise.reject(error);
-    }
-
-    if (status === 401) {
       clearAuthAndRedirect("/signin", message);
+
       return Promise.reject(error);
     }
 
     if (status === 404) {
-      toast.error(message || "Requested resource not found");
+      toast.error(message || "Not found");
     } else if (status >= 500) {
-      toast.error(message || "Server error. Please try again later.");
+      toast.error(message || "Server error");
     } else {
-      toast.error(message);
+      toast.error(message || "Something went wrong");
     }
 
     return Promise.reject(error);

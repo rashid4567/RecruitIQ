@@ -18,15 +18,15 @@ const RecruiterSettingsPage = lazy(
   () => import("../module/recruiter/presentation/pages/recruiter.profile"),
 );
 const SubscriptionPlans = lazy(
-  () => import("../module/recruiter/presentation/pages/pricePlaning"),
+  () => import("../module/subscription/presentation/page/Recruiter.pricePlaning"),
 );
 const SubscriptionSuccess = lazy(
   () =>
-    import("../module/recruiter/presentation/pages/components/Billing/paymentSuccess"),
+    import("../module/subscription/presentation/page/components/Billing/paymentSuccess"),
 );
 const SubscriptionFailed = lazy(
   () =>
-    import("../module/recruiter/presentation/pages/components/Billing/paymentFailed"),
+    import("../module/subscription/presentation/page/components/Billing/paymentFailed"),
 );
 
 const RecruiterRoutes = () => {

@@ -1,4 +1,4 @@
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { Email } from "../valueObject/email.vo"; 
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 
 export class User {

@@ -7,7 +7,7 @@ import {
 import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
 import { checkUserActive } from "../../../../middlewares/checkUserActive.middleware";
 import jobPostRouter from "../../../job/presentation/router/jobPost.routes";
-import plansRouter from "./plans.routes"
+import plansRouter from "../../../subscription/presentation/routes/recruiter.subscription.routes"
 const router = Router();
 
 router.use(authenticate);

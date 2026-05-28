@@ -6,7 +6,7 @@ import EmailTemplaterouter from "../../../email/presentation/router/email-templa
 import EmailLogrouter from "../../../email/presentation/router/email-logs.routes"
 import ActivityLogRouter from "../../../Activity.logger/presentation/router/activity-log.routes"
 import JobPostRouter from "../../../job/presentation/router/admin.jobPost.routes";
-import SubscriptionPlanRouter from "./subscription.managment.routes"
+import SubscriptionPlanRouter from "../../../subscription/presentation/routes/admin.subscription.routes"
 import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
 import { requireAdmin } from "../../../../middlewares/role.middleware";
 
@@ -20,6 +20,6 @@ adminRoutes.use("/email-templates", EmailTemplaterouter);
 adminRoutes.use("/email-logs", EmailLogrouter);
 adminRoutes.use("/activity-logs", ActivityLogRouter);
 adminRoutes.use("/jobs", JobPostRouter);
-adminRoutes.use("/plans", SubscriptionPlanRouter);
+adminRoutes.use("/", SubscriptionPlanRouter);
 
 export default adminRoutes;

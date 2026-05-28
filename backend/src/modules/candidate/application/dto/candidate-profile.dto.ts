@@ -18,7 +18,7 @@ export interface CandidateProfileDTO {
   currentJobLocation : string,
   gender ?: Gender,
   linkedinUrl : string,
-  portfolioUrl : string
+  portfolioUrl : string,
 }
 
 export interface GetCandidateProfileResponseDTO {

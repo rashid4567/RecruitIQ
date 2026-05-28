@@ -19,7 +19,7 @@ import {
 import {
   BillingRecordModel,
   IBillingRecord,
-} from "../mongoose/model/Billingrecord.model";
+} from "../../../subscription/infrastructure/mongoose/Billingrecord.model";
 
 export class MongooseBillingRecordRepository implements BillingRecordRepository {
   private safePage(p?: number) {

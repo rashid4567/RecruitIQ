@@ -10,7 +10,7 @@ import {
 import {
   ISubscriptionPlan,
   SubscriptionPlanModel,
-} from "../mongoose/subscriptionPlan.model";
+} from "../../../subscription/infrastructure/mongoose/subscriptionPlan.model";
 import { Document } from "mongoose";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { ERROR_CODES } from "../../Application/constants/errorcode.constants";

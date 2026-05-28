@@ -1,7 +1,7 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
-import { RecruiterSubscriptionRepository } from "../../../../recruiter/domain/repositories/recruiter-subscription.repository";
+import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { ERROR_CODES } from "../../../../recruiter/application/constants/error.code.constants";
 import { CreateJobDTO } from "../../dto/create-job.dto";
 
@@ -17,14 +17,15 @@ export class CreateJobUseCase {
     }
 
     const subscription =
-      await this.subscriptionRepo.findActiveByRecruiterId(recruiterId);
+      await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
+
     if (!subscription) {
       throw new ApplicationError(
         ERROR_CODES.NO_ACTIVE_SUBSCRIPTION_FOUND_FOR_THIS_RECRUITER,
       );
     }
 
-    if (!subscription.canPostJob()) {
+    if (subscription.isExpired()) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_LIMIT_EXCEEDED);
     }
 
@@ -55,11 +56,10 @@ export class CreateJobUseCase {
       expiresAt: dto.expiresAt,
       externalLink: dto.externalLink,
     });
+
     const createdJob = await this.jobRepo.create(job);
-    await this.subscriptionRepo.updateUsage({
-      subscriptionId: subscription.id,
-      jobPostsDelta: 1,
-    });
+    const updatedSubscription = subscription.consumeJobPost();
+    await this.subscriptionRepo.update(updatedSubscription);
     return createdJob;
   }
 }

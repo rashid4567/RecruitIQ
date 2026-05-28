@@ -11,7 +11,7 @@ import {
 import {
   ISubscriptionPlan,
   SubscriptionPlanModel,
-} from "../../../admin/Infrastructure/mongoose/subscriptionPlan.model";
+} from "../../../subscription/infrastructure/mongoose/subscriptionPlan.model";
 
 export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepository {
   async findById(id: string): Promise<SubscriptionPlan | null> {

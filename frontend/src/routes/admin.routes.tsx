@@ -54,42 +54,42 @@ const CandidateProfile = lazy(
 const PlanController = lazy(
   () =>
     import(
-      "../module/admin/presentation/pages/plan-controller.tsx"
+      "../module/subscription/presentation/page/plan-controller.tsx"
     )
 );
 
 const PlanEditor = lazy(
   () =>
     import(
-      "../module/admin/presentation/pages/subscription.plan.tsx"
+      "../module/subscription/presentation/page/subscription.plan.tsx"
     )
 );
 
 const EmailTemplateManagement = lazy(
   () =>
     import(
-      "../module/admin/presentation/pages/emailTemplate.mangment"
+      "../module/email/presentation/pages/emailTemplate.mangment.tsx"
     )
 );
 
 const EmailTemplateEditor = lazy(
   () =>
     import(
-      "../module/admin/presentation/pages/emailTemplate.editor"
+      "../module/email/presentation/pages/emailTemplate.editor.tsx"
     )
 );
 
 const EmailLogs = lazy(
   () =>
     import(
-      "../module/admin/presentation/pages/email.logs"
+      "../module/email/presentation/pages/email.logs.tsx"
     )
 );
 
 const ActivityLogs = lazy(
   () =>
     import(
-      "../module/admin/presentation/pages/activity-log"
+      "../module/activity.logger/presentation/pages/activity-log.tsx"
     )
 );
 

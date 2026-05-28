@@ -1,0 +1,18 @@
+import { Request, Response, NextFunction } from "express";
+import { ActiveSubscriptionPlanUseCase } from "../../../application/usecase/activate-subscription-plan.usecase";
+import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+
+export class UnhideSubscriptionPlanController {
+  constructor(private readonly unhideUC: ActiveSubscriptionPlanUseCase) {}
+  unhide = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.unhideUC.execute(req.params.planId);
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: "Plan deactivate succesfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+}

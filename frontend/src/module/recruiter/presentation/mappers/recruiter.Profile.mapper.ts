@@ -1,5 +1,5 @@
-import type { SubscriptionStatus } from "../../Domain/constatns/subscribtionStatus";
-import type { VerificationStatus } from "../../Domain/constatns/verificationStatus";
+import type { SubscriptionStatus } from "../../Domain/constants/subscribtionStatus";
+import type { VerificationStatus } from "../../Domain/constants/verificationStatus";
 import { RecruiterProfile } from "../../Domain/entities/recruiterEntities";
 
 interface UserDto {

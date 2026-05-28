@@ -1,6 +1,6 @@
 import { JobRepository } from "../../domain/repositories/job.repository";
 import { MongooseJobRepository } from "../../infrastructure/repositories/mongoose-job.repository";
-import { MongooseRecruiterSubscriptionRepository } from "../../../recruiter/infrastructure/repositories/Mongooserecruitersubscription.repository";
+import { MongooseRecruiterSubscriptionRepository } from "../../../subscription/infrastructure/repositories/mongoose-recruiter-subscription.repository";
 import { CreateJobUseCase } from "../../application/usecase/job/create-job.usecase";
 import { DeleteJobUseCase } from "../../application/usecase/job/delete-job.usecase";
 import { GetJobByIdUseCase } from "../../application/usecase/job/get-jobpost-by-id.usecase";

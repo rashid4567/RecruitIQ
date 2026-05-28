@@ -1,5 +1,5 @@
-import type { SubscriptionStatus } from "../constatns/subscribtionStatus";
-import type { VerificationStatus } from "../constatns/verificationStatus";
+import type { SubscriptionStatus } from "../constants/subscribtionStatus";
+import type { VerificationStatus } from "../constants/verificationStatus";
 
 export class RecruiterProfile {
   public readonly fullName: string;

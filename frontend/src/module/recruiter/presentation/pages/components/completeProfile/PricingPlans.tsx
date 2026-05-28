@@ -21,10 +21,10 @@ import {
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
-import type { SubscriptionPlan } from "@/module/recruiter/Domain/entities/SubscriptionPlan.entity";
-import { useRazorpay } from "../../../hooks/subscriptions/useRazorpay";
-import { ApiSubscriptionPlanRepository } from "@/module/recruiter/infrastructure/repositories/ApiSubscriptionPlan.repository";
-import { GetAllPlansUseCase } from "@/module/recruiter/Application/use-Cases/subscription/GetAllPlansUseCase";
+import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import { useRazorpay } from "../../../../../subscription/presentation/hooks/subscriptions/useRazorpay";
+import { ApiSubscriptionPlanRepository } from "@/module/subscription/infrastructure/repositories/ApiSubscriptionPlan.repository";
+import { GetAllPlansUseCase } from "@/module/subscription/application/usecase/subscription/GetAllPlansUseCase";
 
 
 const planMeta: Record<

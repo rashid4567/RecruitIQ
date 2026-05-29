@@ -1,10 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-
-import { GetAllSubscriptionPlansUseCase } from "../../../application/usecase/get-all-subscription-plans.usecase";
-
-import { SubscriptionPlanFilter } from "../../../../admin/Domain/repositories/subscription-plan.repository";
+import { GetAllSubscriptionPlansUseCase } from "../../../application/usecase/Admin/get-all-subscription-plans.usecase";
+import { SubscriptionPlanFilter } from "../../../domain/repository/subscription-plan.repository"; 
 
 export class GetSubscriptionPlanController {
   constructor(private readonly getAllPlansUC: GetAllSubscriptionPlansUseCase) {}

@@ -6,7 +6,7 @@ interface PlanFeaturesManagementProps {
   errors: Record<string, string>;
   updateFeature: (
     index: number,
-    updates: Partial<{ name: string; included: boolean }>
+    updates: Partial<{ name: string; included: boolean }>,
   ) => void;
   addFeature: () => void;
   removeFeature: (index: number) => void;

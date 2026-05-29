@@ -1,6 +1,13 @@
-import type { BillingCycle, Currency, PlanType } from "@/module/subscription/domain/dto/subscription.constants";
-import type { FeaturesAccess, PlanFeature } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import type {
+  BillingCycle,
+  Currency,
+  PlanType,
+} from "@/module/subscription/domain/constant/subscription.constants";
 
+import type {
+  FeatureAccess,
+  PlanFeature,
+} from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
 
 export interface CreatePlanPayload {
   name: string;
@@ -14,16 +21,17 @@ export interface CreatePlanPayload {
   screeningCredits: number;
   resumeParsesPerMonth: number;
   aiScoreCredits: number;
-  featuresAccess: FeaturesAccess;
+  featuresAccess: FeatureAccess;
   features: PlanFeature[];
-  isPopular?: boolean;
-  sortOrder?: number;
+  isPopular: boolean;
+  sortOrder: number;
   razorpayPlanId?: string;
 }
 
 export interface UpdatePlanPayload {
   name?: string;
   description?: string;
+  planType?: PlanType;
   price?: number;
   currency?: Currency;
   billingCycle?: BillingCycle;
@@ -32,7 +40,7 @@ export interface UpdatePlanPayload {
   screeningCredits?: number;
   resumeParsesPerMonth?: number;
   aiScoreCredits?: number;
-  featuresAccess?: Partial<FeaturesAccess>;
+  featuresAccess?: Partial<FeatureAccess>;
   features?: PlanFeature[];
   isPopular?: boolean;
   sortOrder?: number;

@@ -12,7 +12,11 @@ function ErrorMsg({ message }: { message?: string }) {
   if (!message) return null;
   return (
     <p className="flex items-center gap-1.5 mt-1.5 text-sm text-red-600">
-      <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+      <svg
+        className="h-3.5 w-3.5 shrink-0"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+      >
         <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.75 3.75a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-3.5zm.75 6.5a.875.875 0 1 1 0-1.75.875.875 0 0 1 0 1.75z" />
       </svg>
       {message}
@@ -30,7 +34,15 @@ interface QuotaFieldProps {
   fieldCls: (field: string) => string;
 }
 
-function QuotaField({ label, icon, field, value, error, onChange, fieldCls }: QuotaFieldProps) {
+function QuotaField({
+  label,
+  icon,
+  field,
+  value,
+  error,
+  onChange,
+  fieldCls,
+}: QuotaFieldProps) {
   return (
     <div>
       <label className="text-sm font-medium text-zinc-700 mb-2 block">

@@ -1,10 +1,10 @@
 import { ApiAdminSubscriptionPlanRepository } from "@/module/subscription/infrastructure/repositories/ApiAdmin.Subscription.repository";
-import { CreatePlanUseCase } from "../../application/usecase/subscription/create-plan.usecase";
-import { GetPlanByIdUseCase } from "../../application/usecase/subscription/get-plan-by-id.usecase";
-import { GetPlansUseCase } from "../../application/usecase/subscription/get-plans.usecase";
-import { HidePlanUseCase } from "../../application/usecase/subscription/hide-plan.usecase";
-import { UnhidePlanUseCase } from "../../application/usecase/subscription/unhide-plan.usecase";
-import { UpdatePlanUseCase } from "../../application/usecase/subscription/update-plan.usecase";
+import { CreatePlanUseCase } from "../../application/usecase/subscription/admin/create-plan.usecase";
+import { GetPlanByIdUseCase } from "../../application/usecase/subscription/admin/get-plan-by-id.usecase";
+import { GetPlansUseCase } from "../../application/usecase/subscription/admin/get-plans.usecase";
+import { HidePlanUseCase } from "../../application/usecase/subscription/admin/hide-plan.usecase";
+import { UnhidePlanUseCase } from "../../application/usecase/subscription/admin/unhide-plan.usecase";
+import { UpdatePlanUseCase } from "../../application/usecase/subscription/admin/update-plan.usecase";
 
 const subscriptionRepo = new ApiAdminSubscriptionPlanRepository();
 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { CreateSubscriptionPlanUseCase } from "../../../Application/use-Cases/subscription-plan/create-plan.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { CreatePlanSchema } from "../../validator/subscription-plan.schema";
+import { CreatePlanSchema } from "../../../../subscription/presentation/validator/subscription-plan.schema";
 
 
 export class CreateSubscriptionPlanController{

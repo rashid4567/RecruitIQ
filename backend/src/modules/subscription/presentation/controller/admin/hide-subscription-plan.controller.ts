@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { DeactivateSubscriptionPlanUseCase } from "../../../application/usecase/deactivate-subscription-plan.usecase";
+import { DeactivateSubscriptionPlanUseCase } from "../../../application/usecase/Admin/deactivate-subscription-plan.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 export class HideSubscriptionPlanController{

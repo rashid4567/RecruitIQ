@@ -1,4 +1,4 @@
-import { UserServicePort } from "../../application/ports/user.service.port";
+import { UserServicePort } from "../../../subscription/application/ports/user.service.port";
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
 
 export class UserService implements UserServicePort {

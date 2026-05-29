@@ -1,5 +1,13 @@
 import { CollapsibleSection } from "./CollapsibleSection";
-import { Calendar, BarChart2, ShieldCheck, FileSearch, ScanText, Users, Download } from "lucide-react";
+import {
+  Calendar,
+  BarChart2,
+  ShieldCheck,
+  FileSearch,
+  ScanText,
+  Users,
+  Download,
+} from "lucide-react";
 import { Toggle } from "./Toggle";
 import type { PlanFormData } from "../../../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
 
@@ -7,7 +15,7 @@ interface PlanFeatureAccessProps {
   formData: PlanFormData;
   handleFeaturesAccessChange: (
     key: keyof PlanFormData["featuresAccess"],
-    value: boolean
+    value: boolean,
   ) => void;
 }
 
@@ -21,11 +29,21 @@ interface FeatureRowProps {
   onToggle: () => void;
 }
 
-function FeatureRow({ icon, iconBg, iconColor, label, description, checked, onToggle }: FeatureRowProps) {
+function FeatureRow({
+  icon,
+  iconBg,
+  iconColor,
+  label,
+  description,
+  checked,
+  onToggle,
+}: FeatureRowProps) {
   return (
     <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-4">
       <div className="flex items-center gap-3">
-        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg}`}>
+        <div
+          className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg}`}
+        >
           <span className={iconColor}>{icon}</span>
         </div>
         <div>
@@ -58,7 +76,12 @@ export default function PlanFeatureAccess({
           label="Interview Scheduling"
           description="Allow automated interview booking with candidates"
           checked={featuresAccess.interviewScheduling}
-          onToggle={() => handleFeaturesAccessChange("interviewScheduling", !featuresAccess.interviewScheduling)}
+          onToggle={() =>
+            handleFeaturesAccessChange(
+              "interviewScheduling",
+              !featuresAccess.interviewScheduling,
+            )
+          }
         />
 
         <FeatureRow
@@ -68,7 +91,12 @@ export default function PlanFeatureAccess({
           label="Advanced Analytics"
           description="Detailed hiring funnel metrics and reports"
           checked={featuresAccess.advancedAnalytics}
-          onToggle={() => handleFeaturesAccessChange("advancedAnalytics", !featuresAccess.advancedAnalytics)}
+          onToggle={() =>
+            handleFeaturesAccessChange(
+              "advancedAnalytics",
+              !featuresAccess.advancedAnalytics,
+            )
+          }
         />
 
         <FeatureRow
@@ -78,7 +106,12 @@ export default function PlanFeatureAccess({
           label="Priority Support"
           description="Dedicated support with faster response times"
           checked={featuresAccess.prioritySupport}
-          onToggle={() => handleFeaturesAccessChange("prioritySupport", !featuresAccess.prioritySupport)}
+          onToggle={() =>
+            handleFeaturesAccessChange(
+              "prioritySupport",
+              !featuresAccess.prioritySupport,
+            )
+          }
         />
 
         {/* ✅ added: was missing from entity */}
@@ -89,7 +122,12 @@ export default function PlanFeatureAccess({
           label="AI Resume Scoring"
           description="Automatically score and rank candidates by resume quality"
           checked={featuresAccess.aiResumeScoring}
-          onToggle={() => handleFeaturesAccessChange("aiResumeScoring", !featuresAccess.aiResumeScoring)}
+          onToggle={() =>
+            handleFeaturesAccessChange(
+              "aiResumeScoring",
+              !featuresAccess.aiResumeScoring,
+            )
+          }
         />
 
         {/* ✅ added: was missing from entity */}
@@ -100,7 +138,12 @@ export default function PlanFeatureAccess({
           label="Resume Parsing"
           description="Extract structured data from uploaded resumes automatically"
           checked={featuresAccess.resumeParsing}
-          onToggle={() => handleFeaturesAccessChange("resumeParsing", !featuresAccess.resumeParsing)}
+          onToggle={() =>
+            handleFeaturesAccessChange(
+              "resumeParsing",
+              !featuresAccess.resumeParsing,
+            )
+          }
         />
 
         {/* ✅ added: was missing from entity */}
@@ -111,7 +154,12 @@ export default function PlanFeatureAccess({
           label="Candidate Shortlisting"
           description="AI-assisted shortlisting of top candidates per job post"
           checked={featuresAccess.candidateShortlisting}
-          onToggle={() => handleFeaturesAccessChange("candidateShortlisting", !featuresAccess.candidateShortlisting)}
+          onToggle={() =>
+            handleFeaturesAccessChange(
+              "candidateShortlisting",
+              !featuresAccess.candidateShortlisting,
+            )
+          }
         />
 
         {/* ✅ added: was missing from entity */}
@@ -122,7 +170,12 @@ export default function PlanFeatureAccess({
           label="Export Reports"
           description="Download hiring reports as PDF or CSV"
           checked={featuresAccess.exportReports}
-          onToggle={() => handleFeaturesAccessChange("exportReports", !featuresAccess.exportReports)}
+          onToggle={() =>
+            handleFeaturesAccessChange(
+              "exportReports",
+              !featuresAccess.exportReports,
+            )
+          }
         />
       </div>
     </CollapsibleSection>

@@ -1,5 +1,5 @@
 import { Request , Response, NextFunction } from "express";
-import { SubscribePlanUseCase } from "../../../application/usecase/subscribe-plan.usecase";
+import { SubscribePlanUseCase } from "../../../application/usecase/Recruiter/subscribe-plan.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 export class SubscribePlanController{

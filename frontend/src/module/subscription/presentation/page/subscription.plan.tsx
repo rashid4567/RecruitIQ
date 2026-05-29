@@ -13,7 +13,6 @@ import PlanSettings from "./components/Admin.subscription-plan-management/PlanSe
 import PlanQuotaSummary from "./components/Admin.subscription-plan-management/PlanQuotaSummary";
 import FixedBottomBar from "./components/Admin.subscription-plan-management/FixedBottomBar";
 
-
 export default function PlanEditor() {
   const { id } = useParams<{ id: string }>();
 
@@ -51,7 +50,6 @@ export default function PlanEditor() {
       <Sidebar />
 
       <main className="flex-1 flex flex-col overflow-hidden">
-
         <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white shadow-sm">
           <div className="flex h-16 items-center justify-between px-8">
             <div className="flex items-center gap-4">
@@ -100,7 +98,6 @@ export default function PlanEditor() {
           <div className="px-8 py-8 max-w-350 mx-auto">
             <PlanHeader formData={formData} isEditMode={isEditMode} />
 
-
             {isEditMode && (
               <div className="mt-6 mb-8 flex gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5">
                 <AlertTriangle className="h-6 w-6 text-amber-600 mt-0.5 shrink-0" />
@@ -132,7 +129,6 @@ export default function PlanEditor() {
               </div>
             )}
 
-
             {saveSuccess && (
               <div className="mt-4 mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
                 <svg
@@ -148,7 +144,6 @@ export default function PlanEditor() {
               </div>
             )}
 
-   
             {hasErrors && (
               <div className="mt-4 mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
                 <svg
@@ -174,7 +169,6 @@ export default function PlanEditor() {
                 </div>
               </div>
             )}
-
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-7 space-y-8">
@@ -207,10 +201,7 @@ export default function PlanEditor() {
               </div>
               <div className="lg:col-span-5 space-y-8">
                 <PlanPreview formData={formData} />
-                <PlanSettings
-                  formData={formData}
-                  handleChange={handleChange}
-                />
+                <PlanSettings formData={formData} handleChange={handleChange} />
                 <PlanQuotaSummary formData={formData} />
               </div>
             </div>

@@ -1,17 +1,18 @@
+import crypto from "crypto";
+
 import { razorpay } from "../../../../config/razorpay";
 
 import {
   PaymentGateway,
   CreateOrderInput,
   CreateOrderOutput,
-} from "../../application/ports/payment-gateway.port";
+  VerifyPaymentInput,
+} from "../../../subscription/application/ports/Paymentgateway.port";
+
+import { RAZORPAY_KEY_SECRET } from "../../../../config/razorpay";
 
 export class RazorpayGateway implements PaymentGateway {
-
-  async createOrder(
-    input: CreateOrderInput
-  ): Promise<CreateOrderOutput> {
-
+  async createOrder(input: CreateOrderInput): Promise<CreateOrderOutput> {
     const order = await razorpay.orders.create({
       amount: input.amount * 100,
       currency: input.currency,
@@ -21,12 +22,18 @@ export class RazorpayGateway implements PaymentGateway {
 
     return {
       id: String(order.id),
-
       amount: Number(order.amount),
-
       currency: String(order.currency),
-
       status: String(order.status),
     };
+  }
+
+  async verifySignature(input: VerifyPaymentInput): Promise<boolean> {
+    const generatedSignature = crypto
+      .createHmac("sha256", RAZORPAY_KEY_SECRET)
+      .update(`${input.orderId}|${input.paymentId}`)
+      .digest("hex");
+
+    return generatedSignature === input.signature;
   }
 }

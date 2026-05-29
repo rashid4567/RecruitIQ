@@ -2,25 +2,18 @@ import { z } from "zod";
 import { BillingEventType, BillingStatus } from "../../domain/entities/Billingrecord.entity";
 
 
-//
-// 🔹 Common helpers
-//
+
 const objectId = z
   .string()
   .regex(/^[a-f\d]{24}$/i, { message: "Invalid MongoDB ObjectId" });
 
 const currencyEnum = z.enum(["INR", "USD", "EUR", "GBP"]);
 
-//
-// ── billingRecordId param ─────────────────────────────────────────────
-//
 export const billingRecordIdSchema = z.object({
   billingRecordId: objectId,
 });
 
-//
-// ── GetBillingHistory query ───────────────────────────────────────────
-//
+
 export const getBillingHistorySchema = z
   .object({
     status: z.nativeEnum(BillingStatus).optional(),
@@ -48,9 +41,6 @@ export const getBillingHistorySchema = z
     }
   );
 
-//
-// ── GetTotalSpend query ───────────────────────────────────────────────
-//
 export const getTotalSpendSchema = z
   .object({
     fromDate: z.coerce.date().optional(),
@@ -67,9 +57,6 @@ export const getTotalSpendSchema = z
     }
   );
 
-//
-// ── RecordPayment body (SUCCESS) ──────────────────────────────────────
-//
 export const recordPaymentSchema = z
   .object({
     subscriptionId: objectId,
@@ -108,9 +95,7 @@ export const recordPaymentSchema = z
     path: ["periodStart"],
   });
 
-//
-// ── RecordFailedPayment body ─────────────────────────────────────────
-//
+
 export const recordFailedPaymentSchema = z
   .object({
     subscriptionId: objectId,
@@ -140,9 +125,7 @@ export const recordFailedPaymentSchema = z
     path: ["periodStart"],
   });
 
-//
-// ── UpdateBillingStatus body ─────────────────────────────────────────
-//
+
 export const updateBillingStatusSchema = z
   .object({
     newStatus: z.nativeEnum(BillingStatus),
@@ -168,9 +151,7 @@ export const updateBillingStatusSchema = z
     }
   );
 
-//
-// ── Types ────────────────────────────────────────────────────────────
-//
+
 export type BillingRecordIdInput = z.infer<typeof billingRecordIdSchema>;
 export type GetBillingHistoryInput = z.infer<typeof getBillingHistorySchema>;
 export type GetTotalSpendInput = z.infer<typeof getTotalSpendSchema>;

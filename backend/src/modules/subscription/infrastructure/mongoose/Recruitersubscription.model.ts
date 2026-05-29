@@ -4,20 +4,31 @@ export enum SubscriptionStatus {
   Active = "active",
   Cancelled = "cancelled",
   Expired = "expired",
+  
 }
 
 export interface IRecruiterSubscription extends Document {
   recruiterId: Types.ObjectId;
   planId: Types.ObjectId;
+  planName: string;
+  planPrice: number;
+  planType: string;
+  paymentReferenceId?: string;
   status: SubscriptionStatus;
   startDate: Date;
   endDate: Date;
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
   autoRenew: boolean;
   cancelledAt?: Date;
   jobPostsUsed: number;
   screeningUsed: number;
   resumeUsed: number;
   aiScoreUsed: number;
+  jobPostsLimit: number;
+  screeningLimit: number;
+  resumeLimit: number;
+  aiScoreLimit: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,22 +40,57 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
       ref: "RecruiterProfile",
       required: true,
     },
+
     planId: {
       type: Schema.Types.ObjectId,
       ref: "SubscriptionPlan",
       required: true,
     },
+
+    planName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    planPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    planType: {
+      type: String,
+      required: true,
+    },
+
+    paymentReferenceId: {
+      type: String,
+    },
+
     status: {
       type: String,
       enum: Object.values(SubscriptionStatus),
       required: true,
       default: SubscriptionStatus.Active,
     },
+
     startDate: {
       type: Date,
       required: true,
     },
+
     endDate: {
+      type: Date,
+      required: true,
+    },
+
+    currentPeriodStart: {
+      type: Date,
+      required: true,
+    },
+
+    currentPeriodEnd: {
       type: Date,
       required: true,
     },
@@ -81,6 +127,30 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
       default: 0,
       min: 0,
     },
+
+    jobPostsLimit: {
+      type: Number,
+      required: true,
+      min: -1,
+    },
+
+    screeningLimit: {
+      type: Number,
+      required: true,
+      min: -1,
+    },
+
+    resumeLimit: {
+      type: Number,
+      required: true,
+      min: -1,
+    },
+
+    aiScoreLimit: {
+      type: Number,
+      required: true,
+      min: -1,
+    },
   },
   {
     timestamps: true,
@@ -93,7 +163,6 @@ recruiterSubscriptionSchema.index(
   },
   {
     unique: true,
-
     partialFilterExpression: {
       status: SubscriptionStatus.Active,
     },

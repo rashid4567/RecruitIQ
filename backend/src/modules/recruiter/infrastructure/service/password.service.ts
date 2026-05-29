@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { PasswordServicePort } from "../../application/ports/password.service.port";
+import { PasswordServicePort } from "../../../subscription/application/ports/password.service.port";
 
 
 export class PasswordService implements PasswordServicePort{

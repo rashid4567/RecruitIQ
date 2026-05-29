@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
 import { useRazorpay } from "../../../../../subscription/presentation/hooks/subscriptions/useRazorpay";
 import { ApiSubscriptionPlanRepository } from "@/module/subscription/infrastructure/repositories/ApiSubscriptionPlan.repository";
-import { GetAllPlansUseCase } from "@/module/subscription/application/usecase/subscription/GetAllPlansUseCase";
+import { GetAllPlansUseCase } from "@/module/subscription/application/usecase/subscription/recruiter/GetAllPlansUseCase";
 
 
 const planMeta: Record<

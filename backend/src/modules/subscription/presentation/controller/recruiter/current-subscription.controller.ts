@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { GetCurrentSubscriptionUseCase } from "../../../application/usecase/GetCurrentSubscriptionUseCase";
+import { GetCurrentSubscriptionUseCase } from "../../../application/usecase/Recruiter/GetCurrentSubscriptionUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 export class CurrentSubscriptionController {

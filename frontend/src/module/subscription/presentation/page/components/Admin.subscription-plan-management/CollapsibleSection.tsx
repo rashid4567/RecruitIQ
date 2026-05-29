@@ -36,7 +36,6 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
     <div
       className={`rounded-2xl border border-zinc-200 bg-white overflow-hidden ${className}`}
     >
-      
       <button
         onClick={toggle}
         className={`
@@ -47,7 +46,6 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         `}
       >
         <div className="flex items-center gap-3">
-
           {icon ? (
             <div className="text-zinc-400">{icon}</div>
           ) : (
@@ -59,7 +57,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
               )}
             </div>
           )}
-          
+
           <h3 className="font-semibold text-zinc-900">{title}</h3>
           {badge && <div className="ml-2">{badge}</div>}
         </div>
@@ -84,8 +82,9 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   );
 };
 
-
-export const CollapsibleSectionCard: React.FC<CollapsibleSectionProps> = (props) => {
+export const CollapsibleSectionCard: React.FC<CollapsibleSectionProps> = (
+  props,
+) => {
   return (
     <CollapsibleSection
       {...props}
@@ -95,7 +94,9 @@ export const CollapsibleSectionCard: React.FC<CollapsibleSectionProps> = (props)
   );
 };
 
-export const CollapsibleSectionSimple: React.FC<CollapsibleSectionProps> = (props) => {
+export const CollapsibleSectionSimple: React.FC<CollapsibleSectionProps> = (
+  props,
+) => {
   return (
     <CollapsibleSection
       {...props}

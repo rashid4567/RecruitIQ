@@ -13,10 +13,11 @@ import {
 
 import Sidebar from "@/components/admin/sideBar";
 import { useNavigate } from "react-router-dom";
-import { useSubscriptionPlans, type UIPlan } from "@/module/subscription/presentation/hooks/Admin.Subscription.plans.Hooks/useSubscriptionPlans";
+import {
+  useSubscriptionPlans,
+  type UIPlan,
+} from "@/module/subscription/presentation/hooks/Admin.Subscription.plans.Hooks/useSubscriptionPlans";
 import PlanCard from "@/module/subscription/presentation/page/components/Admin.subscription-plan-management/PlanCard";
-
-
 
 export default function PlansPage() {
   const navigate = useNavigate();

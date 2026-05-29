@@ -5,7 +5,12 @@ interface FixedBottomBarProps {
   onCancel: () => void;
 }
 
-export default function FixedBottomBar({ isEditMode, saving, onSave, onCancel }: FixedBottomBarProps) {
+export default function FixedBottomBar({
+  isEditMode,
+  saving,
+  onSave,
+  onCancel,
+}: FixedBottomBarProps) {
   return (
     <div className="fixed bottom-0 left-65 right-0 border-t border-zinc-200 bg-white px-8 py-4 flex justify-end gap-4 z-40">
       <button

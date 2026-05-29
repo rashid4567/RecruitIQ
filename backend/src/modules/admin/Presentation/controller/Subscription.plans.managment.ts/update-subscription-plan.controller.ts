@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { UpdateSubscriptionPlanUseCase } from "../../../Application/use-Cases/subscription-plan/update-plan.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { UpdatePlanSchema } from "../../validator/subscription-plan.schema";
+import { UpdatePlanSchema } from "../../../../subscription/presentation/validator/subscription-plan.schema";
 
 export class UpdateSubscriptionPlanController {
   constructor(private readonly updatePlanUC: UpdateSubscriptionPlanUseCase) {}

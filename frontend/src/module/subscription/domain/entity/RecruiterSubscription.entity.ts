@@ -1,42 +1,33 @@
-import {
-  SubscriptionStatus,
-  type CancellationReason,
-} from "../dto/subscription.constants";
+import { SubscriptionStatus } from "../constant/subscription.constants";
+import type { PlanType } from "../constant/subscription.constants";
 
 export interface RecruiterSubscriptionProps {
   id: string;
   recruiterId: string;
   planId: string;
   planName: string;
-  planType: string;
-  price: number;
-  currency: string;
-  billingCycle: string;
-  razorpayOrderId?: string;
-  razorpayPaymentId?: string;
-  razorpayCustomerId?: string;
+  planPrice: number;
+  planType: PlanType;
+  paymentReferenceId?: string;
   status: SubscriptionStatus;
   startDate: Date;
   endDate: Date;
-  trialEndDate?: Date;
-  cancelledAt?: Date;
-  cancellationReason?: CancellationReason;
-  cancellationNote?: string;
-  renewsAt?: Date;
-  autoRenew: boolean;
-  jobPostsUsed: number;
-  screeningCreditsUsed: number;
-  resumeParsesUsed: number;
-  aiScoresUsed: number;
-  jobPostsLimit: number;
-  screeningCreditsLimit: number;
-  resumeParsesLimit: number;
-  aiScoresLimit: number;
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
+  autoRenew: boolean;
+  cancelledAt?: Date;
+  jobPostsUsed: number;
+  screeningUsed: number;
+  resumeUsed: number;
+  aiScoreUsed: number;
+  jobPostsLimit: number;
+  screeningLimit: number;
+  resumeLimit: number;
+  aiScoreLimit: number;
   createdAt: Date;
   updatedAt: Date;
 }
+
 export class RecruiterSubscription {
   private readonly props: RecruiterSubscriptionProps;
   private constructor(props: RecruiterSubscriptionProps) {
@@ -57,6 +48,18 @@ export class RecruiterSubscription {
   get planId() {
     return this.props.planId;
   }
+  get planName() {
+    return this.props.planName;
+  }
+  get planPrice() {
+    return this.props.planPrice;
+  }
+  get planType() {
+    return this.props.planType;
+  }
+  get paymentReferenceId() {
+    return this.props.paymentReferenceId;
+  }
   get status() {
     return this.props.status;
   }
@@ -66,49 +69,60 @@ export class RecruiterSubscription {
   get endDate() {
     return this.props.endDate;
   }
+  get currentPeriodStart() {
+    return this.props.currentPeriodStart;
+  }
+  get currentPeriodEnd() {
+    return this.props.currentPeriodEnd;
+  }
   get autoRenew() {
     return this.props.autoRenew;
+  }
+  get cancelledAt() {
+    return this.props.cancelledAt;
   }
   get jobPostsUsed() {
     return this.props.jobPostsUsed;
   }
-  get screeningCreditsUsed() {
-    return this.props.screeningCreditsUsed;
+  get screeningUsed() {
+    return this.props.screeningUsed;
   }
-  get resumeParsesUsed() {
-    return this.props.resumeParsesUsed;
+  get resumeUsed() {
+    return this.props.resumeUsed;
   }
-  get aiScoresUsed() {
-    return this.props.aiScoresUsed;
+  get aiScoreUsed() {
+    return this.props.aiScoreUsed;
   }
   get jobPostsLimit() {
     return this.props.jobPostsLimit;
   }
-  get screeningCreditsLimit() {
-    return this.props.screeningCreditsLimit;
+  get screeningLimit() {
+    return this.props.screeningLimit;
   }
-  get resumeParsesLimit() {
-    return this.props.resumeParsesLimit;
+  get resumeLimit() {
+    return this.props.resumeLimit;
   }
-  get aiScoresLimit() {
-    return this.props.aiScoresLimit;
+  get aiScoreLimit() {
+    return this.props.aiScoreLimit;
+  }
+  get createdAt() {
+    return this.props.createdAt;
+  }
+  get updatedAt() {
+    return this.props.updatedAt;
   }
   get isActive() {
-    return (
-      this.props.status === SubscriptionStatus.Active ||
-      this.props.status === SubscriptionStatus.Trialing
-    );
-  }
-  get isExpired() {
-    return (
-      new Date() > this.props.endDate ||
-      this.props.status === SubscriptionStatus.Expired
-    );
+    return this.props.status === SubscriptionStatus.Active;
   }
   get isCancelled() {
     return this.props.status === SubscriptionStatus.Cancelled;
   }
-
+  get isExpired() {
+    return (
+      this.props.status === SubscriptionStatus.Expired ||
+      new Date() > this.props.endDate
+    );
+  }
   canPostJob(): boolean {
     if (!this.isActive) {
       return false;
@@ -122,29 +136,28 @@ export class RecruiterSubscription {
     if (!this.isActive) {
       return false;
     }
-    if (this.props.screeningCreditsLimit === -1) {
+    if (this.props.screeningLimit === -1) {
       return true;
     }
-    return this.props.screeningCreditsUsed < this.props.screeningCreditsLimit;
+    return this.props.screeningUsed < this.props.screeningLimit;
   }
-  canUseResumeParsing(): boolean {
+  canUseResume(): boolean {
     if (!this.isActive) {
       return false;
     }
-    if (this.props.resumeParsesLimit === -1) {
+    if (this.props.resumeLimit === -1) {
       return true;
     }
-    return this.props.resumeParsesUsed < this.props.resumeParsesLimit;
+    return this.props.resumeUsed < this.props.resumeLimit;
   }
-
   canUseAIScore(): boolean {
     if (!this.isActive) {
       return false;
     }
-    if (this.props.aiScoresLimit === -1) {
+    if (this.props.aiScoreLimit === -1) {
       return true;
     }
-    return this.props.aiScoresUsed < this.props.aiScoresLimit;
+    return this.props.aiScoreUsed < this.props.aiScoreLimit;
   }
   consumeJobPost() {
     return new RecruiterSubscription({
@@ -156,26 +169,26 @@ export class RecruiterSubscription {
   consumeScreening() {
     return new RecruiterSubscription({
       ...this.props,
-      screeningCreditsUsed: this.props.screeningCreditsUsed + 1,
+      screeningUsed: this.props.screeningUsed + 1,
       updatedAt: new Date(),
     });
   }
-  consumeResumeParsing() {
+  consumeResume() {
     return new RecruiterSubscription({
       ...this.props,
-      resumeParsesUsed: this.props.resumeParsesUsed + 1,
+      resumeUsed: this.props.resumeUsed + 1,
       updatedAt: new Date(),
     });
   }
   consumeAIScore() {
     return new RecruiterSubscription({
       ...this.props,
-      aiScoresUsed: this.props.aiScoresUsed + 1,
+      aiScoreUsed: this.props.aiScoreUsed + 1,
       updatedAt: new Date(),
     });
   }
 
-  renew(newEndDate: Date): RecruiterSubscription {
+  renew(newEndDate: Date) {
     return new RecruiterSubscription({
       ...this.props,
       endDate: newEndDate,
@@ -184,27 +197,28 @@ export class RecruiterSubscription {
       updatedAt: new Date(),
     });
   }
-  cancel(reason?: CancellationReason, note?: string) {
+
+  cancel() {
     return new RecruiterSubscription({
       ...this.props,
       status: SubscriptionStatus.Cancelled,
       cancelledAt: new Date(),
-      cancellationReason: reason,
-      cancellationNote: note,
       autoRenew: false,
       updatedAt: new Date(),
     });
   }
+
   resetUsage() {
     return new RecruiterSubscription({
       ...this.props,
       jobPostsUsed: 0,
-      screeningCreditsUsed: 0,
-      resumeParsesUsed: 0,
-      aiScoresUsed: 0,
+      screeningUsed: 0,
+      resumeUsed: 0,
+      aiScoreUsed: 0,
       updatedAt: new Date(),
     });
   }
+
   update(changes: Partial<RecruiterSubscriptionProps>) {
     return RecruiterSubscription.create({
       ...this.props,
@@ -212,6 +226,7 @@ export class RecruiterSubscription {
       updatedAt: new Date(),
     });
   }
+
   toPlainObject(): RecruiterSubscriptionProps {
     return {
       ...this.props,

@@ -1,7 +1,11 @@
-
 import { ArrowRight, Loader2 } from "lucide-react";
 import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
-import { getDisplayPrice, getDisplayJobPosts, getDisplayScreeningCredits, getPlanCTA } from "./Pricing.utils";
+import {
+  getDisplayPrice,
+  getDisplayJobPosts,
+  getDisplayScreeningCredits,
+  getPlanCTA,
+} from "./Pricing.utils";
 import FeatureComparison from "./FeatureComparison";
 
 interface Props {
@@ -27,21 +31,21 @@ export default function SelectedPlanDetail({
     <div className="px-4 sm:px-6 lg:px-8 pb-16">
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
-     
           <div className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 px-8 py-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
                   {(() => {
-                  
-                    return <div className="w-8 h-8 text-white">★</div>; 
+                    return <div className="w-8 h-8 text-white">★</div>;
                   })()}
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white">
                     {selectedPlan.name} Plan Details
                   </h2>
-                  <p className="text-slate-300 mt-1 max-w-lg">{selectedPlan.description}</p>
+                  <p className="text-slate-300 mt-1 max-w-lg">
+                    {selectedPlan.description}
+                  </p>
                 </div>
               </div>
 
@@ -50,7 +54,9 @@ export default function SelectedPlanDetail({
                   <span className="text-4xl font-bold text-white">
                     {getDisplayPrice(selectedPlan, billingCycle === "yearly")}
                   </span>
-                  {!selectedPlan.isFree && <span className="text-slate-400">/month</span>}
+                  {!selectedPlan.isFree && (
+                    <span className="text-slate-400">/month</span>
+                  )}
                 </div>
 
                 <div className="flex gap-3">
@@ -73,7 +79,8 @@ export default function SelectedPlanDetail({
                     </>
                   ) : (
                     <>
-                      {getPlanCTA(selectedPlan)} <ArrowRight className="w-4 h-4" />
+                      {getPlanCTA(selectedPlan)}{" "}
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
@@ -103,9 +110,17 @@ export default function SelectedPlanDetail({
                 className="bg-white hover:bg-blue-50 disabled:bg-slate-200 text-blue-700 px-8 py-4 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg whitespace-nowrap"
               >
                 {paymentLoading ? (
-                  <> <Loader2 className="w-5 h-5 animate-spin" /> Processing... </>
+                  <>
+                    {" "}
+                    <Loader2 className="w-5 h-5 animate-spin" />{" "}
+                    Processing...{" "}
+                  </>
                 ) : (
-                  <> {getPlanCTA(selectedPlan)} <ArrowRight className="w-5 h-5" /> </>
+                  <>
+                    {" "}
+                    {getPlanCTA(selectedPlan)}{" "}
+                    <ArrowRight className="w-5 h-5" />{" "}
+                  </>
                 )}
               </button>
             </div>

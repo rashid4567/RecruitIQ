@@ -1,7 +1,6 @@
 import { Check, X } from "lucide-react";
 import type { PlanFormData } from "../../../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
 
-
 interface PlanFeature {
   name: string;
   included: boolean;

@@ -1,7 +1,6 @@
 import { Pencil, ChevronRight } from "lucide-react";
 import type { PlanFormData } from "../../../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
 
-
 interface PlanHeaderProps {
   formData: Pick<PlanFormData, "name" | "isPopular">;
   isEditMode: boolean;
@@ -17,7 +16,8 @@ export default function PlanHeader({ formData, isEditMode }: PlanHeaderProps) {
         </div>
         <div className="flex items-center gap-3 mt-1">
           <h1 className="text-3xl font-bold text-zinc-900">
-            {formData.name || (isEditMode ? "Edit Plan" : "New Subscription Plan")}
+            {formData.name ||
+              (isEditMode ? "Edit Plan" : "New Subscription Plan")}
           </h1>
           {isEditMode && (
             <button className="text-zinc-400 hover:text-zinc-600">

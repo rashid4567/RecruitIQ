@@ -3,13 +3,18 @@ import { Star } from "lucide-react";
 import { Toggle } from "./Toggle";
 import type { PlanFormData } from "../../../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
 
-
 interface PlanSettingsProps {
   formData: PlanFormData;
-  handleChange: (field: keyof PlanFormData, value: string | number | boolean) => void;
+  handleChange: (
+    field: keyof PlanFormData,
+    value: string | number | boolean,
+  ) => void;
 }
 
-export default function PlanSettings({ formData, handleChange }: PlanSettingsProps) {
+export default function PlanSettings({
+  formData,
+  handleChange,
+}: PlanSettingsProps) {
   return (
     <CollapsibleSection title="Plan Settings">
       <div className="space-y-6">
@@ -36,10 +41,14 @@ export default function PlanSettings({ formData, handleChange }: PlanSettingsPro
           <input
             type="number"
             value={formData.sortOrder}
-            onChange={(e) => handleChange("sortOrder", parseInt(e.target.value) || 1)}
+            onChange={(e) =>
+              handleChange("sortOrder", parseInt(e.target.value) || 1)
+            }
             className="w-full rounded-xl border border-zinc-300 px-4 py-3"
           />
-          <p className="text-xs text-zinc-400 mt-1">Lower number = displayed first</p>
+          <p className="text-xs text-zinc-400 mt-1">
+            Lower number = displayed first
+          </p>
         </div>
       </div>
     </CollapsibleSection>

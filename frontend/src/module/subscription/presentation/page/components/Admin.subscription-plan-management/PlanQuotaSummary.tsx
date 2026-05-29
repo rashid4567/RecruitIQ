@@ -9,8 +9,6 @@ import {
 } from "lucide-react";
 import type { PlanFormData } from "../../../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
 
-
-
 interface PlanQuotaSummaryProps {
   formData: PlanFormData;
 }

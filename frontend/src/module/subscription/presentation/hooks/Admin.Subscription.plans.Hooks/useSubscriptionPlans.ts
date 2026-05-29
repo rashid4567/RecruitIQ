@@ -1,8 +1,10 @@
 import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
 import { useState, useEffect, useCallback } from "react";
-import { getPlansUC, hidePlanUC, unhidePlanUC } from "../../di/admin.subscription.plans.di";
-
-
+import {
+  getPlansUC,
+  hidePlanUC,
+  unhidePlanUC,
+} from "../../di/admin.subscription.plans.di";
 
 export interface UIPlan {
   id: string;
@@ -66,7 +68,9 @@ export function useSubscriptionPlans() {
       setUiPlans(result.plans.map(mapToUIPlan));
     } catch (err: unknown) {
       console.error("Failed to fetch plans:", err);
-      setError(err instanceof Error ? err.message : "Failed to load activity logs");
+      setError(
+        err instanceof Error ? err.message : "Failed to load activity logs",
+      );
       setUiPlans([]);
     } finally {
       setLoading(false);
@@ -86,7 +90,9 @@ export function useSubscriptionPlans() {
 
       await fetchPlans();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Failed to load activity logs");
+      alert(
+        err instanceof Error ? err.message : "Failed to load activity logs",
+      );
     } finally {
       setTogglingId(null);
     }

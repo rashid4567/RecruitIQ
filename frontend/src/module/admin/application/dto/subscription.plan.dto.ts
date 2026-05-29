@@ -1,4 +1,4 @@
-import type { BillingCycle, Currency, PlanType } from "@/module/subscription/domain/dto/subscription.constants";
+import type { BillingCycle, Currency, PlanType } from "@/module/subscription/domain/constant/subscription.constants";
 import type { FeaturesAccess, PlanFeature } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
 
 

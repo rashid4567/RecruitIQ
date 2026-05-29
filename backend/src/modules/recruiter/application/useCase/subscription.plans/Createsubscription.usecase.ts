@@ -4,7 +4,7 @@ import { RecruiterSubscriptionRepository } from "../../../domain/repositories/re
 import { SubscriptionPlanRepository } from "../../../domain/repositories/Subscription.repository";
 import { SubscriptionStatus } from "../../../domain/entities/Recruitersubscription.entity";
 import { BillingCycle } from "../../../domain/entities/Subscriptionplan.entity";
-import { PaymentGateway } from "../../ports/payment-gateway.port";
+import { PaymentGateway } from "../../../../subscription/application/ports/payment-gateway.port";
 
 export interface CreateSubscriptionRequest {
   recruiterId: string;

@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { CreatePlanPayload } from "@/module/admin/application/dto/subscription.plan.dto";
+import type { CreatePlanPayload } from "@/module/subscription/application/dto/subscription.plan.dto";
 import axios from "axios";
-import { createPlanUC, getPlanByIdUC, updatePlanUC } from "../../di/admin.subscription.plans.di";
+import {
+  createPlanUC,
+  getPlanByIdUC,
+  updatePlanUC,
+} from "../../di/admin.subscription.plans.di";
 
 export interface PlanFormData extends CreatePlanPayload {
   razorpayPlanId?: string;
@@ -58,20 +62,30 @@ function validatePlanForm(formData: PlanFormData): Record<string, string> {
     errors.billingInterval = "Billing interval cannot exceed 12 months.";
   }
 
-  if (formData.jobPostsPerMonth === undefined || formData.jobPostsPerMonth < -1) {
+  if (
+    formData.jobPostsPerMonth === undefined ||
+    formData.jobPostsPerMonth < -1
+  ) {
     errors.jobPostsPerMonth = "Job posts per month cannot be lesser than -1.";
   } else if (formData.jobPostsPerMonth > 10_000) {
     errors.jobPostsPerMonth = "Job posts per month seems too high.";
   }
 
-  if (formData.screeningCredits === undefined || formData.screeningCredits < -1) {
+  if (
+    formData.screeningCredits === undefined ||
+    formData.screeningCredits < -1
+  ) {
     errors.screeningCredits = "Screening credits cannot be lesser than -1.";
   } else if (formData.screeningCredits > 100_000) {
     errors.screeningCredits = "Screening credits seems too high.";
   }
 
-  if (formData.resumeParsesPerMonth === undefined || formData.resumeParsesPerMonth < -1) {
-    errors.resumeParsesPerMonth = "Resume parses per month cannot be lesser than -1.";
+  if (
+    formData.resumeParsesPerMonth === undefined ||
+    formData.resumeParsesPerMonth < -1
+  ) {
+    errors.resumeParsesPerMonth =
+      "Resume parses per month cannot be lesser than -1.";
   } else if (formData.resumeParsesPerMonth > 100_000) {
     errors.resumeParsesPerMonth = "Resume parses per month seems too high.";
   }

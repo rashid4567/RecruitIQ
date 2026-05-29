@@ -2,7 +2,7 @@ import api from "@/api/axios";
 
 import {
   SubscriptionPlan,
-  type FeaturesAccess,
+  type FeatureAccess,
   type PlanFeature,
   type SubscriptionPlanProps,
 } from "../../domain/entity/SubscriptionPlan.entity";
@@ -11,7 +11,7 @@ import {
   PlanType,
   type BillingCycle,
   type Currency,
-} from "../../domain/dto/subscription.constants";
+} from "../../domain/constant/subscription.constants";
 
 import type {
   PlanFilterOptions,
@@ -123,7 +123,7 @@ export class ApiSubscriptionPlanRepository implements SubscriptionPlanRepository
       }),
     );
 
-    const featuresAccess: FeaturesAccess = {
+    const featuresAccess: FeatureAccess = {
       interviewScheduling: source.featuresAccess?.interviewScheduling ?? false,
       advancedAnalytics: source.featuresAccess?.advancedAnalytics ?? false,
       prioritySupport: source.featuresAccess?.prioritySupport ?? false,

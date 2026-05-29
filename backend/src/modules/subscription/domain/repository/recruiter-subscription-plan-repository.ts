@@ -1,7 +1,7 @@
 import { RecruiterSubscription } from "../entities/recruiter-subscription.entity";
 
 export interface RecruiterSubscriptionRepository {
-  save(subscription: RecruiterSubscription): Promise<void>;
+  save(subscription: RecruiterSubscription): Promise<RecruiterSubscription>;
   update(subscription: RecruiterSubscription): Promise<void>;
   findById(id: string): Promise<RecruiterSubscription | null>;
   findActiveByRecruiter(

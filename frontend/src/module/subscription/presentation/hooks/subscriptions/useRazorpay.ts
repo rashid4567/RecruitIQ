@@ -4,6 +4,7 @@ import {
   createSubscriptionPaymentUC,
   verifyPaymentUC,
 } from "../../di/subscription.di";
+
 interface RazorpayPaymentResponse {
   razorpay_payment_id: string;
   razorpay_order_id: string;
@@ -30,6 +31,7 @@ interface RazorpayOptions {
   currency: string;
   name: string;
   description: string;
+
   theme?: {
     color: string;
   };
@@ -44,9 +46,12 @@ interface RazorpayOptions {
 interface RazorpayInstance {
   open(): void;
   close(): void;
+
   on<T = unknown>(event: string, callback: (response: T) => void): void;
 }
+
 type RazorpayConstructor = new (options: RazorpayOptions) => RazorpayInstance;
+
 export type PaymentStatus =
   | "idle"
   | "creating"
@@ -54,6 +59,7 @@ export type PaymentStatus =
   | "verifying"
   | "success"
   | "error";
+
 interface UseRazorpayOptions {
   onSuccess?: (subscriptionId: string) => void;
   onError?: (error: string) => void;
@@ -105,7 +111,6 @@ function loadRazorpayScript(): Promise<boolean> {
       resolve(true);
       return;
     }
-
     const script = document.createElement("script");
     script.id = "razorpay-script";
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -122,7 +127,7 @@ export function useRazorpay({
 }: UseRazorpayOptions = {}): UseRazorpayReturn {
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [error, setError] = useState<string | null>(null);
-  const isInProgress = useRef(false);
+  const isInProgress = useRef<boolean>(false);
   const reset = useCallback(() => {
     setStatus("idle");
     setError(null);
@@ -157,19 +162,20 @@ export function useRazorpay({
         toast.loading("Creating order...", {
           id: loadingToastId,
         });
-        const orderData = await createSubscriptionPaymentUC.execute(planId);
+        const orderData = await createSubscriptionPaymentUC.execute({
+          planId,
+        });
+        console.log("ORDER CREATED:", orderData);
         setStatus("processing");
         toast.loading("Opening payment window...", {
           id: loadingToastId,
         });
-
         await new Promise<void>((resolve, reject) => {
           const RazorpayClass = (
             window as unknown as {
               Razorpay: RazorpayConstructor;
             }
           ).Razorpay;
-
           const rzp = new RazorpayClass({
             key: orderData.razorpayKeyId,
             order_id: orderData.orderId,
@@ -179,7 +185,6 @@ export function useRazorpay({
             theme: {
               color: "#2563EB",
             },
-
             handler: async (response) => {
               try {
                 setStatus("verifying");
@@ -193,7 +198,8 @@ export function useRazorpay({
                   razorpay_signature: response.razorpay_signature,
                 });
 
-                if (result.success) {
+                console.log("VERIFY RESULT:", result);
+                if (result.status === "success") {
                   toast.success("Payment successful! 🎉", {
                     id: loadingToastId,
                     duration: 5000,
@@ -202,9 +208,7 @@ export function useRazorpay({
                   onSuccess?.(result.subscriptionId);
                   resolve();
                 } else {
-                  reject(
-                    new Error(result.message ?? "Payment verification failed."),
-                  );
+                  reject(new Error("Payment verification failed"));
                 }
               } catch (err) {
                 reject(err);
@@ -230,6 +234,7 @@ export function useRazorpay({
               );
             },
           );
+
           rzp.open();
         });
       } catch (err) {
@@ -241,6 +246,7 @@ export function useRazorpay({
         setError(message);
         setStatus("error");
         onError?.(message);
+        console.error("PAYMENT ERROR:", err);
       } finally {
         isInProgress.current = false;
       }

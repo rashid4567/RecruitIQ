@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { UpdateSubscriptionPlanUseCase } from "../../../application/usecase/update-subscription-plan.usecase";
-import { UpdatePlanSchema } from "../../../../admin/Presentation/validator/subscription-plan.schema";
+import { UpdateSubscriptionPlanUseCase } from "../../../application/usecase/Admin/update-subscription-plan.usecase";
+import { UpdatePlanSchema } from "../../validator/subscription-plan.schema";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 

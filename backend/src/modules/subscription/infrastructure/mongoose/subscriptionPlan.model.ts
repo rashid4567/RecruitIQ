@@ -250,9 +250,7 @@ subscriptionPlanSchema.index({
 subscriptionPlanSchema.index({
   isPopular: 1,
 });
-subscriptionPlanSchema.index({
-  razorpayPlanId: 1,
-});
+
 
 export const SubscriptionPlanModel = model<ISubscriptionPlan>(
   "SubscriptionPlan",

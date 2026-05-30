@@ -29,6 +29,8 @@ const SubscriptionFailed = lazy(
     import("../module/subscription/presentation/page/components/Billing/paymentFailed"),
 );
 
+const CurrentSubscriptionPage = lazy(()=> import("../module/subscription/presentation/page/CurrentSubscriptionPage"))
+
 const RecruiterRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -50,6 +52,7 @@ const RecruiterRoutes = () => {
               path="subscription/failed"
               element={<SubscriptionFailed />}
             />
+            <Route path="current-subscription" element={<CurrentSubscriptionPage/>}/>
 
             <Route path="*" element={<NotFoundPage />} />
           </Route>

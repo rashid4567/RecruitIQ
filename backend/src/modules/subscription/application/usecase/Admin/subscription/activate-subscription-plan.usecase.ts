@@ -1,7 +1,7 @@
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
-import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { SubscriptionPlan } from "../../../domain/entities/subscription-plan.entity";
-import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
+import { ERROR_CODES } from "../../../../../../constants/errorcode.constants";
+import { ApplicationError } from "../../../../../../shared/errors/application.error";
+import { SubscriptionPlan } from "../../../../domain/entities/subscription-plan.entity";
+import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
 
 export class ActiveSubscriptionPlanUseCase {
   constructor(private readonly repo: SubscriptionPlanRepository) {}

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { GetAllSubscriptionPlansUseCase } from "../../../application/usecase/get-all-subscription-plans.usecase";
+import { GetAllSubscriptionPlansUseCase } from "../../../application/usecase/Admin/subscription/get-all-subscription-plans.usecase";
 import { SubscriptionPlanFilter } from "../../../../admin/Domain/repositories/subscription-plan.repository";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 

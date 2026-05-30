@@ -325,6 +325,11 @@ export class RecruiterSubscription {
       updatedAt: new Date(),
     });
   }
+  toJSON() {
+  return {
+    ...this.props,
+  };
+}
   toObject(): RecruiterSubscriptionProps {
     return {
       ...this.props,

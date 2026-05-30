@@ -18,7 +18,7 @@ router.get("/plans/:planId", recruiterPlanDetailController.getPlanDetail);
 router.post("/subscribe/:planId", subscribePlanController.subscribe);
 router.patch("/renew", renewSubscriptionController.renew);
 router.patch("/cancel", cancelSubscriptionController.cancel);
-router.get("/current", currentSubscriptionController.current);
+router.get("/subscriptions/current", currentSubscriptionController.getCurrentSubscription);
 router.post("/payment/order", createPaymentOrderController.create);
 router.post("/payment/verify", verifyPaymentController.verify);
 

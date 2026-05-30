@@ -7,6 +7,7 @@ import {
   getPlanDetailController,
   hideSubscriptionPlanController,
   unhideSubscriptionPlanController,
+  getSubscribersController,
 } from "../container/subscription.module";
 
 const router = Router();
@@ -17,5 +18,5 @@ router.get("/plans/:planId", getPlanDetailController.getPlanDetail);
 router.patch("/plans/:planId", updateSubscriptionPlanController.update);
 router.patch("/plans/:planId/hide", hideSubscriptionPlanController.hide);
 router.patch("/plans/:planId/unhide", unhideSubscriptionPlanController.unhide);
-
+router.get("/subscribers", getSubscribersController.getSubscribers);
 export default router;

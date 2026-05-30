@@ -29,12 +29,7 @@ export class VerifyPaymentUseCase {
     private readonly paymentGateway: PaymentGateway,
   ) {}
 
-  async execute(
-    request: VerifyPaymentRequest,
-  ): Promise<VerifyPaymentResponse> {
-    console.log("========== VERIFY PAYMENT USECASE ==========");
-    console.log("REQUEST:", request);
-
+  async execute(request: VerifyPaymentRequest): Promise<VerifyPaymentResponse> {
     const payment = await this.paymentRepo.findByRazorpayOrderId(
       request.razorpayOrderId,
     );
@@ -43,13 +38,8 @@ export class VerifyPaymentUseCase {
       throw new ApplicationError(ERROR_CODES.PAYMENT_NOT_FOUND);
     }
 
-    console.log("PAYMENT ID:", payment.id);
-    console.log("PAYMENT STATUS:", payment.status);
-
     if (payment.isPaid()) {
-      throw new ApplicationError(
-        ERROR_CODES.PAYMENT_ALREADY_VERIFIED,
-      );
+      throw new ApplicationError(ERROR_CODES.PAYMENT_ALREADY_VERIFIED);
     }
 
     const isValid = await this.paymentGateway.verifySignature({
@@ -58,23 +48,15 @@ export class VerifyPaymentUseCase {
       signature: request.razorpaySignature,
     });
 
-    console.log("SIGNATURE VALID:", isValid);
-
     if (!isValid) {
-      const failedPayment = payment.markFailed(
-        "Invalid Razorpay Signature",
-      );
+      const failedPayment = payment.markFailed("Invalid Razorpay Signature");
 
       await this.paymentRepo.update(failedPayment);
 
-      throw new ApplicationError(
-        ERROR_CODES.INVALID_PAYMENT_SIGNATURE,
-      );
+      throw new ApplicationError(ERROR_CODES.INVALID_PAYMENT_SIGNATURE);
     }
 
     const plan = await this.planRepo.findById(payment.planId);
-
-    console.log("PLAN FOUND:", plan?.id);
 
     if (!plan) {
       throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
@@ -85,21 +67,15 @@ export class VerifyPaymentUseCase {
 
     switch (plan.billingCycle) {
       case "weekly":
-        endDate.setDate(
-          endDate.getDate() + 7 * plan.billingInterval,
-        );
+        endDate.setDate(endDate.getDate() + 7 * plan.billingInterval);
         break;
 
       case "monthly":
-        endDate.setMonth(
-          endDate.getMonth() + plan.billingInterval,
-        );
+        endDate.setMonth(endDate.getMonth() + plan.billingInterval);
         break;
 
       case "yearly":
-        endDate.setFullYear(
-          endDate.getFullYear() + plan.billingInterval,
-        );
+        endDate.setFullYear(endDate.getFullYear() + plan.billingInterval);
         break;
     }
 
@@ -138,20 +114,13 @@ export class VerifyPaymentUseCase {
       updatedAt: now,
     });
 
-    const savedSubscription =
-      await this.subscriptionRepo.save(subscription);
+    const savedSubscription = await this.subscriptionRepo.save(subscription);
 
     const paidPayment = payment
       .markPaid(request.razorpayPaymentId)
       .attachSubscription(savedSubscription.id!);
 
     await this.paymentRepo.update(paidPayment);
-
-    console.log(
-      "SUBSCRIPTION CREATED:",
-      savedSubscription.id,
-    );
-
     return {
       subscriptionId: savedSubscription.id!,
       paymentId: paidPayment.id,

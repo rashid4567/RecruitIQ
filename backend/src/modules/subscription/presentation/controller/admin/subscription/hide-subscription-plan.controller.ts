@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { DeactivateSubscriptionPlanUseCase } from "../../../application/usecase/Admin/deactivate-subscription-plan.usecase";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { DeactivateSubscriptionPlanUseCase } from "../../../../application/usecase/Admin/subscription/deactivate-subscription-plan.usecase";
+import { HTTP_STATUS } from "../../../../../../constants/httpStatus";
 
 export class HideSubscriptionPlanController{
     constructor(private readonly hideUC : DeactivateSubscriptionPlanUseCase){};

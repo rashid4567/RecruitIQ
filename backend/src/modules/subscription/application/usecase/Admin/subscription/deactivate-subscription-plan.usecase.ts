@@ -1,6 +1,6 @@
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
-import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
+import { ERROR_CODES } from "../../../../../../constants/errorcode.constants";
+import { ApplicationError } from "../../../../../../shared/errors/application.error";
+import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
 
 export class DeactivateSubscriptionPlanUseCase{
     constructor(private readonly repo : SubscriptionPlanRepository){};

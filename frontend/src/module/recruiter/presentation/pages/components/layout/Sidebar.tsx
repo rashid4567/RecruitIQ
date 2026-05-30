@@ -11,20 +11,50 @@ import {
   Zap,
   Sparkles,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard",       id: "dashboard",        path: "/recruiter/dashboard" },
-  { icon: Briefcase,       label: "Jobs",             id: "jobs",             path: "/recruiter/jobs" },
-  { icon: Users,           label: "Applications",     id: "applications",     path: "/recruiter/applications", badge: 48 },
-  { icon: Calendar,        label: "Interviews",       id: "interviews",       path: "/recruiter/interviews" },
-  { icon: MessageSquare,   label: "Interview Chats",  id: "interview-chats",  path: "/recruiter/chats" },
-  { icon: UserCircle,      label: "Candidates",       id: "candidates",       path: "/recruiter/candidates" },
-  { icon: CreditCard,      label: "Billing",          id: "billing",          path: "/recruiter/plans" },
-  { icon: User,            label: "Profile",          id: "profile",          path: "/recruiter/settings" },
+  {
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    id: "dashboard",
+    path: "/recruiter/dashboard",
+  },
+  { icon: Briefcase, label: "Jobs", id: "jobs", path: "/recruiter/jobs" },
+  {
+    icon: Users,
+    label: "Applications",
+    id: "applications",
+    path: "/recruiter/applications",
+  },
+  {
+    icon: Calendar,
+    label: "Interviews",
+    id: "interviews",
+    path: "/recruiter/interviews",
+  },
+  {
+    icon: MessageSquare,
+    label: "Interview Chats",
+    id: "interview-chats",
+    path: "/recruiter/chats",
+  },
+  {
+    icon: UserCircle,
+    label: "Candidates",
+    id: "candidates",
+    path: "/recruiter/candidates",
+  },
+  {
+    icon: CreditCard,
+    label: "Billing",
+    id: "billing",
+    path: "/recruiter/plans",
+  },
+  { icon: User, label: "Profile", id: "profile", path: "/recruiter/profile" },
 ];
 
 interface SidebarProps {
@@ -35,14 +65,13 @@ export default function Sidebar({ activeItem }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isActive = (item: typeof navItems[0]) => {
+  const isActive = (item: (typeof navItems)[0]) => {
     if (activeItem) return activeItem === item.id;
     return location.pathname.startsWith(item.path);
   };
 
   return (
     <aside className="w-64 bg-white border-r border-slate-100 flex flex-col h-screen sticky top-0 shadow-sm">
-   
       <div className="px-5 py-5 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-linear-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-200">
@@ -70,7 +99,7 @@ export default function Sidebar({ activeItem }: SidebarProps) {
                 "w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-150 group",
                 active
                   ? "bg-indigo-50 text-indigo-700"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
               )}
             >
               <div className="flex items-center gap-3">
@@ -79,13 +108,13 @@ export default function Sidebar({ activeItem }: SidebarProps) {
                     "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
                     active
                       ? "bg-indigo-100"
-                      : "bg-slate-100 group-hover:bg-slate-200"
+                      : "bg-slate-100 group-hover:bg-slate-200",
                   )}
                 >
                   <item.icon
                     className={cn(
                       "w-4 h-4",
-                      active ? "text-indigo-600" : "text-slate-500"
+                      active ? "text-indigo-600" : "text-slate-500",
                     )}
                   />
                 </div>
@@ -93,18 +122,6 @@ export default function Sidebar({ activeItem }: SidebarProps) {
                   {item.label}
                 </span>
               </div>
-              {item.badge && (
-                <Badge
-                  className={cn(
-                    "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                    active
-                      ? "bg-indigo-600 text-white"
-                      : "bg-slate-200 text-slate-600"
-                  )}
-                >
-                  {item.badge}
-                </Badge>
-              )}
             </button>
           );
         })}
@@ -128,7 +145,6 @@ export default function Sidebar({ activeItem }: SidebarProps) {
         </div>
       </div>
 
-   
       <div className="px-3 pb-4 pt-1 border-t border-slate-100">
         <button className="flex items-center gap-3 text-slate-500 hover:text-red-600 w-full px-3 py-2.5 rounded-xl hover:bg-red-50 transition-all text-sm font-medium">
           <div className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-red-100 flex items-center justify-center transition-colors">

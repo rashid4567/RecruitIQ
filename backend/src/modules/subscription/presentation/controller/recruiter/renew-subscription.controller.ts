@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { RenewSubscriptionUseCase } from "../../../application/usecase/RenewSubscriptionUseCase";
+import { RenewSubscriptionUseCase } from "../../../application/usecase/Recruiter/RenewSubscriptionUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 export class RenewSubscriptionController {

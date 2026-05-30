@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { GetSubscriptionPlanUseCase } from "../../../application/usecase/Admin/get-subscription-plan.usecase";
+import { GetSubscriptionPlanUseCase } from "../../../application/usecase/Admin/subscription/get-subscription-plan.usecase";
 import { planIdParamSchema } from "../../../../recruiter/presentation/validator/Planidparam.validator";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 

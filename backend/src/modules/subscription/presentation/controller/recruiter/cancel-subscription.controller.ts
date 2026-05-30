@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { CancelSubscriptionUseCase } from "../../../application/usecase/CancelSubscriptionUseCase";
+import { CancelSubscriptionUseCase } from "../../../application/usecase/Recruiter/CancelSubscriptionUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 export class CancelSubscriptionController {

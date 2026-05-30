@@ -42,13 +42,40 @@ interface ChangePlanApiResponse {
 
 export class ApiRecruiterSubscriptionRepository implements RecruiterSubscriptionRepository {
   async getCurrentSubscription(): Promise<RecruiterSubscription | null> {
-    const res = await api.get<SingleSubscriptionApiResponse>(
-      "/recruiter/subscriptions/current",
-    );
-    if (!res.data.data) {
+    const res = await api.get("/recruiter/subscriptions/current");
+
+    const data = res.data?.data;
+
+    if (!data) {
       return null;
     }
-    return this.toEntity(res.data.data);
+
+    return RecruiterSubscription.create({
+      id: data.id,
+      recruiterId: data.recruiterId,
+      planId: data.planId,
+      planName: data.planName,
+      planPrice: data.planPrice,
+      planType: data.planType,
+      status: data.status,
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate),
+      currentPeriodStart: new Date(data.currentPeriodStart),
+      currentPeriodEnd: new Date(data.currentPeriodEnd),
+      autoRenew: data.autoRenew,
+      paymentReferenceId: undefined,
+      cancelledAt: undefined,
+      jobPostsUsed: data.jobPostsUsed,
+      screeningUsed: data.screeningUsed,
+      resumeUsed: data.resumeUsed,
+      aiScoreUsed: data.aiScoreUsed,
+      jobPostsLimit: data.jobPostsLimit,
+      screeningLimit: data.screeningLimit,
+      resumeLimit: data.resumeLimit,
+      aiScoreLimit: data.aiScoreLimit,
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
+    });
   }
 
   async getSubscriptionHistory(

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { ActiveSubscriptionPlanUseCase } from "../../../application/usecase/Admin/activate-subscription-plan.usecase";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ActiveSubscriptionPlanUseCase } from "../../../../application/usecase/Admin/subscription/activate-subscription-plan.usecase";
+import { HTTP_STATUS } from "../../../../../../constants/httpStatus";
 
 export class UnhideSubscriptionPlanController {
   constructor(private readonly unhideUC: ActiveSubscriptionPlanUseCase) {}

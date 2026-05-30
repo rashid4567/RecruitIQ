@@ -1,6 +1,6 @@
-import { SubscriptionPlanFilter } from "../../../../admin/Domain/repositories/subscription-plan.repository";
-import { SubscriptionPlan } from "../../../domain/entities/subscription-plan.entity";
-import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
+import { SubscriptionPlanFilter } from "../../../../../admin/Domain/repositories/subscription-plan.repository";
+import { SubscriptionPlan } from "../../../../domain/entities/subscription-plan.entity";
+import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
 
 export interface GetAllPlansOutput {
   data: SubscriptionPlan[];

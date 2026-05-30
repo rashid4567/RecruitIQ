@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { UpdateSubscriptionPlanUseCase } from "../../../application/usecase/Admin/update-subscription-plan.usecase";
-import { UpdatePlanSchema } from "../../validator/subscription-plan.schema";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { UpdateSubscriptionPlanUseCase } from "../../../../application/usecase/Admin/subscription/update-subscription-plan.usecase";
+import { UpdatePlanSchema } from "../../../validator/subscription-plan.schema";
+import { HTTP_STATUS } from "../../../../../../constants/httpStatus";
 
 
 export class UpdateSubscriptionPlanController{

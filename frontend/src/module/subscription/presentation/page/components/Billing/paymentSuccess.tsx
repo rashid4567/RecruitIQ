@@ -1,549 +1,737 @@
-import { useEffect, useState } from "react";
+'use client';
 
-interface SubscriptionSuccessProps {
-  planName?: string;
-  email?: string;
-  onDashboardClick?: () => void;
-  onExploreClick?: () => void;
-}
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Briefcase, Calendar, Zap, Shield, ArrowRight, Star, Sparkles } from 'lucide-react';
+import { useCurrentSubscription } from '@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription';
 
-export default function SubscriptionSuccess({
-  planName = "Stellar Pro",
-  email = "user@example.com",
-  onDashboardClick = () => {},
-  onExploreClick = () => {},
-}: SubscriptionSuccessProps) {
-  const [mounted, setMounted] = useState(false);
-  const [checkDone, setCheckDone] = useState(false);
+// ─── Fireworks Canvas ─────────────────────────────────────────────────────────
+function Fireworks() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    setMounted(true);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const timer = setTimeout(() => {
-      setCheckDone(true);
-    }, 900);
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ── Types ──
+    interface Trail { x: number; y: number; alpha: number; }
+    interface Rocket {
+      x: number; y: number;
+      vx: number; vy: number;
+      targetY: number;
+      color: string;
+      trail: Trail[];
+      exploded: boolean;
+    }
+    interface Spark {
+      x: number; y: number;
+      vx: number; vy: number;
+      life: number; maxLife: number;
+      size: number;
+      color: string;
+      gravity: number;
+      tail: Array<{ x: number; y: number }>;
+    }
+    interface Glitter {
+      x: number; y: number;
+      vx: number; vy: number;
+      life: number;
+      size: number;
+      color: string;
+      spin: number;
+    }
+
+    const palettes = [
+      ['#FF6B6B', '#FF8E53', '#FFD93D'],   // warm
+      ['#6BCB77', '#4D96FF', '#FFD93D'],   // tricolor
+      ['#C77DFF', '#E0AAFF', '#FFD6FF'],   // purple
+      ['#00F5D4', '#00BBF9', '#9B5DE5'],   // cool
+      ['#F15BB5', '#FEE440', '#00BBF9'],   // pop
+    ];
+
+    const rockets: Rocket[] = [];
+    const sparks: Spark[] = [];
+    const glitters: Glitter[] = [];
+
+    const launchRocket = () => {
+      const palette = palettes[Math.floor(Math.random() * palettes.length)];
+      rockets.push({
+        x: canvas.width * (0.15 + Math.random() * 0.7),
+        y: canvas.height,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: -(12 + Math.random() * 6),
+        targetY: canvas.height * (0.1 + Math.random() * 0.45),
+        color: palette[0],
+        trail: [],
+        exploded: false,
+      });
+    };
+
+    const explode = (x: number, y: number, palette: string[]) => {
+      const count = 90 + Math.floor(Math.random() * 60);
+      const style = Math.floor(Math.random() * 4); // 0=sphere, 1=star, 2=ring, 3=willow
+
+      for (let i = 0; i < count; i++) {
+        let vx: number, vy: number;
+        if (style === 0) {
+          // sphere burst
+          const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+          const spd = 3 + Math.random() * 5;
+          vx = Math.cos(angle) * spd;
+          vy = Math.sin(angle) * spd;
+        } else if (style === 1) {
+          // 5-pointed star
+          const points = 5;
+          const section = Math.floor((i / count) * points);
+          const baseAngle = (section / points) * Math.PI * 2 - Math.PI / 2;
+          const spread = ((i / count) * points - section) * (Math.PI * 2 / points);
+          const spd = spread < 0.3 ? 6 + Math.random() * 2 : 2 + Math.random() * 2;
+          vx = Math.cos(baseAngle + spread) * spd;
+          vy = Math.sin(baseAngle + spread) * spd;
+        } else if (style === 2) {
+          // ring
+          const angle = (i / count) * Math.PI * 2;
+          const spd = 5 + Math.random() * 0.5;
+          vx = Math.cos(angle) * spd;
+          vy = Math.sin(angle) * spd;
+        } else {
+          // willow — slow upward then droop
+          const angle = (i / count) * Math.PI * 2;
+          const spd = 2 + Math.random() * 6;
+          vx = Math.cos(angle) * spd * 0.5;
+          vy = -Math.abs(Math.sin(angle) * spd) - 2;
+        }
+
+        const color = palette[Math.floor(Math.random() * palette.length)];
+        const maxLife = 0.6 + Math.random() * 0.6;
+        sparks.push({
+          x, y, vx, vy,
+          life: maxLife, maxLife,
+          size: 2 + Math.random() * 2.5,
+          color,
+          gravity: style === 3 ? 0.12 : 0.06,
+          tail: [],
+        });
+      }
+
+      // gold glitter burst
+      for (let i = 0; i < 30; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const spd = Math.random() * 3;
+        glitters.push({
+          x, y,
+          vx: Math.cos(angle) * spd,
+          vy: Math.sin(angle) * spd - 1,
+          life: 0.8 + Math.random() * 0.6,
+          size: 3 + Math.random() * 4,
+          color: ['#FFD700', '#FFF176', '#FFFFFF'][Math.floor(Math.random() * 3)],
+          spin: (Math.random() - 0.5) * 0.3,
+        });
+      }
+    };
+
+    // Launch schedule: burst of rockets at start then periodic
+    let launchCount = 0;
+    const maxLaunches = 14;
+    const launchSchedule = [0, 150, 300, 500, 700, 950, 1200, 1500, 1850, 2200, 2600, 3000, 3400, 3800];
+    launchSchedule.forEach((delay) => {
+      setTimeout(() => { if (launchCount < maxLaunches) { launchRocket(); launchCount++; } }, delay);
+    });
+
+    let raf: number;
+    const draw = () => {
+      // soft fade trail
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // ── rockets ──
+      for (let i = rockets.length - 1; i >= 0; i--) {
+        const r = rockets[i];
+        if (r.exploded) { rockets.splice(i, 1); continue; }
+
+        r.trail.push({ x: r.x, y: r.y, alpha: 1 });
+        if (r.trail.length > 18) r.trail.shift();
+
+        // draw trail
+        for (let t = 0; t < r.trail.length; t++) {
+          const pt = r.trail[t];
+          const alpha = (t / r.trail.length) * 0.7;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 2 * (t / r.trail.length), 0, Math.PI * 2);
+          ctx.fillStyle = r.color;
+          ctx.globalAlpha = alpha;
+          ctx.fill();
+        }
+
+        // draw rocket head
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.globalAlpha = 1;
+        ctx.fill();
+
+        r.x += r.vx;
+        r.y += r.vy;
+        r.vy += 0.22; // gravity
+
+        if (r.y <= r.targetY || r.vy >= 0) {
+          const palette = palettes[Math.floor(Math.random() * palettes.length)];
+          explode(r.x, r.y, palette);
+          r.exploded = true;
+        }
+      }
+
+      // ── sparks ──
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        s.tail.push({ x: s.x, y: s.y });
+        if (s.tail.length > 8) s.tail.shift();
+
+        s.x += s.vx;
+        s.y += s.vy;
+        s.vy += s.gravity;
+        s.vx *= 0.98;
+        s.life -= 0.016;
+
+        if (s.life <= 0) { sparks.splice(i, 1); continue; }
+
+        const alpha = s.life / s.maxLife;
+
+        // tail
+        for (let t = 0; t < s.tail.length; t++) {
+          ctx.beginPath();
+          ctx.arc(s.tail[t].x, s.tail[t].y, s.size * 0.4 * (t / s.tail.length), 0, Math.PI * 2);
+          ctx.fillStyle = s.color;
+          ctx.globalAlpha = alpha * (t / s.tail.length) * 0.5;
+          ctx.fill();
+        }
+
+        // head
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size * alpha, 0, Math.PI * 2);
+        ctx.fillStyle = s.color;
+        ctx.globalAlpha = alpha;
+        ctx.fill();
+
+        // bright core
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size * alpha * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.globalAlpha = alpha * 0.8;
+        ctx.fill();
+      }
+
+      // ── glitter diamonds ──
+      for (let i = glitters.length - 1; i >= 0; i--) {
+        const g = glitters[i];
+        g.x += g.vx;
+        g.y += g.vy;
+        g.vy += 0.04;
+        g.vx *= 0.99;
+        g.life -= 0.014;
+        g.spin += 0.1;
+
+        if (g.life <= 0) { glitters.splice(i, 1); continue; }
+
+        ctx.save();
+        ctx.translate(g.x, g.y);
+        ctx.rotate(g.spin);
+        ctx.globalAlpha = g.life;
+        ctx.fillStyle = g.color;
+        ctx.beginPath();
+        ctx.moveTo(0, -g.size);
+        ctx.lineTo(g.size * 0.4, 0);
+        ctx.lineTo(0, g.size);
+        ctx.lineTo(-g.size * 0.4, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
 
     return () => {
-      clearTimeout(timer);
-      setMounted(false);
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
     };
   }, []);
-  const perks = [
-    "Unlimited Projects",
-    "AI Analytics Engine",
-    "Priority Rendering",
-    "Custom API Endpoints",
-    "Dedicated Workspace",
-    "Global CDN Access",
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-50" />;
+}
+
+// ─── Animated Counter ─────────────────────────────────────────────────────────
+function Counter({ to, prefix = '', suffix = '' }: { to: number; prefix?: string; suffix?: string }) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (to === 0) return;
+    let start = 0;
+    const step = Math.max(1, Math.ceil(to / 50));
+    const id = setInterval(() => {
+      start += step;
+      if (start >= to) { setVal(to); clearInterval(id); }
+      else setVal(start);
+    }, 18);
+    return () => clearInterval(id);
+  }, [to]);
+  return <>{prefix}{val.toLocaleString('en-IN')}{suffix}</>;
+}
+
+// ─── Confetti Strip ───────────────────────────────────────────────────────────
+function ConfettiStrip() {
+  return (
+    <div className="fixed inset-x-0 top-0 h-2 z-40 overflow-hidden pointer-events-none">
+      {Array.from({ length: 40 }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute top-0 w-2 h-2 rounded-sm opacity-80"
+          style={{
+            left: `${(i / 40) * 100}%`,
+            background: ['#10B981', '#F59E0B', '#3B82F6', '#EC4899', '#8B5CF6', '#EF4444'][i % 6],
+            animation: `confetti-drop ${1.2 + (i % 5) * 0.3}s ${(i * 0.06)}s ease-in forwards`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+export default function PaymentSuccessPage() {
+  const navigate = useNavigate();
+  const { data: subscriptionData, isLoading } = useCurrentSubscription();
+  const [visible, setVisible] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(true);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setVisible(true), 200);
+    const t2 = setTimeout(() => setShowFireworks(false), 2000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
+  const sub = subscriptionData?.subscription;
+
+  const formatDate = (d?: Date) =>
+    d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+
+  const planBadgeColor: Record<string, string> = {
+    free: 'from-slate-400 to-slate-500',
+    basic: 'from-sky-400 to-blue-500',
+    pro: 'from-violet-500 to-purple-600',
+    enterprise: 'from-amber-400 to-orange-500',
+  };
+  const badgeGrad = sub ? (planBadgeColor[sub.planType] ?? 'from-emerald-400 to-teal-500') : 'from-emerald-400 to-teal-500';
+
+  const usageStats = [
+    {
+      label: 'Job Posts',
+      icon: <Briefcase className="w-3.5 h-3.5" />,
+      used: sub?.jobPostsUsed ?? 0,
+      limit: sub?.jobPostsLimit ?? 0,
+      unlimited: sub?.jobPostsLimit === -1,
+      pct: sub?.jobPostsLimit === -1 ? 100
+        : sub ? Math.round((sub.jobPostsUsed / sub.jobPostsLimit) * 100) : 0,
+      color: 'from-emerald-400 to-teal-400',
+    },
+    {
+      label: 'Screenings',
+      icon: <Zap className="w-3.5 h-3.5" />,
+      used: sub?.screeningUsed ?? 0,
+      limit: sub?.screeningLimit ?? 0,
+      unlimited: sub?.screeningLimit === -1,
+      pct: sub?.screeningLimit === -1 ? 100
+        : sub ? Math.round((sub.screeningUsed / sub.screeningLimit) * 100) : 0,
+      color: 'from-blue-400 to-indigo-400',
+    },
+    {
+      label: 'Resume Parses',
+      icon: <Shield className="w-3.5 h-3.5" />,
+      used: sub?.resumeUsed ?? 0,
+      limit: sub?.resumeLimit ?? 0,
+      unlimited: sub?.resumeLimit === -1,
+      pct: sub?.resumeLimit === -1 ? 100
+        : sub ? Math.round(((sub.resumeUsed ?? 0) / (sub.resumeLimit ?? 1)) * 100) : 0,
+      color: 'from-violet-400 to-purple-400',
+    },
+    {
+      label: 'AI Score Credits',
+      icon: <Star className="w-3.5 h-3.5" />,
+      used: sub?.aiScoreUsed ?? 0,
+      limit: sub?.aiScoreLimit ?? 0,
+      unlimited: sub?.aiScoreLimit === -1,
+      pct: sub?.aiScoreLimit === -1 ? 100
+        : sub ? Math.round(((sub.aiScoreUsed ?? 0) / (sub.aiScoreLimit ?? 1)) * 100) : 0,
+      color: 'from-amber-400 to-orange-400',
+    },
   ];
 
-  const stats = [
-    { value: "∞", label: "Bandwidth" },
-    { value: "24/7", label: "Support" },
-    { value: "99.9%", label: "Uptime SLA" },
-  ];
+  const billingPct = sub ? (() => {
+    const now = Date.now();
+    const start = new Date(sub.currentPeriodStart).getTime();
+    const end = new Date(sub.currentPeriodEnd).getTime();
+    return Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100)));
+  })() : 0;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background:
-          "linear-gradient(145deg, #fffdf7 0%, #fdf8ec 40%, #fefcf4 100%)",
-        fontFamily: "'Georgia', 'Times New Roman', serif",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: "-10%",
-          left: "-8%",
-          width: 500,
-          height: 500,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)",
-          filter: "blur(60px)",
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: "-5%",
-          right: "-8%",
-          width: 550,
-          height: 550,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(200,160,40,0.10) 0%, transparent 70%)",
-          filter: "blur(70px)",
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(184,134,11,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(184,134,11,0.05) 1px,transparent 1px)",
-          backgroundSize: "64px 64px",
-          pointerEvents: "none",
-        }}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 relative overflow-hidden">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Satoshi:wght@300;400;500;700&display=swap');
+        * { font-family: 'Satoshi', system-ui, sans-serif; }
+        .display { font-family: 'Cabinet Grotesk', system-ui, sans-serif; }
 
-      <div
-        style={{
-          position: "relative",
-          zIndex: 10,
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "3rem 1.5rem",
-        }}
-      >
-        <div style={{ width: "100%", maxWidth: 720 }}>
-          <div
-            style={{
-              textAlign: "center",
-              marginBottom: "1.75rem",
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? "translateY(0)" : "translateY(-14px)",
-              transition: "all 0.6s ease",
-            }}
-          >
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "5px 18px",
-                borderRadius: 100,
-                border: "1px solid rgba(184,134,11,0.32)",
-                background: "rgba(184,134,11,0.1)",
-                fontSize: 10,
-                letterSpacing: "0.2em",
-                textTransform: "uppercase" as const,
-                fontWeight: 700,
-                color: "#8B6914",
-                fontFamily: "Arial, sans-serif",
-              }}
-            >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: "#C9A227",
-                  boxShadow: "0 0 6px rgba(184,134,11,0.6)",
-                  display: "inline-block",
-                }}
-              />
-              Subscription Active
-            </span>
+        .fade-up {
+          opacity: 0; transform: translateY(28px);
+          transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+        }
+        .fade-up.show { opacity: 1; transform: translateY(0); }
+        .fade-right {
+          opacity: 0; transform: translateX(-28px);
+          transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+        }
+        .fade-right.show { opacity: 1; transform: translateX(0); }
+        .fade-left {
+          opacity: 0; transform: translateX(28px);
+          transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+        }
+        .fade-left.show { opacity: 1; transform: translateX(0); }
+
+        .bar-fill { transition: width 1.6s cubic-bezier(0.16,1,0.3,1); }
+
+        /* card hover lift */
+        .card-lift {
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .card-lift:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 20px 60px rgba(16,185,129,0.12);
+        }
+
+        @keyframes spin-slow { to { transform: rotate(360deg); } }
+        @keyframes check-draw {
+          from { stroke-dashoffset: 60; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes ring-pop {
+          0% { transform: scale(0.4); opacity: 0; }
+          60% { transform: scale(1.1); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes float-badge {
+          0%,100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes confetti-drop {
+          0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
+        }
+        @keyframes sparkle {
+          0%,100% { transform: scale(0) rotate(0deg); opacity:0; }
+          50% { transform: scale(1) rotate(180deg); opacity:1; }
+        }
+
+        .spin-slow { animation: spin-slow 14s linear infinite; }
+        .ring-pop { animation: ring-pop 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+        .float-badge { animation: float-badge 3s ease-in-out infinite; }
+        .shimmer-text {
+          background: linear-gradient(90deg, #059669 0%, #10b981 40%, #34d399 50%, #10b981 60%, #059669 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: shimmer 3s linear infinite;
+        }
+        .check-path {
+          stroke-dasharray: 60;
+          stroke-dashoffset: 60;
+          animation: check-draw 0.5s 0.6s cubic-bezier(0.65,0,0.35,1) forwards;
+        }
+        .sparkle-1 { animation: sparkle 1.8s 0.3s ease-in-out infinite; }
+        .sparkle-2 { animation: sparkle 2.1s 0.7s ease-in-out infinite; }
+        .sparkle-3 { animation: sparkle 1.6s 1.1s ease-in-out infinite; }
+
+        ::-webkit-scrollbar { width: 6px; background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 99px; }
+      `}</style>
+
+      {showFireworks && <Fireworks />}
+      <ConfettiStrip />
+
+      {/* Subtle mesh bg */}
+      <div className="fixed top-0 right-0 w-[50vw] h-[50vw] rounded-full bg-emerald-100/60 blur-[120px] pointer-events-none -z-10" />
+      <div className="fixed bottom-0 left-0 w-[40vw] h-[40vw] rounded-full bg-teal-100/50 blur-[100px] pointer-events-none -z-10" />
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30vw] h-[30vw] rounded-full bg-amber-50/60 blur-[90px] pointer-events-none -z-10" />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 py-14 space-y-8">
+
+        {/* ── Hero ── */}
+        <div
+          className={`text-center space-y-6 fade-up ${visible ? 'show' : ''}`}
+          style={{ transitionDelay: '0ms' }}
+        >
+          {/* Animated checkmark */}
+          <div className="flex justify-center relative">
+            {/* Sparkles around */}
+            <div className="absolute top-0 left-1/2 -translate-x-8 -translate-y-2 sparkle-1">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+            </div>
+            <div className="absolute top-2 left-1/2 translate-x-4 -translate-y-4 sparkle-2">
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+            </div>
+            <div className="absolute bottom-0 left-1/2 translate-x-8 translate-y-2 sparkle-3">
+              <Sparkles className="w-4 h-4 text-violet-400" />
+            </div>
+
+            <div className={`relative w-32 h-32 ${visible ? 'ring-pop' : 'opacity-0'}`}>
+              {/* outer ring */}
+              <div className="absolute inset-0 rounded-full border-4 border-emerald-100" />
+              {/* spinning dashed ring */}
+              <svg className="absolute inset-0 w-full h-full spin-slow" viewBox="0 0 128 128">
+                <circle
+                  cx="64" cy="64" r="56"
+                  fill="none" stroke="#10B981" strokeWidth="2"
+                  strokeDasharray="14 6" strokeLinecap="round" opacity="0.4"
+                />
+              </svg>
+              {/* green fill circle */}
+              <div className="absolute inset-3 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-xl shadow-emerald-200/60 flex items-center justify-center">
+                {/* animated check */}
+                <svg viewBox="0 0 36 36" className="w-14 h-14" fill="none">
+                  <path
+                    className="check-path"
+                    d="M9 18l6 6L27 12"
+                    stroke="white" strokeWidth="3.5"
+                    strokeLinecap="round" strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              {/* subtle glow */}
+              <div className="absolute inset-0 rounded-full bg-emerald-400/20 blur-xl" />
+            </div>
           </div>
 
-          <div
-            style={{
-              background: "#ffffff",
-              border: "1px solid rgba(184,134,11,0.18)",
-              borderRadius: 20,
-              overflow: "hidden",
-              boxShadow:
-                "0 4px 6px rgba(184,134,11,0.04), 0 20px 60px rgba(184,134,11,0.08)",
-              opacity: mounted ? 1 : 0,
-              transform: mounted
-                ? "translateY(0) scale(1)"
-                : "translateY(24px) scale(0.98)",
-              transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
-            }}
-          >
-            <div
-              style={{
-                padding: "2.5rem 2.5rem 2rem",
-                background:
-                  "linear-gradient(160deg, #fffbf0 0%, #fdf6dc 60%, #fff9ec 100%)",
-                borderBottom: "1px solid rgba(184,134,11,0.12)",
-                textAlign: "center",
-                position: "relative",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: 100,
-                  height: 3,
-                  borderRadius: "0 0 4px 4px",
-                  background:
-                    "linear-gradient(90deg, transparent, #C9A227, transparent)",
-                }}
-              />
+          <div>
+            <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 float-badge">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              Payment Confirmed
+            </div>
+            <h1 className="display text-5xl md:text-7xl font-black text-slate-900 leading-none tracking-tight">
+              You&apos;re all{' '}
+              <span className="shimmer-text">set!</span>
+            </h1>
+            <p className="text-slate-500 mt-4 text-lg max-w-xl mx-auto leading-relaxed">
+              {isLoading
+                ? 'Loading your plan details…'
+                : (
+                  <>
+                    Your{' '}
+                    <span className="font-semibold text-slate-800">
+                      {sub?.planName ?? 'subscription'}
+                    </span>{' '}
+                    plan is now active and ready to use.
+                  </>
+                )}
+            </p>
+          </div>
+        </div>
 
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: "1.25rem",
-                  position: "relative",
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    width: 88,
-                    height: 88,
-                    borderRadius: "50%",
-                    border: "1.5px solid rgba(184,134,11,0.2)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    width: 110,
-                    height: 110,
-                    borderRadius: "50%",
-                    border: "1px solid rgba(184,134,11,0.09)",
-                  }}
-                />
-                <div
-                  style={{
-                    width: 68,
-                    height: 68,
-                    borderRadius: "50%",
-                    background:
-                      "linear-gradient(135deg, #C9A227, #E8C547, #D4AF37)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow:
-                      "0 4px 20px rgba(184,134,11,0.35), 0 2px 8px rgba(0,0,0,0.06)",
-                    opacity: mounted ? 1 : 0,
-                    transform: mounted ? "scale(1)" : "scale(0)",
-                    transition: "all 0.9s cubic-bezier(0.34,1.56,0.64,1) 0.1s",
-                  }}
-                >
-                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                    <path
-                      d="M6 14L11 19.5L22 9"
-                      stroke="#fff"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeDasharray="28"
-                      strokeDashoffset={checkDone ? 0 : 28}
-                      style={{ transition: "stroke-dashoffset 0.5s ease 0.9s" }}
-                    />
-                  </svg>
+        {/* ── Plan + Usage grid ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+
+          {/* Plan card — 3 cols */}
+          <div
+            className={`lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 overflow-hidden card-lift fade-right ${visible ? 'show' : ''}`}
+            style={{ transitionDelay: '150ms' }}
+          >
+            {/* gradient top bar */}
+            <div className={`h-1.5 w-full bg-gradient-to-r ${badgeGrad}`} />
+
+            <div className="p-7 space-y-6">
+              {/* plan name + price */}
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-gradient-to-r ${badgeGrad} text-white mb-3 shadow-sm`}>
+                    <Star className="w-3 h-3" />
+                    {isLoading ? '…' : (sub?.planType ?? 'plan')}
+                  </span>
+                  <h2 className="display text-2xl font-bold text-slate-900">
+                    {isLoading ? 'Loading…' : (sub?.planName ?? '—')}
+                  </h2>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-slate-400 text-xs uppercase tracking-widest mb-1">Amount Paid</p>
+                  <p className="display text-3xl font-black text-slate-900">
+                    {isLoading
+                      ? '—'
+                      : sub?.planPrice
+                        ? <Counter to={sub.planPrice} prefix="₹" />
+                        : 'Free'}
+                  </p>
                 </div>
               </div>
 
-              <h1
-                style={{
-                  margin: 0,
-                  fontSize: "clamp(1.6rem,4vw,2.2rem)",
-                  fontWeight: 400,
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1.2,
-                  color: "#7A5C0A",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                Welcome to {planName}
-              </h1>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "0.9rem",
-                  color: "#8a7340",
-                  fontFamily: "Arial, sans-serif",
-                  lineHeight: 1.5,
-                }}
-              >
-                Your account has been elevated. The full suite is now at your
-                disposal.
-              </p>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3,1fr)",
-                borderBottom: "1px solid rgba(184,134,11,0.1)",
-              }}
-            >
-              {stats.map((s, i) => (
-                <div
-                  key={i}
-                  style={{
-                    padding: "1.1rem 1rem",
-                    textAlign: "center",
-                    borderRight:
-                      i < 2 ? "1px solid rgba(184,134,11,0.1)" : "none",
-                  }}
-                >
+              {/* detail grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: <Calendar className="w-4 h-4" />, label: 'Start Date', value: formatDate(sub?.startDate), color: 'text-emerald-500' },
+                  { icon: <Calendar className="w-4 h-4" />, label: 'End Date', value: formatDate(sub?.endDate), color: 'text-blue-500' },
+                  { icon: <Briefcase className="w-4 h-4" />, label: 'Active Days Per Post', value: sub?.jobPostActiveDays ? `${sub.jobPostActiveDays} days` : '—', color: 'text-violet-500' },
+                  { icon: <Shield className="w-4 h-4" />, label: 'Status', value: sub?.status ?? '—', color: 'text-amber-500' },
+                ].map((item) => (
                   <div
-                    style={{
-                      fontSize: "1.35rem",
-                      fontWeight: 400,
-                      color: "#B8860B",
-                      letterSpacing: "-0.02em",
-                      marginBottom: 3,
-                    }}
+                    key={item.label}
+                    className="bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 hover:bg-emerald-50/50 hover:border-emerald-100 transition-colors"
                   >
-                    {s.value}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "Arial,sans-serif",
-                      fontSize: 10,
-                      letterSpacing: "0.14em",
-                      textTransform: "uppercase" as const,
-                      color: "#a08040",
-                    }}
-                  >
-                    {s.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ padding: "1.75rem 2.5rem 2.25rem" }}>
-              <p
-                style={{
-                  margin: "0 0 0.7rem",
-                  fontFamily: "Arial,sans-serif",
-                  fontSize: 10,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase" as const,
-                  fontWeight: 700,
-                  color: "#B8860B",
-                }}
-              >
-                What's included
-              </p>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
-                  gap: 6,
-                  marginBottom: "1.5rem",
-                }}
-              >
-                {perks.map((p, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      padding: "0.6rem 0.85rem",
-                      borderRadius: 9,
-                      border: "1px solid rgba(184,134,11,0.13)",
-                      background: "rgba(184,134,11,0.04)",
-                      cursor: "default",
-                      transition: "all 0.2s",
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.background =
-                        "rgba(184,134,11,0.09)";
-                      (e.currentTarget as HTMLDivElement).style.borderColor =
-                        "rgba(184,134,11,0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.background =
-                        "rgba(184,134,11,0.04)";
-                      (e.currentTarget as HTMLDivElement).style.borderColor =
-                        "rgba(184,134,11,0.13)";
-                    }}
-                  >
-                    <span style={{ color: "#C9A227", fontSize: 8 }}>◆</span>
-                    <span
-                      style={{
-                        fontFamily: "Arial,sans-serif",
-                        fontSize: 12,
-                        color: "#5a4a20",
-                      }}
-                    >
-                      {p}
-                    </span>
+                    <p className={`text-xs flex items-center gap-1.5 mb-1 ${item.color}`}>
+                      {item.icon}
+                      <span className="text-slate-500">{item.label}</span>
+                    </p>
+                    <p className="text-slate-800 font-semibold text-sm capitalize">
+                      {isLoading ? '…' : item.value}
+                    </p>
                   </div>
                 ))}
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "0.9rem 1.1rem",
-                  borderRadius: 12,
-                  background: "rgba(184,134,11,0.07)",
-                  border: "1px solid rgba(184,134,11,0.22)",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "50%",
-                    background: "rgba(184,134,11,0.18)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#B8860B"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  >
-                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                  </svg>
-                </div>
+              {/* billing period bar */}
+              {sub && (
                 <div>
-                  <div
-                    style={{
-                      fontFamily: "Arial,sans-serif",
-                      fontSize: 12,
-                      color: "#7A5C0A",
-                      fontWeight: 600,
-                      marginBottom: 2,
-                    }}
-                  >
-                    Confirmation dispatched to {email}
+                  <div className="flex justify-between text-xs text-slate-400 mb-2">
+                    <span className="font-medium">Billing period</span>
+                    <span>
+                      {formatDate(sub.currentPeriodStart)}
+                      {' → '}
+                      {formatDate(sub.currentPeriodEnd)}
+                    </span>
                   </div>
-                  <div
-                    style={{
-                      fontFamily: "Arial,sans-serif",
-                      fontSize: 11,
-                      color: "#9a8040",
-                    }}
-                  >
-                    Billing details and onboarding resources await in your inbox
+                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full bar-fill"
+                      style={{ width: visible ? `${billingPct}%` : '0%' }}
+                    />
                   </div>
+                  <p className="text-right text-xs text-slate-400 mt-1">{billingPct}% elapsed</p>
                 </div>
-              </div>
-
-              <div
-                style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}
-              >
-                <button
-                  onClick={onDashboardClick}
-                  style={{
-                    flex: 1,
-                    minWidth: 180,
-                    padding: "0.875rem 1.5rem",
-                    borderRadius: 11,
-                    border: "none",
-                    cursor: "pointer",
-                    background:
-                      "linear-gradient(135deg, #B8860B, #D4AF37, #C9A227)",
-                    color: "#fff",
-                    fontFamily: "Arial,sans-serif",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    letterSpacing: "0.04em",
-                    boxShadow: "0 4px 16px rgba(184,134,11,0.3)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                    transition: "all 0.2s",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.transform =
-                      "translateY(-2px)";
-                    (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                      "0 8px 28px rgba(184,134,11,0.4)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.transform =
-                      "translateY(0)";
-                    (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                      "0 4px 16px rgba(184,134,11,0.3)";
-                  }}
-                >
-                  Enter Dashboard
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={onExploreClick}
-                  style={{
-                    flex: 1,
-                    minWidth: 160,
-                    padding: "0.875rem 1.5rem",
-                    borderRadius: 11,
-                    border: "1.5px solid rgba(184,134,11,0.35)",
-                    cursor: "pointer",
-                    background: "transparent",
-                    color: "#8B6914",
-                    fontFamily: "Arial,sans-serif",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    letterSpacing: "0.04em",
-                    transition: "all 0.2s",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background =
-                      "rgba(184,134,11,0.07)";
-                    (e.currentTarget as HTMLButtonElement).style.borderColor =
-                      "rgba(184,134,11,0.6)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background =
-                      "transparent";
-                    (e.currentTarget as HTMLButtonElement).style.borderColor =
-                      "rgba(184,134,11,0.35)";
-                  }}
-                >
-                  Explore Features
-                </button>
-              </div>
+              )}
             </div>
           </div>
 
-          <p
-            style={{
-              textAlign: "center",
-              marginTop: "1.5rem",
-              fontFamily: "Arial,sans-serif",
-              fontSize: 11,
-              color: "#aaa",
-            }}
+          {/* Usage stats — 2 cols */}
+          <div
+            className={`lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 p-6 card-lift fade-left ${visible ? 'show' : ''}`}
+            style={{ transitionDelay: '250ms' }}
           >
-            Questions? Reach us at{" "}
-            <a
-              href="mailto:concierge@stellar.com"
-              style={{ color: "#B8860B", textDecoration: "none" }}
-            >
-              concierge@stellar.com
-            </a>
-          </p>
+            <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-5">
+              Usage Limits
+            </p>
+            <div className="space-y-5">
+              {usageStats.map((stat) => (
+                <div key={stat.label}>
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-slate-600 text-sm flex items-center gap-1.5 font-medium">
+                      <span className="text-slate-400">{stat.icon}</span>
+                      {stat.label}
+                    </p>
+                    <span className="text-slate-700 text-xs font-semibold bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
+                      {isLoading
+                        ? '…'
+                        : stat.unlimited
+                          ? '∞ Unlimited'
+                          : `${stat.used} / ${stat.limit}`}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full bg-gradient-to-r ${stat.color} rounded-full bar-fill`}
+                      style={{ width: visible ? `${stat.unlimited ? 100 : stat.pct}%` : '0%' }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+
+        {/* ── What's Next strip ── */}
+        <div
+          className={`grid grid-cols-2 md:grid-cols-4 gap-3 fade-up ${visible ? 'show' : ''}`}
+          style={{ transitionDelay: '350ms' }}
+        >
+          {[
+            { icon: '📧', title: 'Confirmation Email', desc: 'Sent to your inbox' },
+            { icon: '📋', title: 'Post Your First Job', desc: 'Start hiring today' },
+            {
+              icon: '🤖',
+              title: 'AI Screening',
+              desc: isLoading
+                ? '…'
+                : sub?.screeningLimit === -1
+                  ? 'Unlimited credits'
+                  : `${sub?.screeningLimit ?? 0} credits`,
+            },
+            { icon: '🛡️', title: 'Priority Support', desc: "We're here to help" },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="bg-white rounded-2xl border border-slate-100 px-4 py-4 flex items-start gap-3 shadow-sm hover:shadow-md hover:border-emerald-200 hover:-translate-y-1 transition-all duration-200 cursor-default"
+            >
+              <span className="text-2xl">{item.icon}</span>
+              <div>
+                <p className="text-slate-800 text-xs font-semibold">{item.title}</p>
+                <p className="text-slate-400 text-xs mt-0.5">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── CTAs ── */}
+        <div
+          className={`flex flex-col sm:flex-row gap-3 fade-up ${visible ? 'show' : ''}`}
+          style={{ transitionDelay: '450ms' }}
+        >
+          <button
+            onClick={() => navigate('/recruiter/jobs/create')}
+            className="flex-1 group flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-200/60 hover:shadow-xl hover:shadow-emerald-300/50 hover:-translate-y-0.5 display text-sm"
+          >
+            Post Your First Job
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+          <button
+            onClick={() => navigate('/recruiter/dashboard')}
+            className="flex-1 flex items-center justify-center gap-2 border-2 border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-emerald-700 hover:bg-emerald-50 font-semibold py-4 px-6 rounded-2xl transition-all duration-200 text-sm"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+
+        {/* ── Footer ── */}
+        <p
+          className={`text-center text-slate-400 text-xs fade-up ${visible ? 'show' : ''}`}
+          style={{ transitionDelay: '550ms' }}
+        >
+          Have questions?{' '}
+          <a
+            href="mailto:support@example.com"
+            className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+          >
+            support@example.com
+          </a>
+        </p>
+
       </div>
     </div>
   );

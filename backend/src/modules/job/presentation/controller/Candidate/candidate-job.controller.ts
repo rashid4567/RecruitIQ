@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { GetJobsUseCase } from "../../../application/usecase/job/get-jobs.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { JobType } from "../../../domain/entities/job.entity";
 
 export class CandidateJobController {
   constructor(private readonly jobsUc: GetJobsUseCase) {}
@@ -13,17 +14,24 @@ export class CandidateJobController {
       const result = await this.jobsUc.execute(
         {
           forCandidate: true,
+          search: req.query.search as string,
+          jobType: req.query.jobType as JobType,
+          department: req.query.department as string,
+          isRemote:
+            req.query.isRemote !== undefined
+              ? req.query.isRemote === "true"
+              : undefined,
         },
         page,
         limit,
       );
+
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Jobpost loaded successfully",
+        message: "Job posts loaded successfully",
         data: result,
       });
     } catch (err) {
-      console.log("err :", err);
       next(err);
     }
   };

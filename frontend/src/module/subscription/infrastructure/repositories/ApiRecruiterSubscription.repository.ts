@@ -112,6 +112,14 @@ export class ApiRecruiterSubscriptionRepository implements RecruiterSubscription
     }
     return this.toEntity(res.data.data);
   }
+
+  async upgradeSubscription(planId: string): Promise<void> {
+    await api.patch("/recruiter/subscription/upgrade",
+    {
+      planId,
+    },
+)
+  }
   async cancel(input: CancelSubscriptionInput): Promise<RecruiterSubscription> {
     const res = await api.patch<SingleSubscriptionApiResponse>(
       "/recruiter/subscriptions/cancel",

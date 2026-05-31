@@ -133,12 +133,15 @@ export default function Sidebar({ activeItem }: SidebarProps) {
             <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
             <span className="text-sm font-semibold">Upgrade to Pro</span>
           </div>
+
           <p className="text-[11px] text-indigo-200 mb-3 leading-relaxed">
             Unlock AI-powered candidate matching &amp; priority support
           </p>
+
           <Button
             size="sm"
             className="w-full bg-white text-indigo-700 hover:bg-indigo-50 font-semibold text-xs h-8 shadow-sm"
+            onClick={() => navigate("/recruiter/plans")}
           >
             Upgrade Now
           </Button>

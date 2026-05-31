@@ -33,12 +33,13 @@ import { SubscribePlanController } from "../controller/recruiter/subscribe-plan.
 import { CreatePaymentOrderController } from "../controller/recruiter/CreatePaymentOrder.controller";
 import { VerifyPaymentController } from "../controller/recruiter/verifyPayment.controller";
 import { GetSubscribersController } from "../controller/admin/subscribers/get.Subscribers.controller";
+import { UpgradeSubscriptionUseCase } from "../../application/usecase/Recruiter/UpgradeSubscriptionUseCase";
+import { UpgradeSubscriptionController } from "../controller/recruiter/upgrade.subscription.controller";
 
 const subscriptionRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
 const recruiterSubscriptionRepo: RecruiterSubscriptionRepository =
   new MongooseRecruiterSubscriptionRepository();
-
 const paymentRepo: PaymentRepository = new MongoosePaymentRepository();
 const paymentGateway = new RazorpayGateway();
 const createPlanUC = new CreateSubscriptionPlanUseCase(subscriptionRepo);
@@ -49,25 +50,25 @@ const activatePlanUC = new ActiveSubscriptionPlanUseCase(subscriptionRepo);
 const deactivatePlanUC = new DeactivateSubscriptionPlanUseCase(
   subscriptionRepo,
 );
-
-const getSubscribersUseCase  = new GetSubscribersUseCase(recruiterSubscriptionRepo)
-
+const getSubscribersUseCase = new GetSubscribersUseCase(
+  recruiterSubscriptionRepo,
+);
 const subscribeUC = new SubscribePlanUseCase(
   subscriptionRepo,
   recruiterSubscriptionRepo,
 );
-
 const renewUC = new RenewSubscriptionUseCase(
   recruiterSubscriptionRepo,
   subscriptionRepo,
 );
-
 const cancelUC = new CancelSubscriptionUseCase(recruiterSubscriptionRepo);
-
 const currentSubscriptionUC = new GetCurrentSubscriptionUseCase(
   recruiterSubscriptionRepo,
 );
-
+const upgaradeSubscriptionUC = new UpgradeSubscriptionUseCase(
+  subscriptionRepo,
+  recruiterSubscriptionRepo,
+);
 const createPaymentOrderUC = new CreatePaymentOrderUseCase(
   paymentRepo,
   recruiterSubscriptionRepo,
@@ -75,7 +76,6 @@ const createPaymentOrderUC = new CreatePaymentOrderUseCase(
   paymentGateway,
   RAZORPAY_KEY_ID,
 );
-
 const verifyPaymentUC = new VerifyPaymentUseCase(
   paymentRepo,
   subscriptionRepo,
@@ -88,46 +88,37 @@ export const createSubscriptionPlanController =
 
 export const updateSubscriptionPlanController =
   new UpdateSubscriptionPlanController(updatePlanUC);
-
 export const getSubscriptionPlanController = new GetSubscriptionPlanController(
   getPlansUC,
 );
-
 export const getPlanDetailController = new GetPlanDetailController(getPlanUC);
-
 export const hideSubscriptionPlanController =
   new HideSubscriptionPlanController(deactivatePlanUC);
-
 export const unhideSubscriptionPlanController =
   new UnhideSubscriptionPlanController(activatePlanUC);
-
 export const recruiterSubscriptionPlanController =
   new RecruiterPlanDetailController(getPlansUC);
-
 export const recruiterPlanDetailController = new GetPlanDetailController(
   getPlanUC,
 );
-
 export const subscribePlanController = new SubscribePlanController(subscribeUC);
-
 export const renewSubscriptionController = new RenewSubscriptionController(
   renewUC,
 );
-
 export const cancelSubscriptionController = new CancelSubscriptionController(
   cancelUC,
 );
-
-export const currentSubscriptionController = new GetCurrentSubsriptionController(
-  currentSubscriptionUC,
-);
-
+export const currentSubscriptionController =
+  new GetCurrentSubsriptionController(currentSubscriptionUC);
 export const createPaymentOrderController = new CreatePaymentOrderController(
   createPaymentOrderUC,
 );
-
 export const verifyPaymentController = new VerifyPaymentController(
   verifyPaymentUC,
 );
-
-export const getSubscribersController = new GetSubscribersController(getSubscribersUseCase )
+export const getSubscribersController = new GetSubscribersController(
+  getSubscribersUseCase,
+);
+export const upgradeSubscriptionController = new UpgradeSubscriptionController(
+  upgaradeSubscriptionUC,
+);

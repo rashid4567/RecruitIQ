@@ -8,6 +8,13 @@ export class GetPlanDetailController {
   getPlanDetail = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { planId } = planIdParamSchema.parse(req.params);
+
+      if(!planId){
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success : false,
+          message : "PlanId not found",
+        })
+      }
       const result = await this.getPlanUC.execute(planId);
       return res.status(HTTP_STATUS.OK).json({
         success: true,

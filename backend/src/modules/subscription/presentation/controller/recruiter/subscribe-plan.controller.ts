@@ -18,9 +18,9 @@ export class SubscribePlanController{
             
             const {planId} = req.body;
             if(!planId){
-                return res.status(HTTP_STATUS.NOT_FOUND).json({
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({
                     success : false,
-                    message : "Plan not found"
+                    message : "PlanId is required"
                 })
             }
             const result = await this.subscribeUC.execute(recruiterId, planId)

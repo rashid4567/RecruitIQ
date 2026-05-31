@@ -47,6 +47,7 @@ export interface TrackUsageInput {
 }
 export interface RecruiterSubscriptionRepository {
   getCurrentSubscription(): Promise<RecruiterSubscription | null>;
+  upgradeSubscription(planId : string):Promise<void>;
   getSubscriptionHistory(
     pagination?: PaginationOptions,
   ): Promise<PaginatedResult<RecruiterSubscription>>;

@@ -19,9 +19,9 @@ export class CreatePaymentOrderController {
             const {planId} = req.body;
 
             if(!planId){
-                return res.status(HTTP_STATUS.NOT_FOUND).json({
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({
                     success : false,
-                    message : "Plan not found",
+                    message : "Plan Id is required",
                 })
             }
             const result = await this.createPaymentUc.execute({recruiterId, planId});

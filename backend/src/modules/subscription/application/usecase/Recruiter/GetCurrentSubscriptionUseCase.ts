@@ -35,6 +35,7 @@ export class GetCurrentSubscriptionUseCase {
       nextBillingDate: subscription.endDate,
       jobPostsUsed: subscription.jobPostsUsed,
       jobPostsLimit: subscription.jobPostsLimit,
+      jobPostActiveDays : subscription.jobPostActiveDays,
       screeningUsed: subscription.screeningUsed,
       screeningLimit: subscription.screeningLimit,
       resumeUsed: subscription.resumeUsed,

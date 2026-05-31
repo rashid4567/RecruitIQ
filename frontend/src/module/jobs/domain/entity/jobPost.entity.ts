@@ -29,6 +29,7 @@ export class Job {
   public readonly status: JobStatus;
   public readonly views: number;
   public readonly applicationsCount: number;
+  public readonly publicationCount: number;
   public readonly isDeleted: boolean;
   public readonly postedOn?: Date;
   public readonly expiresAt?: Date;
@@ -58,6 +59,7 @@ export class Job {
     status?: JobStatus;
     views?: number;
     applicationsCount?: number;
+    publicationCount?: number;
     isDeleted?: boolean;
     postedOn?: Date;
     expiresAt?: Date;
@@ -94,6 +96,7 @@ export class Job {
     this.status = params.status ?? "draft";
     this.views = params.views ?? 0;
     this.applicationsCount = params.applicationsCount ?? 0;
+    this.publicationCount = params.publicationCount ?? 0;
     this.isDeleted = params.isDeleted ?? false;
     this.postedOn = params.postedOn;
     this.expiresAt = params.expiresAt;
@@ -121,12 +124,19 @@ export class Job {
   }
 
   publish(): Job {
+    const now = new Date();
+
     return new Job({
       ...this.toParams(),
       status: "active",
-      postedOn: new Date(),
-      updatedAt: new Date(),
+      visibility: "active",
+      postedOn: now,
+      updatedAt: now,
+      publicationCount: this.publicationCount + 1,
     });
+  }
+  isRepublishable(): boolean {
+    return this.status === "expired";
   }
 
   hide(): Job {
@@ -236,6 +246,7 @@ export class Job {
       status: this.status,
       views: this.views,
       applicationsCount: this.applicationsCount,
+      publicationCount: this.publicationCount,
       isDeleted: this.isDeleted,
       postedOn: this.postedOn,
       expiresAt: this.expiresAt,

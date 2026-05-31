@@ -18,6 +18,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Rocket } from "lucide-react";
+import { useCurrentSubscription } from "@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription";
 
 function CreateMode() {
   const hook = useCreateJobPost();
@@ -96,6 +97,8 @@ function JobEditorUI({
 }: JobEditorUIProps) {
   const navigate = useNavigate();
 
+  const { data: subscription } = useCurrentSubscription();
+
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
   const errors = Object.keys(stepErrors).length > 0 ? stepErrors : localErrors;
 
@@ -147,13 +150,19 @@ function JobEditorUI({
       case 3:
         return <Step3Requirements {...commonProps} />;
       case 4:
-        return <Step4Compensation {...commonProps} />;
+        return (
+          <Step4Compensation
+            {...commonProps}
+            jobPostActiveDays={subscription?.subscription?.jobPostActiveDays}
+          />
+        );
       case 5:
         return <Step5Preview formData={formData} />;
       default:
         return null;
     }
   };
+  console.log(subscription);
 
   if (isLoading) {
     return (

@@ -16,6 +16,7 @@ export class UpdateSubscriptionPlanController{
                 })
             }
             const input = UpdatePlanSchema.parse(req.body);
+            console.log("input :-", input);
             const result = await this.updateUc.execute(planId, input)
             res.status(HTTP_STATUS.OK).json({
                 success : true,

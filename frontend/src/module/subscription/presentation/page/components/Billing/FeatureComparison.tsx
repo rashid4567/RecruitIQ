@@ -10,7 +10,7 @@ interface Props {
 
 export default function FeatureComparison({
   plans,
-  expandedCategories,
+  expandedCategories, 
   toggleCategory,
 }: Props) {
   const featureCategories = buildFeatureCategories(plans);

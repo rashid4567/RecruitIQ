@@ -4,5 +4,4 @@ export type ActivityLogData = {
   entityType?: string;
   entityId?: string;
   metadata?: Record<string, any>;
-  
 };

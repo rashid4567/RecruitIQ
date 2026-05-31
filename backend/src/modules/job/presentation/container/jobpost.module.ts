@@ -14,7 +14,7 @@ import { UnblockJobUseCase } from "../../application/usecase/job/unblock-job-use
 import { CreateJobController } from "../controller/recruiter/create-job.controller";
 import { DeleteJobController } from "../controller/recruiter/delete-job.controller";
 import { RecruiterJobByIdController } from "../controller/recruiter/recruiter-job-by-id.controller";
-import { PublishJobContrtoller } from "../controller/recruiter/publish-job.controller";
+import { PublishJobController } from "../controller/recruiter/publish-job.controller";
 import { UpdateJobController } from "../controller/recruiter/update-job.controller";
 import { ToggleJobVisibilityController } from "../controller/recruiter/toggle-job-visibility.controller";
 import { RecruiterJobController } from "../controller/recruiter/recruiter-job.controller";
@@ -29,9 +29,9 @@ const recruiterSubscriptionRepo = new MongooseRecruiterSubscriptionRepository();
 const createJobUC = new CreateJobUseCase(jobRepo, recruiterSubscriptionRepo);
 const jobsUC = new GetJobsUseCase(jobRepo);
 const getJobByIdUC = new GetJobByIdUseCase(jobRepo);
-const updateJobUC = new UpdateJobUseCase(jobRepo);
+const updateJobUC = new UpdateJobUseCase(jobRepo, recruiterSubscriptionRepo);
 const deleteJobUC = new DeleteJobUseCase(jobRepo);
-const publishJobUC = new PublishJobUseCase(jobRepo);
+const publishJobUC = new PublishJobUseCase(jobRepo, recruiterSubscriptionRepo);
 const hideJobUC = new HideJobUseCase(jobRepo);
 const unhideJobUC = new UnhideJobUseCase(jobRepo);
 const blockJobUC = new BlockJobUseCase(jobRepo);
@@ -43,7 +43,7 @@ export const getJobByIdController = new RecruiterJobByIdController(
 );
 export const updateJobController = new UpdateJobController(updateJobUC);
 export const deleteJobController = new DeleteJobController(deleteJobUC);
-export const publishJobController = new PublishJobContrtoller(publishJobUC);
+export const publishJobController = new PublishJobController(publishJobUC);
 export const toggleJobVisibilityController = new ToggleJobVisibilityController(
   hideJobUC,
   unhideJobUC,

@@ -35,6 +35,7 @@ export class CreatePlanUseCase {
       billingCycle: payload.billingCycle,
       billingInterval: payload.billingInterval,
       jobPostsPerMonth: payload.jobPostsPerMonth,
+       jobPostActiveDays : payload.jobPostActiveDays,
       screeningCredits: payload.screeningCredits,
       resumeParsesPerMonth: payload.resumeParsesPerMonth ?? 0,
       aiScoreCredits: payload.aiScoreCredits ?? 0,

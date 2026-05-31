@@ -4,7 +4,6 @@ export enum SubscriptionStatus {
   Active = "active",
   Cancelled = "cancelled",
   Expired = "expired",
-  
 }
 
 export interface IRecruiterSubscription extends Document {
@@ -13,6 +12,7 @@ export interface IRecruiterSubscription extends Document {
   planName: string;
   planPrice: number;
   planType: string;
+  jobPostActiveDays: number;
   paymentReferenceId?: string;
   status: SubscriptionStatus;
   startDate: Date;
@@ -62,6 +62,11 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
     planType: {
       type: String,
       required: true,
+    },
+    jobPostActiveDays: {
+      type: Number,
+      required: true,
+      min: 1,
     },
 
     paymentReferenceId: {

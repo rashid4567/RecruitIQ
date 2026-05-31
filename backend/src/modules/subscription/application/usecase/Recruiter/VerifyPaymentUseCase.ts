@@ -81,35 +81,26 @@ export class VerifyPaymentUseCase {
 
     const subscription = RecruiterSubscription.create({
       recruiterId: payment.recruiterId,
-
       planId: plan.id,
-
       planName: plan.name,
       planPrice: plan.price,
       planType: plan.planType,
-
+      jobPostActiveDays: plan.jobPostActiveDays,
       paymentReferenceId: payment.id,
-
       status: SubscriptionStatus.Active,
-
       startDate: now,
       endDate,
-
       currentPeriodStart: now,
       currentPeriodEnd: endDate,
-
       autoRenew: false,
-
       jobPostsUsed: 0,
       screeningUsed: 0,
       resumeUsed: 0,
       aiScoreUsed: 0,
-
       jobPostsLimit: plan.jobPostsPerMonth,
       screeningLimit: plan.screeningCredits,
       resumeLimit: plan.resumeParsesPerMonth,
       aiScoreLimit: plan.aiScoreCredits,
-
       createdAt: now,
       updatedAt: now,
     });

@@ -32,6 +32,7 @@ export interface JobPostDocument extends Document {
   expiresAt?: Date;
   externalLink?: string;
   views: number;
+  publicationCount: number;
   applicationsCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -151,6 +152,11 @@ const JobPostSchema = new Schema<JobPostDocument>(
     externalLink: String,
 
     views: {
+      type: Number,
+      default: 0,
+    },
+
+    publicationCount: {
       type: Number,
       default: 0,
     },

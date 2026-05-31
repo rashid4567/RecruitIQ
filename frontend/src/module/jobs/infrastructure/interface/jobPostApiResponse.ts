@@ -4,7 +4,10 @@ import type {
   JobVisibility,
 } from "../../domain/dto/jobPost.dto";
 
-import type { LocationDTO, SalaryDTO } from "../../domain/dto/shared.dto";
+import type {
+  LocationDTO,
+  SalaryDTO,
+} from "../../domain/dto/shared.dto";
 
 export interface JobApiProps {
   id?: string;
@@ -32,6 +35,7 @@ export interface JobApiProps {
   externalLink?: string;
   views: number;
   applicationsCount: number;
+  publicationCount: number;
   isDeleted: boolean;
   createdAt?: string;
   updatedAt?: string;

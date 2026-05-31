@@ -67,7 +67,9 @@ function buildDtoFromForm(formData: JobFormData) {
   return {
     title: formData.title.trim(),
     description: formData.description.trim(),
-    responsibilities: formData.responsibilities.map((r) => r.trim()).filter(Boolean),
+    responsibilities: formData.responsibilities
+      .map((r) => r.trim())
+      .filter(Boolean),
     requirements: formData.requirements.map((r) => r.trim()).filter(Boolean),
     requiredSkills: formData.requiredSkills,
     preferredSkills: formData.preferredSkills,
@@ -92,21 +94,28 @@ function buildDtoFromForm(formData: JobFormData) {
   };
 }
 
-
-function getStepErrors(step: number, formData: JobFormData): Record<string, string> {
+function getStepErrors(
+  step: number,
+  formData: JobFormData,
+): Record<string, string> {
   const errs: Record<string, string> = {};
 
   if (step === 1) {
     if (!formData.title.trim()) errs.title = "Job title is required";
     if (!formData.department.trim()) errs.department = "Department is required";
-    if (!formData.positions || formData.positions < 1) errs.positions = "At least 1 opening is required";
-    if (!formData.location.city.trim()) errs["location.city"] = "City is required";
-    if (!formData.location.state.trim()) errs["location.state"] = "State is required";
-    if (!formData.location.country.trim()) errs["location.country"] = "Country is required";
+    if (!formData.positions || formData.positions < 1)
+      errs.positions = "At least 1 opening is required";
+    if (!formData.location.city.trim())
+      errs["location.city"] = "City is required";
+    if (!formData.location.state.trim())
+      errs["location.state"] = "State is required";
+    if (!formData.location.country.trim())
+      errs["location.country"] = "Country is required";
   }
 
   if (step === 2) {
-    if (!formData.description.trim()) errs.description = "Role overview is required";
+    if (!formData.description.trim())
+      errs.description = "Role overview is required";
     if (formData.responsibilities.filter((r) => r.trim()).length === 0)
       errs.responsibilities = "Add at least one responsibility";
     if (formData.requirements.filter((r) => r.trim()).length === 0)
@@ -125,7 +134,10 @@ function getStepErrors(step: number, formData: JobFormData): Record<string, stri
   }
 
   if (step === 4) {
-    if (!formData.expiresAt) errs.expiresAt = "Application deadline is required";
+    if (!formData.expiresAt) {
+      errs.expiresAt = "Application deadline is required";
+    }
+
     if (
       formData.salary.min > 0 &&
       formData.salary.max > 0 &&
@@ -153,8 +165,6 @@ export function useCreateJobPost() {
   const [showPublishConfirmation, setShowPublishConfirmation] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
-
-
 
   const handleNext = useCallback((): Record<string, string> => {
     const errs = getStepErrors(currentStep, formData);
@@ -202,7 +212,9 @@ export function useCreateJobPost() {
       setShowSaveDraftModal(false);
     } catch (error) {
       setSaveDraftError(
-        error instanceof Error ? error.message : "Failed to save draft. Please try again."
+        error instanceof Error
+          ? error.message
+          : "Failed to save draft. Please try again.",
       );
     } finally {
       setIsSavingDraft(false);
@@ -269,7 +281,9 @@ export function useCreateJobPost() {
       setStepErrors({});
     } catch (error) {
       setPublishError(
-        error instanceof Error ? error.message : "An unexpected error occurred. Please try again."
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again.",
       );
     } finally {
       setIsPublishing(false);
@@ -287,14 +301,14 @@ export function useCreateJobPost() {
     completedSteps,
     formData,
     setFormData,
-    stepErrors,        
+    stepErrors,
     showSaveDraftModal,
     isSavingDraft,
     saveDraftError,
     draftSavedSuccessfully,
     savedDraftId: savedDraftId.current,
     handleNavigateAway,
-    handleNext,        
+    handleNext,
     handlePrevious,
     saveDraft,
     dismissSaveDraftModal,

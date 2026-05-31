@@ -8,6 +8,7 @@ export interface RecruiterSubscriptionProps {
   planName: string;
   planPrice: number;
   planType: PlanType;
+  jobPostActiveDays: number;
   paymentReferenceId?: string;
   status: SubscriptionStatus;
   startDate: Date;
@@ -68,6 +69,9 @@ export class RecruiterSubscription {
   }
   get endDate() {
     return this.props.endDate;
+  }
+  get jobPostActiveDays() {
+    return this.props.jobPostActiveDays;
   }
   get currentPeriodStart() {
     return this.props.currentPeriodStart;

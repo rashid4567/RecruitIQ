@@ -4,11 +4,9 @@ import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 export class RecruiterJobByIdController {
   constructor(private readonly getUc: GetJobByIdUseCase) {}
-
   getOne = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const recruiterId = req.user?.userId;
-      
       if(!recruiterId){
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
             success : false,
@@ -17,7 +15,6 @@ export class RecruiterJobByIdController {
       }
 
       const jobId = req.params.id;
-
       if(!jobId){
         return res.status(HTTP_STATUS.NOT_FOUND).json({
             success : false,

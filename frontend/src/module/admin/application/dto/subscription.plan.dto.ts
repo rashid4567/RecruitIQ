@@ -1,5 +1,6 @@
 import type { BillingCycle, Currency, PlanType } from "@/module/subscription/domain/constant/subscription.constants";
-import type { FeaturesAccess, PlanFeature } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import type {  PlanFeature } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import type { FeaturesAccess } from "../../domain/value-objects/subscription-plan.types";
 
 
 export interface CreatePlanPayload {
@@ -11,6 +12,7 @@ export interface CreatePlanPayload {
   billingCycle: BillingCycle;
   billingInterval: number;
   jobPostsPerMonth: number;
+   jobPostActiveDays : number;
   screeningCredits: number;
   resumeParsesPerMonth: number;
   aiScoreCredits: number;
@@ -29,6 +31,7 @@ export interface UpdatePlanPayload {
   billingCycle?: BillingCycle;
   billingInterval?: number;
   jobPostsPerMonth?: number;
+   jobPostActiveDays ?: number;
   screeningCredits?: number;
   resumeParsesPerMonth?: number;
   aiScoreCredits?: number;

@@ -29,6 +29,7 @@ export interface SubscriptionPlanProps {
   billingCycle: BillingCycle;
   billingInterval: number;
   jobPostsPerMonth: number;
+  jobPostActiveDays: number;
   screeningCredits: number;
   resumeParsesPerMonth: number;
   aiScoreCredits: number;
@@ -94,6 +95,9 @@ export class SubscriptionPlan {
   get aiScoreCredits() {
     return this.props.aiScoreCredits;
   }
+  get jobPostActiveDays() {
+  return this.props.jobPostActiveDays;
+}
   get featuresAccess() {
     return {
       ...this.props.featuresAccess,
@@ -135,6 +139,10 @@ export class SubscriptionPlan {
   get hasUnlimitedResumeParses() {
     return this.props.resumeParsesPerMonth === -1;
   }
+
+  get displayJobPostDuration() {
+  return `${this.jobPostActiveDays} days`;
+}
   get hasUnlimitedAIScoring() {
     return this.props.aiScoreCredits === -1;
   }

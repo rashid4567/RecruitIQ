@@ -39,6 +39,7 @@ interface RawSubscriptionPlan {
   name?: string;
   description?: string;
   planType?: string;
+  jobPostActiveDays: number;
   price?: number;
   currency?: string;
   billingCycle?: string;
@@ -138,6 +139,7 @@ export class ApiSubscriptionPlanRepository implements SubscriptionPlanRepository
       name: source.name ?? "",
       description: source.description,
       planType: (source.planType ?? PlanType.Free) as PlanType,
+      jobPostActiveDays: source.jobPostActiveDays ?? 1,
       price: source.price ?? 0,
       currency: (source.currency ?? "INR") as Currency,
       billingCycle: (source.billingCycle ?? "monthly") as BillingCycle,

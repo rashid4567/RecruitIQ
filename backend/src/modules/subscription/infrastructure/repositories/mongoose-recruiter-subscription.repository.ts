@@ -13,6 +13,7 @@ import {
   IRecruiterSubscription,
   SubscriptionStatus,
 } from "../mongoose/Recruitersubscription.model";
+import { PlanType } from "../mongoose/subscriptionPlan.model";
 
 export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscriptionRepository {
   async save(
@@ -37,15 +38,11 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
 
   async findAll(params: GetSubscribersParams): Promise<PaginatedSubscribers> {
     const { page = 1, limit = 10, search, status } = params;
-
     const skip = (page - 1) * limit;
-
     const filter: any = {};
-
     if (status) {
       filter.status = status;
     }
-
     if (search) {
       filter.$or = [
         {
@@ -69,7 +66,6 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
         .skip(skip)
         .limit(limit)
         .lean(),
-
       RecruiterSubscriptionModel.countDocuments(filter),
     ]);
 
@@ -135,7 +131,8 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       planId: doc.planId.toString(),
       planName: doc.planName,
       planPrice: doc.planPrice,
-      planType: doc.planType as any,
+      planType: doc.planType as PlanType,
+      jobPostActiveDays: doc.jobPostActiveDays,
       paymentReferenceId: doc.paymentReferenceId,
       status: doc.status,
       startDate: doc.startDate,

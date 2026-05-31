@@ -44,6 +44,7 @@ export interface ISubscriptionPlan extends Document {
   billingCycle: BillingCycle;
   billingInterval: number;
   jobPostsPerMonth: number;
+  jobPostActiveDays: number;
   screeningCredits: number;
   resumeParsesPerMonth: number;
   aiScoreCredits: number;
@@ -170,6 +171,13 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       default: 5,
     },
 
+    jobPostActiveDays: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 7,
+    },
+
     screeningCredits: {
       type: Number,
       min: -1,
@@ -250,7 +258,6 @@ subscriptionPlanSchema.index({
 subscriptionPlanSchema.index({
   isPopular: 1,
 });
-
 
 export const SubscriptionPlanModel = model<ISubscriptionPlan>(
   "SubscriptionPlan",

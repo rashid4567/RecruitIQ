@@ -48,6 +48,7 @@ type JobLeanDocument = {
   externalLink?: string;
   views: number;
   applicationsCount: number;
+  publicationCount: number;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -82,6 +83,7 @@ export class MongooseJobRepository implements JobRepository {
   }
 
   async findByRecruiter(recruiterId: string): Promise<Job[]> {
+    await this.expireJobs();
     const docs = await JobPostModel.find({
       recruiterId,
       isDeleted: false,
@@ -111,7 +113,6 @@ export class MongooseJobRepository implements JobRepository {
       {
         _id: jobId,
       },
-
       {
         $inc: {
           applicationsCount: 1,
@@ -119,201 +120,129 @@ export class MongooseJobRepository implements JobRepository {
       },
     );
   }
-
+  async expireJobs(): Promise<void> {
+    await JobPostModel.updateMany(
+      {
+        status: "active",
+        expiresAt: {
+          $lte: new Date(),
+        },
+      },
+      {
+        $set: {
+          status: "expired",
+          visibility: "hidden",
+        },
+      },
+    );
+  }
   async findAll(
-  filters: JobFilters,
-  pagination: PaginationOptions,
-  sort?: SortOptions,
-): Promise<PaginatedResult<Job>> {
-
-  const query: FilterQuery<JobLeanDocument> = {};
-
-  /* deleted */
-
-  if (!filters.includeDeleted) {
-    query.isDeleted = false;
-  }
-
-  /* candidate side */
-
-  if (filters.forCandidate) {
-
-    query.isDeleted = false;
-
-    query.isBlocked = false;
-
-    query.visibility = "active";
-
-    query.status = "active";
-
-    query.$or = [
-      {
-        expiresAt: {
-          $exists: false,
-        },
-      },
-
-      {
-        expiresAt: {
-          $gt: new Date(),
-        },
-      },
-    ];
-  }
-
-  /* search */
-
-  if (filters.search) {
-
-    query.$and = query.$and ?? [];
-
-    query.$and.push({
-      $or: [
+    filters: JobFilters,
+    pagination: PaginationOptions,
+    sort?: SortOptions,
+  ): Promise<PaginatedResult<Job>> {
+    await this.expireJobs();
+    const query: FilterQuery<JobLeanDocument> = {};
+    if (!filters.includeDeleted) {
+      query.isDeleted = false;
+    }
+    if (filters.forCandidate) {
+      query.isDeleted = false;
+      query.isBlocked = false;
+      query.visibility = "active";
+      query.status = "active";
+      query.$or = [
         {
-          title: {
-            $regex: filters.search,
-            $options: "i",
+          expiresAt: {
+            $exists: false,
           },
         },
-
         {
-          description: {
-            $regex: filters.search,
-            $options: "i",
+          expiresAt: {
+            $gt: new Date(),
           },
         },
-
-        {
-          requiredSkills: {
-            $in: [filters.search],
+      ];
+    }
+    if (filters.search) {
+      query.$and = query.$and ?? [];
+      query.$and.push({
+        $or: [
+          {
+            title: {
+              $regex: filters.search,
+              $options: "i",
+            },
           },
-        },
-      ],
-    });
-
-  }
-
-  if (filters.recruiterId) {
-    query.recruiterId =
-      new Types.ObjectId(
-        filters.recruiterId
-      );
-  }
-
-  if (filters.status) {
-    query.status = filters.status;
-  }
-
-  if (filters.jobType) {
-    query.jobType = filters.jobType;
-  }
-
-  if (
-    filters.isBlocked !==
-    undefined
-  ) {
-    query.isBlocked =
-      filters.isBlocked;
-  }
-
-  if (filters.department) {
-    query.department =
-      filters.department;
-  }
-
-  if (
-    filters.isRemote !==
-    undefined
-  ) {
-    query.isRemote =
-      filters.isRemote;
-  }
-
-  if (
-    filters.requiredSkills
-      ?.length
-  ) {
-    query.requiredSkills = {
-      $in:
-      filters.requiredSkills,
-    };
-  }
-
-  if (
-    filters.salaryMin !==
-    undefined
-  ) {
-    query["salary.min"] = {
-      $gte:
-      filters.salaryMin,
-    };
-  }
-
-  if (
-    filters.salaryMax !==
-    undefined
-  ) {
-    query["salary.max"] = {
-      $lte:
-      filters.salaryMax,
-    };
-  }
-
-  const page =
-    pagination.page;
-
-  const limit =
-    pagination.limit;
-
-  const skip =
-    (page - 1) * limit;
-
-  const [docs, total] =
-    await Promise.all([
-
-      JobPostModel.find(
-        query
-      )
-
-      .sort({
-        [sort?.field ??
-        "createdAt"]:
-        sort?.order ===
-        "asc"
-          ? 1
-          : -1,
-      })
-
-      .skip(skip)
-
-      .limit(limit)
-
-      .lean<JobLeanDocument[]>(),
-
-      JobPostModel.countDocuments(
-        query
-      ),
-
+          {
+            description: {
+              $regex: filters.search,
+              $options: "i",
+            },
+          },
+          {
+            requiredSkills: {
+              $in: [filters.search],
+            },
+          },
+        ],
+      });
+    }
+    if (filters.recruiterId) {
+      query.recruiterId = new Types.ObjectId(filters.recruiterId);
+    }
+    if (filters.status) {
+      query.status = filters.status;
+    }
+    if (filters.jobType) {
+      query.jobType = filters.jobType;
+    }
+    if (filters.isBlocked !== undefined) {
+      query.isBlocked = filters.isBlocked;
+    }
+    if (filters.department) {
+      query.department = filters.department;
+    }
+    if (filters.isRemote !== undefined) {
+      query.isRemote = filters.isRemote;
+    }
+    if (filters.requiredSkills?.length) {
+      query.requiredSkills = {
+        $in: filters.requiredSkills,
+      };
+    }
+    if (filters.salaryMin !== undefined) {
+      query["salary.min"] = {
+        $gte: filters.salaryMin,
+      };
+    }
+    if (filters.salaryMax !== undefined) {
+      query["salary.max"] = {
+        $lte: filters.salaryMax,
+      };
+    }
+    const page = pagination.page;
+    const limit = pagination.limit;
+    const skip = (page - 1) * limit;
+    const [docs, total] = await Promise.all([
+      JobPostModel.find(query)
+        .sort({
+          [sort?.field ?? "createdAt"]: sort?.order === "asc" ? 1 : -1,
+        })
+        .skip(skip)
+        .limit(limit)
+        .lean<JobLeanDocument[]>(),
+      JobPostModel.countDocuments(query),
     ]);
 
-  return {
-    data: docs.map(
-      x =>
-      this.toDomain(x)
-    ),
-
-    total,
-
-    page,
-
-    limit,
-
-    totalPages:
-      Math.ceil(
-        total / limit
-      ),
-  };
-}
+    return {
+      data: docs.map((x) => this.toDomain(x)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
 
   private toDomain(doc: JobLeanDocument): Job {
     return Job.rehydrate({
@@ -341,6 +270,7 @@ export class MongooseJobRepository implements JobRepository {
       externalLink: doc.externalLink,
       views: doc.views,
       applicationsCount: doc.applicationsCount,
+      publicationCount: doc.publicationCount,
       isDeleted: doc.isDeleted,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

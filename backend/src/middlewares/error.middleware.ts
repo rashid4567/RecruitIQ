@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 
-import { logger } from "../shared/logger";
+import { logger } from "../modules/Activity.logger/infrastructure/logging/logger";
 
 import { ApplicationError }
 from "../shared/errors/application.error";

@@ -11,7 +11,7 @@ import { ApplicationError } from "../../../../../shared/errors/application.error
 import { ERROR_CODES } from "../../constants/error-codes.constants";
 import { EmailEvent } from "../../../../admin/Domain/constatns/email-enum.events";
 import { ActivityTrackerService } from "../../../../Activity.logger/application/services/activityTracker.service";
-import { ActivityAction } from "../../../../../shared/ActivityLogger/constants/activityActions";
+import { ActivityAction } from "../../../../Activity.logger/domain/constants/activityActions";
 import { SendEmailByEventUseCase } from "../../../../email/application/usecase/email-template/send-email-by-event.usecase";
 
 export class VerifyRegistrationUseCase {

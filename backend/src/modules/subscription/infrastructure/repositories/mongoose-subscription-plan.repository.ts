@@ -93,6 +93,7 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
       price: doc.price,
       currency: doc.currency,
       billingCycle: doc.billingCycle,
+      jobPostActiveDays : doc.jobPostActiveDays,
       billingInterval: doc.billingInterval,
       jobPostsPerMonth: doc.jobPostsPerMonth,
       screeningCredits: doc.screeningCredits,

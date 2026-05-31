@@ -15,11 +15,7 @@ export const authenticate = (
   }
 
   try {
-    console.log(
-      "AUTH HEADER:",
-      req.headers.authorization,
-    );
-
+  
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -32,11 +28,11 @@ export const authenticate = (
 
     const token = authHeader.split(" ")[1];
 
-    console.log("TOKEN:", token);
+
 
     const decoded = tokenService.verifyAccessToken(token);
 
-    console.log("DECODED:", decoded);
+
 
     req.user = {
       userId: decoded.userId,
@@ -48,7 +44,7 @@ export const authenticate = (
 
     next();
   } catch (err: any) {
-    console.error("AUTH ERROR:", err);
+  
 
     if (err instanceof jwt.TokenExpiredError) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({

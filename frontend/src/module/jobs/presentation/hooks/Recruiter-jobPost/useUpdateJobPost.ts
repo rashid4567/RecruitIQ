@@ -96,7 +96,7 @@ export function useUpdateJobPost(jobId: string) {
               formData.experienceMin <= formData.experienceMax)
           );
         case 4:
-          return true;
+          return !!formData.expiresAt;
         default:
           return true;
       }
@@ -181,6 +181,11 @@ export function useUpdateJobPost(jobId: string) {
     if (!validateStep(3)) {
       toast.warning("Requirements Incomplete");
       setCurrentStep(3);
+      return;
+    }
+    if (!validateStep(4)) {
+      toast.warning("Application deadline required");
+      setCurrentStep(4);
       return;
     }
     setPublishError(null);

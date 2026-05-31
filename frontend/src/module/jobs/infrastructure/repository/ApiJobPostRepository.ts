@@ -82,9 +82,10 @@ export class ApiJobPostRepository implements JobPostRepository {
       salary: job.salary,
       department: job.department,
       positions: job.positions,
-      expiresAt: job.expiresAt,
+      expiresAt : job.expiresAt,
       externalLink: job.externalLink,
     });
+
     return this.toEntity(res.data.data);
   }
   async hideJobPost(id: string): Promise<Job> {
@@ -104,7 +105,7 @@ export class ApiJobPostRepository implements JobPostRepository {
   }
   async blockJobPost(id: string): Promise<Job> {
     const res = await api.patch(`/admin/jobs/${id}/block`);
-    return this.toEntity(res.data.data)
+    return this.toEntity(res.data.data);
   }
   async unblockJobPost(id: string): Promise<Job> {
     const res = await api.patch(`/admin/jobs/${id}/unblock`);
@@ -147,6 +148,7 @@ export class ApiJobPostRepository implements JobPostRepository {
       status: data.status,
       views: data.views,
       applicationsCount: data.applicationsCount,
+      publicationCount: data.publicationCount ?? 0,
       isDeleted: data.isDeleted,
       externalLink: data.externalLink,
       postedOn: data.postedOn ? new Date(data.postedOn) : undefined,

@@ -42,6 +42,16 @@ export const getDisplayScreeningCredits = (plan: SubscriptionPlan): string => {
   return (plan.screeningCredits ?? 0).toString();
 };
 
+export const getDisplayResumeParsing = (plan: SubscriptionPlan): string => {
+  if (plan.resumeParsesPerMonth === -1) return "Unlimited";
+  return (plan.resumeParsesPerMonth ?? 0).toString();
+};
+
+export const getDisplayAiScoreCredits = (plan: SubscriptionPlan): string => {
+  if (plan.aiScoreCredits === -1) return "Unlimited";
+  return (plan.aiScoreCredits ?? 0).toString();
+};
+
 export const getPlanCTA = (plan: SubscriptionPlan): string => {
   return plan.isFree ? "Get Started Free" : "Subscribe Now";
 };
@@ -77,21 +87,29 @@ export function buildFeatureCategories(
           ),
         },
         {
-          name: "Multi-location Posting",
+          name: "Job Post Active Days",
           values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType !== "free"]),
+            plans.map((p) => [p.id, `${p.jobPostActiveDays} days`]),
           ),
         },
         {
-          name: "Custom Application Forms",
+          name: "Resume Parsing",
           values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType !== "free"]),
+            plans.map((p) => [
+              p.id,
+              p.featuresAccess?.resumeParsing
+                ? getDisplayResumeParsing(p)
+                : false,
+            ]),
           ),
         },
         {
-          name: "Scheduled Posting",
+          name: "Candidate Shortlisting",
           values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType !== "free"]),
+            plans.map((p) => [
+              p.id,
+              p.featuresAccess?.candidateShortlisting ?? false,
+            ]),
           ),
         },
       ],
@@ -106,24 +124,27 @@ export function buildFeatureCategories(
           ),
         },
         {
-          name: "AI Candidate Matching",
+          name: "AI Resume Scoring Credits",
+          values: Object.fromEntries(
+            plans.map((p) => [p.id, getDisplayAiScoreCredits(p)]),
+          ),
+        },
+        {
+          name: "AI Resume Scoring",
           values: Object.fromEntries(
             plans.map((p) => [
               p.id,
-              p.featuresAccess?.advancedAnalytics ?? false,
+              p.featuresAccess?.aiResumeScoring ?? false,
             ]),
           ),
         },
         {
-          name: "Advanced Search Filters",
+          name: "Candidate Shortlisting",
           values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType !== "free"]),
-          ),
-        },
-        {
-          name: "Candidate Scoring",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType !== "free"]),
+            plans.map((p) => [
+              p.id,
+              p.featuresAccess?.candidateShortlisting ?? false,
+            ]),
           ),
         },
       ],
@@ -136,37 +157,14 @@ export function buildFeatureCategories(
           values: Object.fromEntries(
             plans.map((p) => [
               p.id,
-              p.featuresAccess?.interviewScheduling
-                ? p.planType === "enterprise"
-                  ? "Automated + Calendar Sync"
-                  : "Automated"
-                : "Manual",
+              p.featuresAccess?.interviewScheduling ? true : false,
             ]),
           ),
         },
         {
-          name: "Team Collaboration",
+          name: "Export Reports",
           values: Object.fromEntries(
-            plans.map((p) => [
-              p.id,
-              p.planType === "free"
-                ? false
-                : p.planType === "enterprise"
-                  ? "Unlimited"
-                  : "Up to 10",
-            ]),
-          ),
-        },
-        {
-          name: "In-app Messaging",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType !== "free"]),
-          ),
-        },
-        {
-          name: "Video Interview",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType !== "free"]),
+            plans.map((p) => [p.id, p.featuresAccess?.exportReports ?? false]),
           ),
         },
       ],
@@ -175,11 +173,7 @@ export function buildFeatureCategories(
       category: "Analytics & Reporting",
       features: [
         {
-          name: "Basic Analytics",
-          values: Object.fromEntries(plans.map((p) => [p.id, true])),
-        },
-        {
-          name: "Advanced Reports",
+          name: "Advanced Analytics",
           values: Object.fromEntries(
             plans.map((p) => [
               p.id,
@@ -188,99 +182,9 @@ export function buildFeatureCategories(
           ),
         },
         {
-          name: "Custom Dashboards",
+          name: "Export Reports",
           values: Object.fromEntries(
-            plans.map((p) => [
-              p.id,
-              p.featuresAccess?.advancedAnalytics ?? false,
-            ]),
-          ),
-        },
-        {
-          name: "DEI Reporting",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType === "enterprise"]),
-          ),
-        },
-      ],
-    },
-    {
-      category: "Security & Compliance",
-      features: [
-        {
-          name: "SSL Encryption",
-          values: Object.fromEntries(plans.map((p) => [p.id, true])),
-        },
-        {
-          name: "GDPR Compliance",
-          values: Object.fromEntries(plans.map((p) => [p.id, true])),
-        },
-        {
-          name: "Two-Factor Auth",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType !== "free"]),
-          ),
-        },
-        {
-          name: "SSO (SAML/OIDC)",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType === "enterprise"]),
-          ),
-        },
-        {
-          name: "Audit Logs",
-          values: Object.fromEntries(
-            plans.map((p) => [
-              p.id,
-              p.planType === "free"
-                ? false
-                : p.planType === "enterprise"
-                  ? "Unlimited"
-                  : "30 days",
-            ]),
-          ),
-        },
-      ],
-    },
-    {
-      category: "Integration & API",
-      features: [
-        {
-          name: "API Access",
-          values: Object.fromEntries(
-            plans.map((p) => [
-              p.id,
-              p.planType === "free"
-                ? false
-                : p.planType === "enterprise"
-                  ? "Full Access"
-                  : "Read-only",
-            ]),
-          ),
-        },
-        {
-          name: "Webhooks",
-          values: Object.fromEntries(
-            plans.map((p) => [
-              p.id,
-              p.planType === "free"
-                ? false
-                : p.planType === "enterprise"
-                  ? "Unlimited"
-                  : "5",
-            ]),
-          ),
-        },
-        {
-          name: "Custom Integrations",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType === "enterprise"]),
-          ),
-        },
-        {
-          name: "White-label Options",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType === "enterprise"]),
+            plans.map((p) => [p.id, p.featuresAccess?.exportReports ?? false]),
           ),
         },
       ],
@@ -288,10 +192,6 @@ export function buildFeatureCategories(
     {
       category: "Support & Services",
       features: [
-        {
-          name: "Email Support",
-          values: Object.fromEntries(plans.map((p) => [p.id, true])),
-        },
         {
           name: "Priority Support",
           values: Object.fromEntries(
@@ -301,32 +201,35 @@ export function buildFeatureCategories(
             ]),
           ),
         },
-        {
-          name: "Phone Support",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType === "enterprise"]),
-          ),
-        },
-        {
-          name: "Response Time",
-          values: Object.fromEntries(
-            plans.map((p) => [
-              p.id,
-              p.planType === "free"
-                ? "48 hours"
-                : p.planType === "enterprise"
-                  ? "1 hour SLA"
-                  : "4 hours",
-            ]),
-          ),
-        },
-        {
-          name: "Dedicated Account Manager",
-          values: Object.fromEntries(
-            plans.map((p) => [p.id, p.planType === "enterprise"]),
-          ),
-        },
       ],
+    },
+
+    ...buildDynamicFeatureCategories(plans),
+  ];
+}
+
+function buildDynamicFeatureCategories(
+  plans: SubscriptionPlan[],
+): FeatureCategoryRow[] {
+  const allFeatureNames = Array.from(
+    new Set(plans.flatMap((p) => (p.features ?? []).map((f) => f.name))),
+  );
+
+  if (allFeatureNames.length === 0) return [];
+
+  return [
+    {
+      category: "Plan Features",
+      features: allFeatureNames.map((name) => ({
+        name,
+        values: Object.fromEntries(
+          plans.map((p) => {
+            const match = (p.features ?? []).find((f) => f.name === name);
+
+            return [p.id, match?.included ?? false];
+          }),
+        ),
+      })),
     },
   ];
 }

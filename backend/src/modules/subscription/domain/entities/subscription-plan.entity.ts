@@ -46,6 +46,7 @@ export interface SubscriptionPlanProps {
   billingCycle: BillingCycle;
   billingInterval: number;
   jobPostsPerMonth: number;
+  jobPostActiveDays: number;
   screeningCredits: number;
   resumeParsesPerMonth: number;
   aiScoreCredits: number;
@@ -92,6 +93,10 @@ export class SubscriptionPlan {
     if (props.planType === PlanType.Free && props.razorpayPlanId) {
       throw new DomainError(SUBSCRIPTION_ERRORS.FREE_PLAN_CANNOT_HAVE_PAYMENT);
     }
+
+    if(props.jobPostActiveDays < 1){
+      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_POST_ACTIVE_DAYS)
+    }
     const names = new Set(props.features.map((x) => x.name.toLowerCase()));
     if (names.size !== props.features.length) {
       throw new DomainError(SUBSCRIPTION_ERRORS.DUPLICATE_FEATURE);
@@ -134,6 +139,9 @@ export class SubscriptionPlan {
   get aiScoreCredits(): number {
     return this.props.aiScoreCredits;
   }
+  get jobPostActiveDays(): number {
+  return this.props.jobPostActiveDays;
+}
   get featuresAccess(): FeatureAccess {
     return {
       ...this.props.featuresAccess,

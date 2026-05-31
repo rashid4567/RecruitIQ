@@ -3,6 +3,7 @@ import type { JobPostRepository } from "@/module/jobs/domain/repositories/jobPos
 
 export class PublishJobPostUseCase {
   private readonly jobPostRepo: JobPostRepository;
+
   constructor(jobPostRepo: JobPostRepository) {
     this.jobPostRepo = jobPostRepo;
   }
@@ -13,14 +14,15 @@ export class PublishJobPostUseCase {
     }
 
     const job = await this.jobPostRepo.getJobPostById(id);
+
     if (!job) {
-      throw new Error("Jobpost not found");
+      throw new Error("Job post not found");
     }
-    if (!job.isDraft()) {
-      throw new Error("Only draft jobs can be published");
+
+    if (job.status !== "draft" && job.status !== "expired") {
+      throw new Error("Only draft or expired jobs can be published");
     }
 
     return await this.jobPostRepo.publish(id);
-  
   }
 }

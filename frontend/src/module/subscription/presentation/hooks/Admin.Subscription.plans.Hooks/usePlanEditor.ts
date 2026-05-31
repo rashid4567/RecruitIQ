@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { CreatePlanPayload } from "@/module/subscription/application/dto/subscription.plan.dto";
 import axios from "axios";
 import {
-  createPlanUC,
+  createPlanUC, 
   getPlanByIdUC,
   updatePlanUC,
 } from "../../di/admin.subscription.plans.di";
@@ -12,6 +12,7 @@ export interface PlanFormData extends CreatePlanPayload {
   razorpayPlanId?: string;
   resumeParsesPerMonth: number;
   aiScoreCredits: number;
+  jobPostActiveDays: number;
 }
 
 function getErrorMessage(err: unknown): string {
@@ -43,6 +44,17 @@ function validatePlanForm(formData: PlanFormData): Record<string, string> {
   } else if (formData.description.trim().length > 300) {
     errors.description = "Description must be 300 characters or less.";
   }
+
+  if (
+  formData.jobPostActiveDays === undefined ||
+  formData.jobPostActiveDays < 1
+) {
+  errors.jobPostActiveDays =
+    "Job post active days must be at least 1.";
+} else if (formData.jobPostActiveDays > 365) {
+  errors.jobPostActiveDays =
+    "Job post active days seems too high.";
+}
 
   if (formData.planType !== "free") {
     if (formData.price === undefined || formData.price === null) {
@@ -128,6 +140,7 @@ export function usePlanEditor(id?: string) {
     billingCycle: "monthly",
     billingInterval: 1,
     jobPostsPerMonth: 10,
+    jobPostActiveDays: 7,
     screeningCredits: 50,
     resumeParsesPerMonth: 10,
     aiScoreCredits: 10,
@@ -174,6 +187,7 @@ export function usePlanEditor(id?: string) {
             billingCycle: plan.billingCycle,
             billingInterval: plan.billingInterval,
             jobPostsPerMonth: plan.jobPostsPerMonth,
+            jobPostActiveDays: plan.jobPostActiveDays,
             screeningCredits: plan.screeningCredits,
             resumeParsesPerMonth: plan.resumeParsesPerMonth,
             aiScoreCredits: plan.aiScoreCredits,
@@ -260,6 +274,7 @@ export function usePlanEditor(id?: string) {
           jobPostsPerMonth: formData.jobPostsPerMonth,
           screeningCredits: formData.screeningCredits,
           resumeParsesPerMonth: formData.resumeParsesPerMonth,
+          jobPostActiveDays: formData.jobPostActiveDays,
           aiScoreCredits: formData.aiScoreCredits,
           featuresAccess: formData.featuresAccess,
           features: formData.features,

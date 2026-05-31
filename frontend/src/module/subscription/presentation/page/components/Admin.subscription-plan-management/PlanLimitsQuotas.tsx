@@ -1,6 +1,6 @@
 import type { PlanFormData } from "../../../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
 import { CollapsibleSection } from "./CollapsibleSection";
-import { Briefcase, Brain, FileText, Star } from "lucide-react";
+import { Briefcase, Brain, FileText, Star, CalendarDays } from "lucide-react";
 
 interface PlanLimitsQuotasProps {
   formData: PlanFormData;
@@ -110,6 +110,35 @@ export default function PlanLimitsQuotas({
           onChange={handleChange}
           fieldCls={fieldCls}
         />
+        <div>
+  <label className="text-sm font-medium text-zinc-700 mb-2 block">
+    <span className="flex items-center gap-1.5">
+      <CalendarDays className="h-4 w-4 text-zinc-400" />
+      Job Post Active Days <span className="text-red-500">*</span>
+    </span>
+  </label>
+
+  <input
+    type="number"
+    min={1}
+    value={formData.jobPostActiveDays}
+    onChange={(e) =>
+      handleChange(
+        "jobPostActiveDays",
+        parseInt(e.target.value) || 1,
+      )
+    }
+    className={fieldCls("jobPostActiveDays")}
+  />
+
+  {errors.jobPostActiveDays ? (
+    <ErrorMsg message={errors.jobPostActiveDays} />
+  ) : (
+    <p className="text-xs text-zinc-400 mt-1">
+      Number of days a job remains active after posting
+    </p>
+  )}
+</div>
 
         <QuotaField
           label="AI Score Credits"

@@ -7,8 +7,9 @@ export class UpdateJobController {
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const recruiterId = req.user?.userId;
 
+      console.log("hit job update controller")
+      const recruiterId = req.user?.userId;
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,

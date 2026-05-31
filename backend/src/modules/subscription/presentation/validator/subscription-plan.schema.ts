@@ -20,9 +20,13 @@ const PlanFeatureSchema = z.object({
   name: z
     .string()
     .trim()
+    .min(1, "Feature name is required")
     .min(2, "Feature name must be at least 2 characters")
     .max(100, "Feature name cannot exceed 100 characters")
-    .regex(/^[a-zA-Z0-9\s\-&()]+$/, "Feature name contains invalid characters"),
+    .regex(
+      /^[a-zA-Z0-9\s\-&()]+$/,
+      "Feature name contains invalid characters",
+    ),
 
   included: z.boolean(),
 });
@@ -31,46 +35,84 @@ const BasePlanSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(2, "Plan name must be at least 2 characters")
-    .max(100, "Plan name cannot exceed 100 characters")
-    .regex(/^[a-zA-Z0-9\s\-]+$/, "Plan name contains invalid characters"),
+    .min(1, "Plan name is required")
+    .min(3, "Plan name must be at least 3 characters")
+    .max(50, "Plan name cannot exceed 50 characters")
+    .regex(
+      /^[a-zA-Z0-9\s\-]+$/,
+      "Plan name can only contain letters, numbers, spaces and hyphens",
+    ),
+
   description: z
     .string()
     .trim()
+    .min(1, "Description is required")
     .min(10, "Description must be at least 10 characters")
-    .max(1000, "Description cannot exceed 1000 characters")
-    .optional(),
+    .max(300, "Description cannot exceed 300 characters"),
+
   planType: z.enum(VALID_PLAN_TYPES),
+
   price: z
     .number()
     .min(0, "Price cannot be negative")
-    .max(100000, "Price exceeds allowed limit"),
+    .max(100000, "Price cannot exceed ₹100,000"),
+
   currency: z.enum(VALID_CURRENCIES),
+
   billingCycle: z.enum(VALID_BILLING_CYCLES),
+
   billingInterval: z
     .number()
-    .int("Billing interval must be an integer")
+    .int("Billing interval must be a whole number")
     .min(1, "Billing interval must be at least 1")
     .max(12, "Billing interval cannot exceed 12"),
-  jobPostsPerMonth: z.number().int().min(-1, "Use -1 for unlimited").max(10000),
+
+  jobPostsPerMonth: z
+    .number()
+    .int("Job posts per month must be a whole number")
+    .min(-1, "Use -1 for unlimited")
+    .max(10000, "Job posts per month cannot exceed 10,000"),
+
+  jobPostActiveDays: z
+    .number()
+    .int("Job post active days must be a whole number")
+    .min(1, "Job post active days must be at least 1 day")
+    .max(365, "Job post active days cannot exceed 365 days"),
+
   screeningCredits: z
     .number()
-    .int()
+    .int("Screening credits must be a whole number")
     .min(-1, "Use -1 for unlimited")
-    .max(100000),
+    .max(100000, "Screening credits cannot exceed 100,000"),
+
   resumeParsesPerMonth: z
     .number()
-    .int()
+    .int("Resume parses must be a whole number")
     .min(-1, "Use -1 for unlimited")
-    .max(100000),
-  aiScoreCredits: z.number().int().min(-1, "Use -1 for unlimited").max(100000),
+    .max(100000, "Resume parses cannot exceed 100,000"),
+
+  aiScoreCredits: z
+    .number()
+    .int("AI score credits must be a whole number")
+    .min(-1, "Use -1 for unlimited")
+    .max(100000, "AI score credits cannot exceed 100,000"),
+
   featuresAccess: FeaturesAccessSchema,
+
   features: z
     .array(PlanFeatureSchema)
     .min(1, "At least one feature is required")
     .max(25, "Maximum 25 features allowed"),
+
   isPopular: z.boolean().default(false),
-  sortOrder: z.number().int().min(0).max(1000).default(0),
+
+  sortOrder: z
+    .number()
+    .int("Sort order must be a whole number")
+    .min(1, "Sort order must be at least 1")
+    .max(1000, "Sort order cannot exceed 1000")
+    .default(1),
+
   razorpayPlanId: z
     .string()
     .trim()
@@ -80,8 +122,9 @@ const BasePlanSchema = z.object({
 
 export const CreatePlanSchema = BasePlanSchema.superRefine((data, ctx) => {
   const featureNames = data.features.map((feature) =>
-    feature.name.toLowerCase(),
+    feature.name.toLowerCase().trim(),
   );
+
   if (new Set(featureNames).size !== featureNames.length) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -89,13 +132,15 @@ export const CreatePlanSchema = BasePlanSchema.superRefine((data, ctx) => {
       message: "Duplicate feature names are not allowed",
     });
   }
+
   if (data.planType === "free" && data.price !== 0) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["price"],
-      message: "Free plan must have price 0",
+      message: "Free plans must have a price of 0",
     });
   }
+
   if (data.planType !== "free" && data.price <= 0) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -103,14 +148,25 @@ export const CreatePlanSchema = BasePlanSchema.superRefine((data, ctx) => {
       message: "Paid plans must have a price greater than 0",
     });
   }
+
   if (data.planType === "free" && data.razorpayPlanId) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["razorpayPlanId"],
-      message: "Free plans cannot have Razorpay Plan ID",
+      message: "Free plans cannot have a Razorpay Plan ID",
     });
   }
+
+  if (data.planType !== "free" && !data.razorpayPlanId) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["razorpayPlanId"],
+      message: "Razorpay Plan ID is required for paid plans",
+    });
+  }
+
   const enabledFeatures = Object.values(data.featuresAccess).filter(Boolean);
+
   if (data.planType !== "free" && enabledFeatures.length === 0) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -128,16 +184,34 @@ export const UpdatePlanSchema = z
     currency: BasePlanSchema.shape.currency.optional(),
     billingCycle: BasePlanSchema.shape.billingCycle.optional(),
     billingInterval: BasePlanSchema.shape.billingInterval.optional(),
-    jobPostsPerMonth: BasePlanSchema.shape.jobPostsPerMonth.optional(),
-    screeningCredits: BasePlanSchema.shape.screeningCredits.optional(),
-    resumeParsesPerMonth: BasePlanSchema.shape.resumeParsesPerMonth.optional(),
-    aiScoreCredits: BasePlanSchema.shape.aiScoreCredits.optional(),
+
+    jobPostsPerMonth:
+      BasePlanSchema.shape.jobPostsPerMonth.optional(),
+
+    jobPostActiveDays:
+      BasePlanSchema.shape.jobPostActiveDays.optional(),
+
+    screeningCredits:
+      BasePlanSchema.shape.screeningCredits.optional(),
+
+    resumeParsesPerMonth:
+      BasePlanSchema.shape.resumeParsesPerMonth.optional(),
+
+    aiScoreCredits:
+      BasePlanSchema.shape.aiScoreCredits.optional(),
+
     featuresAccess: FeaturesAccessSchema.partial().optional(),
+
     features: z.array(PlanFeatureSchema).max(25).optional(),
+
     isPopular: z.boolean().optional(),
-    sortOrder: z.number().int().min(0).max(1000).optional(),
-    razorpayPlanId: BasePlanSchema.shape.razorpayPlanId.optional(),
+
+    sortOrder: BasePlanSchema.shape.sortOrder.optional(),
+
+    razorpayPlanId:
+      BasePlanSchema.shape.razorpayPlanId.optional(),
   })
   .strict();
+
 export type CreatePlanInput = z.infer<typeof CreatePlanSchema>;
 export type UpdatePlanInput = z.infer<typeof UpdatePlanSchema>;

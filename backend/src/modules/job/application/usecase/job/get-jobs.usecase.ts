@@ -1,7 +1,5 @@
 import { Job } from "../../../domain/entities/job.entity";
-
 import { JobRepository } from "../../../domain/repositories/job.repository";
-
 import {
   PaginationOptions,
   JobFilters,

@@ -14,6 +14,7 @@ export interface CreatePlanInput {
   billingCycle: "weekly" | "monthly" | "yearly";
   billingInterval: number;
   jobPostsPerMonth: number;
+  jobPostActiveDays: number;
   screeningCredits: number;
   resumeParsesPerMonth: number;
   aiScoreCredits: number;

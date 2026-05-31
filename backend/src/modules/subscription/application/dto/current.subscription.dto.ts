@@ -10,6 +10,7 @@ export interface CurrentSubscriptionResponse {
   nextBillingDate: Date;
   jobPostsUsed: number;
   jobPostsLimit: number;
+  jobPostActiveDays: number; 
   screeningUsed: number;
   screeningLimit: number;
   resumeUsed: number;

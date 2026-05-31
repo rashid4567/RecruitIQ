@@ -29,6 +29,10 @@ export class CreateJobUseCase {
       throw new ApplicationError(ERROR_CODES.JOB_POST_LIMIT_EXCEEDED);
     }
 
+    if (dto.expiresAt) {
+      this.validateExpiryDate(dto.expiresAt, subscription.jobPostActiveDays);
+    }
+
     const job = Job.create({
       recruiterId,
       title: dto.title,
@@ -53,13 +57,26 @@ export class CreateJobUseCase {
       },
       department: dto.department ?? "General",
       positions: dto.positions ?? 1,
-      expiresAt: dto.expiresAt,
       externalLink: dto.externalLink,
+      expiresAt: dto.expiresAt,
     });
 
-    const createdJob = await this.jobRepo.create(job);
-    const updatedSubscription = subscription.consumeJobPost();
-    await this.subscriptionRepo.update(updatedSubscription);
-    return createdJob;
+    return await this.jobRepo.create(job);
+  }
+
+  private validateExpiryDate(expiresAt: Date, activeDays: number): void {
+    const maxAllowedDate = new Date();
+
+    maxAllowedDate.setDate(maxAllowedDate.getDate() + activeDays);
+
+    maxAllowedDate.setHours(23, 59, 59, 999);
+
+    const expiryDate = new Date(expiresAt);
+
+    expiryDate.setHours(23, 59, 59, 999);
+
+    if (expiryDate > maxAllowedDate) {
+      throw new ApplicationError(ERROR_CODES.JOB_EXPIRY_EXCEED_PLAN_LIMIT);
+    }
   }
 }

@@ -1,6 +1,5 @@
-// utils/jobCardMapper.ts
 import type { Job } from "../../domain/entity/jobPost.entity";
-import type { JobCardProps } from "@/module/jobs/presentation/types/jobCard.types"; 
+import type { JobCardProps } from "@/module/jobs/presentation/types/jobCard.types";
 
 export const mapJobPostToCard = (job: Job): JobCardProps => {
   const locationStr = job.isRemote
@@ -41,19 +40,24 @@ export const mapJobPostToCard = (job: Job): JobCardProps => {
     jobType: job.jobType || "full-time",
     postedDate: job.postedOn
       ? new Date(job.postedOn).toLocaleDateString("en-IN", {
-          day: "numeric", month: "short", year: "numeric",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
         })
       : "N/A",
     expiresDate: job.expiresAt
       ? new Date(job.expiresAt).toLocaleDateString("en-IN", {
-          day: "numeric", month: "short", year: "numeric",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
         })
       : "No expiry",
     externalLink: job.externalLink || null,
     views: job.views || 0,
     applications: job.applicationsCount || 0,
     shortlisted: 0,
-    avgAiScore: 85,
+    avgAiScore: 0,
     positionsFilled: Math.round((job.applicationsCount || 0) * 0.3),
+    publicationCount: job.publicationCount || 0,
   };
 };

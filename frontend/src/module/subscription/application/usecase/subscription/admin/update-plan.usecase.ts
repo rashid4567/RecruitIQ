@@ -26,6 +26,7 @@ export class UpdatePlanUseCase {
       billingCycle: payload.billingCycle ?? existing.billingCycle,
       billingInterval: payload.billingInterval ?? existing.billingInterval,
       jobPostsPerMonth: payload.jobPostsPerMonth ?? existing.jobPostsPerMonth,
+      jobPostActiveDays: payload.jobPostActiveDays ?? existing.jobPostActiveDays,
       screeningCredits: payload.screeningCredits ?? existing.screeningCredits,
       resumeParsesPerMonth:
         payload.resumeParsesPerMonth ?? existing.resumeParsesPerMonth,

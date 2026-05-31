@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { logger } from "../shared/logger";
+import { logger } from "../modules/Activity.logger/infrastructure/logging/logger";
 import { randomUUID } from "crypto";
 
 export const requestLogger = (

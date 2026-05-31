@@ -4,9 +4,9 @@ export interface JobCardProps {
   description: string;
   category: string;
   department: string;
-  status: "Active" | "Paused" | "Expired" | "Draft" | "Blocked"; 
-  visibility: "active" | "hidden";                                 
-  isBlocked: boolean;                                              
+  status: "Active" | "Paused" | "Expired" | "Draft" | "Blocked";
+  visibility: "active" | "hidden";
+  isBlocked: boolean;
   location: string;
   isRemote: boolean;
   jobType: string;
@@ -23,6 +23,7 @@ export interface JobCardProps {
   externalLink: string | null;
   views: number;
   applications: number;
+  publicationCount: number;
   shortlisted: number;
   avgAiScore: number;
   positionsFilled: number;

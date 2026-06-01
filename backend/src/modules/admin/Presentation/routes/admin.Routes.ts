@@ -8,7 +8,7 @@ import ActivityLogRouter from "../../../Activity.logger/presentation/router/acti
 import JobPostRouter from "../../../job/presentation/router/admin.jobPost.routes";
 import SubscriptionPlanRouter from "../../../subscription/presentation/routes/admin.subscription.routes"
 import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
-import { requireAdmin } from "../../../../middlewares/role.middleware";
+import { requireAdmin } from "../../../../shared/middlewares/role.middleware";
 
 const adminRoutes = Router();
 adminRoutes.use(authenticate, requireAdmin);

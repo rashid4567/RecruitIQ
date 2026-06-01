@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Briefcase, Calendar, Zap, Shield, ArrowRight, Star, Sparkles } from 'lucide-react';
 import { useCurrentSubscription } from '@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription';
 
-// ─── Fireworks Canvas ─────────────────────────────────────────────────────────
+
 function Fireworks() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -22,7 +22,7 @@ function Fireworks() {
     resize();
     window.addEventListener('resize', resize);
 
-    // ── Types ──
+
     interface Trail { x: number; y: number; alpha: number; }
     interface Rocket {
       x: number; y: number;
@@ -139,7 +139,7 @@ function Fireworks() {
       }
     };
 
-    // Launch schedule: burst of rockets at start then periodic
+    
     let launchCount = 0;
     const maxLaunches = 14;
     const launchSchedule = [0, 150, 300, 500, 700, 950, 1200, 1500, 1850, 2200, 2600, 3000, 3400, 3800];
@@ -149,7 +149,7 @@ function Fireworks() {
 
     let raf: number;
     const draw = () => {
-      // soft fade trail
+    
       ctx.fillStyle = 'rgba(255,255,255,0.18)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 

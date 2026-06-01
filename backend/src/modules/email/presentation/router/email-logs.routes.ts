@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
-import { requireAdmin } from "../../../../middlewares/role.middleware";
+import { requireAdmin } from "../../../../shared/middlewares/role.middleware";
 import { emailLogsController } from "../../../email/presentation/container/email-log.container";
 
 const EmailLogrouter = Router();

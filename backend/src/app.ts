@@ -5,9 +5,9 @@ import authRoutes from "./modules/auth/presentation/routes/index";
 import candidateRoutes from "./modules/candidate/presentation/routes/candidate.routes";
 import recruiterRoutes from "./modules/recruiter/presentation/router/recruiter.routes";
 import adminRoutes from "./modules/admin/Presentation/routes/admin.Routes";
-import { notFound } from "./middlewares/notFound.middleware";
-import { errorHandler } from "./middlewares/error.middleware";
-import { requestLogger } from "./middlewares/requestLogger";
+import { notFound } from "./shared/middlewares/notFound.middleware";
+import { errorHandler } from "./shared/middlewares/error.middleware";
+import { requestLogger } from "./shared/middlewares/requestLogger";
 
 const app = express();
 

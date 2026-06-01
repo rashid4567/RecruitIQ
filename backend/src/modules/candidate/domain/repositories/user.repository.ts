@@ -1,5 +1,5 @@
 import { User } from "../entities/user.entity";
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { Email } from "../valueObject/email.vo";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 
 export interface UserRepository {
@@ -7,3 +7,4 @@ export interface UserRepository {
   findByEmail(email: Email): Promise<User | null>;
   save(userId: User): Promise<void>;
 }
+ 

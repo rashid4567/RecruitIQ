@@ -1,10 +1,19 @@
 import { Schema, model, Types } from "mongoose";
 
-const parsedResumeSchema = new Schema(
+const parsedResumeDataSchema = new Schema(
   {
-    fullName: String,
-    email: String,
-    phone: String,
+    fullName: {
+      type: String,
+      default: null,
+    },
+    email: {
+      type: String,
+      default: null,
+    },
+    phone: {
+      type: String,
+      default: null,
+    },
     skills: {
       type: [String],
       default: [],
@@ -13,53 +22,55 @@ const parsedResumeSchema = new Schema(
       type: [String],
       default: [],
     },
-
     experience: {
       type: [String],
       default: [],
     },
-
-    totalExperienceYears: Number,
+    totalExperienceYears: {
+      type: Number,
+      default: null,
+    },
   },
   {
     _id: false,
   },
 );
 
-const resumeSchema = new Schema(
-  {
-    candidateId: {
-      type: Types.ObjectId,
-      ref: "User",
-      required: true,
-      unique: true,
-      index: true,
-    },
+export const ResumeModel = model(
+  "Resume",
+  new Schema(
+    {
+      candidateId: {
+        type: Types.ObjectId,
+        required: true,
+        ref: "CandidateProfile",
+        unique: true,
+        index: true,
+      },
 
-    fileName: {
-      type: String,
-      required: true,
-    },
+      fileName: {
+        type: String,
+        required: true,
+      },
 
-    fileKey: {
-      type: String,
-      required: true,
-    },
+      fileKey: {
+        type: String,
+        required: true,
+      },
 
-    uploadedAt: {
-      type: Date,
-      required: true,
-      default: Date.now,
-    },
+      uploadedAt: {
+        type: Date,
+        required: true,
+        default: Date.now,
+      },
 
-    parsedData: {
-      type: parsedResumeSchema,
-      required: false,
+      parsedData: {
+        type: parsedResumeDataSchema,
+        required: false,
+      },
     },
-  },
-  {
-    timestamps: true,
-  },
+    {
+      timestamps: true,
+    },
+  ),
 );
-
-export const ResumeModel = model("Resume", resumeSchema);

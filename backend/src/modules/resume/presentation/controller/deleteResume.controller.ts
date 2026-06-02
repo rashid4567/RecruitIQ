@@ -3,26 +3,29 @@ import { DeleteResumeUseCase } from "../../application/usecase/DeleteResumeUseCa
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 
 export class DeleteResumeController {
-    constructor(private readonly deleteResumeUC : DeleteResumeUseCase){};
-    
-    handle = async (req : Request, res : Response, next : NextFunction) =>{
-        try{
-            const {resumeId } = req.params;
+  constructor(private readonly deleteResumeUC: DeleteResumeUseCase) {}
 
-            if(!resumeId){
-                return res.status(HTTP_STATUS.BAD_REQUEST).json({
-                    success : false,
-                    message : "Resume is required"
-                })
-            }
+  handle = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { resumeId } = req.params;
 
-            await this.deleteResumeUC.execute({resumeId});
-            res.status(HTTP_STATUS.OK).json({
-                success : true,
-                message : "Resume deleted succesfully",
-            })
-        }catch(err){
-            next(err)
-        }
+      if (!resumeId) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message: "Resume id is required",
+        });
+      }
+
+      await this.deleteResumeUC.execute({
+        resumeId,
+      });
+
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: "Resume deleted successfully",
+      });
+    } catch (err) {
+      next(err);
     }
+  };
 }

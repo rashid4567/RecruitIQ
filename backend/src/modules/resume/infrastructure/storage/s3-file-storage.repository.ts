@@ -3,12 +3,13 @@ import {
   PutObjectCommand,
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
-
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
 import {
   FileStorageRepository,
   UploadFileParams,
 } from "../../domain/repository/fileStorage.repository";
+
 import { s3Client } from "../../../../config/s3";
 
 export class S3FileStorageRepository implements FileStorageRepository {
@@ -34,11 +35,13 @@ export class S3FileStorageRepository implements FileStorageRepository {
     );
   }
 
-  async getDownloadUrl(key: string): Promise<string> {
+  async getDownloadUrl(key: string, fileName?: string): Promise<string> {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: key,
-      ResponseContentDisposition: 'attachment; filename="resume.pdf"',
+      ResponseContentDisposition: `attachment; filename="${
+        fileName ?? "resume"
+      }"`,
     });
 
     return getSignedUrl(s3Client, command, {

@@ -17,73 +17,37 @@ import { DeleteResumeController } from "../controller/deleteResume.controller";
 import { DeleteMyResumeController } from "../controller/deletemyResume.controller";
 import { GetResumeByCandidateController } from "../controller/GetResumeByCandidate.controller";
 import { GetResumeByIdController } from "../controller/GetResumeById.controller";
-
-/* -------------------------------------------------------------------------- */
-/*                               Repositories                                 */
-/* -------------------------------------------------------------------------- */
-
-const resumeRepo: ResumeRepository =
-  new MongooseResumeRepository();
-
-const candidateRepo: CandidateRepository =
-  new MongooseCandidateRepository();
-
-const fileStorage: FileStorageRepository =
-  new S3FileStorageRepository();
-
-/* -------------------------------------------------------------------------- */
-/*                                 UseCases                                   */
-/* -------------------------------------------------------------------------- */
-
-const uploadResumeUC =
-  new UploadResumeUseCase(
-    resumeRepo,
-    candidateRepo,
-    fileStorage,
-  );
-
-const deleteResumeUC =
-  new DeleteResumeUseCase(
-    resumeRepo,
-    fileStorage,
-  );
-
-const getResumeByCandidateUC =
-  new GetResumeByCandidateUseCase(
-    resumeRepo,
-  );
-
-const getResumeByIdUC =
-  new GetResumeByIdUseCase(
-    resumeRepo,
-  );
-
-/* -------------------------------------------------------------------------- */
-/*                                Controllers                                 */
-/* -------------------------------------------------------------------------- */
-
-export const uploadResumeController =
-  new UploadResumeController(
-    uploadResumeUC,
-  );
-
-export const deleteResumeController =
-  new DeleteResumeController(
-    deleteResumeUC,
-  );
-
-export const deleteMyResumeController =
-  new DeleteMyResumeController(
-    deleteResumeUC,
-    getResumeByCandidateUC,
-  );
-
+import { GetResumeDownLoadUrlUseCase } from "../../application/usecase/GetResumeDownloadUrlUseCase";
+import { GetResumeDownloadUrlController } from "../controller/GetResumeDownloadUrl.controller";
+const resumeRepo: ResumeRepository = new MongooseResumeRepository();
+const candidateRepo: CandidateRepository = new MongooseCandidateRepository();
+const fileStorage: FileStorageRepository = new S3FileStorageRepository();
+const uploadResumeUC = new UploadResumeUseCase(
+  resumeRepo,
+  candidateRepo,
+  fileStorage,
+);
+const deleteResumeUC = new DeleteResumeUseCase(resumeRepo, fileStorage);
+const getResumeByCandidateUC = new GetResumeByCandidateUseCase(resumeRepo);
+const getResumeDownloadUrlUC = new GetResumeDownLoadUrlUseCase(
+  resumeRepo,
+  fileStorage,
+);
+const getResumeByIdUC = new GetResumeByIdUseCase(resumeRepo);
+export const uploadResumeController = new UploadResumeController(
+  uploadResumeUC,
+);
+export const deleteResumeController = new DeleteResumeController(
+  deleteResumeUC,
+);
+export const deleteMyResumeController = new DeleteMyResumeController(
+  deleteResumeUC,
+  getResumeByCandidateUC,
+);
 export const getResumeByCandidateController =
-  new GetResumeByCandidateController(
-    getResumeByCandidateUC,
-  );
-
-export const getResumeByIdController =
-  new GetResumeByIdController(
-    getResumeByIdUC,
-  );
+  new GetResumeByCandidateController(getResumeByCandidateUC);
+export const getResumeByIdController = new GetResumeByIdController(
+  getResumeByIdUC,
+);
+export const getResumeDownloadUrlController =
+  new GetResumeDownloadUrlController(getResumeDownloadUrlUC);

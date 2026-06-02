@@ -23,33 +23,49 @@ export class UploadResumeUseCase {
     const existingResume = await this.resumeRepository.findByCandidateId(
       dto.candidateId,
     );
-    const fileKey = `resumes/${dto.candidateId}/${Date.now()}-${dto.fileName}`;
+    const sanitizedFileName = dto.fileName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    const fileKey = `resumes/${dto.candidateId}/${Date.now()}-${sanitizedFileName}`;
     await this.fileStorageRepository.uploadFile({
       key: fileKey,
       buffer: dto.fileBuffer,
       contentType: dto.mimeType,
     });
 
+    try {
+      if (existingResume) {
+        const updatedResume = Resume.fromPersistence({
+          id: existingResume.getId()!,
+          candidateId: existingResume.getCandidateId(),
+          fileName: dto.fileName,
+          fileKey,
+          uploadedAt: new Date(),
+          parsedData: undefined,
+        });
 
-    if (existingResume) {
-      try {
-        await this.fileStorageRepository.deleteFile(
-          existingResume.getFileKey(),
-        );
-      } catch (error) {
-        console.error("Failed to delete previous resume", error);
+        const savedResume = await this.resumeRepository.update(updatedResume);
+
+        try {
+          await this.fileStorageRepository.deleteFile(
+            existingResume.getFileKey(),
+          );
+        } catch (error) {
+          console.error("Failed to delete previous resume from S3", error);
+        }
+        return savedResume;
       }
-      const updatedResume = Resume.fromPersistence({
-        id: existingResume.getId()!,
-        candidateId: existingResume.getCandidateId(),
-        fileName: dto.fileName,
-        fileKey,
-        uploadedAt: new Date(),
-        parsedData: undefined,
-      });
-      return await this.resumeRepository.update(updatedResume);
+      const resume = Resume.create(dto.candidateId, dto.fileName, fileKey);
+      return await this.resumeRepository.create(resume);
+    } catch (error) {
+      try {
+        await this.fileStorageRepository.deleteFile(fileKey);
+      } catch (rollbackError) {
+        console.error(
+          "Failed to rollback uploaded file from S3",
+          rollbackError,
+        );
+      }
+
+      throw error;
     }
-    const resume = Resume.create(dto.candidateId, dto.fileName, fileKey);
-    return await this.resumeRepository.create(resume);
   }
 }

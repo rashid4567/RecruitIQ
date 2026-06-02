@@ -5,6 +5,7 @@ import {
   deleteResumeController,
   getResumeByCandidateController,
   getResumeByIdController,
+  getResumeDownloadUrlController,
   uploadResumeController,
 } from "../container/resume.module";
 
@@ -12,7 +13,7 @@ const router = Router();
 router.post("/upload", resumeUploadMiddleware, uploadResumeController.handle);
 
 router.get("/me", getResumeByCandidateController.handle);
-
+router.get("/download", getResumeDownloadUrlController.handle);
 router.delete("/me", deleteMyResumeController.handle);
 
 router.get("/:resumeId", getResumeByIdController.handle);

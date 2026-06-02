@@ -1,5 +1,7 @@
-import { Email } from "../valueObject/email.vo"; 
+import { Email } from "../valueObject/email.vo";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
+import { DomainError } from "../../../../shared/errors/domain.error";
+import { USER_ERROR } from "../error/user.error";
 
 export class User {
   private constructor(
@@ -9,7 +11,6 @@ export class User {
     private profileImage?: string,
   ) {}
 
-
   public static create(
     id: UserId,
     fullName: string,
@@ -17,15 +18,10 @@ export class User {
     profileImage?: string,
   ): User {
     if (!fullName || fullName.trim().length === 0) {
-      throw new Error("Full name is required");
+      throw new DomainError(USER_ERROR.FULL_NAME_IS_REQUIRED);
     }
 
-    return new User(
-      id,
-      fullName.trim(),
-      email,
-      profileImage?.trim(),
-    );
+    return new User(id, fullName.trim(), email, profileImage?.trim());
   }
 
   public static fromPersistence(props: {
@@ -44,7 +40,7 @@ export class User {
 
   public updateFullName(name: string): void {
     if (!name || name.trim().length === 0) {
-      throw new Error("Full name cannot be empty");
+      throw new DomainError(USER_ERROR.FULL_NAME_CANNOT_BE_EMPTY);
     }
     this.fullName = name.trim();
   }
@@ -55,24 +51,20 @@ export class User {
 
   public updateProfileImage(image?: string): void {
     if (image && !image.startsWith("http")) {
-      throw new Error("Invalid profile image URL");
+      throw new DomainError(USER_ERROR.INVALID_PROFILE_IMAGE_URL);
     }
     this.profileImage = image?.trim();
   }
 
-
   public getId(): UserId {
     return this.id;
   }
-
   public getFullName(): string {
     return this.fullName;
   }
-
   public getEmail(): Email {
     return this.email;
   }
-
   public getProfileImage(): string | undefined {
     return this.profileImage;
   }

@@ -3,7 +3,7 @@ import { DownloadResumeUseCase } from "../../application/usecase/download.resume
 import { getMyResumeUseCase } from "../../application/usecase/getResume.usecase";
 import { UploadResumeUseCase } from "../../application/usecase/upload.resume.Usecase";
 import type { ResumeRepository } from "../../domain/repository/ResumeRepository";
-import { ApiResumeRepository } from "../../infrastructure/repository/ResumeRepositoryImpl";
+import { ApiResumeRepository } from "../../infrastructure/repository/ApiResumeRepository";
 
 const repo : ResumeRepository = new ApiResumeRepository();
 export const uploadResumeUC = new UploadResumeUseCase(repo);

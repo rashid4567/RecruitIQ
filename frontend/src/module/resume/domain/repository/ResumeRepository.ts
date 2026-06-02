@@ -1,4 +1,4 @@
-import type { Resume } from "../entity/Resume.entity";
+import { Resume } from "../entity/Resume.entity";
 
 export interface ResumeRepository {
   uploadResume(file: File): Promise<Resume>;

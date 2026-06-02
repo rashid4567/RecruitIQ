@@ -1,5 +1,6 @@
 import api from "@/api/axios";
-import type { Resume } from "../../domain/entity/Resume.entity";
+
+import { Resume } from "../../domain/entity/Resume.entity";
 import type { ResumeRepository } from "../../domain/repository/ResumeRepository";
 
 export class ApiResumeRepository implements ResumeRepository {
@@ -8,22 +9,20 @@ export class ApiResumeRepository implements ResumeRepository {
 
     formData.append("resume", file);
 
-    const { data } = await api.post("/candidate/resume/upload", formData, {
-      headers: {
-        "Content-Type": "multerPart/form-data",
-      },
-    });
+    const { data } = await api.post("/candidate/resume/upload", formData);
 
-    return data.data;
+    return Resume.create(data.data);
   }
 
   async getMyResume(): Promise<Resume> {
-    const { data } = await api.get("candidate/resume/me");
-    return data.data;
+    const { data } = await api.get("/candidate/resume/me");
+
+    return Resume.create(data.data);
   }
 
   async getDownloadUrl(): Promise<string> {
     const { data } = await api.get("/candidate/resume/download");
+
     return data.url;
   }
 

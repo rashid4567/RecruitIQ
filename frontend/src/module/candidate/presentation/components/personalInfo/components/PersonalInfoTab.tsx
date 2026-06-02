@@ -191,7 +191,7 @@ export function PersonalInfoTab({
                   isEditing={isEditing}
                   profile={profile}
                   editData={editData}
-                  validationErrors={validationErrors}
+                  //validationErrors={validationErrors}
                   onInputChange={onInputChange}
                   onFieldBlur={onFieldBlur}
                   getFieldError={getFieldError}

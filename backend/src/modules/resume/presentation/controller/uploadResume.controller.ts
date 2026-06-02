@@ -15,28 +15,29 @@ export class UploadResumeController {
           message: "Unauthorized",
         });
       }
+
       const file = req.file;
-      console.log("file :", file);
+
       if (!file) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
           message: "Resume is required",
         });
       }
+
       const resume = await this.uploadResumeUC.execute({
-        candidateId: candidateId,
+        candidateId,
         fileName: file.originalname,
         fileBuffer: file.buffer,
         mimeType: file.mimetype,
       });
-      console.log("resume : ",resume);
-      res.status(HTTP_STATUS.OK).json({
+
+      return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Resume uploaded succesfully",
-        data: resume,
+        message: "Resume uploaded successfully",
+        data: resume.toJSON(),
       });
     } catch (err) {
-      console.log("err :", err);
       next(err);
     }
   };

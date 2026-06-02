@@ -1,13 +1,13 @@
 import { useRef, useCallback } from "react";
 import { X, Upload, File, CheckCircle2, AlertCircle, Trash2, Download } from "lucide-react";
-import type { ResumeFile } from "@/module/resume/presentation/hook/resume.hooks";
+import { Resume } from "@/module/resume/domain/entity/Resume.entity";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ResumeUploadModalProps {
   open: boolean;
   onClose: () => void;
-  resume: ResumeFile | null;
+  resume: Resume | null;
   isUploading: boolean;
   uploadProgress: number;
   isDeleting: boolean;
@@ -17,13 +17,6 @@ interface ResumeUploadModalProps {
   onDelete: () => void;
   onDownload: () => void;
   clearError: () => void;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -177,11 +170,11 @@ export function ResumeUploadModal({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-green-900 truncate">
-                    {resume.name}
+                    {resume.getFileName()}
                   </p>
                   <p className="text-xs text-green-700 mt-0.5">
-                    {formatBytes(resume.size)} ·{" "}
-                    {resume.uploadedAt.toLocaleDateString()}
+                    Uploaded on{" "}
+                    {new Date(resume.getUploadedAt()).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">

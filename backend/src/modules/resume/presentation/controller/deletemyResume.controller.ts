@@ -10,11 +10,7 @@ export class DeleteMyResumeController {
     private readonly getResumeByCandidateUC: GetResumeByCandidateUseCase,
   ) {}
 
-  handle = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  handle = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const candidateId = req.user?.userId;
 
@@ -25,10 +21,9 @@ export class DeleteMyResumeController {
         });
       }
 
-      const resume =
-        await this.getResumeByCandidateUC.execute({
-          candidateId,
-        });
+      const resume = await this.getResumeByCandidateUC.execute({
+        candidateId,
+      });
 
       await this.deleteResumeUC.execute({
         resumeId: resume.getId()!,

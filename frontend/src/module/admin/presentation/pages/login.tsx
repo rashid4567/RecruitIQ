@@ -5,30 +5,104 @@ import { Eye, EyeOff } from "lucide-react";
 import { useAdminLogin } from "@/module/auth/presentation/hooks/useAdminLogin";
 import { getError } from "@/utils/getError";
 import { toast } from "sonner";
+import {
+  adminLoginSchema,
+  type AdminLoginFieldErrors,
+  type AdminLoginFormData,
+} from "../validation/adminLogin.schema";
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState<AdminLoginFormData>({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
+  const [errors, setErrors] = useState<AdminLoginFieldErrors>({});
+  const [touched, setTouched] = useState<
+    Partial<Record<keyof AdminLoginFormData, boolean>>
+  >({});
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-const { login } = useAdminLogin();
+  const { login } = useAdminLogin();
 
-const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const validateField = (
+    field: keyof AdminLoginFormData,
+    value: string | boolean,
+  ) => {
+    const partial = { ...formData, [field]: value };
+    const result = adminLoginSchema.safeParse(partial);
 
-  try {
-    await login(email, password);
+    if (!result.success) {
+      const fieldError = result.error.flatten().fieldErrors[field]?.[0];
+      setErrors((prev) => ({ ...prev, [field]: fieldError ?? undefined }));
+    } else {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
 
-    console.log("Role :", localStorage.getItem("userRole"));
-    console.log("Token :", localStorage.getItem("authToken"));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
 
-    toast.success("Login successfully");
-  } catch (err: unknown) {
-    toast.error(getError(err));
-  }
-};
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+
+    if (serverError) setServerError(null);
+
+    if (touched[name as keyof AdminLoginFormData]) {
+      validateField(name as keyof AdminLoginFormData, newValue);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    validateField(name as keyof AdminLoginFormData, value);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setTouched({ email: true, password: true, rememberMe: true });
+
+    const result = adminLoginSchema.safeParse(formData);
+
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
+      setErrors({
+        email: fieldErrors.email?.[0],
+        password: fieldErrors.password?.[0],
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setServerError(null);
+    try {
+      await login(result.data.email, result.data.password);
+
+      console.log("Role  :", localStorage.getItem("userRole"));
+      console.log("Token :", localStorage.getItem("authToken"));
+
+      toast.success("Login successfully");
+    } catch (err: unknown) {
+      const message = getError(err);
+      setServerError(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getFieldState = (field: keyof AdminLoginFormData) => {
+    const hasError = touched[field] && errors[field];
+    const isValid = touched[field] && !errors[field] && formData[field] !== "";
+    return { hasError, isValid };
+  };
+
+  const emailState = getFieldState("email");
+  const passwordState = getFieldState("password");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
@@ -102,7 +176,7 @@ const handleLogin = async (e: React.FormEvent) => {
                 </p>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-6">
+              <form onSubmit={handleLogin} noValidate className="space-y-6">
                 <div className="group">
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
                     Email
@@ -110,16 +184,33 @@ const handleLogin = async (e: React.FormEvent) => {
                   <div className="relative">
                     <input
                       type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                       placeholder="Enter your email"
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/10 transition-all duration-300 text-gray-900 placeholder-gray-500"
-                      required
+                      className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl transition-all duration-300 text-gray-900 placeholder-gray-400 pr-10
+                        ${
+                          emailState.hasError
+                            ? "border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/10 bg-red-50"
+                            : emailState.isValid
+                              ? "border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/10"
+                              : "border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/10"
+                        }`}
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-                      ✉️
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                      {emailState.hasError
+                        ? "❌"
+                        : emailState.isValid
+                          ? "✅"
+                          : "✉️"}
                     </span>
                   </div>
+                  {emailState.hasError && (
+                    <p className="mt-1.5 text-sm text-red-500 flex items-center gap-1">
+                      <span>⚠️</span> {errors.email}
+                    </p>
+                  )}
                 </div>
 
                 <div className="group">
@@ -129,11 +220,19 @@ const handleLogin = async (e: React.FormEvent) => {
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                       placeholder="Enter your password"
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/10 transition-all duration-300 text-gray-900 placeholder-gray-500 pr-12"
-                      required
+                      className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl transition-all duration-300 text-gray-900 placeholder-gray-400 pr-12
+                        ${
+                          passwordState.hasError
+                            ? "border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/10 bg-red-50"
+                            : passwordState.isValid
+                              ? "border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/10"
+                              : "border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/10"
+                        }`}
                     />
                     <button
                       type="button"
@@ -143,14 +242,20 @@ const handleLogin = async (e: React.FormEvent) => {
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
+                  {passwordState.hasError && (
+                    <p className="mt-1.5 text-sm text-red-500 flex items-center gap-1">
+                      <span>⚠️</span> {errors.password}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
+                      name="rememberMe"
+                      checked={formData.rememberMe}
+                      onChange={handleChange}
                       className="w-4 h-4 rounded border-2 border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
                     />
                     <span className="text-sm text-gray-700">Remember me</span>
@@ -162,6 +267,20 @@ const handleLogin = async (e: React.FormEvent) => {
                     Forgot password?
                   </a>
                 </div>
+
+                {serverError && (
+                  <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <span className="text-red-500 mt-0.5 shrink-0">🚫</span>
+                    <div>
+                      <p className="text-sm font-semibold text-red-700">
+                        Login failed
+                      </p>
+                      <p className="text-sm text-red-600 mt-0.5">
+                        {serverError}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <button
                   type="submit"

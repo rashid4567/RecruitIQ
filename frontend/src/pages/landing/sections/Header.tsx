@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { authService } from "@/module/auth/infrastructure/repositories/auth.service";
+import { useLogout } from "@/module/auth/presentation/hooks/useLogout";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -94,6 +94,7 @@ export default function Header() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const {logout} = useLogout();
   const profileRef = useRef<HTMLDivElement>(null);
 
   const NAV_ITEMS = getNavItems(userRole);
@@ -132,22 +133,13 @@ export default function Header() {
     return () => { document.body.style.overflow = ""; };
   }, [isMenuOpen]);
 
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-    } catch(error) {
-      console.error("Logout failed:", error);
-    } finally {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("userFullName");
-      setIsLoggedIn(false);
-      setUserRole(null);
-      setUserName(null);
-      setIsProfileOpen(false);
-      navigate("/");
-    }
-  };
+ const handleLogout = async () => {
+  try {
+    await logout();
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
 
   const getProfilePath = () => {
     if (userRole === "candidate") return "/candidate/profile/setting";

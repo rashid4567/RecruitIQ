@@ -9,7 +9,7 @@ import { GetPlanDetailUseCase } from "../../application/usecase/subscription/rec
 import { GetSubscriptionHistoryUseCase } from "../../application/usecase/subscription/recruiter/GetSubscriptionHistory.usecase";
 import { RenewSubscriptionUseCase } from "../../application/usecase/subscription/recruiter/RenewSubscription.usecase";
 import { VerifyPaymentUseCase } from "../../application/usecase/subscription/recruiter/VerifyPaymentUseCase";
-import { UpgradeSubscriptionUseCase } from "../../application/usecase/subscription/recruiter/upgrade.subscription.usecase";
+// import { UpgradeSubscriptionUseCase } from "../../application/usecase/subscription/recruiter/upgrade.subscription.usecase";
 
 const paymentRepo = new ApiPaymentRepository();
 const subscriptionRepo = new ApiRecruiterSubscriptionRepository();
@@ -32,6 +32,6 @@ export const cancelSubscriptionUC = new CancelSubscriptionUseCase(
 export const renewSubscriptionUC = new RenewSubscriptionUseCase(
   subscriptionRepo,
 );
-export const upgradeSubscriptionUC = new UpgradeSubscriptionUseCase(
-  subscriptionRepo,
-);
+// export const upgradeSubscriptionUC = new UpgradeSubscriptionUseCase(
+//   subscriptionRepo,
+// );

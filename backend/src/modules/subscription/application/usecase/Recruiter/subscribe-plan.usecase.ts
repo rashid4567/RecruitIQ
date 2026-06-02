@@ -13,48 +13,67 @@ export class SubscribePlanUseCase {
     private readonly planRepo: SubscriptionPlanRepository,
     private readonly recruiterRepo: RecruiterSubscriptionRepository,
   ) {}
-  async execute(recruiterId: string, planId: string) {
+
+  async execute(
+    recruiterId: string,
+    planId: string,
+  ): Promise<RecruiterSubscription> {
     const plan = await this.planRepo.findById(planId);
-    if (!plan) {
+    if (!plan || !plan.isActive) {
       throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
     }
+    if (!plan.isFree()) {
+      throw new ApplicationError(
+        ERROR_CODES.FREE_PLAN_DOES_NOT_REQUIRE_PAYMENT,
+      );
+    }
+
     const existing =
       await this.recruiterRepo.findActiveByRecruiter(recruiterId);
     if (existing) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_ALREADY_EXISTS);
     }
     const startDate = new Date();
-
     const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + plan.billingInterval);
 
-  const subscription = RecruiterSubscription.create({
-  id: randomUUID(),
-  recruiterId,
-  planId: plan.id,
-  planName: plan.name,
-  planPrice: plan.price,
-  planType: plan.planType,
-  jobPostActiveDays: plan.jobPostActiveDays, 
-  startDate,
-  endDate,
-  currentPeriodStart: startDate,
-  currentPeriodEnd: endDate,
-  autoRenew: false,
-  status: SubscriptionStatus.Active,
-  cancelledAt: undefined,
-  jobPostsUsed: 0,
-  screeningUsed: 0,
-  resumeUsed: 0,
-  aiScoreUsed: 0,
-  jobPostsLimit: plan.jobPostsPerMonth,
-  screeningLimit: plan.screeningCredits,
-  resumeLimit: plan.resumeParsesPerMonth,
-  aiScoreLimit: plan.aiScoreCredits,
-  paymentReferenceId: undefined,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-});
+    switch (plan.billingCycle) {
+      case "weekly":
+        endDate.setDate(endDate.getDate() + 7 * plan.billingInterval);
+        break;
+      case "monthly":
+        endDate.setMonth(endDate.getMonth() + plan.billingInterval);
+        break;
+      case "yearly":
+        endDate.setFullYear(endDate.getFullYear() + plan.billingInterval);
+        break;
+    }
+    const subscription = RecruiterSubscription.create({
+      id: randomUUID(),
+      recruiterId,
+      planId: plan.id,
+      planName: plan.name,
+      planPrice: plan.price,
+      planType: plan.planType,
+      jobPostActiveDays: plan.jobPostActiveDays,
+      paymentReferenceId: undefined,
+      status: SubscriptionStatus.Active,
+      startDate,
+      endDate,
+      currentPeriodStart: startDate,
+      currentPeriodEnd: endDate,
+      autoRenew: false,
+      cancelledAt: undefined,
+      jobPostsUsed: 0,
+      screeningUsed: 0,
+      resumeUsed: 0,
+      aiScoreUsed: 0,
+      jobPostsLimit: plan.jobPostsPerMonth,
+      screeningLimit: plan.screeningCredits,
+      resumeLimit: plan.resumeParsesPerMonth,
+      aiScoreLimit: plan.aiScoreCredits,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
     await this.recruiterRepo.save(subscription);
     return subscription;
   }

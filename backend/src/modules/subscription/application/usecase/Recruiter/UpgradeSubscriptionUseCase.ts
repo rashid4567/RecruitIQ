@@ -19,7 +19,7 @@ export class UpgradeSubscriptionUseCase {
 
     const newPlan = await this.planRepo.findById(newPlanId);
 
-    if (!newPlan) {
+    if (!newPlan || !newPlan.isActive) {
       throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
     }
 
@@ -31,17 +31,12 @@ export class UpgradeSubscriptionUseCase {
       throw new ApplicationError(ERROR_CODES.DOWNGRADE_NOT_ALLOWED);
     }
 
-    const startDate = new Date();
-    const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + newPlan.billingInterval);
-
     const upgradedSubscription = currentSubscription.update({
       planId: newPlan.id,
       planName: newPlan.name,
       planPrice: newPlan.price,
       planType: newPlan.planType,
       jobPostActiveDays: newPlan.jobPostActiveDays,
-
       jobPostsLimit: newPlan.jobPostsPerMonth,
       screeningLimit: newPlan.screeningCredits,
       resumeLimit: newPlan.resumeParsesPerMonth,

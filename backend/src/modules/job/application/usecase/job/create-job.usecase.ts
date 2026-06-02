@@ -4,16 +4,32 @@ import { JobRepository } from "../../../domain/repositories/job.repository";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { ERROR_CODES } from "../../../../recruiter/application/constants/error.code.constants";
 import { CreateJobDTO } from "../../dto/create-job.dto";
+import { RecruiterProfileRepository } from "../../../../recruiter/domain/repositories/recruiter.repository";
+import { UserId } from "../../../../../shared/value-objects/userId.vo";
+import { VerificationStatus } from "../../../../recruiter/domain/constatns/verificationStatus.constants";
 
 export class CreateJobUseCase {
   constructor(
     private readonly jobRepo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
+    private readonly recruiterRepo: RecruiterProfileRepository,
   ) {}
 
   async execute(recruiterId: string, dto: CreateJobDTO): Promise<Job> {
     if (!recruiterId) {
       throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_FOUND);
+    }
+
+    const profile = await this.recruiterRepo.findByUserId(
+      UserId.create(recruiterId),
+    );
+
+    if (!profile) {
+      throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_FOUND);
+    }
+
+    if (profile.getVerificationStatus() !== VerificationStatus.VERIFIED) {
+      throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_VERIFIED);
     }
 
     const subscription =

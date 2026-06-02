@@ -17,8 +17,8 @@ export class CreatePaymentUseCase {
     request: CreatePaymentRequest,
   ): Promise<CreateSubscriptionPaymentOutput> {
     if (!request.planId?.trim()) {
-      throw new Error("Plan id is required");
-    }
+  throw new Error("Plan ID is required");
+}
 
     return this.paymentRepo.createSubscription({
       planId: request.planId,

@@ -1,3 +1,4 @@
+import { PaymentType } from "../../../domain/entities/payment.entity";
 import { PaymentRepository } from "../../../domain/repository/payment.repository";
 import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
 import { RecruiterSubscriptionRepository } from "../../../domain/repository/recruiter-subscription-plan-repository";
@@ -8,6 +9,8 @@ import {
   RecruiterSubscription,
   SubscriptionStatus,
 } from "../../../domain/entities/recruiter-subscription.entity";
+import { UpgradeSubscriptionUseCase } from "./UpgradeSubscriptionUseCase";
+import { UpdateRecruiterSubscriptionStatusUseCase } from "../../../../recruiter/application/useCase/profile/UpdateRecruiterSubscriptionStatusUseCase";
 
 export interface VerifyPaymentRequest {
   razorpayOrderId: string;
@@ -27,6 +30,8 @@ export class VerifyPaymentUseCase {
     private readonly planRepo: SubscriptionPlanRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
     private readonly paymentGateway: PaymentGateway,
+    private readonly upgradeSubscriptionUC: UpgradeSubscriptionUseCase,
+    private readonly updateRecruiterSubscriptionStatusUC: UpdateRecruiterSubscriptionStatusUseCase,
   ) {}
 
   async execute(request: VerifyPaymentRequest): Promise<VerifyPaymentResponse> {
@@ -54,6 +59,30 @@ export class VerifyPaymentUseCase {
       await this.paymentRepo.update(failedPayment);
 
       throw new ApplicationError(ERROR_CODES.INVALID_PAYMENT_SIGNATURE);
+    }
+
+    if (payment.paymentType === PaymentType.Upgrade) {
+      const upgradedSubscription = await this.upgradeSubscriptionUC.execute(
+        payment.recruiterId,
+        payment.planId,
+      );
+
+      await this.updateRecruiterSubscriptionStatusUC.execute(
+        payment.recruiterId,
+        "active",
+      );
+
+      const paidPayment = payment
+        .markPaid(request.razorpayPaymentId)
+        .attachSubscription(upgradedSubscription.id);
+
+      await this.paymentRepo.update(paidPayment);
+
+      return {
+        subscriptionId: upgradedSubscription.id,
+        paymentId: paidPayment.id,
+        status: "success",
+      };
     }
 
     const plan = await this.planRepo.findById(payment.planId);
@@ -104,16 +133,20 @@ export class VerifyPaymentUseCase {
       createdAt: now,
       updatedAt: now,
     });
-
     const savedSubscription = await this.subscriptionRepo.save(subscription);
+    await this.updateRecruiterSubscriptionStatusUC.execute(
+      payment.recruiterId,
+      "active",
+    );
 
     const paidPayment = payment
       .markPaid(request.razorpayPaymentId)
-      .attachSubscription(savedSubscription.id!);
+      .attachSubscription(savedSubscription.id);
 
     await this.paymentRepo.update(paidPayment);
+
     return {
-      subscriptionId: savedSubscription.id!,
+      subscriptionId: savedSubscription.id,
       paymentId: paidPayment.id,
       status: "success",
     };

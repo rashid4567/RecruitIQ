@@ -9,7 +9,7 @@ import type { GoogleRoles } from "@/module/auth/domain/constants/google-role";
 import type { SignInFormData } from "@/types/auth/auth.types";
 import { signInSchema } from "../validation/signin.schema";
 
-import type { AuthError } from "../types/auth.error"
+import type { AuthError } from "../types/auth.error";
 
 export function useSignIn() {
   const navigate = useNavigate();
@@ -19,7 +19,9 @@ export function useSignIn() {
   const [error, setError] = useState<AuthError | null>(null);
   const [success, setSuccess] = useState<string>("");
 
-  const [pendingGoogleCredential, setPendingGoogleCredential] = useState<string | null>(null);
+  const [pendingGoogleCredential, setPendingGoogleCredential] = useState<
+    string | null
+  >(null);
   const [showRoleSelector, setShowRoleSelector] = useState(false);
 
   const isAnyLoading = isLoading || googleLoading;
@@ -32,10 +34,10 @@ export function useSignIn() {
       };
     }
 
-   const axiosError = err as AxiosError<{
-  code?: string;
-  message?: string;
-}>;
+    const axiosError = err as AxiosError<{
+      code?: string;
+      message?: string;
+    }>;
     const code = axiosError?.response?.data?.code;
     const backendMessage = axiosError?.response?.data?.message ?? "";
 
@@ -51,7 +53,9 @@ export function useSignIn() {
       case "ACCOUNT_DEACTIVATED":
       case "ACCOUNT_SUSPENDED":
         return {
-          message: backendMessage || "Your account has been blocked. Please contact support.",
+          message:
+            backendMessage ||
+            "Your account has been blocked. Please contact support.",
           type: "blocked",
         };
 
@@ -75,11 +79,14 @@ export function useSignIn() {
     }
   }, []);
 
-  const navigateBasedOnRole = useCallback((role: string) => {
-    if (role === "candidate") navigate("/candidate/home");
-    else if (role === "recruiter") navigate("/recruiter/");
-    else navigate("/");
-  }, [navigate]);
+  const navigateBasedOnRole = useCallback(
+    (role: string) => {
+      if (role === "candidate") navigate("/candidate/home");
+      else if (role === "recruiter") navigate("/recruiter/");
+      else navigate("/");
+    },
+    [navigate],
+  );
 
   const clearMessages = useCallback(() => {
     setError(null);
@@ -93,7 +100,10 @@ export function useSignIn() {
     try {
       signInSchema.parse(formData);
 
-      const { user } = await SignInUC.execute(formData.email, formData.password);
+      const { user } = await SignInUC.execute(
+        formData.email,
+        formData.password,
+      );
 
       if (formData.rememberMe) {
         localStorage.setItem("rememberMe", "true");
@@ -127,9 +137,9 @@ export function useSignIn() {
       setTimeout(() => navigateBasedOnRole(result.user.role), 900);
     } catch (err: unknown) {
       const axiosErr = err as AxiosError<{
-  code?: string;
-  message?: string;
-}>;
+        code?: string;
+        message?: string;
+      }>;
 
       if (axiosErr?.response?.data?.code === "ROLE_REQUIRED") {
         setPendingGoogleCredential(credential);
@@ -149,7 +159,10 @@ export function useSignIn() {
     setGoogleLoading(true);
 
     try {
-      const { user } = await googleAuthUc.execute(pendingGoogleCredential, role);
+      const { user } = await googleAuthUc.execute(
+        pendingGoogleCredential,
+        role,
+      );
       setSuccess("Welcome! Redirecting...");
       setTimeout(() => navigateBasedOnRole(user.role), 900);
     } catch (err: unknown) {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "@/components/admin/sideBar";
+
 import { logoutUC } from "../di/auth";
 
 export function useLogout() {

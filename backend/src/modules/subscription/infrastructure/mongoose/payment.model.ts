@@ -8,6 +8,7 @@ export enum PaymentStatus {
 
 export enum PaymentType {
   Subscription = "subscription",
+  Upgrade = "upgrade",
   Renewal = "renewal",
 }
 

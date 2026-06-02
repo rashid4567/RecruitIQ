@@ -1,4 +1,4 @@
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { Email } from "../../../auth/domain/value.objects/email.vo";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { ERROR_CODES } from "../constatns/recruiter.profile.error";
@@ -14,7 +14,7 @@ export class User {
   public static create(
     id: UserId,
     fullName: string,
-    email: Email,
+    email: Email, 
     profileImage?: string,
   ): User {
     if (!fullName?.trim()) {

@@ -1,14 +1,13 @@
 import { Router } from "express";
-
 import {
   createSubscriptionPlanController,
-  updateSubscriptionPlanController,
-  getSubscriptionPlanController,
   getPlanDetailController,
+  getSubscribersController,
+  getSubscriptionPlanController,
   hideSubscriptionPlanController,
   unhideSubscriptionPlanController,
-  getSubscribersController,
-} from "../container/subscription.module";
+  updateSubscriptionPlanController,
+} from "../container/admin-subscription.module";
 
 const router = Router();
 

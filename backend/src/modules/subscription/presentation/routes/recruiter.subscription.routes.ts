@@ -1,17 +1,17 @@
 import { Router } from "express";
-
 import {
-  recruiterSubscriptionPlanController,
   recruiterPlanDetailController,
-  subscribePlanController,
-  renewSubscriptionController,
+  recruiterSubscriptionPlanController,
+} from "../container/admin-subscription.module";
+import {
   cancelSubscriptionController,
-  currentSubscriptionController,
   createPaymentOrderController,
-  verifyPaymentController,
+  currentSubscriptionController,
+  renewSubscriptionController,
+  subscribePlanController,
   upgradeSubscriptionController,
-} from "../container/subscription.module";
-
+  verifyPaymentController,
+} from "../container/recruiter-subscription.module";
 
 const router = Router();
 

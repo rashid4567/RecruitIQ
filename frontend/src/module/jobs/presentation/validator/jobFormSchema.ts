@@ -1,53 +1,137 @@
-
 import { z } from "zod";
+
+const JOB_TYPES = ["full-time", "part-time", "contract", "internship"] as const;
 
 export const jobFormSchema = z
   .object({
-    title: z.string().min(5, "Job title must be at least 5 characters long"),
-    department: z.string().min(1, "Please select a department"),
-    positions: z.number().min(1, "At least 1 position is required"),
-    jobType: z.enum(["full-time", "part-time", "contract", "internship"]),
+    title: z
+      .string()
+      .trim()
+      .min(3, "Job title must be at least 3 characters long")
+      .max(150, "Job title cannot exceed 150 characters"),
+
+    department: z
+      .string()
+      .trim()
+      .min(2, "Department is required")
+      .max(100, "Department cannot exceed 100 characters"),
+
+    positions: z.number().int().positive("At least 1 position is required"),
+
+    jobType: z.enum(JOB_TYPES),
 
     location: z.object({
-      city: z.string().min(2, "City is required"),
-      state: z.string().min(2, "State is required"),
-      country: z.string().min(2, "Country is required"),
+      city: z.string().trim().min(2, "City is required").max(100),
+
+      state: z.string().trim().min(2, "State is required").max(100),
+
+      country: z.string().trim().min(2, "Country is required").max(100),
     }),
 
     isRemote: z.boolean(),
 
     description: z
       .string()
-      .min(50, "Description must be at least 50 characters"),
-    responsibilities: z
-      .array(z.string().min(1))
-      .min(1, "Add at least one responsibility"),
-    requirements: z
-      .array(z.string().min(1))
-      .min(1, "Add at least one requirement"),
+      .trim()
+      .min(20, "Description must be at least 20 characters")
+      .max(10000, "Description is too long"),
 
-    experienceMin: z.number().min(0),
-    experienceMax: z.number().min(0),
+    responsibilities: z
+      .array(
+        z.string().trim().min(1, "Responsibility cannot be empty").max(500),
+      )
+      .min(1, "Add at least one responsibility")
+      .max(50),
+
+    requirements: z
+      .array(z.string().trim().min(1, "Requirement cannot be empty").max(500))
+      .min(1, "Add at least one requirement")
+      .max(50),
+
+    experienceMin: z
+      .number()
+      .int()
+      .min(0, "Experience cannot be negative")
+      .max(60),
+
+    experienceMax: z
+      .number()
+      .int()
+      .min(0, "Experience cannot be negative")
+      .max(60),
 
     requiredSkills: z
-      .array(z.string())
-      .min(1, "At least one required skill is needed"),
-    preferredSkills: z.array(z.string()),
+      .array(z.string().trim().min(1).max(50))
+      .min(1, "At least one required skill is needed")
+      .max(50),
+
+    preferredSkills: z.array(z.string().trim().min(1).max(50)).max(50),
 
     salary: z.object({
-      currency: z.string(),
-      min: z.number().min(0),
-      max: z.number().min(0),
+      currency: z.string().trim().min(1, "Currency is required"),
+
+      min: z.number().min(0, "Minimum salary cannot be negative"),
+
+      max: z.number().min(0, "Maximum salary cannot be negative"),
     }),
 
     expiresAt: z.string().min(1, "Application deadline is required"),
-    externalLink: z.string().url("Please enter a valid URL").or(z.literal("")),
+
+    externalLink: z
+      .string()
+      .trim()
+      .optional()
+      .or(z.literal(""))
+      .refine((val) => !val || z.string().url().safeParse(val).success, {
+        message: "Please enter a valid URL",
+      }),
   })
-  .refine((data) => data.experienceMin <= data.experienceMax, {
-    message: "Minimum experience cannot be greater than maximum",
-    path: ["experienceMax"],
-  })
-  .refine((data) => data.salary.min <= data.salary.max, {
-    message: "Minimum salary cannot be greater than maximum",
-    path: ["salary.max"],
+  .superRefine((data, ctx) => {
+    if (data.experienceMin > data.experienceMax) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["experienceMax"],
+        message: "Maximum experience must be greater than minimum experience",
+      });
+    }
+
+    if (data.salary.min > data.salary.max) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["salary", "max"],
+        message: "Maximum salary must be greater than minimum salary",
+      });
+    }
+
+    const expiryDate = new Date(data.expiresAt);
+
+    if (Number.isNaN(expiryDate.getTime())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["expiresAt"],
+        message: "Please select a valid expiry date",
+      });
+    }
+
+    if (expiryDate <= new Date()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["expiresAt"],
+        message: "Expiry date must be in the future",
+      });
+    }
+
+    const uniqueRequiredSkills = new Set(
+      data.requiredSkills.map((skill) => skill.toLowerCase()),
+    );
+
+    if (uniqueRequiredSkills.size !== data.requiredSkills.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["requiredSkills"],
+        message: "Duplicate skills are not allowed",
+      });
+    }
   });
+
+export type JobFormData = z.infer<typeof jobFormSchema>;

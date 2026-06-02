@@ -74,6 +74,7 @@ export const useResume = (initialResume?: Resume | null) => {
 
       toast.success("Resume uploaded successfully");
     } catch (error) {
+      console.log(error)
       clearInterval(interval);
 
       setError("Upload failed. Please try again.");
@@ -96,6 +97,7 @@ export const useResume = (initialResume?: Resume | null) => {
 
       window.open(url, "_blank");
     } catch (error) {
+      console.log(error)
       toast.error("Failed to download resume");
     } finally {
       setIsDownloading(false);
@@ -114,6 +116,7 @@ export const useResume = (initialResume?: Resume | null) => {
 
       toast.success("Resume deleted successfully");
     } catch (error) {
+      console.log(error)
       toast.error("Failed to delete resume");
     } finally {
       setIsDeleting(false);

@@ -1,11 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-
-export const ROLE_HOME: Record<string, string> = {
-  admin: "/admin/dashboard",
-  recruiter: "/recruiter",
-  candidate: "/candidate/home",
-};
+import { ROLE_HOME } from "../constants/roleHome";
 
 const PublicRoute = () => {
   const { isAuthenticated, userRole, isLoading } = useAuth();

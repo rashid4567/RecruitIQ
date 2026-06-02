@@ -25,6 +25,7 @@ export class ActivityLogFileRepository implements ActivityLogRepository {
               new Date(log.createdAt ?? raw.timestamp ?? new Date()),
             );
           } catch (err) {
+            console.log(err);
             return null;
           }
         })

@@ -12,7 +12,6 @@ export interface AuthRepository {
     accessToken: string;
     user: AuthUser;
   }>;
-
   googleLogin(
     credential: string,
     role?: GoogleRoles,
@@ -20,9 +19,7 @@ export interface AuthRepository {
     accessToken: string;
     user: AuthUser;
   }>;
-
   sendOtp(email: Email, role: UserRole): Promise<void>;
-
   verifyOtpAndRegister(data: {
     email: Email;
     otp: string;
@@ -33,18 +30,21 @@ export interface AuthRepository {
     accessToken: string;
     user: AuthUser;
   }>;
-
   updatePassword(
     currentPassword: Password,
     newPassword: Password,
   ): Promise<void>;
-
   forgotPassword(email: Email): Promise<void>;
-
   resetPassword(token: string, newPassword: Password): Promise<void>;
-
   requestEmailupdate(newEmail: Email): Promise<void>;
+  verifyEmailUpdate(email: Email, otp: string): Promise<void>;
+  adminLogin(
+    email: Email,
+    password: Password,
+  ): Promise<{
+    accessToken: string;
+    user: AuthUser;
+  }>;
 
-  verifyEmailUpdate( email : Email, otp : string):Promise<void>;
-
+  logout(): Promise<void>;
 }

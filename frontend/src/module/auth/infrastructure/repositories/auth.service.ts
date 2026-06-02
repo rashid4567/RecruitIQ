@@ -1,6 +1,5 @@
-
-import api from "../../api/axios";
-import { googleService } from "./google.service";
+import api from "../../../../api/axios";
+import { googleService } from "./Api.AuthgoogleRepository";
 
 export const authService = {
   sendOTP: async (email: string, role: "candidate" | "recruiter" | "admin") => {
@@ -9,7 +8,7 @@ export const authService = {
   },
 
   verifyOtpAndRegister: async (data: {
-    email: string; 
+    email: string;
     otp: string;
     password: string;
     fullName: string;
@@ -34,7 +33,6 @@ export const authService = {
     localStorage.setItem("userRole", user.role);
     localStorage.setItem("userId", user.id);
 
-
     return res.data;
   },
 
@@ -58,27 +56,27 @@ export const authService = {
     } catch {
       console.warn("Logout request failed, continuing locally");
     } finally {
-      const role = localStorage.getItem("userRole")
+      const role = localStorage.getItem("userRole");
       localStorage.removeItem("authToken");
       localStorage.removeItem("userRole");
       localStorage.removeItem("userId");
 
       if (redirect) {
-        if(role === "admin"){
-          window.location.href = "/admin/login"
-        }else{
+        if (role === "admin") {
+          window.location.href = "/admin/login";
+        } else {
           window.location.href = "/signin";
         }
       }
     }
   },
 
-  forgotPassword : async (email : string) =>{
-    const res = await api.post("/auth/forgot-password",{email});
+  forgotPassword: async (email: string) => {
+    const res = await api.post("/auth/forgot-password", { email });
     return res.data;
   },
-  resetPassword : async (token : string, newPassword :string) =>{
-    const res = await api.post("/auth/reset-password",{
+  resetPassword: async (token: string, newPassword: string) => {
+    const res = await api.post("/auth/reset-password", {
       token,
       newPassword,
     });
@@ -86,11 +84,10 @@ export const authService = {
     return res.data;
   },
 
-  updatePassword : async (payload : {
-    currentPassword : string,
-    newPassword : string,
-  }) =>{
-   await api.put("/auth/update-password",payload)
-
-  }
+  updatePassword: async (payload: {
+    currentPassword: string;
+    newPassword: string;
+  }) => {
+    await api.put("/auth/update-password", payload);
+  },
 };

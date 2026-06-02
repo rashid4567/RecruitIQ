@@ -1,5 +1,7 @@
+import { AdminLoginUseCase } from "../../Application/useCases/adminLogin.usecase";
 import { ForgotPasswordUseCase } from "../../Application/useCases/forgotPassword.useCase";
 import { GoogleAuthUseCase } from "../../Application/useCases/google-signin-UseCase";
+import { LogoutUseCase } from "../../Application/useCases/LogoutUseCase";
 import { RequestEmailUpdateUseCase } from "../../Application/useCases/Request-EmailUpdate.useCase";
 import { ResendOTPUseCase } from "../../Application/useCases/resendOtp.useCase";
 import { ResetPasswordUseCase } from "../../Application/useCases/reset-password.usecase";
@@ -22,3 +24,5 @@ export const resetPasswordUC = new ResetPasswordUseCase(authRepo);
 export const updatePasswordUC = new UpdatePasswordUsecase(authRepo);
 export const verifyEmailUpdateUc = new VerifyEmailUpdateUseCase(authRepo);
 export const requestEmailUpdateUc = new  RequestEmailUpdateUseCase(authRepo);
+export const adminLoginUC = new AdminLoginUseCase(authRepo);
+export const logoutUC = new LogoutUseCase(authRepo);

@@ -7,7 +7,10 @@ const getMeta = (log: ActivityLog): Metadata =>
 
 export const getUserName = (log: ActivityLog): string => {
   const meta = getMeta(log);
+
   return (
+    (meta.recruiterName as string) ||
+    (meta.candidateName as string) ||
     (meta.fullName as string) ||
     (meta.userName as string) ||
     (meta.name as string) ||
@@ -15,6 +18,8 @@ export const getUserName = (log: ActivityLog): string => {
     "System"
   );
 };
+
+
 
 export const getRole = (log: ActivityLog): string => {
   const meta = getMeta(log);
@@ -40,6 +45,9 @@ export const getDescription = (log: ActivityLog): string => {
     LOGIN_FAILED: `${user} login attempt failed`,
     LOGOUT: `${user} signed out`,
     PASSWORD_RESET: `${user} requested password reset`,
+    JOB_PUBLISHED: `${user} published job • ${
+  (meta.title as string) || "—"
+}`, 
   };
 
   return (

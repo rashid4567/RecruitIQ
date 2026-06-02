@@ -1,10 +1,15 @@
-'use client';
-
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Briefcase, Calendar, Zap, Shield, ArrowRight, Star, Sparkles } from 'lucide-react';
-import { useCurrentSubscription } from '@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription';
-
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Briefcase,
+  Calendar,
+  Zap,
+  Shield,
+  ArrowRight,
+  Star,
+  Sparkles,
+} from "lucide-react";
+import { useCurrentSubscription } from "@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription";
 
 function Fireworks() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -12,7 +17,7 @@ function Fireworks() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const resize = () => {
@@ -20,30 +25,40 @@ function Fireworks() {
       canvas.height = window.innerHeight;
     };
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
-
-    interface Trail { x: number; y: number; alpha: number; }
+    interface Trail {
+      x: number;
+      y: number;
+      alpha: number;
+    }
     interface Rocket {
-      x: number; y: number;
-      vx: number; vy: number;
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
       targetY: number;
       color: string;
       trail: Trail[];
       exploded: boolean;
     }
     interface Spark {
-      x: number; y: number;
-      vx: number; vy: number;
-      life: number; maxLife: number;
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      life: number;
+      maxLife: number;
       size: number;
       color: string;
       gravity: number;
       tail: Array<{ x: number; y: number }>;
     }
     interface Glitter {
-      x: number; y: number;
-      vx: number; vy: number;
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
       life: number;
       size: number;
       color: string;
@@ -51,11 +66,11 @@ function Fireworks() {
     }
 
     const palettes = [
-      ['#FF6B6B', '#FF8E53', '#FFD93D'],   // warm
-      ['#6BCB77', '#4D96FF', '#FFD93D'],   // tricolor
-      ['#C77DFF', '#E0AAFF', '#FFD6FF'],   // purple
-      ['#00F5D4', '#00BBF9', '#9B5DE5'],   // cool
-      ['#F15BB5', '#FEE440', '#00BBF9'],   // pop
+      ["#FF6B6B", "#FF8E53", "#FFD93D"],
+      ["#6BCB77", "#4D96FF", "#FFD93D"],
+      ["#C77DFF", "#E0AAFF", "#FFD6FF"],
+      ["#00F5D4", "#00BBF9", "#9B5DE5"],
+      ["#F15BB5", "#FEE440", "#00BBF9"],
     ];
 
     const rockets: Rocket[] = [];
@@ -78,33 +93,31 @@ function Fireworks() {
 
     const explode = (x: number, y: number, palette: string[]) => {
       const count = 90 + Math.floor(Math.random() * 60);
-      const style = Math.floor(Math.random() * 4); // 0=sphere, 1=star, 2=ring, 3=willow
+      const style = Math.floor(Math.random() * 4);
 
       for (let i = 0; i < count; i++) {
         let vx: number, vy: number;
         if (style === 0) {
-          // sphere burst
           const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
           const spd = 3 + Math.random() * 5;
           vx = Math.cos(angle) * spd;
           vy = Math.sin(angle) * spd;
         } else if (style === 1) {
-          // 5-pointed star
           const points = 5;
           const section = Math.floor((i / count) * points);
           const baseAngle = (section / points) * Math.PI * 2 - Math.PI / 2;
-          const spread = ((i / count) * points - section) * (Math.PI * 2 / points);
-          const spd = spread < 0.3 ? 6 + Math.random() * 2 : 2 + Math.random() * 2;
+          const spread =
+            ((i / count) * points - section) * ((Math.PI * 2) / points);
+          const spd =
+            spread < 0.3 ? 6 + Math.random() * 2 : 2 + Math.random() * 2;
           vx = Math.cos(baseAngle + spread) * spd;
           vy = Math.sin(baseAngle + spread) * spd;
         } else if (style === 2) {
-          // ring
           const angle = (i / count) * Math.PI * 2;
           const spd = 5 + Math.random() * 0.5;
           vx = Math.cos(angle) * spd;
           vy = Math.sin(angle) * spd;
         } else {
-          // willow — slow upward then droop
           const angle = (i / count) * Math.PI * 2;
           const spd = 2 + Math.random() * 6;
           vx = Math.cos(angle) * spd * 0.5;
@@ -114,8 +127,12 @@ function Fireworks() {
         const color = palette[Math.floor(Math.random() * palette.length)];
         const maxLife = 0.6 + Math.random() * 0.6;
         sparks.push({
-          x, y, vx, vy,
-          life: maxLife, maxLife,
+          x,
+          y,
+          vx,
+          vy,
+          life: maxLife,
+          maxLife,
           size: 2 + Math.random() * 2.5,
           color,
           gravity: style === 3 ? 0.12 : 0.06,
@@ -123,45 +140,54 @@ function Fireworks() {
         });
       }
 
-      // gold glitter burst
       for (let i = 0; i < 30; i++) {
         const angle = Math.random() * Math.PI * 2;
         const spd = Math.random() * 3;
         glitters.push({
-          x, y,
+          x,
+          y,
           vx: Math.cos(angle) * spd,
           vy: Math.sin(angle) * spd - 1,
           life: 0.8 + Math.random() * 0.6,
           size: 3 + Math.random() * 4,
-          color: ['#FFD700', '#FFF176', '#FFFFFF'][Math.floor(Math.random() * 3)],
+          color: ["#FFD700", "#FFF176", "#FFFFFF"][
+            Math.floor(Math.random() * 3)
+          ],
           spin: (Math.random() - 0.5) * 0.3,
         });
       }
     };
 
-    
     let launchCount = 0;
     const maxLaunches = 14;
-    const launchSchedule = [0, 150, 300, 500, 700, 950, 1200, 1500, 1850, 2200, 2600, 3000, 3400, 3800];
+    const launchSchedule = [
+      0, 150, 300, 500, 700, 950, 1200, 1500, 1850, 2200, 2600, 3000, 3400,
+      3800,
+    ];
     launchSchedule.forEach((delay) => {
-      setTimeout(() => { if (launchCount < maxLaunches) { launchRocket(); launchCount++; } }, delay);
+      setTimeout(() => {
+        if (launchCount < maxLaunches) {
+          launchRocket();
+          launchCount++;
+        }
+      }, delay);
     });
 
     let raf: number;
     const draw = () => {
-    
-      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.fillStyle = "rgba(255,255,255,0.18)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // ── rockets ──
       for (let i = rockets.length - 1; i >= 0; i--) {
         const r = rockets[i];
-        if (r.exploded) { rockets.splice(i, 1); continue; }
+        if (r.exploded) {
+          rockets.splice(i, 1);
+          continue;
+        }
 
         r.trail.push({ x: r.x, y: r.y, alpha: 1 });
         if (r.trail.length > 18) r.trail.shift();
 
-        // draw trail
         for (let t = 0; t < r.trail.length; t++) {
           const pt = r.trail[t];
           const alpha = (t / r.trail.length) * 0.7;
@@ -172,16 +198,15 @@ function Fireworks() {
           ctx.fill();
         }
 
-        // draw rocket head
         ctx.beginPath();
         ctx.arc(r.x, r.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = "#FFFFFF";
         ctx.globalAlpha = 1;
         ctx.fill();
 
         r.x += r.vx;
         r.y += r.vy;
-        r.vy += 0.22; // gravity
+        r.vy += 0.22;
 
         if (r.y <= r.targetY || r.vy >= 0) {
           const palette = palettes[Math.floor(Math.random() * palettes.length)];
@@ -190,7 +215,6 @@ function Fireworks() {
         }
       }
 
-      // ── sparks ──
       for (let i = sparks.length - 1; i >= 0; i--) {
         const s = sparks[i];
         s.tail.push({ x: s.x, y: s.y });
@@ -202,35 +226,40 @@ function Fireworks() {
         s.vx *= 0.98;
         s.life -= 0.016;
 
-        if (s.life <= 0) { sparks.splice(i, 1); continue; }
+        if (s.life <= 0) {
+          sparks.splice(i, 1);
+          continue;
+        }
 
         const alpha = s.life / s.maxLife;
 
-        // tail
         for (let t = 0; t < s.tail.length; t++) {
           ctx.beginPath();
-          ctx.arc(s.tail[t].x, s.tail[t].y, s.size * 0.4 * (t / s.tail.length), 0, Math.PI * 2);
+          ctx.arc(
+            s.tail[t].x,
+            s.tail[t].y,
+            s.size * 0.4 * (t / s.tail.length),
+            0,
+            Math.PI * 2,
+          );
           ctx.fillStyle = s.color;
           ctx.globalAlpha = alpha * (t / s.tail.length) * 0.5;
           ctx.fill();
         }
 
-        // head
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size * alpha, 0, Math.PI * 2);
         ctx.fillStyle = s.color;
         ctx.globalAlpha = alpha;
         ctx.fill();
 
-        // bright core
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size * alpha * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = "#FFFFFF";
         ctx.globalAlpha = alpha * 0.8;
         ctx.fill();
       }
 
-      // ── glitter diamonds ──
       for (let i = glitters.length - 1; i >= 0; i--) {
         const g = glitters[i];
         g.x += g.vx;
@@ -240,7 +269,10 @@ function Fireworks() {
         g.life -= 0.014;
         g.spin += 0.1;
 
-        if (g.life <= 0) { glitters.splice(i, 1); continue; }
+        if (g.life <= 0) {
+          glitters.splice(i, 1);
+          continue;
+        }
 
         ctx.save();
         ctx.translate(g.x, g.y);
@@ -264,15 +296,27 @@ function Fireworks() {
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener('resize', resize);
+      window.removeEventListener("resize", resize);
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-50" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-50"
+    />
+  );
 }
 
-// ─── Animated Counter ─────────────────────────────────────────────────────────
-function Counter({ to, prefix = '', suffix = '' }: { to: number; prefix?: string; suffix?: string }) {
+function Counter({
+  to,
+  prefix = "",
+  suffix = "",
+}: {
+  to: number;
+  prefix?: string;
+  suffix?: string;
+}) {
   const [val, setVal] = useState(0);
   useEffect(() => {
     if (to === 0) return;
@@ -280,15 +324,22 @@ function Counter({ to, prefix = '', suffix = '' }: { to: number; prefix?: string
     const step = Math.max(1, Math.ceil(to / 50));
     const id = setInterval(() => {
       start += step;
-      if (start >= to) { setVal(to); clearInterval(id); }
-      else setVal(start);
+      if (start >= to) {
+        setVal(to);
+        clearInterval(id);
+      } else setVal(start);
     }, 18);
     return () => clearInterval(id);
   }, [to]);
-  return <>{prefix}{val.toLocaleString('en-IN')}{suffix}</>;
+  return (
+    <>
+      {prefix}
+      {val.toLocaleString("en-IN")}
+      {suffix}
+    </>
+  );
 }
 
-// ─── Confetti Strip ───────────────────────────────────────────────────────────
 function ConfettiStrip() {
   return (
     <div className="fixed inset-x-0 top-0 h-2 z-40 overflow-hidden pointer-events-none">
@@ -298,8 +349,15 @@ function ConfettiStrip() {
           className="absolute top-0 w-2 h-2 rounded-sm opacity-80"
           style={{
             left: `${(i / 40) * 100}%`,
-            background: ['#10B981', '#F59E0B', '#3B82F6', '#EC4899', '#8B5CF6', '#EF4444'][i % 6],
-            animation: `confetti-drop ${1.2 + (i % 5) * 0.3}s ${(i * 0.06)}s ease-in forwards`,
+            background: [
+              "#10B981",
+              "#F59E0B",
+              "#3B82F6",
+              "#EC4899",
+              "#8B5CF6",
+              "#EF4444",
+            ][i % 6],
+            animation: `confetti-drop ${1.2 + (i % 5) * 0.3}s ${i * 0.06}s ease-in forwards`,
           }}
         />
       ))}
@@ -307,7 +365,6 @@ function ConfettiStrip() {
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function PaymentSuccessPage() {
   const navigate = useNavigate();
   const { data: subscriptionData, isLoading } = useCurrentSubscription();
@@ -317,74 +374,108 @@ export default function PaymentSuccessPage() {
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), 200);
     const t2 = setTimeout(() => setShowFireworks(false), 2000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, []);
 
   const sub = subscriptionData?.subscription;
 
   const formatDate = (d?: Date) =>
-    d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+    d
+      ? new Date(d).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : "—";
 
   const planBadgeColor: Record<string, string> = {
-    free: 'from-slate-400 to-slate-500',
-    basic: 'from-sky-400 to-blue-500',
-    pro: 'from-violet-500 to-purple-600',
-    enterprise: 'from-amber-400 to-orange-500',
+    free: "from-slate-400 to-slate-500",
+    basic: "from-sky-400 to-blue-500",
+    pro: "from-violet-500 to-purple-600",
+    enterprise: "from-amber-400 to-orange-500",
   };
-  const badgeGrad = sub ? (planBadgeColor[sub.planType] ?? 'from-emerald-400 to-teal-500') : 'from-emerald-400 to-teal-500';
+  const badgeGrad = sub
+    ? (planBadgeColor[sub.planType] ?? "from-emerald-400 to-teal-500")
+    : "from-emerald-400 to-teal-500";
 
   const usageStats = [
     {
-      label: 'Job Posts',
+      label: "Job Posts",
       icon: <Briefcase className="w-3.5 h-3.5" />,
       used: sub?.jobPostsUsed ?? 0,
       limit: sub?.jobPostsLimit ?? 0,
       unlimited: sub?.jobPostsLimit === -1,
-      pct: sub?.jobPostsLimit === -1 ? 100
-        : sub ? Math.round((sub.jobPostsUsed / sub.jobPostsLimit) * 100) : 0,
-      color: 'from-emerald-400 to-teal-400',
+      pct:
+        sub?.jobPostsLimit === -1
+          ? 100
+          : sub
+            ? Math.round((sub.jobPostsUsed / sub.jobPostsLimit) * 100)
+            : 0,
+      color: "from-emerald-400 to-teal-400",
     },
     {
-      label: 'Screenings',
+      label: "Screenings",
       icon: <Zap className="w-3.5 h-3.5" />,
       used: sub?.screeningUsed ?? 0,
       limit: sub?.screeningLimit ?? 0,
       unlimited: sub?.screeningLimit === -1,
-      pct: sub?.screeningLimit === -1 ? 100
-        : sub ? Math.round((sub.screeningUsed / sub.screeningLimit) * 100) : 0,
-      color: 'from-blue-400 to-indigo-400',
+      pct:
+        sub?.screeningLimit === -1
+          ? 100
+          : sub
+            ? Math.round((sub.screeningUsed / sub.screeningLimit) * 100)
+            : 0,
+      color: "from-blue-400 to-indigo-400",
     },
     {
-      label: 'Resume Parses',
+      label: "Resume Parses",
       icon: <Shield className="w-3.5 h-3.5" />,
       used: sub?.resumeUsed ?? 0,
       limit: sub?.resumeLimit ?? 0,
       unlimited: sub?.resumeLimit === -1,
-      pct: sub?.resumeLimit === -1 ? 100
-        : sub ? Math.round(((sub.resumeUsed ?? 0) / (sub.resumeLimit ?? 1)) * 100) : 0,
-      color: 'from-violet-400 to-purple-400',
+      pct:
+        sub?.resumeLimit === -1
+          ? 100
+          : sub
+            ? Math.round(((sub.resumeUsed ?? 0) / (sub.resumeLimit ?? 1)) * 100)
+            : 0,
+      color: "from-violet-400 to-purple-400",
     },
     {
-      label: 'AI Score Credits',
+      label: "AI Score Credits",
       icon: <Star className="w-3.5 h-3.5" />,
       used: sub?.aiScoreUsed ?? 0,
       limit: sub?.aiScoreLimit ?? 0,
       unlimited: sub?.aiScoreLimit === -1,
-      pct: sub?.aiScoreLimit === -1 ? 100
-        : sub ? Math.round(((sub.aiScoreUsed ?? 0) / (sub.aiScoreLimit ?? 1)) * 100) : 0,
-      color: 'from-amber-400 to-orange-400',
+      pct:
+        sub?.aiScoreLimit === -1
+          ? 100
+          : sub
+            ? Math.round(
+                ((sub.aiScoreUsed ?? 0) / (sub.aiScoreLimit ?? 1)) * 100,
+              )
+            : 0,
+      color: "from-amber-400 to-orange-400",
     },
   ];
 
-  const billingPct = sub ? (() => {
-    const now = Date.now();
-    const start = new Date(sub.currentPeriodStart).getTime();
-    const end = new Date(sub.currentPeriodEnd).getTime();
-    return Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100)));
-  })() : 0;
+  const billingPct = sub
+    ? (() => {
+        const now = Date.now();
+        const start = new Date(sub.currentPeriodStart).getTime();
+        const end = new Date(sub.currentPeriodEnd).getTime();
+        return Math.min(
+          100,
+          Math.max(0, Math.round(((now - start) / (end - start)) * 100)),
+        );
+      })()
+    : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-emerald-50/40 relative overflow-hidden">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Satoshi:wght@300;400;500;700&display=swap');
         * { font-family: 'Satoshi', system-ui, sans-serif; }
@@ -448,7 +539,7 @@ export default function PaymentSuccessPage() {
         .ring-pop { animation: ring-pop 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards; }
         .float-badge { animation: float-badge 3s ease-in-out infinite; }
         .shimmer-text {
-          background: linear-gradient(90deg, #059669 0%, #10b981 40%, #34d399 50%, #10b981 60%, #059669 100%);
+          background: linear-linear(90deg, #059669 0%, #10b981 40%, #34d399 50%, #10b981 60%, #059669 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           background-clip: text;
@@ -471,21 +562,16 @@ export default function PaymentSuccessPage() {
       {showFireworks && <Fireworks />}
       <ConfettiStrip />
 
-      {/* Subtle mesh bg */}
       <div className="fixed top-0 right-0 w-[50vw] h-[50vw] rounded-full bg-emerald-100/60 blur-[120px] pointer-events-none -z-10" />
       <div className="fixed bottom-0 left-0 w-[40vw] h-[40vw] rounded-full bg-teal-100/50 blur-[100px] pointer-events-none -z-10" />
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30vw] h-[30vw] rounded-full bg-amber-50/60 blur-[90px] pointer-events-none -z-10" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-14 space-y-8">
-
-        {/* ── Hero ── */}
         <div
-          className={`text-center space-y-6 fade-up ${visible ? 'show' : ''}`}
-          style={{ transitionDelay: '0ms' }}
+          className={`text-center space-y-6 fade-up ${visible ? "show" : ""}`}
+          style={{ transitionDelay: "0ms" }}
         >
-          {/* Animated checkmark */}
           <div className="flex justify-center relative">
-            {/* Sparkles around */}
             <div className="absolute top-0 left-1/2 -translate-x-8 -translate-y-2 sparkle-1">
               <Sparkles className="w-4 h-4 text-amber-400" />
             </div>
@@ -496,30 +582,40 @@ export default function PaymentSuccessPage() {
               <Sparkles className="w-4 h-4 text-violet-400" />
             </div>
 
-            <div className={`relative w-32 h-32 ${visible ? 'ring-pop' : 'opacity-0'}`}>
-              {/* outer ring */}
+            <div
+              className={`relative w-32 h-32 ${visible ? "ring-pop" : "opacity-0"}`}
+            >
               <div className="absolute inset-0 rounded-full border-4 border-emerald-100" />
-              {/* spinning dashed ring */}
-              <svg className="absolute inset-0 w-full h-full spin-slow" viewBox="0 0 128 128">
+
+              <svg
+                className="absolute inset-0 w-full h-full spin-slow"
+                viewBox="0 0 128 128"
+              >
                 <circle
-                  cx="64" cy="64" r="56"
-                  fill="none" stroke="#10B981" strokeWidth="2"
-                  strokeDasharray="14 6" strokeLinecap="round" opacity="0.4"
+                  cx="64"
+                  cy="64"
+                  r="56"
+                  fill="none"
+                  stroke="#10B981"
+                  strokeWidth="2"
+                  strokeDasharray="14 6"
+                  strokeLinecap="round"
+                  opacity="0.4"
                 />
               </svg>
-              {/* green fill circle */}
-              <div className="absolute inset-3 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-xl shadow-emerald-200/60 flex items-center justify-center">
-                {/* animated check */}
+              <div className="absolute inset-3 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 shadow-xl shadow-emerald-200/60 flex items-center justify-center">
                 <svg viewBox="0 0 36 36" className="w-14 h-14" fill="none">
                   <path
                     className="check-path"
                     d="M9 18l6 6L27 12"
-                    stroke="white" strokeWidth="3.5"
-                    strokeLinecap="round" strokeLinejoin="round"
+                    stroke="white"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </div>
-              {/* subtle glow */}
+
               <div className="absolute inset-0 rounded-full bg-emerald-400/20 blur-xl" />
             </div>
           </div>
@@ -530,110 +626,133 @@ export default function PaymentSuccessPage() {
               Payment Confirmed
             </div>
             <h1 className="display text-5xl md:text-7xl font-black text-slate-900 leading-none tracking-tight">
-              You&apos;re all{' '}
-              <span className="shimmer-text">set!</span>
+              You&apos;re all <span className="shimmer-text">set!</span>
             </h1>
             <p className="text-slate-500 mt-4 text-lg max-w-xl mx-auto leading-relaxed">
-              {isLoading
-                ? 'Loading your plan details…'
-                : (
-                  <>
-                    Your{' '}
-                    <span className="font-semibold text-slate-800">
-                      {sub?.planName ?? 'subscription'}
-                    </span>{' '}
-                    plan is now active and ready to use.
-                  </>
-                )}
+              {isLoading ? (
+                "Loading your plan details…"
+              ) : (
+                <>
+                  Your{" "}
+                  <span className="font-semibold text-slate-800">
+                    {sub?.planName ?? "subscription"}
+                  </span>{" "}
+                  plan is now active and ready to use.
+                </>
+              )}
             </p>
           </div>
         </div>
 
-        {/* ── Plan + Usage grid ── */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-
-          {/* Plan card — 3 cols */}
           <div
-            className={`lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 overflow-hidden card-lift fade-right ${visible ? 'show' : ''}`}
-            style={{ transitionDelay: '150ms' }}
+            className={`lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 overflow-hidden card-lift fade-right ${visible ? "show" : ""}`}
+            style={{ transitionDelay: "150ms" }}
           >
-            {/* gradient top bar */}
-            <div className={`h-1.5 w-full bg-gradient-to-r ${badgeGrad}`} />
+            <div className={`h-1.5 w-full bg-linear-to-r ${badgeGrad}`} />
 
             <div className="p-7 space-y-6">
-              {/* plan name + price */}
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <span className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-gradient-to-r ${badgeGrad} text-white mb-3 shadow-sm`}>
+                  <span
+                    className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-linear-to-r ${badgeGrad} text-white mb-3 shadow-sm`}
+                  >
                     <Star className="w-3 h-3" />
-                    {isLoading ? '…' : (sub?.planType ?? 'plan')}
+                    {isLoading ? "…" : (sub?.planType ?? "plan")}
                   </span>
                   <h2 className="display text-2xl font-bold text-slate-900">
-                    {isLoading ? 'Loading…' : (sub?.planName ?? '—')}
+                    {isLoading ? "Loading…" : (sub?.planName ?? "—")}
                   </h2>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-slate-400 text-xs uppercase tracking-widest mb-1">Amount Paid</p>
+                  <p className="text-slate-400 text-xs uppercase tracking-widest mb-1">
+                    Amount Paid
+                  </p>
                   <p className="display text-3xl font-black text-slate-900">
-                    {isLoading
-                      ? '—'
-                      : sub?.planPrice
-                        ? <Counter to={sub.planPrice} prefix="₹" />
-                        : 'Free'}
+                    {isLoading ? (
+                      "—"
+                    ) : sub?.planPrice ? (
+                      <Counter to={sub.planPrice} prefix="₹" />
+                    ) : (
+                      "Free"
+                    )}
                   </p>
                 </div>
               </div>
 
-              {/* detail grid */}
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: <Calendar className="w-4 h-4" />, label: 'Start Date', value: formatDate(sub?.startDate), color: 'text-emerald-500' },
-                  { icon: <Calendar className="w-4 h-4" />, label: 'End Date', value: formatDate(sub?.endDate), color: 'text-blue-500' },
-                  { icon: <Briefcase className="w-4 h-4" />, label: 'Active Days Per Post', value: sub?.jobPostActiveDays ? `${sub.jobPostActiveDays} days` : '—', color: 'text-violet-500' },
-                  { icon: <Shield className="w-4 h-4" />, label: 'Status', value: sub?.status ?? '—', color: 'text-amber-500' },
+                  {
+                    icon: <Calendar className="w-4 h-4" />,
+                    label: "Start Date",
+                    value: formatDate(sub?.startDate),
+                    color: "text-emerald-500",
+                  },
+                  {
+                    icon: <Calendar className="w-4 h-4" />,
+                    label: "End Date",
+                    value: formatDate(sub?.endDate),
+                    color: "text-blue-500",
+                  },
+                  {
+                    icon: <Briefcase className="w-4 h-4" />,
+                    label: "Active Days Per Post",
+                    value: sub?.jobPostActiveDays
+                      ? `${sub.jobPostActiveDays} days`
+                      : "—",
+                    color: "text-violet-500",
+                  },
+                  {
+                    icon: <Shield className="w-4 h-4" />,
+                    label: "Status",
+                    value: sub?.status ?? "—",
+                    color: "text-amber-500",
+                  },
                 ].map((item) => (
                   <div
                     key={item.label}
                     className="bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 hover:bg-emerald-50/50 hover:border-emerald-100 transition-colors"
                   >
-                    <p className={`text-xs flex items-center gap-1.5 mb-1 ${item.color}`}>
+                    <p
+                      className={`text-xs flex items-center gap-1.5 mb-1 ${item.color}`}
+                    >
                       {item.icon}
                       <span className="text-slate-500">{item.label}</span>
                     </p>
                     <p className="text-slate-800 font-semibold text-sm capitalize">
-                      {isLoading ? '…' : item.value}
+                      {isLoading ? "…" : item.value}
                     </p>
                   </div>
                 ))}
               </div>
 
-              {/* billing period bar */}
               {sub && (
                 <div>
                   <div className="flex justify-between text-xs text-slate-400 mb-2">
                     <span className="font-medium">Billing period</span>
                     <span>
                       {formatDate(sub.currentPeriodStart)}
-                      {' → '}
+                      {" → "}
                       {formatDate(sub.currentPeriodEnd)}
                     </span>
                   </div>
                   <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full bar-fill"
-                      style={{ width: visible ? `${billingPct}%` : '0%' }}
+                      className="h-full bg-linear-to-r from-emerald-400 to-teal-400 rounded-full bar-fill"
+                      style={{ width: visible ? `${billingPct}%` : "0%" }}
                     />
                   </div>
-                  <p className="text-right text-xs text-slate-400 mt-1">{billingPct}% elapsed</p>
+                  <p className="text-right text-xs text-slate-400 mt-1">
+                    {billingPct}% elapsed
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Usage stats — 2 cols */}
           <div
-            className={`lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 p-6 card-lift fade-left ${visible ? 'show' : ''}`}
-            style={{ transitionDelay: '250ms' }}
+            className={`lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 p-6 card-lift fade-left ${visible ? "show" : ""}`}
+            style={{ transitionDelay: "250ms" }}
           >
             <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-5">
               Usage Limits
@@ -648,16 +767,20 @@ export default function PaymentSuccessPage() {
                     </p>
                     <span className="text-slate-700 text-xs font-semibold bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
                       {isLoading
-                        ? '…'
+                        ? "…"
                         : stat.unlimited
-                          ? '∞ Unlimited'
+                          ? "∞ Unlimited"
                           : `${stat.used} / ${stat.limit}`}
                     </span>
                   </div>
                   <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className={`h-full bg-gradient-to-r ${stat.color} rounded-full bar-fill`}
-                      style={{ width: visible ? `${stat.unlimited ? 100 : stat.pct}%` : '0%' }}
+                      className={`h-full bg-linear-to-r ${stat.color} rounded-full bar-fill`}
+                      style={{
+                        width: visible
+                          ? `${stat.unlimited ? 100 : stat.pct}%`
+                          : "0%",
+                      }}
                     />
                   </div>
                 </div>
@@ -666,24 +789,35 @@ export default function PaymentSuccessPage() {
           </div>
         </div>
 
-        {/* ── What's Next strip ── */}
         <div
-          className={`grid grid-cols-2 md:grid-cols-4 gap-3 fade-up ${visible ? 'show' : ''}`}
-          style={{ transitionDelay: '350ms' }}
+          className={`grid grid-cols-2 md:grid-cols-4 gap-3 fade-up ${visible ? "show" : ""}`}
+          style={{ transitionDelay: "350ms" }}
         >
           {[
-            { icon: '📧', title: 'Confirmation Email', desc: 'Sent to your inbox' },
-            { icon: '📋', title: 'Post Your First Job', desc: 'Start hiring today' },
             {
-              icon: '🤖',
-              title: 'AI Screening',
+              icon: "📧",
+              title: "Confirmation Email",
+              desc: "Sent to your inbox",
+            },
+            {
+              icon: "📋",
+              title: "Post Your First Job",
+              desc: "Start hiring today",
+            },
+            {
+              icon: "🤖",
+              title: "AI Screening",
               desc: isLoading
-                ? '…'
+                ? "…"
                 : sub?.screeningLimit === -1
-                  ? 'Unlimited credits'
+                  ? "Unlimited credits"
                   : `${sub?.screeningLimit ?? 0} credits`,
             },
-            { icon: '🛡️', title: 'Priority Support', desc: "We're here to help" },
+            {
+              icon: "🛡️",
+              title: "Priority Support",
+              desc: "We're here to help",
+            },
           ].map((item) => (
             <div
               key={item.title}
@@ -691,39 +825,39 @@ export default function PaymentSuccessPage() {
             >
               <span className="text-2xl">{item.icon}</span>
               <div>
-                <p className="text-slate-800 text-xs font-semibold">{item.title}</p>
+                <p className="text-slate-800 text-xs font-semibold">
+                  {item.title}
+                </p>
                 <p className="text-slate-400 text-xs mt-0.5">{item.desc}</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* ── CTAs ── */}
         <div
-          className={`flex flex-col sm:flex-row gap-3 fade-up ${visible ? 'show' : ''}`}
-          style={{ transitionDelay: '450ms' }}
+          className={`flex flex-col sm:flex-row gap-3 fade-up ${visible ? "show" : ""}`}
+          style={{ transitionDelay: "450ms" }}
         >
           <button
-            onClick={() => navigate('/recruiter/jobs/create')}
-            className="flex-1 group flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-200/60 hover:shadow-xl hover:shadow-emerald-300/50 hover:-translate-y-0.5 display text-sm"
+            onClick={() => navigate("/recruiter/jobs/create")}
+            className="flex-1 group flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-200/60 hover:shadow-xl hover:shadow-emerald-300/50 hover:-translate-y-0.5 display text-sm"
           >
             Post Your First Job
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
           <button
-            onClick={() => navigate('/recruiter/dashboard')}
+            onClick={() => navigate("/recruiter/dashboard")}
             className="flex-1 flex items-center justify-center gap-2 border-2 border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-emerald-700 hover:bg-emerald-50 font-semibold py-4 px-6 rounded-2xl transition-all duration-200 text-sm"
           >
             Go to Dashboard
           </button>
         </div>
 
-        {/* ── Footer ── */}
         <p
-          className={`text-center text-slate-400 text-xs fade-up ${visible ? 'show' : ''}`}
-          style={{ transitionDelay: '550ms' }}
+          className={`text-center text-slate-400 text-xs fade-up ${visible ? "show" : ""}`}
+          style={{ transitionDelay: "550ms" }}
         >
-          Have questions?{' '}
+          Have questions?{" "}
           <a
             href="mailto:support@example.com"
             className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
@@ -731,7 +865,6 @@ export default function PaymentSuccessPage() {
             support@example.com
           </a>
         </p>
-
       </div>
     </div>
   );

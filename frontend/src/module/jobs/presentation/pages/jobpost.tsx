@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useJobs } from "../hooks/Recruiter-jobPost/useJobs";
 import Sidebar from "../../../recruiter/presentation/pages/components/layout/Sidebar";
-import Header from "@/components/candidate/header";
+import Header from "@/module/auth/presentation/pages/home/header";
 import StatsOverview from "./components/jobpost/StatsOverview";
 import JobCard from "./components/jobpost/JobCard";
 import JobListRow from "./components/jobpost/JobListRow";

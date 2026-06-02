@@ -1,4 +1,4 @@
-// src/module/auth/presentation/types/auth-error.ts
+
 export type AuthErrorType = "blocked" | "generic";
 
 export interface AuthError {

@@ -14,7 +14,7 @@ import {
   Linkedin,
   Plus,
 } from "lucide-react";
-import {  type ZodIssue } from "zod";
+import { type ZodIssue } from "zod";
 
 import { useCompleteCandidateProfile } from "../hooks/useCompleteCandidateProfile";
 import type { CompleteCandidateProfileForm } from "../types/candidate-profile.types";
@@ -105,6 +105,12 @@ export default function CompleteCandidateProfile() {
   const validate = (): boolean => {
     const result = candidateProfileSchema.safeParse({
       ...formData,
+      preferredJobLocations: formData.preferredJobLocations
+        ? formData.preferredJobLocations
+            .split(",")
+            .map((location) => location.trim())
+            .filter(Boolean)
+        : [],
       linkedinUrl: formData.linkedinUrl?.trim() || undefined,
     });
 
@@ -135,7 +141,7 @@ export default function CompleteCandidateProfile() {
           : undefined,
         educationLevel: formData.educationLevel,
         skills: formData.skills,
-        preferredJobLocations: formData.preferredJobLocations ?? "",
+        preferredJobLocations: formData.preferredJobLocations,
         bio: formData.bio.trim(),
         linkedinUrl: formData.linkedinUrl?.trim() || undefined,
       });

@@ -1,4 +1,4 @@
-import { ActivityActionType } from "../constants/activity-action.constants";
+import { ActivityActionType } from "../constants/activityActions";
 import { DomainError } from "../error/domain.errors";
 import { DOMAIN_ERRORS } from "../error/error.codes";
 

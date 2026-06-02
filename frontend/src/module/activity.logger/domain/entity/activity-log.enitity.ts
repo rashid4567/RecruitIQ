@@ -34,6 +34,10 @@ export class ActivityLog {
     return this.props.entityType;
   }
 
+  getEntityType(): string | undefined {
+    return this.props.entityType;
+  }
+
   getEntityId(): string | undefined {
     return this.props.entityId;
   }
@@ -47,7 +51,15 @@ export class ActivityLog {
   }
 
   getUserName(): string {
-    const name = this.props.metadata?.userName;
-    return typeof name === 'string' ? name : this.props.userId;
+    const meta = this.props.metadata;
+
+    return (
+      (meta?.recruiterName as string) ||
+      (meta?.candidateName as string) ||
+      (meta?.fullName as string) ||
+      (meta?.userName as string) ||
+      (meta?.name as string) ||
+      this.props.userId
+    );
   }
 }

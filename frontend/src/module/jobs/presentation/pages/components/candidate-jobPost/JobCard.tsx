@@ -4,7 +4,6 @@ import {
   Clock,
   Banknote,
   Wifi,
-  ChevronRight,
   Briefcase,
   Users,
   Eye,
@@ -12,7 +11,6 @@ import {
 
 import { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 import type { JobType } from "@/module/jobs/domain/dto/jobPost.dto";
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatLocation(job: Job): string {
   if (job.isRemote && !job.location.city && !job.location.country)
@@ -64,8 +62,6 @@ function postedAgo(job: Job): string {
   return `Posted ${Math.floor(diff / 30)}mo ago`;
 }
 
-// ─── Job type badge config (replaces external JOB_TYPE_CONFIG constant) ──────
-
 const JOB_TYPE_CONFIG: Record<
   JobType,
   { bg: string; text: string; dot: string }
@@ -88,15 +84,11 @@ const JOB_TYPE_CONFIG: Record<
   },
 };
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface JobCardProps {
   job: Job;
   onApply: (job: Job) => void;
   style?: React.CSSProperties;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
   const typeConfig = JOB_TYPE_CONFIG[job.jobType] ?? {
@@ -119,13 +111,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
             : "border-slate-200 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-50 cursor-pointer"
         }`}
     >
-      {/* Top accent line */}
       {!isUnavailable && (
-        <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute top-0 inset-x-0 h-0.5 bg-linear-to-r from-indigo-500 via-violet-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       )}
 
       <div className="p-5 flex flex-col flex-1">
-        {/* ── Header: title + job-type badge ── */}
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-slate-900 text-[15px] leading-snug line-clamp-2 group-hover:text-indigo-700 transition-colors duration-200 mb-1">
@@ -146,7 +136,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
           </span>
         </div>
 
-        {/* ── Meta rows ── */}
         <div className="space-y-2 mb-4">
           {/* Location + Remote */}
           <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -159,19 +148,16 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
             )}
           </div>
 
-          {/* Experience */}
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span>{formatExperience(job)} experience</span>
           </div>
 
-          {/* Salary */}
           <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600">
             <Banknote className="w-3.5 h-3.5 shrink-0" />
             <span>{formatSalary(job)}</span>
           </div>
 
-          {/* Openings */}
           {job.positions > 0 && (
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -182,7 +168,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
           )}
         </div>
 
-        {/* ── Required Skills ── */}
         {job.requiredSkills.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4 flex-1">
             {job.requiredSkills.slice(0, 3).map((skill, index) => (
@@ -201,7 +186,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
           </div>
         )}
 
-        {/* ── Footer: posted ago + stats + apply ── */}
         <div className="flex items-center justify-between pt-3 border-t border-slate-100 mt-auto">
           <div className="flex items-center gap-3 text-xs text-slate-400">
             <span>{postedAgo(job)}</span>

@@ -7,7 +7,7 @@ import { JobRepository } from "../../../domain/repositories/job.repository";
 export class HideJobUseCase{
     constructor(private readonly repo : JobRepository){};
 
-    async execute(jobId : string, recruiterId : string):Promise<Job>{
+    async execute(jobId : string, ):Promise<Job>{
         const job = await this.repo.findById(jobId)
 
         if(!job){

@@ -23,6 +23,22 @@ export class ApiAuthRepository implements AuthRepository {
     };
   }
 
+  async adminLogin(email: Email, password: Password) {
+    const res = await api.post("/auth/admin/login", {
+      email: email.getValue(),
+      password: password.getValue(),
+    });
+
+    const { accessToken, user } = res.data.data;
+
+    this.persistSession(accessToken, user);
+
+    return {
+      accessToken,
+      user: new AuthUser(user.id, user.role, user.fullName),
+    };
+  }
+
   async googleLogin(credential: string, role?: GoogleRoles) {
     const payload = role ? { credential, role } : { credential };
 
@@ -47,9 +63,13 @@ export class ApiAuthRepository implements AuthRepository {
         accessToken,
         user: new AuthUser(userData.id, userData.role, userData.fullName),
       };
-    } catch (error : unknown) {
-      console.log(error instanceof Error ? error.message : "Facing issue with the google login")
-      
+    } catch (error: unknown) {
+      console.log(
+        error instanceof Error
+          ? error.message
+          : "Facing issue with google login",
+      );
+
       throw error;
     }
   }
@@ -92,25 +112,11 @@ export class ApiAuthRepository implements AuthRepository {
     });
   }
 
- async resetPassword(token: string, newPassword: Password): Promise<void> {
-  await api.post("/auth/reset-password", {
-    token,
-    newPassword: newPassword.getValue(), 
-  });
-}
-
-
-  private persistSession(
-    accessToken: string,
-    user: { id: string; role: UserRole; fullName?: string },
-  ) {
-    localStorage.setItem("authToken", accessToken);
-    localStorage.setItem("userId", user.id);
-    localStorage.setItem("userRole", user.role);
-
-    if (user.fullName) {
-      localStorage.setItem("userFullName", user.fullName);
-    }
+  async resetPassword(token: string, newPassword: Password): Promise<void> {
+    await api.post("/auth/reset-password", {
+      token,
+      newPassword: newPassword.getValue(),
+    });
   }
 
   async updatePassword(
@@ -124,17 +130,45 @@ export class ApiAuthRepository implements AuthRepository {
   }
 
   async requestEmailupdate(newEmail: Email): Promise<void> {
-  await api.post("/auth/email/request-otp", {
-    newEmail: newEmail.getValue(),
-  });
-}
-
+    await api.post("/auth/email/request-otp", {
+      newEmail: newEmail.getValue(),
+    });
+  }
 
   async verifyEmailUpdate(email: Email, otp: string): Promise<void> {
-  await api.post("/auth/email/verify-otp", {
-    newEmail: email.getValue(),
-    otp,
-  });
-}
+    await api.post("/auth/email/verify-otp", {
+      newEmail: email.getValue(),
+      otp,
+    });
+  }
 
+  async logout(): Promise<void> {
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      console.warn("Logout request failed, continuing locally");
+    } finally {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userFullName");
+    }
+  }
+
+  private persistSession(
+    accessToken: string,
+    user: {
+      id: string;
+      role: UserRole;
+      fullName?: string;
+    },
+  ) {
+    localStorage.setItem("authToken", accessToken);
+    localStorage.setItem("userId", user.id);
+    localStorage.setItem("userRole", user.role);
+
+    if (user.fullName) {
+      localStorage.setItem("userFullName", user.fullName);
+    }
+  }
 }

@@ -1,6 +1,6 @@
-import Header from "@/components/candidate/header"; 
-import Hero from "@/components/candidate/Hero"; 
-import Features from "@/components/candidate/TrustedCompanies"; 
+import Header from "@/module/auth/presentation/pages/home/header"; 
+import Hero from "@/module/auth/presentation/pages/home/Hero"; 
+import Features from "@/module/auth/presentation/pages/home/TrustedCompanies"; 
 import TrustedCompanies from "@/pages/landing/sections/TrustedCompanies";
 
 const CandidateHome = () => {

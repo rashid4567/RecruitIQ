@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { CreateJobUseCase } from "../../../application/usecase/job/create-job.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { CreateJobSchema } from "../../validator/create.jobpost.validation";
 
 export class CreateJobController {
   constructor(private readonly createUc: CreateJobUseCase) {}
@@ -16,7 +17,9 @@ export class CreateJobController {
         });
       }
 
-      const job = await this.createUc.execute(recruiterId, req.body);
+      const dto = CreateJobSchema.parse(req.body)
+
+      const job = await this.createUc.execute(recruiterId, dto);
       console.log("job :", job);
       res.status(HTTP_STATUS.CREATED).json({
         success: true,

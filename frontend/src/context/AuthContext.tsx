@@ -13,7 +13,7 @@ interface AuthState {
   login: (token: string, role: string, userId: string) => void;
 }
 
-export const AuthContext = createContext<AuthState | null>(null);
+ const AuthContext = createContext<AuthState | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 

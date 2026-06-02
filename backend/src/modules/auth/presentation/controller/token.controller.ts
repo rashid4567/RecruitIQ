@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { RefreshTokenUseCase } from "../../application/useCase/token/refreshToken.useCase";
 import { RefreshSchema } from "../validators/refresh.schema";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+
 export class TokenController {
   constructor(private readonly refreshUC: RefreshTokenUseCase) {}
 

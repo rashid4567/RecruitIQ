@@ -23,10 +23,7 @@ const PlanFeatureSchema = z.object({
     .min(1, "Feature name is required")
     .min(2, "Feature name must be at least 2 characters")
     .max(100, "Feature name cannot exceed 100 characters")
-    .regex(
-      /^[a-zA-Z0-9\s\-&()]+$/,
-      "Feature name contains invalid characters",
-    ),
+    .regex(/^[a-zA-Z0-9\s\-&()]+$/, "Feature name contains invalid characters"),
 
   included: z.boolean(),
 });
@@ -39,7 +36,7 @@ const BasePlanSchema = z.object({
     .min(3, "Plan name must be at least 3 characters")
     .max(50, "Plan name cannot exceed 50 characters")
     .regex(
-      /^[a-zA-Z0-9\s\-]+$/,
+      /^[a-zA-Z0-9\s-]+$/,
       "Plan name can only contain letters, numbers, spaces and hyphens",
     ),
 
@@ -185,20 +182,15 @@ export const UpdatePlanSchema = z
     billingCycle: BasePlanSchema.shape.billingCycle.optional(),
     billingInterval: BasePlanSchema.shape.billingInterval.optional(),
 
-    jobPostsPerMonth:
-      BasePlanSchema.shape.jobPostsPerMonth.optional(),
+    jobPostsPerMonth: BasePlanSchema.shape.jobPostsPerMonth.optional(),
 
-    jobPostActiveDays:
-      BasePlanSchema.shape.jobPostActiveDays.optional(),
+    jobPostActiveDays: BasePlanSchema.shape.jobPostActiveDays.optional(),
 
-    screeningCredits:
-      BasePlanSchema.shape.screeningCredits.optional(),
+    screeningCredits: BasePlanSchema.shape.screeningCredits.optional(),
 
-    resumeParsesPerMonth:
-      BasePlanSchema.shape.resumeParsesPerMonth.optional(),
+    resumeParsesPerMonth: BasePlanSchema.shape.resumeParsesPerMonth.optional(),
 
-    aiScoreCredits:
-      BasePlanSchema.shape.aiScoreCredits.optional(),
+    aiScoreCredits: BasePlanSchema.shape.aiScoreCredits.optional(),
 
     featuresAccess: FeaturesAccessSchema.partial().optional(),
 
@@ -208,8 +200,7 @@ export const UpdatePlanSchema = z
 
     sortOrder: BasePlanSchema.shape.sortOrder.optional(),
 
-    razorpayPlanId:
-      BasePlanSchema.shape.razorpayPlanId.optional(),
+    razorpayPlanId: BasePlanSchema.shape.razorpayPlanId.optional(),
   })
   .strict();
 

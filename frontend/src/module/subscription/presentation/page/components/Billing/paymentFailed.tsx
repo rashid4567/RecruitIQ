@@ -1,11 +1,9 @@
-'use client';
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RefreshCw, ArrowLeft, AlertTriangle, CreditCard, HeadphonesIcon, ChevronRight } from 'lucide-react';
 import { useCurrentSubscription } from '@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription';
 
-// ─── Glitch Field Canvas ──────────────────────────────────────────────────────
+
 function GlitchField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -107,7 +105,7 @@ function GlitchField() {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />;
 }
 
-// ─── Glitch Text Effect ───────────────────────────────────────────────────────
+
 function GlitchText({ text }: { text: string }) {
   const [glitch, setGlitch] = useState(false);
 
@@ -134,7 +132,7 @@ function GlitchText({ text }: { text: string }) {
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+
 export default function PaymentFailedPage() {
   const navigate = useNavigate();
   const { data: subscriptionData, isLoading } = useCurrentSubscription();
@@ -271,18 +269,17 @@ export default function PaymentFailedPage() {
 
       <GlitchField />
 
-      {/* Mesh blobs */}
+     
       <div className="fixed top-[-15%] left-[10%] w-[55vw] h-[55vw] rounded-full bg-red-950/30 blur-[130px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-orange-950/25 blur-[100px] pointer-events-none z-0" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-16 space-y-8">
 
-        {/* ── Hero ── */}
+    
         <div
           className={`text-center space-y-5 fade-up ${visible ? 'show' : ''}`}
           style={{ transitionDelay: '0ms' }}
         >
-          {/* X icon ring */}
           <div className="flex justify-center">
             <div className="relative w-32 h-32">
               <div className="absolute inset-0 rounded-full bg-red-500/10 throb" />
@@ -304,7 +301,7 @@ export default function PaymentFailedPage() {
                   opacity="0.45"
                 />
               </svg>
-              <div className="absolute inset-6 rounded-full bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center glow-red">
+              <div className="absolute inset-6 rounded-full bg-linear-to-br from-red-500 to-rose-600 flex items-center justify-center glow-red">
                 <svg
                   className="w-10 h-10 text-white"
                   fill="none"
@@ -324,7 +321,7 @@ export default function PaymentFailedPage() {
             </p>
             <h1 className="display text-5xl md:text-7xl font-extrabold text-white leading-none tracking-tight">
               <GlitchText text="Something" />{' '}
-              <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
                 went wrong.
               </span>
             </h1>
@@ -336,15 +333,14 @@ export default function PaymentFailedPage() {
           </div>
         </div>
 
-        {/* ── Plan + Reasons grid ── */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
 
-          {/* Attempted plan card */}
+       
           <div
-            className={`lg:col-span-3 rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-sm noise relative overflow-hidden fade-right ${visible ? 'show' : ''} glow-ring-red`}
+            className={`lg:col-span-3 rounded-2xl border border-white/6 bg-white/3 backdrop-blur-sm noise relative overflow-hidden fade-right ${visible ? 'show' : ''} glow-ring-red`}
             style={{ transitionDelay: '150ms' }}
           >
-            <div className={`h-1 w-full bg-gradient-to-r ${badgeGrad} opacity-60`} />
+            <div className={`h-1 w-full bg-linear-to-r ${badgeGrad} opacity-60`} />
             <div className="p-7 space-y-6">
 
               <div className="flex items-start justify-between gap-4">
@@ -382,7 +378,7 @@ export default function PaymentFailedPage() {
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className="bg-white/[0.03] rounded-xl px-4 py-3 border border-white/[0.05]"
+                    className="bg-white/3 rounded-xl px-4 py-3 border border-white/5"
                   >
                     <p className="text-zinc-500 text-xs flex items-center gap-1.5 mb-1">
                       <span>{item.icon}</span>
@@ -395,7 +391,7 @@ export default function PaymentFailedPage() {
                 ))}
               </div>
 
-              <div className="flex items-start gap-3 bg-red-500/[0.08] border border-red-500/20 rounded-xl px-4 py-3">
+              <div className="flex items-start gap-3 bg-red-500/8 border border-red-500/20 rounded-xl px-4 py-3">
                 <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                 <p className="text-zinc-400 text-xs leading-relaxed">
                   Your subscription has{' '}
@@ -406,9 +402,9 @@ export default function PaymentFailedPage() {
             </div>
           </div>
 
-          {/* Common reasons */}
+        
           <div
-            className={`lg:col-span-2 rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-sm noise relative overflow-hidden fade-left ${visible ? 'show' : ''}`}
+            className={`lg:col-span-2 rounded-2xl border border-white/6 bg-white/3 backdrop-blur-sm noise relative overflow-hidden fade-left ${visible ? 'show' : ''}`}
             style={{ transitionDelay: '250ms' }}
           >
             <div className="p-6 h-full flex flex-col">
@@ -419,7 +415,7 @@ export default function PaymentFailedPage() {
                 {commonReasons.map((item, i) => (
                   <div
                     key={i}
-                    className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.04] hover:bg-white/[0.06] transition-colors"
+                    className="flex items-start gap-3 p-3 rounded-xl bg-white/3 border border-white/4 hover:bg-white/6 transition-colors"
                   >
                     <span className="text-xl shrink-0">{item.icon}</span>
                     <div>
@@ -433,7 +429,6 @@ export default function PaymentFailedPage() {
           </div>
         </div>
 
-        {/* ── Action buttons ── */}
         <div
           className={`grid grid-cols-1 md:grid-cols-3 gap-3 fade-up ${visible ? 'show' : ''}`}
           style={{ transitionDelay: '350ms' }}
@@ -444,8 +439,8 @@ export default function PaymentFailedPage() {
               onClick={item.action}
               className={`group flex items-center gap-4 p-5 rounded-xl border transition-all duration-300 text-left ${
                 item.primary
-                  ? 'bg-gradient-to-r from-red-600 to-rose-600 border-red-500/30 hover:from-red-500 hover:to-rose-500 glow-red'
-                  : 'border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.07] hover:border-white/[0.14]'
+                  ? 'bg-linear-to-r from-red-600 to-rose-600 border-red-500/30 hover:from-red-500 hover:to-rose-500 glow-red'
+                  : 'border-white/8 bg-white/3 hover:bg-white/[0.07] hover:border-white/[0.14]'
               }`}
             >
               <span
@@ -483,7 +478,7 @@ export default function PaymentFailedPage() {
           ))}
         </div>
 
-        {/* ── Back link ── */}
+      
         <div
           className={`flex items-center justify-center gap-6 fade-up ${visible ? 'show' : ''}`}
           style={{ transitionDelay: '450ms' }}

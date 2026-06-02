@@ -1,69 +1,115 @@
 import { z } from "zod";
 
+const optionalString = () =>
+  z
+    .string()
+    .trim()
+    .transform((val) => (val === "" ? undefined : val))
+    .optional();
+
+const optionalUrl = (message: string) =>
+  z
+    .union([
+      z.string().trim().url({ message }),
+      z.literal(""),
+    ])
+    .optional()
+    .transform((val) => (val === "" ? undefined : val));
+
 export const UpdateRecruiterProfileSchema = z
   .object({
     fullName: z
-      .string("Full name must be a string")
-      .min(2, { message: "Full name must be at least 2 characters" })
-      .max(100, { message: "Full name must not exceed 100 characters" })
+      .string()
+      .trim()
+      .min(2, "Full name must be at least 2 characters")
+      .max(100, "Full name must not exceed 100 characters")
+      .regex(
+        /^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$/,
+        "Please enter a valid full name"
+      )
       .optional(),
 
-    profileImage: z
-      .string("Profile image must be a string")
-      .url({ message: "Profile image must be a valid URL" })
-      .optional(),
+    profileImage: optionalUrl(
+      "Profile image must be a valid URL"
+    ),
 
     companyName: z
-      .string("Company name must be a string")
-      .min(2, { message: "Company name must be at least 2 characters" })
-      .max(100, { message: "Company name must not exceed 100 characters" })
+      .string()
+      .trim()
+      .min(2, "Company name must be at least 2 characters")
+      .max(100, "Company name must not exceed 100 characters")
+      .regex(
+        /^[A-Za-z0-9&.,'()\- ]+$/,
+        "Company name contains invalid characters"
+      )
       .optional(),
 
-    companyWebsite: z
-      .string("Company website must be a string")
-      .url({ message: "Company website must be a valid URL" })
-      .optional(),
+    companyWebsite: optionalUrl(
+      "Company website must be a valid URL"
+    ),
 
     companySize: z.coerce
-      .number("Company size must be a number")
-      .int({ message: "Company size must be an integer" })
-      .positive({ message: "Company size must be greater than 0" })
+      .number()
+      .int("Company size must be an integer")
+      .positive("Company size must be greater than 0")
+      .max(1000000, "Company size is too large")
       .optional(),
 
     industry: z
-      .string("Industry must be a string")
-      .min(2, { message: "Industry must be at least 2 characters" })
-      .max(50, { message: "Industry must not exceed 50 characters" })
+      .string()
+      .trim()
+      .min(2, "Industry must be at least 2 characters")
+      .max(50, "Industry must not exceed 50 characters")
+      .regex(
+  /^[A-Za-z0-9&.\- ]+$/,
+  "Contains invalid characters"
+)
       .optional(),
 
     designation: z
-      .string("Designation must be a string")
-      .min(2, { message: "Designation must be at least 2 characters" })
-      .max(50, { message: "Designation must not exceed 50 characters" })
+      .string()
+      .trim()
+      .min(2, "Designation must be at least 2 characters")
+      .max(50, "Designation must not exceed 50 characters")
+      .regex(
+  /^[A-Za-z0-9&.\- ]+$/,
+  "Contains invalid characters"
+)
       .optional(),
 
     location: z
-      .string("Location must be a string")
-      .min(2, { message: "Location must be at least 2 characters" })
-      .max(100, { message: "Location must not exceed 100 characters" })
+      .string()
+      .trim()
+      .min(2, "Location must be at least 2 characters")
+      .max(100, "Location must not exceed 100 characters")
       .optional(),
 
     bio: z
-      .string("Bio must be a string")
-      .max(500, { message: "Bio must not exceed 500 characters" })
+      .string()
+      .trim()
+      .max(500, "Bio must not exceed 500 characters")
       .optional(),
 
-   linkedinUrl: z
-  .union([
-    z.string().url({ message: "LinkedIn profile must be a valid URL" }),
-    z.literal(""),
-  ])
-  .optional()
-  .transform((val) => (val === "" ? undefined : val)),
-
-
+    linkedinUrl: optionalUrl(
+      "LinkedIn profile must be a valid URL"
+    ).refine(
+      (url) =>
+        !url ||
+        url.includes("linkedin.com"),
+      {
+        message:
+          "Please provide a valid LinkedIn profile URL",
+      }
+    ),
   })
   .strict()
-  .refine((data) => Object.values(data).some((value) => value !== undefined), {
-    message: "At least one field must be provided to update",
-  });
+  .refine(
+    (data) =>
+      Object.values(data).some(
+        (value) => value !== undefined
+      ),
+    {
+      message:
+        "At least one field must be provided to update",
+    }
+  );

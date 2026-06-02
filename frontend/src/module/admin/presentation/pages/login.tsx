@@ -1,34 +1,34 @@
 import type React from "react";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { authService } from "../../../../services/auth/auth.service";
+
+import { useAdminLogin } from "@/module/auth/presentation/hooks/useAdminLogin";
 import { getError } from "@/utils/getError";
 import { toast } from "sonner";
 
 export default function AdminLogin() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      await authService.adminLogin(email, password);
-      console.log("Role : ", localStorage.getItem("userRole"));
-      console.log("Token : ", localStorage.getItem("authToken"));
-      toast.success("login succesfully");
-      navigate("/admin/dashboard");
-    } catch (err: unknown) {
-      toast.error(getError(err || "Admin login failed"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const { login } = useAdminLogin();
+
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    await login(email, password);
+
+    console.log("Role :", localStorage.getItem("userRole"));
+    console.log("Token :", localStorage.getItem("authToken"));
+
+    toast.success("Login successfully");
+  } catch (err: unknown) {
+    toast.error(getError(err));
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">

@@ -24,14 +24,21 @@ import { AdminJobController } from "../controller/admin/admin-job.controller";
 import { AdminJobByIdController } from "../controller/admin/admin-jobId.controller";
 import { BlockJobController } from "../controller/admin/block.job.controller";
 import { UnblockJobController } from "../controller/admin/unblock.job.controller";
+import { ActivityTrackerService } from "../../../Activity.logger/application/services/activityTracker.service";
+import { ActivityLogFileRepository } from "../../../Activity.logger/infrastructure/repositories/activity-log-file.repository";
+import { UserRepository } from "../../../auth/domain/repositories/user.repository";
+import { MongooseUserRepository } from "../../../auth/infrastructure/repositories/mongoose-user.repository";
 const jobRepo: JobRepository = new MongooseJobRepository();
+const activityTracker = new ActivityTrackerService();
+
+const userRepo : UserRepository = new MongooseUserRepository()
 const recruiterSubscriptionRepo = new MongooseRecruiterSubscriptionRepository();
 const createJobUC = new CreateJobUseCase(jobRepo, recruiterSubscriptionRepo);
 const jobsUC = new GetJobsUseCase(jobRepo);
 const getJobByIdUC = new GetJobByIdUseCase(jobRepo);
 const updateJobUC = new UpdateJobUseCase(jobRepo, recruiterSubscriptionRepo);
 const deleteJobUC = new DeleteJobUseCase(jobRepo);
-const publishJobUC = new PublishJobUseCase(jobRepo, recruiterSubscriptionRepo);
+const publishJobUC = new PublishJobUseCase(jobRepo, recruiterSubscriptionRepo,activityTracker,userRepo);
 const hideJobUC = new HideJobUseCase(jobRepo);
 const unhideJobUC = new UnhideJobUseCase(jobRepo);
 const blockJobUC = new BlockJobUseCase(jobRepo);

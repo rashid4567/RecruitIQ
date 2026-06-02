@@ -4,43 +4,82 @@ export const profileSchema = z.object({
   fullName: z
     .string()
     .trim()
-    .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must not exceed 100 characters")
+    .min(2, "Full name must be at least 2 characters")
+    .max(100, "Full name must not exceed 100 characters")
     .regex(
-      /^[a-zA-Z\s'-]+$/,
-      "Name can only contain letters, spaces, hyphens and apostrophes",
+      /^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$/,
+      "Please enter a valid full name"
     ),
 
   companyName: z
     .string()
     .trim()
     .min(2, "Company name must be at least 2 characters")
-    .max(100, "Company name must not exceed 100 characters"),
+    .max(100, "Company name must not exceed 100 characters")
+    .regex(
+      /^[A-Za-z0-9&.,'()\- ]+$/,
+      "Company name contains invalid characters"
+    ),
 
   companyWebsite: z
     .string()
     .trim()
     .optional()
     .or(z.literal(""))
-    .refine((val) => !val || z.string().url().safeParse(val).success, {
-      message: "Please enter a valid website URL",
-    }),
+    .refine(
+      (val) => !val || z.string().url().safeParse(val).success,
+      {
+        message: "Company website must be a valid URL",
+      }
+    ),
 
   companySize: z
-    .union([z.string(), z.number(), z.undefined()])
-    .transform((val) => (val === "" || val == null ? undefined : Number(val)))
-    .refine((val) => val !== undefined && val > 0, {
-      message: "Company size is required",
-    }),
+    .union([z.string(), z.number()])
+    .transform((val) => Number(val))
+    .refine(
+      (val) => Number.isInteger(val),
+      {
+        message: "Company size must be an integer",
+      }
+    )
+    .refine(
+      (val) => val > 0,
+      {
+        message: "Company size must be greater than 0",
+      }
+    )
+    .refine(
+      (val) => val <= 1000000,
+      {
+        message: "Company size is too large",
+      }
+    ),
 
-  industry: z.string().trim().min(1, "Industry is required"),
+  industry: z
+    .string()
+    .trim()
+    .min(2, "Industry must be at least 2 characters")
+    .max(50, "Industry must not exceed 50 characters")
+    .regex(
+      /^[A-Za-z0-9&.\- ]+$/,
+      "Industry contains invalid characters"
+    ),
+
+  designation: z
+    .string()
+    .trim()
+    .min(2, "Designation must be at least 2 characters")
+    .max(50, "Designation must not exceed 50 characters")
+    .regex(
+      /^[A-Za-z0-9&.\- ]+$/,
+      "Designation contains invalid characters"
+    ),
 
   location: z
     .string()
     .trim()
-    .max(100, "Location must not exceed 100 characters")
-    .optional()
-    .or(z.literal("")),
+    .min(2, "Location must be at least 2 characters")
+    .max(100, "Location must not exceed 100 characters"),
 
   bio: z
     .string()
@@ -48,29 +87,31 @@ export const profileSchema = z.object({
     .min(10, "Bio should be at least 10 characters")
     .max(500, "Bio should not exceed 500 characters")
     .refine(
-      (text) => text.split(/\s+/).filter(Boolean).length >= 3,
-      "Bio should contain at least 3 words",
+      (text) =>
+        text.split(/\s+/).filter(Boolean).length >= 3,
+      {
+        message: "Bio should contain at least 3 words",
+      }
     ),
-
-  designation: z
-    .string()
-    .trim()
-    .min(2, "Designation must be at least 2 characters")
-    .max(100, "Designation must not exceed 100 characters"),
 
   linkedinUrl: z
     .string()
     .trim()
     .optional()
     .or(z.literal(""))
-    .refine((val) => !val || z.string().url().safeParse(val).success, {
-      message: "Please enter a valid LinkedIn URL",
-    })
+    .refine(
+      (val) => !val || z.string().url().safeParse(val).success,
+      {
+        message: "LinkedIn profile must be a valid URL",
+      }
+    )
     .refine(
       (val) =>
         !val ||
         /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+\/?$/.test(val),
-      { message: "Please enter a valid LinkedIn profile URL" },
+      {
+        message: "Please enter a valid LinkedIn profile URL",
+      }
     ),
 });
 

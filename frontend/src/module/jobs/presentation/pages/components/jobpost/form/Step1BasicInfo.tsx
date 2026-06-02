@@ -88,11 +88,16 @@ function DepartmentDropdown({
   }, []);
 
   useEffect(() => {
-    if (open) {
-      setSearch("");
-      setTimeout(() => searchRef.current?.focus(), 50);
-    }
-  }, [open]);
+  if (!open) return;
+
+  setSearch("");
+
+  const timer = setTimeout(() => {
+    searchRef.current?.focus();
+  }, 50);
+
+  return () => clearTimeout(timer);
+}, [open]);
 
   const filtered = departments.filter((d) =>
     d.toLowerCase().includes(search.toLowerCase()),

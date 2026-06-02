@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Briefcase } from "lucide-react";
 import type { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 import type { JobPostFilters } from "../../../../domain/dto/JobPostDTO";
-import Header from "@/components/candidate/header";
+import Header from "@/module/auth/presentation/pages/home/header";
 import { CompanyBanner } from "./CompanyBanner";
 import { SearchBar } from "./SearchBar";
 import { FilterSidebar } from "./FilterSidebar";

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { authService } from "@/services/auth/auth.service";
+import { useLogout } from "@/module/auth/presentation/hooks/useLogout";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +33,7 @@ function getNavItems(role: string | null) {
   ];
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+
 function getInitials(name: string | null): string {
   if (!name) return "U";
   return name
@@ -60,7 +60,7 @@ function getRoleBadgeColor(role: string | null): string {
   return "bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200";
 }
 
-// ─── NavLink ─────────────────────────────────────────────────────────────────
+
 const NavLink: React.FC<{
   href: string;
   label: string;
@@ -84,7 +84,7 @@ const NavLink: React.FC<{
   </a>
 );
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -95,6 +95,7 @@ export default function Header() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useLogout();
   const profileRef = useRef<HTMLDivElement>(null);
 
   const NAV_ITEMS = getNavItems(userRole);
@@ -134,21 +135,17 @@ export default function Header() {
   }, [isMenuOpen]);
 
   const handleLogout = async () => {
-    try {
-      await authService.logout();
-    } catch(error) {
-       console.error("Logout failed:", error);
-    } finally {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("userFullName");
-      setIsLoggedIn(false);
-      setUserRole(null);
-      setUserName(null);
-      setIsProfileOpen(false);
-      navigate("/");
-    }
-  };
+  try {
+    await logout();
+
+    setIsLoggedIn(false);
+    setUserRole(null);
+    setUserName(null);
+    setIsProfileOpen(false);
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
 
   const getProfilePath = () => {
     if (userRole === "candidate") return "/candidate/profile/setting";
@@ -182,7 +179,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
 
-            {/* ── Logo ── */}
+        
             <button
               onClick={() => navigate("/")}
               className="flex items-center gap-2.5 group focus:outline-none"
@@ -205,7 +202,7 @@ export default function Header() {
               </span>
             </button>
 
-            {/* ── Desktop Nav ── */}
+
             <nav className="hidden lg:flex items-center gap-0.5">
               {NAV_ITEMS.map(({ label, href }) => (
                 <NavLink
@@ -217,11 +214,11 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* ── Right Actions ── */}
+
             <div className="flex items-center gap-2">
               {isLoggedIn ? (
                 <>
-                  {/* Dashboard shortcut pill */}
+                
                   <button
                     onClick={() => navigate(getDashboardPath())}
                     className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-600 rounded-lg border border-gray-200 hover:border-cyan-300 hover:text-cyan-700 hover:bg-cyan-50/60 transition-all duration-200"
@@ -230,7 +227,6 @@ export default function Header() {
                     Dashboard
                   </button>
 
-                  {/* Profile dropdown */}
                   <div ref={profileRef} className="relative hidden lg:block">
                     <button
                       onClick={() => setIsProfileOpen((p) => !p)}
@@ -242,7 +238,7 @@ export default function Header() {
                           : "border-gray-200 hover:border-cyan-300/60 hover:bg-gray-50",
                       )}
                     >
-                      {/* Avatar with online dot */}
+                  
                       <div className="relative">
                         <Avatar className="h-7 w-7">
                           <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
@@ -272,7 +268,7 @@ export default function Header() {
                       />
                     </button>
 
-                    {/* Dropdown Panel */}
+                   
                     {isProfileOpen && (
                       <div
                         className={cn(
@@ -282,7 +278,6 @@ export default function Header() {
                           "animate-in fade-in slide-in-from-top-2 duration-150",
                         )}
                       >
-                        {/* User card */}
                         <div className="px-4 py-3 mb-1">
                           <div className="flex items-center gap-3">
                             <div className="relative">
@@ -305,7 +300,7 @@ export default function Header() {
 
                         <div className="h-px bg-gray-100 mx-3" />
 
-                        {/* Links */}
+                   
                         <div className="py-1.5 px-1.5 space-y-0.5">
                           <button
                             onClick={() => { navigate(getDashboardPath()); setIsProfileOpen(false); }}

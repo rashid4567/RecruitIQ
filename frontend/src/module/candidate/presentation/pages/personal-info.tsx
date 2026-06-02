@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-import CandidateSidebar from "@/components/sidebar/candidateSidebar";
+import CandidateSidebar from "@/module/candidate/presentation/components/shared/candidateSidebar.tsx";
 import { CandidatePrivacyAndSecurity } from "./personalInfo/components/tabs/CandidatePrivacyAndSecurity";
 import { NotificationsSection } from "./NotificationsSection";
 import { PrivacySection } from "./PrivacySection";

@@ -13,8 +13,21 @@ export class UpdateRecruiterProfileController {
     try {
       const userId = userIdSchema.parse(req.user?.userId);
 
+      if(!userId){
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          success : false,
+          message : "Unautorized"
+        })
+      }
+
       const body = UpdateRecruiterProfileSchema.parse(req.body);
 
+      if(!body){
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success : false,
+          message : "Missing fields"
+        })
+      }
       const profile = await this.updateProfileUC.execute(userId, body);
       res.status(HTTP_STATUS.OK).json({
         success: true,

@@ -1,108 +1,455 @@
 import {
-
-  Bell,
-  ChevronLeft,
+  Menu,
+  X,
+  User,
+  LogOut,
+  Briefcase,
+  LayoutDashboard,
 } from "lucide-react";
-
-import { Separator } from "@/components/ui/separator";
-
+import { useState, useEffect } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useLogout } from "@/module/auth/presentation/hooks/useLogout";
 import { useNavigate } from "react-router-dom";
 
-interface HeaderProps {
-  title?: string;
-  recruiterName?: string;
-  recruiterRole?: string;
-  profileImage?: string;
+function readAuthFromStorage() {
+  return {
+    isLoggedIn: !!localStorage.getItem("authToken"),
+    userRole: localStorage.getItem("userRole"),
+    userName: localStorage.getItem("userFullName"),
+    profileImage: localStorage.getItem("userProfileImage"),
+  };
 }
 
-export function Header({
-  title = "Create New Job",
-  recruiterName,
-  recruiterRole,
-  profileImage,
-}: HeaderProps) {
-
+export default function RecruiterHeader() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const initial = readAuthFromStorage();
+  const [isLoggedIn, setIsLoggedIn] = useState(initial.isLoggedIn);
+  const [userRole, setUserRole] = useState<string | null>(initial.userRole);
+  const [userName, setUserName] = useState<string | null>(initial.userName);
+  const [profileImage, setProfileImage] = useState<string | null>(
+    initial.profileImage
+  );
   const navigate = useNavigate();
+const { logout } = useLogout();
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const { isLoggedIn, userRole, userName, profileImage } =
+        readAuthFromStorage();
+      setIsLoggedIn(isLoggedIn);
+      setUserRole(userRole);
+      setUserName(userName);
+      setProfileImage(profileImage);
+    };
 
-  const handleGoBack = () => {
-    navigate(-1);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+ const handleLogout = async () => {
+  try {
+    await logout();
+
+    setIsLoggedIn(false);
+    setUserRole(null);
+    setUserName(null);
+    setProfileImage(null);
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
+  const handleProfileClick = () => {
+    if (userRole === "recruiter") {
+      navigate("/recruiter/profile");
+    } else if (userRole === "candidate") {
+      navigate("/candidate/profile");
+    } else if (userRole === "admin") {
+      navigate("/admin-dashboard");
+    }
+  };
+
+  const handleDashboardClick = () => {
+    if (userRole === "recruiter") {
+      navigate("/recruiter/dashboard");
+    } else if (userRole === "admin") {
+      navigate("/admin-dashboard");
+    }
+  };
+
+  const getInitials = () => {
+    if (!userName) return "R";
+    return userName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
-    <header className="sticky top-0 z-40 h-16 border-b border-gray-200/70 bg-white/80 backdrop-blur-xl">
+    <header className="fixed top-0 left-0 right-0 z-50">
+      <div className="absolute inset-0 bg-linear-to-b from-white/80 via-white/70 to-white/0 backdrop-blur-xl"></div>
 
-      <div className="flex h-full items-center justify-between px-6 lg:px-8">
-
-  
-        <div className="flex items-center gap-4 min-w-0">
-
-          <button
-            onClick={handleGoBack}
-            className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900"
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20 md:h-24">
+          {/* Logo */}
+          <div
+            className="flex items-center gap-3 group cursor-pointer"
+            onClick={() => navigate("/")}
           >
-            <ChevronLeft className="h-4 w-4" />
-            Back
-          </button>
+            <div className="w-10 h-10 bg-linear-to-br from-blue-600 via-cyan-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:shadow-xl group-hover:shadow-blue-500/50 transition-all duration-300 transform group-hover:scale-110">
+              <span className="text-white font-bold text-xl">◇</span>
+            </div>
+            <span className="font-bold text-xl text-gray-900">RecruitIQ</span>
+          </div>
 
-          <Separator
-            orientation="vertical"
-            className="hidden h-6 sm:block"
-          />
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8">
+            {isLoggedIn && userRole === "recruiter" && (
+              <>
+                <a
+                  href="/recruiter/dashboard"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
+                >
+                  Dashboard
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+                </a>
+                <a
+                  href="/recruiter/jobs"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
+                >
+                  My Jobs
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+                </a>
+                <a
+                  href="/recruiter/candidates"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
+                >
+                  Candidates
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+                </a>
+              </>
+            )}
+            <a
+              href="#features"
+              className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
+            >
+              Features
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a
+              href="#"
+              className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
+            >
+              About Us
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a
+              href="#"
+              className="text-gray-700 hover:text-blue-600 font-medium transition duration-300 relative group"
+            >
+              Contact
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+            </a>
+          </nav>
 
-          <div className="min-w-0">
-            <h1 className="truncate text-lg font-semibold text-gray-900">
-              {title}
-            </h1>
+          {/* Auth Buttons / Profile */}
+          <div className="flex items-center gap-3">
+            {isLoggedIn ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 hover:bg-gray-100 rounded-full p-2 transition duration-300">
+                    <Avatar className="h-10 w-10 border-2 border-blue-500/20 hover:border-blue-500/50 transition duration-300">
+                      <AvatarImage
+                        src={profileImage || "/placeholder-avatar.png"}
+                      />
+                      <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-500 text-white font-semibold">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden lg:block text-gray-700 font-medium">
+                      {userName || "Profile"}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {userName || "User"}
+                      </p>
+                      <p className="text-xs leading-none text-gray-500">
+                        {userRole
+                          ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)}`
+                          : "User"}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+
+                  {userRole === "recruiter" && (
+                    <>
+                      <DropdownMenuItem
+                        onClick={handleDashboardClick}
+                        className="cursor-pointer"
+                      >
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={handleProfileClick}
+                        className="cursor-pointer"
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        <span>My Profile</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => navigate("/recruiter/jobs")}
+                        className="cursor-pointer"
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>My Jobs</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+
+                  {userRole === "candidate" && (
+                    <DropdownMenuItem
+                      onClick={() => navigate("/candidate/profile")}
+                      className="cursor-pointer"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      <span>My Profile</span>
+                    </DropdownMenuItem>
+                  )}
+
+                  {userRole === "admin" && (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => navigate("/admin-dashboard")}
+                        className="cursor-pointer"
+                      >
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={handleProfileClick}
+                        className="cursor-pointer"
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer text-red-600"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate("/login")}
+                  className="hidden md:block px-5 py-2 text-gray-700 font-medium hover:text-blue-600 transition duration-300"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => navigate("/register")}
+                  className="px-5 py-2 bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105"
+                >
+                  Register
+                </button>
+              </>
+            )}
+
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden ml-2"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
           </div>
         </div>
 
-    
-        <div className="flex items-center gap-3 lg:gap-4">
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden pb-6 space-y-4 animate-in fade-in slide-in-from-top-2">
+            {isLoggedIn && userRole === "recruiter" && (
+              <>
+                <a
+                  href="/recruiter/dashboard"
+                  className="block text-gray-700 hover:text-blue-600 font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </a>
+                <a
+                  href="/recruiter/jobs"
+                  className="block text-gray-700 hover:text-blue-600 font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  My Jobs
+                </a>
+                <a
+                  href="/recruiter/candidates"
+                  className="block text-gray-700 hover:text-blue-600 font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Candidates
+                </a>
+              </>
+            )}
 
-       
-          <button className="relative rounded-xl p-2.5 transition-colors hover:bg-gray-100">
+            <a
+              href="#features"
+              className="block text-gray-700 hover:text-blue-600 font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Features
+            </a>
+            <a
+              href="#"
+              className="block text-gray-700 hover:text-blue-600 font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About Us
+            </a>
+            <a
+              href="#"
+              className="block text-gray-700 hover:text-blue-600 font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact
+            </a>
 
-            <Bell className="h-5 w-5 text-gray-600" />
+            {/* Mobile Auth Menu */}
+            <div className="pt-4 border-t border-gray-200">
+              {isLoggedIn ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 px-2">
+                    <Avatar className="h-10 w-10 border-2 border-blue-500/20">
+                      <AvatarImage
+                        src={profileImage || "/placeholder-avatar.png"}
+                      />
+                      <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-500 text-white font-semibold">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {userName || "User"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {userRole
+                          ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)}`
+                          : "User"}
+                      </p>
+                    </div>
+                  </div>
 
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
-          </button>
+                  {userRole === "recruiter" && (
+                    <>
+                      <button
+                        onClick={() => {
+                          handleDashboardClick();
+                          setIsMenuOpen(false);
+                        }}
+                        className="flex items-center gap-2 w-full text-left px-2 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg font-medium transition"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Dashboard
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleProfileClick();
+                          setIsMenuOpen(false);
+                        }}
+                        className="flex items-center gap-2 w-full text-left px-2 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg font-medium transition"
+                      >
+                        <User className="h-4 w-4" />
+                        My Profile
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate("/recruiter/jobs");
+                          setIsMenuOpen(false);
+                        }}
+                        className="flex items-center gap-2 w-full text-left px-2 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg font-medium transition"
+                      >
+                        <Briefcase className="h-4 w-4" />
+                        My Jobs
+                      </button>
+                    </>
+                  )}
 
-          <Separator
-            orientation="vertical"
-            className="hidden h-8 sm:block"
-          />
+                  {userRole === "candidate" && (
+                    <button
+                      onClick={() => {
+                        navigate("/candidate/profile");
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center gap-2 w-full text-left px-2 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg font-medium transition"
+                    >
+                      <User className="h-4 w-4" />
+                      My Profile
+                    </button>
+                  )}
 
-          <div className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white px-2 py-1.5 transition-all hover:border-gray-200 hover:shadow-sm">
-
-            <div className="hidden text-right sm:block">
-
-              <p className="text-sm font-semibold text-gray-900">
-                {recruiterName || "Recruiter"}
-              </p>
-
-              <p className="text-xs text-gray-500">
-                {recruiterRole || "Recruiter"}
-              </p>
-            </div>
-
-            <div className="h-10 w-10 overflow-hidden rounded-xl bg-gray-100 ring-2 ring-gray-100">
-
-              {profileImage ? (
-                <img
-                  src={profileImage}
-                  alt="Profile"
-                  className="h-full w-full object-cover"
-                />
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full text-left px-2 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg font-medium transition"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Log out
+                  </button>
+                </div>
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
-
-                  {recruiterName?.charAt(0)?.toUpperCase() || "R"}
-
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => {
+                      navigate("/login");
+                      setIsMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg font-medium transition"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/register");
+                      setIsMenuOpen(false);
+                    }}
+                    className="px-4 py-2 bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg text-center hover:shadow-lg transition-all"
+                  >
+                    Register
+                  </button>
                 </div>
               )}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );

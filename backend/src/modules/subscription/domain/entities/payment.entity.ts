@@ -24,6 +24,7 @@ export interface PaymentProps {
   id: string;
   recruiterId: string;
   planId: string;
+  durationMonths: number;
   subscriptionId?: string;
   paymentType: PaymentType;
   amount: number;
@@ -43,6 +44,10 @@ export class Payment {
     if (props.amount <= 0) {
       throw new DomainError(PAYMENT_ERRORS.INVALID_AMOUNT);
     }
+    if (props.durationMonths < 1 || props.durationMonths > 12) {
+      throw new DomainError(PAYMENT_ERRORS.INVALID_SUBSCRIPTION_DURATION);
+    }
+
     return new Payment(props);
   }
   get id() {
@@ -66,6 +71,10 @@ export class Payment {
   get currency() {
     return this.props.currency;
   }
+
+  get durationMonths() {
+    return this.props.durationMonths;
+  }
   get status() {
     return this.props.status;
   }
@@ -78,6 +87,7 @@ export class Payment {
   get paidAt() {
     return this.props.paidAt;
   }
+
   get createdAt() {
     return this.props.createdAt;
   }

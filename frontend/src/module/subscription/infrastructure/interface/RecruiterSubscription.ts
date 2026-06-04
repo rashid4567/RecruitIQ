@@ -6,7 +6,8 @@ export interface RawRecruiterSubscription {
   planName: string;
   planPrice: number;
   planType: string;
-     jobPostActiveDays : number;
+  durationMonths: number;
+  jobPostActiveDays : number;
   paymentReferenceId?: string;
   status: string;
   startDate?: string;

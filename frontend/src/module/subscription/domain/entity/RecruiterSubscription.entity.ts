@@ -8,6 +8,7 @@ export interface RecruiterSubscriptionProps {
   planName: string;
   planPrice: number;
   planType: PlanType;
+  durationMonths: number;
   jobPostActiveDays: number;
   paymentReferenceId?: string;
   status: SubscriptionStatus;
@@ -58,6 +59,9 @@ export class RecruiterSubscription {
   get planType() {
     return this.props.planType;
   }
+  get durationMonths() {
+  return this.props.durationMonths;
+}
   get paymentReferenceId() {
     return this.props.paymentReferenceId;
   }
@@ -127,6 +131,37 @@ export class RecruiterSubscription {
       new Date() > this.props.endDate
     );
   }
+  get remainingJobPosts() {
+  if (this.jobPostsLimit === -1) {
+    return -1;
+  }
+
+  return this.jobPostsLimit - this.jobPostsUsed;
+}
+
+get remainingScreenings() {
+  if (this.screeningLimit === -1) {
+    return -1;
+  }
+
+  return this.screeningLimit - this.screeningUsed;
+}
+
+get remainingResumeParses() {
+  if (this.resumeLimit === -1) {
+    return -1;
+  }
+
+  return this.resumeLimit - this.resumeUsed;
+}
+
+get remainingAIScores() {
+  if (this.aiScoreLimit === -1) {
+    return -1;
+  }
+
+  return this.aiScoreLimit - this.aiScoreUsed;
+}
   canPostJob(): boolean {
     if (!this.isActive) {
       return false;

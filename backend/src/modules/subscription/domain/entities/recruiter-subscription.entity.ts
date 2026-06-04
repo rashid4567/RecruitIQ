@@ -17,6 +17,7 @@ export interface RecruiterSubscriptionProps {
   planType: PlanType;
   jobPostActiveDays: number;
   paymentReferenceId?: string;
+  durationMonths: number;
   status: SubscriptionStatus;
   startDate: Date;
   endDate: Date;
@@ -58,6 +59,9 @@ export class RecruiterSubscription {
 
     if (props.currentPeriodEnd <= props.currentPeriodStart) {
       throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_SUBSCRIPTION_PERIOD);
+    }
+    if (props.durationMonths < 1 || props.durationMonths > 12) {
+      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_SUBSCRIPTION_DURATION);
     }
 
     if (
@@ -114,6 +118,10 @@ export class RecruiterSubscription {
 
   get status() {
     return this.props.status;
+  }
+
+  get durationMonths() {
+    return this.props.durationMonths;
   }
 
   get startDate() {

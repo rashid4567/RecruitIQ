@@ -72,22 +72,23 @@ export class MongoosePaymentRepository implements PaymentRepository {
   }
 
   private toEntity(doc: IPayment): Payment {
-    const props: PaymentProps = {
-      id: doc._id.toString(),
-      recruiterId: doc.recruiterId.toString(),
-      planId: doc.planId.toString(),
-      subscriptionId: doc.subscriptionId?.toString(),
-      paymentType: doc.paymentType,
-      amount: doc.amount,
-      currency: doc.currency,
-      status: doc.status,
-      razorpayOrderId: doc.razorpayOrderId,
-      razorpayPaymentId: doc.razorpayPaymentId,
-      failureReason: doc.failureReason,
-      paidAt: doc.paidAt,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-    };
+  const props: PaymentProps = {
+  id: doc._id.toString(),
+  recruiterId: doc.recruiterId.toString(),
+  planId: doc.planId.toString(),
+  durationMonths: doc.durationMonths,
+  subscriptionId: doc.subscriptionId?.toString(),
+  paymentType: doc.paymentType,
+  amount: doc.amount,
+  currency: doc.currency,
+  status: doc.status,
+  razorpayOrderId: doc.razorpayOrderId,
+  razorpayPaymentId: doc.razorpayPaymentId,
+  failureReason: doc.failureReason,
+  paidAt: doc.paidAt,
+  createdAt: doc.createdAt,
+  updatedAt: doc.updatedAt,
+};
 
     return Payment.create(props);
   }

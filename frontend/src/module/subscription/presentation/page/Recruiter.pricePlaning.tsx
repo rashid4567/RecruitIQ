@@ -5,6 +5,7 @@ import PlanCards from "./components/Billing/PlanCards";
 import SelectedPlanDetail from "./components/Billing/SelectedPlanDetail";
 import TrustBadges from "./components/Billing/TrustBadges";
 import PricingFooter from "./components/Billing/PricingFooter";
+import SubscriptionDurationModal from "./components/Billing/duration.modal"
 
 export default function PricingPlans() {
   const pricing = usePricingPlans();
@@ -21,30 +22,46 @@ export default function PricingPlans() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-slate-50 via-blue-50/30 to-white">
-      <PricingHeader
-        billingCycle={pricing.billingCycle}
-        setBillingCycle={pricing.setBillingCycle}
-      />
-      <PlanCards
-        plans={pricing.plans}
-        selectedPlanId={pricing.selectedPlanId}
-        setSelectedPlanId={pricing.setSelectedPlanId}
-        billingCycle={pricing.billingCycle}
-      />
-      {pricing.selectedPlan && (
+    <>
+      <div className="min-h-screen bg-linear-to-b from-slate-50 via-blue-50/30 to-white">
+        <PricingHeader
+          billingCycle={pricing.billingCycle}
+          setBillingCycle={pricing.setBillingCycle}
+        />
+
+        <PlanCards
+          plans={pricing.plans}
+          selectedPlanId={pricing.selectedPlanId}
+          setSelectedPlanId={pricing.setSelectedPlanId}
+          billingCycle={pricing.billingCycle}
+        />
+
+        {/* Subscribe button inside here calls pricing.openSubscribeModal → opens modal below */}
         <SelectedPlanDetail
-          selectedPlan={pricing.selectedPlan}
+          selectedPlan={pricing.selectedPlan!}
           plans={pricing.plans}
           billingCycle={pricing.billingCycle}
           paymentLoading={pricing.paymentLoading}
           expandedCategories={pricing.expandedCategories}
           toggleCategory={pricing.toggleCategory}
-          handleSubscribe={pricing.handleSubscribe}
+          handleSubscribe={pricing.openSubscribeModal}
         />
-      )}
-      <TrustBadges />
-      <PricingFooter />
-    </div>
+
+        <TrustBadges />
+        <PricingFooter />
+      </div>
+
+      {/* Modal — opens when openSubscribeModal() is called from SelectedPlanDetail */}
+      <SubscriptionDurationModal
+        isOpen={pricing.showDurationModal && !!pricing.selectedPlan}
+        onClose={() => pricing.setShowDurationModal(false)}
+        selectedPlan={pricing.selectedPlan!}
+        durationMonths={pricing.durationMonths}
+        setDurationMonths={pricing.setDurationMonths}
+        totalAmount={pricing.totalAmount}
+        paymentLoading={pricing.paymentLoading}
+        handleSubscribe={pricing.handleSubscribe}
+      />
+    </>
   );
 }

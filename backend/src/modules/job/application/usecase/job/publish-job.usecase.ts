@@ -1,23 +1,19 @@
-import crypto from "crypto";
-
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-
 import { ActivityTrackerService } from "../../../../Activity.logger/application/services/activityTracker.service";
 import { ActivityAction } from "../../../../Activity.logger/domain/constants/activityActions";
-
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
-
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
-
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
+import { IdGenerator } from "../../ports/id.generator.prots";
 
 export class PublishJobUseCase {
   constructor(
     private readonly jobRepo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
     private readonly activityTracker: ActivityTrackerService,
+    private readonly idGenerator: IdGenerator,
     private readonly userRepo: UserRepository,
   ) {}
 
@@ -31,7 +27,6 @@ export class PublishJobUseCase {
     }
 
     const job = await this.jobRepo.findById(jobId);
-
     if (!job) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
@@ -46,7 +41,6 @@ export class PublishJobUseCase {
 
     const subscription =
       await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
-
     if (!subscription) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_REQUIRED);
     }
@@ -62,48 +56,42 @@ export class PublishJobUseCase {
     }
 
     const expiresAt = job.toObject().expiresAt;
-
     if (!expiresAt) {
       throw new ApplicationError(ERROR_CODES.JOB_EXPIRY_DATE_REQUIRED);
     }
 
     const maxAllowedDate = new Date();
-
     maxAllowedDate.setDate(
       maxAllowedDate.getDate() + subscription.jobPostActiveDays,
     );
 
     maxAllowedDate.setHours(23, 59, 59, 999);
-
     const expiryDate = new Date(expiresAt);
-
     expiryDate.setHours(23, 59, 59, 999);
-
     if (expiryDate > maxAllowedDate) {
       throw new ApplicationError(ERROR_CODES.JOB_EXPIRY_EXCEED_PLAN_LIMIT);
     }
 
     const shouldConsumeCredit =
       job.status === "draft" || job.status === "expired";
-
     if (shouldConsumeCredit) {
+      
+      if(!subscription.hasJobPostAccess()){
+        throw new ApplicationError(ERROR_CODES.JOB_POST_LIMIT_REACHED)
+      }
       const updatedSubscription = subscription.consumeJobPost();
-
       await this.subscriptionRepo.update(updatedSubscription);
     }
 
     job.publish();
-
     const savedJob = await this.jobRepo.save(job);
-
     try {
       const user = await this.userRepo.findById(recruiterId);
-
       console.log("RecruiterId:", recruiterId);
       console.log("User:", user);
-
+      const trackerId = this.idGenerator.generate();
       await this.activityTracker.track({
-        id: crypto.randomUUID(),
+        id: trackerId,
         userId: recruiterId,
         action: ActivityAction.JOB_PUBLISHED,
         entityType: "JOB",
@@ -119,7 +107,6 @@ export class PublishJobUseCase {
     } catch (err) {
       console.error("Activity log failed:", err);
     }
-
     return savedJob;
   }
 }

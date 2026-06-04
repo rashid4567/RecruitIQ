@@ -5,6 +5,7 @@ import type {
 
 export interface CreatePaymentRequest {
   planId: string;
+  durationMonths : number,
 }
 
 export class CreatePaymentUseCase {
@@ -17,11 +18,12 @@ export class CreatePaymentUseCase {
     request: CreatePaymentRequest,
   ): Promise<CreateSubscriptionPaymentOutput> {
     if (!request.planId?.trim()) {
-  throw new Error("Plan ID is required");
-}
+      throw new Error("Plan ID is required");
+    }
 
     return this.paymentRepo.createSubscription({
       planId: request.planId,
+      durationMonths : request.durationMonths,
     });
   }
 }

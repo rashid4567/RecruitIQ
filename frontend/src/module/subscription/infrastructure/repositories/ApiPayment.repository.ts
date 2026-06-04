@@ -19,6 +19,8 @@ export class ApiPaymentRepository implements PaymentRepository {
         data: CreateSubscriptionPaymentOutput;
       }>("/recruiter/payment/order", {
         planId: input.planId,
+        durationMonths: input.durationMonths,
+
       });
 
      

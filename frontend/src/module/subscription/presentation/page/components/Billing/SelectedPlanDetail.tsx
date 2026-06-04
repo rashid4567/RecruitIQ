@@ -31,18 +31,19 @@ export default function SelectedPlanDetail({
     <div className="px-4 sm:px-6 lg:px-8 pb-16">
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+          {/* Header */}
           <div className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 px-8 py-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
-                  {(() => {
-                    return <div className="w-8 h-8 text-white">★</div>;
-                  })()}
+                  <div className="w-8 h-8 text-white">★</div>
                 </div>
+
                 <div>
                   <h2 className="text-2xl font-bold text-white">
                     {selectedPlan.name} Plan Details
                   </h2>
+
                   <p className="text-slate-300 mt-1 max-w-lg">
                     {selectedPlan.description}
                   </p>
@@ -52,20 +53,31 @@ export default function SelectedPlanDetail({
               <div className="flex flex-col items-start md:items-end gap-3">
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-bold text-white">
-                    {getDisplayPrice(selectedPlan, billingCycle === "yearly")}
+                    {getDisplayPrice(
+                      selectedPlan,
+                      billingCycle === "yearly",
+                    )}
                   </span>
+
                   {!selectedPlan.isFree && (
                     <span className="text-slate-400">/month</span>
                   )}
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   <span className="bg-white/10 text-white text-xs px-3 py-1 rounded-full">
-                    {getDisplayJobPosts(selectedPlan)} job posts
+                    {getDisplayJobPosts(selectedPlan)} Job Posts
                   </span>
+
                   <span className="bg-white/10 text-white text-xs px-3 py-1 rounded-full">
-                    {getDisplayScreeningCredits(selectedPlan)} screening credits
+                    {getDisplayScreeningCredits(selectedPlan)} Screening Credits
                   </span>
+
+                  {!selectedPlan.isFree && (
+                    <span className="bg-green-500/20 text-green-200 text-xs px-3 py-1 rounded-full">
+                      Choose 1–12 Months
+                    </span>
+                  )}
                 </div>
 
                 <button
@@ -75,11 +87,12 @@ export default function SelectedPlanDetail({
                 >
                   {paymentLoading ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> Processing...
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Processing...
                     </>
                   ) : (
                     <>
-                      {getPlanCTA(selectedPlan)}{" "}
+                      {getPlanCTA(selectedPlan)}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -87,23 +100,29 @@ export default function SelectedPlanDetail({
               </div>
             </div>
           </div>
+
+          {/* Feature Comparison */}
           <FeatureComparison
             plans={plans}
             expandedCategories={expandedCategories}
             toggleCategory={toggleCategory}
           />
+
+          {/* Footer CTA */}
           <div className="bg-linear-to-r from-blue-600 to-indigo-600 px-8 py-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="text-center md:text-left">
                 <h3 className="text-xl font-bold text-white">
                   Ready to get started with {selectedPlan.name}?
                 </h3>
+
                 <p className="text-blue-100 mt-1">
                   {selectedPlan.isFree
                     ? "Get started for free — no credit card required"
-                    : "Subscribe now and unlock premium features"}
+                    : "Subscribe now and choose your preferred duration"}
                 </p>
               </div>
+
               <button
                 onClick={handleSubscribe}
                 disabled={paymentLoading}
@@ -111,15 +130,13 @@ export default function SelectedPlanDetail({
               >
                 {paymentLoading ? (
                   <>
-                    {" "}
-                    <Loader2 className="w-5 h-5 animate-spin" />{" "}
-                    Processing...{" "}
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Processing...
                   </>
                 ) : (
                   <>
-                    {" "}
-                    {getPlanCTA(selectedPlan)}{" "}
-                    <ArrowRight className="w-5 h-5" />{" "}
+                    {getPlanCTA(selectedPlan)}
+                    <ArrowRight className="w-5 h-5" />
                   </>
                 )}
               </button>

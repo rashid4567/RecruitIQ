@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import {
   Payment,
   PaymentStatus,
@@ -10,10 +9,12 @@ import { SubscriptionPlanRepository } from "../../../domain/repository/subscript
 import { PaymentGateway } from "../../ports/Paymentgateway.port";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { IdGenerator } from "../../ports/id-generator.port";
 
 export interface CreatePaymentOrderRequest {
   recruiterId: string;
   planId: string;
+  durationMonths: number;
 }
 
 export interface CreatePaymentOrderResponse {
@@ -32,6 +33,7 @@ export class CreatePaymentOrderUseCase {
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
     private readonly planRepo: SubscriptionPlanRepository,
     private readonly paymentGateway: PaymentGateway,
+    private readonly idGenerator: IdGenerator,
     private readonly razorpayKeyId: string,
   ) {}
 
@@ -40,6 +42,7 @@ export class CreatePaymentOrderUseCase {
   ): Promise<CreatePaymentOrderResponse> {
     const activeSubscription =
       await this.subscriptionRepo.findActiveByRecruiter(request.recruiterId);
+
     const plan = await this.planRepo.findById(request.planId);
 
     if (!plan || !plan.isActive) {
@@ -50,6 +53,10 @@ export class CreatePaymentOrderUseCase {
       throw new ApplicationError(
         ERROR_CODES.FREE_PLAN_DOES_NOT_REQUIRE_PAYMENT,
       );
+    }
+
+    if (request.durationMonths < 1 || request.durationMonths > 12) {
+      throw new ApplicationError(ERROR_CODES.INVALID_SUBSCRIPTION_DURATION);
     }
 
     let paymentType = PaymentType.Subscription;
@@ -66,16 +73,19 @@ export class CreatePaymentOrderUseCase {
       paymentType = PaymentType.Upgrade;
     }
 
-    const paymentId = crypto.randomUUID();
+    const amount = plan.price * request.durationMonths;
+
+    const paymentId = this.idGenerator.generate();
 
     const razorpayOrder = await this.paymentGateway.createOrder({
-      amount: plan.price,
+      amount,
       currency: plan.currency,
       receipt: paymentId,
       notes: {
         recruiterId: request.recruiterId,
         planId: plan.id,
         planName: plan.name,
+        durationMonths: request.durationMonths,
         paymentType,
       },
     });
@@ -84,8 +94,9 @@ export class CreatePaymentOrderUseCase {
       id: paymentId,
       recruiterId: request.recruiterId,
       planId: plan.id,
+      durationMonths: request.durationMonths,
       paymentType,
-      amount: plan.price,
+      amount,
       currency: plan.currency,
       status: PaymentStatus.Pending,
       razorpayOrderId: razorpayOrder.id,
@@ -99,7 +110,7 @@ export class CreatePaymentOrderUseCase {
       paymentId,
       orderId: razorpayOrder.id,
       razorpayKeyId: this.razorpayKeyId,
-      amount: plan.price,
+      amount,
       currency: plan.currency,
       planName: plan.name,
       paymentType,

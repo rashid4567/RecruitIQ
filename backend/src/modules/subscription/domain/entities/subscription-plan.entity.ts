@@ -94,8 +94,8 @@ export class SubscriptionPlan {
       throw new DomainError(SUBSCRIPTION_ERRORS.FREE_PLAN_CANNOT_HAVE_PAYMENT);
     }
 
-    if(props.jobPostActiveDays < 1){
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_POST_ACTIVE_DAYS)
+    if (props.jobPostActiveDays < 1) {
+      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_POST_ACTIVE_DAYS);
     }
     const names = new Set(props.features.map((x) => x.name.toLowerCase()));
     if (names.size !== props.features.length) {
@@ -140,8 +140,8 @@ export class SubscriptionPlan {
     return this.props.aiScoreCredits;
   }
   get jobPostActiveDays(): number {
-  return this.props.jobPostActiveDays;
-}
+    return this.props.jobPostActiveDays;
+  }
   get featuresAccess(): FeatureAccess {
     return {
       ...this.props.featuresAccess,

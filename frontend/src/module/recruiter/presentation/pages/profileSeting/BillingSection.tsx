@@ -1,25 +1,9 @@
-import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import type { RecruiterSubscription } from "@/module/subscription/domain/entity/RecruiterSubscription.entity";
 import { useCurrentSubscription } from "@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription";
 import { usePricingPlans } from "@/module/subscription/presentation/hooks/subscriptions/usePricingPlans";
 import { PlansComparisonCard } from "../components/Billing.section/PlansComparisonCard";
 import { CurrentUsageCard } from "../components/Billing.section/CurrentUsageCard";
-import { BillingHistoryCard } from "../components/Billing.section/BillingHistoryCard";
-
-interface BillingRecord {
-  id: number;
-  date: string;
-  plan: string;
-  amount: string;
-  status: "paid" | "pending";
-}
-
-const STATIC_BILLING_HISTORY: BillingRecord[] = [
-  { id: 1, date: "Jan 15, 2024", plan: "Free Plan", amount: "$0.00", status: "paid" },
-  { id: 2, date: "Dec 15, 2023", plan: "Free Plan", amount: "$0.00", status: "paid" },
-  { id: 3, date: "Nov 15, 2023", plan: "Free Plan", amount: "$0.00", status: "paid" },
-];
 
 function computeNextBillingDate(endDate: Date | undefined): string {
   if (!endDate) return "N/A";
@@ -46,8 +30,6 @@ export function BillingSection() {
     handleSubscribe,
     setSelectedPlanId,
   } = usePricingPlans();
-
-  const [billingHistory] = useState<BillingRecord[]>(STATIC_BILLING_HISTORY);
 
   const subscription = subscriptionData?.subscription as
     | RecruiterSubscription
@@ -81,10 +63,6 @@ export function BillingSection() {
         subscription={subscription}
         nextBillingDate={nextBillingDate}
         daysRemaining={daysRemaining}
-      />
-      <BillingHistoryCard
-        billingHistory={billingHistory}
-        subscription={subscription}
       />
     </div>
   );

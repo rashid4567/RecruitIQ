@@ -55,9 +55,7 @@ export class VerifyPaymentUseCase {
 
     if (!isValid) {
       const failedPayment = payment.markFailed("Invalid Razorpay Signature");
-
       await this.paymentRepo.update(failedPayment);
-
       throw new ApplicationError(ERROR_CODES.INVALID_PAYMENT_SIGNATURE);
     }
 
@@ -65,19 +63,17 @@ export class VerifyPaymentUseCase {
       const upgradedSubscription = await this.upgradeSubscriptionUC.execute(
         payment.recruiterId,
         payment.planId,
+        payment.durationMonths,
       );
 
       await this.updateRecruiterSubscriptionStatusUC.execute(
         payment.recruiterId,
         "active",
       );
-
       const paidPayment = payment
         .markPaid(request.razorpayPaymentId)
         .attachSubscription(upgradedSubscription.id);
-
       await this.paymentRepo.update(paidPayment);
-
       return {
         subscriptionId: upgradedSubscription.id,
         paymentId: paidPayment.id,
@@ -86,65 +82,71 @@ export class VerifyPaymentUseCase {
     }
 
     const plan = await this.planRepo.findById(payment.planId);
-
     if (!plan) {
       throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
     }
 
     const now = new Date();
     const endDate = new Date(now);
-
-    switch (plan.billingCycle) {
-      case "weekly":
-        endDate.setDate(endDate.getDate() + 7 * plan.billingInterval);
-        break;
-
-      case "monthly":
-        endDate.setMonth(endDate.getMonth() + plan.billingInterval);
-        break;
-
-      case "yearly":
-        endDate.setFullYear(endDate.getFullYear() + plan.billingInterval);
-        break;
-    }
+    endDate.setMonth(endDate.getMonth() + payment.durationMonths);
 
     const subscription = RecruiterSubscription.create({
       recruiterId: payment.recruiterId,
       planId: plan.id,
       planName: plan.name,
-      planPrice: plan.price,
+      planPrice: payment.amount,
       planType: plan.planType,
+      durationMonths: payment.durationMonths,
       jobPostActiveDays: plan.jobPostActiveDays,
       paymentReferenceId: payment.id,
       status: SubscriptionStatus.Active,
+
       startDate: now,
       endDate,
+
       currentPeriodStart: now,
       currentPeriodEnd: endDate,
+
       autoRenew: false,
+
       jobPostsUsed: 0,
       screeningUsed: 0,
       resumeUsed: 0,
       aiScoreUsed: 0,
-      jobPostsLimit: plan.jobPostsPerMonth,
-      screeningLimit: plan.screeningCredits,
-      resumeLimit: plan.resumeParsesPerMonth,
-      aiScoreLimit: plan.aiScoreCredits,
+
+      jobPostsLimit:
+        plan.jobPostsPerMonth === -1
+          ? -1
+          : plan.jobPostsPerMonth * payment.durationMonths,
+
+      screeningLimit:
+        plan.screeningCredits === -1
+          ? -1
+          : plan.screeningCredits * payment.durationMonths,
+
+      resumeLimit:
+        plan.resumeParsesPerMonth === -1
+          ? -1
+          : plan.resumeParsesPerMonth * payment.durationMonths,
+
+      aiScoreLimit:
+        plan.aiScoreCredits === -1
+          ? -1
+          : plan.aiScoreCredits * payment.durationMonths,
+
       createdAt: now,
       updatedAt: now,
     });
+
     const savedSubscription = await this.subscriptionRepo.save(subscription);
     await this.updateRecruiterSubscriptionStatusUC.execute(
       payment.recruiterId,
       "active",
     );
-
     const paidPayment = payment
       .markPaid(request.razorpayPaymentId)
       .attachSubscription(savedSubscription.id);
-
     await this.paymentRepo.update(paidPayment);
-
     return {
       subscriptionId: savedSubscription.id,
       paymentId: paidPayment.id,

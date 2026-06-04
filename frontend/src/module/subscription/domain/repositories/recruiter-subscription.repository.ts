@@ -15,13 +15,7 @@ export interface PaginatedResult<T> {
 
 export interface SubscribeInput {
   planId: string;
-  razorpayOrderId?: string;
-  razorpayPaymentId?: string;
-  razorpayCustomerId?: string;
-  startDate: string;
-  endDate: string;
-  renewsAt?: string;
-  autoRenew: boolean;
+  durationMonths: number;
 }
 
 export interface CancelSubscriptionInput {
@@ -31,29 +25,48 @@ export interface CancelSubscriptionInput {
 
 export interface ChangePlanInput {
   newPlanId: string;
-  newEndDate: string;
+  durationMonths: number;
 }
 
 export interface RenewSubscriptionInput {
   subscriptionId: string;
-  newStartDate: string;
-  newEndDate: string;
-  newRenewsAt?: string;
+  durationMonths: number;
 }
 
 export interface TrackUsageInput {
   jobPostDelta?: 1 | -1;
   screeningCreditsDelta?: 1 | -1;
 }
+
 export interface RecruiterSubscriptionRepository {
   getCurrentSubscription(): Promise<RecruiterSubscription | null>;
-  upgradeSubscription(planId : string):Promise<void>;
+
   getSubscriptionHistory(
     pagination?: PaginationOptions,
   ): Promise<PaginatedResult<RecruiterSubscription>>;
-  subscribe(input: SubscribeInput): Promise<RecruiterSubscription>;
-  cancel(input: CancelSubscriptionInput): Promise<RecruiterSubscription>;
-  changePlan(input: ChangePlanInput): Promise<RecruiterSubscription>;
-  renew(input: RenewSubscriptionInput): Promise<RecruiterSubscription>;
-  trackUsage(input: TrackUsageInput): Promise<RecruiterSubscription>;
+
+  subscribe(
+    input: SubscribeInput,
+  ): Promise<RecruiterSubscription>;
+
+  upgradeSubscription(
+    planId: string,
+    durationMonths: number,
+  ): Promise<void>;
+
+  cancel(
+    input: CancelSubscriptionInput,
+  ): Promise<RecruiterSubscription>;
+
+  changePlan(
+    input: ChangePlanInput,
+  ): Promise<RecruiterSubscription>;
+
+  renew(
+    input: RenewSubscriptionInput,
+  ): Promise<RecruiterSubscription>;
+
+  trackUsage(
+    input: TrackUsageInput,
+  ): Promise<RecruiterSubscription>;
 }

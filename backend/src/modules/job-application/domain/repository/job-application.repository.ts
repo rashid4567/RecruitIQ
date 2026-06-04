@@ -1,4 +1,4 @@
-import { JobApplication } from "../entities/job-application.entity";
+import { JobApplication } from "../entity/job-application.entity";
 
 export interface JobApplicationRepository {
   create(application: JobApplication): Promise<JobApplication>;

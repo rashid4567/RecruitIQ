@@ -1,9 +1,15 @@
 import { Router } from "express";
-import { applyController } from "../container/JobApplication.module";
+import {
+  applyController,
+  MyApplicationController,
+  withdrawApplicationController,
+} from "../container/JobApplication.module";
 
 const router = Router();
-
-router.post("/jobs/:jobId/apply", applyController.apply);
-
-
+router.get("/", MyApplicationController.getMyApplication);
+router.post("/:jobId/apply", applyController.apply);
+router.patch(
+  "/:applicationId/withdraw",
+  withdrawApplicationController.withdraw,
+);
 export default router;

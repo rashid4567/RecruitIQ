@@ -4,8 +4,6 @@ import {
   DollarSign, Clock, Users, Award, BookOpen, CheckCircle2,
   ExternalLink, Eye, FileText, Shield, Hash, Sparkles,
 } from "lucide-react";
-import { useApplyJob } from "@/module/job-application/presentation/hooks/useApplyJob";
-import type { ApplyJobDTO } from "@/module/job-application/domain/repository/application.repository";
 
 type JobType = "full-time" | "part-time" | "contract" | "internship" | "freelance";
 type JobStatus = "draft" | "active" | "expired" | "closed";
@@ -209,57 +207,25 @@ const MatchScoreDonut: React.FC<{ score: number }> = ({ score }) => {
   );
 };
 
-const ApplyBanner: React.FC<{ success: boolean; error: string | null; onDismiss: () => void }> = ({
-  success, error, onDismiss,
-}) => {
-  if (!success && !error) return null;
-  return (
-    <div
-      className={`flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-sm font-medium mt-4 ${
-        success
-          ? "bg-green-50 border border-green-200 text-green-700"
-          : "bg-red-50 border border-red-200 text-red-700"
-      }`}
-    >
-      <span className="flex items-center gap-2">
-        {success ? (
-          <><CheckCircle2 className="w-4 h-4 shrink-0" />Application submitted successfully!</>
-        ) : (
-          <><Shield className="w-4 h-4 shrink-0" />{error}</>
-        )}
-      </span>
-      <button onClick={onDismiss} className="shrink-0 hover:opacity-70 transition-opacity" aria-label="Dismiss">
-        <X className="w-4 h-4" />
-      </button>
-    </div>
-  );
-};
-
+// ✅ Props now match what CareerPage passes
 interface JobDetailModalProps {
   job: Job;
-  applyPayload: ApplyJobDTO;
   onClose: () => void;
-  onApplySuccess?: () => void;
+  onApply: () => Promise<void>;
+  applying: boolean;
   loading?: boolean;
   matchScore?: number;
 }
 
 export default function JobDetailModal({
   job,
-  applyPayload,
   onClose,
-  onApplySuccess,
+  onApply,
+  applying,
   loading = false,
   matchScore = 85,
 }: JobDetailModalProps) {
-  const { loading: applying, error, success, apply, reset } = useApplyJob();
-
   if (!job) return null;
-
-  const handleApply = async () => {
-    const ok = await apply(applyPayload);
-    if (ok) onApplySuccess?.();
-  };
 
   const summaryRows: { label: string; value: React.ReactNode }[] = [
     { label: "Experience", value: formatExperience(job) },
@@ -366,7 +332,8 @@ export default function JobDetailModal({
                     <span className="flex items-center gap-1.5"><FileText className="w-4 h-4 shrink-0" />{job.applicationsCount.toLocaleString()} applicants</span>
                   </div>
 
-                  <Button size="lg" onClick={handleApply} disabled={applying || success} className="px-10">
+                  {/* ✅ Uses onApply and applying from props */}
+                  <Button size="lg" onClick={onApply} disabled={applying} className="px-10">
                     {applying ? (
                       <span className="flex items-center gap-2">
                         <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -375,14 +342,10 @@ export default function JobDetailModal({
                         </svg>
                         Applying…
                       </span>
-                    ) : success ? (
-                      <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" />Applied</span>
                     ) : (
                       "Apply Now"
                     )}
                   </Button>
-
-                  <ApplyBanner success={success} error={error} onDismiss={reset} />
                 </div>
 
                 <div className="space-y-0 divide-y divide-gray-100 border-t border-gray-100">

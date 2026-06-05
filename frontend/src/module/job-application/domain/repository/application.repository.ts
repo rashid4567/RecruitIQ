@@ -8,7 +8,7 @@ export interface ApplyJobDTO {
 
 export interface JobApplicationRepository {
   apply(data: ApplyJobDTO): Promise<JobApplication>;
-//   getMyApplications(): Promise<JobApplication[]>;
+  getMyApplications(): Promise<JobApplication[]>;
 //   getById(applicationId: string): Promise<JobApplication>;
-//   withdraw(applicationId: string): Promise<void>;
+     withdraw(applicationId: string): Promise<void>;
 }

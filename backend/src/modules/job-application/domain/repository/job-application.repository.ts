@@ -11,4 +11,5 @@ export interface JobApplicationRepository {
     candidateId: string,
     jobId: string,
   ): Promise<JobApplication | null>;
+ 
 }

@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 import {
   JobApplication,
-  JobApplicationProps,
 } from "../../domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../domain/repository/job-application.repository";
 import {
@@ -34,6 +33,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       },
       {
         new: true,
+        runValidators : true,
       },
     );
 

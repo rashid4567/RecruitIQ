@@ -186,6 +186,7 @@ export class JobApplication {
       this.props.status !== ApplicationStatus.WITHDRAWN
     );
   }
+ 
 
   canRecruiterShortlist(): boolean {
     return this.props.status === ApplicationStatus.APPLIED;

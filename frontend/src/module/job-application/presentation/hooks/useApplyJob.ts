@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import type { ApplyJobDTO } from "../../domain/repository/application.repository";
 import type { JobApplication } from "../../domain/entity/job-application.entity";
-import { applyJobUC } from "../di/apply.job.di";
+import { applyJobUC } from "../di/application.di";
 
 interface UseApplyJobReturn {
   loading: boolean;

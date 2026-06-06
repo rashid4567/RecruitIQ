@@ -3,13 +3,11 @@ import { useState, useCallback } from "react";
 import JobPostList from "./components/candidate-jobPost/JobPostList";
 import JobDetailModal from "./components/candidate-jobPost/candidate-JobDetailModal";
 import ApplicationSuccessModal from "./components/candidate-jobPost/ApplicationSuccessModal";
-
 import type { Job } from "../../domain/entity/jobPost.entity";
 import type { ApplyJobDTO } from "@/module/job-application/domain/repository/application.repository";
 import type { JobApplication } from "@/module/job-application/domain/entity/job-application.entity";
-
 import { useJobPosts } from "../hooks/candidate-jobPost.hooks/useJobPosts";
-import { useApplyJob } from "@/module/job-application/presentation/hooks/useApplyJob";
+import { useApplyJob } from "@/module/job-application/presentation/hooks/candidate/useApplyJob";
 import { GetCandidateJobPostByIdUC } from "../di/jobPost.di";
 import { getMyResumeUC } from "@/module/resume/presentation/di/resume.di";
 

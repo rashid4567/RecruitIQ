@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { GetMyApplicationUseCase } from "../../application/usecase/GetMyApplicationsUseCase";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { GetMyApplicationUseCase } from "../../../application/usecase/candidate/GetMyApplicationsUseCase";
+import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 export class GetMyApplicationController {
   constructor(private readonly getMyApplicationUC: GetMyApplicationUseCase) {}

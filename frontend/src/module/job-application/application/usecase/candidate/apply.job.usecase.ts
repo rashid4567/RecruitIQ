@@ -1,5 +1,5 @@
-import type { JobApplication } from "../../domain/entity/job-application.entity";
-import type { ApplyJobDTO, JobApplicationRepository } from "../../domain/repository/application.repository";
+import type { JobApplication } from "../../../domain/entity/job-application.entity";
+import type { ApplyJobDTO, JobApplicationRepository } from "../../../domain/repository/application.repository";
 
 export class ApplyJobUseCase{
     private readonly applyRepo : JobApplicationRepository;

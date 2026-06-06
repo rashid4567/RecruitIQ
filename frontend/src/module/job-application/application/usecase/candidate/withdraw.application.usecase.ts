@@ -1,4 +1,4 @@
-import type { JobApplicationRepository } from "../../domain/repository/application.repository";
+import type { JobApplicationRepository } from "@/module/job-application/domain/repository/application.repository";
 
 export class WithdrawApplicationUseCase{
     private readonly ApplicationRepo : JobApplicationRepository;

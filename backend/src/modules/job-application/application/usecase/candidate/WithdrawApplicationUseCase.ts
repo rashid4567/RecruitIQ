@@ -1,6 +1,6 @@
-import { ERROR_CODES } from "../../../../constants/errorcode.constants";
-import { ApplicationError } from "../../../../shared/errors/application.error";
-import { JobApplicationRepository } from "../../domain/repository/job-application.repository";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 
 export class WithdrawApplicationUseCase {
   constructor(private readonly applicationRepo: JobApplicationRepository) {}

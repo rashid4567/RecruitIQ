@@ -1,10 +1,8 @@
-'use client';
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { RefreshCw, Loader2, AlertCircle } from 'lucide-react';
 
-import { useMyApplicatons } from '../hooks/useMyApplications';
-import { useWithdrawApplication } from '../hooks/useWithdrawApplication';
+import { useMyApplicatons } from '../hooks/candidate/useMyApplications';
+import { useWithdrawApplication } from '../hooks/candidate/useWithdrawApplication';
 import { ApplicationStatus, type JobApplication } from '../../domain/entity/job-application.entity';
 
 import { Sidebar } from './component/my-applications/Sidebar';
@@ -26,7 +24,7 @@ export default function MyApplicationsPage() {
   const [withdrawTarget, setWithdrawTarget] = useState<JobApplication | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // ── Filtering ──────────────────────────────────────────────────────────────
+
   const filtered = applications.filter((a) => {
     const q = search.toLowerCase();
     const matchSearch = a.getJobId().toLowerCase().includes(q);
@@ -40,7 +38,7 @@ export default function MyApplicationsPage() {
     setPage(1);
   };
 
-  // ── Withdraw ───────────────────────────────────────────────────────────────
+
   const handleWithdrawConfirm = async () => {
     if (!withdrawTarget) return;
     const ok = await withdraw(withdrawTarget.getId());
@@ -52,7 +50,7 @@ export default function MyApplicationsPage() {
     setWithdrawTarget(null);
   };
 
-  // ── Loading state ──────────────────────────────────────────────────────────
+
   if (loading) {
     return (
       <div className="flex h-screen bg-[#f7f8fc]">
@@ -67,7 +65,7 @@ export default function MyApplicationsPage() {
     );
   }
 
-  // ── Error state ────────────────────────────────────────────────────────────
+
   if (error) {
     return (
       <div className="flex h-screen bg-[#f7f8fc]">
@@ -94,12 +92,11 @@ export default function MyApplicationsPage() {
     );
   }
 
-  // ── Main render ────────────────────────────────────────────────────────────
+
   return (
     <div className="flex h-screen bg-[#f7f8fc] overflow-hidden">
       <Sidebar />
 
-      {/* Withdraw modal (portal-like, fixed overlay) */}
       {withdrawTarget && (
         <WithdrawModal
           app={withdrawTarget}

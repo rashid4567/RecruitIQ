@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { WithdrawApplicationUC } from "../di/application.di";
+import { WithdrawApplicationUC } from "../../di/application.di";
 
 export function useWithdrawApplication() {
   const [loading, setLoading] = useState(false);

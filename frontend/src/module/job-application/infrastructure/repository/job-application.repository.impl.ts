@@ -1,17 +1,25 @@
 import api from "@/api/axios";
 import { JobApplication } from "../../domain/entity/job-application.entity";
 import type {
+  ApplicationDetailDTO,
   ApplyJobDTO,
   JobApplicationRepository,
+  RecruiterApplication,
 } from "../../domain/repository/application.repository";
+
 import type { JobApplicationResponseDTO } from "../dto/job-application.response.dto";
+
+
+import { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 
 interface GetMyApplicationsResponse {
   success: boolean;
   data: JobApplicationResponseDTO[];
 }
 
-export class ApiJobApplicationRepository implements JobApplicationRepository {
+export class ApiJobApplicationRepository
+  implements JobApplicationRepository
+{
   async apply(data: ApplyJobDTO): Promise<JobApplication> {
     const response = await api.post(
       `/candidate/application/${data.jobId}/apply`,
@@ -46,7 +54,50 @@ export class ApiJobApplicationRepository implements JobApplicationRepository {
     );
   }
 
+  async getById(applicationId: string): Promise<ApplicationDetailDTO> {
+    const response = await api.get(
+      `/candidate/application/${applicationId}`,
+    );
+
+    const data = response.data.data;
+
+    return {
+      application: JobApplication.create(data.application),
+
+      job: new Job({
+        ...data.job,
+        postedOn: data.job.postedOn
+          ? new Date(data.job.postedOn)
+          : undefined,
+        expiresAt: data.job.expiresAt
+          ? new Date(data.job.expiresAt)
+          : undefined,
+      }),
+    };
+  }
+
+  async getApplicationsByJob(
+    jobId: string,
+  ): Promise<RecruiterApplication[]> {
+    const response = await api.get(
+      `/recruiter/jobs/${jobId}/applications`,
+    );
+
+    return response.data.data.map((item: any) => ({
+      applicationId: item.applicationId,
+      candidateId: item.candidateId,
+      candidateName: item.candidateName,
+      candidateEmail: item.candidateEmail,
+      candidateProfileImage: item.candidateProfileImage,
+      resumeId: item.resumeId,
+      status: item.status,
+      appliedAt: item.appliedAt,
+    }));
+  }
+
   async withdraw(applicationId: string): Promise<void> {
-    await api.patch(`/candidate/application/${applicationId}/withdraw`);
+    await api.patch(
+      `/candidate/application/${applicationId}/withdraw`,
+    );
   }
 }

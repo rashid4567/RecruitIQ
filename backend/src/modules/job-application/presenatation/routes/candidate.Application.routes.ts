@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   applyController,
+  getApplicationDetailController,
   MyApplicationController,
   withdrawApplicationController,
 } from "../container/JobApplication.module";
@@ -12,4 +13,5 @@ router.patch(
   "/:applicationId/withdraw",
   withdrawApplicationController.withdraw,
 );
+router.get("/:applicationId",getApplicationDetailController.ApplicationDetail);
 export default router;

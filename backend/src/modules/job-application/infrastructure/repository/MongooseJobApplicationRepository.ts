@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 
+import { JobApplication } from "../../domain/entity/job-application.entity";
 import {
-  JobApplication,
-} from "../../domain/entity/job-application.entity";
-import { JobApplicationRepository } from "../../domain/repository/job-application.repository";
+  JobApplicationRepository,
+  RecruiterApplicationListItem,
+} from "../../domain/repository/job-application.repository";
+
 import {
   JobApplicationDocument,
   JobApplicationModel,
@@ -33,13 +35,14 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       },
       {
         new: true,
-        runValidators : true,
+        runValidators: true,
       },
     );
 
     if (!updated) {
       throw new Error("Job application not found");
     }
+
     return this.toDomain(updated);
   }
 
@@ -50,17 +53,63 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
   async findByJob(jobId: string): Promise<JobApplication[]> {
     const docs = await JobApplicationModel.find({
-      jobId,
+      jobId: new mongoose.Types.ObjectId(jobId),
       isDeleted: false,
     }).sort({
       appliedAt: -1,
     });
+
     return docs.map((doc) => this.toDomain(doc));
   }
 
+  async findApplicationsWithCandidateDetails(
+  jobId: string,
+): Promise<RecruiterApplicationListItem[]> {
+  const docs = await JobApplicationModel.find({
+    jobId: new mongoose.Types.ObjectId(jobId),
+    isDeleted: false,
+  })
+    .populate({
+      path: "candidateId",
+      select: "fullName email profileImage",
+    })
+    .sort({
+      appliedAt: -1,
+    });
+
+  return docs
+    .filter((doc: any) => doc.candidateId)
+    .map((doc: any) => ({
+      applicationId: doc._id.toString(),
+
+      candidateId: doc.candidateId._id.toString(),
+
+      candidateName: doc.candidateId.fullName ?? "Unknown Candidate",
+
+      candidateEmail: doc.candidateId.email ?? "",
+
+      candidateProfileImage: doc.candidateId.profileImage,
+
+      resumeId: doc.resumeId.toString(),
+
+      status: doc.status,
+
+      appliedAt: doc.appliedAt,
+
+      interview: doc.interview
+        ? {
+            scheduledAt: doc.interview.scheduledAt,
+            location: doc.interview.location,
+            meetingLink: doc.interview.meetingLink,
+            notes: doc.interview.notes,
+          }
+        : undefined,
+    }));
+}
+
   async findByCandidate(candidateId: string): Promise<JobApplication[]> {
     const docs = await JobApplicationModel.find({
-      candidateId,
+      candidateId: new mongoose.Types.ObjectId(candidateId),
       isDeleted: false,
     }).sort({
       appliedAt: -1,
@@ -70,7 +119,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
   async findByRecruiter(recruiterId: string): Promise<JobApplication[]> {
     const docs = await JobApplicationModel.find({
-      recruiterId,
+      recruiterId: new mongoose.Types.ObjectId(recruiterId),
       isDeleted: false,
     }).sort({
       appliedAt: -1,
@@ -87,6 +136,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       jobId: new mongoose.Types.ObjectId(jobId),
       isDeleted: false,
     });
+
     return doc ? this.toDomain(doc) : null;
   }
 

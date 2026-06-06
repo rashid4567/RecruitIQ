@@ -1,11 +1,11 @@
-import { ApplicationError } from "../../../../shared/errors/application.error";
-import { JobRepository } from "../../../job/domain/repositories/job.repository";
-import { ResumeRepository } from "../../../resume/domain/repository/resume.repository";
-import { JobApplication } from "../../domain/entity/job-application.entity";
-import { APPLICATION_ERRORS } from "../../domain/error/Application.error";
-import { JobApplicationRepository } from "../../domain/repository/job-application.repository";
+import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { JobRepository } from "../../../../job/domain/repositories/job.repository";
+import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
+import { JobApplication } from "../../../domain/entity/job-application.entity";
+import { APPLICATION_ERRORS } from "../../../domain/error/Application.error";
+import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 
-import { ApplyJobDTO } from "../dto/applyJobDto";
+import { ApplyJobDTO } from "../../dto/applyJobDto";
 
 export class ApplyJobUseCase {
   constructor(

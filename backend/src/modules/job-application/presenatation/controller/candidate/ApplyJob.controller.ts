@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { ApplyJobUseCase } from "../../application/usecase/ApplyJobUseCase";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
-import { applyJobSchema } from "../validator/apply-job.validator";
+import { ApplyJobUseCase } from "../../../application/usecase/candidate/ApplyJobUseCase";
+import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { applyJobSchema } from "../../validator/apply-job.validator";
 
 export class ApplyJobController {
   constructor(private readonly applyJobUC: ApplyJobUseCase) {}

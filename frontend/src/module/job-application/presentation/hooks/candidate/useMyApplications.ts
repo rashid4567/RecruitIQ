@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
-import { JobApplication } from "../../domain/entity/job-application.entity"
-import { getMyApplicationsUC } from "../di/application.di";
+import { JobApplication } from "../../../domain/entity/job-application.entity"
+import { getMyApplicationsUC } from "../../di/application.di";
 
 export const useMyApplicatons = () =>{
     const [application, setApplications] = useState<JobApplication[]>([]);

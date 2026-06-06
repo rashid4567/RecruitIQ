@@ -1,7 +1,7 @@
 import { Request , Response, NextFunction } from "express";
 
-import { WithdrawApplicationUseCase } from "../../application/usecase/WithdrawApplicationUseCase";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { WithdrawApplicationUseCase } from "../../../application/usecase/candidate/WithdrawApplicationUseCase";
+import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 export class WithdrawApplicationController{
     constructor(

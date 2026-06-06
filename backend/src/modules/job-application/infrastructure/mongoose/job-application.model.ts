@@ -63,16 +63,16 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
       index: true,
     },
 
-    candidateId: {
-      type: Schema.Types.ObjectId,
-      ref: "Candidate",
-      required: true,
-      index: true,
-    },
+   candidateId: {
+  type: Schema.Types.ObjectId,
+  ref: "User",
+  required: true,
+  index: true,
+},
 
     recruiterId: {
       type: Schema.Types.ObjectId,
-      ref: "Recruiter",
+      ref: "RecruiterProfile",
       required: true,
       index: true,
     },

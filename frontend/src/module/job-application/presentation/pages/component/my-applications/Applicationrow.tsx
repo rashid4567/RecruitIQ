@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { Clock, MapPin, Video, FileDown, CalendarX } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { type JobApplication, ApplicationStatus } from '../../../../domain/entity/job-application.entity';
 import { STATUS_CFG, formatDate, timeAgo, formatInterview } from './Helpers';
-import { ActionsMenu } from './Actionsmenu'; 
+import { ActionsMenu } from './Actionsmenu';
 
 interface Props {
   app: JobApplication;
@@ -13,7 +14,6 @@ interface Props {
 }
 
 const JobAvatar: React.FC<{ jobId: string }> = ({ jobId }) => {
-  // Generate a deterministic soft gradient based on job id chars
   const colors = [
     'from-blue-400 to-indigo-500',
     'from-teal-400 to-cyan-500',
@@ -89,6 +89,7 @@ const InterviewCell: React.FC<{ app: JobApplication }> = ({ app }) => {
           href={interview.meetingLink}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()} // prevent row click from firing
           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl transition shadow-sm shadow-blue-200"
         >
           <Video size={11} />
@@ -100,12 +101,18 @@ const InterviewCell: React.FC<{ app: JobApplication }> = ({ app }) => {
 };
 
 export const ApplicationRow: React.FC<Props> = ({ app, onWithdraw, index }) => {
+  const navigate = useNavigate();
   const status = app.getStatus();
   const isWithdrawn = status === ApplicationStatus.WITHDRAWN;
 
+const handleRowClick = () => {
+  navigate(`/candidate/applications/${app.getId()}`);
+};
+
   return (
     <tr
-      className={`group border-b border-slate-50 last:border-0 transition-colors hover:bg-blue-50/20 ${
+      onClick={handleRowClick}
+      className={`group border-b border-slate-50 last:border-0 transition-colors hover:bg-blue-50/20 cursor-pointer ${
         isWithdrawn ? 'opacity-50' : ''
       }`}
       style={{ animationDelay: `${index * 40}ms` }}
@@ -115,8 +122,7 @@ export const ApplicationRow: React.FC<Props> = ({ app, onWithdraw, index }) => {
         <div className="flex items-center gap-3">
           <JobAvatar jobId={app.getJobId()} />
           <div>
-            <p className="text-[13px] font-bold text-slate-800 leading-snug">
-              {/* Swap app.getJobId() → job title once entity exposes it */}
+            <p className="text-[13px] font-bold text-slate-800 leading-snug group-hover:text-blue-600 transition-colors">
               {app.getJobId()}
             </p>
             <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
@@ -144,7 +150,10 @@ export const ApplicationRow: React.FC<Props> = ({ app, onWithdraw, index }) => {
 
       {/* Resume */}
       <td className="px-5 py-4">
-        <button className="flex items-center gap-1.5 text-[12px] text-blue-500 hover:text-blue-700 font-semibold transition-colors group/dl">
+        <button
+          onClick={(e) => e.stopPropagation()} // prevent row click
+          className="flex items-center gap-1.5 text-[12px] text-blue-500 hover:text-blue-700 font-semibold transition-colors group/dl"
+        >
           <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center group-hover/dl:bg-blue-100 transition-colors">
             <FileDown size={13} className="group-hover/dl:translate-y-0.5 transition-transform text-blue-500" />
           </div>
@@ -155,7 +164,10 @@ export const ApplicationRow: React.FC<Props> = ({ app, onWithdraw, index }) => {
       </td>
 
       {/* Actions */}
-      <td className="px-4 py-4">
+      <td
+        className="px-4 py-4"
+        onClick={(e) => e.stopPropagation()} // prevent row click when opening menu
+      >
         <ActionsMenu app={app} onWithdraw={onWithdraw} />
       </td>
     </tr>

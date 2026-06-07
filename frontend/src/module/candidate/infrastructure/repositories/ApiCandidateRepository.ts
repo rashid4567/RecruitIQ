@@ -23,9 +23,8 @@ export class ApiCandidateRepository implements CandidateRepository {
         linkedinUrl: profile.linkedinUrl,
         portfolioUrl: profile.portfolioUrl,
         bio: profile.bio,
-      }).filter(([, v]) => v !== undefined && v !== null),
+      }).filter(([, value]) => value !== undefined && value !== null),
     );
-
     const res = await api.put("/candidate/profile", payload);
     return CandidateProfile.fromUpdateApi(res.data.data);
   }
@@ -35,19 +34,30 @@ export class ApiCandidateRepository implements CandidateRepository {
       skills: dto.skills ?? [],
       preferredJobLocations: dto.preferredJobLocations ?? [],
     };
-
-    if (dto.currentJob) payload.currentJob = dto.currentJob;
-    if (dto.educationLevel) payload.educationLevel = dto.educationLevel;
-    if (dto.bio) payload.bio = dto.bio;
-
-    if (dto.experienceYears !== undefined)
+    if (dto.currentJob) {
+      payload.currentJob = dto.currentJob;
+    }
+    if (dto.educationLevel) {
+      payload.educationLevel = dto.educationLevel;
+    }
+    if (dto.bio) {
+      payload.bio = dto.bio;
+    }
+    if (dto.experienceYears !== undefined) {
       payload.experienceYears = dto.experienceYears;
-    if (dto.linkedinUrl) payload.linkedinUrl = dto.linkedinUrl;
-    if (dto.portfolioUrl) payload.portfolioUrl = dto.portfolioUrl;
-    if (dto.currentJobLocation)
+    }
+    if (dto.linkedinUrl) {
+      payload.linkedinUrl = dto.linkedinUrl;
+    }
+    if (dto.portfolioUrl) {
+      payload.portfolioUrl = dto.portfolioUrl;
+    }
+    if (dto.currentJobLocation) {
       payload.currentJobLocation = dto.currentJobLocation;
-    if (dto.gender) payload.gender = dto.gender;
-
+    }
+    if (dto.gender) {
+      payload.gender = dto.gender;
+    }
     await api.put("/candidate/profile/complete", payload);
   }
 }

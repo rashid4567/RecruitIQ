@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { Search, Download, SlidersHorizontal } from 'lucide-react';
 import { ApplicationStatus } from '../../../../domain/entity/job-application.entity';
@@ -20,7 +18,7 @@ export const FilterBar: React.FC<Props> = ({
 }) => (
   <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3 mb-4 flex items-center gap-3 shadow-sm">
 
-    {/* Search */}
+
     <div className="flex items-center gap-2.5 flex-1 bg-slate-50 rounded-xl px-3.5 py-2.5 border border-slate-100 focus-within:border-blue-300 focus-within:bg-white transition-colors">
       <Search size={14} className="text-slate-400 shrink-0" />
       <input
@@ -32,7 +30,7 @@ export const FilterBar: React.FC<Props> = ({
       />
     </div>
 
-    {/* Status Filter */}
+  
     <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5 hover:border-slate-200 transition-colors">
       <SlidersHorizontal size={13} className="text-slate-400 shrink-0" />
       <select
@@ -49,7 +47,7 @@ export const FilterBar: React.FC<Props> = ({
       </select>
     </div>
 
-    {/* Export */}
+
     <button className="flex items-center gap-2 text-[13px] text-slate-600 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 hover:bg-slate-100 hover:border-slate-200 transition font-medium whitespace-nowrap">
       <Download size={13} className="text-slate-400" />
       Export CSV

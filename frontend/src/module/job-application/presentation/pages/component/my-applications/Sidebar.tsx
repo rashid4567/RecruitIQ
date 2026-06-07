@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import {
   LayoutDashboard,
@@ -20,12 +18,11 @@ const NAV_ITEMS = [
 ];
 
 export const Sidebar: React.FC = () => (
-  <aside className="w-[220px] shrink-0 bg-white border-r border-slate-100 flex flex-col h-full">
+  <aside className="w-55 shrink-0 bg-white border-r border-slate-100 flex flex-col h-full">
 
-    {/* Brand */}
     <div className="px-5 pt-6 pb-5 border-b border-slate-100">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md shadow-blue-200">
+        <div className="w-8 h-8 rounded-xl bg-linear-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md shadow-blue-200">
           <span className="text-white font-black text-[11px] tracking-widest">RI</span>
         </div>
         <div>
@@ -37,7 +34,7 @@ export const Sidebar: React.FC = () => (
       </div>
     </div>
 
-    {/* Nav */}
+
     <nav className="flex-1 px-3 py-5 space-y-0.5">
       {NAV_ITEMS.map((item, i) => (
         <button
@@ -57,10 +54,10 @@ export const Sidebar: React.FC = () => (
       ))}
     </nav>
 
-    {/* User profile */}
+
     <div className="px-4 py-4 border-t border-slate-100">
       <div className="flex items-center gap-2.5 mb-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center text-white text-[11px] font-extrabold shrink-0 shadow-sm">
+        <div className="w-8 h-8 rounded-full bg-linear-to-br from-teal-400 to-cyan-600 flex items-center justify-center text-white text-[11px] font-extrabold shrink-0 shadow-sm">
           JD
         </div>
         <div className="flex-1 min-w-0">

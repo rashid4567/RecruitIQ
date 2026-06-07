@@ -1,5 +1,5 @@
 import type { Gender } from "../types/gender.types";
-
+import type { ResumeDTO } from "../dto/ResumeDTO";
 
 export interface CandidateProfileApiResponse {
   user: {
@@ -9,6 +9,7 @@ export interface CandidateProfileApiResponse {
     emailVerified?: boolean;
     profileImage?: string;
   };
+
   candidateProfile: {
     currentJob?: string;
     experienceYears?: number;
@@ -21,8 +22,10 @@ export interface CandidateProfileApiResponse {
     portfolioUrl?: string;
     bio?: string;
     profileCompleted: boolean;
+    resume?: ResumeDTO | null;
   };
 }
+
 export interface CandidateProfileUpdateApiResponse {
   user: {
     id: { value: string } | string;
@@ -30,6 +33,7 @@ export interface CandidateProfileUpdateApiResponse {
     email: { value: string } | string;
     profileImage?: string;
   };
+
   profile: {
     currentJob?: string;
     experienceYears?: number;
@@ -42,6 +46,7 @@ export interface CandidateProfileUpdateApiResponse {
     portfolioUrl?: string;
     bio?: string;
     profileCompleted: boolean;
+    resume?: ResumeDTO | null;
   };
 }
 
@@ -62,6 +67,8 @@ export class CandidateProfile {
   public readonly portfolioUrl?: string;
   public readonly bio?: string;
 
+  public readonly resume?: ResumeDTO | null;
+
   public readonly profileCompleted: boolean;
 
   constructor(params: {
@@ -81,6 +88,8 @@ export class CandidateProfile {
     portfolioUrl?: string;
     bio?: string;
 
+    resume?: ResumeDTO | null;
+
     profileCompleted: boolean;
   }) {
     this.fullName = params.fullName;
@@ -99,42 +108,41 @@ export class CandidateProfile {
     this.portfolioUrl = params.portfolioUrl;
     this.bio = params.bio;
 
+    this.resume = params.resume;
+
     this.profileCompleted = params.profileCompleted;
   }
 
-  
   static fromApi(data: CandidateProfileApiResponse): CandidateProfile {
-    if (!data?.user || !data?.candidateProfile) {
-      throw new Error(`Invalid API response shape: ${JSON.stringify(data)}`);
-    }
-
     return new CandidateProfile({
       fullName: data.user.fullName.trim(),
       email: data.user.email,
       emailVerified: data.user.emailVerified ?? false,
-      profileImage: data.user.profileImage ?? undefined,
+      profileImage: data.user.profileImage,
 
-      currentJob: data.candidateProfile.currentJob ?? undefined,
-      experienceYears: data.candidateProfile.experienceYears ?? undefined,
-      educationLevel: data.candidateProfile.educationLevel ?? undefined,
-      skills: data.candidateProfile.skills ?? undefined,
-      preferredJobLocations: data.candidateProfile.preferredJobLocations ?? undefined,
-      currentJobLocation: data.candidateProfile.currentJobLocation ?? undefined,
-      gender: data.candidateProfile.gender ?? undefined,
-      linkedinUrl: data.candidateProfile.linkedinUrl ?? undefined,
-      portfolioUrl: data.candidateProfile.portfolioUrl ?? undefined,
-      bio: data.candidateProfile.bio ?? undefined,
+      currentJob: data.candidateProfile.currentJob,
+      experienceYears: data.candidateProfile.experienceYears,
+      educationLevel: data.candidateProfile.educationLevel,
+      skills: data.candidateProfile.skills,
+      preferredJobLocations:
+        data.candidateProfile.preferredJobLocations,
+      currentJobLocation:
+        data.candidateProfile.currentJobLocation,
+      gender: data.candidateProfile.gender,
+      linkedinUrl: data.candidateProfile.linkedinUrl,
+      portfolioUrl: data.candidateProfile.portfolioUrl,
+      bio: data.candidateProfile.bio,
 
-      profileCompleted: data.candidateProfile.profileCompleted,
+      resume: data.candidateProfile.resume ?? null,
+
+      profileCompleted:
+        data.candidateProfile.profileCompleted,
     });
   }
 
-
-  static fromUpdateApi(data: CandidateProfileUpdateApiResponse): CandidateProfile {
-    if (!data?.user || !data?.profile) {
-      throw new Error(`Invalid update API response shape: ${JSON.stringify(data)}`);
-    }
-
+  static fromUpdateApi(
+    data: CandidateProfileUpdateApiResponse,
+  ): CandidateProfile {
     const email =
       typeof data.user.email === "string"
         ? data.user.email
@@ -143,28 +151,32 @@ export class CandidateProfile {
     return new CandidateProfile({
       fullName: data.user.fullName.trim(),
       email,
-      emailVerified: false, 
-      profileImage: data.user.profileImage ?? undefined,
+      emailVerified: false,
+      profileImage: data.user.profileImage,
 
-      currentJob: data.profile.currentJob ?? undefined,
-      experienceYears: data.profile.experienceYears ?? undefined,
-      educationLevel: data.profile.educationLevel ?? undefined,
-      skills: data.profile.skills ?? undefined,
-      preferredJobLocations: data.profile.preferredJobLocations ?? undefined,
-      currentJobLocation: data.profile.currentJobLocation ?? undefined,
-      gender: data.profile.gender ?? undefined,
-      linkedinUrl: data.profile.linkedinUrl ?? undefined,
-      portfolioUrl: data.profile.portfolioUrl ?? undefined,
-      bio: data.profile.bio ?? undefined,
+      currentJob: data.profile.currentJob,
+      experienceYears: data.profile.experienceYears,
+      educationLevel: data.profile.educationLevel,
+      skills: data.profile.skills,
+      preferredJobLocations:
+        data.profile.preferredJobLocations,
+      currentJobLocation:
+        data.profile.currentJobLocation,
+      gender: data.profile.gender,
+      linkedinUrl: data.profile.linkedinUrl,
+      portfolioUrl: data.profile.portfolioUrl,
+      bio: data.profile.bio,
 
-      profileCompleted: data.profile.profileCompleted,
+      resume: data.profile.resume ?? null,
+
+      profileCompleted:
+        data.profile.profileCompleted,
     });
   }
 
   update(data: {
     fullName?: string;
     profileImage?: string;
-
     currentJob?: string;
     experienceYears?: number;
     educationLevel?: string;
@@ -186,57 +198,20 @@ export class CandidateProfile {
       experienceYears: data.experienceYears ?? this.experienceYears,
       educationLevel: data.educationLevel ?? this.educationLevel,
       skills: data.skills ?? this.skills,
-      preferredJobLocations: data.preferredJobLocations ?? this.preferredJobLocations,
-      currentJobLocation: data.currentJobLocation ?? this.currentJobLocation,
+      preferredJobLocations:
+        data.preferredJobLocations ??
+        this.preferredJobLocations,
+      currentJobLocation:
+        data.currentJobLocation ??
+        this.currentJobLocation,
       gender: data.gender ?? this.gender,
       linkedinUrl: data.linkedinUrl ?? this.linkedinUrl,
       portfolioUrl: data.portfolioUrl ?? this.portfolioUrl,
       bio: data.bio ?? this.bio,
 
+      resume: this.resume,
+
       profileCompleted: this.profileCompleted,
-    });
-  }
-
-  complete(data: {
-    currentJob: string;
-    educationLevel: string;
-    skills: string[];
-    preferredJobLocations: string[];
-    bio: string;
-    experienceYears?: number;
-    linkedinUrl?: string;
-    portfolioUrl?: string;
-    currentJobLocation?: string;
-    gender?: Gender;
-  }): CandidateProfile {
-    if (this.profileCompleted) {
-      throw new Error("Profile already completed");
-    }
-
-    if (!data.currentJob) throw new Error("Current job is required");
-    if (!data.educationLevel) throw new Error("Education level is required");
-    if (!data.skills || data.skills.length === 0)
-      throw new Error("At least one skill is required");
-    if (!data.bio) throw new Error("Bio is required");
-
-    return new CandidateProfile({
-      fullName: this.fullName,
-      email: this.email,
-      emailVerified: this.emailVerified,
-      profileImage: this.profileImage,
-
-      currentJob: data.currentJob,
-      experienceYears: data.experienceYears,
-      educationLevel: data.educationLevel,
-      skills: data.skills,
-      preferredJobLocations: data.preferredJobLocations,
-      currentJobLocation: data.currentJobLocation,
-      gender: data.gender,
-      linkedinUrl: data.linkedinUrl,
-      portfolioUrl: data.portfolioUrl,
-      bio: data.bio,
-
-      profileCompleted: true,
     });
   }
 }

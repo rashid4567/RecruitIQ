@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { ChevronLeft, ChevronRight, Briefcase } from 'lucide-react';
 import { type JobApplication } from '../../../../domain/entity/job-application.entity';
@@ -38,7 +36,6 @@ export const ApplicationsTable: React.FC<Props> = ({
   return (
     <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -85,7 +82,6 @@ export const ApplicationsTable: React.FC<Props> = ({
         </table>
       </div>
 
-      {/* Pagination */}
       {applications.length > perPage && (
         <div className="px-5 py-3.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/40">
           <p className="text-[11px] text-slate-400 font-medium">

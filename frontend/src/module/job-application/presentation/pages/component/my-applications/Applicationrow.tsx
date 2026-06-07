@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { Clock, MapPin, Video, FileDown, CalendarX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +23,7 @@ const JobAvatar: React.FC<{ jobId: string }> = ({ jobId }) => {
   const idx = jobId.charCodeAt(0) % colors.length;
   return (
     <div
-      className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colors[idx]} flex items-center justify-center text-white text-[11px] font-black shadow-sm shrink-0`}
+      className={`w-10 h-10 rounded-xl bg-linear-to-br ${colors[idx]} flex items-center justify-center text-white text-[11px] font-black shadow-sm shrink-0`}
     >
       {jobId.slice(0, 2).toUpperCase()}
     </div>
@@ -47,7 +45,7 @@ const StatusPill: React.FC<{ status: ApplicationStatus; rejectionReason?: string
       </span>
       {rejectionReason && (
         <p
-          className="text-[10px] text-red-400 mt-1 max-w-[150px] truncate italic"
+          className="text-[10px] text-red-400 mt-1 max-w-37.5 truncate italic"
           title={rejectionReason}
         >
           {rejectionReason}
@@ -80,7 +78,7 @@ const InterviewCell: React.FC<{ app: JobApplication }> = ({ app }) => {
         </div>
       )}
       {interview.notes && (
-        <p className="text-[10px] text-slate-400 italic truncate max-w-[160px]">
+        <p className="text-[10px] text-slate-400 italic truncate max-w-40">
           {interview.notes}
         </p>
       )}
@@ -89,7 +87,7 @@ const InterviewCell: React.FC<{ app: JobApplication }> = ({ app }) => {
           href={interview.meetingLink}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()} // prevent row click from firing
+          onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl transition shadow-sm shadow-blue-200"
         >
           <Video size={11} />
@@ -117,7 +115,7 @@ const handleRowClick = () => {
       }`}
       style={{ animationDelay: `${index * 40}ms` }}
     >
-      {/* Company & Job */}
+    
       <td className="px-5 py-4">
         <div className="flex items-center gap-3">
           <JobAvatar jobId={app.getJobId()} />
@@ -132,26 +130,25 @@ const handleRowClick = () => {
         </div>
       </td>
 
-      {/* Applied Date */}
       <td className="px-5 py-4 whitespace-nowrap">
         <p className="text-[13px] font-medium text-slate-700">{formatDate(app.getAppliedAt())}</p>
         <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(app.getAppliedAt())}</p>
       </td>
 
-      {/* Status */}
+
       <td className="px-5 py-4">
         <StatusPill status={status} rejectionReason={app.getRejectionReason()} />
       </td>
 
-      {/* Interview */}
-      <td className="px-5 py-4 min-w-[190px]">
+   
+      <td className="px-5 py-4 min-w-47.5">
         <InterviewCell app={app} />
       </td>
 
-      {/* Resume */}
+   
       <td className="px-5 py-4">
         <button
-          onClick={(e) => e.stopPropagation()} // prevent row click
+          onClick={(e) => e.stopPropagation()}
           className="flex items-center gap-1.5 text-[12px] text-blue-500 hover:text-blue-700 font-semibold transition-colors group/dl"
         >
           <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center group-hover/dl:bg-blue-100 transition-colors">
@@ -163,10 +160,9 @@ const handleRowClick = () => {
         </button>
       </td>
 
-      {/* Actions */}
       <td
         className="px-4 py-4"
-        onClick={(e) => e.stopPropagation()} // prevent row click when opening menu
+        onClick={(e) => e.stopPropagation()}
       >
         <ActionsMenu app={app} onWithdraw={onWithdraw} />
       </td>

@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { FileText, Calendar, CheckCircle2, Timer, ArrowUpRight } from 'lucide-react';
 import { ApplicationStatus, type JobApplication } from '../../../../domain/entity/job-application.entity';

@@ -19,7 +19,7 @@ export class DeleteJobController {
       const jobId = req.params.id;
 
       if (!jobId) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
           mesasge: "Jobpost not found",
         });

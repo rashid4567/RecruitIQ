@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useEffect, useState } from 'react';
 import { CheckCircle2, X } from 'lucide-react';
 

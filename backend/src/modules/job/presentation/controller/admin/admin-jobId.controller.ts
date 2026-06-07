@@ -5,22 +5,26 @@ import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 export class AdminJobByIdController {
   constructor(private readonly getJobsIdUc: GetJobByIdUseCase) {}
 
-  getOne = async (req: Request, res: Response, next: NextFunction) => {
+  getOne = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const id = req.params.jobPostId;
+      const jobId = req.params.jobPostId;
 
-      if (!id) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
+      if (!jobId) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Job post not found",
+          message: "Job post id is required",
         });
       }
 
-      const job = await this.getJobsIdUc.execute(id);
+      const job = await this.getJobsIdUc.execute(jobId);
 
-      res.json({
+      return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Job post loaded succesfully",
+        message: "Job post loaded successfully",
         data: job,
       });
     } catch (err) {

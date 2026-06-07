@@ -7,8 +7,6 @@ import type { UpdateApplicationStatusDTO } from "@/module/job-application/domain
 import { ALL_STATUSES, STATUS_LABELS } from "./Status.constants";
 import { useUpdateApplicationStatus } from "../../../hooks/recruiter/useUpdateApplicationStatus";
 import type { SortOption } from "./Application.types";
-
-// Only the statuses a recruiter is allowed to set
 type RecruiterSetableStatus = UpdateApplicationStatusDTO["status"];
 
 interface FilterToolbarProps {
@@ -63,7 +61,6 @@ export function FilterToolbar({
   return (
     <div className="bg-white border-b border-slate-200 px-6 py-3 shrink-0">
       <div className="flex items-center gap-4 flex-wrap">
-        {/* Search */}
         <div className="relative">
           <Search
             size={14}
@@ -78,7 +75,6 @@ export function FilterToolbar({
           />
         </div>
 
-        {/* Sort */}
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">
             Sort
@@ -95,7 +91,6 @@ export function FilterToolbar({
           </select>
         </div>
 
-        {/* Status */}
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">
             Status
@@ -116,7 +111,6 @@ export function FilterToolbar({
           </select>
         </div>
 
-        {/* Match score range */}
         <div className="flex items-center gap-2 ml-auto">
           <span className="text-xs text-slate-500 font-medium uppercase tracking-wide whitespace-nowrap">
             Match ≤ {matchScoreRange}%
@@ -132,7 +126,6 @@ export function FilterToolbar({
         </div>
       </div>
 
-      {/* Bulk actions */}
       {selectedCount > 0 && (
         <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-4 text-sm">
           <span className="text-slate-700 font-semibold">

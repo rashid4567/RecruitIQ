@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { Loader2, X, AlertTriangle } from 'lucide-react';
 import { type JobApplication } from '../../../../domain/entity/job-application.entity';
@@ -16,13 +14,10 @@ export const WithdrawModal: React.FC<Props> = ({ app, onConfirm, onCancel, loadi
     className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-[2px]"
     onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
   >
-    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[400px] mx-4 overflow-hidden">
-
-      {/* Top accent bar */}
-      <div className="h-1 bg-gradient-to-r from-red-400 to-rose-500" />
+    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-100 mx-4 overflow-hidden">
+      <div className="h-1 bg-linear-to-r from-red-400 to-rose-500" />
 
       <div className="p-6">
-        {/* Header row */}
         <div className="flex items-start justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
@@ -44,7 +39,6 @@ export const WithdrawModal: React.FC<Props> = ({ app, onConfirm, onCancel, loadi
           </button>
         </div>
 
-        {/* Body */}
         <div className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 mb-5">
           <p className="text-[12px] text-slate-500 mb-1 font-medium uppercase tracking-wide">
             Application
@@ -59,7 +53,7 @@ export const WithdrawModal: React.FC<Props> = ({ app, onConfirm, onCancel, loadi
           Withdrawing will notify the recruiter and remove this application from your active pipeline. You won't be able to reapply for the same position.
         </p>
 
-        {/* Actions */}
+
         <div className="flex gap-3">
           <button
             onClick={onCancel}
@@ -71,7 +65,7 @@ export const WithdrawModal: React.FC<Props> = ({ app, onConfirm, onCancel, loadi
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="flex-1 px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-xl transition shadow-sm shadow-red-200 disabled:opacity-60 flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2.5 text-[13px] font-semibold text-white bg-linear-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-xl transition shadow-sm shadow-red-200 disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

@@ -25,10 +25,10 @@ interface AdditionalInfoSectionProps {
     gender?: string | null;
     skills?: string[];
     preferredJobLocations?: string[];
-    resume?: Resume | null; // Issue 1: was inline shape, now Resume entity
+    resume?: Resume | null;
   };
   editData: Partial<ProfileFormData>;
-  // Issue 8: removed unused `validationErrors` prop
+ 
   onInputChange: <K extends keyof ProfileFormData>(
     key: K,
     value: ProfileFormData[K],
@@ -49,7 +49,6 @@ interface TagInputProps {
   tagColor: "amber" | "purple";
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function FieldError({ message, id }: { message?: string; id?: string }) {
   if (!message) return null;
@@ -79,9 +78,6 @@ function formatGender(gender?: string | null): string {
   return gender.charAt(0).toUpperCase() + gender.slice(1);
 }
 
-// Issue 5: formatBytes() deleted — Resume entity has no `size` field
-
-// ─── TagInput ─────────────────────────────────────────────────────────────────
 
 function TagInput({
   tags,
@@ -197,9 +193,6 @@ function TagInput({
   );
 }
 
-// Issue 9: ResumeUploadModal removed from here — imported from ../resume/ResumeUploadModal
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 function useAdditionalInfo({
   profile,
@@ -284,13 +277,12 @@ function useAdditionalInfo({
   };
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AdditionalInfoSection({
   isEditing,
   profile,
   editData,
-  // Issue 8: validationErrors removed from destructuring — it was never used
+ 
   onInputChange,
   onFieldBlur,
   getFieldError,

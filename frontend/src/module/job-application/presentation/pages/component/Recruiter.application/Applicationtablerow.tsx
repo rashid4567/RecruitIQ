@@ -1,4 +1,3 @@
-
 import { EllipsisVertical } from "lucide-react";
 import { StatusBadge } from "./Statusbadge";
 import type { ApplicationRow } from "./Application.types";
@@ -20,7 +19,6 @@ export function ApplicationTableRow({
         isSelected ? "bg-blue-50/60" : "bg-white"
       }`}
     >
-      {/* Checkbox */}
       <td className="px-5 py-4">
         <input
           type="checkbox"
@@ -30,7 +28,6 @@ export function ApplicationTableRow({
         />
       </td>
 
-      {/* Candidate */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-3">
           {row.profileImage ? (
@@ -51,12 +48,10 @@ export function ApplicationTableRow({
         </div>
       </td>
 
-      {/* Applied date */}
       <td className="px-5 py-4 text-slate-600 whitespace-nowrap">
         {row.applicationDate}
       </td>
 
-      {/* AI Score */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2">
           <div className="w-20 h-1.5 rounded-full bg-slate-100 overflow-hidden">
@@ -71,7 +66,6 @@ export function ApplicationTableRow({
         </div>
       </td>
 
-      {/* Match % */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2">
           <div className="w-20 h-1.5 rounded-full bg-slate-100 overflow-hidden">
@@ -86,17 +80,14 @@ export function ApplicationTableRow({
         </div>
       </td>
 
-      {/* Status */}
       <td className="px-5 py-4">
         <StatusBadge status={row.status} />
       </td>
 
-      {/* Interview */}
       <td className="px-5 py-4 whitespace-nowrap">
         <span className="text-slate-300 text-xs">—</span>
       </td>
 
-      {/* Actions */}
       <td className="px-5 py-4">
         <button className="text-slate-300 hover:text-slate-600 transition p-1 rounded hover:bg-slate-100">
           <EllipsisVertical size={16} />

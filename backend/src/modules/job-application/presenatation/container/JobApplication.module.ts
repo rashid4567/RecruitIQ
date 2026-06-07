@@ -7,6 +7,7 @@ import { GetApplicationDetailUseCase } from "../../application/usecase/candidate
 import { GetMyApplicationUseCase } from "../../application/usecase/candidate/GetMyApplicationsUseCase";
 import { WithdrawApplicationUseCase } from "../../application/usecase/candidate/WithdrawApplicationUseCase";
 import { GetApplicationsByJobUseCase } from "../../application/usecase/recruiter/GetApplicationsByJob.useCase";
+import { UpdateApplicationStatusUseCase } from "../../application/usecase/recruiter/UpdateApplicationStatusUseCase";
 import { JobApplicationRepository } from "../../domain/repository/job-application.repository";
 import { MongooseJobApplicationRepository } from "../../infrastructure/repository/MongooseJobApplicationRepository";
 import { ApplyJobController } from "../controller/candidate/ApplyJob.controller";
@@ -14,6 +15,7 @@ import { GetApplicationDetailController } from "../controller/candidate/GetAppli
 import { GetMyApplicationController } from "../controller/candidate/GetMyApplication.controller";
 import { WithdrawApplicationController } from "../controller/candidate/withdrawApplication.controller";
 import { GetApplicationsByJobController } from "../controller/Recruiter/GetApplicationsByJob.controller";
+import { UpdateApplicationStatusController } from "../controller/Recruiter/updateApplication.controller";
 
 
 
@@ -27,9 +29,11 @@ const getMyApplicationUC = new GetMyApplicationUseCase(applicationRepo)
 const withdrawApplicationUC = new WithdrawApplicationUseCase(applicationRepo)
 const getApplicationUC = new GetApplicationDetailUseCase(applicationRepo, jobpostRepo)
 const getApplicationByJobPostUC = new GetApplicationsByJobUseCase(applicationRepo); 
+const ApplicationStatusUpdateUC = new UpdateApplicationStatusUseCase(applicationRepo)
 
 export const applyController = new ApplyJobController(ApplyJobUC);
 export const MyApplicationController = new GetMyApplicationController(getMyApplicationUC)
 export const withdrawApplicationController = new WithdrawApplicationController(withdrawApplicationUC);
 export const getApplicationDetailController  = new GetApplicationDetailController(getApplicationUC);
 export const getApplicationByjobpostController = new GetApplicationsByJobController(getApplicationByJobPostUC);
+export const updateApplicationStatuscontroller = new  UpdateApplicationStatusController(ApplicationStatusUpdateUC)

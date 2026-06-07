@@ -36,7 +36,7 @@ export default function PricingPlans() {
           billingCycle={pricing.billingCycle}
         />
 
-        {/* Subscribe button inside here calls pricing.openSubscribeModal → opens modal below */}
+       
         <SelectedPlanDetail
           selectedPlan={pricing.selectedPlan!}
           plans={pricing.plans}

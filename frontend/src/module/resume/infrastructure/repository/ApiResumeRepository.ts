@@ -15,10 +15,13 @@ export class ApiResumeRepository implements ResumeRepository {
     const { data } = await api.get("/candidate/resume/me");
     return Resume.create(data.data);
   }
-  async getDownloadUrl(): Promise<string> {
-    const { data } = await api.get("/candidate/resume/download");
-    return data.url;
-  }
+async getDownloadUrl(resumeId: string): Promise<string> {
+  const response = await api.get(
+    `/candidate/resume/${resumeId}/download`,
+  );
+  console.log("response :", response);
+  return response.data.data;
+}
   async deleteResume(): Promise<void> {
     await api.delete("/candidate/resume/me");
   }

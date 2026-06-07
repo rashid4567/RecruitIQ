@@ -15,7 +15,7 @@ import {
   GenderEnum,
   type ProfileFormData,
 } from "@/module/candidate/presentation/validators/profileValidation";
-import { useResume } from "@/module/resume/presentation/hook/resume.hooks";
+import { useResume } from "@/module/resume/presentation/hook/useResume";
 import { Resume } from "@/module/resume/domain/entity/Resume.entity";
 import { ResumeUploadModal } from "../modal/Resumeuploadmodal";
 

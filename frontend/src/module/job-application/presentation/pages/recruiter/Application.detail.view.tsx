@@ -1,12 +1,9 @@
-'use client';
-
 import React, { useState } from 'react';
 import {
   LayoutGrid,
   Briefcase,
   Users,
   Calendar,
-  PhoneOff,
   User,
   CreditCard,
   LogOut,
@@ -225,7 +222,7 @@ export default function CandidateScorecardPage() {
   );
 }
 
-// ────────────────────── Sidebar Component ──────────────────────
+
 
 function Sidebar() {
   return (
@@ -285,7 +282,7 @@ function NavItem({
   );
 }
 
-// ────────────────────── Header Component ──────────────────────
+
 
 function Header({ candidate }: { candidate: CandidateProfile }) {
   return (
@@ -308,7 +305,7 @@ function Header({ candidate }: { candidate: CandidateProfile }) {
         {/* Candidate Info */}
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-2xl font-bold text-white">
+            <div className="w-16 h-16 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center text-2xl font-bold text-white">
               {candidate.profileImage}
             </div>
             <div>
@@ -559,7 +556,7 @@ function ExperienceSection({ candidate }: { candidate: CandidateProfile }) {
         {candidate.experience.map((exp, index) => (
           <div key={index} className="pb-6 border-b border-slate-200 last:border-b-0 last:pb-0">
             <div className="flex items-start gap-3 mb-2">
-              <div className="w-3 h-3 rounded-full bg-blue-600 mt-1.5 flex-shrink-0" />
+              <div className="w-3 h-3 rounded-full bg-blue-600 mt-1.5 shrink-0" />
               <div>
                 <h3 className="font-semibold text-slate-900">{exp.title}</h3>
                 <p className="text-sm text-slate-600 mt-0.5">{exp.duration}</p>
@@ -591,7 +588,7 @@ function EducationSection({ candidate }: { candidate: CandidateProfile }) {
             <div className="space-y-3">
               {candidate.education.map((edu, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <Award className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <Award className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium text-slate-900">{edu.degree}</p>
                     <p className="text-sm text-slate-600">{edu.school}</p>

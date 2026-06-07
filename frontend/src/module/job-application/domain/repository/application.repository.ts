@@ -1,5 +1,6 @@
 import type { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 import { ApplicationStatus, JobApplication } from "../entity/job-application.entity";
+import type { UpdateApplicationStatusDTO } from "../dto/updateApplicationStatus.dto";
 
 export interface ApplyJobDTO {
   jobId: string;
@@ -29,4 +30,7 @@ export interface JobApplicationRepository {
   ): Promise<RecruiterApplication[]>;
   getById(applicationId: string): Promise<ApplicationDetailDTO>;
   withdraw(applicationId: string): Promise<void>;
+  updateStatus(
+  payload: UpdateApplicationStatusDTO,
+): Promise<void>;
 }

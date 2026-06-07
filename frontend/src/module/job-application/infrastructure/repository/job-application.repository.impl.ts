@@ -11,6 +11,7 @@ import type { JobApplicationResponseDTO } from "../dto/job-application.response.
 
 
 import { Job } from "@/module/jobs/domain/entity/jobPost.entity";
+import type { UpdateApplicationStatusDTO } from "../../domain/dto/updateApplicationStatus.dto";
 
 interface GetMyApplicationsResponse {
   success: boolean;
@@ -94,7 +95,12 @@ export class ApiJobApplicationRepository
       appliedAt: item.appliedAt,
     }));
   }
-
+  async updateStatus(payload: UpdateApplicationStatusDTO): Promise<void> {
+    await api.patch(`recruiter/jobs/applications/${payload.applicationId}/status`,{
+      status : payload.status,
+      rejectionReason : payload.rejectionReason,
+    })
+  }
   async withdraw(applicationId: string): Promise<void> {
     await api.patch(
       `/candidate/application/${applicationId}/withdraw`,

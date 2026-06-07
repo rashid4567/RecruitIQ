@@ -21,17 +21,13 @@ export class GetApplicationDetailUseCase {
     if (!applicationId) {
       throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
-
     const application = await this.applicationRepo.findById(applicationId);
-
     if (!application) {
       throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
-
     if (!application.belongsToCandidate(candidateId)) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
-
     const job = await this.jobRepo.findById(application.jobId);
 
     if (!job) {
@@ -41,6 +37,10 @@ export class GetApplicationDetailUseCase {
     return {
       application: {
         id: application.id,
+        jobId: application.jobId,
+        candidateId: application.candidateId,
+        recruiterId: application.recruiterId,
+        resumeId: application.resumeId,
         status: application.status,
         appliedAt: application.appliedAt,
         updatedAt: application.updatedAt,

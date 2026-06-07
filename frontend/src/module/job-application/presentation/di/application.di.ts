@@ -4,6 +4,7 @@ import { WithdrawApplicationUseCase } from "../../application/usecase/candidate/
 import { ApiJobApplicationRepository } from "../../infrastructure/repository/job-application.repository.impl";
 import { GetApplicationDetailUseCase } from "../../application/usecase/candidate/MyApplication.indetail.usecase";
 import { GetApplicationsByJobUseCase } from "../../application/usecase/recruiter/getApplicationsByJob.usecase";
+import { UpdateApplicationStatusUseCase } from "../../application/usecase/recruiter/updateJobApplicationstatus.usecase";
 
 const jobApplicationRepo = new ApiJobApplicationRepository();
 
@@ -11,6 +12,15 @@ export const applyJobUC = new ApplyJobUseCase(jobApplicationRepo);
 export const getMyApplicationsUC = new GetMyApplicationsUseCase(
   jobApplicationRepo,
 );
-export const WithdrawApplicationUC = new WithdrawApplicationUseCase(jobApplicationRepo);
-export const GetApplicationDetailUC = new GetApplicationDetailUseCase(jobApplicationRepo)
-export const GetApplicationsByJobUC  = new GetApplicationsByJobUseCase(jobApplicationRepo);
+export const WithdrawApplicationUC = new WithdrawApplicationUseCase(
+  jobApplicationRepo,
+);
+export const GetApplicationDetailUC = new GetApplicationDetailUseCase(
+  jobApplicationRepo,
+);
+export const GetApplicationsByJobUC = new GetApplicationsByJobUseCase(
+  jobApplicationRepo,
+);
+export const UpdateApplicationStatusUC = new UpdateApplicationStatusUseCase(
+  jobApplicationRepo,
+);

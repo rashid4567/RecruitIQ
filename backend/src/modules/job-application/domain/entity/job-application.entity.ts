@@ -103,6 +103,8 @@ export class JobApplication {
     }
 
     this.props.status = ApplicationStatus.SHORTLISTED;
+    this.props.rejectionReason = undefined;
+
     this.touch();
   }
 
@@ -115,6 +117,8 @@ export class JobApplication {
 
     this.props.status = ApplicationStatus.REJECTED;
     this.props.rejectionReason = reason.trim();
+    this.props.interview = undefined;
+
     this.touch();
   }
 
@@ -132,18 +136,28 @@ export class JobApplication {
       throw new DomainError(APPLICATION_ERRORS.INVALID_INTERVIEW_DATE);
     }
 
-    if (!interview.location && !interview.meetingLink) {
+    const location = interview.location?.trim();
+    const meetingLink = interview.meetingLink?.trim();
+
+    if (!location && !meetingLink) {
       throw new DomainError(APPLICATION_ERRORS.INTERVIEW_LOCATION_REQUIRED);
     }
 
     this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
+    this.props.interview = {
+      ...interview,
+      location,
+      meetingLink,
+    };
 
-    this.props.interview = interview;
     this.touch();
   }
 
   rescheduleInterview(interview: InterviewInfo): void {
-    if (this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED) {
+    if (
+      this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED ||
+      !this.props.interview
+    ) {
       throw new DomainError(APPLICATION_ERRORS.INTERVIEW_NOT_FOUND);
     }
 
@@ -152,6 +166,7 @@ export class JobApplication {
     }
 
     this.props.interview = interview;
+
     this.touch();
   }
 
@@ -163,6 +178,7 @@ export class JobApplication {
     }
 
     this.props.status = ApplicationStatus.SELECTED;
+
     this.touch();
   }
 
@@ -176,6 +192,7 @@ export class JobApplication {
     }
 
     this.props.status = ApplicationStatus.WITHDRAWN;
+
     this.touch();
   }
 
@@ -186,7 +203,6 @@ export class JobApplication {
       this.props.status !== ApplicationStatus.WITHDRAWN
     );
   }
- 
 
   canRecruiterShortlist(): boolean {
     return this.props.status === ApplicationStatus.APPLIED;
@@ -197,6 +213,22 @@ export class JobApplication {
       this.props.status === ApplicationStatus.APPLIED ||
       this.props.status === ApplicationStatus.SHORTLISTED
     );
+  }
+
+  canSelect(): boolean {
+    return this.props.status === ApplicationStatus.INTERVIEW_SCHEDULED;
+  }
+
+  canReject(): boolean {
+    return (
+      this.props.status !== ApplicationStatus.REJECTED &&
+      this.props.status !== ApplicationStatus.SELECTED &&
+      this.props.status !== ApplicationStatus.WITHDRAWN
+    );
+  }
+
+  canRescheduleInterview(): boolean {
+    return this.props.status === ApplicationStatus.INTERVIEW_SCHEDULED;
   }
 
   isPending(): boolean {
@@ -228,9 +260,7 @@ export class JobApplication {
   }
 
   toObject(): JobApplicationProps {
-    return {
-      ...this.props,
-    };
+    return { ...this.props };
   }
 
   get id() {

@@ -3,6 +3,10 @@ import { ApplicationStatus } from "../../domain/entity/job-application.entity";
 export interface ApplicationDetailResponseDTO {
   application: {
     id?: string;
+    jobId: string;
+    candidateId: string;
+    recruiterId: string;
+    resumeId: string;
     status: ApplicationStatus;
     appliedAt: Date;
     updatedAt: Date;

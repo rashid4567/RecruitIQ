@@ -1,55 +1,65 @@
-import { useState } from 'react';
-import { RefreshCw, Loader2, AlertCircle } from 'lucide-react';
-
-import { useMyApplicatons } from '../hooks/candidate/useMyApplications';
-import { useWithdrawApplication } from '../hooks/candidate/useWithdrawApplication';
-import { ApplicationStatus, type JobApplication } from '../../domain/entity/job-application.entity';
-
-import { Sidebar } from './component/my-applications/Sidebar';
-import { StatsCards } from './component/my-applications/StatsCards';
-import { FilterBar } from './component/my-applications/FilterBar'; 
-import { ApplicationsTable } from './component/my-applications/ApplicationsTable';
-import { WithdrawModal } from './component/my-applications/WithdrawModal';
-import { Toast } from './component/my-applications/Toast';
+import { useState } from "react";
+import { RefreshCw, Loader2, AlertCircle } from "lucide-react";
+import { useMyApplicatons } from "../../hooks/candidate/useMyApplications";
+import { useWithdrawApplication } from "../../hooks/candidate/useWithdrawApplication";
+import {
+  ApplicationStatus,
+  type JobApplication,
+} from "@/module/job-application/domain/entity/job-application.entity";
+import { Sidebar } from "../component/Recruiter.application/sidebar";
+import { StatsCards } from "../component/my-applications/StatsCards";
+import { FilterBar } from "../component/my-applications/FilterBar";
+import { ApplicationsTable } from "../component/my-applications/ApplicationsTable";
+import { WithdrawModal } from "../component/my-applications/WithdrawModal";
+import { Toast } from "../component/my-applications/Toast";
 
 const PER_PAGE = 7;
 
 export default function MyApplicationsPage() {
-  const { application: applications, loading, error, refresh } = useMyApplicatons();
+  const {
+    application: applications,
+    loading,
+    error,
+    refresh,
+  } = useMyApplicatons();
   const { withdraw, loading: withdrawing } = useWithdrawApplication();
-
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | ApplicationStatus>('ALL');
-  const [withdrawTarget, setWithdrawTarget] = useState<JobApplication | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | ApplicationStatus>(
+    "ALL",
+  );
+  const [withdrawTarget, setWithdrawTarget] = useState<JobApplication | null>(
+    null,
+  );
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-
 
   const filtered = applications.filter((a) => {
     const q = search.toLowerCase();
     const matchSearch = a.getJobId().toLowerCase().includes(q);
-    const matchStatus = statusFilter === 'ALL' || a.getStatus() === statusFilter;
+    const matchStatus =
+      statusFilter === "ALL" || a.getStatus() === statusFilter;
     return matchSearch && matchStatus;
   });
 
-  const handleSearch = (v: string) => { setSearch(v); setPage(1); };
-  const handleStatusFilter = (v: string) => {
-    setStatusFilter(v as 'ALL' | ApplicationStatus);
+  const handleSearch = (v: string) => {
+    setSearch(v);
     setPage(1);
   };
-
+  const handleStatusFilter = (v: string) => {
+    setStatusFilter(v as "ALL" | ApplicationStatus);
+    setPage(1);
+  };
 
   const handleWithdrawConfirm = async () => {
     if (!withdrawTarget) return;
     const ok = await withdraw(withdrawTarget.getId());
     if (ok) {
-      setSuccessMsg('Application withdrawn successfully.');
+      setSuccessMsg("Application withdrawn successfully.");
       setTimeout(() => setSuccessMsg(null), 5000);
       refresh();
     }
     setWithdrawTarget(null);
   };
-
 
   if (loading) {
     return (
@@ -58,13 +68,14 @@ export default function MyApplicationsPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <Loader2 size={28} className="animate-spin text-blue-500" />
-            <p className="text-[13px] text-slate-500 font-medium">Loading your applications…</p>
+            <p className="text-[13px] text-slate-500 font-medium">
+              Loading your applications…
+            </p>
           </div>
         </div>
       </div>
     );
   }
-
 
   if (error) {
     return (
@@ -92,7 +103,6 @@ export default function MyApplicationsPage() {
     );
   }
 
-
   return (
     <div className="flex h-screen bg-[#f7f8fc] overflow-hidden">
       <Sidebar />
@@ -107,8 +117,6 @@ export default function MyApplicationsPage() {
       )}
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-
-        {/* ── Page Header ── */}
         <header className="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between shrink-0">
           <div>
             <h1 className="text-[16px] font-extrabold text-slate-900 tracking-tight leading-none">
@@ -136,14 +144,10 @@ export default function MyApplicationsPage() {
           </div>
         </header>
 
-        {/* ── Scrollable content ── */}
         <div className="flex-1 overflow-y-auto px-8 py-6">
           <div className="max-w-7xl mx-auto space-y-0">
-
-            {/* Stats */}
             <StatsCards apps={applications} />
 
-            {/* Filters */}
             <FilterBar
               search={search}
               onSearch={handleSearch}
@@ -151,7 +155,6 @@ export default function MyApplicationsPage() {
               onStatusFilter={handleStatusFilter}
             />
 
-            {/* Table */}
             <ApplicationsTable
               applications={filtered}
               onWithdraw={setWithdrawTarget}
@@ -160,12 +163,9 @@ export default function MyApplicationsPage() {
               onPageChange={setPage}
             />
 
-            {/* Footer count */}
             <p className="text-[10px] text-slate-300 pt-3 text-center font-medium">
-              {filtered.length} result{filtered.length !== 1 ? 's' : ''}
-              {statusFilter !== 'ALL' && (
-                <> · Status filter active</>
-              )}
+              {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+              {statusFilter !== "ALL" && <> · Status filter active</>}
             </p>
           </div>
         </div>

@@ -81,21 +81,13 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
     .filter((doc: any) => doc.candidateId)
     .map((doc: any) => ({
       applicationId: doc._id.toString(),
-
       candidateId: doc.candidateId._id.toString(),
-
       candidateName: doc.candidateId.fullName ?? "Unknown Candidate",
-
       candidateEmail: doc.candidateId.email ?? "",
-
       candidateProfileImage: doc.candidateId.profileImage,
-
       resumeId: doc.resumeId.toString(),
-
       status: doc.status,
-
       appliedAt: doc.appliedAt,
-
       interview: doc.interview
         ? {
             scheduledAt: doc.interview.scheduledAt,

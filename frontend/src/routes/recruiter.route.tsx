@@ -37,7 +37,7 @@ const RecruiterApplication = lazy(
   () =>
     import("../module/job-application/presentation/pages/recruiter/Recruiter.application"),
 );
-
+const CandidateScorecardPage = lazy(()=> import("../module/job-application/presentation/pages/recruiter/Application.detail.view"))
 const RecruiterRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -68,6 +68,7 @@ const RecruiterRoutes = () => {
               path="jobs/:jobId/applications"
               element={<RecruiterApplication />}
             />
+            <Route path="application-detail" element={<CandidateScorecardPage/>}/>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

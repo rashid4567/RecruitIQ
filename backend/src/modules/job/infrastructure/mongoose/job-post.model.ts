@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface JobPostDocument extends Document {
   recruiterId: mongoose.Types.ObjectId;
+  companyName : string;
   title: string;
   description: string;
   responsibilities: string[];
@@ -44,6 +45,13 @@ const JobPostSchema = new Schema<JobPostDocument>(
       type: Schema.Types.ObjectId,
       ref: "Recruiter",
       required: true,
+    },
+
+    companyName : {
+      type : String,
+      required : true,
+      trim : true,
+      maxLength : 100,
     },
 
     title: {

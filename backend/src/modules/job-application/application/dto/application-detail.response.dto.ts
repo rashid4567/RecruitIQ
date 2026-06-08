@@ -22,6 +22,7 @@ export interface ApplicationDetailResponseDTO {
 
   job: {
     id?: string;
+    companyName : string;
     title: string;
     description: string;
     responsibilities: string[];

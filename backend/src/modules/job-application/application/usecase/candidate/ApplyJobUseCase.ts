@@ -1,4 +1,7 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
+import { SendEmailByEventUseCase } from "../../../../email/application/usecase/email-template/send-email-by-event.usecase";
+import { EmailEvent } from "../../../../email/domain/constant/templateEvents";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
 import { JobApplication } from "../../../domain/entity/job-application.entity";
@@ -12,6 +15,9 @@ export class ApplyJobUseCase {
     private readonly applicationRepo: JobApplicationRepository,
     private readonly jobRepo: JobRepository,
     private readonly resumeRepo: ResumeRepository,
+    private readonly userRepo: UserRepository,
+    private readonly sendEmailByEventUC: SendEmailByEventUseCase,
+ 
   ) {}
 
   async execute(dto: ApplyJobDTO): Promise<JobApplication> {
@@ -57,6 +63,27 @@ export class ApplyJobUseCase {
     const created = await this.applicationRepo.create(application);
     job.incrementApplications();
     await this.jobRepo.save(job);
+
+    const candidate = await this.userRepo.findById(candidateId);
+
+    if(candidate){
+      try{
+        await this.sendEmailByEventUC.execute({
+        to : candidate.email.getValue(),
+        event : EmailEvent.JOB_APPLIED,
+        variables : {
+          candidateName : candidate.fullName,
+          jobTitle : job.title,
+          companyName : job.companyName,
+          applicationDate : new Date().toLocaleDateString(), 
+        }
+      })
+      }catch(err){
+        console.error("JOB_APPLIED email failed :", err);
+      }
+    }
+
+    
     return created;
   }
 }

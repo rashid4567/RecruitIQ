@@ -1,5 +1,5 @@
 import { UserId } from "../../../../shared/value-objects/userId.vo";
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { Email } from "../../../auth/domain/value.objects/email.vo";
 
 export class Candidate {
   private constructor(
@@ -7,7 +7,7 @@ export class Candidate {
     private readonly name: string,
     private readonly email: Email,
     private readonly isActive: boolean,
-
+    private readonly profileImage?: string,
     private readonly currentJob?: string,
     private readonly experienceYears?: number,
     private readonly educationLevel?: string,
@@ -19,7 +19,6 @@ export class Candidate {
     private readonly linkedinUrl?: string,
     private readonly portfolioUrl?: string,
     private readonly profileCompleted?: boolean,
-  
   ) {}
 
   static fromList(props: {
@@ -27,19 +26,19 @@ export class Candidate {
     name: string;
     email: Email;
     isActive: boolean;
+    profileImage?: string;
     skills?: string[];
     preferredJobLocations?: string[];
-
   }): Candidate {
     return new Candidate(
       props.id,
       props.name,
       props.email,
       props.isActive,
+      props.profileImage,
       undefined,
       undefined,
       undefined,
-
       props.skills ?? [],
       props.preferredJobLocations ?? [],
       undefined,
@@ -48,7 +47,6 @@ export class Candidate {
       undefined,
       undefined,
       undefined,
-     
     );
   }
 
@@ -57,6 +55,7 @@ export class Candidate {
     name: string;
     email: Email;
     isActive: boolean;
+    profileImage?: string;
     currentJob?: string;
     experienceYears?: number;
     educationLevel?: string;
@@ -74,6 +73,7 @@ export class Candidate {
       props.name,
       props.email,
       props.isActive,
+      props.profileImage,
       props.currentJob,
       props.experienceYears,
       props.educationLevel,
@@ -102,6 +102,10 @@ export class Candidate {
 
   isActiveAccount() {
     return this.isActive;
+  }
+
+  getProfileImage(): string | undefined {
+    return this.profileImage;
   }
 
   getCurrentJob() {
@@ -143,8 +147,6 @@ export class Candidate {
   getPortfolioUrl() {
     return this.portfolioUrl;
   }
-
-
 
   isProfileCompleted() {
     return this.profileCompleted;

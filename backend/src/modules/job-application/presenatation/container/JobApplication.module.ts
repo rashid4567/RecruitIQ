@@ -1,3 +1,6 @@
+import { UserRepository } from "../../../auth/domain/repositories/user.repository";
+import { MongooseUserRepository } from "../../../auth/infrastructure/repositories/mongoose-user.repository";
+import { sendEmailByEventUC } from "../../../email/presentation/container/email-template.container";
 import { JobRepository } from "../../../job/domain/repositories/job.repository";
 import { MongooseJobRepository } from "../../../job/infrastructure/repositories/mongoose-job.repository";
 import { ResumeRepository } from "../../../resume/domain/repository/resume.repository";
@@ -23,8 +26,9 @@ import { UpdateApplicationStatusController } from "../controller/Recruiter/updat
 const applicationRepo : JobApplicationRepository = new MongooseJobApplicationRepository()
 const jobpostRepo : JobRepository = new MongooseJobRepository();
 const resumeRepo : ResumeRepository = new MongooseResumeRepository()
+const userRepo : UserRepository = new MongooseUserRepository();
 
-const ApplyJobUC = new ApplyJobUseCase(applicationRepo,jobpostRepo,resumeRepo);
+const ApplyJobUC = new ApplyJobUseCase(applicationRepo,jobpostRepo,resumeRepo, userRepo,sendEmailByEventUC );
 const getMyApplicationUC = new GetMyApplicationUseCase(applicationRepo)
 const withdrawApplicationUC = new WithdrawApplicationUseCase(applicationRepo)
 const getApplicationUC = new GetApplicationDetailUseCase(applicationRepo, jobpostRepo)

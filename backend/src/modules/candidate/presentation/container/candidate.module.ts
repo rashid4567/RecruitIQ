@@ -10,15 +10,20 @@ import { GetCandidateProfileController } from "../../presentation/controller/get
 import { UpdateCandidateProfileController } from "../../presentation/controller/updateProfile.controller";
 import { ResumeRepository } from "../../../resume/domain/repository/resume.repository";
 import { MongooseResumeRepository } from "../../../resume/infrastructure/repository/mongoose.resume.repository";
+import { FileStorageRepository } from "../../../resume/domain/repository/fileStorage.repository";
+import { S3FileStorageRepository } from "../../../resume/infrastructure/storage/s3-file-storage.repository";
 
 const candidateRepository: CandidateRepository =
   new MongooseCandidateRepository();
 const userRepository: UserRepository = new MongooseUserRepository();
 const resumeRepository : ResumeRepository = new MongooseResumeRepository();
+const fileStorageRepo : FileStorageRepository = new S3FileStorageRepository()
+
 const getCandidateProfileUC = new GetCandidateProfileUseCase(
   candidateRepository,
   userRepository,
   resumeRepository,
+  fileStorageRepo
 );
 const updateCandidateProfileUC = new UpdateCandidateProfileUseCase(
   candidateRepository,

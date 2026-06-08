@@ -228,9 +228,11 @@ export default function QuickViewModal({
                 )}
               </div>
 
-              <h2 className="text-xl font-bold text-gray-900 leading-tight truncate">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
                 {job.title}
-              </h2>
+              </h3>
+
+              <p className="text-sm text-gray-500 mb-4">{job.companyName}</p>
 
               <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2">
                 {[

@@ -1,5 +1,4 @@
-import { User } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText } from "lucide-react";
 import type { Recruiter } from "@/module/admin/domain/entities/recruiter.entity";
 
 interface RecruiterBioCardProps {
@@ -8,22 +7,20 @@ interface RecruiterBioCardProps {
 
 export function RecruiterBioCard({ recruiter }: RecruiterBioCardProps) {
   return (
-    <Card className="border-slate-200/60 shadow-sm rounded-2xl">
-      <CardHeader className="bg-slate-50/80 px-6 py-4 border-b">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <User className="h-5 w-5 text-indigo-600" />
-          About Company
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-6 text-slate-700 text-[15px] leading-relaxed">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-50">
+        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+          <FileText className="w-4 h-4 text-slate-500" />
+        </div>
+        <h3 className="text-sm font-semibold text-gray-800 tracking-wide uppercase">About Company</h3>
+      </div>
+      <div className="p-6">
         {recruiter.bio?.trim() ? (
-          recruiter.bio
+          <p className="text-sm text-gray-600 leading-relaxed">{recruiter.bio}</p>
         ) : (
-          <span className="text-slate-500 italic">
-            No company description provided.
-          </span>
+          <p className="text-sm text-gray-400 italic">No company description provided.</p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

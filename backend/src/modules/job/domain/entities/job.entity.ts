@@ -19,6 +19,7 @@ export interface JobSalary {
 export interface JobProps {
   id?: string;
   recruiterId: string;
+  companyName : string;
   title: string;
   description: string;
   responsibilities: string[];
@@ -87,6 +88,10 @@ export class Job {
   }
 
   private validate() {
+
+    if (!this.props.companyName?.trim()) {
+  throw new DomainError(JOB_ERRORS.COMPANY_NAME_REQUIRED);
+}
     if (!this.props.title?.trim()) {
       throw new DomainError(JOB_ERRORS.TITLE_REQUIRED);
     }
@@ -130,6 +135,10 @@ export class Job {
   }
   get recruiterId() {
     return this.props.recruiterId;
+  }
+
+  get companyName(){
+    return this.props.companyName;
   }
   get status() {
     return this.props.status;
@@ -293,6 +302,7 @@ export class Job {
     return this.props.isDeleted;
   }
   update(data: {
+    companyName ?: string;
     title?: string;
     description?: string;
     responsibilities?: string[];
@@ -311,6 +321,10 @@ export class Job {
     expiresAt?: Date;
   }) {
     this.ensureEditable();
+
+    if(data.companyName !== undefined){
+      this.props.companyName = data.companyName;
+    }
     if (data.title !== undefined) {
       this.props.title = data.title;
     }
@@ -388,6 +402,7 @@ export class Job {
   candidateView() {
     return {
       id: this.props.id,
+      companyName : this.props.companyName,
       title: this.props.title,
       description: this.props.description,
       responsibilities: this.props.responsibilities ?? [],

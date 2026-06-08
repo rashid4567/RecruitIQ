@@ -27,7 +27,7 @@ const emailTemplateSchema = new Schema(
     },
   },
 
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export const EmailTemplateModel = model("EmailTemplate",emailTemplateSchema)
+export const EmailTemplateModel = model("EmailTemplate", emailTemplateSchema);

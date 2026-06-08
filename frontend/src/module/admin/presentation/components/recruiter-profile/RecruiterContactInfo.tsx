@@ -1,4 +1,3 @@
-
 import {
   Mail,
   MapPin,
@@ -11,9 +10,7 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Recruiter } from "@/module/admin/domain/entities/recruiter.entity";
 
@@ -27,25 +24,20 @@ interface RecruiterContactInfoProps {
 
 function getInitials(name: string) {
   return (
-    name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2) || "?"
+    name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?"
   );
 }
 
 const VERIFICATION_CONFIG = {
-  pending: { label: "Pending", bg: "bg-amber-100", text: "text-amber-800" },
-  verified: { label: "Verified", bg: "bg-emerald-100", text: "text-emerald-800" },
-  rejected: { label: "Rejected", bg: "bg-rose-100", text: "text-rose-800" },
+  pending:  { label: "Pending",  pill: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" },
+  verified: { label: "Verified", pill: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" },
+  rejected: { label: "Rejected", pill: "bg-red-50 text-red-600 ring-1 ring-red-200" },
 } as const;
 
 const SUBSCRIPTION_CONFIG = {
-  free: { label: "Free Plan", bg: "bg-slate-100", text: "text-slate-700" },
-  active: { label: "Pro Active", bg: "bg-blue-100", text: "text-blue-800" },
-  expired: { label: "Plan Expired", bg: "bg-orange-100", text: "text-orange-800" },
+  free:    { label: "Free Plan",    pill: "bg-gray-50 text-gray-600 ring-1 ring-gray-200" },
+  active:  { label: "Pro Active",   pill: "bg-sky-50 text-sky-700 ring-1 ring-sky-200" },
+  expired: { label: "Plan Expired", pill: "bg-orange-50 text-orange-600 ring-1 ring-orange-200" },
 } as const;
 
 export function RecruiterContactInfo({
@@ -61,55 +53,67 @@ export function RecruiterContactInfo({
     SUBSCRIPTION_CONFIG[recruiter.subscriptionStatus] ?? SUBSCRIPTION_CONFIG.free;
 
   return (
-    <Card className="border-slate-200/60 shadow-sm rounded-2xl overflow-hidden">
-      <CardContent className="p-6 lg:p-10">
-        <div className="grid lg:grid-cols-12 gap-10">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* Top stripe */}
+      <div className="h-1 w-full bg-gradient-to-r from-slate-300 via-gray-200 to-slate-300" />
 
-          <div className="lg:col-span-4 flex flex-col items-center lg:items-start gap-5 text-center lg:text-left">
-            <div className="relative group">
-              <Avatar className="h-28 w-28 ring-2 ring-white shadow-xl transition-transform group-hover:scale-105">
-                <AvatarFallback className="bg-linear-to-br from-indigo-500 to-violet-600 text-white text-4xl font-bold">
-                  {getInitials(recruiter.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div
+      <div className="p-6 lg:p-8">
+        <div className="grid lg:grid-cols-12 gap-8">
+
+          {/* ── Left: Identity ──────────────────────────────────────── */}
+          <div className="lg:col-span-4 flex flex-col items-center lg:items-start gap-4 text-center lg:text-left">
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-gray-50 shadow-md">
+                <Avatar className="w-full h-full rounded-2xl">
+                  <AvatarFallback className="bg-gray-900 text-white text-3xl font-bold rounded-2xl w-full h-full flex items-center justify-center">
+                    {getInitials(recruiter.name)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <span
                 className={cn(
-                  "absolute -bottom-2 -right-2 w-6 h-6 rounded-full border-2 border-white shadow-sm",
-                  recruiter.isActive ? "bg-emerald-500" : "bg-rose-500"
+                  "absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-2 border-white shadow-sm",
+                  recruiter.isActive ? "bg-emerald-400" : "bg-red-400"
                 )}
                 title={recruiter.isActive ? "Active" : "Suspended"}
               />
             </div>
 
             <div>
-              <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
                 {recruiter.name}
               </h2>
               {recruiter.designation && (
-                <p className="text-sm text-slate-500 mt-0.5 font-medium">
-                  {recruiter.designation}
-                </p>
+                <p className="text-sm text-gray-400 mt-0.5">{recruiter.designation}</p>
               )}
               {recruiter.companyName && (
-                <p className="text-base text-slate-700 mt-1 font-semibold">
-                  {recruiter.companyName}
-                </p>
+                <p className="text-sm font-semibold text-gray-700 mt-1">{recruiter.companyName}</p>
               )}
             </div>
 
             <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
-              <Badge className={cn("px-3 py-1 text-sm font-medium", verificationStyle.bg, verificationStyle.text)}>
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${verificationStyle.pill}`}>
                 {verificationStyle.label}
-              </Badge>
-              <Badge className={cn("px-3 py-1 text-sm font-medium", subscriptionStyle.bg, subscriptionStyle.text)}>
+              </span>
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${subscriptionStyle.pill}`}>
                 {subscriptionStyle.label}
-              </Badge>
+              </span>
+              <span
+                className={cn(
+                  "text-xs font-semibold px-2.5 py-1 rounded-full",
+                  recruiter.isActive
+                    ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
+                    : "bg-red-50 text-red-600 ring-1 ring-red-200"
+                )}
+              >
+                {recruiter.isActive ? "Active" : "Suspended"}
+              </span>
             </div>
           </div>
 
-
-          <div className="lg:col-span-8 space-y-8">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* ── Right: Info + Actions ──────────────────────────────── */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <InfoItem icon={Mail} label="Email" value={recruiter.email} />
               {recruiter.location && (
                 <InfoItem icon={MapPin} label="Location" value={recruiter.location} />
@@ -120,9 +124,7 @@ export function RecruiterContactInfo({
                 value={
                   recruiter.joinedDate
                     ? new Date(recruiter.joinedDate).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
+                        month: "short", day: "numeric", year: "numeric",
                       })
                     : "—"
                 }
@@ -142,12 +144,12 @@ export function RecruiterContactInfo({
               />
             </div>
 
-    
-            <div className="flex flex-wrap gap-3">
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-50">
               {recruiter.verificationStatus === "pending" && (
                 <>
                   <Button
-                    className="h-11 bg-emerald-600 hover:bg-emerald-700 shadow-sm gap-2"
+                    className="rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white gap-2 text-sm h-9"
                     disabled={actionLoading}
                     onClick={onVerify}
                   >
@@ -156,7 +158,7 @@ export function RecruiterContactInfo({
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-11 border-rose-300 text-rose-700 hover:bg-rose-50 gap-2"
+                    className="rounded-xl border-red-200 text-red-500 hover:bg-red-50 gap-2 text-sm h-9"
                     disabled={actionLoading}
                     onClick={onReject}
                   >
@@ -167,12 +169,12 @@ export function RecruiterContactInfo({
               )}
 
               <Button
-                variant={recruiter.isActive ? "outline" : "default"}
+                variant="outline"
                 className={cn(
-                  "h-11 shadow-sm gap-2",
+                  "rounded-xl gap-2 text-sm h-9",
                   recruiter.isActive
-                    ? "border-rose-300 text-rose-700 hover:bg-rose-50"
-                    : "bg-emerald-600 hover:bg-emerald-700"
+                    ? "border-red-200 text-red-500 hover:bg-red-50"
+                    : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
                 )}
                 disabled={actionLoading}
                 onClick={onToggleActive}
@@ -187,8 +189,8 @@ export function RecruiterContactInfo({
           </div>
 
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -205,22 +207,22 @@ function InfoItem({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="rounded-lg bg-slate-100 p-2.5 mt-0.5 shrink-0">
-        <Icon className="h-4 w-4 text-slate-500" />
+      <div className="w-8 h-8 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 mt-0.5">
+        <Icon className="h-3.5 w-3.5 text-gray-400" />
       </div>
       <div className="min-w-0">
-        <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{label}</p>
+        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">{label}</p>
         {href ? (
           <a
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium text-indigo-600 hover:underline truncate block mt-0.5"
+            className="text-sm font-medium text-gray-900 hover:underline truncate block mt-0.5"
           >
             {value}
           </a>
         ) : (
-          <p className="text-sm font-medium text-slate-900 mt-0.5 truncate">{value}</p>
+          <p className="text-sm font-medium text-gray-800 mt-0.5 truncate">{value}</p>
         )}
       </div>
     </div>

@@ -14,6 +14,7 @@ export type JobType = "full-time" | "part-time" | "contract" | "internship";
 export type JobStatus = "draft" | "active" | "expired";
 export type JobVisibility = "active" | "hidden";
 export interface JobFormData {
+  companyName : string;
   title: string;
   description: string;
   department: string;
@@ -33,6 +34,7 @@ export interface JobFormData {
 }
 
 export const defaultJobFormData: JobFormData = {
+  companyName : "",
   title: "",
   description: "",
   department: "",

@@ -68,6 +68,7 @@ export class ApiJobPostRepository implements JobPostRepository {
 
   async updateJobPost(id: string, job: Job): Promise<Job> {
     const res = await api.put(`/${this.role}/jobs/${id}`, {
+      companyName : job.companyName,
       title: job.title,
       description: job.description,
       responsibilities: job.responsibilities,
@@ -129,6 +130,7 @@ export class ApiJobPostRepository implements JobPostRepository {
     return new Job({
       id,
       recruiterId: data.recruiterId,
+      companyName : data.companyName,
       title: data.title,
       description: data.description,
       responsibilities: data.responsibilities,

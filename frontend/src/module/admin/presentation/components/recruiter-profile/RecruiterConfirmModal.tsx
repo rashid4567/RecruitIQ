@@ -3,7 +3,7 @@ import {
   AlertDialogContent,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface RecruiterConfirmModalProps {
@@ -31,36 +31,60 @@ export function RecruiterConfirmModal({
 
   const handleConfirm = () => {
     onConfirm();
-    onClose(); 
+    onClose();
   };
 
   return (
     <AlertDialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <AlertDialogContent className="sm:max-w-md p-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
+      <AlertDialogContent className="sm:max-w-sm p-0 border border-gray-100 shadow-xl rounded-2xl bg-white overflow-hidden">
 
+        {/* Top accent stripe */}
+        <div
+          className={cn(
+            "h-1 w-full",
+            isDestructive
+              ? "bg-gradient-to-r from-red-400 to-rose-400"
+              : "bg-gradient-to-r from-emerald-400 to-teal-400"
+          )}
+        />
 
-        <div className="relative bg-linear-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8">
-          <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-28 h-28 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
+        <div className="px-7 pt-7 pb-7 flex flex-col items-center gap-5">
 
-          <div className="relative flex flex-col items-center text-center">
-            <div className="h-14 w-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-4">
-              <AlertTriangle className="h-7 w-7 text-rose-400" strokeWidth={2.5} />
-            </div>
-            <h2 className="text-2xl font-bold text-white">{title}</h2>
+          {/* Icon */}
+          <div
+            className={cn(
+              "w-14 h-14 rounded-2xl flex items-center justify-center border",
+              isDestructive
+                ? "bg-red-50 border-red-100"
+                : "bg-emerald-50 border-emerald-100"
+            )}
+          >
+            {isDestructive ? (
+              <AlertTriangle
+                className="w-7 h-7 text-red-500"
+                strokeWidth={1.75}
+              />
+            ) : (
+              <ShieldCheck
+                className="w-7 h-7 text-emerald-500"
+                strokeWidth={1.75}
+              />
+            )}
           </div>
-        </div>
 
+          {/* Text */}
+          <div className="text-center space-y-1.5">
+            <h2 className="text-lg font-semibold text-gray-900 tracking-tight">{title}</h2>
+            <p className="text-sm text-gray-400 leading-relaxed">{description}</p>
+          </div>
 
-        <div className="px-8 py-8 bg-white space-y-6">
-          <p className="text-slate-600 leading-relaxed text-[15px]">{description}</p>
-
-          <div className="flex gap-3 pt-4">
+          {/* Buttons */}
+          <div className="w-full flex gap-3">
             <Button
               variant="outline"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 h-12 rounded-2xl border-2"
+              className="flex-1 h-10 rounded-xl border-gray-200 text-gray-500 hover:bg-gray-50 text-sm"
             >
               Cancel
             </Button>
@@ -68,14 +92,17 @@ export function RecruiterConfirmModal({
               onClick={handleConfirm}
               disabled={loading}
               className={cn(
-                "flex-1 h-12 rounded-2xl font-semibold text-white shadow-lg",
+                "flex-1 h-10 rounded-xl text-white text-sm font-medium shadow-sm",
                 isDestructive
-                  ? "bg-rose-600 hover:bg-rose-700"
-                  : "bg-indigo-600 hover:bg-indigo-700"
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-emerald-500 hover:bg-emerald-600"
               )}
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {confirmText}
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                confirmText
+              )}
             </Button>
           </div>
         </div>

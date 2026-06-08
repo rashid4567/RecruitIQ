@@ -13,6 +13,7 @@ export class ApiRecruiterRepository implements RecruiterRepository {
     return new RecruiterProfile({
       fullName: user.fullName,
       email: user.email,
+      profileImage : user.profileImage,
       companyName: recruiter.companyName,
       companyWebsite: recruiter.companyWebsite,
       companySize: recruiter.companySize,

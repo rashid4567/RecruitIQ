@@ -1,6 +1,7 @@
 import { JobType } from "../../domain/entities/job.entity";
 
 export interface CreateJobDTO {
+  companyName : string;
   title: string;
   description: string;
   responsibilities?: string[];

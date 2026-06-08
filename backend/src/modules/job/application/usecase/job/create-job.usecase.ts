@@ -49,6 +49,7 @@ export class CreateJobUseCase {
 
     const job = Job.create({
       recruiterId,
+      companyName : dto.companyName,
       title: dto.title,
       description: dto.description,
       responsibilities: dto.responsibilities ?? [],

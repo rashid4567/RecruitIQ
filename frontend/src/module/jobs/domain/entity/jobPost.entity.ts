@@ -10,6 +10,7 @@ import type { CreateJobDTO } from "../dto/jobPost.dto";
 export class Job {
   public readonly id: string;
   public readonly recruiterId: string;
+  public readonly companyName : string;
   public readonly title: string;
   public readonly description: string;
   public readonly responsibilities: string[];
@@ -40,6 +41,7 @@ export class Job {
   constructor(params: {
     id: string;
     recruiterId: string;
+    companyName : string;
     title: string;
     description: string;
     responsibilities?: string[];
@@ -69,6 +71,7 @@ export class Job {
   }) {
     this.id = params.id;
     this.recruiterId = params.recruiterId;
+    this.companyName = params.companyName;
     this.title = params.title;
     this.description = params.description;
     this.responsibilities = params.responsibilities ?? [];
@@ -227,6 +230,7 @@ export class Job {
     return {
       id: this.id,
       recruiterId: this.recruiterId,
+      companyName : this.companyName,
       title: this.title,
       description: this.description,
       responsibilities: this.responsibilities,

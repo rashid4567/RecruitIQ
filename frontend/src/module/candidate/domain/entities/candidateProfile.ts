@@ -66,9 +66,7 @@ export class CandidateProfile {
   public readonly linkedinUrl?: string;
   public readonly portfolioUrl?: string;
   public readonly bio?: string;
-
   public readonly resume?: ResumeDTO | null;
-
   public readonly profileCompleted: boolean;
 
   constructor(params: {
@@ -76,7 +74,6 @@ export class CandidateProfile {
     email: string;
     emailVerified: boolean;
     profileImage?: string;
-
     currentJob?: string;
     experienceYears?: number;
     educationLevel?: string;
@@ -87,16 +84,13 @@ export class CandidateProfile {
     linkedinUrl?: string;
     portfolioUrl?: string;
     bio?: string;
-
     resume?: ResumeDTO | null;
-
     profileCompleted: boolean;
   }) {
     this.fullName = params.fullName;
     this.email = params.email;
     this.emailVerified = params.emailVerified;
     this.profileImage = params.profileImage;
-
     this.currentJob = params.currentJob;
     this.experienceYears = params.experienceYears;
     this.educationLevel = params.educationLevel;
@@ -107,9 +101,7 @@ export class CandidateProfile {
     this.linkedinUrl = params.linkedinUrl;
     this.portfolioUrl = params.portfolioUrl;
     this.bio = params.bio;
-
     this.resume = params.resume;
-
     this.profileCompleted = params.profileCompleted;
   }
 
@@ -119,24 +111,18 @@ export class CandidateProfile {
       email: data.user.email,
       emailVerified: data.user.emailVerified ?? false,
       profileImage: data.user.profileImage,
-
       currentJob: data.candidateProfile.currentJob,
       experienceYears: data.candidateProfile.experienceYears,
       educationLevel: data.candidateProfile.educationLevel,
       skills: data.candidateProfile.skills,
-      preferredJobLocations:
-        data.candidateProfile.preferredJobLocations,
-      currentJobLocation:
-        data.candidateProfile.currentJobLocation,
+      preferredJobLocations: data.candidateProfile.preferredJobLocations,
+      currentJobLocation: data.candidateProfile.currentJobLocation,
       gender: data.candidateProfile.gender,
       linkedinUrl: data.candidateProfile.linkedinUrl,
       portfolioUrl: data.candidateProfile.portfolioUrl,
       bio: data.candidateProfile.bio,
-
       resume: data.candidateProfile.resume ?? null,
-
-      profileCompleted:
-        data.candidateProfile.profileCompleted,
+      profileCompleted: data.candidateProfile.profileCompleted,
     });
   }
 
@@ -153,24 +139,18 @@ export class CandidateProfile {
       email,
       emailVerified: false,
       profileImage: data.user.profileImage,
-
       currentJob: data.profile.currentJob,
       experienceYears: data.profile.experienceYears,
       educationLevel: data.profile.educationLevel,
       skills: data.profile.skills,
-      preferredJobLocations:
-        data.profile.preferredJobLocations,
-      currentJobLocation:
-        data.profile.currentJobLocation,
+      preferredJobLocations: data.profile.preferredJobLocations,
+      currentJobLocation: data.profile.currentJobLocation,
       gender: data.profile.gender,
       linkedinUrl: data.profile.linkedinUrl,
       portfolioUrl: data.profile.portfolioUrl,
       bio: data.profile.bio,
-
       resume: data.profile.resume ?? null,
-
-      profileCompleted:
-        data.profile.profileCompleted,
+      profileCompleted: data.profile.profileCompleted,
     });
   }
 
@@ -193,24 +173,18 @@ export class CandidateProfile {
       email: this.email,
       emailVerified: this.emailVerified,
       profileImage: data.profileImage ?? this.profileImage,
-
       currentJob: data.currentJob ?? this.currentJob,
       experienceYears: data.experienceYears ?? this.experienceYears,
       educationLevel: data.educationLevel ?? this.educationLevel,
       skills: data.skills ?? this.skills,
       preferredJobLocations:
-        data.preferredJobLocations ??
-        this.preferredJobLocations,
-      currentJobLocation:
-        data.currentJobLocation ??
-        this.currentJobLocation,
+        data.preferredJobLocations ?? this.preferredJobLocations,
+      currentJobLocation: data.currentJobLocation ?? this.currentJobLocation,
       gender: data.gender ?? this.gender,
       linkedinUrl: data.linkedinUrl ?? this.linkedinUrl,
       portfolioUrl: data.portfolioUrl ?? this.portfolioUrl,
       bio: data.bio ?? this.bio,
-
       resume: this.resume,
-
       profileCompleted: this.profileCompleted,
     });
   }

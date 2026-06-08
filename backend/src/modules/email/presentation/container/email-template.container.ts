@@ -14,15 +14,19 @@ import { ListEmailTemplateController } from "../controller/email-template.manage
 import { SendTestEmailController } from "../controller/email-template.management/send-test-email.controller";
 import { ToggleEmailTemplateController } from "../controller/email-template.management/toggle-Email.template.controller";
 import { UpdateEmailTemplateController } from "../controller/email-template.management/update-email-Template.controller";
+import { TemplateRendererService } from "../../application/services/template-renderer.service";
 
 const emailService = new NodemailerEmailService();
 const emailTemplateRepo: EmailTemplateRepository =
   new MongooseEmailTemplateRepository();
+  const templateRenderer = new TemplateRendererService();
+
 const createEmailTemplateUC = new CreateEmailTemplateUseCase(emailTemplateRepo);
 const updateEmailTemplateUC = new UpdateEmailTemplateUseCase(emailTemplateRepo);
 export const sendEmailByEventUC = new SendEmailByEventUseCase(
   emailTemplateRepo,
   emailService,
+  templateRenderer
 );
 const getEmailTemplatesUC = new GetEmailTemplatesUseCase(emailTemplateRepo);
 const toggleEmailTemplateUC = new toggleEmailTemplateUseCase(emailTemplateRepo);

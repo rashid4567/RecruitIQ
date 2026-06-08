@@ -5,5 +5,6 @@ export interface RecruiterAggregate {
   fullName: string;
   email: string;
   isActive: boolean;
+   profileImage?: string;
   verificationStatus: VerificationStatus;
 }

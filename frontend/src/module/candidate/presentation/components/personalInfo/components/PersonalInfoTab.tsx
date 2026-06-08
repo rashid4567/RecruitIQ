@@ -8,6 +8,7 @@ import type { CandidateProfile } from "@/module/candidate/domain/entities/candid
 import type { ProfileFormData } from "../../../validators/profileValidation.ts";
 
 import { useEmailUpdate } from "../../../hooks/useEmailUpdate";
+import { useUploadProfileImage } from "@/module/auth/presentation/hooks/useUploadProfileImage.ts";
 import { ProfileCard } from "../../../pages/personalInfo/components/cards/ProfileCard";
 import { ProfileStrengthCard } from "../../../pages/personalInfo/components/cards/ProfileStrengthCard";
 import { BasicInfoSection } from "../../../pages/personalInfo/components/sections/BasicInfoSection";
@@ -29,8 +30,6 @@ interface PersonalInfoTabProps {
   isEditing: boolean;
   editData: Partial<ProfileFormData>;
   validationErrors: Record<string, string>;
-  isUploading: boolean;
-  imagePreview: string | null;
   onInputChange: <K extends keyof ProfileFormData>(
     key: K,
     value: ProfileFormData[K],
@@ -38,7 +37,6 @@ interface PersonalInfoTabProps {
   onFieldBlur: (field: keyof ProfileFormData) => void;
   getFieldError: (field: keyof ProfileFormData) => string | undefined;
   isFieldValid: (field: keyof ProfileFormData) => boolean;
-  onImageUpload: (file: File) => Promise<void>;
   onEditToggle: () => void;
   onSave: () => void;
   onCancel: () => void;
@@ -51,13 +49,10 @@ export function PersonalInfoTab({
   isEditing,
   editData,
   validationErrors,
-  isUploading,
-  imagePreview,
   onInputChange,
   onFieldBlur,
   getFieldError,
   isFieldValid,
-  onImageUpload,
   onEditToggle,
   onSave,
   onCancel,
@@ -67,6 +62,25 @@ export function PersonalInfoTab({
   const [pendingEmail, setPendingEmail] = useState("");
 
   const { sendOtp, verifyOtp, sendingOtp, verifyingOtp } = useEmailUpdate();
+
+  // ✅ Image upload hook — owns preview + upload logic
+  const {
+    upload,
+    loading: isUploading,
+    imagePreview,
+    clearPreview,
+  } = useUploadProfileImage();
+
+  // Wrap upload so ProfileCard gets a (file: File) => Promise<void>
+  const handleImageUpload = async (file: File): Promise<void> => {
+    await upload(file);
+  };
+
+  // Clear preview when editing is cancelled
+  const handleCancel = () => {
+    clearPreview();
+    onCancel();
+  };
 
   const handleVerifyClick = async (emailToVerify: string) => {
     const trimmedEmail = emailToVerify.trim();
@@ -92,15 +106,14 @@ export function PersonalInfoTab({
     return "Let's complete your profile";
   };
 
-
-  const hasVisibleErrors = (Object.keys(validationErrors) as Array<keyof ProfileFormData>).some(
-    (field) => !!getFieldError(field),
-  );
+  const hasVisibleErrors = (
+    Object.keys(validationErrors) as Array<keyof ProfileFormData>
+  ).some((field) => !!getFieldError(field));
 
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-     
+        {/* ── Left sidebar ── */}
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-4">
             <ProfileCard
@@ -110,10 +123,10 @@ export function PersonalInfoTab({
               stats={stats}
               onInputChange={onInputChange}
               onVerifyEmail={handleVerifyClick}
-              onImageUpload={onImageUpload}
+              onImageUpload={handleImageUpload}   // ✅ wired
               loading={loading}
-              imagePreview={imagePreview}
-              isUploading={isUploading}
+              imagePreview={imagePreview}          // ✅ wired
+              isUploading={isUploading}            // ✅ wired
             />
             <ProfileStrengthCard
               completionPercentage={stats.completionPercentage}
@@ -122,9 +135,9 @@ export function PersonalInfoTab({
           </div>
         </div>
 
-
+        {/* ── Main content ── */}
         <div className="lg:col-span-2 space-y-6">
-
+          {/* Header banner */}
           <Card className="relative border-0 shadow-lg bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
             <div className="absolute inset-0 bg-grid-white/5" />
             <CardContent className="p-6 relative">
@@ -152,11 +165,10 @@ export function PersonalInfoTab({
             </CardContent>
           </Card>
 
-
+          {/* Form sections */}
           <Card className="border-0 shadow-xl bg-white">
             <CardContent className="p-8">
               <div className="space-y-8">
-       
                 <BasicInfoSection
                   isEditing={isEditing}
                   profile={profile}
@@ -172,7 +184,6 @@ export function PersonalInfoTab({
 
                 <Separator className="bg-slate-200" />
 
-          
                 <ProfessionalInfoSection
                   isEditing={isEditing}
                   profile={profile}
@@ -186,12 +197,10 @@ export function PersonalInfoTab({
 
                 <Separator className="bg-slate-200" />
 
-      
                 <AdditionalInfoSection
                   isEditing={isEditing}
                   profile={profile}
                   editData={editData}
-                  //validationErrors={validationErrors}
                   onInputChange={onInputChange}
                   onFieldBlur={onFieldBlur}
                   getFieldError={getFieldError}
@@ -212,7 +221,6 @@ export function PersonalInfoTab({
                 />
 
                 <Separator className="bg-slate-200" />
-
 
                 <BioSection
                   isEditing={isEditing}
@@ -248,7 +256,7 @@ export function PersonalInfoTab({
 
                     <Button
                       variant="outline"
-                      onClick={onCancel}
+                      onClick={handleCancel}   // ✅ clears preview on cancel
                       disabled={loading}
                       size="lg"
                       className="flex-1 h-12 border-slate-300 hover:bg-slate-100 hover:border-slate-400 transition-all"

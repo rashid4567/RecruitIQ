@@ -3,6 +3,7 @@ export interface RecruiterProfileOutput {
   name: string;
   email: string;
   isActive: boolean;
+  profileImage ?: string;
   verificationStatus: "pending" | "verified" | "rejected";
   companyName: string;
   companyWebsite: string;

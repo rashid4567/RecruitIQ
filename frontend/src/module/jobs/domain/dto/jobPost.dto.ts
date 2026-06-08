@@ -19,6 +19,7 @@ export type JobVisibility =
   | "hidden";
 
 export interface CreateJobDTO {
+  companyName : string;
   title: string;
   description: string;
   responsibilities?: string[];

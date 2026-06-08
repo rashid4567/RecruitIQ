@@ -5,6 +5,7 @@ import type { LocationDTO, SalaryDTO } from "./shared.dto";
 
 
 export interface UpdateJobPostDTO {
+  companyName ?: string;
   title?: string;
   description?: string;
   responsibilities?: string[];

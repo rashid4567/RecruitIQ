@@ -88,16 +88,13 @@ function DepartmentDropdown({
   }, []);
 
   useEffect(() => {
-  if (!open) return;
-
-  setSearch("");
-
-  const timer = setTimeout(() => {
-    searchRef.current?.focus();
-  }, 50);
-
-  return () => clearTimeout(timer);
-}, [open]);
+    if (!open) return;
+    setSearch("");
+    const timer = setTimeout(() => {
+      searchRef.current?.focus();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [open]);
 
   const filtered = departments.filter((d) =>
     d.toLowerCase().includes(search.toLowerCase()),
@@ -216,6 +213,44 @@ export default function Step1BasicInfo({
       </div>
 
       <div className="space-y-6">
+
+        {/* ── Company Name ── */}
+        <div>
+          <FieldLabel required>
+            <Building2 className="w-3.5 h-3.5" /> Company Name
+          </FieldLabel>
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Building2
+                className={`w-4 h-4 transition-colors duration-200 ${
+                  formData.companyName
+                    ? "text-indigo-500"
+                    : "text-gray-300"
+                }`}
+              />
+            </div>
+            <Input
+              value={formData.companyName}
+              onChange={(e) =>
+                setFormData((p) => ({ ...p, companyName: e.target.value }))
+              }
+              placeholder="e.g., Acme Technologies Pvt. Ltd."
+              className={`h-12 pl-11 rounded-xl border-2 text-sm font-medium transition-all duration-200 focus:ring-4 focus:ring-indigo-50 placeholder:text-gray-300 placeholder:font-normal ${
+                errors.companyName
+                  ? "border-red-400 bg-red-50/50 focus:border-red-400"
+                  : "border-gray-200 focus:border-indigo-500"
+              }`}
+            />
+            {formData.companyName && (
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100">
+                <Check className="w-3 h-3 text-emerald-600" strokeWidth={3} />
+              </span>
+            )}
+          </div>
+          <ErrorMsg msg={errors.companyName} />
+        </div>
+
+        {/* ── Job Title ── */}
         <div>
           <FieldLabel required>Job Title</FieldLabel>
           <Input
@@ -233,6 +268,7 @@ export default function Step1BasicInfo({
           <ErrorMsg msg={errors.title} />
         </div>
 
+        {/* ── Department + Openings ── */}
         <div className="grid grid-cols-2 gap-5">
           <div>
             <FieldLabel required>Department</FieldLabel>
@@ -273,6 +309,7 @@ export default function Step1BasicInfo({
           </div>
         </div>
 
+        {/* ── Employment Type ── */}
         <div>
           <FieldLabel required>
             <Briefcase className="w-3.5 h-3.5" /> Employment Type
@@ -332,6 +369,7 @@ export default function Step1BasicInfo({
           </div>
         </div>
 
+        {/* ── Location ── */}
         <div className="p-5 bg-linear-to-br from-slate-50 to-gray-50 rounded-2xl border border-gray-100">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
@@ -379,6 +417,7 @@ export default function Step1BasicInfo({
           </div>
         </div>
 
+        {/* ── Remote Toggle ── */}
         <div>
           <button
             type="button"

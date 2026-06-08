@@ -33,6 +33,9 @@ import { ForgotPasswordController } from "../controller/forgot-password.controll
 import { ChangePasswordController } from "../controller/updatePassword.controller";
 import { GoogleController } from "../controller/google.controller";
 import { EmailUpdateController } from "../controller/email-update.controller";
+import { S3FileStorageRepository } from "../../../resume/infrastructure/storage/s3-file-storage.repository";
+import { UpdateProfileImageUseCase } from "../../application/useCase/update-profile-image.usecase";
+import { ProfileImageController } from "../controller/profile-image.controller";
 
 const userRepo: UserRepository = new MongooseUserRepository();
 const passwordPort: PasswordHasherPort = new PasswordService();
@@ -55,9 +58,12 @@ const verifyRegistrationUC = new VerifyRegistrationUseCase(
   activityTracker,
   sendEmailByEventUC,
 );
-
+const fileStorageRepo = new S3FileStorageRepository();
+const updateProfileImageUC = new UpdateProfileImageUseCase(
+  userRepo,
+  fileStorageRepo,
+);
 const loginUC = new LoginUseCase(userRepo, passwordPort, tokenService);
-
 const adminLoginUC = new AdminLoginUseCase(loginUC);
 const refreshTokenUC = new RefreshTokenUseCase(userRepo, tokenService);
 const forgotPassWordUC = new ForgotPasswordUseCase(
@@ -65,21 +71,17 @@ const forgotPassWordUC = new ForgotPasswordUseCase(
   tokenService,
   emailService,
 );
-
 const resetPasswordUC = new ResetPasswordUseCase(
   userRepo,
   passwordPort,
   tokenService,
 );
-
 const changePasswordUC = new UpdatePasswordUseCase(userRepo, passwordPort);
-
 const googleLoginUC = new GoogleLoginUseCase(
   userRepo,
   googleAuthService,
   tokenService,
 );
-
 const requestEmailUpdateUC = new RequestEmailUpdateUseCase(
   userRepo,
   otpService,
@@ -104,4 +106,7 @@ export const googleController = new GoogleController(googleLoginUC);
 export const emailUpdateController = new EmailUpdateController(
   requestEmailUpdateUC,
   verifyEmailUpdateUC,
+);
+export const profileImageController = new ProfileImageController(
+  updateProfileImageUC,
 );

@@ -1,8 +1,6 @@
 import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Mail,
   MapPin,
@@ -24,10 +22,10 @@ import {
   Sparkles,
   Zap,
   Eye,
+  Star,
+  TrendingUp,
 } from "lucide-react";
 import { Candidate } from "../../../domain/entities/candidates.entity";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getExperienceDisplay(years: number): string {
   if (years <= 0) return "Entry Level";
@@ -35,14 +33,11 @@ function getExperienceDisplay(years: number): string {
   return `${years} years`;
 }
 
-function getExperienceLevel(years: number): { label: string; color: string } {
-  if (years <= 2)
-    return { label: "Junior", color: "bg-emerald-100 text-emerald-700" };
-  if (years <= 5)
-    return { label: "Mid-Level", color: "bg-blue-100 text-blue-700" };
-  if (years <= 8)
-    return { label: "Senior", color: "bg-purple-100 text-purple-700" };
-  return { label: "Expert", color: "bg-amber-100 text-amber-700" };
+function getExperienceLevel(years: number): { label: string; dot: string; pill: string } {
+  if (years <= 2) return { label: "Junior", dot: "bg-emerald-400", pill: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" };
+  if (years <= 5) return { label: "Mid-Level", dot: "bg-sky-400", pill: "bg-sky-50 text-sky-700 ring-1 ring-sky-200" };
+  if (years <= 8) return { label: "Senior", dot: "bg-violet-400", pill: "bg-violet-50 text-violet-700 ring-1 ring-violet-200" };
+  return { label: "Expert", dot: "bg-amber-400", pill: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" };
 }
 
 function getInitials(name?: string) {
@@ -57,64 +52,76 @@ function getInitials(name?: string) {
   );
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StatTile({
+function MetaChip({
   icon,
   label,
-  children,
 }: {
   icon: React.ReactNode;
   label: string;
-  children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center space-y-1">
-      <div className="flex justify-center">{icon}</div>
-      <p className="text-xs text-indigo-200 uppercase tracking-wider">
-        {label}
-      </p>
-      {children}
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100 text-gray-500 text-sm">
+      {icon}
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function StatCard({
+  icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  accent: string;
+}) {
+  return (
+    <div className="flex-1 min-w-[130px] bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3 hover:shadow-md transition-shadow duration-200">
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${accent}`}>
+        {icon}
+      </div>
+      <div>
+        <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">{label}</p>
+        <div className="text-sm font-semibold text-gray-800 mt-0.5">{value}</div>
+      </div>
     </div>
   );
 }
 
 function SectionCard({
   icon,
-  iconBg,
   title,
+  accent,
   children,
 }: {
   icon: React.ReactNode;
-  iconBg: string;
   title: string;
+  accent: string;
   children: React.ReactNode;
 }) {
   return (
-    <Card className="border-0 shadow-xl bg-white rounded-2xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
-      <div className="bg-linear-to-r from-indigo-50 to-purple-50 px-8 py-5 border-b">
-        <CardTitle className="flex items-center gap-3 text-xl text-gray-900">
-          <div className={`p-2 ${iconBg} rounded-xl`}>{icon}</div>
-          {title}
-        </CardTitle>
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-50">
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accent}`}>
+          {icon}
+        </div>
+        <h3 className="text-sm font-semibold text-gray-800 tracking-wide uppercase">{title}</h3>
       </div>
-      <CardContent className="px-8 py-7">{children}</CardContent>
-    </Card>
+      <div className="p-6">{children}</div>
+    </div>
   );
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface CandidateProfileContentProps {
   profile: Candidate;
-  /** Triggers the block confirmation dialog in the parent */
   onBlockClick?: () => void;
-  /** Triggers the unblock confirmation dialog in the parent */
   onUnblockClick?: () => void;
   actionLoading?: boolean;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function CandidateProfileContent({
   profile,
@@ -126,173 +133,166 @@ export function CandidateProfileContent({
   const experienceLevel = getExperienceLevel(profile.experienceYears);
 
   return (
-    <div className="space-y-8">
-      <div className="relative overflow-hidden bg-linear-to-r from-indigo-900 via-purple-900 to-violet-900 rounded-2xl">
-        <div className="absolute inset-0 bg-black/20 rounded-2xl" />
-        <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-[#F7F8FA] font-sans p-4 sm:p-8 space-y-6">
 
-        <div className="relative px-6 sm:px-10 py-12 lg:py-16">
-          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10">
-            <div className="relative group shrink-0">
-              <div className="absolute -inset-4 bg-linear-to-r from-indigo-400 to-purple-400 rounded-full opacity-60 group-hover:opacity-90 transition-opacity duration-300 blur-xl" />
-              <Avatar className="h-36 w-36 lg:h-44 lg:w-44 rounded-full ring-4 ring-white/30 shadow-2xl relative">
-                <AvatarFallback className="text-5xl bg-linear-to-br from-indigo-600 to-purple-600 text-white font-bold">
-                  {getInitials(profile.name)}
-                </AvatarFallback>
-              </Avatar>
+      {/* ── Hero Card ─────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
 
-              <div
-                className={`absolute -bottom-3 -right-3 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-xl border-2 border-white ${
-                  isBlocked ? "bg-red-500" : "bg-emerald-500"
-                }`}
-              >
-                {isBlocked ? (
-                  <Ban className="w-3.5 h-3.5 text-white" />
-                ) : (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                )}
-                <span className="text-white text-xs font-semibold">
+        {/* Top bar stripe */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-slate-300 via-gray-200 to-slate-300" />
+
+        <div className="px-6 sm:px-10 py-8">
+          <div className="flex flex-col sm:flex-row items-start gap-7">
+
+            {/* Avatar */}
+            <div className="relative shrink-0">
+              <div className="rounded-2xl overflow-hidden ring-4 ring-gray-50 shadow-lg w-24 h-24 sm:w-28 sm:h-28">
+                <Avatar className="w-full h-full rounded-2xl">
+                  <AvatarImage src={profile.profileImage} alt={profile.name} className="object-cover" />
+                  <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-2xl">
+                    {getInitials(profile.name)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              {/* Status dot */}
+              <span
+                className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-2 border-white shadow-sm ${isBlocked ? "bg-red-400" : "bg-emerald-400"}`}
+              />
+            </div>
+
+            {/* Identity */}
+            <div className="flex-1 space-y-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                  {profile.name}
+                </h1>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${experienceLevel.pill}`}>
+                  {experienceLevel.label}
+                </span>
+                <span
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 ${
+                    isBlocked
+                      ? "bg-red-50 text-red-600 ring-1 ring-red-200"
+                      : "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
+                  }`}
+                >
+                  {isBlocked ? (
+                    <Ban className="w-3 h-3" />
+                  ) : (
+                    <CheckCircle2 className="w-3 h-3" />
+                  )}
                   {isBlocked ? "Blocked" : "Active"}
                 </span>
               </div>
-            </div>
 
-            <div className="flex-1 w-full text-center lg:text-left">
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-3 justify-center lg:justify-start">
-                    <h2 className="text-3xl lg:text-5xl font-bold text-white leading-tight">
-                      {profile.name}
-                    </h2>
-                    <Badge
-                      className={`${experienceLevel.color} border-0 px-3 py-1.5 text-sm font-semibold`}
-                    >
-                      {experienceLevel.label}
-                    </Badge>
-                  </div>
+              {profile.currentJob && (
+                <p className="text-base text-gray-500 flex items-center gap-1.5">
+                  <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
+                  {profile.currentJob}
+                </p>
+              )}
 
-                  {profile.currentJob && (
-                    <div className="flex items-center gap-2 justify-center lg:justify-start text-indigo-200">
-                      <Briefcase className="w-4 h-4 shrink-0" />
-                      <p className="text-lg">{profile.currentJob}</p>
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap gap-4 justify-center lg:justify-start text-indigo-200/80 text-sm">
-                    {profile.currentJobLocation && (
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4 shrink-0" />
-                        <span>{profile.currentJobLocation}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 shrink-0" />
-                      <span>Available for opportunities</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-3 justify-center lg:justify-end shrink-0">
-                  {profile.linkedinUrl && (
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="lg"
-                      className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white"
-                    >
-                      <a
-                        href={profile.linkedinUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <Linkedin className="mr-2 h-5 w-5" />
-                        LinkedIn
-                      </a>
-                    </Button>
-                  )}
-
-                  {isBlocked ? (
-                    <Button
-                      onClick={onUnblockClick}
-                      size="lg"
-                      disabled={actionLoading}
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg"
-                    >
-                      <ShieldCheck className="mr-2 h-5 w-5" />
-                      Unblock
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={onBlockClick}
-                      size="lg"
-                      variant="destructive"
-                      disabled={actionLoading}
-                      className="shadow-lg"
-                    >
-                      <ShieldX className="mr-2 h-5 w-5" />
-                      Block
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
-                <StatTile
-                  icon={<Mail className="w-5 h-5 text-indigo-300" />}
-                  label="Email"
-                >
-                  <p className="text-white font-medium text-sm break-all">
-                    {profile.email}
-                  </p>
-                </StatTile>
-
-                <StatTile
-                  icon={<Award className="w-5 h-5 text-indigo-300" />}
-                  label="Experience"
-                >
-                  <p className="text-2xl font-bold text-white">
-                    {getExperienceDisplay(profile.experienceYears)}
-                  </p>
-                </StatTile>
-
-                {profile.educationLevel && (
-                  <StatTile
-                    icon={<GraduationCap className="w-5 h-5 text-indigo-300" />}
-                    label="Education"
-                  >
-                    <p className="text-white font-medium text-sm">
-                      {profile.educationLevel}
-                    </p>
-                  </StatTile>
-                )}
-
+              <div className="flex flex-wrap gap-2">
                 {profile.currentJobLocation && (
-                  <StatTile
-                    icon={<MapPin className="w-5 h-5 text-indigo-300" />}
-                    label="Location"
-                  >
-                    <p className="text-white font-medium text-sm">
-                      {profile.currentJobLocation}
-                    </p>
-                  </StatTile>
+                  <MetaChip icon={<MapPin className="w-3.5 h-3.5" />} label={profile.currentJobLocation} />
                 )}
+                <MetaChip icon={<Mail className="w-3.5 h-3.5" />} label={profile.email} />
+                <MetaChip icon={<Clock className="w-3.5 h-3.5" />} label="Open to opportunities" />
               </div>
             </div>
+
+            {/* CTA buttons */}
+            <div className="flex flex-wrap sm:flex-col gap-2 shrink-0">
+              {profile.linkedinUrl && (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 gap-2"
+                >
+                  <a href={profile.linkedinUrl} target="_blank" rel="noreferrer">
+                    <Linkedin className="w-4 h-4" />
+                    LinkedIn
+                  </a>
+                </Button>
+              )}
+
+              {isBlocked ? (
+                <Button
+                  onClick={onUnblockClick}
+                  size="sm"
+                  disabled={actionLoading}
+                  className="rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white gap-2"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  Unblock
+                </Button>
+              ) : (
+                <Button
+                  onClick={onBlockClick}
+                  size="sm"
+                  variant="outline"
+                  disabled={actionLoading}
+                  className="rounded-xl border-red-200 text-red-500 hover:bg-red-50 gap-2"
+                >
+                  <ShieldX className="w-4 h-4" />
+                  Block
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="border-t border-gray-50 px-6 sm:px-10 py-5">
+          <div className="flex flex-wrap gap-4">
+            <StatCard
+              icon={<Award className="w-4 h-4 text-amber-600" />}
+              accent="bg-amber-50"
+              label="Experience"
+              value={getExperienceDisplay(profile.experienceYears)}
+            />
+            {profile.educationLevel && (
+              <StatCard
+                icon={<GraduationCap className="w-4 h-4 text-violet-600" />}
+                accent="bg-violet-50"
+                label="Education"
+                value={profile.educationLevel}
+              />
+            )}
+            {profile.skills.length > 0 && (
+              <StatCard
+                icon={<Code className="w-4 h-4 text-sky-600" />}
+                accent="bg-sky-50"
+                label="Skills"
+                value={`${profile.skills.length} listed`}
+              />
+            )}
+            <StatCard
+              icon={<TrendingUp className="w-4 h-4 text-emerald-600" />}
+              accent="bg-emerald-50"
+              label="Match Score"
+              value={
+                <span className="text-emerald-600 font-bold">98%</span>
+              }
+            />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left — About + Skills */}
-        <div className="lg:col-span-2 space-y-8">
+      {/* ── Main Content Grid ──────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Left column */}
+        <div className="lg:col-span-2 space-y-6">
+
           {profile.bio && (
             <SectionCard
-              icon={<FileText className="w-5 h-5 text-indigo-600" />}
-              iconBg="bg-indigo-100"
+              icon={<FileText className="w-4 h-4 text-slate-600" />}
+              accent="bg-slate-100"
               title="About"
             >
-              <p className="text-gray-700 text-base leading-relaxed">
+              <p className="text-gray-600 leading-relaxed text-sm">
                 {profile.bio}
               </p>
             </SectionCard>
@@ -300,126 +300,129 @@ export function CandidateProfileContent({
 
           {profile.skills.length > 0 && (
             <SectionCard
-              icon={<Code className="w-5 h-5 text-purple-600" />}
-              iconBg="bg-purple-100"
+              icon={<Code className="w-4 h-4 text-sky-600" />}
+              accent="bg-sky-50"
               title="Technical Skills"
             >
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="flex flex-wrap gap-2">
                 {profile.skills.map((skill, i) => (
-                  <div key={i} className="group">
-                    <Badge className="w-full px-4 py-2.5 bg-linear-to-r from-indigo-50 to-purple-50 text-gray-700 hover:from-indigo-100 hover:to-purple-100 border-0 text-sm font-medium transition-all cursor-default justify-between">
-                      {skill}
-                      <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </Badge>
-                  </div>
+                  <span
+                    key={i}
+                    className="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-100 hover:border-gray-200 text-gray-700 text-sm rounded-xl transition-colors cursor-default font-medium"
+                  >
+                    {skill}
+                  </span>
                 ))}
               </div>
 
               {profile.skills.length >= 3 && (
-                <div className="mt-6 p-4 bg-amber-50 rounded-xl flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-amber-900">
-                      Top Skills
-                    </p>
-                    <p className="text-sm text-amber-700 mt-0.5">
-                      {profile.skills.slice(0, 3).join(", ")} are among the most
-                      in-demand skills this year
-                    </p>
-                  </div>
+                <div className="mt-5 flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100">
+                  <Sparkles className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                  <p className="text-sm text-amber-700">
+                    <span className="font-semibold">Top demand: </span>
+                    {profile.skills.slice(0, 3).join(", ")} are trending this year.
+                  </p>
                 </div>
               )}
             </SectionCard>
           )}
+
+          {profile.preferredJobLocations?.length > 0 && (
+            <SectionCard
+              icon={<MapPin className="w-4 h-4 text-rose-500" />}
+              accent="bg-rose-50"
+              title="Preferred Locations"
+            >
+              <div className="flex flex-wrap gap-2">
+                {profile.preferredJobLocations.map((loc, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1.5 bg-gray-50 border border-gray-100 text-gray-600 text-sm rounded-xl font-medium flex items-center gap-1.5"
+                  >
+                    <MapPin className="w-3 h-3 text-gray-400" />
+                    {loc}
+                  </span>
+                ))}
+              </div>
+            </SectionCard>
+          )}
         </div>
 
-        <div className="space-y-8">
-          {/* Experience */}
-          <Card className="border-0 shadow-xl bg-white rounded-2xl overflow-hidden">
-            <div className="bg-linear-to-r from-amber-50 to-orange-50 px-6 py-5 border-b">
-              <CardTitle className="flex items-center gap-3 text-lg text-gray-900">
-                <div className="p-2 bg-amber-100 rounded-xl">
-                  <Award className="w-5 h-5 text-amber-600" />
-                </div>
-                Experience
-              </CardTitle>
+        {/* Right sidebar */}
+        <div className="space-y-6">
+
+          {/* Experience card */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Experience</h3>
+              <Zap className="w-4 h-4 text-amber-400" />
             </div>
-            <CardContent className="p-6 text-center">
-              <div className="relative inline-block">
-                <p className="text-4xl font-bold text-gray-900">
-                  {getExperienceDisplay(profile.experienceYears)}
-                </p>
-                <Zap className="w-5 h-5 text-amber-500 absolute -top-2 -right-6" />
+            <div>
+              <p className="text-4xl font-bold text-gray-900 tabular-nums">
+                {profile.experienceYears > 0 ? profile.experienceYears : "—"}
+              </p>
+              <p className="text-sm text-gray-400 mt-0.5">
+                {profile.experienceYears === 1 ? "year" : profile.experienceYears > 1 ? "years total" : "Entry level"}
+              </p>
+            </div>
+            {profile.currentJob && (
+              <div className="pt-4 border-t border-gray-50 space-y-1">
+                <p className="text-xs text-gray-400 uppercase tracking-wider">Current Role</p>
+                <p className="text-sm font-semibold text-gray-800">{profile.currentJob}</p>
+                {profile.currentJobLocation && (
+                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {profile.currentJobLocation}
+                  </p>
+                )}
               </div>
-              <p className="text-gray-500 text-sm mt-1">Total Experience</p>
+            )}
+          </div>
 
-              {profile.currentJob && (
-                <div className="mt-5 pt-5 border-t">
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">
-                    Current Role
-                  </p>
-                  <p className="text-base font-semibold text-gray-900 mt-1">
-                    {profile.currentJob}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Match score */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Insights</h3>
+              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-1 text-center p-3 bg-gray-50 rounded-xl">
+                <p className="text-2xl font-bold text-gray-900">98%</p>
+                <p className="text-xs text-gray-400 mt-0.5">Match</p>
+              </div>
+              <div className="flex-1 text-center p-3 bg-gray-50 rounded-xl">
+                <p className="text-2xl font-bold text-gray-900">15</p>
+                <p className="text-xs text-gray-400 mt-0.5">Applied</p>
+              </div>
+            </div>
+            <Button className="w-full rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-sm gap-2">
+              <ThumbsUp className="w-4 h-4" />
+              Recommend Candidate
+            </Button>
+          </div>
 
-          <Card className="border-0 shadow-xl bg-white rounded-2xl">
-            <CardHeader className="bg-linear-to-r from-slate-50 to-gray-50 rounded-t-2xl">
-              <CardTitle className="text-lg text-gray-900">
-                Quick Actions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-5 space-y-2.5">
+          {/* Quick actions */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-3">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Quick Actions</h3>
+            <div className="space-y-2">
               {[
-                {
-                  icon: <MessageCircle className="h-4 w-4" />,
-                  label: "Send Message",
-                },
-                {
-                  icon: <Calendar className="h-4 w-4" />,
-                  label: "Schedule Interview",
-                },
-                {
-                  icon: <FileText className="h-4 w-4" />,
-                  label: "Download Resume",
-                },
-                { icon: <Eye className="h-4 w-4" />, label: "View Portfolio" },
+                { icon: <MessageCircle className="w-4 h-4 text-gray-400" />, label: "Send Message" },
+                { icon: <Calendar className="w-4 h-4 text-gray-400" />, label: "Schedule Interview" },
+                { icon: <FileText className="w-4 h-4 text-gray-400" />, label: "Download Resume" },
+                { icon: <Eye className="w-4 h-4 text-gray-400" />, label: "View Portfolio" },
               ].map(({ icon, label }) => (
-                <Button
+                <button
                   key={label}
-                  variant="outline"
-                  className="w-full justify-start gap-3"
-                  size="lg"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors text-left border border-transparent hover:border-gray-100"
                 >
                   {icon}
                   {label}
-                </Button>
+                  <ChevronRight className="w-3.5 h-3.5 ml-auto text-gray-300" />
+                </button>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="border-0 shadow-xl bg-linear-to-br from-indigo-500 to-purple-600 text-white rounded-2xl overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex justify-center gap-10 mb-5">
-                <div className="text-center">
-                  <p className="text-2xl font-bold">98%</p>
-                  <p className="text-xs opacity-80 mt-0.5">Match Score</p>
-                </div>
-                <div className="w-px bg-white/30" />
-                <div className="text-center">
-                  <p className="text-2xl font-bold">15</p>
-                  <p className="text-xs opacity-80 mt-0.5">Applications</p>
-                </div>
-              </div>
-              <Button className="w-full bg-white text-indigo-600 hover:bg-gray-100 font-semibold">
-                <ThumbsUp className="mr-2 h-4 w-4" />
-                Recommend Candidate
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

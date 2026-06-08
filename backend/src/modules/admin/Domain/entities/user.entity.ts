@@ -1,4 +1,4 @@
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { Email } from "../../../auth/domain/value.objects/email.vo";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 
 export class UserAccount{
@@ -6,17 +6,20 @@ export class UserAccount{
         private readonly id : UserId,
         private readonly email : Email,
         private isActive : boolean,
+        private readonly profileImage ?: string,
     ){};
 
     public static fromPresistence(props : {
         id : UserId,
         email : Email,
         isActive : boolean,
+        profileImage ?: string,
     }):UserAccount{
         return new UserAccount(
             props.id,
             props.email,
-            props.isActive
+            props.isActive,
+            props.profileImage,
         )
     }
 
@@ -40,5 +43,9 @@ export class UserAccount{
 
     isActiveAccount():boolean{
         return this.isActive;
+    }
+
+    getProfileImage():string | undefined{
+        return this.profileImage;
     }
 }

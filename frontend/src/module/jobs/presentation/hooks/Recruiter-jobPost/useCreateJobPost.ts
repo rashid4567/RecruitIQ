@@ -15,6 +15,7 @@ export interface SalaryVO {
 }
 
 export interface JobFormData {
+  companyName : string;
   title: string;
   description: string;
   department: string;
@@ -34,6 +35,7 @@ export interface JobFormData {
 }
 
 export const defaultJobFormData: JobFormData = {
+  companyName : "",
   title: "",
   description: "",
   department: "",
@@ -65,6 +67,7 @@ function hasAnyData(formData: JobFormData): boolean {
 
 function buildDtoFromForm(formData: JobFormData) {
   return {
+    companyName : formData.companyName.trim(),
     title: formData.title.trim(),
     description: formData.description.trim(),
     responsibilities: formData.responsibilities
@@ -101,6 +104,7 @@ function getStepErrors(
   const errs: Record<string, string> = {};
 
   if (step === 1) {
+    if(!formData.companyName.trim()) errs.title = "Company name is required";
     if (!formData.title.trim()) errs.title = "Job title is required";
     if (!formData.department.trim()) errs.department = "Department is required";
     if (!formData.positions || formData.positions < 1)

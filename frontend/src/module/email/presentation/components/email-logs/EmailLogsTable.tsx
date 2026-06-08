@@ -1,5 +1,13 @@
-import { Mail } from "lucide-react";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Mail,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  SlidersHorizontal,
+  Inbox,
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
 import type { EmailLog } from "../../../../email/domain/entity/email-log.entity";
 import {
   Table,
@@ -18,14 +26,6 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
-
 import { EmailLogsTableRow } from "./EmailLogsTableRow";
 import { EmailLogsSkeletonRow } from "./EmailLogsSkeletonRow";
 
@@ -46,6 +46,72 @@ interface EmailLogsTableProps {
   perPageOptions: number[];
 }
 
+/* ─── Page number pills ─────────────────────────────────────── */
+
+function PagePills({
+  page,
+  totalPages,
+  onPageChange,
+}: {
+  page: number;
+  totalPages: number;
+  onPageChange: (p: number) => void;
+}) {
+  const MAX = 7;
+  const half = Math.floor(MAX / 2);
+  let start = Math.max(1, page - half);
+  const end = Math.min(totalPages, start + MAX - 1);
+  if (end - start < MAX - 1) start = Math.max(1, end - MAX + 1);
+
+  const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+
+  return (
+    <div className="flex items-center gap-1">
+      {start > 1 && (
+        <>
+          <PageBtn n={1} active={false} onClick={() => onPageChange(1)} />
+          {start > 2 && <span className="px-1 text-slate-300 text-xs">…</span>}
+        </>
+      )}
+      {pages.map((n) => (
+        <PageBtn key={n} n={n} active={n === page} onClick={() => onPageChange(n)} />
+      ))}
+      {end < totalPages && (
+        <>
+          {end < totalPages - 1 && <span className="px-1 text-slate-300 text-xs">…</span>}
+          <PageBtn n={totalPages} active={false} onClick={() => onPageChange(totalPages)} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function PageBtn({
+  n,
+  active,
+  onClick,
+}: {
+  n: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "h-8 w-8 rounded-lg text-sm font-semibold transition-all duration-150",
+        active
+          ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
+          : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
+      )}
+    >
+      {n}
+    </button>
+  );
+}
+
+/* ─── Main ──────────────────────────────────────────────────── */
+
 export function EmailLogsTable({
   logs,
   loading,
@@ -57,64 +123,119 @@ export function EmailLogsTable({
   onLimitChange,
   perPageOptions,
 }: EmailLogsTableProps) {
-  const allSelected = logs.length > 0 && selectedIds.length === logs.length;
+  const allSelected = logs.length > 0 && logs.every((l) =>
+    selectedIds.includes(l.getId() ?? ""),
+  );
+  const someSelected = selectedIds.length > 0 && !allSelected;
+
+  const start = (pagination.page - 1) * pagination.limit + 1;
+  const end = Math.min(pagination.page * pagination.limit, pagination.total);
 
   return (
-    <Card className="border border-slate-200 shadow-sm overflow-hidden">
+    <Card className="border border-slate-200/70 shadow-sm rounded-2xl overflow-hidden">
 
-      <CardHeader className="bg-slate-50 px-6 py-5 border-b">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-xl font-semibold">Email Activity</CardTitle>
-
-          <div className="flex items-center gap-3 text-sm text-slate-600">
-            <span>Rows per page:</span>
-            <Select
-              value={pagination.limit.toString()}
-              onValueChange={(v) => onLimitChange(Number(v))}
-            >
-              <SelectTrigger className="w-20 h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {perPageOptions.map((n) => (
-                  <SelectItem key={n} value={n.toString()}>
-                    {n}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {/* ── Table header bar ── */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-600/25">
+            <Inbox className="h-4 w-4 text-white" strokeWidth={1.8} />
           </div>
+          <div>
+            <h2 className="text-[15px] font-bold text-slate-800 leading-none">
+              Email Activity
+            </h2>
+            {!loading && (
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                {pagination.total.toLocaleString()} total records
+              </p>
+            )}
+          </div>
+
+          {/* Bulk selection indicator */}
+          {selectedIds.length > 0 && (
+            <span className="ml-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-[11px] font-semibold">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+              {selectedIds.length} selected
+            </span>
+          )}
         </div>
-      </CardHeader>
 
+        {/* Rows per page */}
+        <div className="flex items-center gap-2 text-sm text-slate-500">
+          <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400" />
+          <span className="text-xs font-medium hidden sm:block">Rows</span>
+          <Select
+            value={pagination.limit.toString()}
+            onValueChange={(v) => onLimitChange(Number(v))}
+          >
+            <SelectTrigger className="w-16 h-8 rounded-lg border-slate-200 text-sm font-semibold">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {perPageOptions.map((n) => (
+                <SelectItem key={n} value={n.toString()} className="text-sm">
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
+      {/* ── Table ── */}
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50">
-              <TableHead className="w-12 pl-6">
-                <Checkbox checked={allSelected} onCheckedChange={onSelectAll} />
+            <TableRow className="bg-slate-50/80 border-b border-slate-100 hover:bg-slate-50/80">
+              <TableHead className="pl-6 w-12">
+                <Checkbox
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) (el as HTMLButtonElement & { indeterminate?: boolean }).indeterminate = someSelected;
+                  }}
+                  onCheckedChange={onSelectAll}
+                  aria-label="Select all"
+                  className="border-slate-300"
+                />
               </TableHead>
-              <TableHead>Sent At</TableHead>
-              <TableHead>Recipient</TableHead>
-              <TableHead>Subject</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right pr-8">Actions</TableHead>
+              <TableHead className="w-44 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Sent At
+              </TableHead>
+              <TableHead className="w-56 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Recipient
+              </TableHead>
+              <TableHead className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Subject
+              </TableHead>
+              <TableHead className="w-28 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Type
+              </TableHead>
+              <TableHead className="w-28 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Status
+              </TableHead>
+              <TableHead className="pr-6 w-20 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-right">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {loading ? (
-              Array(8)
-                .fill(0)
-                .map((_, i) => <EmailLogsSkeletonRow key={i} />)
+              Array(8).fill(0).map((_, i) => <EmailLogsSkeletonRow key={i} />)
             ) : logs.length === 0 ? (
               <TableRow>
-                <td colSpan={7} className="h-80 text-center py-12">
-                  <Mail className="h-16 w-16 mx-auto text-slate-300 mb-4" />
-                  <p className="text-xl font-medium text-slate-600">No matching emails found</p>
-                  <p className="text-slate-500 mt-1">Try changing your search or filters</p>
+                <td colSpan={7} className="py-20 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center">
+                      <Mail className="h-7 w-7 text-slate-300" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-[15px] font-semibold text-slate-600">
+                      No emails found
+                    </p>
+                    <p className="text-sm text-slate-400">
+                      Try adjusting your filters or search query
+                    </p>
+                  </div>
                 </td>
               </TableRow>
             ) : (
@@ -131,84 +252,61 @@ export function EmailLogsTable({
         </Table>
       </div>
 
-
+      {/* ── Pagination footer ── */}
       {pagination.totalPages > 1 && (
-        <div className="px-6 py-5 bg-slate-50 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-slate-600">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+          {/* Results summary */}
+          <p className="text-[12px] text-slate-400 font-medium">
             Showing{" "}
-            <span className="font-medium text-slate-900">
-              {(pagination.page - 1) * pagination.limit + 1}
-            </span>{" "}
-            –{" "}
-            <span className="font-medium text-slate-900">
-              {Math.min(pagination.page * pagination.limit, pagination.total)}
-            </span>{" "}
-            of <span className="font-medium text-slate-900">{pagination.total}</span> results
-          </div>
+            <span className="text-slate-700 font-bold">{start.toLocaleString()}</span>
+            {" – "}
+            <span className="text-slate-700 font-bold">{end.toLocaleString()}</span>
+            {" of "}
+            <span className="text-slate-700 font-bold">{pagination.total.toLocaleString()}</span>
+            {" results"}
+          </p>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
+          {/* Controls */}
+          <div className="flex items-center gap-1.5">
+            {/* First */}
+            <button
               disabled={pagination.page === 1}
               onClick={() => onPageChange(1)}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
+              <ChevronsLeft className="h-3.5 w-3.5" />
+            </button>
+            {/* Prev */}
+            <button
               disabled={pagination.page === 1}
               onClick={() => onPageChange(pagination.page - 1)}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </button>
 
+            <PagePills
+              page={pagination.page}
+              totalPages={pagination.totalPages}
+              onPageChange={onPageChange}
+            />
 
-            <div className="flex items-center gap-1 px-3">
-              {Array.from({ length: Math.min(7, pagination.totalPages) }, (_, i) => {
-                const num =
-                  i +
-                  Math.max(1, Math.min(pagination.page - 3, pagination.totalPages - 6));
-                if (num < 1 || num > pagination.totalPages) return null;
-
-                return (
-                  <Button
-                    key={num}
-                    variant={num === pagination.page ? "default" : "outline"}
-                    size="sm"
-                    className={cn(
-                      "h-9 w-9 rounded-xl",
-                      num === pagination.page && "bg-indigo-600 hover:bg-indigo-700 text-white"
-                    )}
-                    onClick={() => onPageChange(num)}
-                  >
-                    {num}
-                  </Button>
-                );
-              })}
-            </div>
-
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
+            {/* Next */}
+            <button
               disabled={pagination.page >= pagination.totalPages}
               onClick={() => onPageChange(pagination.page + 1)}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+            {/* Last */}
+            <button
               disabled={pagination.page >= pagination.totalPages}
               onClick={() => onPageChange(pagination.totalPages)}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
+              <ChevronsRight className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
       )}

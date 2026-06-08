@@ -4,11 +4,13 @@ import { UserRepository } from "../../../domain/repositories/user.entity";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ERROR_CODES } from "../../constants/error.code.constants";
 import { RecruiterProfileReponse } from "../../dto/recruiter-profile.dto";
+import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
 
 export class GetRecruiterProfileUseCase {
   constructor(
     private readonly recruiterRepo: RecruiterProfileRepository,
     private readonly userRepo: UserRepository,
+     private readonly fileStorageRepo: FileStorageRepository,
   ) {}
 
   async execute(userId: string): Promise<RecruiterProfileReponse> {
@@ -19,14 +21,21 @@ export class GetRecruiterProfileUseCase {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    const profile = await this.recruiterRepo.findByUserId(id);
+    
+    const profileImageKey = user.getProfileImage();
+    let profileImageUrl : string | undefined;
 
+    if(profileImageKey){
+      profileImageUrl = await this.fileStorageRepo.getViewUrl(profileImageKey)
+    }
+
+    const profile = await this.recruiterRepo.findByUserId(id);
     return {
       user: {
         id: user.getId().getValue(),
         fullName: user.getFullName(),
         email: user.getEmail().getValue(),
-        profileImage: user.getProfileImage(),
+        profileImage: profileImageUrl,
       },
 
       recruiter: {

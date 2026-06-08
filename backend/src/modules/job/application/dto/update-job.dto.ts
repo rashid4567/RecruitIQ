@@ -5,6 +5,7 @@ import {
 } from "../../domain/entities/job.entity";
 
 export interface UpdateJobDTO {
+  companyName ?: string;
   title?: string;
   description?: string;
   responsibilities?: string[];

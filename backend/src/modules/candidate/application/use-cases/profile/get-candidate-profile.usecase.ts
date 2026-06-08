@@ -5,12 +5,14 @@ import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../constants/error-code.constant";
 import { GetCandidateProfileResponseDTO } from "../../dto/candidate-profile.dto";
+import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
 
 export class GetCandidateProfileUseCase {
   constructor(
     private readonly candidateRepo: CandidateRepository,
     private readonly userRepo: UserRepository,
     private readonly resumeRepo: ResumeRepository,
+     private readonly fileStorageRepo: FileStorageRepository,
   ) {}
 
   async execute(userId: string): Promise<GetCandidateProfileResponseDTO> {
@@ -18,6 +20,13 @@ export class GetCandidateProfileUseCase {
     const user = await this.userRepo.findById(id);
     if (!user) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
+    }
+
+    let profileImageUrl : string | undefined;
+    const profileImageKey = user.getProfileImage();
+
+    if(profileImageKey){
+      profileImageUrl = await this.fileStorageRepo.getViewUrl(profileImageKey)
     }
     const profile = await this.candidateRepo.findByUserId(id);
     const resume = await this.resumeRepo.findByCandidateId(
@@ -29,7 +38,7 @@ export class GetCandidateProfileUseCase {
         id: user.getId().getValue(),
         fullName: user.getFullName(),
         email: user.getEmail().getValue(),
-        profileImage: user.getProfileImage(),
+        profileImage: profileImageUrl,
       },
 
       candidateProfile: {

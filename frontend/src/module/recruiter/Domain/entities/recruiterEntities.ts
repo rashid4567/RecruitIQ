@@ -4,6 +4,7 @@ import type { VerificationStatus } from "../constants/verificationStatus";
 export class RecruiterProfile {
   public readonly fullName: string;
   public readonly email: string;
+  public readonly profileImage ?: string;
   public readonly companyName?: string;
   public readonly companyWebsite?: string;
   public readonly companySize?: number;
@@ -19,6 +20,7 @@ export class RecruiterProfile {
   constructor(params: {
     fullName: string;
     email: string;
+    profileImage ?: string;
     companyName?: string;
     companyWebsite?: string;
     companySize?: number;
@@ -33,6 +35,7 @@ export class RecruiterProfile {
   }) {
     this.fullName = params.fullName;
     this.email = params.email;
+    this.profileImage = params.profileImage;
     this.companyName = params.companyName;
     this.companyWebsite = params.companyWebsite;
     this.companySize = params.companySize;
@@ -60,6 +63,7 @@ export class RecruiterProfile {
     return new RecruiterProfile({
       fullName: data.fullName ?? this.fullName,
       email: this.email,
+      profileImage : this.profileImage,
       companyName: data.companyName ?? this.companyName,
       companyWebsite: data.companyWebsite ?? this.companyWebsite,
       companySize: data.companySize ?? this.companySize,

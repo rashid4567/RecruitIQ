@@ -45,6 +45,6 @@ export interface AuthRepository {
     accessToken: string;
     user: AuthUser;
   }>;
-
   logout(): Promise<void>;
+  uploadProfileImage(file: File): Promise<void>;
 }

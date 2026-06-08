@@ -48,6 +48,5 @@ export const getResumeByCandidateController =
 export const getResumeByIdController = new GetResumeByIdController(
   getResumeByIdUC,
 );
-//export const getResumeDownloadUrlController =
-  //new GetResumeDownloadUrlController(getResumeDownloadUrlUC);
+
 export const DownloadResumecontroller = new DownloadResumeController(DownloadResumeUC)

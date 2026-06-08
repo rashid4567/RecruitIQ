@@ -2,7 +2,7 @@ import { userRoles } from "../constants/roles.constants";
 import { AuthProvider } from "../../../../shared/value-objects/auth-provider.vo";
 import { Email } from "../value.objects/email.vo";
 import { GoogleId } from "../value.objects/google-id.vo";
-import { DomainError } from "../../../../shared/errors/domain.error"
+import { DomainError } from "../../../../shared/errors/domain.error";
 import { DOMAIN_ERROR_CODES } from "../constants/DomainError";
 
 export class User {
@@ -15,6 +15,7 @@ export class User {
     public readonly authProvider: AuthProvider,
     private readonly passwordHash?: string,
     public readonly googleId?: GoogleId,
+    public readonly profileImage?: string,
   ) {
     this.validateInvariants();
   }
@@ -34,6 +35,7 @@ export class User {
       AuthProvider.local(),
       params.passwordHash,
       undefined,
+      undefined,
     );
   }
 
@@ -52,6 +54,7 @@ export class User {
       AuthProvider.google(),
       undefined,
       params.googleId,
+      undefined,
     );
   }
 
@@ -64,6 +67,7 @@ export class User {
     authProvider: AuthProvider;
     passwordHash?: string;
     googleId?: GoogleId;
+    profileImage?: string;
   }): User {
     return new User(
       params.id,
@@ -74,6 +78,7 @@ export class User {
       params.authProvider,
       params.passwordHash,
       params.googleId,
+      params.profileImage,
     );
   }
 
@@ -95,12 +100,13 @@ export class User {
       this.authProvider,
       this.passwordHash,
       this.googleId,
+      this.profileImage,
     );
   }
 
   changePasswordHash(newHash: string): User {
     if (!this.authProvider.isLocal()) {
-      throw new DomainError(DOMAIN_ERROR_CODES.PASSWORD_CHANGE_NOT_ALLOWED)
+      throw new DomainError(DOMAIN_ERROR_CODES.PASSWORD_CHANGE_NOT_ALLOWED);
     }
 
     return new User(
@@ -112,11 +118,14 @@ export class User {
       this.authProvider,
       newHash,
       this.googleId,
+      this.profileImage,
     );
   }
 
   activate(): User {
-    if (this.isActive) return this;
+    if (this.isActive) {
+      return this;
+    }
 
     return new User(
       this.id,
@@ -127,11 +136,14 @@ export class User {
       this.authProvider,
       this.passwordHash,
       this.googleId,
+      this.profileImage,
     );
   }
 
   deactivate(): User {
-    if (!this.isActive) return this;
+    if (!this.isActive) {
+      return this;
+    }
 
     return new User(
       this.id,
@@ -142,6 +154,35 @@ export class User {
       this.authProvider,
       this.passwordHash,
       this.googleId,
+      this.profileImage,
+    );
+  }
+
+  updateProfileImage(imageKey: string): User {
+    return new User(
+      this.id,
+      this.email,
+      this.role,
+      this.fullName,
+      this.isActive,
+      this.authProvider,
+      this.passwordHash,
+      this.googleId,
+      imageKey,
+    );
+  }
+
+  removeProfileImage(): User {
+    return new User(
+      this.id,
+      this.email,
+      this.role,
+      this.fullName,
+      this.isActive,
+      this.authProvider,
+      this.passwordHash,
+      this.googleId,
+      undefined,
     );
   }
 
@@ -175,7 +216,9 @@ export class User {
     }
 
     if (this.authProvider.isGoogle() && this.passwordHash) {
-      throw new DomainError(DOMAIN_ERROR_CODES.GOOGLE_USER_CANNOT_HAVE_PASSWORD)
+      throw new DomainError(
+        DOMAIN_ERROR_CODES.GOOGLE_USER_CANNOT_HAVE_PASSWORD,
+      );
     }
   }
 }

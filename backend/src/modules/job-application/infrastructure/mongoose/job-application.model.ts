@@ -63,12 +63,12 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
       index: true,
     },
 
-   candidateId: {
-  type: Schema.Types.ObjectId,
-  ref: "User",
-  required: true,
-  index: true,
-},
+    candidateId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
 
     recruiterId: {
       type: Schema.Types.ObjectId,
@@ -124,7 +124,6 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
   },
 );
 
-
 JobApplicationSchema.index(
   {
     candidateId: 1,
@@ -135,13 +134,11 @@ JobApplicationSchema.index(
   },
 );
 
-
 JobApplicationSchema.index({
   recruiterId: 1,
   status: 1,
   appliedAt: -1,
 });
-
 
 JobApplicationSchema.index({
   jobId: 1,
@@ -160,14 +157,12 @@ JobApplicationSchema.index({
   "interview.scheduledAt": 1,
 });
 
-
 JobApplicationSchema.index({
   isDeleted: 1,
   status: 1,
 });
 
-export const JobApplicationModel =
-  mongoose.model<JobApplicationDocument>(
-    "JobApplication",
-    JobApplicationSchema,
-  );
+export const JobApplicationModel = mongoose.model<JobApplicationDocument>(
+  "JobApplication",
+  JobApplicationSchema,
+);

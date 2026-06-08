@@ -5,6 +5,7 @@ export class Candidate {
   public readonly name: string;
   public readonly email: string;
   public readonly status: CandidateStatus;
+  public readonly profileImage ?: string;
   public readonly registeredDate: string;
   public readonly currentJob?: string;
   public readonly experienceYears: number;
@@ -22,6 +23,7 @@ export class Candidate {
     name: string;
     email: string;
     status: CandidateStatus;
+    profileImage ?: string;
     registeredDate: string;
     currentJob?: string;
     experienceYears?: number;
@@ -42,6 +44,7 @@ export class Candidate {
     this.name = params.name;
     this.email = params.email;
     this.status = params.status;
+    this.profileImage = params.profileImage;
     this.registeredDate = params.registeredDate;
     this.currentJob = params.currentJob;
     this.experienceYears = params.experienceYears ?? 0;
@@ -81,6 +84,7 @@ export class Candidate {
       name: this.name,
       email: this.email,
       status,
+      profileImage : this.profileImage,
       registeredDate: this.registeredDate,
       currentJob: this.currentJob,
       experienceYears: this.experienceYears,

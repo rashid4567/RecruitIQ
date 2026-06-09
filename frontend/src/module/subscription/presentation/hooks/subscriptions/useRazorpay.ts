@@ -70,7 +70,7 @@ interface UseRazorpayReturn {
   status: PaymentStatus;
   error: string | null;
   isLoading: boolean;
-  initiatePayment: (planId: string) => Promise<void>;
+  initiatePayment: (planId: string, durationMonths: number) => Promise<void>;
   reset: () => void;
 }
 
@@ -134,7 +134,10 @@ export function useRazorpay({
   }, []);
 
   const initiatePayment = useCallback(
-    async (planId: string) => {
+   async (
+  planId: string,
+  durationMonths: number,
+) => {
       if (isInProgress.current) {
         toast.warning("Payment already in progress.");
         return;
@@ -164,6 +167,7 @@ export function useRazorpay({
         });
         const orderData = await createSubscriptionPaymentUC.execute({
           planId,
+          durationMonths,
         });
         console.log("ORDER CREATED:", orderData);
         setStatus("processing");

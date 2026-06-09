@@ -4,7 +4,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Upload, X, Loader2 } from "lucide-react";
+import { X, Loader2, Camera } from "lucide-react";
 
 interface ProfileAvatarSectionProps {
   preview: string | null;
@@ -26,27 +26,40 @@ export function ProfileAvatarSection({
   onRemove,
 }: ProfileAvatarSectionProps) {
   return (
-    <div className="p-6 bg-linear-to-br from-blue-50/50 to-indigo-50/30 rounded-2xl border border-blue-100/50">
-      <div className="relative mx-auto w-48 h-48 group">
-        <Avatar className="h-full w-full border-4 border-white shadow-xl transition-transform group-hover:scale-105 duration-300">
-          {preview ? (
-            <AvatarImage src={preview} alt="Profile" className="object-cover" />
-          ) : (
-            <div className="h-full w-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-              <AvatarFallback className="bg-transparent text-white text-4xl font-bold">
-                {initials}
-              </AvatarFallback>
-            </div>
-          )}
-        </Avatar>
+    <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm space-y-5">
 
+    
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative group">
+          <div className="w-28 h-28 rounded-2xl overflow-hidden ring-4 ring-gray-50 shadow-md">
+            <Avatar className="w-full h-full rounded-2xl">
+              {preview ? (
+                <AvatarImage src={preview} alt="Profile" className="object-cover" />
+              ) : (
+                <AvatarFallback className="bg-gray-900 text-white text-3xl font-bold rounded-2xl w-full h-full flex items-center justify-center">
+                  {initials}
+                </AvatarFallback>
+              )}
+            </Avatar>
+          </div>
+
+          {/* Status dot — uploading indicator */}
+          {isUploading && (
+            <span className="absolute -bottom-1.5 -right-1.5 w-6 h-6 bg-white border border-gray-100 rounded-full flex items-center justify-center shadow-sm">
+              <Loader2 className="w-3.5 h-3.5 text-gray-500 animate-spin" />
+            </span>
+          )}
+        </div>
+
+        {/* Edit controls */}
         {isEditing && (
-          <div className="absolute -bottom-2 -right-2 flex gap-2">
+          <div className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <label htmlFor="avatar-upload" className="cursor-pointer">
-                  <div className="h-12 w-12 rounded-full bg-linear-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 hover:from-blue-600 hover:to-blue-700 flex items-center justify-center transition-all duration-300 hover:scale-105">
-                    <Upload className="h-5 w-5 text-white" />
+                  <div className="flex items-center gap-1.5 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-xs font-medium rounded-xl transition-colors shadow-sm">
+                    <Camera className="w-3.5 h-3.5" />
+                    {preview ? "Change photo" : "Upload photo"}
                   </div>
                   <input
                     id="avatar-upload"
@@ -58,7 +71,7 @@ export function ProfileAvatarSection({
                   />
                 </label>
               </TooltipTrigger>
-              <TooltipContent>Upload new photo</TooltipContent>
+              <TooltipContent>Upload a new profile photo</TooltipContent>
             </Tooltip>
 
             {preview && (
@@ -67,48 +80,49 @@ export function ProfileAvatarSection({
                   <button
                     type="button"
                     onClick={onRemove}
-                    className="h-12 w-12 rounded-full bg-red-500 shadow-lg shadow-red-500/25 hover:bg-red-600 flex items-center justify-center transition-all duration-300 hover:scale-105"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 text-xs font-medium rounded-xl transition-colors"
                   >
-                    <X className="h-5 w-5 text-white" />
+                    <X className="w-3.5 h-3.5" />
+                    Remove
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>Remove photo</TooltipContent>
+                <TooltipContent>Remove current photo</TooltipContent>
               </Tooltip>
             )}
           </div>
         )}
       </div>
 
+      {/* Upload progress */}
       {uploadProgress > 0 && uploadProgress < 100 && (
-        <div className="mt-4">
-          <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-blue-500 transition-all duration-300 rounded-full"
+        <div className="space-y-1.5">
+          <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gray-900 rounded-full transition-all duration-300"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
-          <p className="text-xs text-center mt-2 text-slate-600">
-            Uploading... {uploadProgress}%
+          <p className="text-xs text-center text-gray-400">
+            Uploading… {uploadProgress}%
           </p>
         </div>
       )}
 
-      {isUploading && (
-        <div className="mt-2 text-center">
-          <Loader2 className="h-4 w-4 animate-spin text-blue-500 mx-auto" />
-        </div>
-      )}
-
-      <div className="mt-6 space-y-4">
+      {/* Info */}
+      <div className="border-t border-gray-50 pt-4 space-y-2">
         <div>
-          <h4 className="font-semibold text-slate-900 text-lg">Profile Photo</h4>
-          <p className="text-sm text-slate-600 mt-1">Upload a professional headshot.</p>
+          <h4 className="text-sm font-semibold text-gray-800">Profile Photo</h4>
+          <p className="text-xs text-gray-400 mt-0.5">Upload a professional headshot.</p>
         </div>
-
-        <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-          <span className="px-2 py-1 bg-slate-100 rounded-md">400×400px</span>
-          <span className="px-2 py-1 bg-slate-100 rounded-md">JPG/PNG</span>
-          <span className="px-2 py-1 bg-slate-100 rounded-md">Max 5MB</span>
+        <div className="flex flex-wrap gap-1.5">
+          {["400 × 400 px", "JPG / PNG / WebP", "Max 5 MB"].map((tag) => (
+            <span
+              key={tag}
+              className="px-2.5 py-1 bg-gray-50 border border-gray-100 text-gray-400 text-xs rounded-lg font-medium"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
       </div>
     </div>

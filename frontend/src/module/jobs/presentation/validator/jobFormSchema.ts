@@ -4,6 +4,11 @@ const JOB_TYPES = ["full-time", "part-time", "contract", "internship"] as const;
 
 export const jobFormSchema = z
   .object({
+    companyName: z
+      .string()
+      .trim()
+      .min(3, "Company Name  must be at least 3 charcters")
+      .max(100, "Company Namee cannot exceed 150 characters"),
     title: z
       .string()
       .trim()

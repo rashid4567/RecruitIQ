@@ -1,5 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Eye, MapPin, Briefcase, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -71,17 +75,23 @@ export function CandidateRow({
       <td className="px-6 py-5">
         <div className="flex items-center gap-3.5">
           <Avatar className="h-11 w-11 ring-2 ring-white shadow-sm">
-            <AvatarFallback
-              className={cn(
-                "text-white font-semibold text-sm",
-                isActive
-                  ? "bg-linear-to-br from-emerald-500 to-emerald-600"
-                  : "bg-linear-to-br from-rose-500 to-rose-600",
-              )}
-            >
-              {getInitials(candidate.name)}
-            </AvatarFallback>
-          </Avatar>
+  <AvatarImage
+    src={candidate.profileImage}
+    alt={candidate.name}
+    className="object-cover"
+  />
+
+  <AvatarFallback
+    className={cn(
+      "text-white font-semibold text-sm",
+      isActive
+        ? "bg-linear-to-br from-emerald-500 to-emerald-600"
+        : "bg-linear-to-br from-rose-500 to-rose-600",
+    )}
+  >
+    {getInitials(candidate.name)}
+  </AvatarFallback>
+</Avatar>
           <div className="min-w-0">
             <div className="font-medium text-slate-900 truncate max-w-50">
               {candidate.name}

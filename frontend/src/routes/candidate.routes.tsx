@@ -21,6 +21,13 @@ const AccountSettingsPage = lazy(
   () => import("../module/candidate/presentation/pages/personal-info"),
 );
 
+const MyApplication = lazy(
+  () => import("../module/job-application/presentation/pages/candidate/myApplication"),
+);
+const JobApplicationDetail = lazy(
+  () =>
+    import("../module/job-application/presentation/pages/candidate/job.detail.application"),
+);
 const CandidateRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -31,6 +38,11 @@ const CandidateRoutes = () => {
             <Route path="profile/complete" element={<CompleteProfile />} />
 
             <Route path="profile/setting" element={<AccountSettingsPage />} />
+            <Route path="applications" element={<MyApplication />} />
+            <Route
+              path="applications/:applicationId"
+              element={<JobApplicationDetail />}
+            />
             <Route path="jobs" element={<CareerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>

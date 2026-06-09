@@ -1,16 +1,15 @@
 import { useState, useCallback } from "react";
 
 import JobPostList from "./components/candidate-jobPost/JobPostList";
-
 import JobDetailModal from "./components/candidate-jobPost/candidate-JobDetailModal";
-
 import ApplicationSuccessModal from "./components/candidate-jobPost/ApplicationSuccessModal";
-
 import type { Job } from "../../domain/entity/jobPost.entity";
-
+import type { ApplyJobDTO } from "@/module/job-application/domain/repository/application.repository";
+import type { JobApplication } from "@/module/job-application/domain/entity/job-application.entity";
 import { useJobPosts } from "../hooks/candidate-jobPost.hooks/useJobPosts";
-
+import { useApplyJob } from "@/module/job-application/presentation/hooks/candidate/useApplyJob";
 import { GetCandidateJobPostByIdUC } from "../di/jobPost.di";
+import { getMyResumeUC } from "@/module/resume/presentation/di/resume.di";
 
 export default function CareerPage() {
   const {
@@ -25,27 +24,31 @@ export default function CareerPage() {
     resetFilters,
   } = useJobPosts();
 
+  const { apply, loading: applying } = useApplyJob();
+
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [application, setApplication] =
+    useState<JobApplication | null>(null);
 
   const [showJobDetail, setShowJobDetail] = useState(false);
-
   const [loadingDetail, setLoadingDetail] = useState(false);
-
-  const [applying, setApplying] = useState(false);
-
-  const [showApplicationSuccess, setShowApplicationSuccess] = useState(false);
+  const [showApplicationSuccess, setShowApplicationSuccess] =
+    useState(false);
 
   const handleApplyClick = useCallback(async (job: Job) => {
     setShowJobDetail(true);
-
     setLoadingDetail(true);
 
     try {
-      const detailedJob = await GetCandidateJobPostByIdUC.execute(job.id);
+      const detailedJob =
+        await GetCandidateJobPostByIdUC.execute(job.id);
 
       setSelectedJob(detailedJob);
     } catch (error) {
-      console.error("Failed to fetch job details:", error);
+      console.error(
+        "Failed to fetch job details:",
+        error,
+      );
     } finally {
       setLoadingDetail(false);
     }
@@ -53,34 +56,47 @@ export default function CareerPage() {
 
   const handleCloseJobDetail = useCallback(() => {
     setShowJobDetail(false);
-
     setSelectedJob(null);
   }, []);
 
   const handleApplyNow = useCallback(async () => {
-    if (!selectedJob) {
-      return;
-    }
-
-    setApplying(true);
+    if (!selectedJob) return;
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const resume =
+        await getMyResumeUC.execute();
 
-      setShowJobDetail(false);
+      if (!resume) {
+        alert(
+          "Please upload a resume before applying.",
+        );
+        return;
+      }
 
-      setShowApplicationSuccess(true);
+      const payload: ApplyJobDTO = {
+        jobId: selectedJob.id,
+        resumeId: resume.getId(),
+      };
+
+      const result = await apply(payload);
+
+      if (result) {
+        setApplication(result);
+        setShowJobDetail(false);
+        setShowApplicationSuccess(true);
+      }
     } catch (error) {
-      console.error("Failed to apply:", error);
-    } finally {
-      setApplying(false);
+      console.error(
+        "Failed to apply:",
+        error,
+      );
     }
-  }, [selectedJob]);
+  }, [selectedJob, apply]);
 
   const handleCloseSuccess = useCallback(() => {
     setShowApplicationSuccess(false);
-
     setSelectedJob(null);
+    setApplication(null);
   }, []);
 
   return (
@@ -109,12 +125,18 @@ export default function CareerPage() {
         />
       )}
 
-      {showApplicationSuccess && (
-        <ApplicationSuccessModal
-          onClose={handleCloseSuccess}
-          onContinueBrowsing={handleCloseSuccess}
-        />
-      )}
+      {showApplicationSuccess &&
+  application &&
+  selectedJob && (
+    <ApplicationSuccessModal
+      applicationId={application.getId()}
+      jobTitle={selectedJob.title}
+      status={application.getStatus()}
+      appliedAt={application.getAppliedAt()}
+      onClose={handleCloseSuccess}
+      onContinueBrowsing={handleCloseSuccess}
+    />
+)}
     </>
   );
 }

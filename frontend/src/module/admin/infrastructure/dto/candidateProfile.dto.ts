@@ -15,6 +15,7 @@ export interface CandidateListApiDto {
   name: string;
   email: string;
   isActive: boolean;
+  profileImage ?: string;
   createdAt: string;
   currentJob?: string;
   experienceYears?: number | { value: number };
@@ -34,6 +35,7 @@ export interface CandidateProfileApiDto {
   name: string;
   email: string;
   isActive: boolean;
+  profileImage ?: string;
   createdAt?: string;
   currentJob?: string;
   experienceYears?: number | { value: number };

@@ -29,6 +29,7 @@ const mapJobPostToCard = (job: Job): JobCardProps => {
 
   return {
     id: job.id,
+    companyName : job.companyName,
     title: job.title,
     description: job.description || "",
     responsibilities: job.responsibilities || [],

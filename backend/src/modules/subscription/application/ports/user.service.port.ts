@@ -4,16 +4,10 @@ export interface UserServicePort {
     data: {
       fullName?: string;
       profileImage?: string;
-    }
+    },
   ): Promise<void>;
 
- 
-
-
-
-  findUserById(
-    userId: string
-  ): Promise<{
+  findUserById(userId: string): Promise<{
     id: string;
     fullName: string;
     email: string;
@@ -21,6 +15,4 @@ export interface UserServicePort {
     isActive: boolean;
     createdAt: Date;
   } | null>;
-
-
 }

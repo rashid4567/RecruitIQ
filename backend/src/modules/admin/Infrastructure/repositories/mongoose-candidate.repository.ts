@@ -35,7 +35,6 @@ export class MongooseCandidateRepository implements CandidateRepository {
             $options: "i",
           },
         },
-
         {
           email: {
             $regex: input.search,
@@ -79,6 +78,7 @@ export class MongooseCandidateRepository implements CandidateRepository {
                 email: 1,
                 isActive: 1,
                 createdAt: 1,
+                profileImage: 1,
                 skills: {
                   $ifNull: ["$profile.skills", []],
                 },
@@ -96,18 +96,20 @@ export class MongooseCandidateRepository implements CandidateRepository {
         },
       },
     ];
+
     const result = await UserModel.aggregate(pipeline);
+
     const rows = result[0]?.data ?? [];
     const total = result[0]?.total?.[0]?.count ?? 0;
+
     return {
       candidates: rows.map(
         (row: {
-          _id: {
-            toString(): string;
-          };
+          _id: { toString(): string };
           fullName: string;
           email: string;
           isActive: boolean;
+          profileImage?: string;
           skills: string[];
           preferredJobLocations: string[];
           createdAt: Date;
@@ -117,6 +119,7 @@ export class MongooseCandidateRepository implements CandidateRepository {
             name: row.fullName,
             email: Email.create(row.email),
             isActive: row.isActive,
+            profileImage: row.profileImage,
             skills: row.skills ?? [],
             preferredJobLocations: row.preferredJobLocations ?? [],
           }),
@@ -124,10 +127,12 @@ export class MongooseCandidateRepository implements CandidateRepository {
       total,
     };
   }
+
   async findProfileById(candidateId: string): Promise<Candidate | null> {
     if (!Types.ObjectId.isValid(candidateId)) {
       return null;
     }
+
     const result = await UserModel.aggregate([
       {
         $match: {
@@ -135,7 +140,6 @@ export class MongooseCandidateRepository implements CandidateRepository {
           role: "candidate",
         },
       },
-
       {
         $lookup: {
           from: "candidateprofiles",
@@ -157,19 +161,24 @@ export class MongooseCandidateRepository implements CandidateRepository {
           email: 1,
           isActive: 1,
           createdAt: 1,
+          profileImage: 1,
           profile: 1,
         },
       },
     ]);
+
     if (!result.length) {
       return null;
     }
+
     const doc = result[0];
+
     return Candidate.fromProfile({
       id: UserId.create(doc._id.toString()),
       name: doc.fullName,
       email: Email.create(doc.email),
       isActive: doc.isActive,
+      profileImage: doc.profileImage,
       currentJob: doc.profile?.currentJob,
       experienceYears: doc.profile?.experienceYears,
       educationLevel: doc.profile?.educationLevel,

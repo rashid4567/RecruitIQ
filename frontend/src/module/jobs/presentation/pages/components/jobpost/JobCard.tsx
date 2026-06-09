@@ -31,7 +31,7 @@ export default function JobCard({
 
   const isHidden = job.visibility === "hidden";
   const isBlocked = job.isBlocked;
-
+console.log("JobCard:", job);
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -65,9 +65,13 @@ export default function JobCard({
         </div>
       )}
 
-      <h3 className="text-lg font-semibold text-gray-900 mb-4 line-clamp-2 group-hover:text-blue-600 transition-colors">
-        {job.title}
-      </h3>
+     <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+  {job.title}
+</h3>
+
+<p className="text-sm text-gray-500 mb-4">
+  {job.companyName}
+</p>
 
       <div className="flex items-center gap-4 text-sm text-gray-500 mb-5">
         <div className="flex items-center gap-1.5">

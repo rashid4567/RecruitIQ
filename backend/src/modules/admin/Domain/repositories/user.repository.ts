@@ -1,4 +1,4 @@
-import { Email } from "../../../../shared/value-objects/email.vo";
+import { Email } from "../../../auth/domain/value.objects/email.vo";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { UserAccount } from "../entities/user.entity";
 

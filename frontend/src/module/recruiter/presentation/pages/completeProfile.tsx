@@ -1,9 +1,8 @@
 import { useCompleteProfile } from "../hooks/profile/useCompleteProfileForm"
 import { RecruiterProfileHeader } from "./components/completeProfile/RecruiterProfileHeader"
-import { ProgressBar } from "./components/completeProfile/ProgressBar" 
-import { CompanyForm } from "./components/completeProfile/CompanyForm"
-
-import { PricingPlans } from "./components/completeProfile/PricingPlans" 
+import { ProgressBar } from "./components/completeProfile/ProgressBar"
+import { CompanyForm, type CompanyFormData } from "./components/completeProfile/CompanyForm"
+import { PricingPlans } from "./components/completeProfile/PricingPlans"
 import { ActionButtons } from "./components/completeProfile/ActionButtons"
 
 export default function RecruiterDetails() {
@@ -27,12 +26,10 @@ export default function RecruiterDetails() {
           <RecruiterProfileHeader />
 
           <CompanyForm
-            formData={formData}
+            formData={formData as CompanyFormData}
             errors={errors}
             onChange={handleInputChange}
           />
-
-    
 
           <PricingPlans
             selectedPlan={selectedPlan}
@@ -48,4 +45,4 @@ export default function RecruiterDetails() {
       </div>
     </div>
   );
-} 
+}

@@ -8,6 +8,7 @@ import { ResetPasswordUseCase } from "../../Application/useCases/reset-password.
 import { SendOTPUseCase } from "../../Application/useCases/sentOtp-useCase";
 import { SignInUseCase } from "../../Application/useCases/signin-useCases";
 import { UpdatePasswordUsecase } from "../../Application/useCases/updatePassword.useCase";
+import { UploadProfileImageUseCase } from "../../Application/useCases/UploadProfileImageUseCase";
 import { VerifyOtpUseCase } from "../../Application/useCases/verifyOtp.useCase";
 import { VerifyEmailUpdateUseCase } from "../../Application/useCases/verifyUpdate-Email.useCase";
 import { ApiAuthRepository } from "../../infrastructure/repositories/ApiAuthRepository";
@@ -15,7 +16,7 @@ import { ApiAuthRepository } from "../../infrastructure/repositories/ApiAuthRepo
 const authRepo = new ApiAuthRepository();
 
 export const SignInUC = new SignInUseCase(authRepo);
-export const googleAuthUc = new GoogleAuthUseCase(authRepo)
+export const googleAuthUc = new GoogleAuthUseCase(authRepo);
 export const sentOtpUc = new SendOTPUseCase(authRepo);
 export const verifyOtpUc = new VerifyOtpUseCase(authRepo);
 export const resendOtpUc = new ResendOTPUseCase(authRepo);
@@ -23,6 +24,7 @@ export const forgotPasswordUc = new ForgotPasswordUseCase(authRepo);
 export const resetPasswordUC = new ResetPasswordUseCase(authRepo);
 export const updatePasswordUC = new UpdatePasswordUsecase(authRepo);
 export const verifyEmailUpdateUc = new VerifyEmailUpdateUseCase(authRepo);
-export const requestEmailUpdateUc = new  RequestEmailUpdateUseCase(authRepo);
+export const requestEmailUpdateUc = new RequestEmailUpdateUseCase(authRepo);
 export const adminLoginUC = new AdminLoginUseCase(authRepo);
 export const logoutUC = new LogoutUseCase(authRepo);
+export const UploadProfileImageUC = new UploadProfileImageUseCase(authRepo);

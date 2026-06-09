@@ -19,12 +19,9 @@ export class GetCurrentSubscriptionUseCase {
     }
 
     let currentSubscription = subscription;
-
     if (subscription.isExpired()) {
       currentSubscription = subscription.expire();
-
       await this.repo.save(currentSubscription);
-
       await this.updateRecruiterSubscriptionStatusUC.execute(
         recruiterId,
         "expired",

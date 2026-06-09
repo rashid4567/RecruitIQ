@@ -20,7 +20,6 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
-
 app.use(requestLogger);
 
 app.use("/api/auth", authRoutes);
@@ -29,7 +28,6 @@ app.use("/api/recruiter", recruiterRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use(notFound);
-
 app.use(errorHandler);
 
 export default app;

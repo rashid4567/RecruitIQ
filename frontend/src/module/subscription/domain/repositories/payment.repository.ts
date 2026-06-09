@@ -1,5 +1,6 @@
 export interface CreateSubscriptionPaymentInput {
   planId: string;
+  durationMonths: number;
 }
 
 export interface CreateSubscriptionPaymentOutput {
@@ -10,6 +11,7 @@ export interface CreateSubscriptionPaymentOutput {
   amount: number;
   currency: string;
   paymentType: string;
+  durationMonths: number;
 }
 
 export interface VerifyPaymentInput {

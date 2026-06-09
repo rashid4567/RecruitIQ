@@ -135,6 +135,18 @@ export class ApiAuthRepository implements AuthRepository {
     });
   }
 
+  async uploadProfileImage(file: File): Promise<void> {
+    const formData = new FormData();
+
+    formData.append("profileImage", file);
+
+    await api.patch("/auth/profile-image", formData, {
+      headers : {
+        'Content-Type' : "multipart/form-data",
+      }
+    })
+  }
+
   async verifyEmailUpdate(email: Email, otp: string): Promise<void> {
     await api.post("/auth/email/verify-otp", {
       newEmail: email.getValue(),

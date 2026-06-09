@@ -15,6 +15,7 @@ export interface IRecruiterSubscription extends Document {
   jobPostActiveDays: number;
   paymentReferenceId?: string;
   status: SubscriptionStatus;
+  durationMonths : number;
   startDate: Date;
   endDate: Date;
   currentPeriodStart: Date;
@@ -78,6 +79,12 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
       enum: Object.values(SubscriptionStatus),
       required: true,
       default: SubscriptionStatus.Active,
+    },
+    durationMonths:{
+      type : Number,
+      required : true,
+      min : 1,
+      max : 12,
     },
 
     startDate: {

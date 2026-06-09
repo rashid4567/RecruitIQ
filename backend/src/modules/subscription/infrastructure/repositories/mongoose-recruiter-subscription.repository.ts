@@ -135,6 +135,7 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       jobPostActiveDays: doc.jobPostActiveDays,
       paymentReferenceId: doc.paymentReferenceId,
       status: doc.status,
+      durationMonths: doc.durationMonths,
       startDate: doc.startDate,
       endDate: doc.endDate,
       currentPeriodStart: doc.currentPeriodStart,

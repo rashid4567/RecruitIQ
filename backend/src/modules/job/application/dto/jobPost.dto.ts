@@ -1,4 +1,4 @@
-import { JobStatus, JobType } from "../../../recruiter/domain/entities/job-post.entity";
+import { JobStatus, JobType  } from "../../domain/entities/job.entity";
 
 export interface LocationDTO {
   city?: string;
@@ -13,6 +13,7 @@ export interface SalaryDTO {
 }
 
 export interface CreateJobPostDTO {
+   companyName : string;
   title: string;
   description: string;
   responsibilities?: string[];
@@ -32,6 +33,7 @@ export interface CreateJobPostDTO {
 }
 
 export interface UpdateJobPostDTO {
+  companyName ?: string;
   title?: string;
   description?: string;
   responsibilities?: string[];

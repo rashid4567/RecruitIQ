@@ -139,7 +139,7 @@ export function CandidateStatusDialog({
           {/* Candidate Name Highlight */}
           <div className="text-center mb-8 px-4 py-3 rounded-lg bg-foreground/5 border border-foreground/10">
             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Candidate</p>
-            <p className="text-lg font-bold text-foreground break-words">{candidateName}</p>
+            <p className="text-lg font-bold text-foreground wrap-break-word">{candidateName}</p>
           </div>
 
           {/* Actions */}

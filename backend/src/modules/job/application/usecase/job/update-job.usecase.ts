@@ -38,10 +38,15 @@ export class UpdateJobUseCase {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
 
+    if (job.status === "active") {
+  throw new ApplicationError(
+    ERROR_CODES.JOB_ALREADY_PUBLISHED_CANNOT_BE_UPDATED,
+  );
+}
+
     if (dto.expiresAt) {
       const subscription =
         await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
-
       if (!subscription) {
         throw new ApplicationError(
           ERROR_CODES.NO_ACTIVE_SUBSCRIPTION_FOUND_FOR_THIS_RECRUITER,
@@ -51,26 +56,19 @@ export class UpdateJobUseCase {
       if (subscription.isExpired()) {
         throw new ApplicationError(ERROR_CODES.JOB_POST_LIMIT_EXCEEDED);
       }
-
       this.validateExpiryDate(dto.expiresAt, subscription.jobPostActiveDays);
     }
 
     job.update(dto);
-
     return await this.repo.save(job);
   }
 
   private validateExpiryDate(expiresAt: Date, activeDays: number): void {
     const maxAllowedDate = new Date();
-
     maxAllowedDate.setDate(maxAllowedDate.getDate() + activeDays);
-
     maxAllowedDate.setHours(23, 59, 59, 999);
-
     const expiryDate = new Date(expiresAt);
-
     expiryDate.setHours(23, 59, 59, 999);
-
     if (expiryDate > maxAllowedDate) {
       throw new ApplicationError(ERROR_CODES.JOB_EXPIRY_EXCEED_PLAN_LIMIT);
     }

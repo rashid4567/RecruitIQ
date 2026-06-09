@@ -28,9 +28,7 @@ export class CreateJobUseCase {
       throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_FOUND);
     }
 
-    if (profile.getVerificationStatus() !== VerificationStatus.VERIFIED) {
-      throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_VERIFIED);
-    }
+   
 
     const subscription =
       await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
@@ -51,6 +49,7 @@ export class CreateJobUseCase {
 
     const job = Job.create({
       recruiterId,
+      companyName : dto.companyName,
       title: dto.title,
       description: dto.description,
       responsibilities: dto.responsibilities ?? [],

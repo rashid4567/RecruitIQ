@@ -1,4 +1,5 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
 import { CandidateRepository } from "../../../Domain/repositories/candidate.repository";
 import { ERROR_CODES } from "../../constants/errorcode.constants";
 import { CandidateProfileResponseDTO } from "../../dto/candidate.dto/candidate-profile-response.dto";
@@ -6,7 +7,8 @@ import { CandidateProfileResponseDTO } from "../../dto/candidate.dto/candidate-p
 
 export class GetCandidateprofileUseCase {
   constructor(
-    private readonly candidateRepo: CandidateRepository
+    private readonly candidateRepo: CandidateRepository,
+     private readonly fileStorageRepo: FileStorageRepository,
   ) {}
 
   async execute(candidateId: string): Promise<CandidateProfileResponseDTO> {
@@ -16,11 +18,23 @@ export class GetCandidateprofileUseCase {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
     }
 
+    const profileImageKey = profile.getProfileImage();
+
+let profileImageUrl: string | undefined;
+
+if (profileImageKey) {
+  profileImageUrl = await this.fileStorageRepo.getViewUrl(
+    profileImageKey,
+  );
+}
+    
+
     return {
       id: profile.getId().getValue(),                
       name: profile.getName(),
       email: profile.getEmail().getValue(),          
       isActive: profile.isActiveAccount(),
+      profileImage : profileImageUrl,
       currentJob: profile.getCurrentJob(),
       experienceYears: profile.getExperienceYears(),
       educationLevel: profile.getEducationLevel(),

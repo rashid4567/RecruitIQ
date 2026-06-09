@@ -48,4 +48,15 @@ export class S3FileStorageRepository implements FileStorageRepository {
       expiresIn: 3600,
     });
   }
+
+  async getViewUrl(key: string): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+
+    return getSignedUrl(s3Client, command, {
+      expiresIn: 3600,
+    });
+  }
 }

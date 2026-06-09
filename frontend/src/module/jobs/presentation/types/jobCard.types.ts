@@ -1,5 +1,6 @@
 export interface JobCardProps {
   id: string;
+  companyName : string;
   title: string;
   description: string;
   category: string;

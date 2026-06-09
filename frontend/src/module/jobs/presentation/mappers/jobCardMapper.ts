@@ -15,9 +15,14 @@ export const mapJobPostToCard = (job: Job): JobCardProps => {
     if (job.status === "expired") return "Expired";
     return "Draft";
   };
+  console.log("Mapped Job:", {
+  title: job.title,
+  companyName: job.companyName,
+});
 
   return {
     id: job.id,
+    companyName : job.companyName,
     title: job.title,
     description: job.description || "",
     responsibilities: job.responsibilities || [],
@@ -61,3 +66,5 @@ export const mapJobPostToCard = (job: Job): JobCardProps => {
     publicationCount: job.publicationCount || 0,
   };
 };
+
+

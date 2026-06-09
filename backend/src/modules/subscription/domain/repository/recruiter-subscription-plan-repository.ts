@@ -11,6 +11,7 @@ export interface SubscribersListItem {
   id: string;
   recruiterId: string;
   recruiterName: string;
+  profileImage ?: string;
   companyName: string;
   planName: string;
   status: string;

@@ -8,9 +8,7 @@ import { ERROR_CODES } from "../../Errors/error.codes";
 export class SendEmailByEventUseCase {
   constructor(
     private readonly templateRepo: EmailTemplateRepository,
-
     private readonly emailService: EmailService,
-
     private readonly renderer: TemplateRendererService,
   ) {}
 
@@ -20,20 +18,19 @@ export class SendEmailByEventUseCase {
     if (!template) {
       return;
     }
-
     if (!template.isActive) {
       throw new ApplicationError(ERROR_CODES.EMAIL_TEMPLATE_IS_NOT_ACTIVE);
     }
-    const subject = this.renderer.render(
-      template.subject,
 
-      input.variables,
-    );
-    const body = this.renderer.render(
-      template.body,
+    const subject = this.renderer.render(template.subject, input.variables);
+    const renderedBody = this.renderer.render(template.body, input.variables);
+    const body = renderedBody
+      .split(/\r?\n\r?\n/)
+      .map(
+        (paragraph) => `<p>${paragraph.trim().replace(/\r?\n/g, "<br>")}</p>`,
+      )
+      .join("");
 
-      input.variables,
-    );
     await this.emailService.send({
       to: input.to,
       subject,

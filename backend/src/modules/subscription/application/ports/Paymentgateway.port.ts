@@ -2,7 +2,7 @@ export interface CreateOrderInput {
   amount: number;
   currency: string;
   receipt: string;
-  notes: Record<string, string>;
+  notes: Record<string, string | number>;
 }
 
 export interface CreateOrderOutput {

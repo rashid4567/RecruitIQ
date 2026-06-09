@@ -28,6 +28,7 @@ import { VerifyPaymentController } from "../controller/recruiter/verifyPayment.c
 import { UpgradeSubscriptionController } from "../controller/recruiter/upgrade.subscription.controller";
 import { UpdateRecruiterSubscriptionStatusUseCase } from "../../../recruiter/application/useCase/profile/UpdateRecruiterSubscriptionStatusUseCase";
 import { MongooseRecruiterProfileRepository } from "../../../recruiter/infrastructure/repositories/mongoose-recruiter.repository";
+import { UUIDGenerator } from "../../infrastructure/service/uuid-generator.service";
 
 const subscriptionRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
@@ -42,6 +43,7 @@ const subscribeUC = new SubscribePlanUseCase(
   subscriptionRepo,
   recruiterSubscriptionRepo,
 );
+const idGenerator = new UUIDGenerator();
 const renewUC = new RenewSubscriptionUseCase(
   recruiterSubscriptionRepo,
   subscriptionRepo,
@@ -60,6 +62,7 @@ const createPaymentOrderUC = new CreatePaymentOrderUseCase(
   recruiterSubscriptionRepo,
   subscriptionRepo,
   paymentGateway,
+  idGenerator,
   RAZORPAY_KEY_ID,
 );
 const verifyPaymentUC = new VerifyPaymentUseCase(

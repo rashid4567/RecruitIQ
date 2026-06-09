@@ -5,6 +5,7 @@ export interface GetRecruitersQuery {
   page: number;
   limit: number;
   search?: string;
-  verificationStatus?: VerificationStatus
+  verificationStatus?: VerificationStatus;
   isActive?: boolean;
+  profileImage ?: string;
 }

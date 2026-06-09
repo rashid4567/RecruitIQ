@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
+import { mac } from "zod";
 
 export enum PaymentStatus {
   Pending = "pending",
@@ -26,6 +27,7 @@ export interface IPayment extends Document {
   paymentType: PaymentType;
   amount: number;
   currency: Currency;
+  durationMonths: number;
   status: PaymentStatus;
   razorpayOrderId: string;
   razorpayPaymentId?: string;
@@ -74,6 +76,13 @@ const paymentSchema = new Schema<IPayment>(
       enum: Object.values(Currency),
       required: true,
       default: Currency.INR,
+    },
+
+    durationMonths: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 12,
     },
 
     status: {

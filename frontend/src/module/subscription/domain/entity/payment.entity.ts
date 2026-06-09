@@ -8,6 +8,7 @@ export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
 
 export const PaymentType = {
   Subscription: "subscription",
+  Upgrade: "upgrade",
   Renewal: "renewal",
 } as const;
 
@@ -17,6 +18,7 @@ export interface PaymentProps {
   id: string;
   recruiterId: string;
   planId: string;
+   durationMonths: number;
   subscriptionId?: string;
   paymentType: PaymentType;
   amount: number;
@@ -47,6 +49,10 @@ export class Payment {
   get planId() {
     return this.props.planId;
   }
+
+  get durationMonths() {
+  return this.props.durationMonths;
+}
 
   get subscriptionId() {
     return this.props.subscriptionId;

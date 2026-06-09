@@ -22,7 +22,6 @@ import { ErrorState } from "./personalInfo/components/common/ErrorState";
 
 import { useCandidateProfile } from "../hooks/useCandidateProfile";
 import { useProfileEdit } from "../hooks/useProfileEdit";
-import { useImageUpload } from "../hooks/useImageUpload";
 import { useProfileStats } from "../hooks/useProfileStats";
 
 import {
@@ -62,10 +61,12 @@ type TabValue = (typeof settingsTabs)[number]["value"];
 
 export default function CandidateProfilePage() {
   const [activeTab, setActiveTab] = useState<TabValue>("personal-info");
+
   const { profile, loading, isUpdating, error, loadProfile, updateProfile } =
     useCandidateProfile();
 
   const stats = useProfileStats(profile);
+
   const {
     isEditing,
     editData,
@@ -79,12 +80,8 @@ export default function CandidateProfilePage() {
     setValidationErrors,
   } = useProfileEdit(profile);
 
-  const {
-    uploadImage,
-    uploading: isUploading,
-    preview: imagePreview,
-    clearPreview,
-  } = useImageUpload((imageData) => updateField("profileImage", imageData));
+  // ✅ useImageUpload removed — PersonalInfoTab owns upload + preview via useUploadProfileImage
+
   const handleInputChange = useCallback(
     <K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
       updateField(key, value);
@@ -96,6 +93,7 @@ export default function CandidateProfilePage() {
     },
     [updateField, setValidationErrors],
   );
+
   const validateAllWithZod = useCallback((): boolean => {
     if (!profile) return false;
 
@@ -142,7 +140,7 @@ export default function CandidateProfilePage() {
       const updatedProfile = profile.update(editData);
       await updateProfile(updatedProfile);
       cancelEdit();
-      clearPreview();
+      // ✅ clearPreview() removed — PersonalInfoTab handles it internally on cancel/save
       toast.success("Profile updated successfully!");
     } catch {
       toast.error("Failed to update profile. Please try again.");
@@ -154,7 +152,6 @@ export default function CandidateProfilePage() {
     validateAllWithZod,
     updateProfile,
     cancelEdit,
-    clearPreview,
   ]);
 
   if (loading && !profile) return <LoadingState />;
@@ -221,19 +218,17 @@ export default function CandidateProfilePage() {
                         </p>
                         <Separator className="my-5" />
 
+                        {/* ✅ isUploading, imagePreview, onImageUpload removed — owned by PersonalInfoTab */}
                         <PersonalInfoTab
                           profile={profile}
                           stats={stats}
                           isEditing={isEditing}
                           editData={editData}
                           validationErrors={validationErrors}
-                          isUploading={isUploading}
-                          imagePreview={imagePreview}
                           onInputChange={handleInputChange}
                           onFieldBlur={touchField}
                           getFieldError={getFieldError}
                           isFieldValid={isFieldValid}
-                          onImageUpload={uploadImage}
                           onEditToggle={startEdit}
                           onSave={handleSave}
                           onCancel={cancelEdit}
@@ -241,6 +236,7 @@ export default function CandidateProfilePage() {
                         />
                       </div>
                     </TabsContent>
+
                     <TabsContent
                       value="security"
                       className="mt-0 space-y-6 focus-visible:outline-none"
@@ -257,6 +253,7 @@ export default function CandidateProfilePage() {
                         <CandidatePrivacyAndSecurity />
                       </div>
                     </TabsContent>
+
                     <TabsContent
                       value="notifications"
                       className="mt-0 space-y-6 focus-visible:outline-none"

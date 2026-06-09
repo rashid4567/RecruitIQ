@@ -13,6 +13,7 @@ export interface JobApiProps {
   id?: string;
   _id?: string;
   recruiterId: string;
+  companyName : string;
   title: string;
   description: string;
   responsibilities: string[];

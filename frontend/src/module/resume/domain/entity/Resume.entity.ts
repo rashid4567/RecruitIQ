@@ -9,6 +9,9 @@ export interface ParsedResumeData {
 }
 
 export class Resume {
+  getFileSize() {
+    throw new Error("Method not implemented.");
+  }
      private readonly id: string;
     private readonly candidateId: string;
     private readonly fileName: string;

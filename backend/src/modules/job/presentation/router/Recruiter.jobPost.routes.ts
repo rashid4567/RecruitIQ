@@ -9,6 +9,7 @@ import {
   deleteJobController,
   toggleJobVisibilityController,
 } from "../container/jobpost.module";
+import JobApplicationRouter from "../../../job-application/presenatation/routes/recruiter.application.routes"
 
 const router = Router();
 
@@ -20,5 +21,8 @@ router.put("/:id", updateJobController.update);
 router.patch("/:id/hide", toggleJobVisibilityController.hide);
 router.patch("/:id/unhide", toggleJobVisibilityController.unhide);
 router.delete("/:id", deleteJobController.delete);
+
+
+router.use("/",JobApplicationRouter)
 
 export default router;

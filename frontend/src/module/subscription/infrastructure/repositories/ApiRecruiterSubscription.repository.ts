@@ -57,6 +57,7 @@ export class ApiRecruiterSubscriptionRepository implements RecruiterSubscription
       planName: data.planName,
       planPrice: data.planPrice,
       planType: data.planType,
+      durationMonths: data.durationMonths ?? 1,
       jobPostActiveDays: data.jobPostActiveDays,
       status: data.status,
       startDate: new Date(data.startDate),
@@ -103,22 +104,23 @@ export class ApiRecruiterSubscriptionRepository implements RecruiterSubscription
     };
   }
   async subscribe(input: SubscribeInput): Promise<RecruiterSubscription> {
-    const res = await api.post<SingleSubscriptionApiResponse>(
-      "/recruiter/subscriptions/subscribe",
-      input,
-    );
+    const res = await api.post("/recruiter/subscriptions/subscribe", input);
+
     if (!res.data.data) {
       throw new Error("Subscription creation failed");
     }
+
     return this.toEntity(res.data.data);
   }
 
-  async upgradeSubscription(planId: string): Promise<void> {
-    await api.patch("/recruiter/subscription/upgrade",
-    {
+  async upgradeSubscription(
+    planId: string,
+    durationMonths: number,
+  ): Promise<void> {
+    await api.patch("/recruiter/subscription/upgrade", {
       planId,
-    },
-)
+      durationMonths,
+    });
   }
   async cancel(input: CancelSubscriptionInput): Promise<RecruiterSubscription> {
     const res = await api.patch<SingleSubscriptionApiResponse>(
@@ -136,6 +138,7 @@ export class ApiRecruiterSubscriptionRepository implements RecruiterSubscription
       "/recruiter/subscriptions/change-plan",
       input,
     );
+
     return this.toEntity(res.data.data.subscription);
   }
 
@@ -143,14 +146,14 @@ export class ApiRecruiterSubscriptionRepository implements RecruiterSubscription
     const res = await api.patch<SingleSubscriptionApiResponse>(
       `/recruiter/subscriptions/${input.subscriptionId}/renew`,
       {
-        newStartDate: input.newStartDate,
-        newEndDate: input.newEndDate,
-        newRenewsAt: input.newRenewsAt,
+        durationMonths: input.durationMonths,
       },
     );
+
     if (!res.data.data) {
       throw new Error("Subscription renewal failed");
     }
+
     return this.toEntity(res.data.data);
   }
 
@@ -173,6 +176,7 @@ export class ApiRecruiterSubscriptionRepository implements RecruiterSubscription
       planName: data.planName,
       planPrice: data.planPrice,
       planType: data.planType as PlanType,
+      durationMonths: data.durationMonths ?? 1,
       jobPostActiveDays: data.jobPostActiveDays,
       paymentReferenceId: data.paymentReferenceId,
       status: data.status as SubscriptionStatus,

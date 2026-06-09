@@ -1,5 +1,5 @@
-import { JobStatus, JobType } from "../../../Domain/entities/jobPost-entity";
-import { SortField } from "../../../Domain/repositories/jobPost-repository";
+import { JobStatus, JobType } from "../../../../job/domain/entities/job.entity";
+import { SortField } from "../../../../job/domain/types/job-filter.type";
 
 
 export class GetJobPostsQuery {

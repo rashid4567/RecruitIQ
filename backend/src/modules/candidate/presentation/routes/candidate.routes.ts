@@ -8,6 +8,7 @@ import {
 } from "../container/candidate.module"
 import jobPostRouter from "../../../job/presentation/router/candidate.jobPost.routes";
 import resumeRouter from "../../../resume/presentation/routes/resume.routes"
+import candidateApplicationRouter from "../../../job-application/presenatation/routes/candidate.Application.routes"
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.put("/profile/complete", candidateController.completeProfile);
 
 router.use("/resume", resumeRouter )
 router.use("/jobs", jobPostRouter);
+router.use("/application", candidateApplicationRouter)
 
 export default router;

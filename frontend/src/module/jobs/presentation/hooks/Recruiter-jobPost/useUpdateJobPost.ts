@@ -29,6 +29,7 @@ export function useUpdateJobPost(jobId: string) {
         const job = await GetRecruiterJobPostByIdUC.execute(jobId);
         setResolvedRecruiterId(job.recruiterId);
         setFormData({
+          companyName : job.companyName,
           title: job.title,
           description: job.description,
           department: job.department,

@@ -1,10 +1,13 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
 import { ERROR_CODES } from "../../constants/errorcode.constants";
 import { RecruiterProfileOutput } from "../../dto/recruiter.dto/recruiter-profile.output"; 
 
 export class GetRecruiterProfileUseCase {
-  constructor(private readonly recruiterRepo: RecruiterRepository) {}
+  constructor(private readonly recruiterRepo: RecruiterRepository,
+     private readonly fileStorageRepo: FileStorageRepository,
+  ) {}
 
   async execute(recruiterId: string): Promise<RecruiterProfileOutput> {
     const recruiter = await this.recruiterRepo.findById(recruiterId);
@@ -13,12 +16,22 @@ export class GetRecruiterProfileUseCase {
       throw new ApplicationError(ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND);
     }
 
+const profileImageKey = recruiter.getProfileImage();
+let profileImageUrl: string | undefined;
+
+if (profileImageKey) {
+  profileImageUrl = await this.fileStorageRepo.getViewUrl(
+    profileImageKey,
+  );
+}
+
     
     return {
     id: recruiter.id,
     name: recruiter.name,
     email: recruiter.email,
     isActive: recruiter.isActive,
+    profileImage : profileImageUrl,
     verificationStatus: recruiter.verificationStatus,
     subscriptionStatus: recruiter.subscriptionStatus ?? "free",
     jobPostsUsed: recruiter.jobPostsUsed ?? 0,

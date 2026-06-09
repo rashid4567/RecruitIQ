@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
@@ -27,33 +26,23 @@ export class SubscribePlanUseCase {
         ERROR_CODES.FREE_PLAN_DOES_NOT_REQUIRE_PAYMENT,
       );
     }
-
     const existing =
       await this.recruiterRepo.findActiveByRecruiter(recruiterId);
     if (existing) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_ALREADY_EXISTS);
     }
+
+    const durationMonths = 1;
     const startDate = new Date();
     const endDate = new Date(startDate);
-
-    switch (plan.billingCycle) {
-      case "weekly":
-        endDate.setDate(endDate.getDate() + 7 * plan.billingInterval);
-        break;
-      case "monthly":
-        endDate.setMonth(endDate.getMonth() + plan.billingInterval);
-        break;
-      case "yearly":
-        endDate.setFullYear(endDate.getFullYear() + plan.billingInterval);
-        break;
-    }
+    endDate.setMonth(endDate.getMonth() + durationMonths);
     const subscription = RecruiterSubscription.create({
-      id: randomUUID(),
       recruiterId,
       planId: plan.id,
       planName: plan.name,
       planPrice: plan.price,
       planType: plan.planType,
+      durationMonths,
       jobPostActiveDays: plan.jobPostActiveDays,
       paymentReferenceId: undefined,
       status: SubscriptionStatus.Active,
@@ -67,10 +56,20 @@ export class SubscribePlanUseCase {
       screeningUsed: 0,
       resumeUsed: 0,
       aiScoreUsed: 0,
-      jobPostsLimit: plan.jobPostsPerMonth,
-      screeningLimit: plan.screeningCredits,
-      resumeLimit: plan.resumeParsesPerMonth,
-      aiScoreLimit: plan.aiScoreCredits,
+      jobPostsLimit:
+        plan.jobPostsPerMonth === -1
+          ? -1
+          : plan.jobPostsPerMonth * durationMonths,
+      screeningLimit:
+        plan.screeningCredits === -1
+          ? -1
+          : plan.screeningCredits * durationMonths,
+      resumeLimit:
+        plan.resumeParsesPerMonth === -1
+          ? -1
+          : plan.resumeParsesPerMonth * durationMonths,
+      aiScoreLimit:
+        plan.aiScoreCredits === -1 ? -1 : plan.aiScoreCredits * durationMonths,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

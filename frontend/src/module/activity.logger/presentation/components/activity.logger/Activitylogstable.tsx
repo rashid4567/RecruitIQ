@@ -1,4 +1,11 @@
-import { Activity } from "lucide-react";
+import {
+  Activity,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  SlidersHorizontal,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -7,51 +14,147 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
 import { ActivityLog } from "@/module/activity.logger/domain/entity/activity-log.enitity";
 import { ActivityLogsTableRow } from "./Activitylogstablerow";
 
+/* ─── Skeleton ──────────────────────────────────────────────── */
+
 const SkeletonRow = () => (
-  <TableRow>
-    <TableCell>
-      <Skeleton className="h-5 w-5 rounded" />
+  <TableRow className="border-b border-slate-100">
+    <TableCell className="pl-6 w-12">
+      <div className="h-4 w-4 bg-slate-200 rounded animate-pulse" />
+    </TableCell>
+    <TableCell className="w-36">
+      <div className="space-y-1.5">
+        <div className="h-3.5 w-24 bg-slate-200 rounded animate-pulse" />
+        <div className="h-3 w-16 bg-slate-100 rounded animate-pulse" />
+      </div>
+    </TableCell>
+    <TableCell className="w-28 hidden lg:table-cell">
+      <div className="h-3 w-16 bg-slate-100 rounded animate-pulse" />
+    </TableCell>
+    <TableCell className="w-28">
+      <div className="h-6 w-20 bg-slate-200 rounded-full animate-pulse" />
+    </TableCell>
+    <TableCell className="w-56">
+      <div className="flex items-center gap-2.5">
+        <div className="h-8 w-8 rounded-full bg-slate-200 animate-pulse shrink-0" />
+        <div className="space-y-1.5 flex-1">
+          <div className="h-3.5 w-28 bg-slate-200 rounded animate-pulse" />
+          <div className="h-3 w-16 bg-slate-100 rounded animate-pulse" />
+        </div>
+      </div>
+    </TableCell>
+    <TableCell className="w-44">
+      <div className="flex items-center gap-2">
+        <div className="h-6 w-6 rounded-lg bg-slate-100 animate-pulse" />
+        <div className="h-3.5 w-24 bg-slate-100 rounded animate-pulse" />
+      </div>
     </TableCell>
     <TableCell>
-      <Skeleton className="h-4 w-32" />
+      <div className="space-y-1.5">
+        <div className="h-3.5 w-3/4 bg-slate-100 rounded animate-pulse" />
+        <div className="h-3.5 w-1/2 bg-slate-100 rounded animate-pulse" />
+      </div>
     </TableCell>
-    <TableCell>
-      <Skeleton className="h-6 w-24 rounded-full" />
-    </TableCell>
-    <TableCell>
-      <Skeleton className="h-10 w-56" />
-    </TableCell>
-    <TableCell>
-      <Skeleton className="h-4 w-40" />
-    </TableCell>
-    <TableCell>
-      <Skeleton className="h-4 w-[90%]" />
-    </TableCell>
-    <TableCell>
-      <Skeleton className="h-8 w-8 rounded-lg ml-auto" />
+    <TableCell className="pr-6 w-14">
+      <div className="h-8 w-8 bg-slate-100 rounded-lg animate-pulse ml-auto" />
     </TableCell>
   </TableRow>
 );
+
+/* ─── Pagination ────────────────────────────────────────────── */
+
+function PaginationNav({
+  page,
+  totalPages,
+  onChangePage,
+}: {
+  page: number;
+  totalPages: number;
+  onChangePage: (p: number) => void;
+}) {
+  const MAX = 7;
+  const half = Math.floor(MAX / 2);
+  let start = Math.max(1, page - half);
+  const end = Math.min(totalPages, start + MAX - 1);
+  if (end - start < MAX - 1) start = Math.max(1, end - MAX + 1);
+
+  const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+
+  const NavBtn = ({
+    onClick,
+    disabled,
+    children,
+  }: {
+    onClick: () => void;
+    disabled: boolean;
+    children: React.ReactNode;
+  }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-25 disabled:cursor-not-allowed transition-colors text-xs"
+    >
+      {children}
+    </button>
+  );
+
+  return (
+    <div className="flex items-center gap-1">
+      <NavBtn onClick={() => onChangePage(1)} disabled={page === 1}>
+        <ChevronsLeft className="h-3.5 w-3.5" />
+      </NavBtn>
+      <NavBtn onClick={() => onChangePage(page - 1)} disabled={page === 1}>
+        <ChevronLeft className="h-3.5 w-3.5" />
+      </NavBtn>
+
+      <div className="flex items-center gap-0.5 mx-1">
+        {start > 1 && (
+          <>
+            <PageBtn n={1} active={false} onClick={() => onChangePage(1)} />
+            {start > 2 && <span className="w-6 text-center text-slate-300 text-xs">…</span>}
+          </>
+        )}
+        {pages.map((n) => (
+          <PageBtn key={n} n={n} active={n === page} onClick={() => onChangePage(n)} />
+        ))}
+        {end < totalPages && (
+          <>
+            {end < totalPages - 1 && <span className="w-6 text-center text-slate-300 text-xs">…</span>}
+            <PageBtn n={totalPages} active={false} onClick={() => onChangePage(totalPages)} />
+          </>
+        )}
+      </div>
+
+      <NavBtn onClick={() => onChangePage(page + 1)} disabled={page >= totalPages}>
+        <ChevronRight className="h-3.5 w-3.5" />
+      </NavBtn>
+      <NavBtn onClick={() => onChangePage(totalPages)} disabled={page >= totalPages}>
+        <ChevronsRight className="h-3.5 w-3.5" />
+      </NavBtn>
+    </div>
+  );
+}
+
+function PageBtn({ n, active, onClick }: { n: number; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "h-8 w-8 rounded-lg text-sm font-semibold transition-all duration-150",
+        active
+          ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
+          : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
+      )}
+    >
+      {n}
+    </button>
+  );
+}
+
+/* ─── Main ──────────────────────────────────────────────────── */
 
 interface ActivityLogsTableProps {
   paginated: ActivityLog[];
@@ -74,63 +177,92 @@ export function ActivityLogsTable({
   onChangeLimit,
   search,
 }: ActivityLogsTableProps) {
-  return (
-    <Card className="border-slate-200/60 shadow-sm rounded-xl overflow-hidden">
-      <CardHeader className="bg-slate-50/80 px-6 py-4 border-b border-slate-200/70">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <CardTitle className="text-lg font-semibold text-slate-900">
-              Activity Stream
-            </CardTitle>
-            <CardDescription className="text-sm text-slate-600 mt-1">
-              {filtered.length} events {search && "(filtered)"}
-            </CardDescription>
-          </div>
+  const start = (pagination.page - 1) * pagination.limit + 1;
+  const end = Math.min(pagination.page * pagination.limit, filtered.length);
 
-          <div className="flex items-center gap-4 text-sm text-slate-600">
-            <span>Show:</span>
-            <select
-              value={pagination.limit}
-              onChange={(e) => onChangeLimit(Number(e.target.value))}
-              className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400/40"
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
+  return (
+    <div className="rounded-2xl border border-slate-200/70 bg-white shadow-sm overflow-hidden">
+
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-600/25">
+            <Activity className="h-4 w-4 text-white" strokeWidth={1.8} />
+          </div>
+          <div>
+            <h2 className="text-[15px] font-bold text-slate-800 leading-none">
+              Activity Stream
+            </h2>
+            {!loading && (
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                {filtered.length.toLocaleString()} event{filtered.length !== 1 ? "s" : ""}
+                {search && (
+                  <span className="text-indigo-500 font-semibold"> (filtered)</span>
+                )}
+              </p>
+            )}
           </div>
         </div>
-      </CardHeader>
 
+        {/* Rows per page */}
+        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 h-9">
+          <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400" />
+          <span className="text-xs font-semibold text-slate-400 hidden sm:block">Rows</span>
+          <select
+            value={pagination.limit}
+            onChange={(e) => onChangeLimit(Number(e.target.value))}
+            className="bg-transparent text-sm font-semibold text-slate-700 focus:outline-none cursor-pointer"
+          >
+            {[10, 20, 50, 100].map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* ── Table ── */}
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50/50 hover:bg-slate-50/50 border-b">
-              <TableHead className="w-10"></TableHead>
-              <TableHead className="w-44">Time</TableHead>
-              <TableHead className="w-40">Level</TableHead>
-              <TableHead className="w-72">Actor</TableHead>
-              <TableHead className="w-48">Entity</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="w-14 text-right pr-6"></TableHead>
+            <TableRow className="bg-slate-50/80 border-b border-slate-100 hover:bg-slate-50/80">
+              <TableHead className="pl-6 w-12" />
+              <TableHead className="w-36 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Date
+              </TableHead>
+              <TableHead className="w-28 text-[11px] font-bold text-slate-500 uppercase tracking-wider hidden lg:table-cell">
+                When
+              </TableHead>
+              <TableHead className="w-28 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Level
+              </TableHead>
+              <TableHead className="w-56 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Actor
+              </TableHead>
+              <TableHead className="w-44 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Entity
+              </TableHead>
+              <TableHead className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Description
+              </TableHead>
+              <TableHead className="pr-6 w-14" />
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {loading ? (
-              Array(10)
-                .fill(0)
-                .map((_, i) => <SkeletonRow key={i} />)
+              Array(10).fill(0).map((_, i) => <SkeletonRow key={i} />)
             ) : paginated.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-64 text-center">
-                  <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-                    <Activity className="h-12 w-12 text-slate-300 mb-4" />
-                    <p className="text-lg font-medium">
-                      No matching activity logs
+                <TableCell colSpan={8} className="py-20 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center">
+                      <Activity className="h-7 w-7 text-slate-300" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-[15px] font-semibold text-slate-600">
+                      No activity logs found
                     </p>
-                    <p className="text-sm mt-2">
-                      Try adjusting your search or refresh the list
+                    <p className="text-sm text-slate-400">
+                      {search ? "Try adjusting your search" : "No events have been recorded yet"}
                     </p>
                   </div>
                 </TableCell>
@@ -144,79 +276,28 @@ export function ActivityLogsTable({
         </Table>
       </div>
 
+      {/* ── Pagination footer ── */}
       {totalPages > 1 && (
-        <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-200 flex items-center justify-between text-sm text-slate-600">
-          <div>
-            Showing {(pagination.page - 1) * pagination.limit + 1}–
-            {Math.min(pagination.page * pagination.limit, filtered.length)} of{" "}
-            {filtered.length}
-          </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+          {/* Summary */}
+          <p className="text-[12px] text-slate-400 font-medium">
+            Showing{" "}
+            <span className="text-slate-700 font-bold">{start.toLocaleString()}</span>
+            {" – "}
+            <span className="text-slate-700 font-bold">{end.toLocaleString()}</span>
+            {" of "}
+            <span className="text-slate-700 font-bold">{filtered.length.toLocaleString()}</span>
+            {" events"}
+          </p>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              disabled={pagination.page === 1}
-              onClick={() => onChangePage(1)}
-            >
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              disabled={pagination.page === 1}
-              onClick={() => onChangePage(pagination.page - 1)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            <div className="flex gap-1 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
-              {Array.from({ length: Math.min(7, totalPages) }, (_, i) => {
-                const num =
-                  i +
-                  Math.max(1, Math.min(pagination.page - 3, totalPages - 6));
-                if (num < 1 || num > totalPages) return null;
-                return (
-                  <Button
-                    key={num}
-                    variant={num === pagination.page ? "default" : "ghost"}
-                    size="sm"
-                    className={cn(
-                      "h-8 w-8 p-0 text-sm rounded-md",
-                      num === pagination.page &&
-                        "bg-indigo-600 hover:bg-indigo-700 text-white",
-                    )}
-                    onClick={() => onChangePage(num)}
-                  >
-                    {num}
-                  </Button>
-                );
-              })}
-            </div>
-
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              disabled={pagination.page >= totalPages}
-              onClick={() => onChangePage(pagination.page + 1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              disabled={pagination.page >= totalPages}
-              onClick={() => onChangePage(totalPages)}
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
-          </div>
+          {/* Page nav */}
+          <PaginationNav
+            page={pagination.page}
+            totalPages={totalPages}
+            onChangePage={onChangePage}
+          />
         </div>
       )}
-    </Card>
+    </div>
   );
 }

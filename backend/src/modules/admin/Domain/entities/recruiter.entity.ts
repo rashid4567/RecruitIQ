@@ -1,14 +1,22 @@
 import { ERROR_CODES } from "../../../../constants/errorcode.constants";
 import { DomainError } from "../../../../shared/errors/domain.error";
 
-export type VerificationStatus = "pending" | "verified" | "rejected";
-export type SubscriptionStatus = "free" | "active" | "expired";
+export type VerificationStatus =
+  | "pending"
+  | "verified"
+  | "rejected";
+
+export type SubscriptionStatus =
+  | "free"
+  | "active"
+  | "expired";
 
 export interface RecruiterProps {
   id: string;
   name: string;
   email: string;
   isActive: boolean;
+  profileImage?: string;
   verificationStatus: VerificationStatus;
   subscriptionStatus?: SubscriptionStatus;
   jobPostsUsed?: number;
@@ -29,6 +37,7 @@ export class Recruiter {
     public readonly name: string,
     public readonly email: string,
     public readonly isActive: boolean,
+    public readonly profileImage: string | undefined,
     public readonly verificationStatus: VerificationStatus,
     public readonly subscriptionStatus?: SubscriptionStatus,
     public readonly jobPostsUsed?: number,
@@ -43,12 +52,15 @@ export class Recruiter {
     public readonly bio?: string,
   ) {}
 
-  static fromPersistence(props: RecruiterProps): Recruiter {
+  static fromPersistence(
+    props: RecruiterProps,
+  ): Recruiter {
     return new Recruiter(
       props.id,
       props.name,
       props.email,
       props.isActive,
+      props.profileImage,
       props.verificationStatus,
       props.subscriptionStatus,
       props.jobPostsUsed,
@@ -67,21 +79,35 @@ export class Recruiter {
   canBeVerified(): boolean {
     return this.verificationStatus === "pending";
   }
+
   canBeRejected(): boolean {
     return this.verificationStatus === "pending";
   }
+
   canBeActivated(): boolean {
     return !this.isActive;
   }
+
   verify(): Recruiter {
-    if (!this.canBeVerified()) throw new DomainError(ERROR_CODES.RECRUITER_CANNOT_BE_VERIFIED);
+    if (!this.canBeVerified()) {
+      throw new DomainError(
+        ERROR_CODES.RECRUITER_CANNOT_BE_VERIFIED,
+      );
+    }
+
     return Recruiter.fromPersistence({
       ...this.toProps(),
       verificationStatus: "verified",
     });
   }
+
   reject(): Recruiter {
-    if (!this.canBeRejected()) throw new DomainError(ERROR_CODES.RECRUITER_CANNOT_BE_REJECTED);
+    if (!this.canBeRejected()) {
+      throw new DomainError(
+        ERROR_CODES.RECRUITER_CANNOT_BE_REJECTED,
+      );
+    }
+
     return Recruiter.fromPersistence({
       ...this.toProps(),
       verificationStatus: "rejected",
@@ -91,17 +117,25 @@ export class Recruiter {
   getId(): string {
     return this.id;
   }
-  getVerificationStatus(): VerificationStatus {
-    return this.verificationStatus;
+
+  getName(): string {
+    return this.name;
   }
-  isRecruiterActive(): boolean {
-    return this.isActive;
-  }
+
   getEmail(): string {
     return this.email;
   }
-  getName(): string {
-    return this.name;
+
+  getProfileImage(): string | undefined {
+    return this.profileImage;
+  }
+
+  getVerificationStatus(): VerificationStatus {
+    return this.verificationStatus;
+  }
+
+  isRecruiterActive(): boolean {
+    return this.isActive;
   }
 
   private toProps(): RecruiterProps {
@@ -110,6 +144,7 @@ export class Recruiter {
       name: this.name,
       email: this.email,
       isActive: this.isActive,
+      profileImage: this.profileImage,
       verificationStatus: this.verificationStatus,
       subscriptionStatus: this.subscriptionStatus,
       jobPostsUsed: this.jobPostsUsed,

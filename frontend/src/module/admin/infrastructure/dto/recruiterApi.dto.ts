@@ -8,7 +8,7 @@ export interface RecruiterApiDto {
   name: string;
   email: string;
   isActive: boolean;
-
+  profileImage ?: string;
   companyName?: string;
   companyWebsite?: string;
   companySize?: number;

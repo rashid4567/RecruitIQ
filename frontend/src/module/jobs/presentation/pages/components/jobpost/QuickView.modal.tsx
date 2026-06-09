@@ -228,9 +228,11 @@ export default function QuickViewModal({
                 )}
               </div>
 
-              <h2 className="text-xl font-bold text-gray-900 leading-tight truncate">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
                 {job.title}
-              </h2>
+              </h3>
+
+              <p className="text-sm text-gray-500 mb-4">{job.companyName}</p>
 
               <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2">
                 {[
@@ -682,18 +684,21 @@ export default function QuickViewModal({
               Edit Job Post
             </button>
 
-            {job.externalLink && (
-              <a
-                href={job.externalLink}
-                target="_blank"
-                rel="noreferrer"
-                className="w-12 h-12 flex items-center justify-center border-2 border-gray-200 rounded-2xl hover:bg-white hover:border-indigo-200 hover:text-indigo-500 text-gray-400 transition-all"
-                title="Open external link"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-
+            <button
+              onClick={() => {
+                onClose();
+                navigate(`/recruiter/jobs/${job.id}/applications`);
+              }}
+              className="relative flex-1 flex items-center justify-center gap-2 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-3 rounded-2xl text-sm font-bold shadow-lg shadow-emerald-200/50 hover:shadow-xl hover:shadow-emerald-200/60 transition-all duration-200"
+            >
+              <Users className="w-4 h-4" />
+              View Applications
+              {job.applications > 0 && (
+                <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs font-extrabold">
+                  {job.applications}
+                </span>
+              )}
+            </button>
             <button
               onClick={handleDeleteClick}
               disabled={deleteState === "deleting" || loading}

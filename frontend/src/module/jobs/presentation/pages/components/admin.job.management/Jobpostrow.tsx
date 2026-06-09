@@ -1,8 +1,6 @@
 import {
   Briefcase,
-  MapPin,
   Eye,
-  DollarSign,
   Clock,
   MoreVertical,
   Ban,
@@ -22,10 +20,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
- 
+
 import type { JobStatus, JobType } from "@/module/jobs/domain/dto/jobPost.dto";
 import type { Job } from "@/module/jobs/domain/entity/jobPost.entity";
-import { expRange, formatDate, formatSalary, locationLabel } from "@/module/jobs/presentation/utils/jobPostRow.utils";
+import {
+  expRange,
+  formatDate,
+
+} from "@/module/jobs/presentation/utils/jobPostRow.utils";
 
 export function StatusBadge({
   status,
@@ -204,37 +206,25 @@ export function JobPostRow({
             )}
           </div>
 
-          <div className="min-w-0 flex-1">
-            <button
-              onClick={() => onView(job)}
-              className="font-semibold text-slate-900 text-[14px] truncate max-w-65 text-left block hover:text-indigo-700 transition-colors leading-snug"
-            >
-              {job.title}
-            </button>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <Building2 className="w-3 h-3 text-slate-400" />
-              <p className="text-xs text-slate-500 font-medium">
-                {job.department}
-              </p>
-            </div>
-            <div className="flex items-center gap-3 mt-2 flex-wrap">
-              <span className="inline-flex items-center gap-1 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg">
-                <MapPin className="w-3 h-3 text-slate-400" />
-                {locationLabel(job.location, job.isRemote)}
-              </span>
-              <span className="inline-flex items-center gap-1 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg">
-                <Eye className="w-3 h-3 text-slate-400" />
-                {job.views.toLocaleString()} views
-              </span>
-              <span className="inline-flex items-center gap-1 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg">
-                <DollarSign className="w-3 h-3 text-slate-400" />
-                {formatSalary(job.salary)}
-              </span>
-            </div>
-            {job.requiredSkills.length > 0 && (
-              <SkillBadges skills={job.requiredSkills} max={3} />
-            )}
-          </div>
+          <div className="flex flex-col gap-0.5 mt-0.5">
+  <h3 className="text-sm font-semibold text-slate-900 truncate">
+    {job.title}
+  </h3>
+
+  <div className="flex items-center gap-1.5">
+    <Building2 className="w-3 h-3 text-slate-400" />
+
+    <p className="text-xs font-medium text-indigo-600 truncate">
+      {job.companyName}
+    </p>
+
+    <span className="text-slate-300">•</span>
+
+    <p className="text-[11px] text-slate-500 truncate">
+      {job.department}
+    </p>
+  </div>
+</div>
         </div>
       </td>
 

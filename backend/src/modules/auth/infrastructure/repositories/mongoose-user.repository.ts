@@ -1,11 +1,11 @@
-import { User } from "../../domain/entities/user.entity";
-import { UserRepository } from "../../domain/repositories/user.repository"; 
-import { Email } from "../../domain/value.objects/email.vo"; 
-import { UserModel } from "../mongoose/model/user.model";
-import { userRoles } from "../../domain/constants/roles.constants";
-import { AuthProvider } from "../../../../shared/value-objects/auth-provider.vo";
-import { GoogleId } from "../../domain/value.objects/google-id.vo";
 import { Types } from "mongoose";
+import { User } from "../../domain/entities/user.entity";
+import { UserRepository } from "../../domain/repositories/user.repository";
+import { Email } from "../../domain/value.objects/email.vo";
+import { GoogleId } from "../../domain/value.objects/google-id.vo";
+import { userRoles } from "../../domain/constants/roles.constants";
+import { UserModel } from "../mongoose/model/user.model";
+import { AuthProvider } from "../../../../shared/value-objects/auth-provider.vo";
 
 export interface UserDocument {
   _id: Types.ObjectId;
@@ -42,6 +42,7 @@ export class MongooseUserRepository implements UserRepository {
         authProvider: user.authProvider.getValue(),
         googleId: user.googleId?.getValue(),
         password: user.getPasswordHash() ?? null,
+        profileImage: user.profileImage ?? null,
       });
 
       return this.toDomain(doc.toObject());
@@ -57,8 +58,11 @@ export class MongooseUserRepository implements UserRepository {
         authProvider: user.authProvider.getValue(),
         googleId: user.googleId?.getValue(),
         password: user.getPasswordHash() ?? null,
+        profileImage: user.profileImage ?? null,
       },
-      { new: true },
+      {
+        new: true,
+      },
     ).lean<UserDocument>();
 
     if (!doc) {
@@ -81,6 +85,7 @@ export class MongooseUserRepository implements UserRepository {
           : AuthProvider.local(),
       passwordHash: doc.password ?? undefined,
       googleId: doc.googleId ? GoogleId.create(doc.googleId) : undefined,
+      profileImage: doc.profileImage ?? undefined,
     });
   }
 }

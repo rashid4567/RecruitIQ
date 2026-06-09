@@ -18,7 +18,8 @@ const RecruiterSettingsPage = lazy(
   () => import("../module/recruiter/presentation/pages/recruiter.profile"),
 );
 const SubscriptionPlans = lazy(
-  () => import("../module/subscription/presentation/page/Recruiter.pricePlaning"),
+  () =>
+    import("../module/subscription/presentation/page/Recruiter.pricePlaning"),
 );
 const SubscriptionSuccess = lazy(
   () =>
@@ -28,9 +29,15 @@ const SubscriptionFailed = lazy(
   () =>
     import("../module/subscription/presentation/page/components/Billing/paymentFailed"),
 );
-
-const CurrentSubscriptionPage = lazy(()=> import("../module/subscription/presentation/page/CurrentSubscriptionPage"))
-
+const CurrentSubscriptionPage = lazy(
+  () =>
+    import("../module/subscription/presentation/page/CurrentSubscriptionPage"),
+);
+const RecruiterApplication = lazy(
+  () =>
+    import("../module/job-application/presentation/pages/recruiter/Recruiter.application"),
+);
+const CandidateScorecardPage = lazy(()=> import("../module/job-application/presentation/pages/recruiter/Application.detail.view"))
 const RecruiterRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -52,8 +59,16 @@ const RecruiterRoutes = () => {
               path="subscription/failed"
               element={<SubscriptionFailed />}
             />
-            <Route path="current-subscription" element={<CurrentSubscriptionPage/>}/>
+            <Route
+              path="current-subscription"
+              element={<CurrentSubscriptionPage />}
+            />
 
+            <Route
+              path="jobs/:jobId/applications"
+              element={<RecruiterApplication />}
+            />
+            <Route path="application-detail" element={<CandidateScorecardPage/>}/>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

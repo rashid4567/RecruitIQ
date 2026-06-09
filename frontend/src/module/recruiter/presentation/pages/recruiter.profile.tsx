@@ -6,6 +6,7 @@ import {
   CreditCard,
   Loader2,
   Settings,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,11 @@ const settingsTabs = [
     description: "Personal info, company details, logo and contact",
     color: "text-indigo-600",
     bg: "bg-indigo-50",
+    activeBorder: "border-indigo-500",
+    activeText: "text-indigo-700",
+    activeBg: "bg-indigo-50/70",
+    dot: "bg-indigo-500",
+    badge: "bg-indigo-100 text-indigo-700",
   },
   {
     value: "security",
@@ -35,6 +41,11 @@ const settingsTabs = [
     description: "Password, 2FA, sessions and login methods",
     color: "text-emerald-600",
     bg: "bg-emerald-50",
+    activeBorder: "border-emerald-500",
+    activeText: "text-emerald-700",
+    activeBg: "bg-emerald-50/70",
+    dot: "bg-emerald-500",
+    badge: "bg-emerald-100 text-emerald-700",
   },
   {
     value: "notifications",
@@ -43,6 +54,11 @@ const settingsTabs = [
     description: "Email, in-app, job alerts and marketing",
     color: "text-amber-600",
     bg: "bg-amber-50",
+    activeBorder: "border-amber-500",
+    activeText: "text-amber-700",
+    activeBg: "bg-amber-50/70",
+    dot: "bg-amber-500",
+    badge: "bg-amber-100 text-amber-700",
   },
   {
     value: "billing",
@@ -51,6 +67,11 @@ const settingsTabs = [
     description: "Plan, payment methods, invoices and usage",
     color: "text-violet-600",
     bg: "bg-violet-50",
+    activeBorder: "border-violet-500",
+    activeText: "text-violet-700",
+    activeBg: "bg-violet-50/70",
+    dot: "bg-violet-500",
+    badge: "bg-violet-100 text-violet-700",
   },
 ] as const;
 
@@ -83,13 +104,11 @@ export default function RecruiterSettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center">
-            <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
           </div>
-          <p className="text-sm font-medium text-slate-500">
-            Loading settings…
-          </p>
+          <p className="text-sm font-medium text-slate-400">Loading settings…</p>
         </div>
       </div>
     );
@@ -99,8 +118,8 @@ export default function RecruiterSettingsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-10 text-center max-w-sm w-full">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-            <User className="h-8 w-8 text-slate-400" />
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+            <User className="h-7 w-7 text-slate-400" />
           </div>
           <h3 className="text-base font-semibold text-slate-900 mb-1">
             Couldn't load profile
@@ -120,29 +139,45 @@ export default function RecruiterSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/80">
+    <div className="min-h-screen bg-slate-100/60">
       <Header />
 
-      <div className="flex min-h-[calc(100vh-64px)]">
+      <div className="flex min-h-[calc(100vh-64px)] pt-16">
         <Sidebar activeItem="profile" />
 
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
-            <div className="flex items-center gap-3 px-8 pt-5 pb-2">
-              <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-                <Settings className="h-4 w-4 text-slate-600" />
+        <div className="flex-1 flex flex-col min-w-0">
+
+          {/* ── Sticky header+tabs — never scrolls away ── */}
+          <div className="sticky top-16 z-20 bg-white border-b border-slate-200/80 shadow-[0_1px_8px_0_rgba(0,0,0,0.06)]">
+
+            {/* Page title row */}
+            <div className="flex items-center justify-between px-7 py-3.5 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center shrink-0 shadow-sm">
+                  <Settings className="h-3.5 w-3.5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-sm font-bold text-slate-900 leading-none tracking-tight">
+                    Account Settings
+                  </h1>
+                  <p className="text-[11px] text-slate-400 mt-0.5 leading-none">
+                    Manage your profile, security and billing preferences
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-[17px] font-bold text-slate-900 leading-none">
-                  Settings
-                </h1>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Manage your account, security and subscription preferences
-                </p>
+
+              {/* Breadcrumb */}
+              <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400">
+                <span>Settings</span>
+                <ChevronRight className="h-3 w-3" />
+                <span className={cn("font-semibold", activeTabMeta.activeText)}>
+                  {activeTabMeta.label}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-end gap-0.5 px-6 overflow-x-auto scrollbar-none">
+            {/* Tab bar */}
+            <div className="flex items-stretch px-2">
               {settingsTabs.map((tab) => {
                 const Icon = tab.icon;
                 const active = activeTab === tab.value;
@@ -151,33 +186,50 @@ export default function RecruiterSettingsPage() {
                     key={tab.value}
                     onClick={() => setActiveTab(tab.value)}
                     className={cn(
-                      "group relative flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all duration-150 rounded-t-xl border-b-2 -mb-px whitespace-nowrap shrink-0",
+                      "relative flex-1 flex items-center justify-center gap-2",
+                      "py-3 px-3 text-xs transition-all duration-150 focus:outline-none",
+                      "border-b-2",
                       active
-                        ? "border-indigo-600 text-indigo-700 bg-indigo-50/70"
-                        : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50",
+                        ? cn(tab.activeBorder, tab.activeText, tab.activeBg)
+                        : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50",
                     )}
                   >
+                    {/* Icon */}
                     <div
                       className={cn(
-                        "w-6 h-6 rounded-md flex items-center justify-center transition-colors shrink-0",
+                        "w-6 h-6 rounded-md flex items-center justify-center transition-all shrink-0",
                         active
-                          ? tab.bg
-                          : "bg-slate-100 group-hover:bg-slate-200",
+                          ? cn(tab.bg, "shadow-sm")
+                          : "bg-transparent group-hover:bg-slate-100",
                       )}
                     >
                       <Icon
                         className={cn(
-                          "h-3.5 w-3.5",
+                          "h-3.5 w-3.5 transition-colors",
                           active ? tab.color : "text-slate-400",
                         )}
                       />
                     </div>
-                    <span className={cn(active ? "font-semibold" : "")}>
+
+                    {/* Label */}
+                    <span
+                      className={cn(
+                        "whitespace-nowrap tracking-tight",
+                        active ? "font-semibold" : "font-medium",
+                      )}
+                    >
                       {tab.label}
                     </span>
 
+                    {/* Active underline pill */}
                     {active && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-600" />
+                      <span
+                        className={cn(
+                          "absolute bottom-[-1px] left-1/2 -translate-x-1/2",
+                          "h-[2px] w-8 rounded-full",
+                          tab.dot,
+                        )}
+                      />
                     )}
                   </button>
                 );
@@ -185,36 +237,56 @@ export default function RecruiterSettingsPage() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
-            <div className="px-8 py-7 max-w-6xl">
-              <div className="flex items-center gap-3 mb-6">
+          {/* ── Scrollable content — padded to clear fixed bar ── */}
+          <div className="flex-1 overflow-y-auto ">
+            <div className="px-7 py-7 max-w-5xl mx-auto">
+
+              {/* Section header card */}
+              <div
+                className={cn(
+                  "flex items-center gap-4 mb-6 px-5 py-4 rounded-2xl border",
+                  "bg-white border-slate-200/80 shadow-sm",
+                )}
+              >
                 <div
                   className={cn(
-                    "w-11 h-11 rounded-xl flex items-center justify-center shrink-0",
+                    "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
                     activeTabMeta.bg,
                   )}
                 >
                   <ActiveIcon className={cn("h-5 w-5", activeTabMeta.color)} />
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900 leading-none">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base font-bold text-slate-900 leading-none">
                     {activeTabMeta.label}
                   </h2>
-                  <p className="text-sm text-slate-500 mt-0.5">
+                  <p className="text-xs text-slate-500 mt-1 leading-snug">
                     {activeTabMeta.description}
                   </p>
                 </div>
+                <span
+                  className={cn(
+                    "hidden sm:inline-flex text-[10px] font-semibold px-2.5 py-1 rounded-full shrink-0",
+                    activeTabMeta.badge,
+                  )}
+                >
+                  {activeTabMeta.label}
+                </span>
               </div>
-              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm">
-                <div className="p-8 lg:p-10">
+
+              {/* Content card */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div className="p-6 lg:p-8">
                   {activeTab === "profile" && <RecruiterProfileSection />}
                   {activeTab === "security" && <SecuritySection />}
                   {activeTab === "notifications" && <NotificationsSection />}
                   {activeTab === "billing" && <BillingSection />}
                 </div>
               </div>
+
             </div>
           </div>
+
         </div>
       </div>
     </div>

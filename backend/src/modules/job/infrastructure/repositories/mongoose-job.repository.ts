@@ -18,6 +18,7 @@ import { JobPostModel } from "../mongoose/job-post.model";
 type JobLeanDocument = {
   _id: Types.ObjectId;
   recruiterId: Types.ObjectId;
+  companyName : string;
   title: string;
   description: string;
   responsibilities: string[];
@@ -248,6 +249,7 @@ export class MongooseJobRepository implements JobRepository {
     return Job.rehydrate({
       id: doc._id.toString(),
       recruiterId: doc.recruiterId.toString(),
+      companyName : doc.companyName,
       title: doc.title,
       description: doc.description,
       responsibilities: doc.responsibilities,

@@ -6,7 +6,8 @@ import tokenRoutes from "./token.routes";
 import UpdatepasswordRoutes from "./password.routes";
 import forgotPasswordRouters from "./forgotPassword.route"
 import socialRoutes from "./social.routes";
-import emailUpdateRoutes from "./email.update.routes"
+import emailUpdateRoutes from "./email.update.routes"; 
+import profileUpdateRoutes from "./profile-image.routes"
 
 const router = Router();
 
@@ -17,7 +18,6 @@ router.use("/", otpRoutes);
 router.use("/", tokenRoutes);
 router.use("/", UpdatepasswordRoutes);
 router.use("/", emailUpdateRoutes)
-
-
+router.use("/",profileUpdateRoutes);
 
 export default router;

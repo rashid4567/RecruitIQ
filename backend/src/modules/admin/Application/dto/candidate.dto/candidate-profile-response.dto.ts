@@ -1,9 +1,9 @@
-
 export interface CandidateProfileResponseDTO {
   id: string;
   name: string;
   email: string;
   isActive: boolean;
+  profileImage?: string;
   currentJob?: string;
   experienceYears?: number;
   educationLevel?: string;

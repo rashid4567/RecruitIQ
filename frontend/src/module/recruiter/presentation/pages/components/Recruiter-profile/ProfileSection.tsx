@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2, RefreshCw, AlertTriangle } from "lucide-react";
 import { useRecruiterProfile } from "../../../hooks/profile/useRecruiterProfile";
-import { useRecruiterProfileForm } from "../../../hooks/profile/useRecruiterProfileForm"; 
-import { useAvatarUpload } from "../../../hooks/profile/useAvatarUpload";
+import { useRecruiterProfileForm } from "../../../hooks/profile/useRecruiterProfileForm";
 import { useEmailUpdateForm } from "../../../hooks/profile/useEmailUpdate";
+import { useUploadProfileImage } from "@/module/auth/presentation/hooks/useUploadProfileImage";
 import { Button } from "@/components/ui/button";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileAvatarSection } from "./avatar/AvatarSection";
@@ -27,10 +26,52 @@ export function RecruiterProfileSection() {
     onProfileUpdated: updateLocalProfile,
   });
 
-  const avatarVM = useAvatarUpload({
-    maxSizeMB: 5,
-    allowedTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
-  });
+  const {
+    upload,
+    loading: isUploading,
+    error: uploadError,
+    imagePreview: preview,
+    clearPreview,
+  } = useUploadProfileImage();
+
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadProgress(10);
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 90) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + 10;
+      });
+    }, 120);
+
+    const success = await upload(file);
+
+    clearInterval(interval);
+    setUploadProgress(success ? 100 : 0);
+
+    if (success) {
+      setTimeout(() => setUploadProgress(0), 800);
+    }
+
+    e.target.value = "";
+  };
+
+  const removeAvatar = () => {
+    clearPreview();
+    setUploadProgress(0);
+  };
+
+  const resetAvatar = () => {
+    clearPreview();
+    setUploadProgress(0);
+  };
 
   const emailVM = useEmailUpdateForm(fetchProfile);
 
@@ -51,85 +92,92 @@ export function RecruiterProfileSection() {
   const handleCancel = () => {
     formVM.cancel();
     setIsEditing(false);
-    avatarVM.reset();
+    resetAvatar();
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await formVM.submit();
     setIsEditing(false);
-    avatarVM.reset();
+    resetAvatar();
   };
 
   if (isLoading) {
     return (
-      <Card className="border-slate-200/50 shadow-lg">
-        <CardContent className="flex items-center justify-center py-16">
-          <div className="text-center space-y-4">
-            <div className="relative">
-              <Loader2 className="h-10 w-10 animate-spin text-blue-500 mx-auto" />
-              <div className="absolute inset-0 animate-pulse">
-                <div className="h-10 w-10 rounded-full bg-blue-500/20 mx-auto"></div>
-              </div>
-            </div>
-            <p className="text-sm font-medium text-slate-600">
-              Loading profile...
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center space-y-3">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400 mx-auto" />
+            <p className="text-sm text-gray-400 font-medium">
+              Loading profile…
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   if (error || !profile) {
     return (
-      <Card className="border-slate-200/50 shadow-lg">
-        <CardContent className="flex items-center justify-center py-16">
-          <div className="text-center space-y-6 max-w-md">
-            <div className="h-20 w-20 rounded-full bg-red-100 flex items-center justify-center mx-auto">
-              <AlertTriangle className="h-10 w-10 text-red-600" />
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center space-y-5 max-w-sm">
+            <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto">
+              <AlertTriangle className="h-7 w-7 text-red-500" />
             </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-slate-900">
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold text-gray-900">
                 No Profile Found
               </h3>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-gray-400">
                 {error || "Unable to load your profile information."}
               </p>
             </div>
-            <Button onClick={fetchProfile} variant="outline" className="gap-2">
+            <Button
+              onClick={fetchProfile}
+              variant="outline"
+              className="gap-2 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50"
+            >
               <RefreshCw className="h-4 w-4" />
               Try Again
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
-
   return (
     <TooltipProvider>
-      <Card className="border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
         <form onSubmit={handleFormSubmit}>
           <ProfileHeader
             subscriptionStatus={profile.subscriptionStatus}
             verificationStatus={profile.verificationStatus}
           />
 
-          <CardContent className="space-y-8 pt-6">
-            <div className="flex flex-col lg:flex-row gap-8">
-              <div className="lg:w-1/3 space-y-6">
+          <div className="p-6 sm:p-8 space-y-8">
+            {uploadError && (
+              <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                {uploadError}
+              </div>
+            )}
+            
+
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+              <div className="lg:w-1/3 space-y-5">
+
+              
                 <ProfileAvatarSection
-                  preview={avatarVM.preview}
+                  preview={preview ?? profile.profileImage ?? null}
                   initials={initials}
                   isEditing={isEditing}
-                  isUploading={avatarVM.isUploading}
-                  uploadProgress={avatarVM.uploadProgress}
-                  onFileChange={avatarVM.handleFileChange}
-                  onRemove={avatarVM.removeAvatar}
+                  isUploading={isUploading}
+                  uploadProgress={uploadProgress}
+                  onFileChange={handleFileChange}
+                  onRemove={removeAvatar}
                 />
-
                 <AccountInfoCard
                   email={profile.email}
                   jobPostsUsed={profile.jobPostsUsed}
@@ -138,7 +186,8 @@ export function RecruiterProfileSection() {
                 />
               </div>
 
-              <div className="lg:w-2/3 space-y-8">
+              {/* Right column */}
+              <div className="lg:w-2/3 space-y-6">
                 <PersonalInfoForm
                   register={formVM.form.register}
                   errors={formVM.errors}
@@ -168,19 +217,19 @@ export function RecruiterProfileSection() {
                 />
               </div>
             </div>
-          </CardContent>
+          </div>
 
           <ProfileActionsFooter
             isEditing={isEditing}
             isDirty={formVM.isDirty}
             isSubmitting={formVM.isSubmitting}
-            isUploading={avatarVM.isUploading}
+            isUploading={isUploading}
             hasErrors={Object.keys(formVM.errors).length > 0}
             onEdit={handleEditClick}
             onCancel={handleCancel}
           />
         </form>
-      </Card>
+      </div>
 
       <EmailUpdateModal
         isOpen={emailVM.isOpen}

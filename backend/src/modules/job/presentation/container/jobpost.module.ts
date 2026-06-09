@@ -28,17 +28,33 @@ import { ActivityTrackerService } from "../../../Activity.logger/application/ser
 import { ActivityLogFileRepository } from "../../../Activity.logger/infrastructure/repositories/activity-log-file.repository";
 import { UserRepository } from "../../../auth/domain/repositories/user.repository";
 import { MongooseUserRepository } from "../../../auth/infrastructure/repositories/mongoose-user.repository";
+import { RecruiterProfileRepository } from "../../../recruiter/domain/repositories/recruiter.repository";
+import { MongooseRecruiterProfileRepository } from "../../../recruiter/infrastructure/repositories/mongoose-recruiter.repository";
+import { UUIDGenerator } from "../../infrastructure/service/uuid.generator.service";
 const jobRepo: JobRepository = new MongooseJobRepository();
 const activityTracker = new ActivityTrackerService();
 
-const userRepo : UserRepository = new MongooseUserRepository()
+const userRepo: UserRepository = new MongooseUserRepository();
 const recruiterSubscriptionRepo = new MongooseRecruiterSubscriptionRepository();
-const createJobUC = new CreateJobUseCase(jobRepo, recruiterSubscriptionRepo);
+const recruiterRepo: RecruiterProfileRepository =
+  new MongooseRecruiterProfileRepository();
+const createJobUC = new CreateJobUseCase(
+  jobRepo,
+  recruiterSubscriptionRepo,
+  recruiterRepo,
+);
+const idGenerator = new UUIDGenerator();
 const jobsUC = new GetJobsUseCase(jobRepo);
 const getJobByIdUC = new GetJobByIdUseCase(jobRepo);
 const updateJobUC = new UpdateJobUseCase(jobRepo, recruiterSubscriptionRepo);
 const deleteJobUC = new DeleteJobUseCase(jobRepo);
-const publishJobUC = new PublishJobUseCase(jobRepo, recruiterSubscriptionRepo,activityTracker,userRepo);
+const publishJobUC = new PublishJobUseCase(
+  jobRepo,
+  recruiterSubscriptionRepo,
+  activityTracker,
+  idGenerator,
+  userRepo,
+);
 const hideJobUC = new HideJobUseCase(jobRepo);
 const unhideJobUC = new UnhideJobUseCase(jobRepo);
 const blockJobUC = new BlockJobUseCase(jobRepo);

@@ -17,8 +17,9 @@ import { DeleteResumeController } from "../controller/deleteResume.controller";
 import { DeleteMyResumeController } from "../controller/deletemyResume.controller";
 import { GetResumeByCandidateController } from "../controller/GetResumeByCandidate.controller";
 import { GetResumeByIdController } from "../controller/GetResumeById.controller";
-import { GetResumeDownLoadUrlUseCase } from "../../application/usecase/GetResumeDownloadUrlUseCase";
-import { GetResumeDownloadUrlController } from "../controller/GetResumeDownloadUrl.controller";
+
+import { DownloadResumeUseCase } from "../../application/usecase/DownloadResumeUseCase";
+import { DownloadResumeController } from "../controller/download.resume.controller";
 const resumeRepo: ResumeRepository = new MongooseResumeRepository();
 const candidateRepo: CandidateRepository = new MongooseCandidateRepository();
 const fileStorage: FileStorageRepository = new S3FileStorageRepository();
@@ -29,11 +30,9 @@ const uploadResumeUC = new UploadResumeUseCase(
 );
 const deleteResumeUC = new DeleteResumeUseCase(resumeRepo, fileStorage);
 const getResumeByCandidateUC = new GetResumeByCandidateUseCase(resumeRepo);
-const getResumeDownloadUrlUC = new GetResumeDownLoadUrlUseCase(
-  resumeRepo,
-  fileStorage,
-);
+
 const getResumeByIdUC = new GetResumeByIdUseCase(resumeRepo);
+const DownloadResumeUC = new DownloadResumeUseCase(resumeRepo, fileStorage)
 export const uploadResumeController = new UploadResumeController(
   uploadResumeUC,
 );
@@ -49,5 +48,5 @@ export const getResumeByCandidateController =
 export const getResumeByIdController = new GetResumeByIdController(
   getResumeByIdUC,
 );
-export const getResumeDownloadUrlController =
-  new GetResumeDownloadUrlController(getResumeDownloadUrlUC);
+
+export const DownloadResumecontroller = new DownloadResumeController(DownloadResumeUC)

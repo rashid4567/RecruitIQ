@@ -15,19 +15,35 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
   async getRecruiters(
     input: GetRecruitersInput,
   ): Promise<{ recruiters: Recruiter[]; total: number }> {
-    const match: Record<string, unknown> = { role: "recruiter" };
+    const match: Record<string, unknown> = {
+      role: "recruiter",
+    };
 
-    if (input.isActive !== undefined) match.isActive = input.isActive;
+    if (input.isActive !== undefined) {
+      match.isActive = input.isActive;
+    }
 
     if (input.search) {
       match.$or = [
-        { fullName: { $regex: input.search, $options: "i" } },
-        { email: { $regex: input.search, $options: "i" } },
+        {
+          fullName: {
+            $regex: input.search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: input.search,
+            $options: "i",
+          },
+        },
       ];
     }
 
     const basePipeline: PipelineStage[] = [
-      { $match: match },
+      {
+        $match: match,
+      },
       {
         $lookup: {
           from: "recruiterprofiles",
@@ -36,18 +52,27 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
           as: "profile",
         },
       },
-      { $unwind: { path: "$profile", preserveNullAndEmptyArrays: true } },
+      {
+        $unwind: {
+          path: "$profile",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
     ];
 
     if (input.verificationStatus) {
       basePipeline.push({
-        $match: { "profile.verificationStatus": input.verificationStatus },
+        $match: {
+          "profile.verificationStatus": input.verificationStatus,
+        },
       });
     }
 
     if (input.subscriptionStatus) {
       basePipeline.push({
-        $match: { "profile.subscriptionStatus": input.subscriptionStatus },
+        $match: {
+          "profile.subscriptionStatus": input.subscriptionStatus,
+        },
       });
     }
 
@@ -58,22 +83,39 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
           email: 1,
           isActive: 1,
           createdAt: 1,
+          profileImage: 1,
+
           verificationStatus: {
             $ifNull: ["$profile.verificationStatus", "pending"],
           },
+
+          subscriptionStatus: {
+            $ifNull: ["$profile.subscriptionStatus", "free"],
+          },
         },
       },
-      { $sort: { createdAt: input.sort === "oldest" ? 1 : -1 } },
+      {
+        $sort: {
+          createdAt: input.sort === "oldest" ? 1 : -1,
+        },
+      },
     );
 
     const dataPipeline: PipelineStage[] = [
       ...basePipeline,
-      { $skip: input.skip },
-      { $limit: input.limit },
+      {
+        $skip: input.skip,
+      },
+      {
+        $limit: input.limit,
+      },
     ];
+
     const countPipeline: PipelineStage[] = [
       ...basePipeline,
-      { $count: "total" },
+      {
+        $count: "total",
+      },
     ];
 
     const [data, count] = await Promise.all([
@@ -87,38 +129,44 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
         name: doc.fullName,
         email: doc.email,
         isActive: doc.isActive,
+        profileImage: doc.profileImage,
         verificationStatus: doc.verificationStatus,
+        subscriptionStatus: doc.subscriptionStatus,
       }),
     );
 
-    return { recruiters, total: count[0]?.total ?? 0 };
+    return {
+      recruiters,
+      total: count[0]?.total ?? 0,
+    };
   }
 
-
   async findById(recruiterId: string): Promise<Recruiter | null> {
-    if (!Types.ObjectId.isValid(recruiterId)) return null;
-
+    if (!Types.ObjectId.isValid(recruiterId)) {
+      return null;
+    }
     const user = await UserModel.findOne({
       _id: recruiterId,
       role: "recruiter",
     }).lean();
 
-    if (!user) return null;
-
+    if (!user) {
+      return null;
+    }
     const profile = await RecruiterProfileModel.findOne({
       userId: user._id,
     }).lean();
-
     return Recruiter.fromPersistence({
       id: user._id.toString(),
       name: user.fullName ?? "",
       email: user.email,
       isActive: user.isActive,
+      profileImage: user.profileImage ?? "",
       joinedDate: user.createdAt,
-
-      
-      verificationStatus: (profile?.verificationStatus ?? "pending") as VerificationStatus,
-      subscriptionStatus: (profile?.subscriptionStatus ?? "free") as SubscriptionStatus,
+      verificationStatus: (profile?.verificationStatus ??
+        "pending") as VerificationStatus,
+      subscriptionStatus: (profile?.subscriptionStatus ??
+        "free") as SubscriptionStatus,
       jobPostsUsed: profile?.jobPostsUsed ?? 0,
       companyName: profile?.companyName ?? "",
       companyWebsite: profile?.companyWebsite ?? "",
@@ -140,9 +188,15 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
     }
 
     await RecruiterProfileModel.findOneAndUpdate(
-      { userId: new Types.ObjectId(recruiterId) },
-      { verificationStatus: status },
-      { upsert: true },
+      {
+        userId: new Types.ObjectId(recruiterId),
+      },
+      {
+        verificationStatus: status,
+      },
+      {
+        upsert: true,
+      },
     );
   }
 }

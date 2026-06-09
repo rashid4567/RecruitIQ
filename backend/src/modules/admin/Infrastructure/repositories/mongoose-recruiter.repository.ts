@@ -84,8 +84,13 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
           isActive: 1,
           createdAt: 1,
           profileImage: 1,
+
           verificationStatus: {
             $ifNull: ["$profile.verificationStatus", "pending"],
+          },
+
+          subscriptionStatus: {
+            $ifNull: ["$profile.subscriptionStatus", "free"],
           },
         },
       },
@@ -126,6 +131,7 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
         isActive: doc.isActive,
         profileImage: doc.profileImage,
         verificationStatus: doc.verificationStatus,
+        subscriptionStatus: doc.subscriptionStatus,
       }),
     );
 

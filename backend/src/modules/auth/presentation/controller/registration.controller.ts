@@ -2,37 +2,34 @@ import { Request, Response, NextFunction } from "express";
 import { VerifyRegistrationUseCase } from "../../application/useCase/registration/verify-registration.usecase";
 import { RegisterSchema } from "../validators/register.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { setRefreshCookie } from "../utils/cookie.util";
 
 export class RegistrationController {
   constructor(
     private readonly verifyRegistrationUC: VerifyRegistrationUseCase,
   ) {}
 
-  register = async (req: Request, res: Response, next: NextFunction) => {
+  register = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const dto = RegisterSchema.parse(req.body);
-      const result = await this.verifyRegistrationUC.execute(dto);
 
-      this.setRefreshCookie(res, result.refreshToken);
+      const result =
+        await this.verifyRegistrationUC.execute(dto);
 
-      res.status(HTTP_STATUS.CREATED).json({
+      setRefreshCookie(res, result.refreshToken);
+
+      return res.status(HTTP_STATUS.CREATED).json({
         success: true,
         message: "User registered successfully",
         data: result,
       });
     } catch (err) {
-      console.log("error",err)
+      console.log("error", err);
       next(err);
     }
   };
-
-  private setRefreshCookie(res: Response, refreshToken: string) {
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-  }
 }

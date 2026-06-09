@@ -44,7 +44,7 @@ export const useResume = (initialResume?: Resume | null) => {
 
   const uploadResume = useCallback(async (file: File) => {
     console.log("Uploading file :", uploadResume);
-    
+
     const validationError = validateFile(file);
 
     if (validationError) {
@@ -74,7 +74,7 @@ export const useResume = (initialResume?: Resume | null) => {
 
       toast.success("Resume uploaded successfully");
     } catch (error) {
-      console.log(error)
+      console.log(error);
       clearInterval(interval);
 
       setError("Upload failed. Please try again.");
@@ -92,12 +92,16 @@ export const useResume = (initialResume?: Resume | null) => {
   const downloadResume = useCallback(async () => {
     try {
       setIsDownloading(true);
+      if (!resume?.getId()) {
+        toast.error("Resume not found");
+        return;
+      }
 
-      const url = await downloadResumeUC.execute();
+      const url = await downloadResumeUC.execute(resume.getId());
 
       window.open(url, "_blank");
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.error("Failed to download resume");
     } finally {
       setIsDownloading(false);
@@ -116,7 +120,7 @@ export const useResume = (initialResume?: Resume | null) => {
 
       toast.success("Resume deleted successfully");
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.error("Failed to delete resume");
     } finally {
       setIsDeleting(false);

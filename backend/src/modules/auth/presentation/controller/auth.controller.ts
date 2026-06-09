@@ -2,20 +2,32 @@ import { Request, Response, NextFunction } from "express";
 import { LoginUseCase } from "../../application/useCase/auth/login.useCase";
 import { LoginSchema } from "../validators/login.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import {
+  setRefreshCookie,
+  clearRefreshCookie,
+} from "../utils/cookie.util";
 
 export class AuthController {
   constructor(
     private readonly loginUC: LoginUseCase,
   ) {}
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
+  login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const { email, password } = LoginSchema.parse(req.body);
-      const result = await this.loginUC.execute(email, password);
 
-      this.setRefreshCookie(res, result.refreshToken);
+      const result = await this.loginUC.execute(
+        email,
+        password,
+      );
 
-      res.status(HTTP_STATUS.OK).json({
+      setRefreshCookie(res, result.refreshToken);
+
+      return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "Login successfully",
         data: {
@@ -27,28 +39,17 @@ export class AuthController {
         },
       });
     } catch (err) {
-      console.log("error",err)
+      console.log("error", err);
       next(err);
     }
   };
 
   logout = (_req: Request, res: Response) => {
-    res.clearCookie("refreshToken");
-    res.status(HTTP_STATUS.OK).json({
+    clearRefreshCookie(res);
+
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Logout successfully",
     });
   };
-
- private setRefreshCookie(res: Response, refreshToken: string) {
-  const isProduction = process.env.NODE_ENV === "production";
-
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: isProduction,       
-    sameSite: isProduction ? "strict" : "lax", 
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-}
 }

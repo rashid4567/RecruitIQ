@@ -24,12 +24,11 @@ export function useEmailLogs() {
     try {
       const data = await useCase.execute();
 
-      const sorted = [...data].sort(
-        (a, b) =>
-          new Date(b.getTimeStamp()).getTime() -
-          new Date(a.getTimeStamp()).getTime(),
-      );
-
+     const sorted = [...data].sort(
+  (a, b) =>
+    new Date(b.getCreatedAt()).getTime() -
+    new Date(a.getCreatedAt()).getTime(),
+);
       setLogs(sorted);
     } catch (err: unknown) {
       const msg =

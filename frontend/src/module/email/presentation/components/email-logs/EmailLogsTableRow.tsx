@@ -105,15 +105,15 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
             <TooltipTrigger asChild>
               <div className="cursor-default">
                 <p className="text-[13px] font-semibold text-slate-700 leading-snug">
-                  {formatDate(log.getTimeStamp())}
+                  {formatDate(log.getCreatedAt())}
                 </p>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  {formatTime(log.getTimeStamp())}
+                  {formatTime(log.getCreatedAt())}
                 </p>
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
-              {new Date(log.getTimeStamp()).toLocaleString("en-IN", {
+              {new Date(log.getCreatedAt()).toLocaleString("en-IN", {
                 dateStyle: "full",
                 timeStyle: "medium",
               })}

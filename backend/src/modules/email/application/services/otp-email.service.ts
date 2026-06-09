@@ -6,16 +6,12 @@ export class OtpEmailService {
 
   async send(
     to: string,
-
     otp: string,
   ) {
     await this.emailService.send({
       to,
-
       subject: "Email Verification OTP",
-
       body: otpTemplate(otp),
-
       type: "REAL",
     });
   }

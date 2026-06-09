@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 
 import { EmailLogRepository } from "../../domain/repository/email-log.repository";
 import { EmailLog } from "../../domain/entities/email-log.entity";
@@ -20,20 +21,23 @@ export class FileEmailLogRepository implements EmailLogRepository {
       .map((line) => {
         try {
           const parsed = JSON.parse(line);
+
           return new EmailLog(
-            parsed.id,
+            parsed.id ?? crypto.randomUUID(),
             parsed.type,
             parsed.to,
             parsed.subject,
             parsed.status,
-            new Date(parsed.timestamp),
+            parsed.createdAt ? new Date(parsed.createdAt) : new Date(),
             parsed.error,
           );
-        } catch {
+        } catch (error) {
+          console.error("Failed to parse email log:", error);
           return null;
         }
       })
-      .filter(Boolean) as EmailLog[];
+      .filter((log): log is EmailLog => log !== null);
+
     return logs.reverse();
   }
 }

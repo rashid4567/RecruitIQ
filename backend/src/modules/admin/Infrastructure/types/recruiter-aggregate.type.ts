@@ -1,4 +1,5 @@
 import { VerificationStatus } from "../../Domain/constatns/recruiterVerification-status";
+import { SubscriptionStatus } from "../../Domain/entities/recruiter.entity";
 
 export interface RecruiterAggregate {
   _id: string;
@@ -7,4 +8,5 @@ export interface RecruiterAggregate {
   isActive: boolean;
    profileImage?: string;
   verificationStatus: VerificationStatus;
+  subscriptionStatus : SubscriptionStatus;
 }

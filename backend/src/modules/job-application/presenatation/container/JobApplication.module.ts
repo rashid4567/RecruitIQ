@@ -33,7 +33,7 @@ const getMyApplicationUC = new GetMyApplicationUseCase(applicationRepo)
 const withdrawApplicationUC = new WithdrawApplicationUseCase(applicationRepo)
 const getApplicationUC = new GetApplicationDetailUseCase(applicationRepo, jobpostRepo)
 const getApplicationByJobPostUC = new GetApplicationsByJobUseCase(applicationRepo); 
-const ApplicationStatusUpdateUC = new UpdateApplicationStatusUseCase(applicationRepo)
+const ApplicationStatusUpdateUC = new UpdateApplicationStatusUseCase(applicationRepo, userRepo,jobpostRepo,sendEmailByEventUC)
 
 export const applyController = new ApplyJobController(ApplyJobUC);
 export const MyApplicationController = new GetMyApplicationController(getMyApplicationUC)

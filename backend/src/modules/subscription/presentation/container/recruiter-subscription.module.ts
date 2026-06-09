@@ -29,6 +29,7 @@ import { UpgradeSubscriptionController } from "../controller/recruiter/upgrade.s
 import { UpdateRecruiterSubscriptionStatusUseCase } from "../../../recruiter/application/useCase/profile/UpdateRecruiterSubscriptionStatusUseCase";
 import { MongooseRecruiterProfileRepository } from "../../../recruiter/infrastructure/repositories/mongoose-recruiter.repository";
 import { UUIDGenerator } from "../../infrastructure/service/uuid-generator.service";
+import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
 
 const subscriptionRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
@@ -72,6 +73,7 @@ const verifyPaymentUC = new VerifyPaymentUseCase(
   paymentGateway,
   upgaradeSubscriptionUC,
   updateRecruiterSubscriptionStatusUC,
+  createNotificationUC,
 );
 export const subscribePlanController = new SubscribePlanController(subscribeUC);
 export const renewSubscriptionController = new RenewSubscriptionController(

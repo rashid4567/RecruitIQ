@@ -11,6 +11,8 @@ import {
 } from "../../../domain/entities/recruiter-subscription.entity";
 import { UpgradeSubscriptionUseCase } from "./UpgradeSubscriptionUseCase";
 import { UpdateRecruiterSubscriptionStatusUseCase } from "../../../../recruiter/application/useCase/profile/UpdateRecruiterSubscriptionStatusUseCase";
+import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
+import { NotificationType } from "../../../../notification/infrastructure/mongoose/notification.model";
 
 export interface VerifyPaymentRequest {
   razorpayOrderId: string;
@@ -32,6 +34,7 @@ export class VerifyPaymentUseCase {
     private readonly paymentGateway: PaymentGateway,
     private readonly upgradeSubscriptionUC: UpgradeSubscriptionUseCase,
     private readonly updateRecruiterSubscriptionStatusUC: UpdateRecruiterSubscriptionStatusUseCase,
+    private readonly createNotificationUC: CreateNotificationUseCase,
   ) {}
 
   async execute(request: VerifyPaymentRequest): Promise<VerifyPaymentResponse> {
@@ -70,6 +73,27 @@ export class VerifyPaymentUseCase {
         payment.recruiterId,
         "active",
       );
+
+      try {
+  await this.createNotificationUC.execute({
+    recipientId: payment.recruiterId,
+    recipientRole: "recruiter",
+    title: "Subscription Upgraded",
+    message: `Your subscription has been upgraded successfully.`,
+    type: NotificationType.SUBSCRIPTION_RENEWED,
+    actionUrl: "/recruiter/subscription",
+    referenceId: upgradedSubscription.id,
+    metadata: {
+      subscriptionId: upgradedSubscription.id,
+      planId: payment.planId,
+    },
+  });
+} catch (err) {
+  console.error(
+    "SUBSCRIPTION_UPGRADE notification failed:",
+    err
+  );
+}
       const paidPayment = payment
         .markPaid(request.razorpayPaymentId)
         .attachSubscription(upgradedSubscription.id);

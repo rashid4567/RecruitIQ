@@ -37,6 +37,7 @@ const RecruiterApplication = lazy(
   () =>
     import("../module/job-application/presentation/pages/recruiter/Recruiter.application"),
 );
+const NotificationCenter = lazy(()=> import("../module/notification/presentation/page/notification.center"))
 const CandidateScorecardPage = lazy(()=> import("../module/job-application/presentation/pages/recruiter/Application.detail.view"))
 const RecruiterRoutes = () => {
   return (
@@ -47,6 +48,7 @@ const RecruiterRoutes = () => {
             <Route index element={<RecruiterHome />} />
             <Route path="complete-profile" element={<RecruiterDetails />} />
             <Route path="profile" element={<RecruiterSettingsPage />} />
+             <Route path="notification" element={<NotificationCenter/>}/>
             <Route path="jobs" element={<MyJobPost />} />
             <Route path="job-editor" element={<JobPostEditor />} />
             <Route path="job-editor/:id" element={<JobPostEditor />} />

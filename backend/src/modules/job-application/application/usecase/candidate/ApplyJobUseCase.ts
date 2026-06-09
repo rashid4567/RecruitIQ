@@ -3,6 +3,8 @@ import { UserRepository } from "../../../../auth/domain/repositories/user.reposi
 import { SendEmailByEventUseCase } from "../../../../email/application/usecase/email-template/send-email-by-event.usecase";
 import { EmailEvent } from "../../../../email/domain/constant/templateEvents";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
+import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
+import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
 import { JobApplication } from "../../../domain/entity/job-application.entity";
 import { APPLICATION_ERRORS } from "../../../domain/error/Application.error";
@@ -17,6 +19,7 @@ export class ApplyJobUseCase {
     private readonly resumeRepo: ResumeRepository,
     private readonly userRepo: UserRepository,
     private readonly sendEmailByEventUC: SendEmailByEventUseCase,
+    private readonly createNotificationUC: CreateNotificationUseCase,
  
   ) {}
 
@@ -65,6 +68,26 @@ export class ApplyJobUseCase {
     await this.jobRepo.save(job);
 
     const candidate = await this.userRepo.findById(candidateId);
+
+    try{
+      await this.createNotificationUC.execute({
+        recipientId : job.recruiterId,
+        recipientRole : "recruiter",
+        title : "New Job Application",
+        message : `${candidate?.fullName ?? "A candidate"}applied for a ${job.title}`,
+        type : NotificationType.JOB_APPLIED,
+        actionUrl : `/recruiter/applications/${created.id}`,
+        referenceId : created.id,
+        metadata : {
+          applicationId : created.id,
+          candidateId,
+          jobId,
+          jobTitle : job.title,
+        }
+      })
+    }catch(err){
+      console.error("Job_applied notification failed :",err)
+    }
 
     if(candidate){
       try{

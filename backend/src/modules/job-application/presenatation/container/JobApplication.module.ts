@@ -3,6 +3,7 @@ import { MongooseUserRepository } from "../../../auth/infrastructure/repositorie
 import { sendEmailByEventUC } from "../../../email/presentation/container/email-template.container";
 import { JobRepository } from "../../../job/domain/repositories/job.repository";
 import { MongooseJobRepository } from "../../../job/infrastructure/repositories/mongoose-job.repository";
+import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
 import { ResumeRepository } from "../../../resume/domain/repository/resume.repository";
 import { MongooseResumeRepository } from "../../../resume/infrastructure/repository/mongoose.resume.repository";
 import { ApplyJobUseCase } from "../../application/usecase/candidate/ApplyJobUseCase";
@@ -28,12 +29,12 @@ const jobpostRepo : JobRepository = new MongooseJobRepository();
 const resumeRepo : ResumeRepository = new MongooseResumeRepository()
 const userRepo : UserRepository = new MongooseUserRepository();
 
-const ApplyJobUC = new ApplyJobUseCase(applicationRepo,jobpostRepo,resumeRepo, userRepo,sendEmailByEventUC );
+const ApplyJobUC = new ApplyJobUseCase(applicationRepo,jobpostRepo,resumeRepo, userRepo,sendEmailByEventUC, createNotificationUC );
 const getMyApplicationUC = new GetMyApplicationUseCase(applicationRepo)
 const withdrawApplicationUC = new WithdrawApplicationUseCase(applicationRepo)
 const getApplicationUC = new GetApplicationDetailUseCase(applicationRepo, jobpostRepo)
 const getApplicationByJobPostUC = new GetApplicationsByJobUseCase(applicationRepo); 
-const ApplicationStatusUpdateUC = new UpdateApplicationStatusUseCase(applicationRepo, userRepo,jobpostRepo,sendEmailByEventUC)
+const ApplicationStatusUpdateUC = new UpdateApplicationStatusUseCase(applicationRepo, userRepo,jobpostRepo,sendEmailByEventUC, createNotificationUC)
 
 export const applyController = new ApplyJobController(ApplyJobUC);
 export const MyApplicationController = new GetMyApplicationController(getMyApplicationUC)

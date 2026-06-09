@@ -28,6 +28,8 @@ const JobApplicationDetail = lazy(
   () =>
     import("../module/job-application/presentation/pages/candidate/job.detail.application"),
 );
+
+const NotificationCenter = lazy(()=> import("../module/notification/presentation/page/notification.center"))
 const CandidateRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -38,6 +40,7 @@ const CandidateRoutes = () => {
             <Route path="profile/complete" element={<CompleteProfile />} />
 
             <Route path="profile/setting" element={<AccountSettingsPage />} />
+            <Route path="notification" element={<NotificationCenter/>}/>
             <Route path="applications" element={<MyApplication />} />
             <Route
               path="applications/:applicationId"

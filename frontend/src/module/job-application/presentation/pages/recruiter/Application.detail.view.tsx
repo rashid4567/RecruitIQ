@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LayoutGrid,
   Briefcase,
@@ -21,6 +21,9 @@ import {
   AlertCircle,
   TrendingUp,
 } from 'lucide-react';
+import { useRecruiterApplicationDetails } from '../../hooks/recruiter/useRecruiterApplicationDetails'; 
+import type { RecruiterApplicationDetails } from '@/module/job-application/domain/dto/RecruiterApplicationDetails';
+import { ApplicationStatus } from '@/module/job-application/domain/entity/job-application.entity';
 
 // ────────────────────── Types ──────────────────────
 
@@ -77,103 +80,162 @@ interface CandidateProfile {
   interviewHistory: Interview[];
 }
 
-// ────────────────────── Mock Data ──────────────────────
+// ────────────────────── Helpers ──────────────────────
 
-const mockCandidate: CandidateProfile = {
-  id: '1',
-  name: 'Aisha Rahman',
-  position: 'Senior Frontend Developer',
-  email: 'aisha.rahman@example.com',
-  phone: '+1 (555) 123-4567',
-  appliedDate: '2024-07-20',
-  overallScore: 75,
-  matchPercentage: 75,
-  status: 'Active Application',
-  profileImage: 'AR',
-  requiredSkills: [
-    { name: 'React', found: true },
-    { name: 'TypeScript', found: true },
-    { name: 'Next.js', found: true },
-    { name: 'Tailwind CSS', found: true },
-    { name: 'GraphQL', found: false },
-    { name: 'Unit Testing', found: true },
-    { name: 'AWS', found: false },
-    { name: 'UX Design Principles', found: true },
-  ],
-  candidateSkills: [
-    { name: 'React', status: 'Found' },
-    { name: 'TypeScript', status: 'Found' },
-    { name: 'Next.js', status: 'Found' },
-    { name: 'Tailwind CSS', status: 'Found' },
-    { name: 'Node.js', status: 'Extra' },
-    { name: 'GraphQL', status: 'Missing' },
-    { name: 'Unit Testing', status: 'Found' },
-    { name: 'AWS', status: 'Missing' },
-    { name: 'UX Design Principles', status: 'Found' },
-    { name: 'Figma', status: 'Extra' },
-  ],
-  experience: [
-    {
-      title: 'Senior Frontend Engineer at InnovateTech Solutions',
-      company: 'InnovateTech Solutions',
-      duration: 'Jan 2022 - Present',
-      description:
-        'Lead development of scalable applications using React, Next.js, and TypeScript. Mentored junior developers and conducted code reviews. Improved application performance by 40% through optimization techniques.',
-    },
-    {
-      title: 'Frontend Developer at Digital Horizon Inc.',
-      company: 'Digital Horizon Inc.',
-      duration: 'Mar 2019 - Dec 2021',
-      description:
-        'Developed and maintained UI components for SaaS product. Collaborated with UX/UI team to implement design specifications. Optimized application performance and ensured cross-browser compatibility.',
-    },
-  ],
-  education: [
-    { degree: 'M.Sc. Computer Science', school: 'University of TechLand (2019)', year: '2019' },
-    {
-      degree: 'B.Sc. Software Engineering',
-      school: 'State University (2017)',
-      year: '2017',
-    },
-  ],
-  certifications: ['AWS Certified Developer - Associate', 'Professional Scrum Master I'],
-  aiSummary: `Aisha is a Senior Frontend Developer with 5+ years of experience in React, Next.js, and TypeScript. Proven track record in leading projects, building scalable applications, and enhancing user experience. Strong advocate for clean code, test-driven development, and agile methodologies.`,
-  strengths: [
-    'Exceptional proficiency in modern frontend frameworks (React, Next.js)',
-    'Strong command over TypeScript, ensuring robust and maintainable codebase',
-    'Demonstrated leadership in project delivery and team mentorship',
-    'Excellent understanding of SOLID principles and design system implementation',
-  ],
-  weaknesses: [
-    'Limited direct experience with GraphQL compared to REST APIs',
-    'Exposure to cloud platforms (AWS) is limited but could be further developed for advanced roles',
-  ],
-  recommendations: [
-    'Consider a technical interview focused on system design patterns in large-scale frontend applications',
-    'Explore the candidate\'s approach to API design and state management for complex applications',
-    'Assess leadership potential and experience in cross-functional team collaboration',
-  ],
-  interviewHistory: [
-    {
-      date: '2024-07-25',
-      interviewer: 'Jane Doe',
-      role: 'Hiring Manager',
-      feedback: 'Excellent cultural fit, clear communication, strong project leadership examples. Recommended for next round.',
-    },
-    {
-      date: '2024-07-28',
-      interviewer: 'Michael Chen',
-      role: 'Tech Lead',
-      feedback: 'Strong technical foundation. Discussed advanced React patterns and optimization techniques. Good fit for senior role.',
-    },
-  ],
-};
+/**
+ * Maps an ApplicationStatus value from the domain entity to the display
+ * string expected by the UI components.
+ */
+function mapStatus(
+  status: string | undefined,
+): CandidateProfile['status'] {
+  switch (status) {
+    case ApplicationStatus.SHORTLISTED:
+      return 'Shortlisted';
+    case ApplicationStatus.REJECTED:
+      return 'Rejected';
+    case ApplicationStatus.SELECTED:
+      return 'Offer Extended';
+    case ApplicationStatus.APPLIED:
+    case ApplicationStatus.INTERVIEW_SCHEDULED:
+    default:
+      return 'Active Application';
+  }
+}
 
-// ────────────────────── Component ──────────────────────
+/**
+ * Derives initials from a full name for the avatar placeholder.
+ */
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
 
-export default function CandidateScorecardPage() {
+/**
+ * Converts a RecruiterApplicationDetails API response into the CandidateProfile
+ * shape consumed by all existing UI sub-components.
+ *
+ * Fields that the API does not yet return (skills analysis, AI summary, etc.)
+ * are given sensible empty defaults so the page renders without errors; they
+ * can be populated once the backend exposes the data.
+ */
+function mapApiToCandidateProfile(
+  data: RecruiterApplicationDetails,
+): CandidateProfile {
+  return {
+    id: data.applicationId,
+    name: data.candidateName ?? 'Unknown Candidate',
+    // The API does not expose position title on this endpoint; use a fallback.
+    position: 'Candidate',
+    email: data.candidateEmail ?? '',
+    phone: '',
+    appliedDate: data.appliedAt
+      ? new Date(data.appliedAt).toLocaleDateString('en-CA') // YYYY-MM-DD
+      : '',
+    overallScore: 0,
+    matchPercentage: 0,
+    status: mapStatus(data.status),
+    profileImage: getInitials(data.candidateName ?? 'U'),
+    requiredSkills: [],
+    candidateSkills: [],
+    experience: [],
+    education: [],
+    certifications: [],
+    aiSummary: '',
+    strengths: [],
+    weaknesses: [],
+    recommendations: [],
+    interviewHistory: data.interview
+      ? [
+          {
+            date: data.interview.scheduledAt
+              ? new Date(data.interview.scheduledAt).toLocaleDateString('en-CA')
+              : '',
+            interviewer: '',
+            role: '',
+            feedback: data.interview.notes ?? '',
+          },
+        ]
+      : [],
+  };
+}
+
+// ────────────────────── Page Component ──────────────────────
+
+interface CandidateScorecardPageProps {
+  /** The application ID to load. Pass via router params or props. */
+  applicationId: string;
+}
+
+export default function CandidateScorecardPage({
+  applicationId,
+}: CandidateScorecardPageProps) {
   const [activeTab, setActiveTab] = useState<'summary' | 'feedback'>('summary');
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+
+  const { loading, error, application, fetchApplicationDetails } =
+    useRecruiterApplicationDetails();
+
+  useEffect(() => {
+    if (applicationId) {
+      fetchApplicationDetails(applicationId);
+    }
+  }, [applicationId, fetchApplicationDetails]);
+
+  // ── Loading State ──
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-slate-50">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-slate-600 font-medium">Loading candidate details…</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error State ──
+  if (error) {
+    return (
+      <div className="flex min-h-screen bg-slate-50">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-3 max-w-sm">
+            <XCircle className="w-12 h-12 text-red-500 mx-auto" />
+            <p className="text-slate-900 font-semibold text-lg">Failed to load application</p>
+            <p className="text-slate-600 text-sm">{error}</p>
+            <button
+              onClick={() => fetchApplicationDetails(applicationId)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── No Data Yet ──
+  if (!application) {
+    return (
+      <div className="flex min-h-screen bg-slate-50">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-slate-500">No application data available.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const candidate = mapApiToCandidateProfile(application);
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -183,30 +245,30 @@ export default function CandidateScorecardPage() {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Header */}
-        <Header candidate={mockCandidate} />
+        <Header candidate={candidate} />
 
         {/* Content Grid */}
         <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Scores Section */}
-            <ScoresSection candidate={mockCandidate} />
+            <ScoresSection candidate={candidate} />
 
             {/* Skills Match Visualization */}
-            <SkillsMatchSection candidate={mockCandidate} />
+            <SkillsMatchSection candidate={candidate} />
 
             {/* Required vs Found Skills */}
-            <RequiredSkillsTable candidate={mockCandidate} />
+            <RequiredSkillsTable candidate={candidate} />
 
             {/* Experience */}
-            <ExperienceSection candidate={mockCandidate} />
+            <ExperienceSection candidate={candidate} />
 
             {/* Education & Certifications */}
-            <EducationSection candidate={mockCandidate} />
+            <EducationSection candidate={candidate} />
 
             {/* AI Feedback */}
             <AIFeedbackSection
-              candidate={mockCandidate}
+              candidate={candidate}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               expandedSection={expandedSection}
@@ -215,14 +277,14 @@ export default function CandidateScorecardPage() {
           </div>
 
           {/* Right Sidebar */}
-          <RightSidebar candidate={mockCandidate} />
+          <RightSidebar candidate={candidate} />
         </div>
       </div>
     </div>
   );
 }
 
-
+// ────────────────────── Sidebar ──────────────────────
 
 function Sidebar() {
   return (
@@ -282,7 +344,7 @@ function NavItem({
   );
 }
 
-
+// ────────────────────── Header ──────────────────────
 
 function Header({ candidate }: { candidate: CandidateProfile }) {
   return (
@@ -312,18 +374,24 @@ function Header({ candidate }: { candidate: CandidateProfile }) {
               <h1 className="text-2xl font-bold text-slate-900">{candidate.name}</h1>
               <p className="text-slate-600 font-medium">{candidate.position}</p>
               <div className="flex items-center gap-6 mt-2 text-sm text-slate-600">
-                <div className="flex items-center gap-1">
-                  <span>📧</span>
-                  {candidate.email}
-                </div>
-                <div className="flex items-center gap-1">
-                  <span>📞</span>
-                  {candidate.phone}
-                </div>
-                <div className="flex items-center gap-1">
-                  <span>📅</span>
-                  Applied on {candidate.appliedDate}
-                </div>
+                {candidate.email && (
+                  <div className="flex items-center gap-1">
+                    <span>📧</span>
+                    {candidate.email}
+                  </div>
+                )}
+                {candidate.phone && (
+                  <div className="flex items-center gap-1">
+                    <span>📞</span>
+                    {candidate.phone}
+                  </div>
+                )}
+                {candidate.appliedDate && (
+                  <div className="flex items-center gap-1">
+                    <span>📅</span>
+                    Applied on {candidate.appliedDate}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -352,14 +420,7 @@ function ScoresSection({ candidate }: { candidate: CandidateProfile }) {
         <div className="flex items-center justify-center">
           <div className="relative w-24 h-24">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                fill="none"
-                stroke="#e2e8f0"
-                strokeWidth="8"
-              />
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="8" />
               <circle
                 cx="50"
                 cy="50"
@@ -387,14 +448,7 @@ function ScoresSection({ candidate }: { candidate: CandidateProfile }) {
         <div className="flex items-center justify-center">
           <div className="relative w-24 h-24">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                fill="none"
-                stroke="#e2e8f0"
-                strokeWidth="8"
-              />
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="8" />
               <circle
                 cx="50"
                 cy="50"
@@ -434,44 +488,50 @@ function SkillsMatchSection({ candidate }: { candidate: CandidateProfile }) {
       {/* Required Skills */}
       <div className="mb-8">
         <h3 className="text-sm font-semibold text-slate-700 mb-3">Required Skills</h3>
-        <div className="flex flex-wrap gap-2">
-          {candidate.requiredSkills.map((skill) => (
-            <span
-              key={skill.name}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold ${
-                skill.found
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-slate-100 text-slate-600'
-              }`}
-            >
-              {skill.name}
-            </span>
-          ))}
-        </div>
+        {candidate.requiredSkills.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {candidate.requiredSkills.map((skill) => (
+              <span
+                key={skill.name}
+                className={`px-3 py-2 rounded-lg text-xs font-semibold ${
+                  skill.found ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                }`}
+              >
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-400 italic">No required skills data available.</p>
+        )}
       </div>
 
       {/* Candidate Skills */}
       <div>
         <h3 className="text-sm font-semibold text-slate-700 mb-3">Candidate Skills</h3>
-        <div className="flex flex-wrap gap-2">
-          {candidate.candidateSkills.map((skill) => (
-            <span
-              key={skill.name}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 ${
-                skill.status === 'Found'
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : skill.status === 'Extra'
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-orange-100 text-orange-700'
-              }`}
-            >
-              {skill.name}
-              <span className="text-xs font-semibold">
-                {skill.status === 'Found' ? '✓' : skill.status === 'Extra' ? '+' : ''}
+        {candidate.candidateSkills.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {candidate.candidateSkills.map((skill) => (
+              <span
+                key={skill.name}
+                className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 ${
+                  skill.status === 'Found'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : skill.status === 'Extra'
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'bg-orange-100 text-orange-700'
+                }`}
+              >
+                {skill.name}
+                <span className="text-xs font-semibold">
+                  {skill.status === 'Found' ? '✓' : skill.status === 'Extra' ? '+' : ''}
+                </span>
               </span>
-            </span>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-400 italic">No candidate skills data available.</p>
+        )}
       </div>
 
       {/* Summary Stats */}
@@ -507,37 +567,38 @@ function RequiredSkillsTable({ candidate }: { candidate: CandidateProfile }) {
         <p className="text-sm text-slate-600">Detailed breakdown of required skills</p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-slate-200">
-              <th className="text-left py-3 px-4 text-xs font-semibold text-slate-700">
-                Required Skill
-              </th>
-              <th className="text-center py-3 px-4 text-xs font-semibold text-slate-700">
-                Found in Candidate
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {candidate.requiredSkills.map((skill, index) => (
-              <tr
-                key={index}
-                className="border-b border-slate-100 hover:bg-slate-50 transition"
-              >
-                <td className="py-3 px-4 text-sm text-slate-900">{skill.name}</td>
-                <td className="py-3 px-4 text-center">
-                  {skill.found ? (
-                    <CheckCircle className="w-5 h-5 text-emerald-600 mx-auto" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-red-600 mx-auto" />
-                  )}
-                </td>
+      {candidate.requiredSkills.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200">
+                <th className="text-left py-3 px-4 text-xs font-semibold text-slate-700">
+                  Required Skill
+                </th>
+                <th className="text-center py-3 px-4 text-xs font-semibold text-slate-700">
+                  Found in Candidate
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {candidate.requiredSkills.map((skill, index) => (
+                <tr key={index} className="border-b border-slate-100 hover:bg-slate-50 transition">
+                  <td className="py-3 px-4 text-sm text-slate-900">{skill.name}</td>
+                  <td className="py-3 px-4 text-center">
+                    {skill.found ? (
+                      <CheckCircle className="w-5 h-5 text-emerald-600 mx-auto" />
+                    ) : (
+                      <XCircle className="w-5 h-5 text-red-600 mx-auto" />
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-sm text-slate-400 italic">No skills breakdown available.</p>
+      )}
     </div>
   );
 }
@@ -552,20 +613,24 @@ function ExperienceSection({ candidate }: { candidate: CandidateProfile }) {
         <p className="text-sm text-slate-600">Key roles and responsibilities</p>
       </div>
 
-      <div className="space-y-6">
-        {candidate.experience.map((exp, index) => (
-          <div key={index} className="pb-6 border-b border-slate-200 last:border-b-0 last:pb-0">
-            <div className="flex items-start gap-3 mb-2">
-              <div className="w-3 h-3 rounded-full bg-blue-600 mt-1.5 shrink-0" />
-              <div>
-                <h3 className="font-semibold text-slate-900">{exp.title}</h3>
-                <p className="text-sm text-slate-600 mt-0.5">{exp.duration}</p>
+      {candidate.experience.length > 0 ? (
+        <div className="space-y-6">
+          {candidate.experience.map((exp, index) => (
+            <div key={index} className="pb-6 border-b border-slate-200 last:border-b-0 last:pb-0">
+              <div className="flex items-start gap-3 mb-2">
+                <div className="w-3 h-3 rounded-full bg-blue-600 mt-1.5 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-slate-900">{exp.title}</h3>
+                  <p className="text-sm text-slate-600 mt-0.5">{exp.duration}</p>
+                </div>
               </div>
+              <p className="text-sm text-slate-700 ml-6 mt-2">{exp.description}</p>
             </div>
-            <p className="text-sm text-slate-700 ml-6 mt-2">{exp.description}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-slate-400 italic">No experience data available.</p>
+      )}
     </div>
   );
 }
@@ -582,7 +647,7 @@ function EducationSection({ candidate }: { candidate: CandidateProfile }) {
 
       <div className="space-y-6">
         {/* Education */}
-        {candidate.education.length > 0 && (
+        {candidate.education.length > 0 ? (
           <div>
             <h3 className="font-semibold text-slate-900 mb-4">Education</h3>
             <div className="space-y-3">
@@ -597,6 +662,8 @@ function EducationSection({ candidate }: { candidate: CandidateProfile }) {
               ))}
             </div>
           </div>
+        ) : (
+          <p className="text-sm text-slate-400 italic">No education data available.</p>
         )}
 
         {/* Certifications */}
@@ -674,14 +741,17 @@ function AIFeedbackSection({
       {/* Summary Tab */}
       {activeTab === 'summary' && (
         <div className="space-y-4">
-          <p className="text-slate-700 leading-relaxed">{candidate.aiSummary}</p>
+          {candidate.aiSummary ? (
+            <p className="text-slate-700 leading-relaxed">{candidate.aiSummary}</p>
+          ) : (
+            <p className="text-sm text-slate-400 italic">No AI summary available yet.</p>
+          )}
         </div>
       )}
 
       {/* Feedback Tab */}
       {activeTab === 'feedback' && (
         <div className="space-y-4">
-          {/* Strengths */}
           <FeedbackSection
             title="Strengths"
             icon={<TrendingUp className="w-5 h-5" />}
@@ -691,8 +761,6 @@ function AIFeedbackSection({
             expandedSection={expandedSection}
             setExpandedSection={setExpandedSection}
           />
-
-          {/* Weaknesses */}
           <FeedbackSection
             title="Weaknesses"
             icon={<AlertCircle className="w-5 h-5" />}
@@ -702,8 +770,6 @@ function AIFeedbackSection({
             expandedSection={expandedSection}
             setExpandedSection={setExpandedSection}
           />
-
-          {/* Recommendations */}
           <FeedbackSection
             title="Recommendations"
             icon={<Zap className="w-5 h-5" />}
@@ -755,12 +821,16 @@ function FeedbackSection({
 
       {isExpanded && (
         <div className="mt-4 space-y-2 pt-4 border-t border-slate-200">
-          {items.map((item, index) => (
-            <div key={index} className="flex items-start gap-3">
-              <span className="text-slate-400 font-bold mt-0.5">•</span>
-              <p className="text-slate-700 text-sm leading-relaxed">{item}</p>
-            </div>
-          ))}
+          {items.length > 0 ? (
+            items.map((item, index) => (
+              <div key={index} className="flex items-start gap-3">
+                <span className="text-slate-400 font-bold mt-0.5">•</span>
+                <p className="text-slate-700 text-sm leading-relaxed">{item}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-slate-400 italic">No {title.toLowerCase()} data available.</p>
+          )}
         </div>
       )}
     </div>
@@ -777,7 +847,7 @@ function RightSidebar({ candidate }: { candidate: CandidateProfile }) {
         <h3 className="font-semibold text-slate-900 mb-4">Application Status</h3>
         <div className="flex items-center gap-2 mb-4">
           <CheckCircle className="w-5 h-5 text-emerald-600" />
-          <span className="text-sm font-medium text-slate-900">Active Application</span>
+          <span className="text-sm font-medium text-slate-900">{candidate.status}</span>
         </div>
         <div className="space-y-2">
           <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition border border-slate-200">
@@ -819,7 +889,8 @@ function RightSidebar({ candidate }: { candidate: CandidateProfile }) {
       <div className="bg-white rounded-lg border border-slate-200 p-6">
         <h3 className="font-semibold text-slate-900 mb-3">Recruiter Notes</h3>
         <p className="text-sm text-slate-700 leading-relaxed">
-          Candidate shows strong leadership potential and solid technical foundation. Good to the core domain. Need to assess GraphQL experience and cloud architecture skills in next round.
+          Candidate shows strong leadership potential and solid technical foundation. Good to the
+          core domain. Need to assess GraphQL experience and cloud architecture skills in next round.
         </p>
       </div>
 
@@ -827,17 +898,28 @@ function RightSidebar({ candidate }: { candidate: CandidateProfile }) {
       <div className="bg-white rounded-lg border border-slate-200 p-6">
         <h3 className="font-semibold text-slate-900 mb-4">Interview History</h3>
         <p className="text-xs text-slate-600 mb-4">Overview of past interview stages</p>
-        <div className="space-y-4">
-          {candidate.interviewHistory.map((interview, index) => (
-            <div key={index} className="pb-4 border-b border-slate-200 last:border-b-0 last:pb-0">
-              <div className="flex items-start justify-between mb-2">
-                <span className="text-sm font-semibold text-slate-900">{interview.date} - {interview.interviewer}</span>
-                <span className="text-xs text-slate-600 font-medium">{interview.role}</span>
+        {candidate.interviewHistory.length > 0 ? (
+          <div className="space-y-4">
+            {candidate.interviewHistory.map((interview, index) => (
+              <div key={index} className="pb-4 border-b border-slate-200 last:border-b-0 last:pb-0">
+                <div className="flex items-start justify-between mb-2">
+                  <span className="text-sm font-semibold text-slate-900">
+                    {interview.date}
+                    {interview.interviewer ? ` - ${interview.interviewer}` : ''}
+                  </span>
+                  {interview.role && (
+                    <span className="text-xs text-slate-600 font-medium">{interview.role}</span>
+                  )}
+                </div>
+                {interview.feedback && (
+                  <p className="text-xs text-slate-600">{interview.feedback}</p>
+                )}
               </div>
-              <p className="text-xs text-slate-600">{interview.feedback}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-400 italic">No interview history yet.</p>
+        )}
       </div>
 
       {/* Resume Preview */}

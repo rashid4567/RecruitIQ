@@ -10,9 +10,27 @@ export interface RecruiterApplicationListItem {
   candidateName: string;
   candidateEmail: string;
   candidateProfileImage?: string;
+  resumeId: string;
   status: ApplicationStatus;
   appliedAt: Date;
   interview?: InterviewInfo;
+}
+
+export interface RecruiterApplicationDetailsOutput {
+  applicationId: string;
+  jobId: string;
+  candidateId: string;
+  recruiterId: string;
+  resumeId: string;
+  candidateName?: string;
+  candidateEmail?: string;
+  candidateProfileImage?: string;
+  coverLetter?: string;
+  status: ApplicationStatus;
+  interview?: InterviewInfo;
+  rejectionReason?: string;
+  appliedAt: Date;
+  updatedAt: Date;
 }
 export interface JobApplicationRepository {
   create(application: JobApplication): Promise<JobApplication>;
@@ -28,4 +46,7 @@ export interface JobApplicationRepository {
     candidateId: string,
     jobId: string,
   ): Promise<JobApplication | null>;
+  findApplicationDetailsForRecruiter(
+  applicationId: string,
+): Promise<RecruiterApplicationDetailsOutput | null>;
 }

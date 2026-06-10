@@ -5,6 +5,7 @@ import { ApiJobApplicationRepository } from "../../infrastructure/repository/job
 import { GetApplicationDetailUseCase } from "../../application/usecase/candidate/MyApplication.indetail.usecase";
 import { GetApplicationsByJobUseCase } from "../../application/usecase/recruiter/getApplicationsByJob.usecase";
 import { UpdateApplicationStatusUseCase } from "../../application/usecase/recruiter/updateJobApplicationstatus.usecase";
+import { GetRecruiterApplicationDetailsUseCase } from "../../application/usecase/recruiter/GetRecruiterApplicationDetailsUseCase";
 
 const jobApplicationRepo = new ApiJobApplicationRepository();
 
@@ -24,3 +25,5 @@ export const GetApplicationsByJobUC = new GetApplicationsByJobUseCase(
 export const UpdateApplicationStatusUC = new UpdateApplicationStatusUseCase(
   jobApplicationRepo,
 );
+export const GetRecruiterApplicationDetailsUC = new GetRecruiterApplicationDetailsUseCase(jobApplicationRepo);
+

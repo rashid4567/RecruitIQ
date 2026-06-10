@@ -23,8 +23,8 @@ export class ApiNotificationRepository
     const res = await api.get(
       "/notification/unread-count",
     );
-
-    return res.data.unreadCount;
+ console.log("Unread Count API:", res.data);
+    return res.data.data;
   }
 
   async markAsRead(

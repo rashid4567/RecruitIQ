@@ -15,25 +15,18 @@ import { VerifyRecruiterController } from "../controller/recruiter-management/ve
 const recruiterRepo: RecruiterRepository = new MongooseRecruiterRepository();
 const fileStorage: FileStorageRepository = new S3FileStorageRepository();
 const getRecruitersUC = new GetRecruitersUseCase(recruiterRepo);
-
 const getRecruiterProfileUC = new GetRecruiterProfileUseCase(recruiterRepo,fileStorage);
-
 const verifyRecruiterUC = new VerifyRecruiterUseCase(recruiterRepo,createNotificationUC);
-
 const rejectRecruiterUC = new RejectRecruiterUseCase(recruiterRepo,createNotificationUC);
-
 export const getRecruitersController = new GetRecruitersController(
   getRecruitersUC,
 );
-
 export const getRecruiterProfileController = new GetRecruiterProfileController(
   getRecruiterProfileUC,
 );
-
 export const verifyRecruiterController = new VerifyRecruiterController(
   verifyRecruiterUC,
 );
-
 export const rejectRecruiterController = new RejectRecruiterController(
   rejectRecruiterUC,
 );

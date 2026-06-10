@@ -9,12 +9,14 @@ import {
   Mail,
   ArrowRight,
   LayoutDashboard,
+  Bell,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout } from "@/module/auth/presentation/hooks/useLogout";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useNotifications } from "@/module/notification/presentation/hook/useNotifications";
 
 
 function getNavItems(role: string | null) {
@@ -33,6 +35,11 @@ function getNavItems(role: string | null) {
   ];
 }
 
+function getNotificationPath(role: string | null): string {
+  if (role === "recruiter") return "/recruiter/notification";
+  if (role === "admin") return "/admin/notification";
+  return "/candidate/notification";
+}
 
 function getInitials(name: string | null): string {
   if (!name) return "U";
@@ -84,6 +91,32 @@ const NavLink: React.FC<{
   </a>
 );
 
+
+const NotificationBell: React.FC<{
+  unreadCount: number;
+  onClick: () => void;
+  className?: string;
+}> = ({ unreadCount, onClick, className }) => (
+  <button
+    onClick={onClick}
+    aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
+    className={cn(
+      "relative p-2 hover:bg-slate-100 rounded-lg transition",
+      "text-gray-500 hover:text-gray-700",
+      "focus:outline-none",
+      className,
+    )}
+  >
+    <Bell className="w-5 h-5 text-slate-600" />
+    {unreadCount > 0 && (
+      <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+        {unreadCount > 99 ? "99+" : unreadCount}
+      </span>
+    )}
+  </button>
+);
+
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -94,8 +127,10 @@ export default function Header() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const {logout} = useLogout();
+  const { logout } = useLogout();
   const profileRef = useRef<HTMLDivElement>(null);
+
+  const { unreadCount } = useNotifications();
 
   const NAV_ITEMS = getNavItems(userRole);
 
@@ -133,13 +168,21 @@ export default function Header() {
     return () => { document.body.style.overflow = ""; };
   }, [isMenuOpen]);
 
- const handleLogout = async () => {
-  try {
-    await logout();
-  } catch (error) {
-    console.error("Logout failed:", error);
-  }
-};
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsLoggedIn(false);
+      setUserRole(null);
+      setUserName(null);
+      setIsProfileOpen(false);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const handleNotificationClick = () => {
+    navigate(getNotificationPath(userRole));
+  };
 
   const getProfilePath = () => {
     if (userRole === "candidate") return "/candidate/profile/setting";
@@ -173,7 +216,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
 
-
+         
             <button
               onClick={() => navigate("/")}
               className="flex items-center gap-2.5 group focus:outline-none"
@@ -196,6 +239,7 @@ export default function Header() {
               </span>
             </button>
 
+
             <nav className="hidden lg:flex items-center gap-0.5">
               {NAV_ITEMS.map(({ label, href }) => (
                 <NavLink
@@ -207,13 +251,18 @@ export default function Header() {
               ))}
             </nav>
 
-     
+
             <div className="flex items-center gap-2">
               {isLoggedIn ? (
                 <>
-        
-              
+      
+                  <NotificationBell
+                    unreadCount={unreadCount}
+                    onClick={handleNotificationClick}
+                    className="hidden lg:flex"
+                  />
 
+             
                   <div ref={profileRef} className="relative hidden lg:block">
                     <button
                       onClick={() => setIsProfileOpen((p) => !p)}
@@ -225,7 +274,6 @@ export default function Header() {
                           : "border-gray-200 hover:border-cyan-300/60 hover:bg-gray-50",
                       )}
                     >
-                   
                       <div className="relative">
                         <Avatar className="h-7 w-7">
                           <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
@@ -255,17 +303,16 @@ export default function Header() {
                       />
                     </button>
 
-                    
                     {isProfileOpen && (
                       <div
                         className={cn(
-                          "absolute right-0 top-[calc(100%+8px)] w-60",
+                          "absolute right-0 top-[calc(100%+8px)] w-64",
                           "bg-white rounded-2xl border border-gray-200/80",
                           "shadow-xl shadow-gray-900/8 py-1.5 z-50",
                           "animate-in fade-in slide-in-from-top-2 duration-150",
                         )}
                       >
-                   
+                  
                         <div className="px-4 py-3 mb-1">
                           <div className="flex items-center gap-3">
                             <div className="relative">
@@ -288,8 +335,8 @@ export default function Header() {
 
                         <div className="h-px bg-gray-100 mx-3" />
 
-           
                         <div className="py-1.5 px-1.5 space-y-0.5">
+         
                           <button
                             onClick={() => { navigate(getDashboardPath()); setIsProfileOpen(false); }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
@@ -297,6 +344,7 @@ export default function Header() {
                             <LayoutDashboard className="w-4 h-4 shrink-0 text-gray-400" />
                             Dashboard
                           </button>
+
                           <button
                             onClick={() => { navigate(getProfilePath()); setIsProfileOpen(false); }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
@@ -307,6 +355,27 @@ export default function Header() {
                               </AvatarFallback>
                             </Avatar>
                             View profile
+                          </button>
+
+                          <button
+                            onClick={() => { handleNotificationClick(); setIsProfileOpen(false); }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
+                          >
+                            <div className="relative shrink-0">
+                              <Bell className="w-4 h-4 text-gray-400" />
+                              {unreadCount > 0 && (
+                        
+                                <span className="absolute -top-2 -right-2 min-w-4.5 h-4.5 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-red-500 text-white ring-1 ring-white">
+                                  {unreadCount > 99 ? "99+" : unreadCount}
+                                </span>
+                              )}
+                            </div>
+                            <span className="flex-1">Notifications</span>
+                            {unreadCount > 0 && (
+                              <span className="text-[10px] font-semibold bg-red-50 text-red-600 px-1.5 py-0.5 rounded-full border border-red-100">
+                                {unreadCount} new
+                              </span>
+                            )}
                           </button>
                         </div>
 
@@ -349,7 +418,6 @@ export default function Header() {
                 </div>
               )}
 
-   
               <button
                 onClick={() => setIsMenuOpen((p) => !p)}
                 aria-label="Toggle menu"
@@ -372,7 +440,6 @@ export default function Header() {
         </div>
       </header>
 
-
       {isMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" aria-modal="true">
           <div
@@ -389,7 +456,7 @@ export default function Header() {
           >
             <div className="max-w-7xl mx-auto px-4 pt-5 pb-10 space-y-6">
 
-      
+              {/* Nav links */}
               <nav className="space-y-1">
                 {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
                   <a
@@ -423,10 +490,9 @@ export default function Header() {
 
               <div className="h-px bg-linear-to-r from-transparent via-gray-200 to-transparent" />
 
-         
               {isLoggedIn ? (
                 <div className="space-y-2">
-       
+
                   <button
                     onClick={() => { navigate(getProfilePath()); setIsMenuOpen(false); }}
                     className={cn(
@@ -454,7 +520,27 @@ export default function Header() {
                     <ArrowRight className="w-4 h-4 text-gray-400 shrink-0" />
                   </button>
 
-                 
+                  <button
+                    onClick={() => { handleNotificationClick(); setIsMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
+                  >
+                    
+                    <span className="relative w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
+                      <Bell className="w-4 h-4 text-red-500" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-red-500 text-white ring-1 ring-white">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
+                    </span>
+                    <span className="flex-1">Notifications</span>
+                    {unreadCount > 0 && (
+                    
+                      <span className="text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">
+                        {unreadCount} unread
+                      </span>
+                    )}
+                  </button>
 
                   <button
                     onClick={() => { handleLogout(); setIsMenuOpen(false); }}
@@ -469,13 +555,13 @@ export default function Header() {
               ) : (
                 <div className="space-y-2.5">
                   <button
-                    onClick={() => { navigate("/login"); setIsMenuOpen(false); }}
+                    onClick={() => { navigate("/signin"); setIsMenuOpen(false); }}
                     className="w-full py-3 px-4 rounded-xl border border-gray-200 text-gray-800 font-semibold hover:bg-gray-50 transition-colors"
                   >
                     Sign in
                   </button>
                   <button
-                    onClick={() => { navigate("/register"); setIsMenuOpen(false); }}
+                    onClick={() => { navigate("/signup"); setIsMenuOpen(false); }}
                     className={cn(
                       "w-full py-3 px-4 rounded-xl text-white font-semibold",
                       "bg-linear-to-r from-blue-600 to-cyan-500",

@@ -70,7 +70,7 @@ const RecruiterRoutes = () => {
               path="jobs/:jobId/applications"
               element={<RecruiterApplication />}
             />
-            <Route path="application-detail" element={<CandidateScorecardPage/>}/>
+            <Route path="application-detail/:applicationId" element={<CandidateScorecardPage/>}/>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

@@ -350,12 +350,7 @@ export default function JobDetailModal({
                             <Globe className="w-2.5 h-2.5" /> Remote
                           </span>
                         )}
-                        {job.status !== "active" && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 text-[11px] font-bold border border-amber-200 rounded-full mt-0.5 capitalize">
-                            {job.status}
-                          </span>
-                        )}
-                      </div>
+                                     </div>
                       {job.department && (
                         <p className="text-sm text-slate-400 font-medium">{job.department}</p>
                       )}

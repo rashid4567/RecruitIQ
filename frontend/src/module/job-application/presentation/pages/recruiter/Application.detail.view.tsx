@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  LayoutGrid,
-  Briefcase,
-  Users,
-  Calendar,
-  User,
-  CreditCard,
-  LogOut,
-  Bell,
-  ChevronDown,
-  ChevronLeft,
   Download,
   MessageSquare,
   CheckCircle,
@@ -20,10 +10,25 @@ import {
   Zap,
   AlertCircle,
   TrendingUp,
+  ChevronDown,
+  ChevronRight,
+  Mail,
+  Phone,
+  Calendar,
+  Briefcase,
+  GraduationCap,
+  Star,
+  BarChart2,
+  Target,
+  BookOpen,
+  Layers,
 } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import { useRecruiterApplicationDetails } from '../../hooks/recruiter/useRecruiterApplicationDetails';
 import type { RecruiterApplicationDetails } from '@/module/job-application/domain/dto/RecruiterApplicationDetails';
 import { ApplicationStatus } from '@/module/job-application/domain/entity/job-application.entity';
+import Sidebar from '@/module/recruiter/presentation/pages/components/layout/Sidebar';
+import Header from '@/pages/landing/sections/Header';
 
 // ────────────────────── Types ──────────────────────
 
@@ -80,15 +85,9 @@ interface CandidateProfile {
   interviewHistory: Interview[];
 }
 
-// ────────────────────── Helpers ──────────────────────
 
-/**
- * Maps an ApplicationStatus value from the domain entity to the display
- * string expected by the UI components.
- */
-function mapStatus(
-  status: string | undefined,
-): CandidateProfile['status'] {
+
+function mapStatus(status: string | undefined): CandidateProfile['status'] {
   switch (status) {
     case ApplicationStatus.SHORTLISTED:
       return 'Shortlisted';
@@ -103,9 +102,6 @@ function mapStatus(
   }
 }
 
-/**
- * Derives initials from a full name for the avatar placeholder.
- */
 function getInitials(name: string): string {
   return name
     .split(' ')
@@ -115,26 +111,15 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-/**
- * Converts a RecruiterApplicationDetails API response into the CandidateProfile
- * shape consumed by all existing UI sub-components.
- *
- * Fields that the API does not yet return (skills analysis, AI summary, etc.)
- * are given sensible empty defaults so the page renders without errors; they
- * can be populated once the backend exposes the data.
- */
-function mapApiToCandidateProfile(
-  data: RecruiterApplicationDetails,
-): CandidateProfile {
+function mapApiToCandidateProfile(data: RecruiterApplicationDetails): CandidateProfile {
   return {
     id: data.applicationId,
     name: data.candidateName ?? 'Unknown Candidate',
-    // The API does not expose position title on this endpoint; use a fallback.
     position: 'Candidate',
     email: data.candidateEmail ?? '',
     phone: '',
     appliedDate: data.appliedAt
-      ? new Date(data.appliedAt).toLocaleDateString('en-CA') // YYYY-MM-DD
+      ? new Date(data.appliedAt).toLocaleDateString('en-CA')
       : '',
     overallScore: 0,
     matchPercentage: 0,
@@ -164,58 +149,127 @@ function mapApiToCandidateProfile(
   };
 }
 
-// ────────────────────── Page Component ──────────────────────
+// ────────────────────── Status Config ──────────────────────
 
-interface CandidateScorecardPageProps {
-  /** The application ID to load. Pass via router params or props. */
-  applicationId: string;
+const statusConfig: Record<
+  CandidateProfile['status'],
+  { color: string; bg: string; dot: string }
+> = {
+  'Active Application': {
+    color: 'text-blue-700',
+    bg: 'bg-blue-50 border-blue-200',
+    dot: 'bg-blue-500',
+  },
+  Shortlisted: {
+    color: 'text-emerald-700',
+    bg: 'bg-emerald-50 border-emerald-200',
+    dot: 'bg-emerald-500',
+  },
+  Rejected: {
+    color: 'text-red-700',
+    bg: 'bg-red-50 border-red-200',
+    dot: 'bg-red-500',
+  },
+  'Offer Extended': {
+    color: 'text-violet-700',
+    bg: 'bg-violet-50 border-violet-200',
+    dot: 'bg-violet-500',
+  },
+};
+
+// ────────────────────── Circular Progress ──────────────────────
+
+function CircularProgress({
+  value,
+  color,
+  size = 96,
+  strokeWidth = 8,
+}: {
+  value: number;
+  color: string;
+  size?: number;
+  strokeWidth?: number;
+}) {
+  const radius = (size - strokeWidth * 2) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+  const center = size / 2;
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="transform -rotate-90"
+    >
+      <circle
+        cx={center}
+        cy={center}
+        r={radius}
+        fill="none"
+        stroke="#e2e8f0"
+        strokeWidth={strokeWidth}
+      />
+      <circle
+        cx={center}
+        cy={center}
+        r={radius}
+        fill="none"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+      />
+    </svg>
+  );
 }
 
-export default function CandidateScorecardPage({
-  applicationId,
-}: CandidateScorecardPageProps) {
+
+
+export default function CandidateScorecardPage() {
+  const { applicationId } = useParams<{ applicationId: string }>();
   const [activeTab, setActiveTab] = useState<'summary' | 'feedback'>('summary');
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>('strengths');
 
   const { loading, error, application, fetchApplicationDetails } =
     useRecruiterApplicationDetails();
 
   useEffect(() => {
-    if (applicationId) {
-      fetchApplicationDetails(applicationId);
-    }
+    if (applicationId) fetchApplicationDetails(applicationId);
   }, [applicationId, fetchApplicationDetails]);
 
-  // ── Loading State ──
   if (loading) {
     return (
       <div className="flex min-h-screen bg-slate-50">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-4">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-slate-600 font-medium">Loading candidate details…</p>
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-slate-500 text-sm font-medium">Loading candidate details…</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // ── Error State ──
   if (error) {
     return (
       <div className="flex min-h-screen bg-slate-50">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center space-y-3 max-w-sm">
-            <XCircle className="w-12 h-12 text-red-500 mx-auto" />
-            <p className="text-slate-900 font-semibold text-lg">Failed to load application</p>
-            <p className="text-slate-600 text-sm">{error}</p>
+          <div className="text-center space-y-3 max-w-sm p-8 bg-white rounded-2xl shadow-sm border border-slate-200">
+            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto">
+              <XCircle className="w-6 h-6 text-red-500" />
+            </div>
+            <p className="text-slate-900 font-semibold">Failed to load application</p>
+            <p className="text-slate-500 text-sm">{error}</p>
             <button
-              onClick={() => fetchApplicationDetails(applicationId)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+              onClick={() => applicationId && fetchApplicationDetails(applicationId)}
+              className="mt-2 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
             >
-              Retry
+              Try again
             </button>
           </div>
         </div>
@@ -223,48 +277,351 @@ export default function CandidateScorecardPage({
     );
   }
 
-  // ── No Data Yet ──
   if (!application) {
     return (
       <div className="flex min-h-screen bg-slate-50">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-slate-500">No application data available.</p>
+          <div className="text-center space-y-2">
+            <FileText className="w-10 h-10 text-slate-300 mx-auto" />
+            <p className="text-slate-400 text-sm">No application data available.</p>
+          </div>
         </div>
       </div>
     );
   }
 
   const candidate = mapApiToCandidateProfile(application);
+  const sc = statusConfig[candidate.status];
+
+  const foundCount = candidate.candidateSkills.filter((s) => s.status === 'Found').length;
+  const extraCount = candidate.candidateSkills.filter((s) => s.status === 'Extra').length;
+  const missingCount = candidate.candidateSkills.filter((s) => s.status === 'Missing').length;
+  const requiredMatchCount = candidate.requiredSkills.filter((s) => s.found).length;
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-[#f8f9fc]">
       <Sidebar />
-
-      {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <Header candidate={candidate} />
+        <Header />
+      <div className="pt-11">
+        <div className="bg-white border-b border-slate-200 px-8 py-6">
+          <div className="max-w-7xl mx-auto flex items-start justify-between gap-6 flex-wrap">
+            <div className="flex items-center gap-5">
+         
+              <div className="relative">
+                <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white text-xl font-bold shadow-md select-none">
+                  {candidate.profileImage}
+                </div>
+                <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-white" />
+              </div>
 
-        {/* Content Grid */}
-        <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Scores Section */}
-            <ScoresSection candidate={candidate} />
+         
+              <div>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h1 className="text-xl font-bold text-slate-900 leading-tight">
+                    {candidate.name}
+                  </h1>
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${sc.bg} ${sc.color}`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+                    {candidate.status}
+                  </span>
+                </div>
+                {candidate.position && (
+                  <p className="text-sm text-slate-500 mt-0.5">{candidate.position}</p>
+                )}
+                <div className="flex items-center gap-4 mt-2 flex-wrap">
+                  {candidate.email && (
+                    <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <Mail className="w-3.5 h-3.5" />
+                      {candidate.email}
+                    </span>
+                  )}
+                  {candidate.phone && (
+                    <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <Phone className="w-3.5 h-3.5" />
+                      {candidate.phone}
+                    </span>
+                  )}
+                  {candidate.appliedDate && (
+                    <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <Calendar className="w-3.5 h-3.5" />
+                      Applied {candidate.appliedDate}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
 
-            {/* Skills Match Visualization */}
-            <SkillsMatchSection candidate={candidate} />
+            {/* Quick action buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <button className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-xl transition-all">
+                <FileText className="w-4 h-4" />
+                Apply Link
+              </button>
+              <button className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-xl transition-all">
+                <Download className="w-4 h-4" />
+                Export
+              </button>
+              <button className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-xl transition-all">
+                <MessageSquare className="w-4 h-4" />
+                Feedback
+              </button>
+            </div>
+          </div>
+        </div>
+        </div>
 
-            {/* Required vs Found Skills */}
-            <RequiredSkillsTable candidate={candidate} />
+        {/* ── Body ── */}
+        <div className="max-w-7xl mx-auto px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* ── Left / Main ── */}
+          <div className="lg:col-span-2 space-y-6">
+
+            {/* Score Cards */}
+            <div className="grid grid-cols-2 gap-5">
+              <ScoreCard
+                label="Overall Score"
+                sub="Candidate performance rating"
+                value={candidate.overallScore}
+                color="#3b82f6"
+                icon={<Star className="w-4 h-4 text-blue-500" />}
+              />
+              <ScoreCard
+                label="Match Percentage"
+                sub="Alignment with job requirements"
+                value={candidate.matchPercentage}
+                color="#10b981"
+                icon={<Target className="w-4 h-4 text-emerald-500" />}
+              />
+            </div>
+
+            {/* Skills Match */}
+            <Card
+              title="Skills Match"
+              subtitle="Required skills vs. candidate skills"
+              icon={<Layers className="w-5 h-5 text-blue-500" />}
+            >
+              <div className="space-y-6">
+                {/* Required Skills */}
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                    Required Skills
+                  </p>
+                  {candidate.requiredSkills.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {candidate.requiredSkills.map((skill) => (
+                        <SkillBadge
+                          key={skill.name}
+                          label={skill.name}
+                          variant={skill.found ? 'required-found' : 'required-missing'}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState label="No required skills listed." />
+                  )}
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-slate-100" />
+
+                {/* Candidate Skills */}
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                    Candidate Skills
+                  </p>
+                  {candidate.candidateSkills.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {candidate.candidateSkills.map((skill) => (
+                        <SkillBadge
+                          key={skill.name}
+                          label={skill.name}
+                          variant={
+                            skill.status === 'Found'
+                              ? 'found'
+                              : skill.status === 'Extra'
+                              ? 'extra'
+                              : 'missing'
+                          }
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState label="No candidate skills data available." />
+                  )}
+                </div>
+
+                {/* Legend bar */}
+                <div className="grid grid-cols-4 gap-3 pt-4 border-t border-slate-100">
+                  {[
+                    { count: foundCount, label: 'Found', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                    { count: extraCount, label: 'Extra', color: 'text-violet-600', bg: 'bg-violet-50' },
+                    { count: missingCount, label: 'Missing', color: 'text-orange-600', bg: 'bg-orange-50' },
+                    { count: requiredMatchCount, label: 'Match', color: 'text-blue-600', bg: 'bg-blue-50' },
+                  ].map(({ count, label, color, bg }) => (
+                    <div
+                      key={label}
+                      className={`${bg} rounded-xl py-3 text-center`}
+                    >
+                      <p className={`text-2xl font-bold ${color}`}>{count}</p>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">{label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+
+            {/* Required vs Found Table */}
+            <Card
+              title="Required vs. Found Skills"
+              subtitle="Detailed breakdown per required skill"
+              icon={<BarChart2 className="w-5 h-5 text-blue-500" />}
+            >
+              {candidate.requiredSkills.length > 0 ? (
+                <div className="overflow-x-auto -mx-6">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-slate-50 border-y border-slate-100">
+                        <th className="text-left py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Skill
+                        </th>
+                        <th className="text-center py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {candidate.requiredSkills.map((skill, i) => (
+                        <tr key={i} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="py-3.5 px-6 text-sm font-medium text-slate-800">
+                            {skill.name}
+                          </td>
+                          <td className="py-3.5 px-6">
+                            <div className="flex items-center justify-center">
+                              {skill.found ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  <CheckCircle className="w-3.5 h-3.5" />
+                                  Found
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                                  <XCircle className="w-3.5 h-3.5" />
+                                  Missing
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <EmptyState label="No skills breakdown available." />
+              )}
+            </Card>
 
             {/* Experience */}
-            <ExperienceSection candidate={candidate} />
+            <Card
+              title="Experience Alignment"
+              subtitle="Key roles and responsibilities"
+              icon={<Briefcase className="w-5 h-5 text-blue-500" />}
+            >
+              {candidate.experience.length > 0 ? (
+                <div className="relative">
+                  {/* timeline line */}
+                  <div className="absolute left-1.75 top-2 bottom-2 w-px bg-slate-200" />
+                  <div className="space-y-8 pl-7">
+                    {candidate.experience.map((exp, i) => (
+                      <div key={i} className="relative">
+                        <div className="absolute -left-7 top-1 w-3.5 h-3.5 rounded-full bg-blue-600 border-2 border-white shadow-sm" />
+                        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 hover:border-slate-200 transition-colors">
+                          <div className="flex items-start justify-between gap-3 flex-wrap">
+                            <div>
+                              <p className="font-semibold text-slate-900 text-sm">{exp.title}</p>
+                              {exp.company && (
+                                <p className="text-xs text-blue-600 font-medium mt-0.5">{exp.company}</p>
+                              )}
+                            </div>
+                            {exp.duration && (
+                              <span className="text-xs text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200 whitespace-nowrap">
+                                {exp.duration}
+                              </span>
+                            )}
+                          </div>
+                          {exp.description && (
+                            <p className="text-sm text-slate-600 mt-3 leading-relaxed">
+                              {exp.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <EmptyState label="No experience data available." />
+              )}
+            </Card>
 
-            {/* Education & Certifications */}
-            <EducationSection candidate={candidate} />
+            {/* Education */}
+            <Card
+              title="Education & Certifications"
+              subtitle="Academic achievements and professional qualifications"
+              icon={<GraduationCap className="w-5 h-5 text-blue-500" />}
+            >
+              <div className="space-y-6">
+                {candidate.education.length > 0 ? (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
+                      Education
+                    </p>
+                    <div className="space-y-3">
+                      {candidate.education.map((edu, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-100"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                            <Award className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate-900 text-sm">{edu.degree}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {edu.school}
+                              {edu.year ? ` · ${edu.year}` : ''}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <EmptyState label="No education data available." />
+                )}
+
+                {candidate.certifications.length > 0 && (
+                  <div className="pt-5 border-t border-slate-100">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
+                      Certifications
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {candidate.certifications.map((cert, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 text-xs font-semibold border border-amber-200"
+                        >
+                          <BookOpen className="w-3.5 h-3.5" />
+                          {cert}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
 
             {/* AI Feedback */}
             <AIFeedbackSection
@@ -276,413 +633,219 @@ export default function CandidateScorecardPage({
             />
           </div>
 
-          {/* Right Sidebar */}
-          <RightSidebar candidate={candidate} />
-        </div>
-      </div>
-    </div>
-  );
-}
+          {/* ── Right Sidebar ── */}
+          <div className="space-y-5">
+            {/* Recruiter Actions */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <h3 className="font-semibold text-slate-900 text-sm">Recruiter Actions</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Manage candidate status</p>
+              </div>
+              <div className="p-4 space-y-2.5">
+                <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-sm">
+                  <CheckCircle className="w-4 h-4" />
+                  Shortlist Candidate
+                </button>
+                <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm">
+                  <XCircle className="w-4 h-4" />
+                  Reject Candidate
+                </button>
+                <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors border border-slate-200">
+                  <Clock className="w-4 h-4" />
+                  Schedule Interview
+                </button>
+              </div>
+            </div>
 
-// ────────────────────── Sidebar ──────────────────────
+            {/* Recruiter Notes */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h3 className="font-semibold text-slate-900 text-sm">Recruiter Notes</h3>
+                <button className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                  Edit
+                </button>
+              </div>
+              <div className="px-5 py-4">
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  No notes added yet. Click Edit to add your observations about this candidate.
+                </p>
+              </div>
+            </div>
 
-function Sidebar() {
-  return (
-    <div className="w-64 bg-white border-r border-slate-200 flex flex-col sticky top-0 h-screen">
-      {/* Logo */}
-      <div className="p-6 border-b border-slate-200">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">R</span>
+            {/* Interview History */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <h3 className="font-semibold text-slate-900 text-sm">Interview History</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Past interview stages</p>
+              </div>
+              <div className="px-5 py-4">
+                {candidate.interviewHistory.length > 0 ? (
+                  <div className="space-y-4">
+                    {candidate.interviewHistory.map((interview, i) => (
+                      <div
+                        key={i}
+                        className="relative pl-4 border-l-2 border-blue-200"
+                      >
+                        <div className="absolute -left-1.25 top-1 w-2.5 h-2.5 rounded-full bg-blue-500 border-2 border-white" />
+                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900">
+                              {interview.date}
+                            </p>
+                            {interview.interviewer && (
+                              <p className="text-xs text-slate-500 mt-0.5">{interview.interviewer}</p>
+                            )}
+                          </div>
+                          {interview.role && (
+                            <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-lg font-medium">
+                              {interview.role}
+                            </span>
+                          )}
+                        </div>
+                        {interview.feedback && (
+                          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                            {interview.feedback}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState label="No interview history yet." />
+                )}
+              </div>
+            </div>
+
+            {/* Resume Preview */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <h3 className="font-semibold text-slate-900 text-sm">Resume</h3>
+                <p className="text-xs text-slate-500 mt-0.5">View or download candidate's resume</p>
+              </div>
+              <div className="p-5">
+                <div className="w-full h-32 bg-linear-to-br from-slate-100 to-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 mb-4">
+                  <FileText className="w-8 h-8 text-slate-300" />
+                  <span className="text-xs text-slate-400 font-medium">Resume Preview</span>
+                </div>
+                <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors border border-blue-200">
+                  <Download className="w-4 h-4" />
+                  Download Resume
+                </button>
+              </div>
+            </div>
           </div>
-          <span className="font-bold text-lg text-slate-900">RecruitIQ</span>
         </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 p-6 space-y-1">
-        <NavItem icon={<LayoutGrid className="w-5 h-5" />} label="Dashboard" />
-        <NavItem icon={<Briefcase className="w-5 h-5" />} label="Jobs" />
-        <NavItem icon={<FileText className="w-5 h-5" />} label="Applications" />
-        <NavItem icon={<Calendar className="w-5 h-5" />} label="Interviews" />
-        <NavItem icon={<Users className="w-5 h-5" />} label="Candidates" active={true} />
-        <NavItem icon={<CreditCard className="w-5 h-5" />} label="Billing" />
-        <NavItem icon={<User className="w-5 h-5" />} label="Profile" />
-      </nav>
-
-      {/* Footer */}
-      <div className="p-6 border-t border-slate-200">
-        <button className="flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-sm w-full">
-          <LogOut className="w-5 h-5" />
-          logout
-        </button>
       </div>
     </div>
   );
 }
 
-function NavItem({
-  icon,
+// ────────────────────── Score Card ──────────────────────
+
+function ScoreCard({
   label,
-  active = false,
+  sub,
+  value,
+  color,
+  icon,
 }: {
-  icon: React.ReactNode;
   label: string;
-  active?: boolean;
+  sub: string;
+  value: number;
+  color: string;
+  icon: React.ReactNode;
 }) {
   return (
-    <button
-      className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg font-medium transition ${
-        active
-          ? 'bg-blue-50 text-blue-600'
-          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-      }`}
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-1.5 mb-0.5">
+            {icon}
+            <h3 className="text-sm font-semibold text-slate-800">{label}</h3>
+          </div>
+          <p className="text-xs text-slate-500">{sub}</p>
+        </div>
+      </div>
+      <div className="flex items-center justify-center">
+        <div className="relative w-24 h-24">
+          <CircularProgress value={value} color={color} size={96} strokeWidth={8} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl font-bold text-slate-900">{value}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────── Skill Badge ──────────────────────
+
+type SkillVariant = 'required-found' | 'required-missing' | 'found' | 'extra' | 'missing';
+
+const skillVariantStyles: Record<SkillVariant, string> = {
+  'required-found': 'bg-blue-50 text-blue-700 border border-blue-200',
+  'required-missing': 'bg-slate-100 text-slate-500 border border-slate-200',
+  found: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  extra: 'bg-violet-50 text-violet-700 border border-violet-200',
+  missing: 'bg-orange-50 text-orange-700 border border-orange-200',
+};
+
+const skillVariantSuffix: Partial<Record<SkillVariant, string>> = {
+  found: '✓',
+  extra: '+',
+};
+
+function SkillBadge({ label, variant }: { label: string; variant: SkillVariant }) {
+  const suffix = skillVariantSuffix[variant];
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold ${skillVariantStyles[variant]}`}
     >
-      {icon}
       {label}
-    </button>
+      {suffix && <span className="font-bold">{suffix}</span>}
+    </span>
   );
 }
 
-// ────────────────────── Header ──────────────────────
+// ────────────────────── Card Wrapper ──────────────────────
 
-function Header({ candidate }: { candidate: CandidateProfile }) {
+function Card({
+  title,
+  subtitle,
+  icon,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="bg-white border-b border-slate-200 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <button className="text-slate-400 hover:text-slate-600">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <span className="text-slate-600 font-medium">Candidates</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-900 font-semibold">{candidate.name}</span>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center cursor-pointer hover:bg-slate-300 transition">
-            <Bell className="w-4 h-4 text-slate-600" />
-          </div>
-        </div>
-
-        {/* Candidate Info */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center text-2xl font-bold text-white">
-              {candidate.profileImage}
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+      <div className="px-6 py-5 border-b border-slate-100">
+        <div className="flex items-center gap-2.5">
+          {icon && (
+            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+              {icon}
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">{candidate.name}</h1>
-              <p className="text-slate-600 font-medium">{candidate.position}</p>
-              <div className="flex items-center gap-6 mt-2 text-sm text-slate-600">
-                {candidate.email && (
-                  <div className="flex items-center gap-1">
-                    <span>📧</span>
-                    {candidate.email}
-                  </div>
-                )}
-                {candidate.phone && (
-                  <div className="flex items-center gap-1">
-                    <span>📞</span>
-                    {candidate.phone}
-                  </div>
-                )}
-                {candidate.appliedDate && (
-                  <div className="flex items-center gap-1">
-                    <span>📅</span>
-                    Applied on {candidate.appliedDate}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="inline-flex px-4 py-1.5 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-700">
-              ✓ {candidate.status}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ────────────────────── Scores Section ──────────────────────
-
-function ScoresSection({ candidate }: { candidate: CandidateProfile }) {
-  return (
-    <div className="grid grid-cols-2 gap-6">
-      {/* Overall Score */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <div className="mb-4">
-          <h3 className="text-sm font-semibold text-slate-700 mb-2">Overall Score</h3>
-          <p className="text-xs text-slate-500">Candidate&apos;s overall performance rating</p>
-        </div>
-        <div className="flex items-center justify-center">
-          <div className="relative w-24 h-24">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="8" />
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="8"
-                strokeDasharray={`${candidate.overallScore * 2.83} 283`}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-3xl font-bold text-slate-900">{candidate.overallScore}%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Match Percentage */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <div className="mb-4">
-          <h3 className="text-sm font-semibold text-slate-700 mb-2">Match Percentage</h3>
-          <p className="text-xs text-slate-500">Alignment with job requirements</p>
-        </div>
-        <div className="flex items-center justify-center">
-          <div className="relative w-24 h-24">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="8" />
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                fill="none"
-                stroke="#10b981"
-                strokeWidth="8"
-                strokeDasharray={`${candidate.matchPercentage * 2.83} 283`}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-3xl font-bold text-slate-900">{candidate.matchPercentage}%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ────────────────────── Skills Match Section ──────────────────────
-
-function SkillsMatchSection({ candidate }: { candidate: CandidateProfile }) {
-  const requiredCount = candidate.requiredSkills.filter((s) => s.found).length;
-  const foundCount = candidate.candidateSkills.filter((s) => s.status === 'Found').length;
-  const extraCount = candidate.candidateSkills.filter((s) => s.status === 'Extra').length;
-  const missingCount = candidate.candidateSkills.filter((s) => s.status === 'Missing').length;
-
-  return (
-    <div className="bg-white rounded-lg border border-slate-200 p-6">
-      <div className="mb-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-1">Skills Match Visualization</h2>
-        <p className="text-sm text-slate-600">Comparison of required skills vs candidate&apos;s skills</p>
-      </div>
-
-      {/* Required Skills */}
-      <div className="mb-8">
-        <h3 className="text-sm font-semibold text-slate-700 mb-3">Required Skills</h3>
-        {candidate.requiredSkills.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {candidate.requiredSkills.map((skill) => (
-              <span
-                key={skill.name}
-                className={`px-3 py-2 rounded-lg text-xs font-semibold ${
-                  skill.found ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
-                }`}
-              >
-                {skill.name}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-slate-400 italic">No required skills data available.</p>
-        )}
-      </div>
-
-      {/* Candidate Skills */}
-      <div>
-        <h3 className="text-sm font-semibold text-slate-700 mb-3">Candidate Skills</h3>
-        {candidate.candidateSkills.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {candidate.candidateSkills.map((skill) => (
-              <span
-                key={skill.name}
-                className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 ${
-                  skill.status === 'Found'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : skill.status === 'Extra'
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'bg-orange-100 text-orange-700'
-                }`}
-              >
-                {skill.name}
-                <span className="text-xs font-semibold">
-                  {skill.status === 'Found' ? '✓' : skill.status === 'Extra' ? '+' : ''}
-                </span>
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-slate-400 italic">No candidate skills data available.</p>
-        )}
-      </div>
-
-      {/* Summary Stats */}
-      <div className="grid grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200">
-        <div className="text-center">
-          <p className="text-2xl font-bold text-emerald-600">{foundCount}</p>
-          <p className="text-xs text-slate-600 font-medium">Found</p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold text-purple-600">{extraCount}</p>
-          <p className="text-xs text-slate-600 font-medium">Extra</p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold text-orange-600">{missingCount}</p>
-          <p className="text-xs text-slate-600 font-medium">Missing</p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold text-blue-600">{requiredCount}</p>
-          <p className="text-xs text-slate-600 font-medium">Match</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ────────────────────── Required Skills Table ──────────────────────
-
-function RequiredSkillsTable({ candidate }: { candidate: CandidateProfile }) {
-  return (
-    <div className="bg-white rounded-lg border border-slate-200 p-6">
-      <div className="mb-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-1">Required vs Found Skills</h2>
-        <p className="text-sm text-slate-600">Detailed breakdown of required skills</p>
-      </div>
-
-      {candidate.requiredSkills.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-200">
-                <th className="text-left py-3 px-4 text-xs font-semibold text-slate-700">
-                  Required Skill
-                </th>
-                <th className="text-center py-3 px-4 text-xs font-semibold text-slate-700">
-                  Found in Candidate
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {candidate.requiredSkills.map((skill, index) => (
-                <tr key={index} className="border-b border-slate-100 hover:bg-slate-50 transition">
-                  <td className="py-3 px-4 text-sm text-slate-900">{skill.name}</td>
-                  <td className="py-3 px-4 text-center">
-                    {skill.found ? (
-                      <CheckCircle className="w-5 h-5 text-emerald-600 mx-auto" />
-                    ) : (
-                      <XCircle className="w-5 h-5 text-red-600 mx-auto" />
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-sm text-slate-400 italic">No skills breakdown available.</p>
-      )}
-    </div>
-  );
-}
-
-// ────────────────────── Experience Section ──────────────────────
-
-function ExperienceSection({ candidate }: { candidate: CandidateProfile }) {
-  return (
-    <div className="bg-white rounded-lg border border-slate-200 p-6">
-      <div className="mb-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-1">Experience Alignment</h2>
-        <p className="text-sm text-slate-600">Key roles and responsibilities</p>
-      </div>
-
-      {candidate.experience.length > 0 ? (
-        <div className="space-y-6">
-          {candidate.experience.map((exp, index) => (
-            <div key={index} className="pb-6 border-b border-slate-200 last:border-b-0 last:pb-0">
-              <div className="flex items-start gap-3 mb-2">
-                <div className="w-3 h-3 rounded-full bg-blue-600 mt-1.5 shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-slate-900">{exp.title}</h3>
-                  <p className="text-sm text-slate-600 mt-0.5">{exp.duration}</p>
-                </div>
-              </div>
-              <p className="text-sm text-slate-700 ml-6 mt-2">{exp.description}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-sm text-slate-400 italic">No experience data available.</p>
-      )}
-    </div>
-  );
-}
-
-// ────────────────────── Education Section ──────────────────────
-
-function EducationSection({ candidate }: { candidate: CandidateProfile }) {
-  return (
-    <div className="bg-white rounded-lg border border-slate-200 p-6">
-      <div className="mb-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-1">Education & Certifications</h2>
-        <p className="text-sm text-slate-600">Academic achievements and professional qualifications</p>
-      </div>
-
-      <div className="space-y-6">
-        {/* Education */}
-        {candidate.education.length > 0 ? (
+          )}
           <div>
-            <h3 className="font-semibold text-slate-900 mb-4">Education</h3>
-            <div className="space-y-3">
-              {candidate.education.map((edu, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <Award className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-slate-900">{edu.degree}</p>
-                    <p className="text-sm text-slate-600">{edu.school}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <h2 className="text-base font-bold text-slate-900">{title}</h2>
+            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
           </div>
-        ) : (
-          <p className="text-sm text-slate-400 italic">No education data available.</p>
-        )}
-
-        {/* Certifications */}
-        {candidate.certifications.length > 0 && (
-          <div className="pt-4 border-t border-slate-200">
-            <h3 className="font-semibold text-slate-900 mb-4">Certifications</h3>
-            <div className="flex flex-wrap gap-2">
-              {candidate.certifications.map((cert, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-2 rounded-lg bg-amber-100 text-amber-700 text-xs font-semibold"
-                >
-                  {cert}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
+      <div className="px-6 py-5">{children}</div>
+    </div>
+  );
+}
+
+// ────────────────────── Empty State ──────────────────────
+
+function EmptyState({ label }: { label: string }) {
+  return (
+    <div className="text-center py-6">
+      <p className="text-sm text-slate-400 italic">{label}</p>
     </div>
   );
 }
@@ -703,237 +866,146 @@ function AIFeedbackSection({
   setExpandedSection: (section: string | null) => void;
 }) {
   return (
-    <div className="bg-white rounded-lg border border-slate-200 p-6">
-      <div className="mb-6">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+      {/* Header */}
+      <div className="px-6 py-5 border-b border-slate-100">
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900">AI-Generated Feedback</h2>
-            <p className="text-sm text-slate-600 mt-1">Insights powered by AI analysis</p>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <Zap className="w-4.5 h-4.5 text-amber-500" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">AI-Generated Feedback</h2>
+              <p className="text-xs text-slate-500 mt-0.5">Insights powered by AI analysis</p>
+            </div>
           </div>
-          <Zap className="w-6 h-6 text-amber-500" />
+          <span className="text-xs px-2 py-1 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 font-semibold">
+            AI
+          </span>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-0 border-b border-slate-200">
-          <button
-            onClick={() => setActiveTab('summary')}
-            className={`px-4 py-3 font-medium text-sm border-b-2 transition ${
-              activeTab === 'summary'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Summary
-          </button>
-          <button
-            onClick={() => setActiveTab('feedback')}
-            className={`px-4 py-3 font-medium text-sm border-b-2 transition ${
-              activeTab === 'feedback'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Detailed Feedback
-          </button>
+        <div className="flex gap-1 bg-slate-100 p-1 rounded-xl">
+          {(['summary', 'feedback'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg capitalize transition-all ${
+                activeTab === tab
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {tab === 'summary' ? 'Summary' : 'Detailed Feedback'}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Summary Tab */}
-      {activeTab === 'summary' && (
-        <div className="space-y-4">
-          {candidate.aiSummary ? (
-            <p className="text-slate-700 leading-relaxed">{candidate.aiSummary}</p>
-          ) : (
-            <p className="text-sm text-slate-400 italic">No AI summary available yet.</p>
-          )}
-        </div>
-      )}
+      <div className="px-6 py-5">
+        {activeTab === 'summary' && (
+          <div>
+            {candidate.aiSummary ? (
+              <p className="text-slate-700 leading-relaxed text-sm">{candidate.aiSummary}</p>
+            ) : (
+              <EmptyState label="No AI summary available yet." />
+            )}
+          </div>
+        )}
 
-      {/* Feedback Tab */}
-      {activeTab === 'feedback' && (
-        <div className="space-y-4">
-          <FeedbackSection
-            title="Strengths"
-            icon={<TrendingUp className="w-5 h-5" />}
-            color="text-emerald-600"
-            items={candidate.strengths}
-            id="strengths"
-            expandedSection={expandedSection}
-            setExpandedSection={setExpandedSection}
-          />
-          <FeedbackSection
-            title="Weaknesses"
-            icon={<AlertCircle className="w-5 h-5" />}
-            color="text-red-600"
-            items={candidate.weaknesses}
-            id="weaknesses"
-            expandedSection={expandedSection}
-            setExpandedSection={setExpandedSection}
-          />
-          <FeedbackSection
-            title="Recommendations"
-            icon={<Zap className="w-5 h-5" />}
-            color="text-amber-600"
-            items={candidate.recommendations}
-            id="recommendations"
-            expandedSection={expandedSection}
-            setExpandedSection={setExpandedSection}
-          />
-        </div>
-      )}
+        {activeTab === 'feedback' && (
+          <div className="space-y-3">
+            <FeedbackAccordion
+              id="strengths"
+              title="Strengths"
+              icon={<TrendingUp className="w-4 h-4" />}
+              colorClass="text-emerald-600 bg-emerald-50"
+              items={candidate.strengths}
+              expandedSection={expandedSection}
+              setExpandedSection={setExpandedSection}
+            />
+            <FeedbackAccordion
+              id="weaknesses"
+              title="Weaknesses"
+              icon={<AlertCircle className="w-4 h-4" />}
+              colorClass="text-red-600 bg-red-50"
+              items={candidate.weaknesses}
+              expandedSection={expandedSection}
+              setExpandedSection={setExpandedSection}
+            />
+            <FeedbackAccordion
+              id="recommendations"
+              title="Recommendations"
+              icon={<Zap className="w-4 h-4" />}
+              colorClass="text-amber-600 bg-amber-50"
+              items={candidate.recommendations}
+              expandedSection={expandedSection}
+              setExpandedSection={setExpandedSection}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-function FeedbackSection({
+function FeedbackAccordion({
+  id,
   title,
   icon,
-  color,
+  colorClass,
   items,
-  id,
   expandedSection,
   setExpandedSection,
 }: {
+  id: string;
   title: string;
   icon: React.ReactNode;
-  color: string;
+  colorClass: string;
   items: string[];
-  id: string;
   expandedSection: string | null;
   setExpandedSection: (section: string | null) => void;
 }) {
-  const isExpanded = expandedSection === id;
-
+  const isOpen = expandedSection === id;
   return (
-    <div className="border border-slate-200 rounded-lg p-4">
+    <div className="border border-slate-200 rounded-xl overflow-hidden">
       <button
-        onClick={() => setExpandedSection(isExpanded ? null : id)}
-        className="w-full flex items-center justify-between hover:bg-slate-50 p-2 -m-2 rounded-lg transition"
+        onClick={() => setExpandedSection(isOpen ? null : id)}
+        className="w-full flex items-center justify-between px-4 py-3.5 bg-slate-50 hover:bg-slate-100 transition-colors"
       >
-        <div className="flex items-center gap-2">
-          <span className={color}>{icon}</span>
-          <span className="font-semibold text-slate-900">{title}</span>
+        <div className="flex items-center gap-2.5">
+          <span className={`w-7 h-7 rounded-lg flex items-center justify-center ${colorClass}`}>
+            {icon}
+          </span>
+          <span className="text-sm font-semibold text-slate-900">{title}</span>
+          {items.length > 0 && (
+            <span className="text-xs font-semibold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200">
+              {items.length}
+            </span>
+          )}
         </div>
         <ChevronDown
-          className={`w-5 h-5 text-slate-400 transition ${isExpanded ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
         />
       </button>
 
-      {isExpanded && (
-        <div className="mt-4 space-y-2 pt-4 border-t border-slate-200">
+      {isOpen && (
+        <div className="px-4 py-4 space-y-2.5 bg-white">
           {items.length > 0 ? (
-            items.map((item, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <span className="text-slate-400 font-bold mt-0.5">•</span>
-                <p className="text-slate-700 text-sm leading-relaxed">{item}</p>
+            items.map((item, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
+                  <ChevronRight className="w-3 h-3 text-slate-500" />
+                </div>
+                <p className="text-sm text-slate-700 leading-relaxed">{item}</p>
               </div>
             ))
           ) : (
-            <p className="text-sm text-slate-400 italic">No {title.toLowerCase()} data available.</p>
+            <EmptyState label={`No ${title.toLowerCase()} data available.`} />
           )}
         </div>
       )}
-    </div>
-  );
-}
-
-// ────────────────────── Right Sidebar ──────────────────────
-
-function RightSidebar({ candidate }: { candidate: CandidateProfile }) {
-  return (
-    <div className="space-y-6">
-      {/* Application Status */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <h3 className="font-semibold text-slate-900 mb-4">Application Status</h3>
-        <div className="flex items-center gap-2 mb-4">
-          <CheckCircle className="w-5 h-5 text-emerald-600" />
-          <span className="text-sm font-medium text-slate-900">{candidate.status}</span>
-        </div>
-        <div className="space-y-2">
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition border border-slate-200">
-            <FileText className="w-4 h-4" />
-            View Apply Link
-          </button>
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition border border-slate-200">
-            <Download className="w-4 h-4" />
-            Export / Print Scorecard
-          </button>
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition border border-slate-200">
-            <MessageSquare className="w-4 h-4" />
-            Submit Feedback
-          </button>
-        </div>
-      </div>
-
-      {/* Recruiter Actions */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <h3 className="font-semibold text-slate-900 mb-4">Recruiter Actions</h3>
-        <p className="text-xs text-slate-600 mb-4">Manage candidate status and outreach</p>
-        <div className="space-y-3">
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition">
-            <CheckCircle className="w-4 h-4" />
-            Shortlist Candidate
-          </button>
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition">
-            <XCircle className="w-4 h-4" />
-            Reject Candidate
-          </button>
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition border border-slate-200">
-            <Clock className="w-4 h-4" />
-            Schedule Interview
-          </button>
-        </div>
-      </div>
-
-      {/* Recruiter Notes */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <h3 className="font-semibold text-slate-900 mb-3">Recruiter Notes</h3>
-        <p className="text-sm text-slate-700 leading-relaxed">
-          Candidate shows strong leadership potential and solid technical foundation. Good to the
-          core domain. Need to assess GraphQL experience and cloud architecture skills in next round.
-        </p>
-      </div>
-
-      {/* Interview History */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <h3 className="font-semibold text-slate-900 mb-4">Interview History</h3>
-        <p className="text-xs text-slate-600 mb-4">Overview of past interview stages</p>
-        {candidate.interviewHistory.length > 0 ? (
-          <div className="space-y-4">
-            {candidate.interviewHistory.map((interview, index) => (
-              <div key={index} className="pb-4 border-b border-slate-200 last:border-b-0 last:pb-0">
-                <div className="flex items-start justify-between mb-2">
-                  <span className="text-sm font-semibold text-slate-900">
-                    {interview.date}
-                    {interview.interviewer ? ` - ${interview.interviewer}` : ''}
-                  </span>
-                  {interview.role && (
-                    <span className="text-xs text-slate-600 font-medium">{interview.role}</span>
-                  )}
-                </div>
-                {interview.feedback && (
-                  <p className="text-xs text-slate-600">{interview.feedback}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-slate-400 italic">No interview history yet.</p>
-        )}
-      </div>
-
-      {/* Resume Preview */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <h3 className="font-semibold text-slate-900 mb-3">Resume Preview</h3>
-        <p className="text-xs text-slate-600 mb-4">View or download the candidate&apos;s full resume</p>
-        <div className="w-full h-32 bg-slate-100 rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center mb-3">
-          <FileText className="w-8 h-8 text-slate-400" />
-        </div>
-        <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-600 hover:border-blue-700 rounded-lg transition">
-          <Download className="w-4 h-4" />
-          Download Resume
-        </button>
-      </div>
     </div>
   );
 }

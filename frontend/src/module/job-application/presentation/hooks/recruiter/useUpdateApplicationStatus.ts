@@ -14,7 +14,6 @@ export function useUpdateApplicationStatus(): UseUpdateApplicationStatusReturn {
   const [error, setError] = useState<string | null>(null);
 
   const clearError = useCallback(() => setError(null), []);
-
   const updateStatus = useCallback(
     async (payload: UpdateApplicationStatusDTO): Promise<boolean> => {
       try {

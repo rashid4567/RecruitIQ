@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { EllipsisVertical } from "lucide-react";
 import { StatusBadge } from "./Statusbadge";
 import type { ApplicationRow } from "./Application.types";
@@ -13,13 +14,17 @@ export function ApplicationTableRow({
   isSelected,
   onToggleSelect,
 }: ApplicationTableRowProps) {
+  const navigate = useNavigate();
+
   return (
     <tr
-      className={`hover:bg-slate-50 transition-colors ${
+      onClick={() => navigate(`/recruiter/application-detail/${row.id}`)}
+      className={`cursor-pointer hover:bg-slate-50 transition-colors ${
         isSelected ? "bg-blue-50/60" : "bg-white"
       }`}
     >
-      <td className="px-5 py-4">
+      {/* Checkbox — stop propagation so clicking it doesn't navigate */}
+      <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
         <input
           type="checkbox"
           checked={isSelected}
@@ -88,7 +93,8 @@ export function ApplicationTableRow({
         <span className="text-slate-300 text-xs">—</span>
       </td>
 
-      <td className="px-5 py-4">
+      {/* Actions menu — stop propagation so it doesn't navigate */}
+      <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
         <button className="text-slate-300 hover:text-slate-600 transition p-1 rounded hover:bg-slate-100">
           <EllipsisVertical size={16} />
         </button>

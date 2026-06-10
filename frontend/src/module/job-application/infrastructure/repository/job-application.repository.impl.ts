@@ -87,31 +87,14 @@ export class ApiJobApplicationRepository implements JobApplicationRepository {
   }
 
   async getApplicationDetailsForRecruiter(
-  applicationId: string,
-): Promise<RecruiterApplicationDetails> {
-  const response = await api.get(
-    `/recruiter/applications/${applicationId}`,
-  );
+    applicationId: string,
+  ): Promise<RecruiterApplicationDetails> {
+    const response = await api.get(
+      `recruiter/jobs/applications/${applicationId}`,
+    );
 
-  const data = response.data.data;
-
-  return {
-    applicationId: data.applicationId,
-    jobId: data.jobId,
-    candidateId: data.candidateId,
-    recruiterId: data.recruiterId,
-    resumeId: data.resumeId,
-    candidateName: data.candidateName,
-    candidateEmail: data.candidateEmail,
-    candidateProfileImage: data.candidateProfileImage,
-    coverLetter: data.coverLetter,
-    status: data.status,
-    interview: data.interview,
-    rejectionReason: data.rejectionReason,
-    appliedAt: data.appliedAt,
-    updatedAt: data.updatedAt,
-  };
-}
+    return response.data.data;
+  }
   async updateStatus(payload: UpdateApplicationStatusDTO): Promise<void> {
     await api.patch(
       `recruiter/jobs/applications/${payload.applicationId}/status`,

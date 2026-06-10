@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getApplicationByjobpostController,
+  getRecruiterApplicationDetailsController,
   updateApplicationStatuscontroller,
 } from "../container/JobApplication.module";
 
@@ -12,7 +13,7 @@ router.get(
 );
 router.get(
   "/applications/:applicationId",
-  getApplicationByjobpostController.GetJobpostBasedApplicatiton,
+  getRecruiterApplicationDetailsController.getApplicationDetails,
 );
 router.patch(
   "/applications/:applicationId/status",

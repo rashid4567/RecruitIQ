@@ -10,6 +10,10 @@ router.get(
   "/:jobId/applications",
   getApplicationByjobpostController.GetJobpostBasedApplicatiton,
 );
+router.get(
+  "/applications/:applicationId",
+  getApplicationByjobpostController.GetJobpostBasedApplicatiton,
+);
 router.patch(
   "/applications/:applicationId/status",
   updateApplicationStatuscontroller.updateStatus,

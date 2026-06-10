@@ -9,18 +9,16 @@ import type {
 
 import type { JobApplicationResponseDTO } from "../dto/job-application.response.dto";
 
-
 import { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 import type { UpdateApplicationStatusDTO } from "../../domain/dto/updateApplicationStatus.dto";
+import type { RecruiterApplicationDetails } from "../../domain/dto/RecruiterApplicationDetails";
 
 interface GetMyApplicationsResponse {
   success: boolean;
   data: JobApplicationResponseDTO[];
 }
 
-export class ApiJobApplicationRepository
-  implements JobApplicationRepository
-{
+export class ApiJobApplicationRepository implements JobApplicationRepository {
   async apply(data: ApplyJobDTO): Promise<JobApplication> {
     const response = await api.post(
       `/candidate/application/${data.jobId}/apply`,
@@ -56,9 +54,7 @@ export class ApiJobApplicationRepository
   }
 
   async getById(applicationId: string): Promise<ApplicationDetailDTO> {
-    const response = await api.get(
-      `/candidate/application/${applicationId}`,
-    );
+    const response = await api.get(`/candidate/application/${applicationId}`);
 
     const data = response.data.data;
 
@@ -67,9 +63,7 @@ export class ApiJobApplicationRepository
 
       job: new Job({
         ...data.job,
-        postedOn: data.job.postedOn
-          ? new Date(data.job.postedOn)
-          : undefined,
+        postedOn: data.job.postedOn ? new Date(data.job.postedOn) : undefined,
         expiresAt: data.job.expiresAt
           ? new Date(data.job.expiresAt)
           : undefined,
@@ -77,12 +71,8 @@ export class ApiJobApplicationRepository
     };
   }
 
-  async getApplicationsByJob(
-    jobId: string,
-  ): Promise<RecruiterApplication[]> {
-    const response = await api.get(
-      `/recruiter/jobs/${jobId}/applications`,
-    );
+  async getApplicationsByJob(jobId: string): Promise<RecruiterApplication[]> {
+    const response = await api.get(`/recruiter/jobs/${jobId}/applications`);
 
     return response.data.data.map((item: any) => ({
       applicationId: item.applicationId,
@@ -95,15 +85,43 @@ export class ApiJobApplicationRepository
       appliedAt: item.appliedAt,
     }));
   }
+
+  async getApplicationDetailsForRecruiter(
+  applicationId: string,
+): Promise<RecruiterApplicationDetails> {
+  const response = await api.get(
+    `/recruiter/applications/${applicationId}`,
+  );
+
+  const data = response.data.data;
+
+  return {
+    applicationId: data.applicationId,
+    jobId: data.jobId,
+    candidateId: data.candidateId,
+    recruiterId: data.recruiterId,
+    resumeId: data.resumeId,
+    candidateName: data.candidateName,
+    candidateEmail: data.candidateEmail,
+    candidateProfileImage: data.candidateProfileImage,
+    coverLetter: data.coverLetter,
+    status: data.status,
+    interview: data.interview,
+    rejectionReason: data.rejectionReason,
+    appliedAt: data.appliedAt,
+    updatedAt: data.updatedAt,
+  };
+}
   async updateStatus(payload: UpdateApplicationStatusDTO): Promise<void> {
-    await api.patch(`recruiter/jobs/applications/${payload.applicationId}/status`,{
-      status : payload.status,
-      rejectionReason : payload.rejectionReason,
-    })
+    await api.patch(
+      `recruiter/jobs/applications/${payload.applicationId}/status`,
+      {
+        status: payload.status,
+        rejectionReason: payload.rejectionReason,
+      },
+    );
   }
   async withdraw(applicationId: string): Promise<void> {
-    await api.patch(
-      `/candidate/application/${applicationId}/withdraw`,
-    );
+    await api.patch(`/candidate/application/${applicationId}/withdraw`);
   }
 }

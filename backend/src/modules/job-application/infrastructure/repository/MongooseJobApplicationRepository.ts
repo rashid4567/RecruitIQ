@@ -1,12 +1,17 @@
 import mongoose from "mongoose";
 
-import { JobApplication } from "../../domain/entity/job-application.entity";
+import {
+  InterviewInfo,
+  JobApplication,
+} from "../../domain/entity/job-application.entity";
 import {
   JobApplicationRepository,
+  RecruiterApplicationDetailsOutput,
   RecruiterApplicationListItem,
 } from "../../domain/repository/job-application.repository";
 
 import {
+  ApplicationStatus,
   JobApplicationDocument,
   JobApplicationModel,
 } from "../mongoose/job-application.model";
@@ -63,31 +68,73 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
   }
 
   async findApplicationsWithCandidateDetails(
-  jobId: string,
-): Promise<RecruiterApplicationListItem[]> {
-  const docs = await JobApplicationModel.find({
-    jobId: new mongoose.Types.ObjectId(jobId),
-    isDeleted: false,
-  })
-    .populate({
+    jobId: string,
+  ): Promise<RecruiterApplicationListItem[]> {
+    const docs = await JobApplicationModel.find({
+      jobId: new mongoose.Types.ObjectId(jobId),
+      isDeleted: false,
+    })
+      .populate({
+        path: "candidateId",
+        select: "fullName email profileImage",
+      })
+      .sort({
+        appliedAt: -1,
+      });
+
+    return docs
+      .filter((doc: any) => doc.candidateId)
+      .map((doc: any) => ({
+        applicationId: doc._id.toString(),
+        candidateId: doc.candidateId._id.toString(),
+        candidateName: doc.candidateId.fullName ?? "Unknown Candidate",
+        candidateEmail: doc.candidateId.email ?? "",
+        candidateProfileImage: doc.candidateId.profileImage,
+        resumeId: doc.resumeId.toString(),
+        status: doc.status,
+        appliedAt: doc.appliedAt,
+        interview: doc.interview
+          ? {
+              scheduledAt: doc.interview.scheduledAt,
+              location: doc.interview.location,
+              meetingLink: doc.interview.meetingLink,
+              notes: doc.interview.notes,
+            }
+          : undefined,
+      }));
+  }
+  async findApplicationDetailsForRecruiter(
+    applicationId: string,
+  ): Promise<RecruiterApplicationDetailsOutput | null> {
+    const doc = await JobApplicationModel.findOne({
+      _id: new mongoose.Types.ObjectId(applicationId),
+      isDeleted: false,
+    }).populate({
       path: "candidateId",
       select: "fullName email profileImage",
-    })
-    .sort({
-      appliedAt: -1,
     });
 
-  return docs
-    .filter((doc: any) => doc.candidateId)
-    .map((doc: any) => ({
+    if (!doc || !doc.candidateId) {
+      return null;
+    }
+
+    const candidate = doc.candidateId as any;
+
+    return {
       applicationId: doc._id.toString(),
-      candidateId: doc.candidateId._id.toString(),
-      candidateName: doc.candidateId.fullName ?? "Unknown Candidate",
-      candidateEmail: doc.candidateId.email ?? "",
-      candidateProfileImage: doc.candidateId.profileImage,
+
+      jobId: doc.jobId.toString(),
+      candidateId: candidate._id.toString(),
+      recruiterId: doc.recruiterId.toString(),
       resumeId: doc.resumeId.toString(),
+
+      candidateName: candidate.fullName ?? "Unknown Candidate",
+      candidateEmail: candidate.email ?? "",
+      candidateProfileImage: candidate.profileImage,
+
+      coverLetter: doc.coverLetter,
       status: doc.status,
-      appliedAt: doc.appliedAt,
+
       interview: doc.interview
         ? {
             scheduledAt: doc.interview.scheduledAt,
@@ -96,9 +143,13 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
             notes: doc.interview.notes,
           }
         : undefined,
-    }));
-}
 
+      rejectionReason: doc.rejectionReason,
+
+      appliedAt: doc.appliedAt,
+      updatedAt: doc.updatedAt,
+    };
+  }
   async findByCandidate(candidateId: string): Promise<JobApplication[]> {
     const docs = await JobApplicationModel.find({
       candidateId: new mongoose.Types.ObjectId(candidateId),

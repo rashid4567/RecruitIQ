@@ -9,8 +9,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useJobs } from "../hooks/Recruiter-jobPost/useJobs";
-import Sidebar from "../../../recruiter/presentation/pages/components/layout/Sidebar";
-import Header from "@/module/auth/presentation/pages/home/header";
+import Sidebar from "@/module/recruiter/presentation/pages/components/layout/Sidebar";
+import Header from "../../../../pages/landing/sections/Header";
 import StatsOverview from "./components/jobpost/StatsOverview";
 import JobCard from "./components/jobpost/JobCard";
 import JobListRow from "./components/jobpost/JobListRow";
@@ -67,8 +67,8 @@ export default function JobsPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar activeItem="jobs" />
-
+      
+      <Sidebar/>
       <div className="flex-1 overflow-x-hidden">
         <Header />
 

@@ -20,23 +20,15 @@ export class UpdateApplicationStatusUseCase {
     private readonly createNotificationUC: CreateNotificationUseCase,
   ) {}
 
-  async execute(
-    dto: UpdateApplicationStatusDTO,
-  ): Promise<void> {
-    const application = await this.applicationRepo.findById(
-      dto.applicationId,
-    );
+  async execute(dto: UpdateApplicationStatusDTO): Promise<void> {
+    const application = await this.applicationRepo.findById(dto.applicationId);
 
     if (!application) {
-      throw new ApplicationError(
-        ERROR_CODES.APPLICATION_NOT_FOUND,
-      );
+      throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
 
     if (!application.belongsToRecruiter(dto.recruiterId)) {
-      throw new ApplicationError(
-        ERROR_CODES.UNAUTHORIZED_ACTION,
-      );
+      throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
 
     const allowedStatuses: ApplicationStatus[] = [
@@ -46,9 +38,7 @@ export class UpdateApplicationStatusUseCase {
     ];
 
     if (!allowedStatuses.includes(dto.status)) {
-      throw new ApplicationError(
-        ERROR_CODES.INVALID_APPLICATION_STATUS,
-      );
+      throw new ApplicationError(ERROR_CODES.INVALID_APPLICATION_STATUS);
     }
 
     try {
@@ -62,21 +52,15 @@ export class UpdateApplicationStatusUseCase {
           break;
 
         case ApplicationStatus.REJECTED:
-          application.reject(
-            dto.rejectionReason ?? "",
-          );
+          application.reject(dto.rejectionReason ?? "");
           break;
       }
 
       await this.applicationRepo.save(application);
 
-      const candidate = await this.userRepo.findById(
-        application.candidateId,
-      );
+      const candidate = await this.userRepo.findById(application.candidateId);
 
-      const job = await this.jobRepo.findById(
-        application.jobId,
-      );
+      const job = await this.jobRepo.findById(application.jobId);
 
       if (candidate && job) {
         try {
@@ -151,10 +135,7 @@ export class UpdateApplicationStatusUseCase {
               break;
           }
         } catch (err) {
-          console.error(
-            `${dto.status} notification/email failed:`,
-            err,
-          );
+          console.error(`${dto.status} notification/email failed:`, err);
         }
       }
     } catch (error) {

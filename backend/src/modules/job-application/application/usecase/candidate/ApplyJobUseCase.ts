@@ -74,7 +74,7 @@ export class ApplyJobUseCase {
         recipientId : job.recruiterId,
         recipientRole : "recruiter",
         title : "New Job Application",
-        message : `${candidate?.fullName ?? "A candidate"}applied for a ${job.title}`,
+        message : ` ${candidate?.fullName ?? "A candidate"} applied for a ${job.title}`,
         type : NotificationType.JOB_APPLIED,
         actionUrl : `/recruiter/applications/${created.id}`,
         referenceId : created.id,

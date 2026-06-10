@@ -18,7 +18,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/module/notification/presentation/hook/useNotifications";
 
-
 function getNavItems(role: string | null) {
   const jobsHref =
     role === "candidate"
@@ -62,11 +61,11 @@ function getRoleColor(role: string | null): string {
 }
 
 function getRoleBadgeColor(role: string | null): string {
-  if (role === "recruiter") return "bg-violet-100 text-violet-700 ring-1 ring-violet-200";
+  if (role === "recruiter")
+    return "bg-violet-100 text-violet-700 ring-1 ring-violet-200";
   if (role === "admin") return "bg-rose-100 text-rose-700 ring-1 ring-rose-200";
   return "bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200";
 }
-
 
 const NavLink: React.FC<{
   href: string;
@@ -91,7 +90,6 @@ const NavLink: React.FC<{
   </a>
 );
 
-
 const NotificationBell: React.FC<{
   unreadCount: number;
   onClick: () => void;
@@ -115,7 +113,6 @@ const NotificationBell: React.FC<{
     )}
   </button>
 );
-
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -151,7 +148,10 @@ export default function Header() {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
         setIsProfileOpen(false);
       }
     };
@@ -165,7 +165,9 @@ export default function Header() {
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isMenuOpen]);
 
   const handleLogout = async () => {
@@ -191,12 +193,6 @@ export default function Header() {
     return "/profile";
   };
 
-  const getDashboardPath = () => {
-    if (userRole === "candidate") return "/candidate/dashboard";
-    if (userRole === "recruiter") return "/recruiter-dashboard";
-    if (userRole === "admin") return "/admin-dashboard";
-    return "/";
-  };
 
   const initials = getInitials(userName);
   const roleLabel = getRoleDisplay(userRole);
@@ -215,8 +211,6 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-
-         
             <button
               onClick={() => navigate("/")}
               className="flex items-center gap-2.5 group focus:outline-none"
@@ -229,7 +223,9 @@ export default function Header() {
                   "transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3",
                 )}
               >
-                <span className="text-white font-black text-sm tracking-tighter">IQ</span>
+                <span className="text-white font-black text-sm tracking-tighter">
+                  IQ
+                </span>
               </div>
               <span className="hidden sm:block font-bold text-[1.05rem] tracking-tight text-gray-900">
                 Recruit
@@ -238,7 +234,6 @@ export default function Header() {
                 </span>
               </span>
             </button>
-
 
             <nav className="hidden lg:flex items-center gap-0.5">
               {NAV_ITEMS.map(({ label, href }) => (
@@ -251,18 +246,15 @@ export default function Header() {
               ))}
             </nav>
 
-
             <div className="flex items-center gap-2">
               {isLoggedIn ? (
                 <>
-      
                   <NotificationBell
                     unreadCount={unreadCount}
                     onClick={handleNotificationClick}
                     className="hidden lg:flex"
                   />
 
-             
                   <div ref={profileRef} className="relative hidden lg:block">
                     <button
                       onClick={() => setIsProfileOpen((p) => !p)}
@@ -276,9 +268,15 @@ export default function Header() {
                     >
                       <div className="relative">
                         <Avatar className="h-7 w-7">
-                          <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
+                          <AvatarImage
+                            src="https://github.com/shadcn.png"
+                            alt={userName ?? ""}
+                          />
                           <AvatarFallback
-                            className={cn("bg-linear-to-br text-white text-[10px] font-bold", roleGrad)}
+                            className={cn(
+                              "bg-linear-to-br text-white text-[10px] font-bold",
+                              roleGrad,
+                            )}
                           >
                             {initials}
                           </AvatarFallback>
@@ -290,7 +288,12 @@ export default function Header() {
                         <p className="text-sm font-semibold text-gray-900 max-w-28 truncate leading-none">
                           {userName ?? "Profile"}
                         </p>
-                        <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block", roleBadge)}>
+                        <span
+                          className={cn(
+                            "text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block",
+                            roleBadge,
+                          )}
+                        >
                           {roleLabel}
                         </span>
                       </div>
@@ -312,21 +315,35 @@ export default function Header() {
                           "animate-in fade-in slide-in-from-top-2 duration-150",
                         )}
                       >
-                  
                         <div className="px-4 py-3 mb-1">
                           <div className="flex items-center gap-3">
                             <div className="relative">
                               <Avatar className="h-10 w-10">
-                                <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
-                                <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-sm", roleGrad)}>
+                                <AvatarImage
+                                  src="https://github.com/shadcn.png"
+                                  alt={userName ?? ""}
+                                />
+                                <AvatarFallback
+                                  className={cn(
+                                    "bg-linear-to-br text-white font-bold text-sm",
+                                    roleGrad,
+                                  )}
+                                >
                                   {initials}
                                 </AvatarFallback>
                               </Avatar>
                               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-gray-900 truncate">{userName ?? "User"}</p>
-                              <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full inline-block mt-0.5", roleBadge)}>
+                              <p className="text-sm font-semibold text-gray-900 truncate">
+                                {userName ?? "User"}
+                              </p>
+                              <span
+                                className={cn(
+                                  "text-[10px] font-semibold px-1.5 py-0.5 rounded-full inline-block mt-0.5",
+                                  roleBadge,
+                                )}
+                              >
                                 {roleLabel}
                               </span>
                             </div>
@@ -336,21 +353,31 @@ export default function Header() {
                         <div className="h-px bg-gray-100 mx-3" />
 
                         <div className="py-1.5 px-1.5 space-y-0.5">
-         
-                          <button
-                            onClick={() => { navigate(getDashboardPath()); setIsProfileOpen(false); }}
+                          {/* <button
+                            onClick={() => {
+                              navigate(getDashboardPath());
+                              setIsProfileOpen(false);
+                            }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
                           >
                             <LayoutDashboard className="w-4 h-4 shrink-0 text-gray-400" />
                             Dashboard
-                          </button>
+                          </button> */}
 
                           <button
-                            onClick={() => { navigate(getProfilePath()); setIsProfileOpen(false); }}
+                            onClick={() => {
+                              navigate(getProfilePath());
+                              setIsProfileOpen(false);
+                            }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
                           >
                             <Avatar className="h-4 w-4 shrink-0">
-                              <AvatarFallback className={cn("bg-linear-to-br text-white text-[8px] font-bold", roleGrad)}>
+                              <AvatarFallback
+                                className={cn(
+                                  "bg-linear-to-br text-white text-[8px] font-bold",
+                                  roleGrad,
+                                )}
+                              >
                                 {initials}
                               </AvatarFallback>
                             </Avatar>
@@ -358,13 +385,15 @@ export default function Header() {
                           </button>
 
                           <button
-                            onClick={() => { handleNotificationClick(); setIsProfileOpen(false); }}
+                            onClick={() => {
+                              handleNotificationClick();
+                              setIsProfileOpen(false);
+                            }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
                           >
                             <div className="relative shrink-0">
                               <Bell className="w-4 h-4 text-gray-400" />
                               {unreadCount > 0 && (
-                        
                                 <span className="absolute -top-2 -right-2 min-w-4.5 h-4.5 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-red-500 text-white ring-1 ring-white">
                                   {unreadCount > 99 ? "99+" : unreadCount}
                                 </span>
@@ -428,10 +457,20 @@ export default function Header() {
                   isMenuOpen && "bg-gray-100 border-gray-300",
                 )}
               >
-                <span className={cn("absolute transition-all duration-200", isMenuOpen ? "opacity-0 rotate-45" : "opacity-100")}>
+                <span
+                  className={cn(
+                    "absolute transition-all duration-200",
+                    isMenuOpen ? "opacity-0 rotate-45" : "opacity-100",
+                  )}
+                >
                   <Menu className="w-4.5 h-4.5 text-gray-700" />
                 </span>
-                <span className={cn("absolute transition-all duration-200", isMenuOpen ? "opacity-100" : "opacity-0 -rotate-45")}>
+                <span
+                  className={cn(
+                    "absolute transition-all duration-200",
+                    isMenuOpen ? "opacity-100" : "opacity-0 -rotate-45",
+                  )}
+                >
                   <X className="w-4.5 h-4.5 text-gray-700" />
                 </span>
               </button>
@@ -455,7 +494,6 @@ export default function Header() {
             )}
           >
             <div className="max-w-7xl mx-auto px-4 pt-5 pb-10 space-y-6">
-
               {/* Nav links */}
               <nav className="space-y-1">
                 {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
@@ -492,9 +530,11 @@ export default function Header() {
 
               {isLoggedIn ? (
                 <div className="space-y-2">
-
                   <button
-                    onClick={() => { navigate(getProfilePath()); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      navigate(getProfilePath());
+                      setIsMenuOpen(false);
+                    }}
                     className={cn(
                       "w-full flex items-center gap-4 p-4 rounded-2xl text-left",
                       "bg-linear-to-br from-gray-50 to-gray-100/60",
@@ -504,16 +544,31 @@ export default function Header() {
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12 shrink-0">
-                        <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
-                        <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-base", roleGrad)}>
+                        <AvatarImage
+                          src="https://github.com/shadcn.png"
+                          alt={userName ?? ""}
+                        />
+                        <AvatarFallback
+                          className={cn(
+                            "bg-linear-to-br text-white font-bold text-base",
+                            roleGrad,
+                          )}
+                        >
                           {initials}
                         </AvatarFallback>
                       </Avatar>
                       <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 truncate text-base">{userName ?? "Your Account"}</p>
-                      <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block", roleBadge)}>
+                      <p className="font-semibold text-gray-900 truncate text-base">
+                        {userName ?? "Your Account"}
+                      </p>
+                      <span
+                        className={cn(
+                          "text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block",
+                          roleBadge,
+                        )}
+                      >
                         {roleLabel}
                       </span>
                     </div>
@@ -521,10 +576,12 @@ export default function Header() {
                   </button>
 
                   <button
-                    onClick={() => { handleNotificationClick(); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      handleNotificationClick();
+                      setIsMenuOpen(false);
+                    }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
                   >
-                    
                     <span className="relative w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
                       <Bell className="w-4 h-4 text-red-500" />
                       {unreadCount > 0 && (
@@ -535,7 +592,6 @@ export default function Header() {
                     </span>
                     <span className="flex-1">Notifications</span>
                     {unreadCount > 0 && (
-                    
                       <span className="text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">
                         {unreadCount} unread
                       </span>
@@ -543,7 +599,10 @@ export default function Header() {
                   </button>
 
                   <button
-                    onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50/80 font-medium transition-colors text-left"
                   >
                     <span className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
@@ -555,13 +614,19 @@ export default function Header() {
               ) : (
                 <div className="space-y-2.5">
                   <button
-                    onClick={() => { navigate("/signin"); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      navigate("/signin");
+                      setIsMenuOpen(false);
+                    }}
                     className="w-full py-3 px-4 rounded-xl border border-gray-200 text-gray-800 font-semibold hover:bg-gray-50 transition-colors"
                   >
                     Sign in
                   </button>
                   <button
-                    onClick={() => { navigate("/signup"); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      navigate("/signup");
+                      setIsMenuOpen(false);
+                    }}
                     className={cn(
                       "w-full py-3 px-4 rounded-xl text-white font-semibold",
                       "bg-linear-to-r from-blue-600 to-cyan-500",

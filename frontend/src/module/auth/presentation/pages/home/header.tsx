@@ -112,10 +112,10 @@ const NotificationBell: React.FC<{
       <span
         className={cn(
           "absolute -top-1.5 -right-1.5",
-          "min-w-[18px] h-[18px] px-1",
+          "min-w-4.5 h-4.5 px-1",
           "flex items-center justify-center",
           "rounded-full text-[10px] font-bold leading-none",
-          "bg-gradient-to-br from-rose-500 to-red-500 text-white",
+          "bg-linear-to-br from-rose-500 to-red-500 text-white",
           "shadow-sm shadow-red-400/40",
           "ring-2 ring-white",
           unreadCount > 0 && "animate-[pulse_2s_ease-in-out_infinite]",
@@ -227,14 +227,13 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
 
-            {/* Logo */}
             <button
               onClick={() => navigate("/")}
               className="flex items-center gap-2.5 group focus:outline-none"
             >
               <div
                 className={cn(
-                  "w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500",
+                  "w-9 h-9 rounded-xl bg-linear-to-br from-blue-600 to-cyan-500",
                   "flex items-center justify-center shadow-md shadow-blue-500/25",
                   "group-hover:shadow-lg group-hover:shadow-cyan-500/35",
                   "transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3",
@@ -244,13 +243,12 @@ export default function Header() {
               </div>
               <span className="hidden sm:block font-bold text-[1.05rem] tracking-tight text-gray-900">
                 Recruit
-                <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                   IQ
                 </span>
               </span>
             </button>
 
-            {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-0.5">
               {NAV_ITEMS.map(({ label, href }) => (
                 <NavLink
@@ -262,18 +260,17 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Right side */}
             <div className="flex items-center gap-2">
               {isLoggedIn ? (
                 <>
-                  {/* Notification Bell — desktop */}
+          
                   <NotificationBell
                     unreadCount={unreadCount}
                     onClick={handleNotificationClick}
                     className="hidden lg:flex"
                   />
 
-                  {/* Profile dropdown — desktop */}
+      
                   <div ref={profileRef} className="relative hidden lg:block">
                     <button
                       onClick={() => setIsProfileOpen((p) => !p)}
@@ -289,7 +286,7 @@ export default function Header() {
                         <Avatar className="h-7 w-7">
                           <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
                           <AvatarFallback
-                            className={cn("bg-gradient-to-br text-white text-[10px] font-bold", roleGrad)}
+                            className={cn("bg-linear-to-br text-white text-[10px] font-bold", roleGrad)}
                           >
                             {initials}
                           </AvatarFallback>
@@ -314,7 +311,7 @@ export default function Header() {
                       />
                     </button>
 
-                    {/* Profile dropdown menu */}
+                
                     {isProfileOpen && (
                       <div
                         className={cn(
@@ -324,13 +321,13 @@ export default function Header() {
                           "animate-in fade-in slide-in-from-top-2 duration-150",
                         )}
                       >
-                        {/* User info */}
+    
                         <div className="px-4 py-3 mb-1">
                           <div className="flex items-center gap-3">
                             <div className="relative">
                               <Avatar className="h-10 w-10">
                                 <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
-                                <AvatarFallback className={cn("bg-gradient-to-br text-white font-bold text-sm", roleGrad)}>
+                                <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-sm", roleGrad)}>
                                   {initials}
                                 </AvatarFallback>
                               </Avatar>
@@ -348,7 +345,7 @@ export default function Header() {
                         <div className="h-px bg-gray-100 mx-3" />
 
                         <div className="py-1.5 px-1.5 space-y-0.5">
-                          {/* Notifications link with badge */}
+                  
                           <button
                             onClick={() => { handleNotificationClick(); setIsProfileOpen(false); }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
@@ -356,7 +353,7 @@ export default function Header() {
                             <div className="relative shrink-0">
                               <Bell className="w-4 h-4 text-gray-400" />
                               {unreadCount > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 min-w-[14px] h-[14px] px-0.5 flex items-center justify-center rounded-full text-[8px] font-bold bg-rose-500 text-white ring-1 ring-white">
+                                <span className="absolute -top-1.5 -right-1.5 min-w-3.5 h-3.5 px-0.5 flex items-center justify-center rounded-full text-[8px] font-bold bg-rose-500 text-white ring-1 ring-white">
                                   {unreadCount > 99 ? "99+" : unreadCount}
                                 </span>
                               )}
@@ -369,20 +366,20 @@ export default function Header() {
                             )}
                           </button>
 
-                          {/* View profile */}
+                
                           <button
                             onClick={() => { navigate(getProfilePath()); setIsProfileOpen(false); }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
                           >
                             <Avatar className="h-4 w-4 shrink-0">
-                              <AvatarFallback className={cn("bg-gradient-to-br text-white text-[8px] font-bold", roleGrad)}>
+                              <AvatarFallback className={cn("bg-linear-to-br text-white text-[8px] font-bold", roleGrad)}>
                                 {initials}
                               </AvatarFallback>
                             </Avatar>
                             View profile
                           </button>
 
-                          {/* Dashboard */}
+                      
                           <button
                             onClick={() => { navigate(getDashboardPath()); setIsProfileOpen(false); }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
@@ -421,7 +418,7 @@ export default function Header() {
                     onClick={() => navigate("/register")}
                     className={cn(
                       "px-4 py-2 text-white text-sm font-semibold rounded-xl",
-                      "bg-gradient-to-r from-blue-600 to-cyan-500",
+                      "bg-linear-to-r from-blue-600 to-cyan-500",
                       "shadow-md shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/35",
                       "transition-all duration-200 hover:scale-105 active:scale-95",
                       "flex items-center gap-1.5",
@@ -433,7 +430,7 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Hamburger */}
+           
               <button
                 onClick={() => setIsMenuOpen((p) => !p)}
                 aria-label="Toggle menu"
@@ -456,7 +453,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Drawer */}
+    
       {isMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" aria-modal="true">
           <div
@@ -473,7 +470,7 @@ export default function Header() {
           >
             <div className="max-w-7xl mx-auto px-4 pt-5 pb-10 space-y-6">
 
-              {/* Nav links */}
+             
               <nav className="space-y-1">
                 {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
                   <a
@@ -483,7 +480,7 @@ export default function Header() {
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
                       location.pathname === href
-                        ? "bg-gradient-to-r from-cyan-50 to-blue-50/50 text-cyan-700 font-semibold"
+                        ? "bg-linear-to-r from-cyan-50 to-blue-50/50 text-cyan-700 font-semibold"
                         : "text-gray-700 hover:bg-gray-50 font-medium",
                     )}
                   >
@@ -505,17 +502,17 @@ export default function Header() {
                 ))}
               </nav>
 
-              <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+              <div className="h-px bg-linear-to-r from-transparent via-gray-200 to-transparent" />
 
-              {/* Auth section */}
+   
               {isLoggedIn ? (
                 <div className="space-y-2">
-                  {/* Profile card */}
+                
                   <button
                     onClick={() => { navigate(getProfilePath()); setIsMenuOpen(false); }}
                     className={cn(
                       "w-full flex items-center gap-4 p-4 rounded-2xl text-left",
-                      "bg-gradient-to-br from-gray-50 to-gray-100/60",
+                      "bg-linear-to-br from-gray-50 to-gray-100/60",
                       "border border-gray-200 hover:border-cyan-300/60 hover:from-cyan-50/50 hover:to-blue-50/30",
                       "transition-all duration-200",
                     )}
@@ -523,7 +520,7 @@ export default function Header() {
                     <div className="relative">
                       <Avatar className="h-12 w-12 shrink-0">
                         <AvatarImage src="https://github.com/shadcn.png" alt={userName ?? ""} />
-                        <AvatarFallback className={cn("bg-gradient-to-br text-white font-bold text-base", roleGrad)}>
+                        <AvatarFallback className={cn("bg-linear-to-br text-white font-bold text-base", roleGrad)}>
                           {initials}
                         </AvatarFallback>
                       </Avatar>
@@ -538,7 +535,6 @@ export default function Header() {
                     <ArrowRight className="w-4 h-4 text-gray-400 shrink-0" />
                   </button>
 
-                  {/* Notifications link — mobile */}
                   <button
                     onClick={() => { handleNotificationClick(); setIsMenuOpen(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
@@ -546,7 +542,7 @@ export default function Header() {
                     <span className="relative w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center shrink-0">
                       <Bell className="w-4 h-4 text-rose-500" />
                       {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-rose-500 text-white ring-1 ring-white">
+                        <span className="absolute -top-1 -right-1 min-w-4 h-4 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-rose-500 text-white ring-1 ring-white">
                           {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                       )}
@@ -559,7 +555,7 @@ export default function Header() {
                     )}
                   </button>
 
-                  {/* Dashboard link */}
+                 
                   <button
                     onClick={() => { navigate(getDashboardPath()); setIsMenuOpen(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
@@ -572,7 +568,7 @@ export default function Header() {
                     Dashboard
                   </button>
 
-                  {/* Sign out */}
+                 
                   <button
                     onClick={() => { handleLogout(); setIsMenuOpen(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50/80 font-medium transition-colors text-left"
@@ -595,7 +591,7 @@ export default function Header() {
                     onClick={() => { navigate("/register"); setIsMenuOpen(false); }}
                     className={cn(
                       "w-full py-3 px-4 rounded-xl text-white font-semibold",
-                      "bg-gradient-to-r from-blue-600 to-cyan-500",
+                      "bg-linear-to-r from-blue-600 to-cyan-500",
                       "shadow-md shadow-cyan-500/20 active:scale-[0.98] transition-all",
                       "flex items-center justify-center gap-2",
                     )}

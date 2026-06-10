@@ -11,93 +11,116 @@ import {
   Settings,
   Shield,
   Loader2,
+  Star,
+  Clock,
+  RefreshCw,
+  Lock,
+  ArrowLeft,
+  ExternalLink,
+  X,
 } from "lucide-react";
-
 import { useNotifications } from "../hook/useNotifications";
-import type { NotificationType } from "../../domain/entity/Notification";
 import Header from "@/pages/landing/sections/Header";
 import { useNavigate } from "react-router-dom";
 
-const TYPE_ICON: Record<string, React.ReactNode> = {
-  JOB_APPLIED: <Users className="w-6 h-6" />,
-  APPLICATION_SHORTLISTED: <Building2 className="w-6 h-6" />,
-  APPLICATION_REJECTED: <Building2 className="w-6 h-6" />,
-  APPLICATION_WITHDRAWN: <Building2 className="w-6 h-6" />,
-  INTERVIEW_SCHEDULED: <Calendar className="w-6 h-6" />,
-  INTERVIEW_RESCHEDULED: <Calendar className="w-6 h-6" />,
-  INTERVIEW_CANCELLED: <Calendar className="w-6 h-6" />,
-  SUBSCRIPTION_PURCHASED: <Settings className="w-6 h-6" />,
-  SUBSCRIPTION_RENEWED: <Settings className="w-6 h-6" />,
-  SUBSCRIPTION_EXPIRING: <Settings className="w-6 h-6" />,
-  SUBSCRIPTION_EXPIRED: <Settings className="w-6 h-6" />,
-  VERIFICATION_APPROVED: <Shield className="w-6 h-6" />,
-  VERIFICATION_REJECTED: <Shield className="w-6 h-6" />,
-  SYSTEM_NOTIFICATION: <Settings className="w-6 h-6" />,
+interface TypeMeta {
+  icon: React.ReactNode;
+  color: "blue" | "amber" | "red" | "green" | "purple" | "slate";
+}
+
+const TYPE_META: Record<string, TypeMeta> = {
+  JOB_APPLIED: { icon: <Users className="w-4 h-4" />, color: "blue" },
+  APPLICATION_SHORTLISTED: {
+    icon: <Star className="w-4 h-4" />,
+    color: "amber",
+  },
+  APPLICATION_REJECTED: { icon: <X className="w-4 h-4" />, color: "red" },
+  APPLICATION_WITHDRAWN: {
+    icon: <ArrowLeft className="w-4 h-4" />,
+    color: "slate",
+  },
+  INTERVIEW_SCHEDULED: {
+    icon: <Calendar className="w-4 h-4" />,
+    color: "green",
+  },
+  INTERVIEW_RESCHEDULED: {
+    icon: <Calendar className="w-4 h-4" />,
+    color: "amber",
+  },
+  INTERVIEW_CANCELLED: { icon: <Calendar className="w-4 h-4" />, color: "red" },
+  SUBSCRIPTION_PURCHASED: {
+    icon: <Building2 className="w-4 h-4" />,
+    color: "purple",
+  },
+  SUBSCRIPTION_RENEWED: {
+    icon: <RefreshCw className="w-4 h-4" />,
+    color: "purple",
+  },
+  SUBSCRIPTION_EXPIRING: {
+    icon: <Clock className="w-4 h-4" />,
+    color: "amber",
+  },
+  SUBSCRIPTION_EXPIRED: { icon: <Lock className="w-4 h-4" />, color: "red" },
+  VERIFICATION_APPROVED: {
+    icon: <Shield className="w-4 h-4" />,
+    color: "green",
+  },
+  VERIFICATION_REJECTED: { icon: <Shield className="w-4 h-4" />, color: "red" },
+  SYSTEM_NOTIFICATION: {
+    icon: <Settings className="w-4 h-4" />,
+    color: "slate",
+  },
+};
+
+const ICON_TILE_COLORS: Record<TypeMeta["color"], string> = {
+  blue: "bg-blue-100 text-blue-700",
+  amber: "bg-amber-100 text-amber-700",
+  red: "bg-red-100 text-red-700",
+  green: "bg-green-100 text-green-700",
+  purple: "bg-purple-100 text-purple-700",
+  slate: "bg-slate-100 text-slate-600",
 };
 
 type TabId = "all" | "application" | "shortlist" | "interview" | "system";
 
-const APPLICATION_TYPES: NotificationType[] = [
-  "JOB_APPLIED",
-  "APPLICATION_REJECTED",
-  "APPLICATION_WITHDRAWN",
-];
-const SHORTLIST_TYPES: NotificationType[] = ["APPLICATION_SHORTLISTED"];
-const INTERVIEW_TYPES: NotificationType[] = [
-  "INTERVIEW_SCHEDULED",
-  "INTERVIEW_RESCHEDULED",
-  "INTERVIEW_CANCELLED",
-];
-const SYSTEM_TYPES: NotificationType[] = [
-  "SUBSCRIPTION_PURCHASED",
-  "SUBSCRIPTION_RENEWED",
-  "SUBSCRIPTION_EXPIRING",
-  "SUBSCRIPTION_EXPIRED",
-  "VERIFICATION_APPROVED",
-  "VERIFICATION_REJECTED",
-  "SYSTEM_NOTIFICATION",
-];
+const TYPE_TAB: Record<string, TabId> = {
+  JOB_APPLIED: "application",
+  APPLICATION_REJECTED: "application",
+  APPLICATION_WITHDRAWN: "application",
+  APPLICATION_SHORTLISTED: "shortlist",
+  INTERVIEW_SCHEDULED: "interview",
+  INTERVIEW_RESCHEDULED: "interview",
+  INTERVIEW_CANCELLED: "interview",
+  SUBSCRIPTION_PURCHASED: "system",
+  SUBSCRIPTION_RENEWED: "system",
+  SUBSCRIPTION_EXPIRING: "system",
+  SUBSCRIPTION_EXPIRED: "system",
+  VERIFICATION_APPROVED: "system",
+  VERIFICATION_REJECTED: "system",
+  SYSTEM_NOTIFICATION: "system",
+};
 
-function typeMatchesTab(type: NotificationType, tab: TabId): boolean {
-  if (tab === "all") return true;
-  if (tab === "application") return APPLICATION_TYPES.includes(type);
-  if (tab === "shortlist") return SHORTLIST_TYPES.includes(type);
-  if (tab === "interview") return INTERVIEW_TYPES.includes(type);
-  if (tab === "system") return SYSTEM_TYPES.includes(type);
-  return false;
-}
+const TABS: Array<{ id: TabId; label: string }> = [
+  { id: "all", label: "All" },
+  { id: "application", label: "Applications" },
+  { id: "shortlist", label: "Shortlisted" },
+  { id: "interview", label: "Interviews" },
+  { id: "system", label: "System" },
+];
 
 function formatTimestamp(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
-  const minutes = Math.floor(diff / 60_000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-  const days = Math.floor(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
+  const m = Math.floor(diff / 60_000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
 }
 
-interface NotificationCenterProps {
-  notificationDI: {
-    getNotificationsUC: {
-      execute: (
-        page?: number,
-        limit?: number,
-      ) => Promise<import("../../domain/entity/Notification").Notification[]>;
-    };
-    getUnreadNotificationCountUC: { execute: () => Promise<number> };
-    markNotificationAsReadUC: {
-      execute: (notificationId: string) => Promise<void>;
-    };
-    markAllNotificationsAsReadUC: { execute: () => Promise<void> };
-    deleteNotificationUC: {
-      execute: (notificationId: string) => Promise<void>;
-    };
-  };
-}
+const ITEMS_PER_PAGE = 5;
 
-export default function NotificationCenter({}: NotificationCenterProps) {
+export default function NotificationCenter() {
   const {
     notifications,
     loading,
@@ -110,12 +133,12 @@ export default function NotificationCenter({}: NotificationCenterProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
-  const ITEMS_PER_PAGE = 5;
 
+  const navigate = useNavigate();
   const filteredNotifications = useMemo(() => {
     return notifications.filter((n) => {
-      const matchesTab = typeMatchesTab(n.getType(), selectedTab);
+      const matchesTab =
+        selectedTab === "all" || TYPE_TAB[n.getType()] === selectedTab;
       const q = searchQuery.toLowerCase();
       const matchesSearch =
         !q ||
@@ -129,6 +152,7 @@ export default function NotificationCenter({}: NotificationCenterProps) {
     1,
     Math.ceil(filteredNotifications.length / ITEMS_PER_PAGE),
   );
+
   const paginatedNotifications = filteredNotifications.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
@@ -146,9 +170,7 @@ export default function NotificationCenter({}: NotificationCenterProps) {
 
   const handleToggleExpand = async (id: string, isRead: boolean) => {
     setExpandedId((prev) => (prev === id ? null : id));
-    if (!isRead) {
-      await markAsRead(id);
-    }
+    if (!isRead) await markAsRead(id);
   };
 
   const handleDismiss = async (e: React.MouseEvent, id: string) => {
@@ -157,71 +179,58 @@ export default function NotificationCenter({}: NotificationCenterProps) {
     if (expandedId === id) setExpandedId(null);
   };
 
-  const getTabBadge = (tab: TabId): number => {
-    return notifications.filter(
-      (n) => !n.isRead() && typeMatchesTab(n.getType(), tab),
+  const getTabBadge = (tab: TabId): number =>
+    notifications.filter(
+      (n) => !n.isRead() && (tab === "all" || TYPE_TAB[n.getType()] === tab),
     ).length;
-  };
-
-  const tabs: Array<{ id: TabId; label: string }> = [
-    { id: "all", label: "All" },
-    { id: "application", label: "New Application" },
-    { id: "shortlist", label: "Shortlist" },
-    { id: "interview", label: "Interview" },
-    { id: "system", label: "System Alerts" },
-  ];
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-slate-50">
       <Header />
 
-      <main className="max-w-4xl mx-auto px-6 py-19">
+      <main className="max-w-3xl mx-auto px-5 py-20">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 font-medium"
+          className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 text-sm font-medium mb-6"
         >
           <ChevronLeft className="w-4 h-4" />
           Back
         </button>
 
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
-            Notification Center
-          </h1>
-          <p className="text-slate-600">
-            Manage all your application alerts and updates here.
-          </p>
+        <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">
+          Notification Center
+        </h1>
+        <p className="text-slate-500 text-sm mt-1 mb-6">
+          Manage all your application alerts and updates in one place.
+        </p>
+
+        <div className="relative mb-5">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search notifications…"
+            value={searchQuery}
+            onChange={handleSearch}
+            className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
+          />
         </div>
 
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search notifications..."
-              value={searchQuery}
-              onChange={handleSearch}
-              className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2 mb-8 pb-4 border-b border-slate-200 overflow-x-auto">
-          {tabs.map((tab) => {
+        <div className="flex flex-wrap items-center gap-1.5 mb-5">
+          {TABS.map((tab) => {
             const badge = getTabBadge(tab.id);
             return (
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap flex items-center gap-2 ${
+                className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border text-sm font-medium transition whitespace-nowrap ${
                   selectedTab === tab.id
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    ? "bg-blue-50 border-blue-200 text-blue-700"
+                    : "border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                 }`}
               >
                 {tab.label}
                 {badge > 0 && (
-                  <span className="ml-1 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full font-bold">
+                  <span className="inline-flex items-center justify-center min-w-4.5 h-4.5 px-1 bg-red-500 text-white text-[11px] font-bold rounded-full leading-none">
                     {badge}
                   </span>
                 )}
@@ -230,79 +239,92 @@ export default function NotificationCenter({}: NotificationCenterProps) {
           })}
           <button
             onClick={markAllAsRead}
-            className="ml-auto px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition"
+            className="ml-auto px-4 py-1.5 rounded-full border border-slate-200 text-sm font-medium text-blue-600 hover:bg-blue-50 transition"
           >
-            Mark All as Read
+            Mark all as read
           </button>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
-          <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
-            <h2 className="font-bold text-slate-900">
-              Inbox ({filteredNotifications.length})
-            </h2>
-            <p className="text-sm text-slate-600">
-              Recent notifications from RecruitIQ.
-            </p>
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          {/* Card header */}
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/70">
+            <div>
+              <p className="text-sm font-medium text-slate-800">Inbox</p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Recent notifications from RecruitIQ
+              </p>
+            </div>
+            <span className="text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-3 py-1">
+              {filteredNotifications.length} total
+            </span>
           </div>
 
-          <div className="divide-y divide-slate-200">
+          <div className="divide-y divide-slate-100">
             {loading ? (
-              <div className="px-6 py-12 flex items-center justify-center gap-2 text-slate-500">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Loading notifications…</span>
+              <div className="flex items-center justify-center gap-2 py-14 text-slate-400 text-sm">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading notifications…
               </div>
             ) : paginatedNotifications.length > 0 ? (
               paginatedNotifications.map((notification) => {
                 const isExpanded = expandedId === notification.getId();
                 const isRead = notification.isRead();
-                const icon = TYPE_ICON[notification.getType()] ?? (
-                  <Bell className="w-6 h-6" />
-                );
+                const meta = TYPE_META[notification.getType()] ?? {
+                  icon: <Bell className="w-4 h-4" />,
+                  color: "slate" as const,
+                };
+                const tileClass = ICON_TILE_COLORS[meta.color];
 
                 return (
                   <div
                     key={notification.getId()}
-                    className={`px-6 py-4 hover:bg-slate-50 transition cursor-pointer ${
-                      !isRead ? "bg-blue-50" : ""
+                    className={`px-5 py-4 cursor-pointer transition-colors ${
+                      !isRead
+                        ? "bg-blue-50/60 hover:bg-blue-50"
+                        : "hover:bg-slate-50/70"
                     }`}
                     onClick={() =>
                       handleToggleExpand(notification.getId(), isRead)
                     }
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="shrink-0 mt-1">
-                        {!isRead && (
-                          <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0 pt-1.5">
+                        {!isRead ? (
+                          <div className="w-2 h-2 rounded-full bg-blue-500" />
+                        ) : (
+                          <div className="w-2 h-2" />
                         )}
                       </div>
 
-                      <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0 text-blue-600 mt-1">
-                        {icon}
+                      <div
+                        className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ${tileClass}`}
+                      >
+                        {meta.icon}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-slate-900 text-sm">
+                        <p className="text-sm font-medium text-slate-800 leading-snug">
                           {notification.getTitle()}
-                        </h3>
-                        <p className="text-sm text-slate-600 mt-1">
+                        </p>
+                        <p className="text-xs text-slate-500 mt-0.5 truncate leading-relaxed">
                           {notification.getMessage()}
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-xs text-slate-500 whitespace-nowrap">
+                      <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                        <span className="text-[11px] text-slate-400 whitespace-nowrap">
                           {formatTimestamp(notification.getCreatedAt())}
                         </span>
                         <button
-                          className="p-1 hover:bg-slate-200 rounded transition"
+                          className="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:bg-slate-200 transition"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleToggleExpand(notification.getId(), isRead);
                           }}
+                          aria-label={isExpanded ? "Collapse" : "Expand"}
                         >
                           <ChevronDown
-                            className={`w-5 h-5 text-slate-400 transition-transform ${
+                            className={`w-4 h-4 transition-transform duration-200 ${
                               isExpanded ? "rotate-180" : ""
                             }`}
                           />
@@ -310,24 +332,24 @@ export default function NotificationCenter({}: NotificationCenterProps) {
                       </div>
                     </div>
 
-                    {/* Expanded panel */}
                     {isExpanded && (
-                      <div className="mt-4 ml-12 pt-4 border-t border-slate-200">
-                        <p className="text-sm text-slate-600">
+                      <div className="mt-3 ml-13 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                        <p className="text-xs text-slate-600 leading-relaxed">
                           {notification.getMessage()}
                         </p>
-                        <div className="flex gap-2 mt-4">
-                          {notification.getActionUrl() && (
+                        <div className="flex gap-2 mt-3">
+                          {(notification.getActionUrl() ?? null) && (
                             <a
-                              href={notification.getActionUrl()}
-                              className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded font-medium hover:bg-blue-700 transition"
+                              href={notification.getActionUrl() as string}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              View Details
+                              <ExternalLink className="w-3 h-3" />
+                              View details
                             </a>
                           )}
                           <button
-                            className="px-3 py-1.5 border border-slate-200 text-slate-700 text-sm rounded font-medium hover:bg-slate-50 transition"
+                            className="px-3 py-1.5 border border-slate-200 text-slate-600 text-xs font-medium rounded-lg hover:bg-white transition"
                             onClick={(e) =>
                               handleDismiss(e, notification.getId())
                             }
@@ -341,34 +363,36 @@ export default function NotificationCenter({}: NotificationCenterProps) {
                 );
               })
             ) : (
-              <div className="px-6 py-12 text-center">
-                <p className="text-slate-500">No notifications found.</p>
+              <div className="py-14 text-center text-slate-400 text-sm">
+                <Bell className="w-7 h-7 mx-auto mb-3 opacity-30" />
+                No notifications found.
               </div>
             )}
           </div>
         </div>
 
+        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200">
+          <div className="flex items-center justify-between mt-5">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="flex items-center gap-1 px-3 py-2 text-slate-600 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              className="inline-flex items-center gap-1 px-3.5 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
               <ChevronLeft className="w-4 h-4" />
               Previous
             </button>
 
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => (
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 flex items-center justify-center rounded font-medium transition ${
+                    className={`w-8 h-8 rounded-lg text-sm font-medium transition ${
                       currentPage === page
                         ? "bg-blue-600 text-white"
-                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                        : "border border-slate-200 text-slate-600 hover:bg-slate-100"
                     }`}
                   >
                     {page}
@@ -380,7 +404,7 @@ export default function NotificationCenter({}: NotificationCenterProps) {
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="flex items-center gap-1 px-3 py-2 text-slate-600 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              className="inline-flex items-center gap-1 px-3.5 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
               Next
               <ChevronRight className="w-4 h-4" />
@@ -388,9 +412,8 @@ export default function NotificationCenter({}: NotificationCenterProps) {
           </div>
         )}
 
-        {/* Footer */}
-        <footer className="mt-12 pt-6 border-t border-slate-200 text-center text-sm text-slate-500">
-          <p>© 2025 RecruitFlow. All rights reserved. | Privacy Policy</p>
+        <footer className="mt-10 pt-5 border-t border-slate-100 text-center text-xs text-slate-400">
+          © 2025 RecruitIQ. All rights reserved.
         </footer>
       </main>
     </div>

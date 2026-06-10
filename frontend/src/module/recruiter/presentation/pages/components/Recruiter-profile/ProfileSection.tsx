@@ -104,12 +104,14 @@ export function RecruiterProfileSection() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center space-y-3">
-            <Loader2 className="h-8 w-8 animate-spin text-gray-400 mx-auto" />
-            <p className="text-sm text-gray-400 font-medium">
-              Loading profile…
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div className="flex items-center justify-center py-24">
+          <div className="text-center space-y-4">
+            <div className="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto">
+              <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+            </div>
+            <p className="text-sm font-medium text-slate-400">
+              Loading your profile…
             </p>
           </div>
         </div>
@@ -119,27 +121,27 @@ export function RecruiterProfileSection() {
 
   if (error || !profile) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center space-y-5 max-w-sm">
-            <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto">
-              <AlertTriangle className="h-7 w-7 text-red-500" />
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div className="flex items-center justify-center py-24">
+          <div className="text-center space-y-6 max-w-xs px-6">
+            <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto shadow-sm">
+              <AlertTriangle className="h-6 w-6 text-red-500" />
             </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold text-gray-900">
-                No Profile Found
+            <div className="space-y-1.5">
+              <h3 className="text-base font-semibold text-slate-900">
+                Profile unavailable
               </h3>
-              <p className="text-sm text-gray-400">
-                {error || "Unable to load your profile information."}
+              <p className="text-sm text-slate-400 leading-relaxed">
+                {error ?? "We couldn't load your profile. Please try again."}
               </p>
             </div>
             <Button
               onClick={fetchProfile}
               variant="outline"
-              className="gap-2 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50"
+              className="gap-2 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all"
             >
               <RefreshCw className="h-4 w-4" />
-              Try Again
+              Try again
             </Button>
           </div>
         </div>
@@ -149,8 +151,8 @@ export function RecruiterProfileSection() {
 
   return (
     <TooltipProvider>
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <form onSubmit={handleFormSubmit}>
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <form onSubmit={handleFormSubmit} noValidate>
           <ProfileHeader
             subscriptionStatus={profile.subscriptionStatus}
             verificationStatus={profile.verificationStatus}
@@ -158,17 +160,14 @@ export function RecruiterProfileSection() {
 
           <div className="p-6 sm:p-8 space-y-8">
             {uploadError && (
-              <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
+              <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 font-medium">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-red-500" />
                 {uploadError}
               </div>
             )}
-            
 
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-              <div className="lg:w-1/3 space-y-5">
-
-              
+              <aside className="lg:w-1/3 space-y-5">
                 <ProfileAvatarSection
                   preview={preview ?? profile.profileImage ?? null}
                   initials={initials}
@@ -178,35 +177,37 @@ export function RecruiterProfileSection() {
                   onFileChange={handleFileChange}
                   onRemove={removeAvatar}
                 />
+
                 <AccountInfoCard
                   email={profile.email}
-                  jobPostsUsed={profile.jobPostsUsed}
                   subscriptionStatus={profile.subscriptionStatus}
                   onEmailUpdateClick={emailVM.openModal}
                 />
-              </div>
+              </aside>
 
-              {/* Right column */}
-              <div className="lg:w-2/3 space-y-6">
+              <div className="lg:w-2/3 space-y-8">
                 <PersonalInfoForm
                   register={formVM.form.register}
                   errors={formVM.errors}
                   touchedFields={formVM.touchedFields}
                   isEditing={isEditing}
                   profile={profile}
-                  currentEmail={profile?.email || ""}
+                  currentEmail={profile.email ?? ""}
                   onUpdateEmailClick={emailVM.openModal}
                 />
+
+                <div className="border-t border-slate-100" />
 
                 <CompanyInfoForm
                   register={formVM.form.register}
                   errors={formVM.errors}
-                  watch={formVM.watch}
-                  setValue={formVM.setValue}
+                  touchedFields={formVM.touchedFields}
                   trigger={formVM.trigger}
                   isEditing={isEditing}
                   profile={profile}
                 />
+
+                <div className="border-t border-slate-100" />
 
                 <BioSection
                   register={formVM.form.register}

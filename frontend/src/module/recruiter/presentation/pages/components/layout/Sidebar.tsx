@@ -1,7 +1,7 @@
 import {
   LayoutDashboard,
   Briefcase,
-  Users,
+  
   Calendar,
   MessageSquare,
   UserCircle,
@@ -25,12 +25,7 @@ const navItems = [
     path: "/recruiter/dashboard",
   },
   { icon: Briefcase, label: "Jobs", id: "jobs", path: "/recruiter/jobs" },
-  {
-    icon: Users,
-    label: "Applications",
-    id: "applications",
-    path: "/recruiter/applications",
-  },
+ 
   {
     icon: Calendar,
     label: "Interviews",
@@ -43,12 +38,7 @@ const navItems = [
     id: "interview-chats",
     path: "/recruiter/chats",
   },
-  {
-    icon: UserCircle,
-    label: "Candidates",
-    id: "candidates",
-    path: "/recruiter/candidates",
-  },
+
   {
     icon: CreditCard,
     label: "Billing",

@@ -6,7 +6,7 @@ import {
   ApplicationStatus,
   type JobApplication,
 } from "@/module/job-application/domain/entity/job-application.entity";
-import { Sidebar } from "../component/Recruiter.application/sidebar";
+import  Sidebar from "../../../../candidate/presentation/components/shared/candidateSidebar";
 import { StatsCards } from "../component/my-applications/StatsCards";
 import { FilterBar } from "../component/my-applications/FilterBar";
 import { ApplicationsTable } from "../component/my-applications/ApplicationsTable";

@@ -1,222 +1,403 @@
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
-import { Mail, BellRing, Settings, Briefcase, Calendar, TrendingUp, Sparkles, MessageSquare, AlertCircle, Check } from "lucide-react"
+import { useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Bell,
+  Briefcase,
+  Calendar,
+  CheckCheck,
+  ChevronRight,
+  CircleCheck,
+  CircleX,
+  Clock,
+  CreditCard,
+  Info,
+  Loader2,
+  MailOpen,
+  ShieldCheck,
+  ShieldX,
+  Trash2,
+  UserCheck,
+  UserX,
+  Undo2,
+} from "lucide-react";
+import { useNotifications } from "@/module/notification/presentation/hook/useNotifications";
+import {
+  Notification,
+  type NotificationType,
+} from "@/module/notification/domain/entity/Notification";
 
-export function NotificationsSection() {
-  const [emailSettings, setEmailSettings] = useState({
-    newApplications: true,
-    interviewUpdates: true,
-    jobExpiryAlerts: false,
-    weeklyDigest: true,
-    marketingEmails: false,
-  })
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
 
-  const [pushSettings, setPushSettings] = useState({
-    newApplications: true,
-    messages: true,
-    reminders: false,
-  })
+interface TypeConfig {
+  icon: React.ReactNode;
+  accent: string;
+  dot: string;
+  badge: string;
+  badgeColor: string;
+}
+
+function getTypeConfig(type: NotificationType): TypeConfig {
+  switch (type) {
+    case "JOB_APPLIED":
+      return {
+        icon: <Briefcase className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-violet-500 to-violet-600",
+        dot: "bg-violet-500",
+        badge: "Application",
+        badgeColor: "bg-violet-100 text-violet-700",
+      };
+    case "APPLICATION_SHORTLISTED":
+      return {
+        icon: <UserCheck className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-amber-400 to-amber-500",
+        dot: "bg-amber-500",
+        badge: "Shortlisted",
+        badgeColor: "bg-amber-100 text-amber-700",
+      };
+    case "APPLICATION_REJECTED":
+      return {
+        icon: <UserX className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-red-400 to-red-500",
+        dot: "bg-red-500",
+        badge: "Rejected",
+        badgeColor: "bg-red-100 text-red-600",
+      };
+    case "APPLICATION_SELECTED":
+      return {
+        icon: <CircleCheck className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-emerald-500 to-emerald-600",
+        dot: "bg-emerald-500",
+        badge: "Selected",
+        badgeColor: "bg-emerald-100 text-emerald-700",
+      };
+    case "APPLICATION_WITHDRAWN":
+      return {
+        icon: <Undo2 className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-slate-400 to-slate-500",
+        dot: "bg-slate-400",
+        badge: "Withdrawn",
+        badgeColor: "bg-slate-100 text-slate-600",
+      };
+    case "INTERVIEW_SCHEDULED":
+      return {
+        icon: <Calendar className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-blue-500 to-blue-600",
+        dot: "bg-blue-500",
+        badge: "Interview",
+        badgeColor: "bg-blue-100 text-blue-700",
+      };
+    case "INTERVIEW_RESCHEDULED":
+      return {
+        icon: <Clock className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-indigo-400 to-indigo-500",
+        dot: "bg-indigo-500",
+        badge: "Rescheduled",
+        badgeColor: "bg-indigo-100 text-indigo-700",
+      };
+    case "INTERVIEW_CANCELLED":
+      return {
+        icon: <CircleX className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-rose-400 to-rose-500",
+        dot: "bg-rose-500",
+        badge: "Cancelled",
+        badgeColor: "bg-rose-100 text-rose-600",
+      };
+    case "SUBSCRIPTION_PURCHASED":
+    case "SUBSCRIPTION_RENEWED":
+      return {
+        icon: <CreditCard className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-teal-500 to-teal-600",
+        dot: "bg-teal-500",
+        badge: "Subscription",
+        badgeColor: "bg-teal-100 text-teal-700",
+      };
+    case "SUBSCRIPTION_EXPIRING":
+    case "SUBSCRIPTION_EXPIRED":
+      return {
+        icon: <CreditCard className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-orange-400 to-orange-500",
+        dot: "bg-orange-500",
+        badge: "Subscription",
+        badgeColor: "bg-orange-100 text-orange-700",
+      };
+    case "VERIFICATION_APPROVED":
+      return {
+        icon: <ShieldCheck className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-emerald-500 to-emerald-600",
+        dot: "bg-emerald-500",
+        badge: "Verified",
+        badgeColor: "bg-emerald-100 text-emerald-700",
+      };
+    case "VERIFICATION_REJECTED":
+      return {
+        icon: <ShieldX className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-red-400 to-red-500",
+        dot: "bg-red-500",
+        badge: "Verification",
+        badgeColor: "bg-red-100 text-red-600",
+      };
+    case "SYSTEM_NOTIFICATION":
+    default:
+      return {
+        icon: <Info className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-slate-500 to-slate-600",
+        dot: "bg-slate-500",
+        badge: "System",
+        badgeColor: "bg-slate-100 text-slate-600",
+      };
+  }
+}
+
+interface NotificationRowProps {
+  notification: Notification;
+  onMarkAsRead: (id: string) => void;
+  onDelete: (id: string) => void;
+}
+
+function NotificationRow({
+  notification,
+  onMarkAsRead,
+  onDelete,
+}: NotificationRowProps) {
+  const cfg = getTypeConfig(notification.getType());
+  const isUnread = !notification.isRead();
+  const actionUrl = notification.getActionUrl();
+
+  const handleClick = useCallback(() => {
+    if (isUnread) onMarkAsRead(notification.getId());
+    if (actionUrl) window.location.href = actionUrl;
+  }, [isUnread, actionUrl, notification, onMarkAsRead]);
 
   return (
-    <div className="space-y-8">
-      {/* Email Notifications Card */}
+    <div
+      className={`group relative flex items-start gap-4 p-4 rounded-xl border transition-all duration-200 ${
+        isUnread
+          ? "border-violet-200/60 bg-violet-50/40 hover:bg-violet-50/70"
+          : "border-slate-200/50 bg-white hover:border-slate-300/50"
+      }`}
+    >
+      {isUnread && (
+        <span
+          className={`absolute top-4 right-4 h-2 w-2 rounded-full ${cfg.dot} ring-2 ring-white`}
+        />
+      )}
+
+      <div
+        className={`h-10 w-10 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${cfg.accent}`}
+      >
+        {cfg.icon}
+      </div>
+
+      <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${cfg.badgeColor}`}
+          >
+            {cfg.badge}
+          </span>
+          <span className="text-xs text-slate-400">
+            {timeAgo(notification.getCreatedAt())}
+          </span>
+        </div>
+
+        <p className="text-sm font-semibold text-slate-900 leading-snug">
+          {notification.getTitle()}
+        </p>
+        <p className="text-sm text-slate-500 leading-relaxed line-clamp-2">
+          {notification.getMessage()}
+        </p>
+
+        <div className="flex items-center gap-3 pt-1">
+          {actionUrl && (
+            <button
+              onClick={handleClick}
+              className="inline-flex items-center gap-1 text-xs font-medium text-violet-600 hover:text-violet-700 transition-colors"
+            >
+              View details
+              <ChevronRight className="h-3 w-3" />
+            </button>
+          )}
+          {isUnread && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkAsRead(notification.getId());
+              }}
+              className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <MailOpen className="h-3 w-3" />
+              Mark as read
+            </button>
+          )}
+        </div>
+      </div>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(notification.getId());
+        }}
+        className="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all duration-150"
+        aria-label="Delete notification"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="h-16 w-16 rounded-2xl bg-linear-to-br from-violet-100 to-violet-200 flex items-center justify-center mb-4">
+        <Bell className="h-8 w-8 text-violet-400" />
+      </div>
+      <h3 className="text-base font-semibold text-slate-900 mb-1">
+        You're all caught up
+      </h3>
+      <p className="text-sm text-slate-500 max-w-xs">
+        No notifications yet. We'll let you know when something needs your
+        attention.
+      </p>
+    </div>
+  );
+}
+
+export function NotificationsSection() {
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications();
+
+  const unread = notifications.filter((n) => !n.isRead());
+  const read = notifications.filter((n) => n.isRead());
+
+  return (
+    <div className="space-y-6">
       <Card className="border-slate-200/50 shadow-lg overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-violet-500 to-violet-600" />
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
-              <Mail className="h-6 w-6 text-white" />
+
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 relative">
+                <Bell className="h-6 w-6 text-white" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </div>
+              <div>
+                <CardTitle className="text-slate-900">Notifications</CardTitle>
+                <CardDescription>
+                  {unreadCount > 0
+                    ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
+                    : "All notifications read"}
+                </CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-slate-900">Email Notifications</CardTitle>
-              <CardDescription>Control how and when you receive email notifications</CardDescription>
-            </div>
+
+            {unreadCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={markAllAsRead}
+                className="border-violet-200 text-violet-700 hover:bg-violet-50 gap-2"
+              >
+                <CheckCheck className="h-4 w-4" />
+                Mark all as read
+              </Button>
+            )}
           </div>
         </CardHeader>
-        
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            {[
-              { key: 'newApplications', label: 'New Applications', description: 'When candidates apply to your jobs' },
-              { key: 'interviewUpdates', label: 'Interview Updates', description: 'Changes to scheduled interviews' },
-              { key: 'jobExpiryAlerts', label: 'Job Expiry Alerts', description: 'When your job posts are about to expire' },
-              { key: 'weeklyDigest', label: 'Weekly Digest', description: 'Summary of your weekly activity and insights' },
-              { key: 'marketingEmails', label: 'Marketing Emails', description: 'Product updates, tips, and promotional offers' },
-            ].map((item) => (
-              <div
-                key={item.key}
-                className="flex items-center justify-between p-4 rounded-xl border border-slate-200/50 hover:border-slate-300/50 transition-colors"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3">
-                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${
-                      emailSettings[item.key as keyof typeof emailSettings]
-                        ? "bg-linear-to-br from-violet-500 to-violet-600"
-                        : "bg-slate-100"
-                    }`}>
-                      {item.key === 'newApplications' && <Briefcase className={`h-4 w-4 ${emailSettings[item.key] ? 'text-white' : 'text-slate-500'}`} />}
-                      {item.key === 'interviewUpdates' && <Calendar className={`h-4 w-4 ${emailSettings[item.key] ? 'text-white' : 'text-slate-500'}`} />}
-                      {item.key === 'jobExpiryAlerts' && <AlertCircle className={`h-4 w-4 ${emailSettings[item.key] ? 'text-white' : 'text-slate-500'}`} />}
-                      {item.key === 'weeklyDigest' && <TrendingUp className={`h-4 w-4 ${emailSettings[item.key] ? 'text-white' : 'text-slate-500'}`} />}
-                      {item.key === 'marketingEmails' && <Sparkles className={`h-4 w-4 ${emailSettings[item.key] ? 'text-white' : 'text-slate-500'}`} />}
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-slate-900">{item.label}</h4>
-                      <p className="text-sm text-slate-500">{item.description}</p>
-                    </div>
-                  </div>
-                </div>
-                <Switch
-                  checked={emailSettings[item.key as keyof typeof emailSettings]}
-                  onCheckedChange={(checked) => 
-                    setEmailSettings(prev => ({ ...prev, [item.key]: checked }))
-                  }
-                  className="data-[state=checked]:bg-violet-500"
-                />
-              </div>
-            ))}
-          </div>
-
-          <Separator className="bg-slate-200/50" />
-
-          <div className="p-4 rounded-xl bg-linear-to-r from-violet-50 to-violet-100/30 border border-violet-200/50">
-            <div className="flex items-start gap-3">
-              <BellRing className="h-5 w-5 text-violet-600 mt-0.5" />
-              <div className="space-y-1">
-                <h4 className="font-medium text-violet-900">Notification Frequency</h4>
-                <p className="text-sm text-violet-800">
-                  You can choose to receive notifications instantly, daily, or weekly.
-                </p>
-                <div className="flex gap-3 mt-3">
-                  <Button variant="outline" size="sm" className="border-violet-200 text-violet-700 hover:bg-violet-50">
-                    Instant
-                  </Button>
-                  <Button variant="outline" size="sm" className="border-slate-200">
-                    Daily Digest
-                  </Button>
-                  <Button variant="outline" size="sm" className="border-slate-200">
-                    Weekly Digest
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-        
-        <CardFooter className="flex justify-end gap-3 pt-6 border-t border-slate-200">
-          <Button variant="outline" className="border-slate-200">
-            Reset to Defaults
-          </Button>
-          <Button className="bg-linear-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white shadow-lg shadow-violet-500/25">
-            Save Preferences
-          </Button>
-        </CardFooter>
       </Card>
 
-      {/* Push Notifications Card */}
       <Card className="border-slate-200/50 shadow-lg">
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <BellRing className="h-6 w-6 text-white" />
+        <CardContent className="p-6">
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-violet-400" />
             </div>
-            <div>
-              <CardTitle className="text-slate-900">Push Notifications</CardTitle>
-              <CardDescription>Control browser and mobile push notifications</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            {[
-              { key: 'newApplications', label: 'New Applications', description: 'Real-time alerts for new job applications' },
-              { key: 'messages', label: 'Messages', description: 'When candidates or team members message you' },
-              { key: 'reminders', label: 'Reminders', description: 'Interview and task reminders' },
-            ].map((item) => (
-              <div
-                key={item.key}
-                className="flex items-center justify-between p-4 rounded-xl border border-slate-200/50 hover:border-slate-300/50 transition-colors"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3">
-                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${
-                      pushSettings[item.key as keyof typeof pushSettings]
-                        ? "bg-linear-to-br from-blue-500 to-blue-600"
-                        : "bg-slate-100"
-                    }`}>
-                      {item.key === 'newApplications' && <Briefcase className={`h-4 w-4 ${pushSettings[item.key] ? 'text-white' : 'text-slate-500'}`} />}
-                      {item.key === 'messages' && <MessageSquare className={`h-4 w-4 ${pushSettings[item.key] ? 'text-white' : 'text-slate-500'}`} />}
-                      {item.key === 'reminders' && <BellRing className={`h-4 w-4 ${pushSettings[item.key] ? 'text-white' : 'text-slate-500'}`} />}
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-slate-900">{item.label}</h4>
-                      <p className="text-sm text-slate-500">{item.description}</p>
-                    </div>
+          ) : notifications.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="space-y-8">
+              {unread.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                      New
+                    </span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700">
+                      {unread.length}
+                    </span>
                   </div>
-                </div>
-                <Switch
-                  checked={pushSettings[item.key as keyof typeof pushSettings]}
-                  onCheckedChange={(checked) => 
-                    setPushSettings(prev => ({ ...prev, [item.key]: checked }))
-                  }
-                  className="data-[state=checked]:bg-blue-500"
-                />
-              </div>
-            ))}
-          </div>
 
-          <div className="p-6 rounded-xl bg-linear-to-r from-blue-50 to-blue-100/30 border border-blue-200/50">
-            <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                <Settings className="h-6 w-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-blue-900 mb-2">Browser Permissions</h4>
-                <p className="text-sm text-blue-800 mb-4">
-                  You need to allow browser notifications to receive push notifications. Click the button below to enable.
-                </p>
-                <div className="flex items-center gap-4">
-                  <Button className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/25">
-                    Enable Push Notifications
-                  </Button>
-                  <div className="text-xs text-slate-500">
-                    <Check className="h-3 w-3 inline mr-1 text-emerald-500" />
-                    Currently {pushSettings.newApplications ? "enabled" : "disabled"}
+                  <div className="space-y-2">
+                    {unread.map((n) => (
+                      <NotificationRow
+                        key={n.getId()}
+                        notification={n}
+                        onMarkAsRead={markAsRead}
+                        onDelete={deleteNotification}
+                      />
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
+
+              {unread.length > 0 && read.length > 0 && (
+                <Separator className="bg-slate-200/50" />
+              )}
+
+              {read.length > 0 && (
+                <div className="space-y-3">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                    Earlier
+                  </span>
+
+                  <div className="space-y-2">
+                    {read.map((n) => (
+                      <NotificationRow
+                        key={n.getId()}
+                        notification={n}
+                        onMarkAsRead={markAsRead}
+                        onDelete={deleteNotification}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </CardContent>
-        
-        <CardFooter className="pt-6 border-t border-slate-200">
-          <div className="w-full">
-            <h4 className="font-medium text-slate-900 mb-4">Notification Sound</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Button variant="outline" className="justify-start border-slate-200">
-                <div className="h-3 w-3 rounded-full bg-blue-500 mr-3" />
-                Default
-              </Button>
-              <Button variant="outline" className="justify-start border-slate-200">
-                <div className="h-3 w-3 rounded-full bg-emerald-500 mr-3" />
-                Gentle
-              </Button>
-              <Button variant="outline" className="justify-start border-slate-200">
-                <div className="h-3 w-3 rounded-full bg-amber-500 mr-3" />
-                Alert
-              </Button>
-              <Button variant="outline" className="justify-start border-slate-200">
-                <div className="h-3 w-3 rounded-full bg-violet-500 mr-3" />
-                None
-              </Button>
-            </div>
-          </div>
-        </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

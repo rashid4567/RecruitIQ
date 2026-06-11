@@ -16,3 +16,14 @@ export interface JobApplicationResponseDTO {
   appliedAt: string;
   updatedAt: string;
 }
+
+export interface RecruiterApplicationResponseDTO {
+  applicationId: string;
+  candidateId: string;
+  candidateName: string;
+  candidateEmail: string;
+  candidateProfileImage?: string;
+  resumeId: string;
+  status: ApplicationStatus;
+  appliedAt: string;
+}

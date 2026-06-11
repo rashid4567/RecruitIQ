@@ -32,19 +32,14 @@ function validateFile(file: File): string | null {
 
 export const useResume = (initialResume?: Resume | null) => {
   const [resume, setResume] = useState<Resume | null>(initialResume ?? null);
-
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
   const [isDeleting, setIsDeleting] = useState(false);
-
   const [isDownloading, setIsDownloading] = useState(false);
-
   const [error, setError] = useState<string | null>(null);
 
   const uploadResume = useCallback(async (file: File) => {
     console.log("Uploading file :", uploadResume);
-
     const validationError = validateFile(file);
 
     if (validationError) {
@@ -56,7 +51,6 @@ export const useResume = (initialResume?: Resume | null) => {
     setError(null);
     setIsUploading(true);
     setUploadProgress(0);
-
     const interval = setInterval(() => {
       setUploadProgress((prev) =>
         prev < 85 ? prev + Math.random() * 15 : prev,
@@ -65,24 +59,17 @@ export const useResume = (initialResume?: Resume | null) => {
 
     try {
       const uploadedResume = await uploadResumeUC.execute(file);
-
       clearInterval(interval);
-
       setUploadProgress(100);
-
       setResume(uploadedResume);
-
       toast.success("Resume uploaded successfully");
     } catch (error) {
       console.log(error);
       clearInterval(interval);
-
       setError("Upload failed. Please try again.");
-
       toast.error("Failed to upload resume");
     } finally {
       setIsUploading(false);
-
       setTimeout(() => {
         setUploadProgress(0);
       }, 500);
@@ -96,9 +83,7 @@ export const useResume = (initialResume?: Resume | null) => {
         toast.error("Resume not found");
         return;
       }
-
       const url = await downloadResumeUC.execute(resume.getId());
-
       window.open(url, "_blank");
     } catch (error) {
       console.log(error);
@@ -111,13 +96,9 @@ export const useResume = (initialResume?: Resume | null) => {
   const deleteResume = useCallback(async () => {
     try {
       setIsDeleting(true);
-
       await deleteResumeUC.execute();
-
       setResume(null);
-
       setError(null);
-
       toast.success("Resume deleted successfully");
     } catch (error) {
       console.log(error);

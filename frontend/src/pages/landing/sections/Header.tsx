@@ -8,13 +8,12 @@ import {
   Users,
   Mail,
   ArrowRight,
-  LayoutDashboard,
   Bell,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout } from "@/module/auth/presentation/hooks/useLogout";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/module/notification/presentation/hook/useNotifications";
 
@@ -26,13 +25,16 @@ function getNavItems(role: string | null) {
         ? "/recruiter/jobs"
         : "/jobs";
 
+ 
   return [
     { label: "Features", href: "#features", icon: Sparkles },
     { label: "Jobs", href: jobsHref, icon: Briefcase },
-    { label: "About", href: "#about", icon: Users },
+    { label: "About", href: "/aboutUs", icon: Users },
     { label: "Contact", href: "#contact", icon: Mail },
   ];
 }
+
+
 
 function getNotificationPath(role: string | null): string {
   if (role === "recruiter") return "/recruiter/notification";
@@ -73,8 +75,8 @@ const NavLink: React.FC<{
   active: boolean;
   onClick?: () => void;
 }> = ({ href, label, active, onClick }) => (
-  <a
-    href={href}
+  <Link
+    to={href}
     onClick={onClick}
     className={cn(
       "relative text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-200",
@@ -87,7 +89,7 @@ const NavLink: React.FC<{
     {active && (
       <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-cyan-500" />
     )}
-  </a>
+  </Link>
 );
 
 const NotificationBell: React.FC<{
@@ -193,6 +195,15 @@ export default function Header() {
     return "/profile";
   };
 
+
+
+  const handleNavClick = (href: string) => {
+  if (href.startsWith("#")) {
+    navigate(`/${href}`);
+  } else {
+    navigate(href);
+  }
+};
 
   const initials = getInitials(userName);
   const roleLabel = getRoleDisplay(userRole);
@@ -353,17 +364,6 @@ export default function Header() {
                         <div className="h-px bg-gray-100 mx-3" />
 
                         <div className="py-1.5 px-1.5 space-y-0.5">
-                          {/* <button
-                            onClick={() => {
-                              navigate(getDashboardPath());
-                              setIsProfileOpen(false);
-                            }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-cyan-700 rounded-lg transition-colors text-left"
-                          >
-                            <LayoutDashboard className="w-4 h-4 shrink-0 text-gray-400" />
-                            Dashboard
-                          </button> */}
-
                           <button
                             onClick={() => {
                               navigate(getProfilePath());

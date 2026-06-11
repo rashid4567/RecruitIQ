@@ -1,6 +1,6 @@
 import api from "@/api/axios";
 import type { NotificationRepository } from "../../domain/repository/notification.repository";
-import { Notification } from "../../domain/entity/Notification";
+import { Notification, type NotificationProps } from "../../domain/entity/Notification";
 
 export class ApiNotificationRepository
   implements NotificationRepository
@@ -13,8 +13,10 @@ export class ApiNotificationRepository
     `/notification?page=${page}&limit=${limit}`,
   );
 
+  console.log("Notifications API:", res.data);
+
   return res.data.data.map(
-    (notification: any) =>
+    (notification: NotificationProps) =>
       new Notification(notification),
   );
 }
@@ -23,7 +25,6 @@ export class ApiNotificationRepository
     const res = await api.get(
       "/notification/unread-count",
     );
- console.log("Unread Count API:", res.data);
     return res.data.data;
   }
 

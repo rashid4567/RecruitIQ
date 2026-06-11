@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 import {
-  InterviewInfo,
+ 
   JobApplication,
 } from "../../domain/entity/job-application.entity";
 import {
@@ -11,7 +11,7 @@ import {
 } from "../../domain/repository/job-application.repository";
 
 import {
-  ApplicationStatus,
+
   JobApplicationDocument,
   JobApplicationModel,
 } from "../mongoose/job-application.model";

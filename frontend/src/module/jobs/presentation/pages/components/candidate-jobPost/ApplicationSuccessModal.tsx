@@ -65,7 +65,7 @@ const ApplicationSuccessModal: React.FC<ApplicationSuccessModalProps> = ({
   onClose,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [, setVisible] = useState(false);
 
   const navigate = useNavigate();
 
@@ -96,7 +96,9 @@ const ApplicationSuccessModal: React.FC<ApplicationSuccessModalProps> = ({
       await navigator.clipboard.writeText(applicationId);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch {}
+    } catch(err){
+      console.log("err",err)
+    }
   };
 
   const formattedDate = new Date(appliedAt).toLocaleDateString("en-US", {

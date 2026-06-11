@@ -10,7 +10,7 @@ export class DeleteNotificationUseCase{
     async execute(notificationId : string):Promise<void>{
         const notification = await this.notificationRepo.findById(notificationId);
 
-        if(!notificationId){
+        if(!notification){
             throw new ApplicationError(ERROR_CODES.NOTIFICATION_NOT_FOUND);
         }
 

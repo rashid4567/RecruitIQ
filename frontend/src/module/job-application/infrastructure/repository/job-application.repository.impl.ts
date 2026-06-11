@@ -7,7 +7,7 @@ import type {
   RecruiterApplication,
 } from "../../domain/repository/application.repository";
 
-import type { JobApplicationResponseDTO } from "../dto/job-application.response.dto";
+import type { JobApplicationResponseDTO, RecruiterApplicationResponseDTO } from "../dto/job-application.response.dto";
 
 import { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 import type { UpdateApplicationStatusDTO } from "../../domain/dto/updateApplicationStatus.dto";
@@ -74,7 +74,7 @@ export class ApiJobApplicationRepository implements JobApplicationRepository {
   async getApplicationsByJob(jobId: string): Promise<RecruiterApplication[]> {
     const response = await api.get(`/recruiter/jobs/${jobId}/applications`);
 
-    return response.data.data.map((item: any) => ({
+    return response.data.data.map((item: RecruiterApplicationResponseDTO) => ({
       applicationId: item.applicationId,
       candidateId: item.candidateId,
       candidateName: item.candidateName,

@@ -18,7 +18,6 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { EmailTemplate } from "@/module/email/domain/entity/email-template.entity";
 import { cn } from "@/lib/utils";
@@ -42,8 +41,6 @@ interface TemplateListProps {
   onDelete: (id: string) => void;
 }
 
-/* ─── Helpers ─────────────────────────────────────────────── */
-
 const getEventDisplay = (event: string) =>
   event
     .replace(/_/g, " ")
@@ -53,22 +50,44 @@ const getEventDisplay = (event: string) =>
 
 const getEventAccent = (event: string) => {
   if (event.includes("application"))
-    return { bg: "bg-violet-50", text: "text-violet-700", border: "border-violet-200", dot: "bg-violet-400" };
+    return {
+      bg: "bg-violet-50",
+      text: "text-violet-700",
+      border: "border-violet-200",
+      dot: "bg-violet-400",
+    };
   if (event.includes("interview"))
-    return { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", dot: "bg-blue-400" };
+    return {
+      bg: "bg-blue-50",
+      text: "text-blue-700",
+      border: "border-blue-200",
+      dot: "bg-blue-400",
+    };
   if (event.includes("account"))
-    return { bg: "bg-sky-50", text: "text-sky-700", border: "border-sky-200", dot: "bg-sky-400" };
+    return {
+      bg: "bg-sky-50",
+      text: "text-sky-700",
+      border: "border-sky-200",
+      dot: "bg-sky-400",
+    };
   if (event.includes("subscription"))
-    return { bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200", dot: "bg-teal-400" };
-  return { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-400" };
+    return {
+      bg: "bg-teal-50",
+      text: "text-teal-700",
+      border: "border-teal-200",
+      dot: "bg-teal-400",
+    };
+  return {
+    bg: "bg-slate-50",
+    text: "text-slate-600",
+    border: "border-slate-200",
+    dot: "bg-slate-400",
+  };
 };
-
-/* ─── Skeleton ────────────────────────────────────────────── */
 
 const SkeletonCard = () => (
   <Card className="border-slate-200/60 shadow-sm rounded-2xl overflow-hidden">
     <CardContent className="p-0">
-      {/* Top accent bar */}
       <div className="h-1 w-full bg-slate-100 rounded-t-2xl" />
       <div className="p-5 space-y-4">
         <div className="flex justify-between items-start gap-3">
@@ -90,17 +109,20 @@ const SkeletonCard = () => (
         <div className="flex justify-between items-center pt-3 border-t border-slate-100">
           <div className="h-3 w-20 bg-slate-100 rounded animate-pulse" />
           <div className="flex gap-1.5">
-            {Array(4).fill(0).map((_, i) => (
-              <div key={i} className="h-8 w-8 bg-slate-100 rounded-lg animate-pulse" />
-            ))}
+            {Array(4)
+              .fill(0)
+              .map((_, i) => (
+                <div
+                  key={i}
+                  className="h-8 w-8 bg-slate-100 rounded-lg animate-pulse"
+                />
+              ))}
           </div>
         </div>
       </div>
     </CardContent>
   </Card>
 );
-
-/* ─── Action Button ───────────────────────────────────────── */
 
 const ActionBtn = ({
   onClick,
@@ -122,14 +144,12 @@ const ActionBtn = ({
     )}
   >
     <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
-    {/* Tooltip */}
+
     <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-white opacity-0 transition-opacity group-hover/btn:opacity-100 z-10">
       {label}
     </span>
   </button>
 );
-
-/* ─── Template Card ───────────────────────────────────────── */
 
 const TemplateCard = ({
   template,
@@ -156,25 +176,24 @@ const TemplateCard = ({
       onMouseLeave={() => setHovered(false)}
       className={cn(
         "border-slate-200/60 rounded-2xl overflow-hidden transition-all duration-300 group cursor-default",
-        hovered ? "shadow-lg shadow-slate-200/80 -translate-y-0.5 border-slate-300/70" : "shadow-sm",
+        hovered
+          ? "shadow-lg shadow-slate-200/80 -translate-y-0.5 border-slate-300/70"
+          : "shadow-sm",
       )}
     >
       <CardContent className="p-0">
-        {/* Top accent bar — active = gradient, inactive = muted */}
         <div
           className={cn(
             "h-1 w-full transition-all duration-300",
             isActive
-              ? "bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500"
-              : "bg-gradient-to-r from-slate-200 to-slate-300",
+              ? "bg-linear-to-r from-indigo-500 via-violet-500 to-purple-500"
+              : "bg-linear-to-r from-slate-200 to-slate-300",
           )}
         />
 
         <div className="p-5 space-y-4">
-          {/* Header row */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              {/* Icon tile */}
               <div
                 className={cn(
                   "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300",
@@ -193,17 +212,19 @@ const TemplateCard = ({
                 <div className="flex items-center gap-1 mt-0.5">
                   <Clock className="h-3 w-3 text-slate-350" />
                   <p className="text-[11px] text-slate-400">
-                    {new Date(template.getCreatedAt()).toLocaleDateString("en-IN", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    {new Date(template.getCreatedAt()).toLocaleDateString(
+                      "en-IN",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      },
+                    )}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Status badge */}
             <span
               className={cn(
                 "shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border",
@@ -222,7 +243,6 @@ const TemplateCard = ({
             </span>
           </div>
 
-          {/* Event badge */}
           <div
             className={cn(
               "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border",
@@ -231,17 +251,20 @@ const TemplateCard = ({
               eventAccent.border,
             )}
           >
-            <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", eventAccent.dot)} />
+            <span
+              className={cn(
+                "h-1.5 w-1.5 rounded-full shrink-0",
+                eventAccent.dot,
+              )}
+            />
             <Zap className="h-3 w-3 shrink-0" strokeWidth={2} />
             {getEventDisplay(template.getEvent())}
           </div>
 
-          {/* Subject preview */}
-          <p className="text-[13px] text-slate-500 line-clamp-2 min-h-[40px] leading-relaxed">
+          <p className="text-[13px] text-slate-500 line-clamp-2 min-h-10 leading-relaxed">
             {template.getSubject()}
           </p>
 
-          {/* Footer actions */}
           <div className="flex items-center justify-between pt-3.5 border-t border-slate-100/80">
             <span className="text-[11px] text-slate-350 font-medium tracking-wide uppercase">
               Actions
@@ -276,7 +299,7 @@ const TemplateCard = ({
                     : "text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50"
                 }
               />
-              {/* Divider */}
+
               <div className="w-px h-4 bg-slate-200 mx-0.5" />
               <ActionBtn
                 onClick={() => onDelete(template.getId())}
@@ -291,8 +314,6 @@ const TemplateCard = ({
     </Card>
   );
 };
-
-/* ─── Main Export ─────────────────────────────────────────── */
 
 export function TemplateList({
   loading,
@@ -311,9 +332,7 @@ export function TemplateList({
 
   return (
     <div className="space-y-5">
-      {/* ── Toolbar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {/* Search */}
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
           <Input
@@ -338,9 +357,7 @@ export function TemplateList({
           )}
         </div>
 
-        {/* Right controls */}
         <div className="flex items-center gap-2">
-          {/* Show per page */}
           <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 h-10 shadow-sm">
             <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400" />
             <span className="text-xs text-slate-500 font-medium">Show</span>
@@ -362,7 +379,6 @@ export function TemplateList({
             </select>
           </div>
 
-          {/* Create button */}
           <Button
             onClick={() => navigate("/admin/email-templates/create")}
             className="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm shadow-indigo-600/20 gap-1.5"
@@ -373,33 +389,37 @@ export function TemplateList({
         </div>
       </div>
 
-      {/* ── Results summary strip ── */}
       {!loading && templates.length > 0 && (
         <div className="flex items-center gap-2">
           <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
           <p className="text-[12px] text-slate-400 font-medium">
             Showing{" "}
-            <span className="text-slate-600 font-semibold">{templates.length}</span>{" "}
+            <span className="text-slate-600 font-semibold">
+              {templates.length}
+            </span>{" "}
             template{templates.length !== 1 ? "s" : ""}
             {search && (
               <>
-                {" "}for{" "}
-                <span className="text-indigo-600 font-semibold">"{search}"</span>
+                {" "}
+                for{" "}
+                <span className="text-indigo-600 font-semibold">
+                  "{search}"
+                </span>
               </>
             )}
           </p>
         </div>
       )}
 
-      {/* ── Grid ── */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {Array(9).fill(0).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
+          {Array(9)
+            .fill(0)
+            .map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
         </div>
       ) : templates.length === 0 ? (
-        /* ── Empty state ── */
         <div className="flex flex-col items-center justify-center py-20 px-6 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50">
           <div className="relative mb-5">
             <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center">

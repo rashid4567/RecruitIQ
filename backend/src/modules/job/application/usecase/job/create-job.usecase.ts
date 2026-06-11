@@ -6,7 +6,7 @@ import { ERROR_CODES } from "../../../../recruiter/application/constants/error.c
 import { CreateJobDTO } from "../../dto/create-job.dto";
 import { RecruiterProfileRepository } from "../../../../recruiter/domain/repositories/recruiter.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import { VerificationStatus } from "../../../../recruiter/domain/constatns/verificationStatus.constants";
+
 
 export class CreateJobUseCase {
   constructor(

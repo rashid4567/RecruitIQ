@@ -28,6 +28,7 @@ const ForgotPassword = lazy(
 const ResetPassword = lazy(
   () => import("../module/auth/presentation/pages/auth/ResetPassword"),
 );
+const AboutPage  = lazy(()=> import("./../pages/aboutus"))
 
 const PublicRoutes = () => {
   return (
@@ -38,6 +39,7 @@ const PublicRoutes = () => {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
+        <Route path="/aboutUs" element={<AboutPage/>}/>;
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route

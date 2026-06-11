@@ -20,7 +20,6 @@ export function Timeline({ timelineSteps, getStep }: TimelineProps) {
         const s = getStep(step.stepIndex);
         const isDone = s === "done";
         const isActive = s === "active";
-        const isPending = s === "pending";
 
         return (
           <div key={step.stepIndex} className="flex gap-4">

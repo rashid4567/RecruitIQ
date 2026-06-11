@@ -1,5 +1,15 @@
 import { type RefObject, useState, useEffect, useRef } from "react";
-import { Code2, Eye, AlertCircle, Sparkles, Copy, Check, RotateCcw, Type, Hash } from "lucide-react";
+import {
+  Code2,
+  Eye,
+  AlertCircle,
+  Sparkles,
+  Copy,
+  Check,
+  RotateCcw,
+  Type,
+  Hash,
+} from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { EmailTemplateForm } from "../../validaton/emailTemplate.schema";
@@ -22,10 +32,11 @@ const VARIABLE_CHIPS = [
 
 const COLOR_MAP: Record<string, string> = {
   violet: "bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100",
-  sky:    "bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100",
-  emerald:"bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
-  amber:  "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100",
-  rose:   "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100",
+  sky: "bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100",
+  emerald:
+    "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
+  amber: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100",
+  rose: "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100",
   indigo: "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100",
 };
 
@@ -101,29 +112,27 @@ export function EmailBodyEditor({
     setTimeout(() => setCopied(false), 2000);
   }
 
-  function handleClear() {
-    if (confirm("Clear all content?")) {
-      setForm((p) => ({ ...p, body: "" }));
-    }
-  }
-
   return (
     <div className="flex flex-col gap-0 rounded-2xl overflow-hidden border border-slate-200 shadow-xl shadow-slate-200/60 bg-white">
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-300">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-slate-900 leading-none">Email Body</h2>
+            <h2 className="text-sm font-semibold text-slate-900 leading-none">
+              Email Body
+            </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Use <code className="bg-slate-100 px-1 rounded text-indigo-600 font-mono text-[10px]">{"{{variable}}"}</code> for dynamic content
+              Use{" "}
+              <code className="bg-slate-100 px-1 rounded text-indigo-600 font-mono text-[10px]">
+                {"{{variable}}"}
+              </code>{" "}
+              for dynamic content
             </p>
           </div>
         </div>
 
-        {/* Tab switcher */}
         <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
           {(["edit", "preview"] as const).map((tab) => (
             <button
@@ -133,28 +142,31 @@ export function EmailBodyEditor({
                 "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200",
                 activeTab === tab
                   ? "bg-white text-slate-900 shadow-sm shadow-slate-200"
-                  : "text-slate-500 hover:text-slate-700"
+                  : "text-slate-500 hover:text-slate-700",
               )}
             >
-              {tab === "edit"
-                ? <Code2 className="w-3.5 h-3.5" />
-                : <Eye className="w-3.5 h-3.5" />}
+              {tab === "edit" ? (
+                <Code2 className="w-3.5 h-3.5" />
+              ) : (
+                <Eye className="w-3.5 h-3.5" />
+              )}
               {tab === "edit" ? "Edit" : "Preview"}
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── Variable chips ── */}
       <div className="flex flex-wrap items-center gap-2 px-6 py-3 border-b border-slate-100 bg-slate-50/50">
-        <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wide mr-1">Insert</span>
+        <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wide mr-1">
+          Insert
+        </span>
         {VARIABLE_CHIPS.map(({ label, color }) => (
           <button
             key={label}
             onClick={() => insertVariable(label)}
             className={cn(
               "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium border transition-all duration-150 cursor-pointer",
-              COLOR_MAP[color]
+              COLOR_MAP[color],
             )}
           >
             <span className="opacity-50">{"{{"}</span>
@@ -164,21 +176,18 @@ export function EmailBodyEditor({
         ))}
       </div>
 
-      {/* ── Editor / Preview ── */}
       <div className="relative flex-1">
-        {/* EDIT TAB */}
         <div className={cn("flex", activeTab !== "edit" && "hidden")}>
-          {/* Line numbers */}
           <div
             aria-hidden
-            className="select-none w-12 pt-4 pb-4 text-right pr-3 text-[12px] font-mono text-slate-300 bg-slate-50/80 border-r border-slate-100 leading-[1.75rem] overflow-hidden"
+            className="select-none w-12 pt-4 pb-4 text-right pr-3 text-[12px] font-mono text-slate-300 bg-slate-50/80 border-r border-slate-100 leading-7 overflow-hidden"
           >
             {Array.from({ length: Math.max(lineCount, 20) }, (_, i) => (
               <div
                 key={i}
                 className={cn(
                   "transition-colors",
-                  i + 1 === focusedLine && "text-indigo-400 font-semibold"
+                  i + 1 === focusedLine && "text-indigo-400 font-semibold",
                 )}
               >
                 {i + 1}
@@ -186,7 +195,6 @@ export function EmailBodyEditor({
             ))}
           </div>
 
-          {/* Textarea */}
           <Textarea
             ref={textareaRef as RefObject<HTMLTextAreaElement>}
             placeholder={`Dear {{candidateName}},\n\nWe're excited to invite you to interview for the {{jobTitle}} position at {{companyName}}.\n\nYour interview is scheduled for {{interviewDate}} at {{interviewTime}}...`}
@@ -194,12 +202,16 @@ export function EmailBodyEditor({
             onChange={(e) => setForm((p) => ({ ...p, body: e.target.value }))}
             onKeyUp={(e) => {
               const ta = e.currentTarget;
-              const line = ta.value.substring(0, ta.selectionStart).split("\n").length;
+              const line = ta.value
+                .substring(0, ta.selectionStart)
+                .split("\n").length;
               setFocusedLine(line);
             }}
             onClick={(e) => {
               const ta = e.currentTarget;
-              const line = ta.value.substring(0, ta.selectionStart).split("\n").length;
+              const line = ta.value
+                .substring(0, ta.selectionStart)
+                .split("\n").length;
               setFocusedLine(line);
             }}
             className="flex-1 min-h-[60vh] lg:min-h-[65vh] font-mono text-[13px] leading-7 resize-none border-0 rounded-none focus-visible:ring-0 bg-transparent p-4 text-slate-800 placeholder:text-slate-300"
@@ -207,7 +219,6 @@ export function EmailBodyEditor({
           />
         </div>
 
-        {/* PREVIEW TAB */}
         {activeTab === "preview" && (
           <div
             className="min-h-[60vh] lg:min-h-[65vh] p-10 overflow-auto prose prose-slate prose-sm max-w-none
@@ -226,31 +237,37 @@ export function EmailBodyEditor({
         )}
       </div>
 
-      {/* ── Footer ── */}
       <div className="flex items-center justify-between px-6 py-3 border-t border-slate-100 bg-slate-50/70">
-        {/* Left: stats */}
         <div className="flex items-center gap-4 text-[11px] text-slate-400">
           <span className="flex items-center gap-1">
             <Type className="w-3 h-3" />
-            <strong className="text-slate-600 font-semibold">{charCount}</strong> chars
+            <strong className="text-slate-600 font-semibold">
+              {charCount}
+            </strong>{" "}
+            chars
           </span>
           <span className="text-slate-200">|</span>
           <span className="flex items-center gap-1">
             <Hash className="w-3 h-3" />
-            <strong className="text-slate-600 font-semibold">{wordCount}</strong> words
+            <strong className="text-slate-600 font-semibold">
+              {wordCount}
+            </strong>{" "}
+            words
           </span>
           {detectedVars.length > 0 && (
             <>
               <span className="text-slate-200">|</span>
               <span className="flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-indigo-400" />
-                <span className="text-indigo-500 font-medium">{detectedVars.length} variable{detectedVars.length > 1 ? "s" : ""}</span>
+                <span className="text-indigo-500 font-medium">
+                  {detectedVars.length} variable
+                  {detectedVars.length > 1 ? "s" : ""}
+                </span>
               </span>
             </>
           )}
         </div>
 
-        {/* Right: actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={handleUndo}
@@ -266,7 +283,11 @@ export function EmailBodyEditor({
             title="Copy body"
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? (
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
+            ) : (
+              <Copy className="w-3.5 h-3.5" />
+            )}
             {copied ? "Copied!" : "Copy"}
           </button>
 

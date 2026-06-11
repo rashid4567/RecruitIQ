@@ -108,7 +108,9 @@ export default function RecruiterSettingsPage() {
           <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
           </div>
-          <p className="text-sm font-medium text-slate-400">Loading settings…</p>
+          <p className="text-sm font-medium text-slate-400">
+            Loading settings…
+          </p>
         </div>
       </div>
     );
@@ -146,14 +148,10 @@ export default function RecruiterSettingsPage() {
         <Sidebar activeItem="profile" />
 
         <div className="flex-1 flex flex-col min-w-0">
-
-          {/* ── Sticky header+tabs — never scrolls away ── */}
           <div className="sticky top-16 z-20 bg-white border-b border-slate-200/80 shadow-[0_1px_8px_0_rgba(0,0,0,0.06)]">
-
-            {/* Page title row */}
             <div className="flex items-center justify-between px-7 py-3.5 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center shrink-0 shadow-sm">
+                <div className="w-8 h-8 rounded-lg bg-linear-to-br from-slate-700 to-slate-900 flex items-center justify-center shrink-0 shadow-sm">
                   <Settings className="h-3.5 w-3.5 text-white" />
                 </div>
                 <div>
@@ -166,7 +164,6 @@ export default function RecruiterSettingsPage() {
                 </div>
               </div>
 
-              {/* Breadcrumb */}
               <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400">
                 <span>Settings</span>
                 <ChevronRight className="h-3 w-3" />
@@ -176,7 +173,6 @@ export default function RecruiterSettingsPage() {
               </div>
             </div>
 
-            {/* Tab bar */}
             <div className="flex items-stretch px-2">
               {settingsTabs.map((tab) => {
                 const Icon = tab.icon;
@@ -194,7 +190,6 @@ export default function RecruiterSettingsPage() {
                         : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50",
                     )}
                   >
-                    {/* Icon */}
                     <div
                       className={cn(
                         "w-6 h-6 rounded-md flex items-center justify-center transition-all shrink-0",
@@ -221,12 +216,11 @@ export default function RecruiterSettingsPage() {
                       {tab.label}
                     </span>
 
-                    {/* Active underline pill */}
                     {active && (
                       <span
                         className={cn(
-                          "absolute bottom-[-1px] left-1/2 -translate-x-1/2",
-                          "h-[2px] w-8 rounded-full",
+                          "absolute -bottom-px left-1/2 -translate-x-1/2",
+                          "h-0.5 w-8 rounded-full",
                           tab.dot,
                         )}
                       />
@@ -240,7 +234,6 @@ export default function RecruiterSettingsPage() {
           {/* ── Scrollable content — padded to clear fixed bar ── */}
           <div className="flex-1 overflow-y-auto ">
             <div className="px-7 py-7 max-w-5xl mx-auto">
-
               {/* Section header card */}
               <div
                 className={cn(
@@ -283,10 +276,8 @@ export default function RecruiterSettingsPage() {
                   {activeTab === "billing" && <BillingSection />}
                 </div>
               </div>
-
             </div>
           </div>
-
         </div>
       </div>
     </div>

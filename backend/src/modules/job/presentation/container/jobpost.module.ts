@@ -25,7 +25,6 @@ import { AdminJobByIdController } from "../controller/admin/admin-jobId.controll
 import { BlockJobController } from "../controller/admin/block.job.controller";
 import { UnblockJobController } from "../controller/admin/unblock.job.controller";
 import { ActivityTrackerService } from "../../../Activity.logger/application/services/activityTracker.service";
-import { ActivityLogFileRepository } from "../../../Activity.logger/infrastructure/repositories/activity-log-file.repository";
 import { UserRepository } from "../../../auth/domain/repositories/user.repository";
 import { MongooseUserRepository } from "../../../auth/infrastructure/repositories/mongoose-user.repository";
 import { RecruiterProfileRepository } from "../../../recruiter/domain/repositories/recruiter.repository";

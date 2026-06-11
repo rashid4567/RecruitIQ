@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   X,
   Edit3,
-  ExternalLink,
   Trash2,
   MapPin,
   Clock,

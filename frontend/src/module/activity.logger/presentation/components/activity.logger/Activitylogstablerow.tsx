@@ -1,7 +1,6 @@
 import { Briefcase, User, MoreHorizontal, Copy, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,

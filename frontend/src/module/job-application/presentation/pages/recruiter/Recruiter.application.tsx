@@ -43,7 +43,6 @@ export default function RecruiterApplication() {
     if (jobId) fetchApplications(jobId);
   }, [jobId, fetchApplications]);
 
-  // ── Derived rows ──
   const rows: ApplicationRow[] = useMemo(
     () =>
       applications.map((app) => {
@@ -67,7 +66,6 @@ export default function RecruiterApplication() {
     [applications],
   );
 
-  // ── Filter + sort ──
   const filteredRows = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     const list = rows.filter((r) => {
@@ -103,7 +101,6 @@ export default function RecruiterApplication() {
     return list;
   }, [rows, statusFilter, matchScoreRange, sortBy, searchQuery]);
 
-  // ── Pagination ──
   const totalPages = Math.max(
     1,
     Math.ceil(filteredRows.length / ITEMS_PER_PAGE),
@@ -118,7 +115,6 @@ export default function RecruiterApplication() {
     currentPage * ITEMS_PER_PAGE,
   );
 
-  // ── Selection ──
   const toggleSelectAll = (checked: boolean) =>
     setSelectedRows(
       checked ? new Set(paginatedRows.map((r) => r.id)) : new Set(),
@@ -136,7 +132,6 @@ export default function RecruiterApplication() {
     paginatedRows.length > 0 &&
     paginatedRows.every((r) => selectedRows.has(r.id));
 
-  // ── Status counts ──
   const statusCounts = useMemo(() => {
     const counts: Partial<Record<ApplicationStatus | "All", number>> = {
       All: rows.length,
@@ -155,7 +150,6 @@ export default function RecruiterApplication() {
     postedDate: "—",
   };
 
-  // ── Handlers ──
   const handleStatusChange = (s: ApplicationStatus | "All") => {
     setStatusFilter(s);
     setCurrentPage(1);
@@ -187,9 +181,9 @@ export default function RecruiterApplication() {
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar
-  onRefresh={() => jobId && fetchApplications(jobId)}
-  isRefreshing={loading}
-/>
+          onRefresh={() => jobId && fetchApplications(jobId)}
+          isRefreshing={loading}
+        />
 
         <JobHeader
           job={displayJob}

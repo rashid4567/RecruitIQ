@@ -1,11 +1,6 @@
 import { z } from "zod";
 
-const optionalString = () =>
-  z
-    .string()
-    .trim()
-    .transform((val) => (val === "" ? undefined : val))
-    .optional();
+
 
 const optionalUrl = (message: string) =>
   z

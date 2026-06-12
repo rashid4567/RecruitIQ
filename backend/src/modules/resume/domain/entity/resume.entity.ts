@@ -6,6 +6,12 @@ export interface ParsedResumeData {
   education: string[];
   experience: string[];
   totalExperienceYears?: number | null;
+  linkedin?: string | null;
+  github?: string | null;
+  portfolio?: string | null;
+  currentCompany?: string | null;
+  currentRole?: string | null;
+  
 }
 
 export class Resume {

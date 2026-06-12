@@ -197,13 +197,6 @@ export default function Header() {
 
 
 
-  const handleNavClick = (href: string) => {
-  if (href.startsWith("#")) {
-    navigate(`/${href}`);
-  } else {
-    navigate(href);
-  }
-};
 
   const initials = getInitials(userName);
   const roleLabel = getRoleDisplay(userRole);

@@ -17,6 +17,29 @@ export interface InterviewInfo {
   notes?: string;
 }
 
+export enum ApplicationRecommendation {
+  STRONG_MATCH = "STRONG_MATCH",
+  GOOD_MATCH = "GOOD_MATCH",
+  PARTIAL_MATCH = "PARTIAL_MATCH",
+  POOR_MATCH = "POOR_MATCH",
+}
+
+export interface ApplicationAIAnalysis {
+  overallScore: number;
+  requiredSkillsScore: number;
+  preferredSkillsScore: number;
+  experienceScore: number;
+  requirementsScore: number;
+  educationScore: number;
+  strengths: string[];
+  gaps: string[];
+  missingCriticalSkills: string[];
+  recommendation: ApplicationRecommendation;
+  summary: string;
+  analyzedAt: Date;
+ 
+}
+
 export interface JobApplicationProps {
   id?: string;
   jobId: string;
@@ -27,6 +50,7 @@ export interface JobApplicationProps {
   status: ApplicationStatus;
   interview?: InterviewInfo;
   rejectionReason?: string;
+  aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: Date;
   updatedAt: Date;
 }
@@ -43,6 +67,7 @@ export class JobApplication {
       | "status"
       | "interview"
       | "rejectionReason"
+      | "aiAnalysis"
       | "appliedAt"
       | "updatedAt"
     >,
@@ -52,6 +77,7 @@ export class JobApplication {
       status: ApplicationStatus.APPLIED,
       interview: undefined,
       rejectionReason: undefined,
+      aiAnalysis: undefined,
       appliedAt: new Date(),
       updatedAt: new Date(),
     });
@@ -105,6 +131,11 @@ export class JobApplication {
     this.props.status = ApplicationStatus.SHORTLISTED;
     this.props.rejectionReason = undefined;
 
+    this.touch();
+  }
+
+  updateAIAnalysis(analysis: ApplicationAIAnalysis): void {
+    this.props.aiAnalysis = analysis;
     this.touch();
   }
 
@@ -305,5 +336,15 @@ export class JobApplication {
 
   get updatedAt() {
     return this.props.updatedAt;
+  }
+
+  get aiAnalysis() {
+    return this.props.aiAnalysis;
+  }
+  get aiScore(): number | undefined {
+    return this.props.aiAnalysis?.overallScore;
+  }
+  get aiRecommendation(): ApplicationRecommendation | undefined {
+    return this.props.aiAnalysis?.recommendation;
   }
 }

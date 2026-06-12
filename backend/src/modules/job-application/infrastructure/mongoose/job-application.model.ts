@@ -16,6 +16,25 @@ export interface InterviewDetails {
   notes?: string;
 }
 
+export interface ApplicationAIAnalysis {
+  overallScore: number;
+  requiredSkillsScore: number;
+  preferredSkillsScore: number;
+  experienceScore: number;
+  requirementsScore: number;
+  educationScore: number;
+  strengths: string[];
+  gaps: string[];
+  missingCriticalSkills: string[];
+  recommendation:
+    | "STRONG_MATCH"
+    | "GOOD_MATCH"
+    | "PARTIAL_MATCH"
+    | "POOR_MATCH";
+  summary: string;
+  analyzedAt: Date;
+}
+
 export interface JobApplicationDocument extends Document {
   jobId: mongoose.Types.ObjectId;
   candidateId: mongoose.Types.ObjectId;
@@ -25,11 +44,84 @@ export interface JobApplicationDocument extends Document {
   status: ApplicationStatus;
   interview?: InterviewDetails;
   rejectionReason?: string;
+  aiAnalysis?: ApplicationAIAnalysis;
   isDeleted: boolean;
   appliedAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
+
+const AIAnalysisSchema = new Schema<ApplicationAIAnalysis>(
+  {
+    overallScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
+
+    requiredSkillsScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
+
+    preferredSkillsScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
+
+    experienceScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
+
+    requirementsScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
+
+    educationScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
+
+    strengths: {
+      type: [String],
+      default: [],
+    },
+
+    gaps: {
+      type: [String],
+      default: [],
+    },
+
+    missingCriticalSkills: {
+      type: [String],
+      default: [],
+    },
+
+    recommendation: {
+      type: String,
+      enum: ["STRONG_MATCH", "GOOD_MATCH", "PARTIAL_MATCH", "POOR_MATCH"],
+    },
+
+    summary: {
+      type: String,
+      maxlength: 2000,
+    },
+
+    analyzedAt: {
+      type: Date,
+    },
+  },
+  {
+    _id: false,
+  },
+);
 
 const InterviewSchema = new Schema<InterviewDetails>(
   {
@@ -106,6 +198,10 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
       trim: true,
       maxlength: 1000,
     },
+    aiAnalysis: {
+      type: AIAnalysisSchema,
+      required: false,
+    },
 
     isDeleted: {
       type: Boolean,
@@ -155,6 +251,10 @@ JobApplicationSchema.index({
 JobApplicationSchema.index({
   status: 1,
   "interview.scheduledAt": 1,
+});
+JobApplicationSchema.index({
+  jobId: 1,
+  "aiAnalysis.overallScore": -1,
 });
 
 JobApplicationSchema.index({

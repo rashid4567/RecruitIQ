@@ -1,13 +1,11 @@
-'use client'
 
-import { useState } from 'react'
-import { Menu, X, Users, Building2, TrendingUp, Clock, Zap, Shield, BarChart3, Headphones, Lightbulb, Star, Share2, Mail, Link as LinkIcon, Share, Eye, Database } from 'lucide-react'
+import { Users, Building2, TrendingUp, Clock, Zap, Shield, BarChart3, Headphones, Lightbulb, Star, Share2, Mail, Link as LinkIcon, Share, Eye, Database } from 'lucide-react'
 import Header from './landing/sections/Header'
 
 export default function Home() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  // Stats data
+
+
   const stats = [
     { icon: Users, value: '10,000+', label: 'Enterprise Users' },
     { icon: Building2, value: '5,000+', label: 'Companies Using' },
@@ -15,7 +13,6 @@ export default function Home() {
     { icon: Clock, value: '24/7', label: 'Support Available' },
   ]
 
-  // Features data
   const features = [
     {
       icon: Zap,
@@ -135,7 +132,7 @@ export default function Home() {
     },
   ]
 
-  // Security features
+
   const securityFeatures = [
     { icon: Shield, title: 'Enterprise Security', description: 'Bank-level encryption and security protocols' },
     { icon: Share, title: 'Data Privacy', description: 'GDPR and compliance certified for peace of mind' },
@@ -145,10 +142,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white">
-      {/* HEADER */}
       <Header/>
 
-      {/* HERO SECTION */}
       <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mt-12">
         <div className="text-center">
           <div className="inline-block mb-6 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-600">
@@ -174,7 +169,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* STATS SECTION */}
+  
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((stat, index) => (

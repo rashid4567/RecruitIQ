@@ -51,7 +51,7 @@ export class GetApplicationDetailUseCase {
 
       job: {
         id: job.id,
-        companyName : job.candidateView().companyName,
+        companyName: job.candidateView().companyName,
         title: job.candidateView().title,
         description: job.candidateView().description,
         responsibilities: job.candidateView().responsibilities,

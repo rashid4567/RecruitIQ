@@ -28,7 +28,6 @@ export class GetRecruiterApplicationDetailsController {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
           message: "Application ID is Required",
-          
         });
       }
 
@@ -36,7 +35,6 @@ export class GetRecruiterApplicationDetailsController {
         applicationId,
         recruiterId,
       );
-
 
       console.log("application :", application);
 

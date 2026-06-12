@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 
 import {
- 
+  ApplicationAIAnalysis as DomainApplicationAIAnalysis,
+  ApplicationRecommendation,
   JobApplication,
 } from "../../domain/entity/job-application.entity";
+
 import {
   JobApplicationRepository,
   RecruiterApplicationDetailsOutput,
@@ -11,16 +13,16 @@ import {
 } from "../../domain/repository/job-application.repository";
 
 import {
-
+  ApplicationAIAnalysis as PersistenceApplicationAIAnalysis,
   JobApplicationDocument,
   JobApplicationModel,
 } from "../mongoose/job-application.model";
 
 export class MongooseJobApplicationRepository implements JobApplicationRepository {
   async create(application: JobApplication): Promise<JobApplication> {
-    const created = await JobApplicationModel.create({
-      ...this.toPersistence(application),
-    });
+    const created = await JobApplicationModel.create(
+      this.toPersistence(application),
+    );
 
     return this.toDomain(created);
   }
@@ -35,6 +37,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
           status: data.status,
           interview: data.interview,
           rejectionReason: data.rejectionReason,
+          aiAnalysis: data.aiAnalysis,
           updatedAt: data.updatedAt,
         },
       },
@@ -43,11 +46,9 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
         runValidators: true,
       },
     );
-
     if (!updated) {
       throw new Error("Job application not found");
     }
-
     return this.toDomain(updated);
   }
 
@@ -92,6 +93,8 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
         candidateProfileImage: doc.candidateId.profileImage,
         resumeId: doc.resumeId.toString(),
         status: doc.status,
+        aiScore: doc.aiAnalysis?.overallScore,
+        aiRecommendation: doc.aiAnalysis?.recommendation,
         appliedAt: doc.appliedAt,
         interview: doc.interview
           ? {
@@ -103,6 +106,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
           : undefined,
       }));
   }
+
   async findApplicationDetailsForRecruiter(
     applicationId: string,
   ): Promise<RecruiterApplicationDetailsOutput | null> {
@@ -122,19 +126,16 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
     return {
       applicationId: doc._id.toString(),
-
       jobId: doc.jobId.toString(),
       candidateId: candidate._id.toString(),
       recruiterId: doc.recruiterId.toString(),
       resumeId: doc.resumeId.toString(),
-
       candidateName: candidate.fullName ?? "Unknown Candidate",
       candidateEmail: candidate.email ?? "",
       candidateProfileImage: candidate.profileImage,
-
       coverLetter: doc.coverLetter,
       status: doc.status,
-
+      aiAnalysis: this.mapAIAnalysis(doc.aiAnalysis),
       interview: doc.interview
         ? {
             scheduledAt: doc.interview.scheduledAt,
@@ -143,13 +144,12 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
             notes: doc.interview.notes,
           }
         : undefined,
-
       rejectionReason: doc.rejectionReason,
-
       appliedAt: doc.appliedAt,
       updatedAt: doc.updatedAt,
     };
   }
+
   async findByCandidate(candidateId: string): Promise<JobApplication[]> {
     const docs = await JobApplicationModel.find({
       candidateId: new mongoose.Types.ObjectId(candidateId),
@@ -157,6 +157,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
     }).sort({
       appliedAt: -1,
     });
+
     return docs.map((doc) => this.toDomain(doc));
   }
 
@@ -167,6 +168,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
     }).sort({
       appliedAt: -1,
     });
+
     return docs.map((doc) => this.toDomain(doc));
   }
 
@@ -192,6 +194,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       resumeId: doc.resumeId.toString(),
       coverLetter: doc.coverLetter,
       status: doc.status,
+      aiAnalysis: this.mapAIAnalysis(doc.aiAnalysis),
       interview: doc.interview
         ? {
             scheduledAt: doc.interview.scheduledAt,
@@ -218,8 +221,32 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       status: data.status,
       interview: data.interview,
       rejectionReason: data.rejectionReason,
+      aiAnalysis: data.aiAnalysis,
       appliedAt: data.appliedAt,
       updatedAt: data.updatedAt,
+    };
+  }
+
+  private mapAIAnalysis(
+    aiAnalysis?: PersistenceApplicationAIAnalysis,
+  ): DomainApplicationAIAnalysis | undefined {
+    if (!aiAnalysis) {
+      return undefined;
+    }
+
+    return {
+      overallScore: aiAnalysis.overallScore,
+      requiredSkillsScore: aiAnalysis.requiredSkillsScore,
+      preferredSkillsScore: aiAnalysis.preferredSkillsScore,
+      experienceScore: aiAnalysis.experienceScore,
+      requirementsScore: aiAnalysis.requirementsScore,
+      educationScore: aiAnalysis.educationScore,
+      strengths: aiAnalysis.strengths,
+      gaps: aiAnalysis.gaps,
+      missingCriticalSkills: aiAnalysis.missingCriticalSkills,
+      recommendation: aiAnalysis.recommendation as ApplicationRecommendation,
+      summary: aiAnalysis.summary,
+      analyzedAt: aiAnalysis.analyzedAt,
     };
   }
 }

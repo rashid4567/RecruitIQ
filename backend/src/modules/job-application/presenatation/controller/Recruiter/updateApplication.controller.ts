@@ -8,7 +8,11 @@ export class UpdateApplicationStatusController {
     private readonly updateApplicationStatusUseCase: UpdateApplicationStatusUseCase,
   ) {}
 
-  updateStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  updateStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const recruiterId = req.user?.userId;
 
@@ -60,5 +64,5 @@ export class UpdateApplicationStatusController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 }

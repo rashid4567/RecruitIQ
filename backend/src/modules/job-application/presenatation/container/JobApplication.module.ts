@@ -1,3 +1,4 @@
+import { openai } from "../../../../config/openai";
 import { UserRepository } from "../../../auth/domain/repositories/user.repository";
 import { MongooseUserRepository } from "../../../auth/infrastructure/repositories/mongoose-user.repository";
 import { sendEmailByEventUC } from "../../../email/presentation/container/email-template.container";
@@ -6,6 +7,7 @@ import { MongooseJobRepository } from "../../../job/infrastructure/repositories/
 import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
 import { ResumeRepository } from "../../../resume/domain/repository/resume.repository";
 import { MongooseResumeRepository } from "../../../resume/infrastructure/repository/mongoose.resume.repository";
+import { AnalyzeApplicationUseCase } from "../../application/usecase/candidate/AnalyzeApplicationUseCase";
 import { ApplyJobUseCase } from "../../application/usecase/candidate/ApplyJobUseCase";
 import { GetApplicationDetailUseCase } from "../../application/usecase/candidate/GetApplicationDetailUseCase";
 import { GetMyApplicationUseCase } from "../../application/usecase/candidate/GetMyApplicationsUseCase";
@@ -14,6 +16,7 @@ import { GetApplicationsByJobUseCase } from "../../application/usecase/recruiter
 import { GetRecruiterApplicationDetailsUseCase } from "../../application/usecase/recruiter/GetRecruiterApplicationDetailsUseCase";
 import { UpdateApplicationStatusUseCase } from "../../application/usecase/recruiter/UpdateApplicationStatusUseCase";
 import { JobApplicationRepository } from "../../domain/repository/job-application.repository";
+import { OpenAIApplicationAnalysisService } from "../../infrastructure/ai/OpenAIApplicationAnalysisService";
 import { MongooseJobApplicationRepository } from "../../infrastructure/repository/MongooseJobApplicationRepository";
 import { ApplyJobController } from "../controller/candidate/ApplyJob.controller";
 import { GetApplicationDetailController } from "../controller/candidate/GetApplicationDetail.controller";
@@ -28,6 +31,14 @@ const applicationRepo: JobApplicationRepository =
 const jobpostRepo: JobRepository = new MongooseJobRepository();
 const resumeRepo: ResumeRepository = new MongooseResumeRepository();
 const userRepo: UserRepository = new MongooseUserRepository();
+const analysisService = new OpenAIApplicationAnalysisService(openai);
+
+const AnalyzeApplicationUC = new AnalyzeApplicationUseCase(
+  applicationRepo,
+  jobpostRepo,
+  resumeRepo,
+  analysisService,
+);
 
 const ApplyJobUC = new ApplyJobUseCase(
   applicationRepo,
@@ -35,7 +46,8 @@ const ApplyJobUC = new ApplyJobUseCase(
   resumeRepo,
   userRepo,
   sendEmailByEventUC,
-  createNotificationUC
+  createNotificationUC,
+  AnalyzeApplicationUC,
 );
 const getMyApplicationUC = new GetMyApplicationUseCase(applicationRepo);
 const withdrawApplicationUC = new WithdrawApplicationUseCase(applicationRepo);
@@ -53,7 +65,8 @@ const ApplicationStatusUpdateUC = new UpdateApplicationStatusUseCase(
   sendEmailByEventUC,
   createNotificationUC,
 );
-const getRecruiterApplicationDetailsUC  = new GetRecruiterApplicationDetailsUseCase(applicationRepo)
+const getRecruiterApplicationDetailsUC =
+  new GetRecruiterApplicationDetailsUseCase(applicationRepo);
 
 export const applyController = new ApplyJobController(ApplyJobUC);
 export const MyApplicationController = new GetMyApplicationController(
@@ -68,4 +81,7 @@ export const getApplicationByjobpostController =
   new GetApplicationsByJobController(getApplicationByJobPostUC);
 export const updateApplicationStatuscontroller =
   new UpdateApplicationStatusController(ApplicationStatusUpdateUC);
-export const getRecruiterApplicationDetailsController  = new GetRecruiterApplicationDetailsController(getRecruiterApplicationDetailsUC)
+export const getRecruiterApplicationDetailsController =
+  new GetRecruiterApplicationDetailsController(
+    getRecruiterApplicationDetailsUC,
+  );

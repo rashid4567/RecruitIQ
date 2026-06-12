@@ -1,4 +1,4 @@
-import { Resume } from "../../domain/entity/resume.entity";
+import { ParsedResumeData, Resume } from "../../domain/entity/resume.entity";
 import { ResumeRepository } from "../../domain/repository/resume.repository";
 import { ResumeModel } from "../mongoose/resume.model";
 
@@ -70,6 +70,20 @@ export class MongooseResumeRepository implements ResumeRepository {
       uploadedAt: doc.uploadedAt,
       parsedData: doc.parsedData ?? undefined,
     });
+  }
+
+  async updateParsedData(resumeId: string, parsedData: ParsedResumeData): Promise<void> {
+    await ResumeModel.findByIdAndUpdate(
+      resumeId,
+      {
+        $set : {
+          parsedData,
+        },
+      },
+      {
+        runValidators :true,
+      }
+    )
   }
 
   async findById(id: string): Promise<Resume | null> {

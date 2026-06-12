@@ -1,15 +1,9 @@
 import { z } from "zod";
 
 export const applyJobSchema = z.object({
-  jobId: z
-    .string()
-    .trim()
-    .min(1, "Job ID is required"),
+  jobId: z.string().trim().min(1, "Job ID is required"),
 
-  resumeId: z
-    .string()
-    .trim()
-    .min(1, "Resume ID is required"),
+  resumeId: z.string().trim().min(1, "Resume ID is required"),
 
   coverLetter: z
     .string()
@@ -18,6 +12,4 @@ export const applyJobSchema = z.object({
     .optional(),
 });
 
-export type ApplyJobInput = z.infer<
-  typeof applyJobSchema
->;
+export type ApplyJobInput = z.infer<typeof applyJobSchema>;

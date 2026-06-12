@@ -13,5 +13,5 @@ router.patch(
   "/:applicationId/withdraw",
   withdrawApplicationController.withdraw,
 );
-router.get("/:applicationId",getApplicationDetailController.ApplicationDetail);
+router.get("/:applicationId", getApplicationDetailController.ApplicationDetail);
 export default router;

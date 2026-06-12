@@ -1,4 +1,4 @@
-import { Resume } from "../entity/resume.entity";
+import { ParsedResumeData, Resume } from "../entity/resume.entity";
 
 export interface ResumeRepository {
   create(resume: Resume): Promise<Resume>;
@@ -6,4 +6,8 @@ export interface ResumeRepository {
   findById(id: string): Promise<Resume | null>;
   findByCandidateId(candidateId: string): Promise<Resume | null>;
   delete(id: string): Promise<void>;
+   updateParsedData(
+    resumeId: string,
+    parsedData: ParsedResumeData,
+  ): Promise<void>;
 }

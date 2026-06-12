@@ -20,19 +20,33 @@ import { GetResumeByIdController } from "../controller/GetResumeById.controller"
 
 import { DownloadResumeUseCase } from "../../application/usecase/DownloadResumeUseCase";
 import { DownloadResumeController } from "../controller/download.resume.controller";
+import { ResumeTextExtractorService } from "../../infrastructure/services/resume-text-extractor.service";
+import { ResumeParserService } from "../../infrastructure/services/resume-parser.service";
+import { openai } from "../../../../config/openai";
+import { ParseResumeUseCase } from "../../application/usecase/ParseResumeUseCase";
+import { ParseResumeController } from "../controller/parseResume.controller";
 const resumeRepo: ResumeRepository = new MongooseResumeRepository();
 const candidateRepo: CandidateRepository = new MongooseCandidateRepository();
 const fileStorage: FileStorageRepository = new S3FileStorageRepository();
+const resumeTextExtractor = new ResumeTextExtractorService();
+const resumeParser = new ResumeParserService(openai);
+
+
+const deleteResumeUC = new DeleteResumeUseCase(resumeRepo, fileStorage);
+const getResumeByCandidateUC = new GetResumeByCandidateUseCase(resumeRepo);
+const parseResumeUseCase = new ParseResumeUseCase(
+  resumeRepo,
+  resumeTextExtractor,
+  resumeParser,
+);
+const getResumeByIdUC = new GetResumeByIdUseCase(resumeRepo);
+const DownloadResumeUC = new DownloadResumeUseCase(resumeRepo, fileStorage);
 const uploadResumeUC = new UploadResumeUseCase(
   resumeRepo,
   candidateRepo,
   fileStorage,
+parseResumeUseCase
 );
-const deleteResumeUC = new DeleteResumeUseCase(resumeRepo, fileStorage);
-const getResumeByCandidateUC = new GetResumeByCandidateUseCase(resumeRepo);
-
-const getResumeByIdUC = new GetResumeByIdUseCase(resumeRepo);
-const DownloadResumeUC = new DownloadResumeUseCase(resumeRepo, fileStorage)
 export const uploadResumeController = new UploadResumeController(
   uploadResumeUC,
 );
@@ -43,10 +57,15 @@ export const deleteMyResumeController = new DeleteMyResumeController(
   deleteResumeUC,
   getResumeByCandidateUC,
 );
+export const parseResumeController = new ParseResumeController(
+  parseResumeUseCase,
+);
 export const getResumeByCandidateController =
   new GetResumeByCandidateController(getResumeByCandidateUC);
 export const getResumeByIdController = new GetResumeByIdController(
   getResumeByIdUC,
 );
 
-export const DownloadResumecontroller = new DownloadResumeController(DownloadResumeUC)
+export const DownloadResumecontroller = new DownloadResumeController(
+  DownloadResumeUC,
+);

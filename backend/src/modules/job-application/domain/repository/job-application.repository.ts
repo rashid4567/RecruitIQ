@@ -1,4 +1,7 @@
-import { JobApplication } from "../entity/job-application.entity";
+import {
+  ApplicationAIAnalysis,
+  JobApplication,
+} from "../entity/job-application.entity";
 import {
   ApplicationStatus,
   InterviewInfo,
@@ -12,6 +15,8 @@ export interface RecruiterApplicationListItem {
   candidateProfileImage?: string;
   resumeId: string;
   status: ApplicationStatus;
+  aiScore?: number;
+  aiRecommendation?: string;
   appliedAt: Date;
   interview?: InterviewInfo;
 }
@@ -29,6 +34,7 @@ export interface RecruiterApplicationDetailsOutput {
   status: ApplicationStatus;
   interview?: InterviewInfo;
   rejectionReason?: string;
+  aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +53,6 @@ export interface JobApplicationRepository {
     jobId: string,
   ): Promise<JobApplication | null>;
   findApplicationDetailsForRecruiter(
-  applicationId: string,
-): Promise<RecruiterApplicationDetailsOutput | null>;
+    applicationId: string,
+  ): Promise<RecruiterApplicationDetailsOutput | null>;
 }

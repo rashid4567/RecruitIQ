@@ -11,6 +11,7 @@ import { APPLICATION_ERRORS } from "../../../domain/error/Application.error";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 
 import { ApplyJobDTO } from "../../dto/applyJobDto";
+import { AnalyzeApplicationUseCase } from "./AnalyzeApplicationUseCase";
 
 export class ApplyJobUseCase {
   constructor(
@@ -20,27 +21,32 @@ export class ApplyJobUseCase {
     private readonly userRepo: UserRepository,
     private readonly sendEmailByEventUC: SendEmailByEventUseCase,
     private readonly createNotificationUC: CreateNotificationUseCase,
- 
+    private readonly analyzeApplicationUC: AnalyzeApplicationUseCase,
   ) {}
 
   async execute(dto: ApplyJobDTO): Promise<JobApplication> {
     const { jobId, candidateId, resumeId, coverLetter } = dto;
 
     const job = await this.jobRepo.findById(jobId);
+
     if (!job) {
       throw new ApplicationError(APPLICATION_ERRORS.JOB_NOT_FOUND);
     }
+
     if (!job.canApply()) {
       throw new ApplicationError(APPLICATION_ERRORS.JOB_NOT_ACTIVE);
     }
+
     if (job.isExpired()) {
       throw new ApplicationError(APPLICATION_ERRORS.JOB_EXPIRED);
     }
 
     const resume = await this.resumeRepo.findById(resumeId);
+
     if (!resume) {
       throw new ApplicationError(APPLICATION_ERRORS.RESUME_NOT_FOUND);
     }
+
     if (resume.getCandidateId() !== candidateId) {
       throw new ApplicationError(
         APPLICATION_ERRORS.UNAUTHORIZED_CANDIDATE_ACTION,
@@ -51,6 +57,7 @@ export class ApplyJobUseCase {
       candidateId,
       jobId,
     );
+
     if (existing) {
       throw new ApplicationError(APPLICATION_ERRORS.APPLICATION_ALREADY_EXISTS);
     }
@@ -64,49 +71,49 @@ export class ApplyJobUseCase {
     });
 
     const created = await this.applicationRepo.create(application);
+
     job.incrementApplications();
     await this.jobRepo.save(job);
 
     const candidate = await this.userRepo.findById(candidateId);
 
-    try{
-      await this.createNotificationUC.execute({
-        recipientId : job.recruiterId,
-        recipientRole : "recruiter",
-        title : "New Job Application",
-        message : ` ${candidate?.fullName ?? "A candidate"} applied for a ${job.title}`,
-        type : NotificationType.JOB_APPLIED,
-        actionUrl : `/recruiter/applications/${created.id}`,
-        referenceId : created.id,
-        metadata : {
-          applicationId : created.id,
+    void this.analyzeApplicationUC
+      .execute(created.id!)
+      .catch((err) => console.error("Application analysis failed:", err));
+
+    void this.createNotificationUC
+      .execute({
+        recipientId: job.recruiterId,
+        recipientRole: "recruiter",
+        title: "New Job Application",
+        message: `${candidate?.fullName ?? "A candidate"} applied for ${job.title}`,
+        type: NotificationType.JOB_APPLIED,
+        actionUrl: `/recruiter/applications/${created.id}`,
+        referenceId: created.id,
+        metadata: {
+          applicationId: created.id,
           candidateId,
           jobId,
-          jobTitle : job.title,
-        }
+          jobTitle: job.title,
+        },
       })
-    }catch(err){
-      console.error("Job_applied notification failed :",err)
+      .catch((err) => console.error("JOB_APPLIED notification failed:", err));
+
+    if (candidate) {
+      void this.sendEmailByEventUC
+        .execute({
+          to: candidate.email.getValue(),
+          event: EmailEvent.JOB_APPLIED,
+          variables: {
+            candidateName: candidate.fullName,
+            jobTitle: job.title,
+            companyName: job.companyName,
+            applicationDate: new Date().toLocaleDateString(),
+          },
+        })
+        .catch((err) => console.error("JOB_APPLIED email failed:", err));
     }
 
-    if(candidate){
-      try{
-        await this.sendEmailByEventUC.execute({
-        to : candidate.email.getValue(),
-        event : EmailEvent.JOB_APPLIED,
-        variables : {
-          candidateName : candidate.fullName,
-          jobTitle : job.title,
-          companyName : job.companyName,
-          applicationDate : new Date().toLocaleDateString(), 
-        }
-      })
-      }catch(err){
-        console.error("JOB_APPLIED email failed :", err);
-      }
-    }
-
-    
     return created;
   }
 }

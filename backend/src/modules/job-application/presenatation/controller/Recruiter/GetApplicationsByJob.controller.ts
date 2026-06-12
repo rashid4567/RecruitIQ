@@ -31,8 +31,7 @@ export class GetApplicationsByJobController {
         });
       }
 
-      const applications =
-        await this.getApplicationByJobPostUC.execute(jobId);
+      const applications = await this.getApplicationByJobPostUC.execute(jobId);
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,

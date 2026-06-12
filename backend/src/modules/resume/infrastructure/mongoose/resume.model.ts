@@ -30,6 +30,26 @@ const parsedResumeDataSchema = new Schema(
       type: Number,
       default: null,
     },
+    linkedin : {
+      type : String,
+      default : null,
+    },
+    github : {
+      type : String,
+      default : null,
+    },
+    portfolio : {
+      type : String,
+      default : null,
+    },
+    currentCompany : {
+      type : String,
+      default : null,
+    },
+    currentRole : {
+      type : String,
+      default : null,
+    }
   },
   {
     _id: false,

@@ -1,13 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import { DownloadResumeUseCase } from "../../application/usecase/DownloadResumeUseCase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { parseResumeSchema } from "../validatior/parseResume.schema";
 
 export class DownloadResumeController {
   constructor(private readonly downloadResumeUC: DownloadResumeUseCase) {}
 
   downloadResume = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { resumeId } = req.params;
+      const { resumeId } =  parseResumeSchema.parse({
+              resumeId: req.params.resumeId,
+            });
 
       if (!resumeId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({

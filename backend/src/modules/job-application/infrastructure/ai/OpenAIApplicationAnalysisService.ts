@@ -259,6 +259,13 @@ Rules:
           ],
         });
 
+        console.log("ATS Analysis", {
+          candidate: parsedData.fullName,
+          jobTitle: job.title,
+          promptTokens: completion.usage?.prompt_tokens,
+          completionTokens: completion.usage?.completion_tokens,
+          totalTokens: completion.usage?.total_tokens,
+        });
         const content = completion.choices[0]?.message?.content;
 
         if (!content) {

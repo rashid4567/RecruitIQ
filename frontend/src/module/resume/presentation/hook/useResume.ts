@@ -1,10 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
 import {
   deleteResumeUC,
   downloadResumeUC,
   uploadResumeUC,
+  getMyResumeUC,
 } from "../di/resume.di";
 
 import { Resume } from "../../domain/entity/Resume.entity";
@@ -30,16 +31,32 @@ function validateFile(file: File): string | null {
   return null;
 }
 
-export const useResume = (initialResume?: Resume | null) => {
-  const [resume, setResume] = useState<Resume | null>(initialResume ?? null);
+export const useResume = () => {
+  const [resume, setResume] = useState<Resume | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const loadResume = async () => {
+      try {
+        const existingResume = await getMyResumeUC.execute();
+        setResume(existingResume);
+      } catch (error) {
+        console.log("No resume found", error);
+        setResume(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadResume();
+  }, []);
+
   const uploadResume = useCallback(async (file: File) => {
-    console.log("Uploading file :", uploadResume);
     const validationError = validateFile(file);
 
     if (validationError) {
@@ -51,6 +68,7 @@ export const useResume = (initialResume?: Resume | null) => {
     setError(null);
     setIsUploading(true);
     setUploadProgress(0);
+
     const interval = setInterval(() => {
       setUploadProgress((prev) =>
         prev < 85 ? prev + Math.random() * 15 : prev,
@@ -59,17 +77,23 @@ export const useResume = (initialResume?: Resume | null) => {
 
     try {
       const uploadedResume = await uploadResumeUC.execute(file);
+
       clearInterval(interval);
       setUploadProgress(100);
+
       setResume(uploadedResume);
+
       toast.success("Resume uploaded successfully");
     } catch (error) {
       console.log(error);
+
       clearInterval(interval);
+
       setError("Upload failed. Please try again.");
       toast.error("Failed to upload resume");
     } finally {
       setIsUploading(false);
+
       setTimeout(() => {
         setUploadProgress(0);
       }, 500);
@@ -79,11 +103,14 @@ export const useResume = (initialResume?: Resume | null) => {
   const downloadResume = useCallback(async () => {
     try {
       setIsDownloading(true);
+
       if (!resume?.getId()) {
         toast.error("Resume not found");
         return;
       }
+
       const url = await downloadResumeUC.execute(resume.getId());
+
       window.open(url, "_blank");
     } catch (error) {
       console.log(error);
@@ -91,14 +118,17 @@ export const useResume = (initialResume?: Resume | null) => {
     } finally {
       setIsDownloading(false);
     }
-  }, []);
+  }, [resume]);
 
   const deleteResume = useCallback(async () => {
     try {
       setIsDeleting(true);
+
       await deleteResumeUC.execute();
+
       setResume(null);
       setError(null);
+
       toast.success("Resume deleted successfully");
     } catch (error) {
       console.log(error);
@@ -114,15 +144,21 @@ export const useResume = (initialResume?: Resume | null) => {
 
   return {
     resume,
+    hasResume: !!resume,
+
+    isLoading,
     isUploading,
     uploadProgress,
+
     isDeleting,
     isDownloading,
+
     error,
+
     uploadResume,
     downloadResume,
     deleteResume,
+
     clearError,
-    hasResume: !!resume,
   };
 };

@@ -5,31 +5,26 @@ import type { JobCardProps, ViewMode } from "../../types/jobCard.types";
 import { ApiJobPostRepository } from "@/module/jobs/infrastructure/repository/ApiJobPostRepository";
 import { GetJobPostsUseCase } from "@/module/jobs/application/usecase/jobPost/getJobPosts.useCase";
 
+const JOBS_PER_PAGE = 6;
+
 const mapJobPostToCard = (job: Job): JobCardProps => {
   const locationStr = job.isRemote
     ? "Remote"
     : [job.location?.city, job.location?.state, job.location?.country]
         .filter(Boolean)
         .join(", ") || "Not specified";
+
   const getDisplayStatus = (): JobCardProps["status"] => {
-    if (job.isBlocked) {
-      return "Blocked";
-    }
-    if (job.visibility === "hidden") {
-      return "Paused";
-    }
-    if (job.status === "active") {
-      return "Active";
-    }
-    if (job.status === "expired") {
-      return "Expired";
-    }
+    if (job.isBlocked) return "Blocked";
+    if (job.status === "active") return "Active";
+    if (job.status === "expired") return "Expired";
+    if (job.status === "draft") return "Draft";
     return "Draft";
   };
 
   return {
     id: job.id,
-    companyName : job.companyName,
+    companyName: job.companyName,
     title: job.title,
     description: job.description || "",
     responsibilities: job.responsibilities || [],
@@ -83,10 +78,11 @@ export const useJobs = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<JobCardProps | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "applicants">(
-    "overview",
-  );
+  const [activeTab, setActiveTab] = useState<"overview" | "applicants">("overview");
+  const [currentPage, setCurrentPage] = useState(1);
+
   const navigate = useNavigate();
+
   const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
@@ -107,6 +103,11 @@ export const useJobs = () => {
     fetchJobs();
   }, [fetchJobs]);
 
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
+
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
       const matchesSearch =
@@ -119,21 +120,31 @@ export const useJobs = () => {
     });
   }, [jobs, searchTerm, statusFilter]);
 
+  const totalPages = Math.ceil(filteredJobs.length / JOBS_PER_PAGE);
+
+  const paginatedJobs = useMemo(() => {
+    const start = (currentPage - 1) * JOBS_PER_PAGE;
+    return filteredJobs.slice(start, start + JOBS_PER_PAGE);
+  }, [filteredJobs, currentPage]);
+
   const stats = {
     totalJobs: jobs.length,
     activeJobs: jobs.filter((j) => j.status === "Active").length,
     totalViews: jobs.reduce((sum, j) => sum + j.views, 0),
     totalApplications: jobs.reduce((sum, j) => sum + j.applications, 0),
   };
+
   const handleViewClick = (job: JobCardProps) => {
     setSelectedJob(job);
     setActiveTab("overview");
     setIsModalOpen(true);
   };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedJob(null);
   };
+
   const handleJobDeleted = useCallback((deletedId: string) => {
     setJobs((prev) => prev.filter((job) => job.id !== deletedId));
   }, []);
@@ -145,7 +156,8 @@ export const useJobs = () => {
     setSearchTerm,
     statusFilter,
     setStatusFilter,
-    filteredJobs,
+    filteredJobs,      
+    paginatedJobs,   
     loading,
     error,
     stats,
@@ -159,5 +171,9 @@ export const useJobs = () => {
     handleJobDeleted,
     setJobs,
     refetch: fetchJobs,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    jobsPerPage: JOBS_PER_PAGE,
   };
 };

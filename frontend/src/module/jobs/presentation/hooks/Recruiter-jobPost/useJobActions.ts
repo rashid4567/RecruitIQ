@@ -1,11 +1,30 @@
 import { useState } from "react";
 import { toast } from "sonner";
+
 import type { JobCardProps } from "../../types/jobCard.types";
 import { HideJobPostUC, UnhideJobPostUC } from "../../di/jobPost.di";
 
 export function useRecruiterJobActions() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const mapStatus = (
+    status: string,
+  ): "Active" | "Paused" | "Expired" | "Draft" | "Blocked" => {
+    switch (status) {
+      case "active":
+        return "Active";
+      case "expired":
+        return "Expired";
+      case "blocked":
+        return "Blocked";
+      case "paused":
+        return "Paused";
+      case "draft":
+      default:
+        return "Draft";
+    }
+  };
 
   const toggleHide = async (
     job: JobCardProps,
@@ -14,30 +33,38 @@ export function useRecruiterJobActions() {
     try {
       setLoading(true);
       setError(null);
-      const hidden = job.visibility === "hidden";
-      const updated = hidden
+
+      const isHidden = job.visibility === "hidden";
+
+      const updatedJob = isHidden
         ? await UnhideJobPostUC.execute(job.id)
         : await HideJobPostUC.execute(job.id);
+
       onUpdated?.({
         ...job,
-        visibility: updated.visibility,
-        isBlocked: updated.isBlocked,
-        status:
-          updated.status === "active"
-            ? "Active"
-            : updated.status === "expired"
-              ? "Expired"
-              : "Draft",
+        visibility: updatedJob.visibility,
+        isBlocked: updatedJob.isBlocked,
+        status: mapStatus(updatedJob.status),
+        views: updatedJob.views,
+        applications: updatedJob.applicationsCount,
       });
-      toast.success(hidden ? "Job unhidden" : "Job hidden");
+
+      toast.success(
+        isHidden
+          ? "Job is now visible to candidates"
+          : "Job has been hidden from candidates",
+      );
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong";
-      setError(msg);
-      toast.error(msg);
+      const message =
+        err instanceof Error ? err.message : "Failed to update job visibility";
+
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
+
   return {
     toggleHide,
     loading,

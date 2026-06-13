@@ -51,7 +51,7 @@ export default function PricingPlans() {
         <PricingFooter />
       </div>
 
-      {/* Modal — opens when openSubscribeModal() is called from SelectedPlanDetail */}
+      
       <SubscriptionDurationModal
         isOpen={pricing.showDurationModal && !!pricing.selectedPlan}
         onClose={() => pricing.setShowDurationModal(false)}

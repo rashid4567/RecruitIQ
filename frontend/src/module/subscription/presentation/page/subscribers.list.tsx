@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useState } from 'react'
 import {
   Users,
@@ -108,7 +106,7 @@ const Pagination = ({
   )
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+
 export default function BillingControl() {
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -131,7 +129,7 @@ export default function BillingControl() {
 
       <main className="flex-1 overflow-y-auto">
 
-        {/* ── Top Navbar ───────────────────────────────────────────── */}
+  
         <div className="bg-white border-b border-gray-100 px-8 py-4 sticky top-0 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -244,9 +242,8 @@ export default function BillingControl() {
               </div>
             </div>
 
-            {/* Table */}
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px]">
+              <table className="w-full min-w-225">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
                     {['ID', 'Recruiter', 'Company', 'Plan', 'Start Date', 'End Date', 'Status', 'Action'].map((col) => (

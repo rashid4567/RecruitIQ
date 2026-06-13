@@ -1,11 +1,13 @@
-import type { Job, } from "../entity/jobPost.entity";
-import type { JobType } from "./jobPost.dto";
+import type { Job } from "../entity/jobPost.entity";
+import type { JobType, JobStatus } from "./jobPost.dto";
 
 export interface JobPostFilters {
   page?: number;
   limit?: number;
   search?: string;
-  jobType?: JobType;      
+  status?: JobStatus;   
+  isBlocked?: boolean;  
+  jobType?: JobType;
   isRemote?: boolean;
   skills?: string[];
   experienceMin?: number;

@@ -8,13 +8,12 @@ import { JobPostHeader } from "./components/admin.job.management/Jobpostheader";
 import { JobPostFilters } from "./components/admin.job.management/Jobpostfilters";
 import { EmptyState } from "./components/admin.job.management/Emptystate";
 import { JobPostTable } from "./components/admin.job.management/Jobposttable";
-import { JobPostDetailModal } from "./components/admin.job.management/Jobpostdetailmodal"; 
+import { JobPostDetailModal } from "./components/admin.job.management/Jobpostdetailmodal";
 import { BlockConfirmDialog } from "./components/admin.job.management/Blockconfirmdialog";
 
 const LIMIT = 10;
 
 export default function JobPostManagement() {
-
   const {
     jobPosts,
     total,
@@ -30,8 +29,11 @@ export default function JobPostManagement() {
     totalPages,
   } = useAllJobPosts({ limit: LIMIT });
 
-
-  const { pendingId, toggleBlock, loading: blockLoading } = useUpdateJobPostStatus({
+  const {
+    pendingId,
+    toggleBlock,
+    loading: blockLoading,
+  } = useUpdateJobPostStatus({
     onSuccess: (_, isBlocked) => {
       toast.success(isBlocked ? "Job post blocked" : "Job post unblocked");
       refresh();
@@ -39,17 +41,15 @@ export default function JobPostManagement() {
     onError: (msg) => toast.error(msg),
   });
 
-
-  const [selectedJob, setSelectedJob]       = useState<Job | null>(null);
-  const [isDetailOpen, setIsDetailOpen]     = useState(false);
-  const [jobToBlock, setJobToBlock]         = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [jobToBlock, setJobToBlock] = useState<Job | null>(null);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
 
   const handleViewJob = (job: Job) => {
     setSelectedJob(job);
     setIsDetailOpen(true);
   };
-
 
   const handleToggleBlock = (job: Job) => {
     setJobToBlock(job);
@@ -70,7 +70,6 @@ export default function JobPostManagement() {
 
   if (error) toast.error(error);
 
-
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-indigo-50/30 flex">
       <Sidebar />
@@ -80,7 +79,6 @@ export default function JobPostManagement() {
 
         <main className="flex-1 p-6">
           <div className="max-w-7xl mx-auto space-y-5">
-
             <JobPostFilters
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
@@ -107,11 +105,9 @@ export default function JobPostManagement() {
                 onViewJob={handleViewJob}
               />
             )}
-
           </div>
         </main>
       </div>
-
 
       <JobPostDetailModal
         job={selectedJob}
@@ -120,7 +116,6 @@ export default function JobPostManagement() {
         onToggleBlock={handleToggleBlock}
       />
 
-  
       <BlockConfirmDialog
         job={jobToBlock}
         isOpen={isBlockDialogOpen}

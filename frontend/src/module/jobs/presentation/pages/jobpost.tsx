@@ -6,6 +6,8 @@ import {
   Filter,
   ChevronDown,
   Briefcase,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useJobs } from "../hooks/Recruiter-jobPost/useJobs";
@@ -25,6 +27,7 @@ export default function JobsPage() {
     statusFilter,
     setStatusFilter,
     filteredJobs,
+    paginatedJobs,
     loading,
     error,
     stats,
@@ -36,6 +39,10 @@ export default function JobsPage() {
     handleViewClick,
     handleCloseModal,
     handleJobDeleted,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    jobsPerPage,
   } = useJobs();
 
   if (loading) {
@@ -65,10 +72,17 @@ export default function JobsPage() {
     );
   }
 
+  const pageItems = Array.from({ length: totalPages }, (_, i) => i + 1)
+    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+    .reduce<(number | "...")[]>((acc, p, idx, arr) => {
+      if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("...");
+      acc.push(p);
+      return acc;
+    }, []);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      
-      <Sidebar/>
+      <Sidebar />
       <div className="flex-1 overflow-x-hidden">
         <Header />
 
@@ -141,11 +155,12 @@ export default function JobsPage() {
 
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredJobs.map((job) => (
+              {paginatedJobs.map((job) => (
                 <JobCard key={job.id} job={job} onViewClick={handleViewClick} />
               ))}
             </div>
           ) : (
+       
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
               <table className="w-full">
                 <thead>
@@ -169,7 +184,7 @@ export default function JobsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredJobs.map((job) => (
+                  {paginatedJobs.map((job) => (
                     <JobListRow
                       key={job.id}
                       job={job}
@@ -181,7 +196,67 @@ export default function JobsPage() {
             </div>
           )}
 
-   
+      
+          {totalPages > 1 && filteredJobs.length > 0 && (
+            <div className="flex items-center justify-between mt-8 px-1">
+              <p className="text-sm text-gray-500">
+                Showing{" "}
+                <span className="font-medium text-gray-700">
+                  {(currentPage - 1) * jobsPerPage + 1}–
+                  {Math.min(currentPage * jobsPerPage, filteredJobs.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-medium text-gray-700">
+                  {filteredJobs.length}
+                </span>{" "}
+                jobs
+              </p>
+
+              <div className="flex items-center gap-1">
+             
+                <button
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-white hover:border hover:border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Prev
+                </button>
+
+                {pageItems.map((item, idx) =>
+                  item === "..." ? (
+                    <span
+                      key={`ellipsis-${idx}`}
+                      className="px-2 text-gray-400 text-sm select-none"
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={item}
+                      onClick={() => setCurrentPage(item as number)}
+                      className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${
+                        currentPage === item
+                          ? "bg-gray-900 text-white shadow-sm"
+                          : "text-gray-600 hover:bg-white hover:border hover:border-gray-200"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  )
+                )}
+
+                <button
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-white hover:border hover:border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  Next <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+       
           {filteredJobs.length === 0 && (
             <div className="text-center py-20">
               <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-6">

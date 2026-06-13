@@ -48,6 +48,12 @@ ${normalizedText}
 `,
         });
 
+        console.log("Resume Parser Usage:", {
+          inputTokens: response.usage?.input_tokens,
+          outputTokens: response.usage?.output_tokens,
+          totalTokens: response.usage?.total_tokens,
+        });
+
         const content = response.output_text?.trim();
 
         if (!content) {
@@ -91,7 +97,10 @@ ${normalizedText}
           throw new Error("OpenAI quota exceeded. Please check billing.");
         }
 
-        if (status === HTTP_STATUS.UNAUTHORIZED || status === HTTP_STATUS.FORBIDDEN) {
+        if (
+          status === HTTP_STATUS.UNAUTHORIZED ||
+          status === HTTP_STATUS.FORBIDDEN
+        ) {
           throw error;
         }
 
@@ -117,11 +126,9 @@ ${normalizedText}
     console.error("Resume parsing failed after all retries", lastError);
 
     throw new Error(
-  `Failed to parse resume after ${this.MAX_RETRIES} attempts: ${
-    lastError instanceof Error
-      ? lastError.message
-      : "Unknown error"
-  }`,
-);
+      `Failed to parse resume after ${this.MAX_RETRIES} attempts: ${
+        lastError instanceof Error ? lastError.message : "Unknown error"
+      }`,
+    );
   }
 }

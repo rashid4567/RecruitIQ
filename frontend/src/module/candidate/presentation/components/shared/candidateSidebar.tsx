@@ -6,7 +6,6 @@ import {
   User,
   Briefcase,
   MessageSquare,
-  FileText,
   LogOut,
   ChevronRight,
 } from "lucide-react";
@@ -52,7 +51,6 @@ export default function CandidateSidebar({
     "/candidate/applications": (p) => p.startsWith("/candidate/applications"),
     "/candidate/jobs": (p) => p.startsWith("/candidate/jobs"),
     "/candidate/interviews": (p) => p.startsWith("/candidate/interviews"),
-    "/candidate/resume": (p) => p.startsWith("/candidate/resume"),
   };
 
   const isActive = (href: string) => {
@@ -232,10 +230,5 @@ const defaultSidebarItems: SidebarItem[] = [
     icon: MessageSquare,
     label: "Interviews",
     href: "/candidate/interviews",
-  },
-  {
-    icon: FileText,
-    label: "My Resume",
-    href: "/candidate/resume",
   },
 ];

@@ -1,5 +1,3 @@
-"use client";
-
 import { CreditCard, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../../recruiter/presentation/pages/components/layout/Sidebar";

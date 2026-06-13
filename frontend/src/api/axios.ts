@@ -20,17 +20,18 @@ api.interceptors.request.use(
     }
     return config;
   },
-
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
 
-function clearAuthAndRedirect(path: string, message?: string) {
-  if (message) {
-    toast.error(message);
-  }
-
+function clearAuthAndRedirect(
+  path: string,
+  title: string,
+  description?: string,
+) {
+  toast.warning(title, {
+    description,
+    duration: 5000,
+  });
   localStorage.removeItem("authToken");
   localStorage.removeItem("userRole");
   localStorage.removeItem("userId");
@@ -41,7 +42,7 @@ api.interceptors.response.use(
   (response) => {
     const message = response?.data?.message;
     if (message && response.config.method !== "get") {
-      toast.success(message);
+      toast.success("Done", { description: message });
     }
     return response;
   },
@@ -50,17 +51,25 @@ api.interceptors.response.use(
     const originalRequest = error.config as AxiosRequestConfigWithRetry;
 
     if (!error.response) {
-      toast.error("Network error. Check internet connection.");
+      toast.error("No internet connection", {
+        description: "Check your network and try again",
+      });
       return Promise.reject(error);
     }
+
     const status = error.response.status;
     const code = error.response.data?.code;
     const message = error.response.data?.message;
 
     if (originalRequest?.url?.includes("/auth/refresh")) {
-      clearAuthAndRedirect("/signin", message || "Session expired");
+      clearAuthAndRedirect(
+        "/signin",
+        "Session expired",
+        message || "You've been signed out — please log in again",
+      );
       return Promise.reject(error);
     }
+
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -68,31 +77,49 @@ api.interceptors.response.use(
         const refreshRes = await api.post("/auth/refresh", {});
         const newAccessToken = refreshRes.data?.data?.accessToken;
 
-        if (!newAccessToken) {
-          throw new Error("NO ACCESS TOKEN");
-        }
+        if (!newAccessToken) throw new Error("NO ACCESS TOKEN");
+
         localStorage.setItem("authToken", newAccessToken);
         originalRequest.headers = originalRequest.headers ?? {};
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return api(originalRequest);
       } catch (refreshError) {
-        clearAuthAndRedirect("/signin", "Session expired. Login again.");
+        clearAuthAndRedirect(
+          "/signin",
+          "Session expired",
+          "Please log in again to continue",
+        );
         return Promise.reject(refreshError);
       }
     }
+
     if (status === 403 && code === "ACCOUNT_DEACTIVATED") {
-      clearAuthAndRedirect("/signin", message);
+      clearAuthAndRedirect(
+        "/signin",
+        "Account deactivated",
+        message || "Contact support if you think this is a mistake",
+      );
       return Promise.reject(error);
     }
+
     if (status === 404) {
-      toast.error(message || "Not found");
+      toast.warning("Not found", {
+        description: message || "The resource you requested doesn't exist",
+      });
     } else if (status >= 500) {
-      toast.error(message || "Server error");
+      toast.error("Server error", {
+        description:
+          message || "Something went wrong on our end — try again shortly",
+      });
     } else {
-      toast.error(message || "Something went wrong");
+      toast.error("Something went wrong", {
+        description: message || "An unexpected error occurred",
+      });
     }
+
     return Promise.reject(error);
   },
 );
+
 export default api;

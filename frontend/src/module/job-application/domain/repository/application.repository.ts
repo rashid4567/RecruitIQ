@@ -1,8 +1,10 @@
 import type { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 import {
+  ApplicationRecommendation,
   ApplicationStatus,
   JobApplication,
 } from "../entity/job-application.entity";
+
 import type { UpdateApplicationStatusDTO } from "../dto/updateApplicationStatus.dto";
 import type { RecruiterApplicationDetails } from "../dto/RecruiterApplicationDetails";
 
@@ -11,6 +13,7 @@ export interface ApplyJobDTO {
   resumeId: string;
   coverLetter?: string;
 }
+
 export interface RecruiterApplication {
   applicationId: string;
   candidateId: string;
@@ -19,8 +22,11 @@ export interface RecruiterApplication {
   candidateProfileImage?: string;
   resumeId: string;
   status: ApplicationStatus;
+  aiScore?: number;
+  aiRecommendation?: ApplicationRecommendation;
   appliedAt: string;
 }
+
 export interface ApplicationDetailDTO {
   application: JobApplication;
   job: Job;

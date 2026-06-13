@@ -1,4 +1,6 @@
 import type {
+  ApplicationAIAnalysis,
+  ApplicationRecommendation,
   ApplicationStatus,
   InterviewInfo,
 } from "../../domain/entity/job-application.entity";
@@ -13,6 +15,7 @@ export interface JobApplicationResponseDTO {
   status: ApplicationStatus;
   interview?: InterviewInfo;
   rejectionReason?: string;
+  aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: string;
   updatedAt: string;
 }
@@ -25,5 +28,7 @@ export interface RecruiterApplicationResponseDTO {
   candidateProfileImage?: string;
   resumeId: string;
   status: ApplicationStatus;
+  aiScore?: number;
+  aiRecommendation?: ApplicationRecommendation;
   appliedAt: string;
 }

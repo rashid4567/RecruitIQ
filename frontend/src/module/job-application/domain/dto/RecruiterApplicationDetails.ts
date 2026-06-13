@@ -1,4 +1,8 @@
-import type { ApplicationStatus, InterviewInfo } from "../entity/job-application.entity";
+import type {
+  ApplicationAIAnalysis,
+  ApplicationStatus,
+  InterviewInfo,
+} from "../entity/job-application.entity";
 
 export interface RecruiterApplicationDetails {
   applicationId: string;
@@ -13,6 +17,7 @@ export interface RecruiterApplicationDetails {
   status: ApplicationStatus;
   interview?: InterviewInfo;
   rejectionReason?: string;
+  aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: string;
   updatedAt: string;
 }

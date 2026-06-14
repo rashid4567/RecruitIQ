@@ -1,11 +1,20 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+
+import { User } from "../../../../auth/domain/entities/user.entity";
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
+
 import { SendEmailByEventUseCase } from "../../../../email/application/usecase/email-template/send-email-by-event.usecase";
 import { EmailEvent } from "../../../../email/domain/constant/templateEvents";
+
+import { Job } from "../../../../job/domain/entities/job.entity";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
+
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
+
+import { Resume } from "../../../../resume/domain/entity/resume.entity";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
+
 import { JobApplication } from "../../../domain/entity/job-application.entity";
 import { APPLICATION_ERRORS } from "../../../domain/error/Application.error";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
@@ -27,6 +36,37 @@ export class ApplyJobUseCase {
   async execute(dto: ApplyJobDTO): Promise<JobApplication> {
     const { jobId, candidateId, resumeId, coverLetter } = dto;
 
+    const job = await this.validateAndGetJob(jobId);
+
+    await this.validateAndGetResume(resumeId, candidateId);
+
+    await this.ensureApplicationDoesNotExist(candidateId, jobId);
+
+    const candidate = await this.userRepo.findById(candidateId);
+
+    const application = JobApplication.apply({
+      jobId,
+      candidateId,
+      recruiterId: job.recruiterId,
+      resumeId,
+      coverLetter,
+    });
+
+    /**
+     * Ideally wrap these in a transaction later.
+     */
+    const created = await this.applicationRepo.create(application);
+
+    job.incrementApplications();
+
+    await this.jobRepo.save(job);
+
+    this.triggerPostApplicationActions(created, candidate, job);
+
+    return created;
+  }
+
+  private async validateAndGetJob(jobId: string): Promise<Job> {
     const job = await this.jobRepo.findById(jobId);
 
     if (!job) {
@@ -41,6 +81,13 @@ export class ApplyJobUseCase {
       throw new ApplicationError(APPLICATION_ERRORS.JOB_EXPIRED);
     }
 
+    return job;
+  }
+
+  private async validateAndGetResume(
+    resumeId: string,
+    candidateId: string,
+  ): Promise<Resume> {
     const resume = await this.resumeRepo.findById(resumeId);
 
     if (!resume) {
@@ -53,6 +100,13 @@ export class ApplyJobUseCase {
       );
     }
 
+    return resume;
+  }
+
+  private async ensureApplicationDoesNotExist(
+    candidateId: string,
+    jobId: string,
+  ): Promise<void> {
     const existing = await this.applicationRepo.findExistingApplication(
       candidateId,
       jobId,
@@ -61,26 +115,33 @@ export class ApplyJobUseCase {
     if (existing) {
       throw new ApplicationError(APPLICATION_ERRORS.APPLICATION_ALREADY_EXISTS);
     }
+  }
 
-    const application = JobApplication.apply({
-      jobId,
-      candidateId,
-      recruiterId: job.recruiterId,
-      resumeId,
-      coverLetter,
-    });
+  private triggerPostApplicationActions(
+    application: JobApplication,
+    candidate: User | null,
+    job: Job,
+  ): void {
+    this.triggerAnalysis(application);
 
-    const created = await this.applicationRepo.create(application);
+    this.notifyRecruiter(application, candidate, job);
 
-    job.incrementApplications();
-    await this.jobRepo.save(job);
+    if (candidate) {
+      this.sendCandidateConfirmationEmail(candidate, job);
+    }
+  }
 
-    const candidate = await this.userRepo.findById(candidateId);
-
+  private triggerAnalysis(application: JobApplication): void {
     void this.analyzeApplicationUC
-      .execute(created.id!)
+      .execute(application.id!)
       .catch((err) => console.error("Application analysis failed:", err));
+  }
 
+  private notifyRecruiter(
+    application: JobApplication,
+    candidate: User | null,
+    job: Job,
+  ): void {
     void this.createNotificationUC
       .execute({
         recipientId: job.recruiterId,
@@ -88,32 +149,30 @@ export class ApplyJobUseCase {
         title: "New Job Application",
         message: `${candidate?.fullName ?? "A candidate"} applied for ${job.title}`,
         type: NotificationType.JOB_APPLIED,
-        actionUrl: `/recruiter/applications/${created.id}`,
-        referenceId: created.id,
+        actionUrl: `/recruiter/applications/${application.id}`,
+        referenceId: application.id,
         metadata: {
-          applicationId: created.id,
-          candidateId,
-          jobId,
+          applicationId: application.id,
+          candidateId: application.candidateId,
+          jobId: application.jobId,
           jobTitle: job.title,
         },
       })
       .catch((err) => console.error("JOB_APPLIED notification failed:", err));
+  }
 
-    if (candidate) {
-      void this.sendEmailByEventUC
-        .execute({
-          to: candidate.email.getValue(),
-          event: EmailEvent.JOB_APPLIED,
-          variables: {
-            candidateName: candidate.fullName,
-            jobTitle: job.title,
-            companyName: job.companyName,
-            applicationDate: new Date().toLocaleDateString(),
-          },
-        })
-        .catch((err) => console.error("JOB_APPLIED email failed:", err));
-    }
-
-    return created;
+  private sendCandidateConfirmationEmail(candidate: User, job: Job): void {
+    void this.sendEmailByEventUC
+      .execute({
+        to: candidate.email.getValue(),
+        event: EmailEvent.JOB_APPLIED,
+        variables: {
+          candidateName: candidate.fullName,
+          jobTitle: job.title,
+          companyName: job.companyName,
+          applicationDate: new Date().toLocaleDateString(),
+        },
+      })
+      .catch((err) => console.error("JOB_APPLIED email failed:", err));
   }
 }

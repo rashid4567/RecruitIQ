@@ -1,5 +1,6 @@
 import { Job } from "../../../job/domain/entities/job.entity";
 import { Resume } from "../../../resume/domain/entity/resume.entity";
+import { ApplicationRecommendation } from "../entity/job-application.entity";
 
 export interface ApplicationAnalysis {
   overallScore: number;
@@ -11,11 +12,7 @@ export interface ApplicationAnalysis {
   strengths: string[];
   gaps: string[];
   missingCriticalSkills: string[];
-  recommendation:
-    | "STRONG_MATCH"
-    | "GOOD_MATCH"
-    | "PARTIAL_MATCH"
-    | "POOR_MATCH";
+  recommendation: ApplicationRecommendation;
   summary: string;
 }
 

@@ -1,19 +1,34 @@
 import OpenAI from "openai";
+import { z } from "zod";
+
 import { ParsedResumeData } from "../../domain/entity/resume.entity";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { ApplicationError } from "../../../../shared/errors/application.error";
+import { ERROR_CODES } from "../../../../constants/errorcode.constants";
+
+const ResumeSchema = z.object({
+  fullName: z.string().nullable(),
+  email: z.string().nullable(),
+  phone: z.string().nullable(),
+  skills: z.array(z.string()).default([]),
+  education: z.array(z.string()).default([]),
+  experience: z.array(z.string()).default([]),
+  totalExperienceYears: z.number().nullable(),
+  linkedin: z.string().nullable(),
+  github: z.string().nullable(),
+  portfolio: z.string().nullable(),
+  currentCompany: z.string().nullable(),
+  currentRole: z.string().nullable(),
+});
 
 export class ResumeParserService {
   private readonly MAX_RETRIES = 3;
+  private readonly MAX_RESUME_LENGTH = 15000;
 
   constructor(private readonly openai: OpenAI) {}
 
   async parse(resumeText: string): Promise<ParsedResumeData> {
-    const normalizedText = resumeText
-      .replace(/[ \t]+/g, " ")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim()
-      .slice(0, 15000);
-
+    const normalizedText = this.normalizeResumeText(resumeText);
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
@@ -23,9 +38,9 @@ export class ResumeParserService {
         const response = await this.openai.responses.create({
           model: "gpt-5-mini",
           input: `
-You are an expert Applicant Tracking System (ATS) resume parser.
+You are an expert ATS resume parser.
 
-Extract the candidate information and return ONLY a valid JSON object.
+Extract resume information and return ONLY a valid JSON object.
 
 {
   "fullName": string | null,
@@ -60,41 +75,45 @@ ${normalizedText}
           throw new Error("Empty AI response");
         }
 
-        const parsed = JSON.parse(content) as ParsedResumeData;
-
+        const parsed = this.parseAndValidateResponse(content);
         return {
           fullName: parsed.fullName ?? null,
           email: parsed.email ?? null,
           phone: parsed.phone ?? null,
-          skills: Array.isArray(parsed.skills)
-            ? [...new Set(parsed.skills)]
-            : [],
-          education: Array.isArray(parsed.education) ? parsed.education : [],
-          experience: Array.isArray(parsed.experience) ? parsed.experience : [],
-          totalExperienceYears:
-            typeof parsed.totalExperienceYears === "number"
-              ? parsed.totalExperienceYears
-              : null,
+          skills: [...new Set(parsed.skills)],
+          education: parsed.education,
+          experience: parsed.experience,
+          totalExperienceYears: parsed.totalExperienceYears,
           linkedin: parsed.linkedin ?? null,
           github: parsed.github ?? null,
           portfolio: parsed.portfolio ?? null,
           currentCompany: parsed.currentCompany ?? null,
           currentRole: parsed.currentRole ?? null,
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error;
 
-        const status = error?.status;
-        const code = error?.code;
+        const status =
+          typeof error === "object" && error !== null && "status" in error
+            ? (error as { status?: number }).status
+            : undefined;
+
+        const code =
+          typeof error === "object" && error !== null && "code" in error
+            ? (error as { code?: string }).code
+            : undefined;
+
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
 
         console.error(`Resume parsing attempt ${attempt} failed`, {
           status,
           code,
-          message: error?.message,
+          message,
         });
 
         if (code === "insufficient_quota") {
-          throw new Error("OpenAI quota exceeded. Please check billing.");
+          throw new ApplicationError(ERROR_CODES.AI_QUOTA_EXCEEDED);
         }
 
         if (
@@ -116,19 +135,35 @@ ${normalizedText}
         }
 
         const delay = Math.pow(2, attempt) * 1000;
-
         console.log(`Retrying resume parsing in ${delay}ms...`);
-
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        await this.sleep(delay);
       }
     }
 
     console.error("Resume parsing failed after all retries", lastError);
 
-    throw new Error(
-      `Failed to parse resume after ${this.MAX_RETRIES} attempts: ${
-        lastError instanceof Error ? lastError.message : "Unknown error"
-      }`,
-    );
+    throw new ApplicationError(ERROR_CODES.RESUME_PARSE_FAILED);
+  }
+
+  private normalizeResumeText(text: string): string {
+    return text
+      .replace(/[ \t]+/g, " ")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+      .slice(0, this.MAX_RESUME_LENGTH);
+  }
+
+  private parseAndValidateResponse(content: string) {
+    try {
+      const parsed = JSON.parse(content);
+      return ResumeSchema.parse(parsed);
+    } catch (error) {
+      console.error("Invalid resume parser response:", content);
+      throw new Error("Invalid AI response format");
+    }
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

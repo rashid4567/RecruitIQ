@@ -134,10 +134,18 @@ export class JobApplication {
     this.touch();
   }
 
-  updateAIAnalysis(analysis: ApplicationAIAnalysis): void {
-    this.props.aiAnalysis = analysis;
-    this.touch();
+ updateAIAnalysis(
+  analysis: ApplicationAIAnalysis,
+): void {
+  if (this.props.aiAnalysis) {
+    throw new DomainError(
+      APPLICATION_ERRORS.ANALYSIS_ALREADY_EXISTS,
+    );
   }
+
+  this.props.aiAnalysis = analysis;
+  this.touch();
+}
 
   reject(reason: string): void {
     this.ensureMutable();

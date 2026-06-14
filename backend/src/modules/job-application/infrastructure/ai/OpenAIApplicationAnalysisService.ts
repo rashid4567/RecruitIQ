@@ -9,24 +9,51 @@ import {
 import { Job } from "../../../job/domain/entities/job.entity";
 import { Resume } from "../../../resume/domain/entity/resume.entity";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { ApplicationError } from "../../../../shared/errors/application.error";
+import { ERROR_CODES } from "../../../../constants/errorcode.constants";
+import { ApplicationRecommendation } from "../../domain/entity/job-application.entity";
+
 
 const AnalysisSchema = z.object({
-  requiredSkillsScore: z.number(),
-  preferredSkillsScore: z.number(),
-  experienceScore: z.number(),
-  requirementsScore: z.number(),
-  educationScore: z.number(),
-  strengths: z.array(z.string()),
-  gaps: z.array(z.string()),
-  missingCriticalSkills: z.array(z.string()),
+  requiredSkillsScore: z.number().min(0).max(100),
+  preferredSkillsScore: z.number().min(0).max(100),
+  experienceScore: z.number().min(0).max(100),
+  requirementsScore: z.number().min(0).max(100),
+  educationScore: z.number().min(0).max(100),
+  strengths: z.array(z.string()).default([]),
+  gaps: z.array(z.string()).default([]),
+  missingCriticalSkills: z.array(z.string()).default([]),
   summary: z.string(),
 });
 
 type AnalysisResponse = z.infer<typeof AnalysisSchema>;
 
-export class OpenAIApplicationAnalysisService implements ApplicationAnalysisService {
-  private readonly MAX_RETRIES = 3;
+const MODEL = "gpt-5-mini";
+const MAX_RETRIES = 3;
 
+const PENALTY_PER_MISSING_SKILL = 3;
+const MAX_PENALTY = 15;
+
+const WEIGHTS = {
+  requiredSkills: 0.35,
+  experience: 0.25,
+  requirements: 0.2,
+  preferredSkills: 0.1,
+  education: 0.1,
+} as const;
+
+const SYSTEM_PROMPT = `
+You are an ATS candidate evaluation engine.
+
+Rules:
+- Return JSON only.
+- No markdown.
+- No explanations.
+- No extra text.
+- Scores must be integers between 0 and 100.
+`.trim();
+
+export class OpenAIApplicationAnalysisService implements ApplicationAnalysisService {
   constructor(private readonly openai: OpenAI) {}
 
   async analyze(
@@ -37,59 +64,36 @@ export class OpenAIApplicationAnalysisService implements ApplicationAnalysisServ
     const parsedData = resume.getParsedData();
 
     if (!parsedData) {
-      throw new Error("Resume has not been parsed");
+      throw new ApplicationError(ERROR_CODES.RESUME_PARSE_NOT_FOUND);
     }
 
+    const prompt = this.buildPrompt(job, parsedData, coverLetter);
+    const raw = await this.fetchAnalysisWithRetry(
+      prompt,
+      parsedData.fullName,
+      job.title,
+    );
+    return this.computeResult(raw);
+  }
+
+  private buildPrompt(
+    job: Job,
+    parsedData: NonNullable<ReturnType<Resume["getParsedData"]>>,
+    coverLetter?: string,
+  ): string {
     const jobData = job.toObject();
 
-    const formatArray = (value?: unknown[]): string => {
-      if (!Array.isArray(value) || value.length === 0) {
-        return "Not provided";
-      }
-
-      return value
-        .map((item) =>
-          typeof item === "string" ? item : JSON.stringify(item, null, 2),
-        )
-        .join("\n");
-    };
-
     const experienceText =
-      Array.isArray(parsedData.experience) && parsedData.experience.length > 0
-        ? parsedData.experience
-            .map((exp: any) => {
-              if (typeof exp === "string") {
-                return exp;
-              }
-
-              return `
-Role: ${exp.role ?? ""}
-Company: ${exp.company ?? ""}
-Duration: ${exp.duration ?? ""}
-Description: ${exp.description ?? ""}
-`;
-            })
-            .join("\n\n")
+      parsedData.experience.length > 0
+        ? parsedData.experience.join("\n\n")
         : "Not provided";
 
     const educationText =
-      Array.isArray(parsedData.education) && parsedData.education.length > 0
-        ? parsedData.education
-            .map((edu: any) => {
-              if (typeof edu === "string") {
-                return edu;
-              }
-
-              return `
-Degree: ${edu.degree ?? ""}
-Institution: ${edu.institution ?? ""}
-Year: ${edu.year ?? ""}
-`;
-            })
-            .join("\n\n")
+      parsedData.education.length > 0
+        ? parsedData.education.join("\n\n")
         : "Not provided";
 
-    const prompt = `
+    return `
 You are both:
 
 1. A Senior Technical Recruiter
@@ -97,9 +101,9 @@ You are both:
 
 Evaluate the candidate objectively.
 
-==================================================
+
 JOB INFORMATION
-==================================================
+
 
 Company:
 ${job.companyName}
@@ -111,20 +115,19 @@ Job Description:
 ${job.description ?? "Not provided"}
 
 Responsibilities:
-${formatArray(jobData.responsibilities)}
+${this.formatArray(jobData.responsibilities)}
 
 Requirements:
-${formatArray(jobData.requirements)}
+${this.formatArray(jobData.requirements)}
 
 Required Skills:
-${formatArray(jobData.requiredSkills)}
+${this.formatArray(jobData.requiredSkills)}
 
 Preferred Skills:
-${formatArray(jobData.preferredSkills)}
+${this.formatArray(jobData.preferredSkills)}
 
 Experience Required:
-${jobData.experienceMin ?? 0} -
-${jobData.experienceMax ?? 0} years
+${jobData.experienceMin ?? 0} - ${jobData.experienceMax ?? 0} years
 
 Department:
 ${job.department ?? "Not provided"}
@@ -135,9 +138,9 @@ ${jobData.jobType ?? "Not provided"}
 Remote:
 ${jobData.isRemote ? "Yes" : "No"}
 
-==================================================
+
 CANDIDATE INFORMATION
-==================================================
+
 
 Full Name:
 ${parsedData.fullName ?? "Not provided"}
@@ -175,9 +178,9 @@ ${parsedData.portfolio ?? "Not provided"}
 Cover Letter:
 ${coverLetter ?? "Not provided"}
 
-==================================================
+
 SCORING RULES
-==================================================
+
 
 Treat closely related technologies as partial matches.
 
@@ -193,12 +196,12 @@ Examples:
 Score categories from 0 to 100.
 
 100 = Perfect Match
-90 = Exceptional Match
-80 = Strong Match
-70 = Good Match
-60 = Acceptable Match
-50 = Weak Match
-0-40 = Poor Match
+90  = Exceptional Match
+80  = Strong Match
+70  = Good Match
+60  = Acceptable Match
+50  = Weak Match
+0–40 = Poor Match
 
 Evaluate:
 
@@ -221,36 +224,27 @@ Return ONLY valid JSON.
   "missingCriticalSkills": [],
   "summary": ""
 }
-`;
+`.trim();
+  }
 
-    let analysis: AnalysisResponse;
+  private async fetchAnalysisWithRetry(
+    prompt: string,
+    candidateName: string | null | undefined,
+    jobTitle: string,
+  ): Promise<AnalysisResponse> {
     let lastError: unknown;
 
-    for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
-      try {
-        console.log(
-          `Application analysis attempt ${attempt}/${this.MAX_RETRIES}`,
-        );
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      console.log(`Application analysis attempt ${attempt}/${MAX_RETRIES}`);
 
+      try {
         const completion = await this.openai.chat.completions.create({
-          model: "gpt-5-mini",
-          temperature: 0,
-          response_format: {
-            type: "json_object",
-          },
+          model: MODEL,
+          response_format: { type: "json_object" },
           messages: [
             {
               role: "system",
-              content: `
-You are an ATS candidate evaluation engine.
-
-Rules:
-- Return JSON only.
-- No markdown.
-- No explanations.
-- No extra text.
-- Scores must be integers between 0 and 100.
-`,
+              content: SYSTEM_PROMPT,
             },
             {
               role: "user",
@@ -260,112 +254,92 @@ Rules:
         });
 
         console.log("ATS Analysis", {
-          candidate: parsedData.fullName,
-          jobTitle: job.title,
+          candidate: candidateName,
+          jobTitle,
           promptTokens: completion.usage?.prompt_tokens,
           completionTokens: completion.usage?.completion_tokens,
           totalTokens: completion.usage?.total_tokens,
         });
+
         const content = completion.choices[0]?.message?.content;
 
         if (!content) {
-          throw new Error("Empty AI response");
+          throw new ApplicationError(ERROR_CODES.AI_RESPONSE_IS_EMPTY);
         }
 
-        analysis = AnalysisSchema.parse(JSON.parse(content));
-
-        break;
-      } catch (error: any) {
+        return AnalysisSchema.parse(JSON.parse(content));
+      } catch (error: unknown) {
         lastError = error;
 
-        const status = error?.status;
-        const code = error?.code;
+        const { status, code } = this.extractErrorMeta(error);
 
         console.error(`Application analysis attempt ${attempt} failed`, {
           status,
           code,
-          message: error?.message,
+          message: error instanceof Error ? error.message : "Unknown error",
         });
 
         if (code === "insufficient_quota") {
-          throw new Error("OpenAI quota exceeded. Please check billing.");
+          throw new ApplicationError(ERROR_CODES.AI_QUOTA_EXCEEDED);
         }
 
-        const shouldRetry =
+        if (
+          status === HTTP_STATUS.UNAUTHORIZED ||
+          status === HTTP_STATUS.FORBIDDEN
+        ) {
+          throw new ApplicationError(ERROR_CODES.AI_CONFIGURATION_ERROR);
+        }
+
+        const isRetriable =
           status === HTTP_STATUS.TOO_MANY_REQUESTS ||
           status === HTTP_STATUS.INTERNAL_SERVER_ERROR ||
           status === HTTP_STATUS.BAD_GATEWAY ||
           status === HTTP_STATUS.SERVICE_UNAVAILABLE ||
           status === HTTP_STATUS.GATEWAY_TIMEOUT ||
-          error?.message?.includes("Invalid AI analysis response");
+          (error instanceof Error &&
+            error.message.includes("Invalid AI analysis response"));
 
-        if (!shouldRetry || attempt === this.MAX_RETRIES) {
+        if (!isRetriable || attempt === MAX_RETRIES) {
           break;
         }
 
         const delay = Math.pow(2, attempt) * 1000;
-
-        console.log(`Retrying application analysis in ${delay}ms...`);
-
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        console.log(`Retrying application analysis in ${delay}ms…`);
+        await this.sleep(delay);
       }
     }
 
-    if (!analysis!) {
-      throw new Error(
-        `Failed to analyze application after ${this.MAX_RETRIES} attempts: ${
-          lastError instanceof Error ? lastError.message : "Unknown error"
-        }`,
-      );
-    }
+    throw new ApplicationError(ERROR_CODES.APPLICATION_ANALYSIS_FAILED);
+  }
 
-    const normalizeScore = (score: unknown): number => {
-      const value = typeof score === "number" ? score : Number(score);
+  private computeResult(analysis: AnalysisResponse): ApplicationAnalysis {
+    const requiredSkillsScore = this.normalizeScore(
+      analysis.requiredSkillsScore,
+    );
+    const preferredSkillsScore = this.normalizeScore(
+      analysis.preferredSkillsScore,
+    );
+    const experienceScore = this.normalizeScore(analysis.experienceScore);
+    const requirementsScore = this.normalizeScore(analysis.requirementsScore);
+    const educationScore = this.normalizeScore(analysis.educationScore);
+    const { missingCriticalSkills, strengths, gaps, summary } = analysis;
 
-      if (Number.isNaN(value)) {
-        return 0;
-      }
-
-      return Math.max(0, Math.min(100, Math.round(value)));
-    };
-
-    const requiredSkillsScore = normalizeScore(analysis.requiredSkillsScore);
-    const preferredSkillsScore = normalizeScore(analysis.preferredSkillsScore);
-    const experienceScore = normalizeScore(analysis.experienceScore);
-    const requirementsScore = normalizeScore(analysis.requirementsScore);
-    const educationScore = normalizeScore(analysis.educationScore);
-    const missingCriticalSkills = Array.isArray(analysis.missingCriticalSkills)
-      ? analysis.missingCriticalSkills
-      : [];
-
-    const penalty = Math.min(missingCriticalSkills.length * 3, 15);
+    const penalty = Math.min(
+      missingCriticalSkills.length * PENALTY_PER_MISSING_SKILL,
+      MAX_PENALTY,
+    );
 
     const overallScore = Math.max(
       0,
       Math.round(
-        requiredSkillsScore * 0.35 +
-          preferredSkillsScore * 0.1 +
-          experienceScore * 0.25 +
-          requirementsScore * 0.2 +
-          educationScore * 0.1 -
+        requiredSkillsScore * WEIGHTS.requiredSkills +
+          preferredSkillsScore * WEIGHTS.preferredSkills +
+          experienceScore * WEIGHTS.experience +
+          requirementsScore * WEIGHTS.requirements +
+          educationScore * WEIGHTS.education -
           penalty,
       ),
     );
-    let recommendation:
-      | "STRONG_MATCH"
-      | "GOOD_MATCH"
-      | "PARTIAL_MATCH"
-      | "POOR_MATCH";
-
-    if (overallScore >= 85) {
-      recommendation = "STRONG_MATCH";
-    } else if (overallScore >= 70) {
-      recommendation = "GOOD_MATCH";
-    } else if (overallScore >= 55) {
-      recommendation = "PARTIAL_MATCH";
-    } else {
-      recommendation = "POOR_MATCH";
-    }
 
     return {
       overallScore,
@@ -374,14 +348,70 @@ Rules:
       experienceScore,
       requirementsScore,
       educationScore,
-      strengths: Array.isArray(analysis.strengths) ? analysis.strengths : [],
-      gaps: Array.isArray(analysis.gaps) ? analysis.gaps : [],
+      strengths,
+      gaps,
       missingCriticalSkills,
-      recommendation,
-      summary:
-        typeof analysis.summary === "string"
-          ? analysis.summary
-          : "No summary generated.",
+      recommendation: this.getRecommendation(overallScore),
+      summary,
     };
+  }
+
+  private formatArray(value?: readonly unknown[]): string {
+    if (!Array.isArray(value) || value.length === 0) {
+      return "Not provided";
+    }
+
+    return value
+      .map((item) =>
+        typeof item === "string" ? item : JSON.stringify(item, null, 2),
+      )
+      .join("\n");
+  }
+
+  private normalizeScore(score: unknown): number {
+    const value = typeof score === "number" ? score : Number(score);
+
+    if (Number.isNaN(value)) {
+      return 0;
+    }
+
+    return Math.max(0, Math.min(100, Math.round(value)));
+  }
+
+  private getRecommendation(overallScore: number): ApplicationRecommendation {
+    if (overallScore >= 85) {
+      return ApplicationRecommendation.STRONG_MATCH;
+    }
+
+    if (overallScore >= 70) {
+      return ApplicationRecommendation.GOOD_MATCH;
+    }
+
+    if (overallScore >= 55) {
+      return ApplicationRecommendation.PARTIAL_MATCH;
+    }
+
+    return ApplicationRecommendation.POOR_MATCH;
+  }
+
+  private extractErrorMeta(error: unknown): {
+    status: number | undefined;
+    code: string | undefined;
+  } {
+    if (typeof error !== "object" || error === null) {
+      return { status: undefined, code: undefined };
+    }
+
+    const status =
+      "status" in error ? (error as { status?: number }).status : undefined;
+
+    const code =
+      "code" in error ? (error as { code?: string }).code : undefined;
+
+    return { status, code };
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

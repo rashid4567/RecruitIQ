@@ -1,10 +1,13 @@
 import { ERROR_CODES } from "../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../shared/errors/application.error";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
+
 import { CandidateRepository } from "../../../candidate/domain/repositories/candidate.repository";
+
 import { Resume } from "../../domain/entity/resume.entity";
 import { FileStorageRepository } from "../../domain/repository/fileStorage.repository";
 import { ResumeRepository } from "../../domain/repository/resume.repository";
+
 import { UploadResumeDTO } from "../dto/upload.resume.dto";
 import { ParseResumeUseCase } from "./ParseResumeUseCase";
 
@@ -17,22 +20,12 @@ export class UploadResumeUseCase {
   ) {}
 
   async execute(dto: UploadResumeDTO): Promise<Resume> {
-    const userId = UserId.create(dto.candidateId);
-
-    const candidate = await this.candidateRepository.findByUserId(userId);
-
-    if (!candidate) {
-      throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
-    }
-
+    await this.validateCandidate(dto.candidateId);
     const existingResume = await this.resumeRepository.findByCandidateId(
       dto.candidateId,
     );
 
-    const sanitizedFileName = dto.fileName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-
-    const fileKey = `resumes/${dto.candidateId}/${Date.now()}-${sanitizedFileName}`;
-
+    const fileKey = this.generateFileKey(dto.candidateId, dto.fileName);
     await this.fileStorageRepository.uploadFile({
       key: fileKey,
       buffer: dto.fileBuffer,
@@ -40,52 +33,87 @@ export class UploadResumeUseCase {
     });
 
     try {
-      let savedResume: Resume;
+      const savedResume = existingResume
+        ? await this.updateExistingResume(existingResume, dto, fileKey)
+        : await this.createNewResume(dto, fileKey);
 
-      if (existingResume) {
-        const updatedResume = Resume.fromPersistence({
-          id: existingResume.getId()!,
-          candidateId: existingResume.getCandidateId(),
-          fileName: dto.fileName,
-          fileKey,
-          uploadedAt: new Date(),
-          parsedData: undefined,
-        });
-
-        savedResume = await this.resumeRepository.update(updatedResume);
-
-        try {
-          await this.fileStorageRepository.deleteFile(
-            existingResume.getFileKey(),
-          );
-        } catch (error) {
-          console.error("Failed to delete previous resume from storage", error);
-        }
-      } else {
-        const resume = Resume.create(dto.candidateId, dto.fileName, fileKey);
-
-        savedResume = await this.resumeRepository.create(resume);
-      }
-
-      try {
-        await this.parseResumeUseCase.execute({
-          resumeId: savedResume.getId()!,
-          fileBuffer: dto.fileBuffer,
-          mimeType: dto.mimeType,
-        });
-      } catch (error) {
-        console.error("Resume parsing failed:", error);
-      }
+      this.parseResumeAsync(savedResume.getId()!, dto.fileBuffer, dto.mimeType);
 
       return savedResume;
     } catch (error) {
-      try {
-        await this.fileStorageRepository.deleteFile(fileKey);
-      } catch (rollbackError) {
-        console.error("Failed to rollback uploaded file", rollbackError);
-      }
+      await this.rollbackUploadedFile(fileKey);
 
       throw error;
+    }
+  }
+
+  private async validateCandidate(candidateId: string): Promise<void> {
+    const userId = UserId.create(candidateId);
+    const candidate = await this.candidateRepository.findByUserId(userId);
+    if (!candidate) {
+      throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
+    }
+  }
+
+  private generateFileKey(candidateId: string, fileName: string): string {
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    return `resumes/${candidateId}/${Date.now()}-${sanitizedFileName}`;
+  }
+
+  private async createNewResume(
+    dto: UploadResumeDTO,
+    fileKey: string,
+  ): Promise<Resume> {
+    const resume = Resume.create(dto.candidateId, dto.fileName, fileKey);
+    return this.resumeRepository.create(resume);
+  }
+
+  private async updateExistingResume(
+    existingResume: Resume,
+    dto: UploadResumeDTO,
+    fileKey: string,
+  ): Promise<Resume> {
+    const updatedResume = Resume.fromPersistence({
+      id: existingResume.getId()!,
+      candidateId: existingResume.getCandidateId(),
+      fileName: dto.fileName,
+      fileKey,
+      uploadedAt: new Date(),
+      parsedData: existingResume.getParsedData(),
+    });
+
+    const savedResume = await this.resumeRepository.update(updatedResume);
+    this.deleteOldResumeFile(existingResume.getFileKey());
+    return savedResume;
+  }
+
+  private deleteOldResumeFile(oldFileKey: string): void {
+    void this.fileStorageRepository
+      .deleteFile(oldFileKey)
+      .catch((error) =>
+        console.error("Failed to delete previous resume", error),
+      );
+  }
+
+  private parseResumeAsync(
+    resumeId: string,
+    fileBuffer: Buffer,
+    mimeType: string,
+  ): void {
+    void this.parseResumeUseCase
+      .execute({
+        resumeId,
+        fileBuffer,
+        mimeType,
+      })
+      .catch((error) => console.error("Resume parsing failed:", error));
+  }
+
+  private async rollbackUploadedFile(fileKey: string): Promise<void> {
+    try {
+      await this.fileStorageRepository.deleteFile(fileKey);
+    } catch (rollbackError) {
+      console.error("Failed to rollback uploaded file", rollbackError);
     }
   }
 }

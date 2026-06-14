@@ -1,5 +1,6 @@
 import {
   ApplicationAIAnalysis,
+  ApplicationRecommendation,
   JobApplication,
 } from "../entity/job-application.entity";
 import {
@@ -16,7 +17,7 @@ export interface RecruiterApplicationListItem {
   resumeId: string;
   status: ApplicationStatus;
   aiScore?: number;
-  aiRecommendation?: string;
+  aiRecommendation?: ApplicationRecommendation;
   appliedAt: Date;
   interview?: InterviewInfo;
 }

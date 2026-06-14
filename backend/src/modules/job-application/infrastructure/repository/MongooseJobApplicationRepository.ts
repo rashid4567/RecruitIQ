@@ -18,6 +18,13 @@ import {
   JobApplicationModel,
 } from "../mongoose/job-application.model";
 
+interface PopulatedCandidate {
+  _id: mongoose.Types.ObjectId;
+  fullName?: string;
+  email?: string;
+  profileImage?: string;
+}
+
 export class MongooseJobApplicationRepository implements JobApplicationRepository {
   async create(application: JobApplication): Promise<JobApplication> {
     const created = await JobApplicationModel.create(
@@ -38,7 +45,6 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
           interview: data.interview,
           rejectionReason: data.rejectionReason,
           aiAnalysis: data.aiAnalysis,
-          updatedAt: data.updatedAt,
         },
       },
       {
@@ -53,11 +59,23 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
   }
 
   async findById(id: string): Promise<JobApplication | null> {
-    const doc = await JobApplicationModel.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return null;
+    }
+
+    const doc = await JobApplicationModel.findOne({
+      _id: id,
+      isDeleted: false,
+    });
+
     return doc ? this.toDomain(doc) : null;
   }
 
   async findByJob(jobId: string): Promise<JobApplication[]> {
+    if (!this.isValidObjectId(jobId)) {
+      return [];
+    }
+
     const docs = await JobApplicationModel.find({
       jobId: new mongoose.Types.ObjectId(jobId),
       isDeleted: false,
@@ -71,6 +89,10 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
   async findApplicationsWithCandidateDetails(
     jobId: string,
   ): Promise<RecruiterApplicationListItem[]> {
+    if (!this.isValidObjectId(jobId)) {
+      return [];
+    }
+
     const docs = await JobApplicationModel.find({
       jobId: new mongoose.Types.ObjectId(jobId),
       isDeleted: false,
@@ -84,32 +106,41 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       });
 
     return docs
-      .filter((doc: any) => doc.candidateId)
-      .map((doc: any) => ({
-        applicationId: doc._id.toString(),
-        candidateId: doc.candidateId._id.toString(),
-        candidateName: doc.candidateId.fullName ?? "Unknown Candidate",
-        candidateEmail: doc.candidateId.email ?? "",
-        candidateProfileImage: doc.candidateId.profileImage,
-        resumeId: doc.resumeId.toString(),
-        status: doc.status,
-        aiScore: doc.aiAnalysis?.overallScore,
-        aiRecommendation: doc.aiAnalysis?.recommendation,
-        appliedAt: doc.appliedAt,
-        interview: doc.interview
-          ? {
-              scheduledAt: doc.interview.scheduledAt,
-              location: doc.interview.location,
-              meetingLink: doc.interview.meetingLink,
-              notes: doc.interview.notes,
-            }
-          : undefined,
-      }));
+      .filter((doc) => Boolean(doc.candidateId))
+      .map((doc) => {
+        const candidate = doc.candidateId as PopulatedCandidate;
+
+        return {
+          applicationId: doc._id.toString(),
+          candidateId: candidate._id.toString(),
+          candidateName: candidate.fullName ?? "Unknown Candidate",
+          candidateEmail: candidate.email ?? "",
+          candidateProfileImage: candidate.profileImage,
+          resumeId: doc.resumeId.toString(),
+          status: doc.status,
+          aiScore: doc.aiAnalysis?.overallScore,
+          aiRecommendation: doc.aiAnalysis
+            ?.recommendation as ApplicationRecommendation,
+          appliedAt: doc.appliedAt,
+          interview: doc.interview
+            ? {
+                scheduledAt: doc.interview.scheduledAt,
+                location: doc.interview.location,
+                meetingLink: doc.interview.meetingLink,
+                notes: doc.interview.notes,
+              }
+            : undefined,
+        };
+      });
   }
 
   async findApplicationDetailsForRecruiter(
     applicationId: string,
   ): Promise<RecruiterApplicationDetailsOutput | null> {
+    if (!this.isValidObjectId(applicationId)) {
+      return null;
+    }
+
     const doc = await JobApplicationModel.findOne({
       _id: new mongoose.Types.ObjectId(applicationId),
       isDeleted: false,
@@ -122,7 +153,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       return null;
     }
 
-    const candidate = doc.candidateId as any;
+    const candidate = doc.candidateId as PopulatedCandidate;
 
     return {
       applicationId: doc._id.toString(),
@@ -151,6 +182,10 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
   }
 
   async findByCandidate(candidateId: string): Promise<JobApplication[]> {
+    if (!this.isValidObjectId(candidateId)) {
+      return [];
+    }
+
     const docs = await JobApplicationModel.find({
       candidateId: new mongoose.Types.ObjectId(candidateId),
       isDeleted: false,
@@ -162,6 +197,9 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
   }
 
   async findByRecruiter(recruiterId: string): Promise<JobApplication[]> {
+    if (!this.isValidObjectId(recruiterId)) {
+      return [];
+    }
     const docs = await JobApplicationModel.find({
       recruiterId: new mongoose.Types.ObjectId(recruiterId),
       isDeleted: false,
@@ -176,6 +214,10 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
     candidateId: string,
     jobId: string,
   ): Promise<JobApplication | null> {
+    if (!this.isValidObjectId(candidateId) || !this.isValidObjectId(jobId)) {
+      return null;
+    }
+
     const doc = await JobApplicationModel.findOne({
       candidateId: new mongoose.Types.ObjectId(candidateId),
       jobId: new mongoose.Types.ObjectId(jobId),
@@ -248,5 +290,9 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       summary: aiAnalysis.summary,
       analyzedAt: aiAnalysis.analyzedAt,
     };
+  }
+
+  private isValidObjectId(id: string): boolean {
+    return mongoose.Types.ObjectId.isValid(id);
   }
 }

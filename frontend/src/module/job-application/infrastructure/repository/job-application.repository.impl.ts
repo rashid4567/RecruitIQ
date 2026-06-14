@@ -23,9 +23,17 @@ interface GetMyApplicationsResponse {
   data: JobApplicationResponseDTO[];
 }
 
-export class ApiJobApplicationRepository
-  implements JobApplicationRepository
-{
+interface GetApplicationsByJobResponse {
+  success: boolean;
+  data: RecruiterApplicationResponseDTO[];
+}
+
+interface GetRecruiterApplicationDetailsResponse {
+  success: boolean;
+  data: RecruiterApplicationDetails;
+}
+
+export class ApiJobApplicationRepository implements JobApplicationRepository {
   async apply(data: ApplyJobDTO): Promise<JobApplication> {
     const response = await api.post(
       `/candidate/application/${data.jobId}/apply`,
@@ -61,12 +69,8 @@ export class ApiJobApplicationRepository
     );
   }
 
-  async getById(
-    applicationId: string,
-  ): Promise<ApplicationDetailDTO> {
-    const response = await api.get(
-      `/candidate/application/${applicationId}`,
-    );
+  async getById(applicationId: string): Promise<ApplicationDetailDTO> {
+    const response = await api.get(`/candidate/application/${applicationId}`);
 
     const data = response.data.data;
 
@@ -75,9 +79,7 @@ export class ApiJobApplicationRepository
 
       job: new Job({
         ...data.job,
-        postedOn: data.job.postedOn
-          ? new Date(data.job.postedOn)
-          : undefined,
+        postedOn: data.job.postedOn ? new Date(data.job.postedOn) : undefined,
         expiresAt: data.job.expiresAt
           ? new Date(data.job.expiresAt)
           : undefined,
@@ -85,44 +87,36 @@ export class ApiJobApplicationRepository
     };
   }
 
-  async getApplicationsByJob(
-    jobId: string,
-  ): Promise<RecruiterApplication[]> {
-    const response = await api.get(
+  async getApplicationsByJob(jobId: string): Promise<RecruiterApplication[]> {
+    const response = await api.get<GetApplicationsByJobResponse>(
       `/recruiter/jobs/${jobId}/applications`,
     );
 
-    return response.data.data.map(
-      (item: RecruiterApplicationResponseDTO) => ({
-        applicationId: item.applicationId,
-        candidateId: item.candidateId,
-        candidateName: item.candidateName,
-        candidateEmail: item.candidateEmail,
-        candidateProfileImage: item.candidateProfileImage,
-        resumeId: item.resumeId,
-        status: item.status,
-
-        aiScore: item.aiScore,
-        aiRecommendation: item.aiRecommendation,
-
-        appliedAt: item.appliedAt,
-      }),
-    );
+    return response.data.data.map((item: RecruiterApplicationResponseDTO) => ({
+      applicationId: item.applicationId,
+      candidateId: item.candidateId,
+      candidateName: item.candidateName,
+      candidateEmail: item.candidateEmail,
+      candidateProfileImage: item.candidateProfileImage,
+      resumeId: item.resumeId,
+      status: item.status,
+      aiScore: item.aiScore,
+      aiRecommendation: item.aiRecommendation,
+      appliedAt: item.appliedAt,
+    }));
   }
 
   async getApplicationDetailsForRecruiter(
     applicationId: string,
   ): Promise<RecruiterApplicationDetails> {
-    const response = await api.get(
+    const response = await api.get<GetRecruiterApplicationDetailsResponse>(
       `/recruiter/jobs/applications/${applicationId}`,
     );
 
     return response.data.data;
   }
 
-  async updateStatus(
-    payload: UpdateApplicationStatusDTO,
-  ): Promise<void> {
+  async updateStatus(payload: UpdateApplicationStatusDTO): Promise<void> {
     await api.patch(
       `/recruiter/jobs/applications/${payload.applicationId}/status`,
       {
@@ -133,8 +127,6 @@ export class ApiJobApplicationRepository
   }
 
   async withdraw(applicationId: string): Promise<void> {
-    await api.patch(
-      `/candidate/application/${applicationId}/withdraw`,
-    );
+    await api.patch(`/candidate/application/${applicationId}/withdraw`);
   }
 }

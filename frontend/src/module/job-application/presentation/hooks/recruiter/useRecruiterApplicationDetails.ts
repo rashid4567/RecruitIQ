@@ -1,33 +1,39 @@
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GetRecruiterApplicationDetailsUC } from "../../di/application.di";
 import type { RecruiterApplicationDetails } from "@/module/job-application/domain/dto/RecruiterApplicationDetails";
 
-export function useRecruiterApplicationDetails() {
-  const [loading, setLoading] = useState(false);
+interface UseRecruiterApplicationDetailsReturn {
+  loading: boolean;
+  error: string | null;
+  application: RecruiterApplicationDetails | null;
+  fetchApplicationDetails: (
+    applicationId: string,
+  ) => Promise<RecruiterApplicationDetails>;
+  clearApplication: () => void;
+}
 
+export function useRecruiterApplicationDetails(
+  applicationId?: string,
+): UseRecruiterApplicationDetailsReturn {
+  const [loading, setLoading] = useState(false);
   const [application, setApplication] =
     useState<RecruiterApplicationDetails | null>(null);
-
   const [error, setError] = useState<string | null>(null);
 
   const fetchApplicationDetails = useCallback(
-    async (applicationId: string): Promise<RecruiterApplicationDetails> => {
-      setLoading(true);
-      setError(null);
-
+    async (id: string): Promise<RecruiterApplicationDetails> => {
       try {
-        const result =
-          await GetRecruiterApplicationDetailsUC.execute(applicationId);
+        setLoading(true);
+        setError(null);
 
+        const result = await GetRecruiterApplicationDetailsUC.execute(id);
         setApplication(result);
-
         return result;
       } catch (err) {
         const message =
           err instanceof Error
             ? err.message
             : "Failed to fetch application details";
-
         setError(message);
         throw err;
       } finally {
@@ -36,6 +42,13 @@ export function useRecruiterApplicationDetails() {
     },
     [],
   );
+
+  useEffect(() => {
+    if (!applicationId) {
+      return;
+    }
+    void fetchApplicationDetails(applicationId);
+  }, [applicationId, fetchApplicationDetails]);
 
   const clearApplication = useCallback(() => {
     setApplication(null);

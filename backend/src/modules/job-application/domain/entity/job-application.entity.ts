@@ -134,7 +134,7 @@ export class JobApplication {
     this.touch();
   }
 
- updateAIAnalysis(
+updateAIAnalysis(
   analysis: ApplicationAIAnalysis,
 ): void {
   if (this.props.aiAnalysis) {
@@ -142,10 +142,34 @@ export class JobApplication {
       APPLICATION_ERRORS.ANALYSIS_ALREADY_EXISTS,
     );
   }
-
+  this.validateAIAnalysis(analysis);
   this.props.aiAnalysis = analysis;
   this.touch();
 }
+
+private validateAIAnalysis(
+  analysis: ApplicationAIAnalysis,
+): void {
+  const scores = [
+    analysis.overallScore,
+    analysis.requiredSkillsScore,
+    analysis.preferredSkillsScore,
+    analysis.experienceScore,
+    analysis.requirementsScore,
+    analysis.educationScore,
+  ];
+
+  const hasInvalidScore = scores.some(
+    (score) => score < 0 || score > 100,
+  );
+
+  if (hasInvalidScore) {
+    throw new DomainError(
+      APPLICATION_ERRORS.INVALID_ANALYSIS_SCORE,
+    );
+  }
+}
+
 
   reject(reason: string): void {
     this.ensureMutable();

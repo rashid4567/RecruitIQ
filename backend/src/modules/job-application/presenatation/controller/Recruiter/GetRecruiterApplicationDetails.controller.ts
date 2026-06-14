@@ -39,8 +39,8 @@ export class GetRecruiterApplicationDetailsController {
       console.log("application :", application);
 
       return res.status(HTTP_STATUS.OK).json({
-        success: false,
-        message: "Applicaton Details fetched succesfully",
+        success: true,
+        message: "Application details fetched successfully",
         data: application,
       });
     } catch (err) {

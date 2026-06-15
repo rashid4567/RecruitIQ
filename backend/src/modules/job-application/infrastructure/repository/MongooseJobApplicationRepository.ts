@@ -4,6 +4,7 @@ import {
   ApplicationAIAnalysis as DomainApplicationAIAnalysis,
   ApplicationRecommendation,
   JobApplication,
+  ApplicationAnalysisStatus,
 } from "../../domain/entity/job-application.entity";
 
 import {
@@ -44,6 +45,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
           status: data.status,
           interview: data.interview,
           rejectionReason: data.rejectionReason,
+          analysisStatus: data.analysisStatus,
           aiAnalysis: data.aiAnalysis,
         },
       },
@@ -121,6 +123,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
           aiScore: doc.aiAnalysis?.overallScore,
           aiRecommendation: doc.aiAnalysis
             ?.recommendation as ApplicationRecommendation,
+          analysisStatus: doc.analysisStatus as ApplicationAnalysisStatus,
           appliedAt: doc.appliedAt,
           interview: doc.interview
             ? {
@@ -166,6 +169,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       candidateProfileImage: candidate.profileImage,
       coverLetter: doc.coverLetter,
       status: doc.status,
+      analysisStatus: doc.analysisStatus as ApplicationAnalysisStatus,
       aiAnalysis: this.mapAIAnalysis(doc.aiAnalysis),
       interview: doc.interview
         ? {
@@ -227,6 +231,14 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
     return doc ? this.toDomain(doc) : null;
   }
 
+  async findByResumeId(resumeId: string): Promise<JobApplication[]> {
+    const docs = await JobApplicationModel.find({
+      resumeId: new mongoose.Types.ObjectId(resumeId),
+      isDeleted: false,
+    });
+    return docs.map((doc) => this.toDomain(doc));
+  }
+
   private toDomain(doc: JobApplicationDocument): JobApplication {
     return JobApplication.rehydrate({
       id: doc._id.toString(),
@@ -245,6 +257,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
             notes: doc.interview.notes,
           }
         : undefined,
+      analysisStatus: doc.analysisStatus as ApplicationAnalysisStatus,
       rejectionReason: doc.rejectionReason,
       appliedAt: doc.appliedAt,
       updatedAt: doc.updatedAt,
@@ -261,6 +274,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       resumeId: new mongoose.Types.ObjectId(data.resumeId),
       coverLetter: data.coverLetter,
       status: data.status,
+      analysisStatus: data.analysisStatus,
       interview: data.interview,
       rejectionReason: data.rejectionReason,
       aiAnalysis: data.aiAnalysis,

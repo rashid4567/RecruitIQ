@@ -20,6 +20,16 @@ export const ApplicationRecommendation = {
 export type ApplicationRecommendation =
   (typeof ApplicationRecommendation)[keyof typeof ApplicationRecommendation];
 
+export const ApplicationAnalysisStatus = {
+  PENDING: "PENDING",
+  PROCESSING: "PROCESSING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+} as const;
+
+export type ApplicationAnalysisStatus =
+  (typeof ApplicationAnalysisStatus)[keyof typeof ApplicationAnalysisStatus];
+
 export interface InterviewInfo {
   scheduledAt: string;
   location?: string;
@@ -52,6 +62,7 @@ export class JobApplication {
   private readonly status: ApplicationStatus;
   private readonly interview?: InterviewInfo;
   private readonly rejectionReason?: string;
+  private readonly analysisStatus: ApplicationAnalysisStatus;
   private readonly aiAnalysis?: ApplicationAIAnalysis;
   private readonly appliedAt: string;
   private readonly updatedAt: string;
@@ -63,6 +74,7 @@ export class JobApplication {
     recruiterId: string,
     resumeId: string,
     status: ApplicationStatus,
+    analysisStatus: ApplicationAnalysisStatus,
     appliedAt: string,
     updatedAt: string,
     coverLetter?: string,
@@ -75,13 +87,14 @@ export class JobApplication {
     this.candidateId = candidateId;
     this.recruiterId = recruiterId;
     this.resumeId = resumeId;
-    this.coverLetter = coverLetter;
     this.status = status;
+    this.analysisStatus = analysisStatus;
+    this.appliedAt = appliedAt;
+    this.updatedAt = updatedAt;
+    this.coverLetter = coverLetter;
     this.interview = interview;
     this.rejectionReason = rejectionReason;
     this.aiAnalysis = aiAnalysis;
-    this.appliedAt = appliedAt;
-    this.updatedAt = updatedAt;
   }
 
   static create(props: {
@@ -91,6 +104,7 @@ export class JobApplication {
     recruiterId: string;
     resumeId: string;
     status: ApplicationStatus;
+    analysisStatus: ApplicationAnalysisStatus;
     appliedAt: string;
     updatedAt: string;
     coverLetter?: string;
@@ -105,6 +119,7 @@ export class JobApplication {
       props.recruiterId,
       props.resumeId,
       props.status,
+      props.analysisStatus,
       props.appliedAt,
       props.updatedAt,
       props.coverLetter,
@@ -149,6 +164,9 @@ export class JobApplication {
   getRejectionReason(): string | undefined {
     return this.rejectionReason;
   }
+  getAnalysisStatus(): ApplicationAnalysisStatus {
+    return this.analysisStatus;
+  }
 
   getAIAnalysis(): ApplicationAIAnalysis | undefined {
     return this.aiAnalysis;
@@ -178,6 +196,22 @@ export class JobApplication {
     return this.status === ApplicationStatus.SHORTLISTED;
   }
 
+  isAnalysisPending(): boolean {
+    return this.analysisStatus === ApplicationAnalysisStatus.PENDING;
+  }
+
+  isAnalysisProcessing(): boolean {
+    return this.analysisStatus === ApplicationAnalysisStatus.PROCESSING;
+  }
+
+  isAnalysisCompleted(): boolean {
+    return this.analysisStatus === ApplicationAnalysisStatus.COMPLETED;
+  }
+
+  isAnalysisFailed(): boolean {
+    return this.analysisStatus === ApplicationAnalysisStatus.FAILED;
+  }
+
   isInterviewScheduled(): boolean {
     return this.status === ApplicationStatus.INTERVIEW_SCHEDULED;
   }
@@ -205,10 +239,10 @@ export class JobApplication {
       status: this.status,
       interview: this.interview,
       rejectionReason: this.rejectionReason,
+      analysisStatus: this.analysisStatus,
       aiAnalysis: this.aiAnalysis,
       appliedAt: this.appliedAt,
       updatedAt: this.updatedAt,
     };
   }
 }
- 

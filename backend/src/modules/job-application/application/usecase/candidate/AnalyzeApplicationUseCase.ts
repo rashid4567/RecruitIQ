@@ -1,11 +1,11 @@
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-
+import { ResumeParseStatus } from "../../../../resume/domain/entity/resume.entity";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
-
 import { JobApplication } from "../../../domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
+
 import {
   ApplicationAnalysis,
   ApplicationAnalysisService,
@@ -21,16 +21,41 @@ export class AnalyzeApplicationUseCase {
 
   async execute(applicationId: string): Promise<void> {
     const application = await this.getApplication(applicationId);
-    const job = await this.getJob(application.jobId);
-    const resume = await this.getResume(application.resumeId);
-    const analysis = await this.analysisService.analyze(
-      job,
-      resume,
-      application.coverLetter,
-    );
 
-    this.updateApplicationAnalysis(application, analysis);
-    await this.applicationRepo.save(application);
+    if (
+      application.isAnalysisCompleted() ||
+      application.isAnalysisProcessing() ||
+      application.isAnalysisFailed()
+    ) {
+      return;
+    }
+
+    const resume = await this.getResume(application.resumeId);
+    if (resume.getParseStatus() !== ResumeParseStatus.COMPLETED) {
+      return;
+    }
+
+    try {
+      application.markAnalysisProcessing();
+      await this.applicationRepo.save(application);
+      const job = await this.getJob(application.jobId);
+      const analysis = await this.analysisService.analyze(
+        job,
+        resume,
+        application.coverLetter,
+      );
+
+      this.updateApplicationAnalysis(application, analysis);
+      await this.applicationRepo.save(application);
+    } catch (error) {
+      try {
+        application.markAnalysisFailed();
+        await this.applicationRepo.save(application);
+      } catch (saveError) {
+        console.error("Failed to update analysis status", saveError);
+      }
+      throw error;
+    }
   }
 
   private async getApplication(applicationId: string): Promise<JobApplication> {
@@ -51,7 +76,6 @@ export class AnalyzeApplicationUseCase {
 
   private async getResume(resumeId: string) {
     const resume = await this.resumeRepository.findById(resumeId);
-
     if (!resume) {
       throw new ApplicationError(ERROR_CODES.RESUME_NOT_FOUND);
     }

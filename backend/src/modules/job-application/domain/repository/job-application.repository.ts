@@ -1,5 +1,6 @@
 import {
   ApplicationAIAnalysis,
+  ApplicationAnalysisStatus,
   ApplicationRecommendation,
   JobApplication,
 } from "../entity/job-application.entity";
@@ -33,6 +34,7 @@ export interface RecruiterApplicationDetailsOutput {
   candidateProfileImage?: string;
   coverLetter?: string;
   status: ApplicationStatus;
+  analysisStatus: ApplicationAnalysisStatus;
   interview?: InterviewInfo;
   rejectionReason?: string;
   aiAnalysis?: ApplicationAIAnalysis;
@@ -56,4 +58,5 @@ export interface JobApplicationRepository {
   findApplicationDetailsForRecruiter(
     applicationId: string,
   ): Promise<RecruiterApplicationDetailsOutput | null>;
+  findByResumeId(resumeId: string): Promise<JobApplication[]>;
 }

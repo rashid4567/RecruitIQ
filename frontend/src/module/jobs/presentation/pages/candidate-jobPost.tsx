@@ -53,17 +53,22 @@ export default function CareerPage() {
 
   const handleApplyNow = useCallback(async () => {
     if (!selectedJob) return;
+
     try {
       const resume = await getMyResumeUC.execute();
+
       if (!resume) {
         alert("Please upload a resume before applying.");
         return;
       }
+
       const payload: ApplyJobDTO = {
         jobId: selectedJob.id,
         resumeId: resume.getId(),
       };
+
       const result = await apply(payload);
+
       if (result) {
         setApplication(result);
         setShowJobDetail(false);
@@ -71,6 +76,8 @@ export default function CareerPage() {
       }
     } catch (error) {
       console.error("Failed to apply:", error);
+
+      alert("Failed to apply for this job. Please try again.");
     }
   }, [selectedJob, apply]);
 

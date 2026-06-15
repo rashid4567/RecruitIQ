@@ -1,4 +1,8 @@
-import { ParsedResumeData, Resume } from "../../domain/entity/resume.entity";
+import {
+  ParsedResumeData,
+  Resume,
+  ResumeParseStatus,
+} from "../../domain/entity/resume.entity";
 import { ResumeRepository } from "../../domain/repository/resume.repository";
 import { ResumeModel } from "../mongoose/resume.model";
 
@@ -9,6 +13,7 @@ export class MongooseResumeRepository implements ResumeRepository {
       fileName: resume.getFileName(),
       fileKey: resume.getFileKey(),
       uploadedAt: resume.getUploadedAt(),
+      parseStatus: resume.getParseStatus(),
       parsedData: resume.getParsedData(),
     });
 
@@ -18,6 +23,7 @@ export class MongooseResumeRepository implements ResumeRepository {
       fileName: doc.fileName,
       fileKey: doc.fileKey,
       uploadedAt: doc.uploadedAt,
+      parseStatus: doc.parseStatus,
       parsedData: doc.parsedData ?? undefined,
     });
   }
@@ -30,6 +36,7 @@ export class MongooseResumeRepository implements ResumeRepository {
           fileName: resume.getFileName(),
           fileKey: resume.getFileKey(),
           uploadedAt: resume.getUploadedAt(),
+          parseStatus: resume.getParseStatus(),
           parsedData: resume.getParsedData(),
         },
       },
@@ -49,6 +56,7 @@ export class MongooseResumeRepository implements ResumeRepository {
       fileName: doc.fileName,
       fileKey: doc.fileKey,
       uploadedAt: doc.uploadedAt,
+      parseStatus: doc.parseStatus,
       parsedData: doc.parsedData ?? undefined,
     });
   }
@@ -68,22 +76,21 @@ export class MongooseResumeRepository implements ResumeRepository {
       fileName: doc.fileName,
       fileKey: doc.fileKey,
       uploadedAt: doc.uploadedAt,
+      parseStatus: doc.parseStatus,
       parsedData: doc.parsedData ?? undefined,
     });
   }
 
-  async updateParsedData(resumeId: string, parsedData: ParsedResumeData): Promise<void> {
-    await ResumeModel.findByIdAndUpdate(
-      resumeId,
-      {
-        $set : {
-          parsedData,
-        },
+  async updateParsedData(
+    resumeId: string,
+    parsedData: ParsedResumeData,
+  ): Promise<void> {
+    await ResumeModel.findByIdAndUpdate(resumeId, {
+      $set: {
+        parsedData,
+        parseStatus: ResumeParseStatus.COMPLETED,
       },
-      {
-        runValidators :true,
-      }
-    )
+    });
   }
 
   async findById(id: string): Promise<Resume | null> {
@@ -99,10 +106,26 @@ export class MongooseResumeRepository implements ResumeRepository {
       fileName: doc.fileName,
       fileKey: doc.fileKey,
       uploadedAt: doc.uploadedAt,
+      parseStatus: doc.parseStatus,
       parsedData: doc.parsedData ?? undefined,
     });
   }
-
+  async updateParseStatus(
+    resumeId: string,
+    status: ResumeParseStatus,
+  ): Promise<void> {
+    await ResumeModel.findByIdAndUpdate(
+      resumeId,
+      {
+        $set: {
+          parseStatus: status,
+        },
+      },
+      {
+        runValidators: true,
+      },
+    );
+  }
   async delete(id: string): Promise<void> {
     await ResumeModel.findByIdAndDelete(id);
   }

@@ -10,6 +10,16 @@ export enum ApplicationStatus {
   WITHDRAWN = "WITHDRAWN",
 }
 
+export const ApplicationAnalysisStatus = {
+  PENDING: "PENDING",
+  PROCESSING: "PROCESSING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+} as const;
+
+export type ApplicationAnalysisStatus =
+  (typeof ApplicationAnalysisStatus)[keyof typeof ApplicationAnalysisStatus];
+
 export interface InterviewInfo {
   scheduledAt: Date;
   location?: string;
@@ -37,7 +47,6 @@ export interface ApplicationAIAnalysis {
   recommendation: ApplicationRecommendation;
   summary: string;
   analyzedAt: Date;
- 
 }
 
 export interface JobApplicationProps {
@@ -50,6 +59,7 @@ export interface JobApplicationProps {
   status: ApplicationStatus;
   interview?: InterviewInfo;
   rejectionReason?: string;
+  analysisStatus: ApplicationAnalysisStatus;
   aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: Date;
   updatedAt: Date;
@@ -59,7 +69,6 @@ export class JobApplication {
   private constructor(private props: JobApplicationProps) {
     this.validate();
   }
-
   static apply(
     props: Omit<
       JobApplicationProps,
@@ -67,6 +76,7 @@ export class JobApplication {
       | "status"
       | "interview"
       | "rejectionReason"
+      | "analysisStatus"
       | "aiAnalysis"
       | "appliedAt"
       | "updatedAt"
@@ -75,6 +85,7 @@ export class JobApplication {
     return new JobApplication({
       ...props,
       status: ApplicationStatus.APPLIED,
+      analysisStatus: ApplicationAnalysisStatus.PENDING,
       interview: undefined,
       rejectionReason: undefined,
       aiAnalysis: undefined,
@@ -82,140 +93,131 @@ export class JobApplication {
       updatedAt: new Date(),
     });
   }
-
   static rehydrate(props: JobApplicationProps): JobApplication {
     return new JobApplication(props);
   }
-
   private validate(): void {
     if (!this.props.jobId?.trim()) {
       throw new DomainError(APPLICATION_ERRORS.JOB_REQUIRED);
     }
-
     if (!this.props.candidateId?.trim()) {
       throw new DomainError(APPLICATION_ERRORS.CANDIDATE_REQUIRED);
     }
-
     if (!this.props.recruiterId?.trim()) {
       throw new DomainError(APPLICATION_ERRORS.RECRUITER_REQUIRED);
     }
-
     if (!this.props.resumeId?.trim()) {
       throw new DomainError(APPLICATION_ERRORS.RESUME_REQUIRED);
     }
   }
-
   private touch(): void {
     this.props.updatedAt = new Date();
   }
-
   private ensureMutable(): void {
     if (this.props.status === ApplicationStatus.WITHDRAWN) {
       throw new DomainError(APPLICATION_ERRORS.APPLICATION_WITHDRAWN);
     }
-
     if (this.props.status === ApplicationStatus.SELECTED) {
       throw new DomainError(APPLICATION_ERRORS.CANDIDATE_SELECTED);
     }
-
     if (this.props.status === ApplicationStatus.REJECTED) {
       throw new DomainError(APPLICATION_ERRORS.CANDIDATE_REJECTED);
     }
   }
-
   shortlist(): void {
     if (this.props.status !== ApplicationStatus.APPLIED) {
       throw new DomainError(APPLICATION_ERRORS.INVALID_APPLICATION_STATUS);
     }
-
     this.props.status = ApplicationStatus.SHORTLISTED;
     this.props.rejectionReason = undefined;
+    this.touch();
+  }
+  updateAIAnalysis(analysis: ApplicationAIAnalysis): void {
+    if (this.props.aiAnalysis) {
+      throw new DomainError(APPLICATION_ERRORS.ANALYSIS_ALREADY_EXISTS);
+    }
 
+    if (this.props.analysisStatus !== ApplicationAnalysisStatus.PROCESSING) {
+      throw new DomainError(APPLICATION_ERRORS.INVALID_ANALYSIS_STATUS);
+    }
+    this.validateAIAnalysis(analysis);
+    this.props.aiAnalysis = analysis;
+    this.props.analysisStatus = ApplicationAnalysisStatus.COMPLETED;
+    this.touch();
+  }
+  private validateAIAnalysis(analysis: ApplicationAIAnalysis): void {
+    const scores = [
+      analysis.overallScore,
+      analysis.requiredSkillsScore,
+      analysis.preferredSkillsScore,
+      analysis.experienceScore,
+      analysis.requirementsScore,
+      analysis.educationScore,
+    ];
+    const hasInvalidScore = scores.some((score) => score < 0 || score > 100);
+    if (hasInvalidScore) {
+      throw new DomainError(APPLICATION_ERRORS.INVALID_ANALYSIS_SCORE);
+    }
+  }
+  markAnalysisFailed(): void {
+    if (this.props.analysisStatus === ApplicationAnalysisStatus.COMPLETED) {
+      return;
+    }
+    this.props.analysisStatus = ApplicationAnalysisStatus.FAILED;
     this.touch();
   }
 
-updateAIAnalysis(
-  analysis: ApplicationAIAnalysis,
-): void {
-  if (this.props.aiAnalysis) {
-    throw new DomainError(
-      APPLICATION_ERRORS.ANALYSIS_ALREADY_EXISTS,
-    );
+  markAnalysisProcessing(): void {
+    if (this.props.analysisStatus !== ApplicationAnalysisStatus.PENDING) {
+      throw new DomainError(APPLICATION_ERRORS.INVALID_ANALYSIS_STATUS);
+    }
+    this.props.analysisStatus = ApplicationAnalysisStatus.PROCESSING;
+    this.touch();
   }
-  this.validateAIAnalysis(analysis);
-  this.props.aiAnalysis = analysis;
-  this.touch();
-}
 
-private validateAIAnalysis(
-  analysis: ApplicationAIAnalysis,
-): void {
-  const scores = [
-    analysis.overallScore,
-    analysis.requiredSkillsScore,
-    analysis.preferredSkillsScore,
-    analysis.experienceScore,
-    analysis.requirementsScore,
-    analysis.educationScore,
-  ];
+  markAnalysisPending(): void {
+    if (this.props.analysisStatus === ApplicationAnalysisStatus.COMPLETED) {
+      return;
+    }
 
-  const hasInvalidScore = scores.some(
-    (score) => score < 0 || score > 100,
-  );
+    this.props.analysisStatus = ApplicationAnalysisStatus.PENDING;
 
-  if (hasInvalidScore) {
-    throw new DomainError(
-      APPLICATION_ERRORS.INVALID_ANALYSIS_SCORE,
-    );
+    this.touch();
   }
-}
-
-
   reject(reason: string): void {
     this.ensureMutable();
-
     if (!reason?.trim()) {
       throw new DomainError(APPLICATION_ERRORS.REJECTION_REASON_REQUIRED);
     }
-
     this.props.status = ApplicationStatus.REJECTED;
     this.props.rejectionReason = reason.trim();
     this.props.interview = undefined;
-
     this.touch();
   }
-
   scheduleInterview(interview: InterviewInfo): void {
     this.ensureMutable();
-
     if (
       this.props.status !== ApplicationStatus.APPLIED &&
       this.props.status !== ApplicationStatus.SHORTLISTED
     ) {
       throw new DomainError(APPLICATION_ERRORS.INVALID_APPLICATION_STATUS);
     }
-
     if (interview.scheduledAt < new Date()) {
       throw new DomainError(APPLICATION_ERRORS.INVALID_INTERVIEW_DATE);
     }
-
     const location = interview.location?.trim();
     const meetingLink = interview.meetingLink?.trim();
-
     if (!location && !meetingLink) {
       throw new DomainError(APPLICATION_ERRORS.INTERVIEW_LOCATION_REQUIRED);
     }
-
     this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
     this.props.interview = {
       ...interview,
       location,
       meetingLink,
     };
-
     this.touch();
   }
-
   rescheduleInterview(interview: InterviewInfo): void {
     if (
       this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED ||
@@ -223,28 +225,21 @@ private validateAIAnalysis(
     ) {
       throw new DomainError(APPLICATION_ERRORS.INTERVIEW_NOT_FOUND);
     }
-
     if (interview.scheduledAt < new Date()) {
       throw new DomainError(APPLICATION_ERRORS.INVALID_INTERVIEW_DATE);
     }
-
     this.props.interview = interview;
-
     this.touch();
   }
-
   select(): void {
     if (this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED) {
       throw new DomainError(
         APPLICATION_ERRORS.INTERVIEW_REQUIRED_BEFORE_SELECTION,
       );
     }
-
     this.props.status = ApplicationStatus.SELECTED;
-
     this.touch();
   }
-
   withdraw(): void {
     if (
       this.props.status === ApplicationStatus.SELECTED ||
@@ -253,12 +248,9 @@ private validateAIAnalysis(
     ) {
       throw new DomainError(APPLICATION_ERRORS.CANNOT_WITHDRAW);
     }
-
     this.props.status = ApplicationStatus.WITHDRAWN;
-
     this.touch();
   }
-
   canCandidateWithdraw(): boolean {
     return (
       this.props.status !== ApplicationStatus.SELECTED &&
@@ -266,22 +258,18 @@ private validateAIAnalysis(
       this.props.status !== ApplicationStatus.WITHDRAWN
     );
   }
-
   canRecruiterShortlist(): boolean {
     return this.props.status === ApplicationStatus.APPLIED;
   }
-
   canScheduleInterview(): boolean {
     return (
       this.props.status === ApplicationStatus.APPLIED ||
       this.props.status === ApplicationStatus.SHORTLISTED
     );
   }
-
   canSelect(): boolean {
     return this.props.status === ApplicationStatus.INTERVIEW_SCHEDULED;
   }
-
   canReject(): boolean {
     return (
       this.props.status !== ApplicationStatus.REJECTED &&
@@ -289,87 +277,81 @@ private validateAIAnalysis(
       this.props.status !== ApplicationStatus.WITHDRAWN
     );
   }
-
   canRescheduleInterview(): boolean {
     return this.props.status === ApplicationStatus.INTERVIEW_SCHEDULED;
   }
-
   isPending(): boolean {
     return this.props.status === ApplicationStatus.APPLIED;
   }
-
   isInterviewScheduled(): boolean {
     return this.props.status === ApplicationStatus.INTERVIEW_SCHEDULED;
   }
-
   isRejected(): boolean {
     return this.props.status === ApplicationStatus.REJECTED;
   }
-
   isSelected(): boolean {
     return this.props.status === ApplicationStatus.SELECTED;
   }
-
   isWithdrawn(): boolean {
     return this.props.status === ApplicationStatus.WITHDRAWN;
   }
-
+  isAnalysisPending(): boolean {
+    return this.props.analysisStatus === ApplicationAnalysisStatus.PENDING;
+  }
+  isAnalysisProcessing(): boolean {
+    return this.props.analysisStatus === ApplicationAnalysisStatus.PROCESSING;
+  }
+  isAnalysisCompleted(): boolean {
+    return this.props.analysisStatus === ApplicationAnalysisStatus.COMPLETED;
+  }
+  isAnalysisFailed(): boolean {
+    return this.props.analysisStatus === ApplicationAnalysisStatus.FAILED;
+  }
   belongsToCandidate(candidateId: string): boolean {
     return this.props.candidateId === candidateId;
   }
-
   belongsToRecruiter(recruiterId: string): boolean {
     return this.props.recruiterId === recruiterId;
   }
-
   toObject(): JobApplicationProps {
     return { ...this.props };
   }
-
   get id() {
     return this.props.id;
   }
-
   get jobId() {
     return this.props.jobId;
   }
-
   get candidateId() {
     return this.props.candidateId;
   }
-
   get recruiterId() {
     return this.props.recruiterId;
   }
-
   get resumeId() {
     return this.props.resumeId;
   }
-
   get coverLetter() {
     return this.props.coverLetter;
   }
-
   get status() {
     return this.props.status;
   }
-
   get interview() {
     return this.props.interview;
   }
-
   get rejectionReason() {
     return this.props.rejectionReason;
   }
-
+  get analysisStatus(): ApplicationAnalysisStatus {
+    return this.props.analysisStatus;
+  }
   get appliedAt() {
     return this.props.appliedAt;
   }
-
   get updatedAt() {
     return this.props.updatedAt;
   }
-
   get aiAnalysis() {
     return this.props.aiAnalysis;
   }

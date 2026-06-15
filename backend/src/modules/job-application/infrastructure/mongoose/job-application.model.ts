@@ -9,6 +9,13 @@ export enum ApplicationStatus {
   WITHDRAWN = "WITHDRAWN",
 }
 
+export enum ApplicationAnalysisStatus {
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+}
+
 export interface InterviewDetails {
   scheduledAt: Date;
   location?: string;
@@ -44,13 +51,13 @@ export interface JobApplicationDocument extends Document {
   status: ApplicationStatus;
   interview?: InterviewDetails;
   rejectionReason?: string;
+  analysisStatus: ApplicationAnalysisStatus;
   aiAnalysis?: ApplicationAIAnalysis;
   isDeleted: boolean;
   appliedAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
-
 const AIAnalysisSchema = new Schema<ApplicationAIAnalysis>(
   {
     overallScore: {
@@ -197,6 +204,13 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
       type: String,
       trim: true,
       maxlength: 1000,
+    },
+
+    analysisStatus: {
+      type: String,
+      enum: Object.values(ApplicationAnalysisStatus),
+      default: ApplicationAnalysisStatus.PENDING,
+      required: true,
     },
     aiAnalysis: {
       type: AIAnalysisSchema,

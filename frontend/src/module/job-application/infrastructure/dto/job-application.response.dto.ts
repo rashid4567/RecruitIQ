@@ -1,5 +1,6 @@
 import type {
   ApplicationAIAnalysis,
+  ApplicationAnalysisStatus,
   ApplicationRecommendation,
   ApplicationStatus,
   InterviewInfo,
@@ -13,6 +14,7 @@ export interface JobApplicationResponseDTO {
   resumeId: string;
   coverLetter?: string;
   status: ApplicationStatus;
+  analysisStatus: ApplicationAnalysisStatus;
   interview?: InterviewInfo;
   rejectionReason?: string;
   aiAnalysis?: ApplicationAIAnalysis;
@@ -28,6 +30,7 @@ export interface RecruiterApplicationResponseDTO {
   candidateProfileImage?: string;
   resumeId: string;
   status: ApplicationStatus;
+  analysisStatus : ApplicationAnalysisStatus;
   aiScore?: number;
   aiRecommendation?: ApplicationRecommendation;
   appliedAt: string;

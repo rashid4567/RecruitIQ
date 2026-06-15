@@ -26,14 +26,14 @@ import { GetApplicationsByJobController } from "../controller/Recruiter/GetAppli
 import { GetRecruiterApplicationDetailsController } from "../controller/Recruiter/GetRecruiterApplicationDetails.controller";
 import { UpdateApplicationStatusController } from "../controller/Recruiter/updateApplication.controller";
 
-const applicationRepo: JobApplicationRepository =
+export const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
 const jobpostRepo: JobRepository = new MongooseJobRepository();
 const resumeRepo: ResumeRepository = new MongooseResumeRepository();
 const userRepo: UserRepository = new MongooseUserRepository();
 const analysisService = new OpenAIApplicationAnalysisService(openai);
 
-const AnalyzeApplicationUC = new AnalyzeApplicationUseCase(
+export const AnalyzeApplicationUC = new AnalyzeApplicationUseCase(
   applicationRepo,
   jobpostRepo,
   resumeRepo,

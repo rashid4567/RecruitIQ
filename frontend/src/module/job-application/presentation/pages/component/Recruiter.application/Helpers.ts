@@ -4,19 +4,7 @@ export function getInitials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-export function fakeAiScore(id: string): number {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++)
-    hash = (hash * 31 + id.charCodeAt(i)) & 0xffffffff;
-  return Math.abs(hash % 100) + 1;
-}
 
-export function fakeMatchPercent(id: string): number {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++)
-    hash = (hash * 17 + id.charCodeAt(i)) & 0xffffffff;
-  return Math.abs(hash % 100) + 1;
-}
 
 export function aiScoreBarColor(score: number): string {
   if (score < 40) return "bg-red-400";

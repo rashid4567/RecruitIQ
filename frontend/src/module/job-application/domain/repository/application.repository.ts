@@ -1,5 +1,6 @@
 import type { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 import {
+  ApplicationAnalysisStatus,
   ApplicationRecommendation,
   ApplicationStatus,
   JobApplication,
@@ -22,6 +23,7 @@ export interface RecruiterApplication {
   candidateProfileImage?: string;
   resumeId: string;
   status: ApplicationStatus;
+  analysisStatus: ApplicationAnalysisStatus;
   aiScore?: number;
   aiRecommendation?: ApplicationRecommendation;
   appliedAt: string;

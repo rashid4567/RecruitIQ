@@ -30,26 +30,26 @@ const parsedResumeDataSchema = new Schema(
       type: Number,
       default: null,
     },
-    linkedin : {
-      type : String,
-      default : null,
+    linkedin: {
+      type: String,
+      default: null,
     },
-    github : {
-      type : String,
-      default : null,
+    github: {
+      type: String,
+      default: null,
     },
-    portfolio : {
-      type : String,
-      default : null,
+    portfolio: {
+      type: String,
+      default: null,
     },
-    currentCompany : {
-      type : String,
-      default : null,
+    currentCompany: {
+      type: String,
+      default: null,
     },
-    currentRole : {
-      type : String,
-      default : null,
-    }
+    currentRole: {
+      type: String,
+      default: null,
+    },
   },
   {
     _id: false,
@@ -82,6 +82,12 @@ export const ResumeModel = model(
         type: Date,
         required: true,
         default: Date.now,
+      },
+      parseStatus: {
+        type: String,
+        enum: ["PENDING", "PROCESSING", "COMPLETED", "FAILED"],
+        default: "PENDING",
+        required: true,
       },
 
       parsedData: {

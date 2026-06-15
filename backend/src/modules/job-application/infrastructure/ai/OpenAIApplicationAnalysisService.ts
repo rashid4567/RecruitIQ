@@ -61,11 +61,16 @@ export class OpenAIApplicationAnalysisService implements ApplicationAnalysisServ
     resume: Resume,
     coverLetter?: string,
   ): Promise<ApplicationAnalysis> {
-    const parsedData = resume.getParsedData();
+     
+  const parsedData = resume.getParsedData();
 
-    if (!parsedData) {
-      throw new ApplicationError(ERROR_CODES.RESUME_PARSE_NOT_FOUND);
-    }
+  if (!parsedData) {
+    throw new ApplicationError(
+      ERROR_CODES.RESUME_PARSE_NOT_FOUND,
+    );
+  }
+
+  
 
     const prompt = this.buildPrompt(job, parsedData, coverLetter);
     const raw = await this.fetchAnalysisWithRetry(

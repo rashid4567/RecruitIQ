@@ -11,8 +11,16 @@ export interface ParsedResumeData {
   portfolio?: string | null;
   currentCompany?: string | null;
   currentRole?: string | null;
-  
 }
+export const ResumeParseStatus = {
+  PENDING: "PENDING",
+  PROCESSING: "PROCESSING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+} as const;
+
+export type ResumeParseStatus =
+  (typeof ResumeParseStatus)[keyof typeof ResumeParseStatus];
 
 export class Resume {
   private constructor(
@@ -21,6 +29,7 @@ export class Resume {
     private fileName: string,
     private fileKey: string,
     private uploadedAt: Date,
+    private parseStatus: ResumeParseStatus,
     private parsedData?: ParsedResumeData,
   ) {}
 
@@ -29,7 +38,14 @@ export class Resume {
     fileName: string,
     fileKey: string,
   ): Resume {
-    return new Resume(undefined, candidateId, fileName, fileKey, new Date());
+    return new Resume(
+      undefined,
+      candidateId,
+      fileName,
+      fileKey,
+      new Date(),
+      ResumeParseStatus.PENDING,
+    );
   }
 
   static fromPersistence(props: {
@@ -38,6 +54,7 @@ export class Resume {
     fileName: string;
     fileKey: string;
     uploadedAt: Date;
+    parseStatus: ResumeParseStatus;
     parsedData?: ParsedResumeData;
   }): Resume {
     return new Resume(
@@ -46,6 +63,7 @@ export class Resume {
       props.fileName,
       props.fileKey,
       props.uploadedAt,
+      props.parseStatus,
       props.parsedData,
     );
   }
@@ -74,6 +92,26 @@ export class Resume {
     return this.uploadedAt;
   }
 
+  public getParsedStatus(): ResumeParseStatus {
+    return this.parseStatus;
+  }
+
+  public getParseStatus(): ResumeParseStatus {
+    return this.parseStatus;
+  }
+
+  public markProcessing(): void {
+    this.parseStatus = ResumeParseStatus.PROCESSING;
+  }
+
+  public markCompleted(parsedData: ParsedResumeData): void {
+    this.parsedData = parsedData;
+    this.parseStatus = ResumeParseStatus.COMPLETED;
+  }
+
+  public markFailed(): void {
+    this.parseStatus = ResumeParseStatus.FAILED;
+  }
   public getParsedData(): ParsedResumeData | undefined {
     return this.parsedData;
   }
@@ -85,6 +123,7 @@ export class Resume {
       fileName: this.fileName,
       fileKey: this.fileKey,
       uploadedAt: this.uploadedAt,
+      parseStatus : this.parseStatus,
       parsedData: this.parsedData,
     };
   }

@@ -4,7 +4,7 @@ import { UserId } from "../../../../shared/value-objects/userId.vo";
 
 import { CandidateRepository } from "../../../candidate/domain/repositories/candidate.repository";
 
-import { Resume } from "../../domain/entity/resume.entity";
+import { Resume, ResumeParseStatus } from "../../domain/entity/resume.entity";
 import { FileStorageRepository } from "../../domain/repository/fileStorage.repository";
 import { ResumeRepository } from "../../domain/repository/resume.repository";
 
@@ -79,7 +79,8 @@ export class UploadResumeUseCase {
       fileName: dto.fileName,
       fileKey,
       uploadedAt: new Date(),
-      parsedData: existingResume.getParsedData(),
+      parseStatus: ResumeParseStatus.PENDING,
+      parsedData: undefined,
     });
 
     const savedResume = await this.resumeRepository.update(updatedResume);

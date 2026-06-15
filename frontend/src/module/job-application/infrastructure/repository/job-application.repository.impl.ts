@@ -1,7 +1,10 @@
 import api from "@/api/axios";
 import { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 
-import { JobApplication } from "../../domain/entity/job-application.entity";
+import {
+  ApplicationAnalysisStatus,
+  JobApplication,
+} from "../../domain/entity/job-application.entity";
 
 import type {
   ApplicationDetailDTO,
@@ -43,7 +46,11 @@ export class ApiJobApplicationRepository implements JobApplicationRepository {
       },
     );
 
-    return JobApplication.create(response.data.data);
+    return JobApplication.create({
+      ...response.data.data,
+      analysisStatus: response.data.data
+        .analysisStatus as ApplicationAnalysisStatus,
+    });
   }
 
   async getMyApplications(): Promise<JobApplication[]> {
@@ -60,6 +67,7 @@ export class ApiJobApplicationRepository implements JobApplicationRepository {
         resumeId: item.resumeId,
         coverLetter: item.coverLetter,
         status: item.status,
+        analysisStatus: item.analysisStatus as ApplicationAnalysisStatus,
         interview: item.interview,
         rejectionReason: item.rejectionReason,
         aiAnalysis: item.aiAnalysis,
@@ -75,7 +83,11 @@ export class ApiJobApplicationRepository implements JobApplicationRepository {
     const data = response.data.data;
 
     return {
-      application: JobApplication.create(data.application),
+      application: JobApplication.create({
+        ...data.application,
+        analysisStatus: data.application
+          .analysisStatus as ApplicationAnalysisStatus,
+      }),
 
       job: new Job({
         ...data.job,
@@ -99,9 +111,13 @@ export class ApiJobApplicationRepository implements JobApplicationRepository {
       candidateEmail: item.candidateEmail,
       candidateProfileImage: item.candidateProfileImage,
       resumeId: item.resumeId,
+
       status: item.status,
+      analysisStatus: item.analysisStatus as ApplicationAnalysisStatus,
+
       aiScore: item.aiScore,
       aiRecommendation: item.aiRecommendation,
+
       appliedAt: item.appliedAt,
     }));
   }

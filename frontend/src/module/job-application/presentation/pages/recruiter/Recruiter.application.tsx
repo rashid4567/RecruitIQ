@@ -11,8 +11,7 @@ import { Pagination } from "../component/Recruiter.application/Pagination";
 import { ALL_STATUSES } from "../component/Recruiter.application/Status.constants";
 import {
   getInitials,
-  fakeAiScore,
-  fakeMatchPercent,
+
   aiScoreBarColor,
   formatDate,
 } from "../component/Recruiter.application/Helpers";
@@ -46,8 +45,8 @@ export default function RecruiterApplication() {
   const rows: ApplicationRow[] = useMemo(
     () =>
       applications.map((app) => {
-        const aiScore = fakeAiScore(app.applicationId);
-        const matchPercent = fakeMatchPercent(app.candidateId);
+        const aiScore = app.aiScore ?? 0;
+        const matchPercent = app.aiScore ?? 0;
         return {
           id: app.applicationId,
           candidateId: app.candidateId,

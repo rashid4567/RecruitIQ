@@ -1,24 +1,21 @@
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-
 import { User } from "../../../../auth/domain/entities/user.entity";
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
-
 import { SendEmailByEventUseCase } from "../../../../email/application/usecase/email-template/send-email-by-event.usecase";
 import { EmailEvent } from "../../../../email/domain/constant/templateEvents";
-
 import { Job } from "../../../../job/domain/entities/job.entity";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
-
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
-
-import { Resume } from "../../../../resume/domain/entity/resume.entity";
+import {
+  Resume,
+  ResumeParseStatus,
+} from "../../../../resume/domain/entity/resume.entity";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
-
 import { JobApplication } from "../../../domain/entity/job-application.entity";
 import { APPLICATION_ERRORS } from "../../../domain/error/Application.error";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
-
 import { ApplyJobDTO } from "../../dto/applyJobDto";
 import { AnalyzeApplicationUseCase } from "./AnalyzeApplicationUseCase";
 
@@ -35,15 +32,10 @@ export class ApplyJobUseCase {
 
   async execute(dto: ApplyJobDTO): Promise<JobApplication> {
     const { jobId, candidateId, resumeId, coverLetter } = dto;
-
     const job = await this.validateAndGetJob(jobId);
-
     await this.validateAndGetResume(resumeId, candidateId);
-
     await this.ensureApplicationDoesNotExist(candidateId, jobId);
-
     const candidate = await this.userRepo.findById(candidateId);
-
     const application = JobApplication.apply({
       jobId,
       candidateId,
@@ -52,15 +44,9 @@ export class ApplyJobUseCase {
       coverLetter,
     });
 
-    /**
-     * Ideally wrap these in a transaction later.
-     */
     const created = await this.applicationRepo.create(application);
-
     job.incrementApplications();
-
     await this.jobRepo.save(job);
-
     this.triggerPostApplicationActions(created, candidate, job);
 
     return created;
@@ -76,11 +62,9 @@ export class ApplyJobUseCase {
     if (!job.canApply()) {
       throw new ApplicationError(APPLICATION_ERRORS.JOB_NOT_ACTIVE);
     }
-
     if (job.isExpired()) {
       throw new ApplicationError(APPLICATION_ERRORS.JOB_EXPIRED);
     }
-
     return job;
   }
 
@@ -89,17 +73,17 @@ export class ApplyJobUseCase {
     candidateId: string,
   ): Promise<Resume> {
     const resume = await this.resumeRepo.findById(resumeId);
-
     if (!resume) {
       throw new ApplicationError(APPLICATION_ERRORS.RESUME_NOT_FOUND);
     }
-
     if (resume.getCandidateId() !== candidateId) {
       throw new ApplicationError(
         APPLICATION_ERRORS.UNAUTHORIZED_CANDIDATE_ACTION,
       );
     }
-
+    if (resume.getParseStatus() === ResumeParseStatus.FAILED) {
+      throw new ApplicationError(ERROR_CODES.RESUME_PARSE_FAILED);
+    }
     return resume;
   }
 
@@ -160,7 +144,6 @@ export class ApplyJobUseCase {
       })
       .catch((err) => console.error("JOB_APPLIED notification failed:", err));
   }
-
   private sendCandidateConfirmationEmail(candidate: User, job: Job): void {
     void this.sendEmailByEventUC
       .execute({

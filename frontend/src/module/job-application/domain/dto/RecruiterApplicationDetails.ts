@@ -1,5 +1,6 @@
 import type {
   ApplicationAIAnalysis,
+  ApplicationAnalysisStatus,
   ApplicationStatus,
   InterviewInfo,
 } from "../entity/job-application.entity";
@@ -17,6 +18,7 @@ export interface RecruiterApplicationDetails {
   status: ApplicationStatus;
   interview?: InterviewInfo;
   rejectionReason?: string;
+  analysisStatus: ApplicationAnalysisStatus;
   aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: string;
   updatedAt: string;

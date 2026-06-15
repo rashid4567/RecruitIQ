@@ -25,6 +25,7 @@ import { ResumeParserService } from "../../infrastructure/services/resume-parser
 import { openai } from "../../../../config/openai";
 import { ParseResumeUseCase } from "../../application/usecase/ParseResumeUseCase";
 import { ParseResumeController } from "../controller/parseResume.controller";
+import { AnalyzeApplicationUC, applicationRepo } from "../../../job-application/presenatation/container/JobApplication.module";
 const resumeRepo: ResumeRepository = new MongooseResumeRepository();
 const candidateRepo: CandidateRepository = new MongooseCandidateRepository();
 const fileStorage: FileStorageRepository = new S3FileStorageRepository();
@@ -38,6 +39,8 @@ const parseResumeUseCase = new ParseResumeUseCase(
   resumeRepo,
   resumeTextExtractor,
   resumeParser,
+  applicationRepo,
+  AnalyzeApplicationUC
 );
 const getResumeByIdUC = new GetResumeByIdUseCase(resumeRepo);
 const DownloadResumeUC = new DownloadResumeUseCase(resumeRepo, fileStorage);

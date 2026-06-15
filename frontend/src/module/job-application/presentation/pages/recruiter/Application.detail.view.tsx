@@ -933,7 +933,7 @@ export default function CandidateScorecardPage() {
               {/* Identity block */}
               <div className="flex items-start gap-5">
                 <div className="relative shrink-0">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white text-xl font-bold shadow-lg select-none">
+                  <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white text-xl font-bold shadow-lg select-none">
                     {getInitials(application.candidateName ?? "U")}
                   </div>
                   <span

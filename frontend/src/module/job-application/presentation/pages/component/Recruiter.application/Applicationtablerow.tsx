@@ -23,7 +23,7 @@ export function ApplicationTableRow({
         isSelected ? "bg-blue-50/60" : "bg-white"
       }`}
     >
-      {/* Checkbox — stop propagation so clicking it doesn't navigate */}
+    
       <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
         <input
           type="checkbox"

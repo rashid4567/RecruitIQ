@@ -18,4 +18,33 @@ export const STATUS_COLORS: Record<ApplicationStatus, string> = {
   WITHDRAWN: "bg-slate-100 text-slate-500 border border-slate-200",
 };
 
-export const ALL_STATUSES = Object.keys(ApplicationStatus) as ApplicationStatus[];
+export const STATUS_DOT_COLORS: Record<ApplicationStatus, string> = {
+  APPLIED: "bg-blue-500",
+  SHORTLISTED: "bg-amber-500",
+  INTERVIEW_SCHEDULED: "bg-purple-500",
+  SELECTED: "bg-emerald-500",
+  REJECTED: "bg-red-500",
+  WITHDRAWN: "bg-slate-400",
+};
+
+export const ROW_BG_CLASSES: Record<ApplicationStatus, string> = {
+  APPLIED: "bg-blue-50/40",
+  SHORTLISTED: "bg-amber-50/40",
+  INTERVIEW_SCHEDULED: "bg-purple-50/40",
+  SELECTED: "bg-emerald-50/40",
+  REJECTED: "bg-red-50/40",
+  WITHDRAWN: "bg-slate-50",
+};
+
+export const ROW_BG_HOVER_CLASSES: Record<ApplicationStatus, string> = {
+  APPLIED: "hover:bg-blue-50/70",
+  SHORTLISTED: "hover:bg-amber-50/70",
+  INTERVIEW_SCHEDULED: "hover:bg-purple-50/70",
+  SELECTED: "hover:bg-emerald-50/70",
+  REJECTED: "hover:bg-red-50/70",
+  WITHDRAWN: "hover:bg-slate-100/60",
+};
+
+export const ALL_STATUSES = Object.keys(
+  ApplicationStatus,
+) as ApplicationStatus[];

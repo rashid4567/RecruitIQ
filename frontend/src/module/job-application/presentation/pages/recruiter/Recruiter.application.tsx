@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useJobApplications } from "../../hooks/recruiter/useJobApplications";
 import { ApplicationStatus } from "@/module/job-application/domain/entity/job-application.entity";
-
 import { TopBar } from "../component/Recruiter.application/Topbar";
 import { JobHeader } from "../component/Recruiter.application/Jobheader";
 import { FilterToolbar } from "../component/Recruiter.application/Filtertoolbar";
@@ -11,7 +10,6 @@ import { Pagination } from "../component/Recruiter.application/Pagination";
 import { ALL_STATUSES } from "../component/Recruiter.application/Status.constants";
 import {
   getInitials,
-
   aiScoreBarColor,
   formatDate,
 } from "../component/Recruiter.application/Helpers";
@@ -34,7 +32,8 @@ export default function RecruiterApplication() {
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "All">(
     "All",
   );
-  const [matchScoreRange, setMatchScoreRange] = useState(100);
+  const [matchScoreMin, setMatchScoreMin] = useState(0);
+  const [matchScoreMax, setMatchScoreMax] = useState(100);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
@@ -69,7 +68,8 @@ export default function RecruiterApplication() {
     const q = searchQuery.trim().toLowerCase();
     const list = rows.filter((r) => {
       const statusOk = statusFilter === "All" || r.status === statusFilter;
-      const matchOk = r.matchPercent <= matchScoreRange;
+      const matchOk =
+        r.matchPercent >= matchScoreMin && r.matchPercent <= matchScoreMax;
       const searchOk =
         q === "" ||
         r.name.toLowerCase().includes(q) ||
@@ -98,7 +98,7 @@ export default function RecruiterApplication() {
     }
 
     return list;
-  }, [rows, statusFilter, matchScoreRange, sortBy, searchQuery]);
+  }, [rows, statusFilter, matchScoreMin, matchScoreMax, sortBy, searchQuery]);
 
   const totalPages = Math.max(
     1,
@@ -131,6 +131,11 @@ export default function RecruiterApplication() {
     paginatedRows.length > 0 &&
     paginatedRows.every((r) => selectedRows.has(r.id));
 
+  const isIndeterminate =
+    paginatedRows.length > 0 &&
+    !isAllSelected &&
+    paginatedRows.some((r) => selectedRows.has(r.id));
+
   const statusCounts = useMemo(() => {
     const counts: Partial<Record<ApplicationStatus | "All", number>> = {
       All: rows.length,
@@ -159,15 +164,22 @@ export default function RecruiterApplication() {
     setCurrentPage(1);
   };
 
-  const handleMatchScoreChange = (value: number) => {
-    setMatchScoreRange(value);
+  const handleMatchScoreMinChange = (value: number) => {
+    setMatchScoreMin(value);
+    setCurrentPage(1);
+  };
+
+  const handleMatchScoreMaxChange = (value: number) => {
+    setMatchScoreMax(value);
     setCurrentPage(1);
   };
 
   const clearFilters = () => {
     setSearchQuery("");
     setStatusFilter("All");
-    setMatchScoreRange(100);
+    setMatchScoreMin(0);
+    setMatchScoreMax(100);
+    setCurrentPage(1);
   };
 
   const handleBulkSuccess = () => {
@@ -178,7 +190,7 @@ export default function RecruiterApplication() {
     <div className="flex h-screen bg-slate-50 font-sans">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <TopBar
           onRefresh={() => jobId && fetchApplications(jobId)}
           isRefreshing={loading}
@@ -197,12 +209,14 @@ export default function RecruiterApplication() {
           searchQuery={searchQuery}
           sortBy={sortBy}
           statusFilter={statusFilter}
-          matchScoreRange={matchScoreRange}
+          matchScoreMin={matchScoreMin}
+          matchScoreMax={matchScoreMax}
           selectedIds={[...selectedRows]}
           onSearchChange={handleSearchChange}
           onSortChange={setSortBy}
           onStatusChange={handleStatusChange}
-          onMatchScoreChange={handleMatchScoreChange}
+          onMatchScoreMinChange={handleMatchScoreMinChange}
+          onMatchScoreMaxChange={handleMatchScoreMaxChange}
           onClearSelection={() => setSelectedRows(new Set())}
           onBulkSuccess={handleBulkSuccess}
         />
@@ -212,6 +226,7 @@ export default function RecruiterApplication() {
             rows={paginatedRows}
             selectedRows={selectedRows}
             isAllSelected={isAllSelected}
+            isIndeterminate={isIndeterminate}
             loading={loading}
             error={error}
             onToggleSelectAll={toggleSelectAll}

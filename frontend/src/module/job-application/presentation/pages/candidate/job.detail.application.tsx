@@ -95,41 +95,72 @@ export default function JobApplicationDetail() {
   const allSkills = [...new Set([...requiredSkills, ...preferredSkills])];
 
   const timelineSteps: TimelineStep[] = [
-    {
-      stepIndex: 0,
-      title: "Application submitted",
-      description: "Your application was successfully received.",
-      date: formatDate(application.getAppliedAt()),
-    },
-    {
-      stepIndex: 1,
-      title: "Application shortlisted",
-      description: "Your profile has been shortlisted by the recruiter.",
-      date: currentStep >= 1 ? formatDate(application.getUpdatedAt()) : undefined,
-    },
-    {
-      stepIndex: 2,
-      title: "Interview scheduled",
-      description: interview
-        ? `Scheduled for ${formatDate(interview.scheduledAt)}`
-        : "Awaiting interview scheduling.",
-      date: interview ? formatDate(interview.scheduledAt) : undefined,
-      note:
-        appStatus === ApplicationStatus.SHORTLISTED
-          ? "Estimated 2–3 business days"
-          : undefined,
-    },
-    {
-      stepIndex: 3,
-      title: "Final decision",
-      description:
-        appStatus === ApplicationStatus.SELECTED
-          ? "Congratulations! You have been selected."
-          : appStatus === ApplicationStatus.REJECTED
-            ? `Not selected.${application.getRejectionReason() ? ` ${application.getRejectionReason()}` : ""}`
-            : "The final outcome of your application.",
-    },
-  ];
+  {
+    stepIndex: 0,
+    title: "Application submitted",
+    description: "Your application was successfully received.",
+    date: formatDate(application.getAppliedAt()),
+  },
+];
+
+if (
+  appStatus === ApplicationStatus.SHORTLISTED ||
+  appStatus === ApplicationStatus.INTERVIEW_SCHEDULED ||
+  appStatus === ApplicationStatus.SELECTED
+) {
+  timelineSteps.push({
+    stepIndex: 1,
+    title: "Application shortlisted",
+    description:
+      "Your profile has been shortlisted by the recruiter.",
+    date: formatDate(application.getUpdatedAt()),
+  });
+}
+
+if (
+  appStatus === ApplicationStatus.INTERVIEW_SCHEDULED ||
+  appStatus === ApplicationStatus.SELECTED
+) {
+  timelineSteps.push({
+    stepIndex: 2,
+    title: "Interview scheduled",
+    description: interview
+      ? `Scheduled for ${formatDate(interview.scheduledAt)}`
+      : "Interview has been scheduled.",
+    date: interview
+      ? formatDate(interview.scheduledAt)
+      : undefined,
+  });
+}
+
+if (appStatus === ApplicationStatus.SELECTED) {
+  timelineSteps.push({
+    stepIndex: 3,
+    title: "Selected",
+    description:
+      "Congratulations! You have been selected.",
+  });
+}
+
+if (appStatus === ApplicationStatus.REJECTED) {
+  timelineSteps.push({
+    stepIndex: timelineSteps.length,
+    title: "Rejected",
+    description:
+      application.getRejectionReason()
+        ? `Application rejected. ${application.getRejectionReason()}`
+        : "Application rejected.",
+  });
+}
+
+if (appStatus === ApplicationStatus.WITHDRAWN) {
+  timelineSteps.push({
+    stepIndex: timelineSteps.length,
+    title: "Withdrawn",
+    description:
+      "You withdrew this application.",
+  });
+}
 
   const getStep = (si: number): "done" | "active" | "pending" => {
     if (si < currentStep) return "done";

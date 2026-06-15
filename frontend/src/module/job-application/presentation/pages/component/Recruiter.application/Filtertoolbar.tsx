@@ -25,14 +25,18 @@ interface FilterToolbarProps {
 
 const MIN_GAP = 1;
 
-const SCORE_PRESETS: { label: string; min: number; max: number; dot: string }[] = [
-  { label: "All",      min: 0,  max: 100, dot: "bg-slate-300" },
-  { label: "Top",      min: 80, max: 100, dot: "bg-emerald-400" },
-  { label: "Good",     min: 60, max: 99,  dot: "bg-sky-400" },
-  { label: "Average",  min: 40, max: 79,  dot: "bg-amber-400" },
-  { label: "Low",      min: 0,  max: 39,  dot: "bg-red-400" },
+const SCORE_PRESETS: {
+  label: string;
+  min: number;
+  max: number;
+  dot: string;
+}[] = [
+  { label: "All", min: 0, max: 100, dot: "bg-slate-300" },
+  { label: "Top", min: 80, max: 100, dot: "bg-emerald-400" },
+  { label: "Good", min: 60, max: 99, dot: "bg-sky-400" },
+  { label: "Average", min: 40, max: 79, dot: "bg-amber-400" },
+  { label: "Low", min: 0, max: 39, dot: "bg-red-400" },
 ];
-
 
 function ScoreRangeSlider({
   min,
@@ -103,7 +107,6 @@ function ScoreRangeSlider({
     }
   };
 
- 
   const zoneGradient =
     "linear-gradient(to right, #fca5a5 0%, #fca5a5 40%, #fcd34d 40%, #fcd34d 60%, #7dd3fc 60%, #7dd3fc 80%, #6ee7b7 80%, #6ee7b7 100%)";
 
@@ -123,7 +126,6 @@ function ScoreRangeSlider({
         style={{ width: `${100 - max}%` }}
       />
 
-
       <div
         role="slider"
         tabIndex={0}
@@ -139,7 +141,7 @@ function ScoreRangeSlider({
         className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white border-2 border-indigo-500 shadow-md cursor-grab active:cursor-grabbing focus:ring-2 focus:ring-indigo-300 focus:outline-none z-10"
         style={{ left: `${min}%` }}
       />
-    
+
       <div
         role="slider"
         tabIndex={0}
@@ -175,14 +177,16 @@ function ScoreFilterPopover({
   const [maxText, setMaxText] = useState(String(max));
   const containerRef = useRef<HTMLDivElement>(null);
 
-
   useEffect(() => setMinText(String(min)), [min]);
   useEffect(() => setMaxText(String(max)), [max]);
 
   useEffect(() => {
     if (!open) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -208,7 +212,8 @@ function ScoreFilterPopover({
 
   const isDefault = min === 0 && max === 100;
   const activeDot =
-    SCORE_PRESETS.find((p) => p.min === min && p.max === max)?.dot ?? "bg-indigo-400";
+    SCORE_PRESETS.find((p) => p.min === min && p.max === max)?.dot ??
+    "bg-indigo-400";
 
   return (
     <div ref={containerRef} className="relative">
@@ -222,7 +227,10 @@ function ScoreFilterPopover({
               : "border-indigo-200 text-indigo-700 bg-indigo-50/60 hover:bg-indigo-50"
         }`}
       >
-        <SlidersHorizontal size={14} className={isDefault ? "text-slate-400" : "text-indigo-500"} />
+        <SlidersHorizontal
+          size={14}
+          className={isDefault ? "text-slate-400" : "text-indigo-500"}
+        />
         <span>
           {isDefault ? (
             "Score: All"
@@ -235,7 +243,9 @@ function ScoreFilterPopover({
             </>
           )}
         </span>
-        {!isDefault && <span className={`w-1.5 h-1.5 rounded-full ${activeDot}`} />}
+        {!isDefault && (
+          <span className={`w-1.5 h-1.5 rounded-full ${activeDot}`} />
+        )}
         <ChevronDown
           size={13}
           className={`text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
@@ -253,12 +263,18 @@ function ScoreFilterPopover({
             </span>
           </div>
 
-          <ScoreRangeSlider min={min} max={max} onMinChange={onMinChange} onMaxChange={onMaxChange} />
+          <ScoreRangeSlider
+            min={min}
+            max={max}
+            onMinChange={onMinChange}
+            onMaxChange={onMaxChange}
+          />
 
-       
           <div className="flex items-center gap-2 mt-4">
             <div className="flex items-center gap-1.5 flex-1">
-              <span className="text-[0.65rem] text-slate-400 font-medium">Min</span>
+              <span className="text-[0.65rem] text-slate-400 font-medium">
+                Min
+              </span>
               <input
                 type="number"
                 min={0}
@@ -266,13 +282,18 @@ function ScoreFilterPopover({
                 value={minText}
                 onChange={(e) => setMinText(e.target.value)}
                 onBlur={(e) => commitMin(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && commitMin((e.target as HTMLInputElement).value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  commitMin((e.target as HTMLInputElement).value)
+                }
                 className="w-full px-2 py-1.5 text-sm text-center border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent tabular-nums"
               />
             </div>
             <span className="text-slate-300 text-sm mt-4">–</span>
             <div className="flex items-center gap-1.5 flex-1">
-              <span className="text-[0.65rem] text-slate-400 font-medium">Max</span>
+              <span className="text-[0.65rem] text-slate-400 font-medium">
+                Max
+              </span>
               <input
                 type="number"
                 min={0}
@@ -280,12 +301,14 @@ function ScoreFilterPopover({
                 value={maxText}
                 onChange={(e) => setMaxText(e.target.value)}
                 onBlur={(e) => commitMax(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && commitMax((e.target as HTMLInputElement).value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  commitMax((e.target as HTMLInputElement).value)
+                }
                 className="w-full px-2 py-1.5 text-sm text-center border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent tabular-nums"
               />
             </div>
           </div>
-
 
           <div className="flex items-center gap-1.5 mt-4 flex-wrap">
             {SCORE_PRESETS.map((preset) => {
@@ -337,7 +360,9 @@ export function FilterToolbar({
     async (status: RecruiterSetableStatus) => {
       if (selectedIds.length === 0) return;
       const results = await Promise.all(
-        selectedIds.map((applicationId) => updateStatus({ applicationId, status })),
+        selectedIds.map((applicationId) =>
+          updateStatus({ applicationId, status }),
+        ),
       );
       if (results.every(Boolean)) {
         onClearSelection();
@@ -358,10 +383,12 @@ export function FilterToolbar({
     <div className="bg-white border-b border-slate-200/70 px-6 py-3 shrink-0">
       {/* Main filter row */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-
         <div className="flex items-center gap-2.5 flex-wrap">
           <div className="relative min-w-50 max-w-70">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
             <input
               type="text"
               placeholder="Search name, email, ID…"
@@ -394,7 +421,10 @@ export function FilterToolbar({
                 <option>AI Score</option>
                 <option>Name</option>
               </select>
-              <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <ChevronDown
+                size={12}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+              />
             </div>
           </div>
         </div>
@@ -430,7 +460,9 @@ export function FilterToolbar({
             <div className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[0.65rem] font-bold flex items-center justify-center tabular-nums">
               {selectedCount}
             </div>
-            <span className="text-sm text-slate-700 font-semibold">selected</span>
+            <span className="text-sm text-slate-700 font-semibold">
+              selected
+            </span>
           </div>
 
           <div className="h-4 w-px bg-slate-200" />

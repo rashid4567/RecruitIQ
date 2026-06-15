@@ -270,21 +270,19 @@ function ConfirmModal({
           </div>
 
           {/* Rejection reason textarea */}
-          {config.requireReason && (
+          {(config.reasonLabel || config.reasonPlaceholder) && (
             <div className="mb-5">
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                {config.reasonLabel} <span className="text-red-500">*</span>
+                {config.reasonLabel}
               </label>
+
               <textarea
                 rows={3}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={config.reasonPlaceholder}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5"
               />
-              <p className="text-xs text-slate-400 mt-1">
-                Minimum 5 characters required.
-              </p>
             </div>
           )}
 
@@ -790,16 +788,14 @@ const MODAL_CONFIGS: Record<Exclude<ModalAction, null>, ModalConfig> = {
   },
   reject: {
     title: "Reject this candidate?",
-    description:
-      "The candidate will be removed from consideration. Please provide a reason — this may be shared with the applicant.",
+    description: "The candidate will be removed from consideration.",
     confirmLabel: "Reject candidate",
     confirmClass: "bg-red-600 hover:bg-red-700",
     Icon: UserX,
     iconClass: "bg-red-50 text-red-600",
-    requireReason: true,
-    reasonLabel: "Reason for rejection",
-    reasonPlaceholder:
-      "e.g. The candidate does not meet the minimum required experience for this role…",
+    requireReason: false,
+    reasonLabel: "Reason for rejection (Optional)",
+    reasonPlaceholder: "Optional feedback for the candidate",
   },
 };
 

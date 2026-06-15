@@ -1,4 +1,3 @@
-
 import {
   LayoutGrid,
   Briefcase,
@@ -25,12 +24,32 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        <NavItem icon={<LayoutGrid size={16} />} label="Dashboard" active={false} />
+        <NavItem
+          icon={<LayoutGrid size={16} />}
+          label="Dashboard"
+          active={false}
+        />
         <NavItem icon={<Briefcase size={16} />} label="Jobs" active={true} />
-        <NavItem icon={<Users size={16} />} label="Applications" active={false} />
-        <NavItem icon={<Calendar size={16} />} label="Interviews" active={false} />
-        <NavItem icon={<PhoneOff size={16} />} label="Candidates" active={false} />
-        <NavItem icon={<CreditCard size={16} />} label="Billing" active={false} />
+        <NavItem
+          icon={<Users size={16} />}
+          label="Applications"
+          active={false}
+        />
+        <NavItem
+          icon={<Calendar size={16} />}
+          label="Interviews"
+          active={false}
+        />
+        <NavItem
+          icon={<PhoneOff size={16} />}
+          label="Candidates"
+          active={false}
+        />
+        <NavItem
+          icon={<CreditCard size={16} />}
+          label="Billing"
+          active={false}
+        />
         <NavItem icon={<User size={16} />} label="Profile" active={false} />
       </nav>
 

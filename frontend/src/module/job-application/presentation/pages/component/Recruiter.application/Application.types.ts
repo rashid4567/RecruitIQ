@@ -22,4 +22,8 @@ export interface ApplicationRow {
   scoreBarColor: string;
 }
 
-export type SortOption = "Application Date" | "Match Score" | "AI Score" | "Name";
+export type SortOption =
+  | "Application Date"
+  | "Match Score"
+  | "AI Score"
+  | "Name";

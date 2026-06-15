@@ -153,7 +153,7 @@ export class JobApplication {
     return this.coverLetter;
   }
 
-  getStatus(): ApplicationStatus {
+    getStatus(): ApplicationStatus {
     return this.status;
   }
 

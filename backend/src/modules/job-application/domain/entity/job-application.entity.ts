@@ -184,16 +184,15 @@ export class JobApplication {
 
     this.touch();
   }
-  reject(reason: string): void {
-    this.ensureMutable();
-    if (!reason?.trim()) {
-      throw new DomainError(APPLICATION_ERRORS.REJECTION_REASON_REQUIRED);
-    }
-    this.props.status = ApplicationStatus.REJECTED;
-    this.props.rejectionReason = reason.trim();
-    this.props.interview = undefined;
-    this.touch();
-  }
+ reject(reason?: string): void {
+  this.ensureMutable();
+
+  this.props.status = ApplicationStatus.REJECTED;
+  this.props.rejectionReason = reason?.trim() || undefined;
+  this.props.interview = undefined;
+
+  this.touch();
+}
   scheduleInterview(interview: InterviewInfo): void {
     this.ensureMutable();
     if (

@@ -11,24 +11,13 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
+import { departments } from "@/module/jobs/presentation/constant/jobFormConstants";
 
 interface Props {
   formData: JobFormData;
   setFormData: (updater: (prev: JobFormData) => JobFormData) => void;
   errors: Record<string, string>;
 }
-
-const departments = [
-  "Engineering",
-  "Product",
-  "Design",
-  "Marketing",
-  "Sales",
-  "Data Science",
-  "HR",
-  "Finance",
-  "Operations",
-];
 
 const jobTypes = [
   { value: "full-time", label: "Full-time", emoji: "💼", color: "indigo" },
@@ -87,11 +76,6 @@ function DepartmentDropdown({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // FIX: Only the DOM side-effect (focus) stays in useEffect — talking to an
-  // external system (the DOM) is exactly what effects are for.
-  // The search reset (setSearch) has been moved into the click handler below
-  // so it runs as a direct consequence of the user's action, not as a
-  // cascading state update triggered by another state change.
   useEffect(() => {
     if (!open) return;
     const timer = setTimeout(() => {
@@ -109,9 +93,6 @@ function DepartmentDropdown({
       <button
         type="button"
         onClick={() => {
-          // Reset search text when opening the dropdown — done here in the
-          // event handler rather than inside a useEffect to avoid the
-          // setState-in-effect cascade.
           setOpen((prev) => {
             if (!prev) setSearch("");
             return !prev;
@@ -225,8 +206,6 @@ export default function Step1BasicInfo({
       </div>
 
       <div className="space-y-6">
-
-        {/* ── Company Name ── */}
         <div>
           <FieldLabel required>
             <Building2 className="w-3.5 h-3.5" /> Company Name
@@ -260,7 +239,6 @@ export default function Step1BasicInfo({
           <ErrorMsg msg={errors.companyName} />
         </div>
 
-        {/* ── Job Title ── */}
         <div>
           <FieldLabel required>Job Title</FieldLabel>
           <Input
@@ -278,7 +256,6 @@ export default function Step1BasicInfo({
           <ErrorMsg msg={errors.title} />
         </div>
 
-        {/* ── Department + Openings ── */}
         <div className="grid grid-cols-2 gap-5">
           <div>
             <FieldLabel required>Department</FieldLabel>
@@ -319,7 +296,6 @@ export default function Step1BasicInfo({
           </div>
         </div>
 
-        {/* ── Employment Type ── */}
         <div>
           <FieldLabel required>
             <Briefcase className="w-3.5 h-3.5" /> Employment Type
@@ -379,7 +355,6 @@ export default function Step1BasicInfo({
           </div>
         </div>
 
-        {/* ── Location ── */}
         <div className="p-5 bg-linear-to-br from-slate-50 to-gray-50 rounded-2xl border border-gray-100">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
@@ -427,7 +402,6 @@ export default function Step1BasicInfo({
           </div>
         </div>
 
-        {/* ── Remote Toggle ── */}
         <div>
           <button
             type="button"

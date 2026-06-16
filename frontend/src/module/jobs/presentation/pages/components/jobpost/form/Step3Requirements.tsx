@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Code2, Star, TrendingUp } from "lucide-react";
 import TagInput from "./TagInput";
 import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
+import { skillSuggestions } from "@/module/jobs/presentation/constant/jobFormConstants";
 
 interface Props {
   formData: JobFormData;
@@ -21,35 +22,7 @@ function ErrorMsg({ msg }: { msg?: string }) {
   );
 }
 
-const skillSuggestions = [
-  "React",
-  "Node.js",
-  "Python",
-  "TypeScript",
-  "AWS",
-  "Docker",
-  "PostgreSQL",
-  "MongoDB",
-  "GraphQL",
-  "Next.js",
-  "Kubernetes",
-  "Java",
-  "Go",
-  "Redis",
-  "Terraform",
-  "CI/CD",
-  "REST APIs",
-  "System Design",
-  "Microservices",
-  "Vue.js",
-  "Angular",
-  "Swift",
-  "Kotlin",
-  "Flutter",
-  "Django",
-  "FastAPI",
-  "Spring Boot",
-];
+
 
 const experienceLevels = [
   { label: "Entry", range: "0–2", min: 0, max: 2, color: "bg-emerald-500" },

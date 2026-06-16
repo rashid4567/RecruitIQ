@@ -54,7 +54,6 @@ export class SubscribePlanUseCase {
       cancelledAt: undefined,
       jobPostsUsed: 0,
       screeningUsed: 0,
-      resumeUsed: 0,
       aiScoreUsed: 0,
       jobPostsLimit:
         plan.jobPostsPerMonth === -1
@@ -64,10 +63,6 @@ export class SubscribePlanUseCase {
         plan.screeningCredits === -1
           ? -1
           : plan.screeningCredits * durationMonths,
-      resumeLimit:
-        plan.resumeParsesPerMonth === -1
-          ? -1
-          : plan.resumeParsesPerMonth * durationMonths,
       aiScoreLimit:
         plan.aiScoreCredits === -1 ? -1 : plan.aiScoreCredits * durationMonths,
       createdAt: new Date(),

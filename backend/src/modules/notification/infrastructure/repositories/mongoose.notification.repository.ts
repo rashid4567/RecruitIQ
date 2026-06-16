@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 import { NotificationModel } from "../mongoose/notification.model";
 
 import {
@@ -7,16 +9,36 @@ import {
 
 import { NotificationRepository } from "../../domain/repositories/notification.repository";
 
+type NotificationPersistence = {
+  _id: Types.ObjectId;
+  recipientId: Types.ObjectId;
+  recipientRole: "recruiter" | "candidate";
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  readAt?: Date | null;
+  actionUrl?: string;
+  referenceId?: Types.ObjectId | null;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export class MongooseNotificationRepository implements NotificationRepository {
   async create(notification: Notification): Promise<Notification> {
     const created = await NotificationModel.create(notification.getProps());
 
-    return Notification.reconstitute(this.toDomain(created));
+    return Notification.reconstitute(
+      this.toDomain(created.toObject() as NotificationPersistence),
+    );
   }
 
   async findById(notificationId: string): Promise<Notification | null> {
     const notification =
-      await NotificationModel.findById(notificationId).lean();
+      await NotificationModel.findById(
+        notificationId,
+      ).lean<NotificationPersistence>();
 
     if (!notification) {
       return null;
@@ -36,7 +58,7 @@ export class MongooseNotificationRepository implements NotificationRepository {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .lean();
+      .lean<NotificationPersistence[]>();
 
     return notifications.map((notification) =>
       Notification.reconstitute(this.toDomain(notification)),
@@ -49,7 +71,7 @@ export class MongooseNotificationRepository implements NotificationRepository {
       isRead: false,
     })
       .sort({ createdAt: -1 })
-      .lean();
+      .lean<NotificationPersistence[]>();
 
     return notifications.map((notification) =>
       Notification.reconstitute(this.toDomain(notification)),
@@ -57,7 +79,7 @@ export class MongooseNotificationRepository implements NotificationRepository {
   }
 
   async getUnreadCount(recipientId: string): Promise<number> {
-    return await NotificationModel.countDocuments({
+    return NotificationModel.countDocuments({
       recipientId,
       isRead: false,
     });
@@ -91,18 +113,18 @@ export class MongooseNotificationRepository implements NotificationRepository {
     await NotificationModel.findByIdAndDelete(notificationId);
   }
 
-  private toDomain(doc: any): NotificationProps {
+  private toDomain(doc: NotificationPersistence): NotificationProps {
     return {
       id: doc._id.toString(),
       recipientId: doc.recipientId.toString(),
       recipientRole: doc.recipientRole,
       title: doc.title,
       message: doc.message,
-      type: doc.type,
+      type: doc.type as NotificationProps["type"],
       isRead: doc.isRead,
       readAt: doc.readAt,
       actionUrl: doc.actionUrl,
-      referenceId: doc.referenceId,
+      referenceId: doc.referenceId?.toString(),
       metadata: doc.metadata,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

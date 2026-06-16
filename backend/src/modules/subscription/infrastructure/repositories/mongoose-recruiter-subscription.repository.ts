@@ -1,3 +1,4 @@
+import { FilterQuery, Types } from "mongoose";
 import { RecruiterProfileModel } from "../../../recruiter/infrastructure/mongoose/model/recruiter-profile.model";
 import {
   RecruiterSubscription,
@@ -14,7 +15,14 @@ import {
   SubscriptionStatus,
 } from "../mongoose/Recruitersubscription.model";
 import { PlanType } from "../mongoose/subscriptionPlan.model";
-
+type PopulatedUser = {
+  fullName: string;
+  email: string;
+};
+type RecruiterProfileLean = {
+  companyName?: string;
+  userId?: Types.ObjectId | PopulatedUser;
+};
 export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscriptionRepository {
   async save(
     subscription: RecruiterSubscription,
@@ -39,9 +47,9 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
   async findAll(params: GetSubscribersParams): Promise<PaginatedSubscribers> {
     const { page = 1, limit = 10, search, status } = params;
     const skip = (page - 1) * limit;
-    const filter: any = {};
+    const filter: FilterQuery<IRecruiterSubscription> = {};
     if (status) {
-      filter.status = status;
+      filter.status = status as SubscriptionStatus;
     }
     if (search) {
       filter.$or = [
@@ -70,7 +78,7 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
     ]);
 
     const items = await Promise.all(
-      subscriptions.map(async (sub: any) => {
+      subscriptions.map(async (sub) => {
         const recruiterProfile = await RecruiterProfileModel.findOne({
           userId: sub.recruiterId,
         })
@@ -79,12 +87,17 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
             model: "User",
             select: "fullName email",
           })
-          .lean();
+          .lean<RecruiterProfileLean>();
+        const user =
+          recruiterProfile?.userId &&
+          typeof recruiterProfile.userId === "object" &&
+          "fullName" in recruiterProfile.userId
+            ? recruiterProfile.userId
+            : undefined;
         return {
           id: sub._id.toString(),
           recruiterId: sub.recruiterId?.toString() ?? "",
-          recruiterName:
-            (recruiterProfile?.userId as any)?.fullName ?? "Unknown",
+          recruiterName: user?.fullName ?? "Unknown",
           companyName: recruiterProfile?.companyName ?? "",
           planName: sub.planName,
           status: sub.status,
@@ -102,6 +115,7 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       totalPages: Math.ceil(total / limit),
     };
   }
+
   async findById(id: string): Promise<RecruiterSubscription | null> {
     const doc = await RecruiterSubscriptionModel.findById(id);
     if (!doc) {
@@ -144,11 +158,9 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       cancelledAt: doc.cancelledAt,
       jobPostsUsed: doc.jobPostsUsed,
       screeningUsed: doc.screeningUsed,
-      resumeUsed: doc.resumeUsed,
       aiScoreUsed: doc.aiScoreUsed,
       jobPostsLimit: doc.jobPostsLimit,
       screeningLimit: doc.screeningLimit,
-      resumeLimit: doc.resumeLimit,
       aiScoreLimit: doc.aiScoreLimit,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

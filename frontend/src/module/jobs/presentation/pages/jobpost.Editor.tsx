@@ -124,12 +124,24 @@ function JobEditorUI({
       if (showPublishConfirmation || showSaveDraftModal) return;
       const tag = (e.target as HTMLElement)?.tagName;
       if (["INPUT", "TEXTAREA", "SELECT"].includes(tag || "")) return;
-      if (e.key === "ArrowRight" && currentStep < 5) goNext();
-      else if (e.key === "ArrowLeft" && currentStep > 1) goPrev();
+      if (e.key === "ArrowRight" && currentStep < 5) {
+        goNext();
+      } else if (e.key === "ArrowLeft" && currentStep > 1) {
+        goPrev();
+      }
     };
+
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [currentStep, showPublishConfirmation, showSaveDraftModal]);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [
+    currentStep,
+    showPublishConfirmation,
+    showSaveDraftModal,
+    goNext,
+    goPrev,
+  ]);
 
   useEffect(() => {
     if (!handleNavigateAway) return;

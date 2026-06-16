@@ -10,7 +10,7 @@ import {
   ArrowRight,
   Bell,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout } from "@/module/auth/presentation/hooks/useLogout";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -25,7 +25,6 @@ function getNavItems(role: string | null) {
         ? "/recruiter/jobs"
         : "/jobs";
 
- 
   return [
     { label: "Features", href: "#features", icon: Sparkles },
     { label: "Jobs", href: jobsHref, icon: Briefcase },
@@ -33,8 +32,6 @@ function getNavItems(role: string | null) {
     { label: "Contact", href: "#contact", icon: Mail },
   ];
 }
-
-
 
 function getNotificationPath(role: string | null): string {
   if (role === "recruiter") return "/recruiter/notification";
@@ -120,9 +117,15 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
+    () => !!localStorage.getItem("authToken"),
+  );
+  const [userRole, setUserRole] = useState<string | null>(
+    () => localStorage.getItem("userRole"),
+  );
+  const [userName, setUserName] = useState<string | null>(
+    () => localStorage.getItem("userFullName"),
+  );
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -132,15 +135,6 @@ export default function Header() {
   const { unreadCount } = useNotifications();
 
   const NAV_ITEMS = getNavItems(userRole);
-
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const role = localStorage.getItem("userRole");
-    const fullName = localStorage.getItem("userFullName");
-    setIsLoggedIn(!!token);
-    setUserRole(role);
-    setUserName(fullName || null);
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -161,7 +155,8 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  useEffect(() => {
+
+  useLayoutEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
@@ -194,9 +189,6 @@ export default function Header() {
     if (userRole === "admin") return "/admin-dashboard";
     return "/profile";
   };
-
-
-
 
   const initials = getInitials(userName);
   const roleLabel = getRoleDisplay(userRole);

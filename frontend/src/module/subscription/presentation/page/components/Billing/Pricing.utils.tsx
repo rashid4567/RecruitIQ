@@ -42,10 +42,7 @@ export const getDisplayScreeningCredits = (plan: SubscriptionPlan): string => {
   return (plan.screeningCredits ?? 0).toString();
 };
 
-export const getDisplayResumeParsing = (plan: SubscriptionPlan): string => {
-  if (plan.resumeParsesPerMonth === -1) return "Unlimited";
-  return (plan.resumeParsesPerMonth ?? 0).toString();
-};
+
 
 export const getDisplayAiScoreCredits = (plan: SubscriptionPlan): string => {
   if (plan.aiScoreCredits === -1) return "Unlimited";
@@ -92,17 +89,7 @@ export function buildFeatureCategories(
             plans.map((p) => [p.id, `${p.jobPostActiveDays} days`]),
           ),
         },
-        {
-          name: "Resume Parsing",
-          values: Object.fromEntries(
-            plans.map((p) => [
-              p.id,
-              p.featuresAccess?.resumeParsing
-                ? getDisplayResumeParsing(p)
-                : false,
-            ]),
-          ),
-        },
+        
         {
           name: "Candidate Shortlisting",
           values: Object.fromEntries(

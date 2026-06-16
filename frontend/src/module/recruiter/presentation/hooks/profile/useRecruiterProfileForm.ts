@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useForm, type Resolver } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import type { Path, PathValue } from "react-hook-form";
@@ -49,7 +49,15 @@ export function useRecruiterProfileForm({
     }
   }, [profile, reset]);
 
-  const [currentBio, currentName] = watch(["bio", "fullName"]);
+ const currentBio = useWatch({
+  control: form.control,
+  name: "bio",
+});
+
+const currentName = useWatch({
+  control: form.control,
+  name: "fullName",
+});
 
   const bioLength = currentBio?.length ?? 0;
 

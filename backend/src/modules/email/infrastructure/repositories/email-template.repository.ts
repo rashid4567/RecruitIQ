@@ -3,10 +3,10 @@ import { EmailTemplateRepository } from "../../../email/domain/repository/email-
 
 import { EmailEvent } from "../../domain/constant/templateEvents";
 
-import { EmailTemplateModel } from "../../../email/infrastructure/mongoose/email-template.model";
+import { EmailTemplateDoc, EmailTemplateModel } from "../../../email/infrastructure/mongoose/email-template.model";
 
 export class MongooseEmailTemplateRepository implements EmailTemplateRepository {
-  private toEntity(doc: any): EmailTemplate {
+  private toEntity(doc: EmailTemplateDoc): EmailTemplate {
     return new EmailTemplate(
       doc._id.toString(),
       doc.name ?? "",

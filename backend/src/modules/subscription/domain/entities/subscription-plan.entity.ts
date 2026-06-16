@@ -26,7 +26,6 @@ export interface FeatureAccess {
   advancedAnalytics: boolean;
   prioritySupport: boolean;
   aiResumeScoring: boolean;
-  resumeParsing: boolean;
   candidateShortlisting: boolean;
   exportReports: boolean;
 }
@@ -48,7 +47,6 @@ export interface SubscriptionPlanProps {
   jobPostsPerMonth: number;
   jobPostActiveDays: number;
   screeningCredits: number;
-  resumeParsesPerMonth: number;
   aiScoreCredits: number;
   featuresAccess: FeatureAccess;
   features: PlanFeature[];
@@ -81,9 +79,7 @@ export class SubscriptionPlan {
     if (props.screeningCredits < -1) {
       throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_SCREENING_CREDITS);
     }
-    if (props.resumeParsesPerMonth < -1) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_RESUME_LIMIT);
-    }
+
     if (props.aiScoreCredits < -1) {
       throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_AI_SCORE_CREDIT);
     }
@@ -133,9 +129,7 @@ export class SubscriptionPlan {
   get screeningCredits(): number {
     return this.props.screeningCredits;
   }
-  get resumeParsesPerMonth(): number {
-    return this.props.resumeParsesPerMonth;
-  }
+
   get aiScoreCredits(): number {
     return this.props.aiScoreCredits;
   }
@@ -180,9 +174,7 @@ export class SubscriptionPlan {
   hasUnlimitedScreening(): boolean {
     return this.props.screeningCredits === -1;
   }
-  hasUnlimitedResumeParses(): boolean {
-    return this.props.resumeParsesPerMonth === -1;
-  }
+
   hasUnlimitedAIScoring(): boolean {
     return this.props.aiScoreCredits === -1;
   }
@@ -195,9 +187,7 @@ export class SubscriptionPlan {
   supportsPriority(): boolean {
     return this.props.featuresAccess.prioritySupport;
   }
-  supportsResumeParsing(): boolean {
-    return this.props.featuresAccess.resumeParsing;
-  }
+
   supportsAIScoring(): boolean {
     return this.props.featuresAccess.aiResumeScoring;
   }

@@ -2,7 +2,6 @@ import { CreditCard, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../../recruiter/presentation/pages/components/layout/Sidebar";
 import { useCurrentSubscription } from "../hooks/subscriptions/useCurrentSubscription";
-
 import StatusBadge from "./components/current.subscription/StatusBadge";
 import SubscriptionOverview from "./components/current.subscription/SubscriptionOverview";
 import UsageSection from "./components/current.subscription/UsageSection";
@@ -18,15 +17,12 @@ function computeOverallUsage(sub: {
   jobPostsLimit: number;
   screeningUsed: number;
   screeningLimit: number;
-  resumeUsed: number;
-  resumeLimit: number;
   aiScoreUsed: number;
   aiScoreLimit: number;
 }): number {
   return Math.round(
     ((sub.jobPostsUsed / sub.jobPostsLimit +
       sub.screeningUsed / sub.screeningLimit +
-      sub.resumeUsed / sub.resumeLimit +
       sub.aiScoreUsed / sub.aiScoreLimit) /
       4) *
       100,

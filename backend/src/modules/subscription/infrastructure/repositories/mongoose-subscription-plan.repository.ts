@@ -4,7 +4,7 @@ import {
   PlanType,
 } from "../../domain/entities/subscription-plan.entity";
 
-import { SubscriptionPlanFilter } from "../../../admin/Domain/repositories/subscription-plan.repository";
+import { SubscriptionPlanFilter } from "../../domain/repository/subscription-plan.repository";
 import { SubscriptionPlanRepository } from "../../domain/repository/subscription-plan.repository";
 
 import {
@@ -97,13 +97,11 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
       billingInterval: doc.billingInterval,
       jobPostsPerMonth: doc.jobPostsPerMonth,
       screeningCredits: doc.screeningCredits,
-      resumeParsesPerMonth: doc.resumeParsesPerMonth,
       aiScoreCredits: doc.aiScoreCredits,
       featuresAccess: {
         interviewScheduling: doc.featuresAccess.interviewScheduling,
         advancedAnalytics: doc.featuresAccess.advancedAnalytics,
         prioritySupport: doc.featuresAccess.prioritySupport,
-        resumeParsing: doc.featuresAccess.resumeParsing,
         aiResumeScoring: doc.featuresAccess.aiResumeScoring,
         candidateShortlisting: doc.featuresAccess.candidateShortlisting,
         exportReports: doc.featuresAccess.exportReports,

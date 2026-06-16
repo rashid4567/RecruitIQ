@@ -16,18 +16,30 @@ export class UpgradeSubscriptionUseCase {
   ) {
     const currentSubscription =
       await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
+
     if (!currentSubscription) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_NOT_FOUND);
     }
 
+    const currentPlan = await this.planRepo.findById(
+      currentSubscription.planId,
+    );
+
+    if (!currentPlan) {
+      throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
+    }
+
     const newPlan = await this.planRepo.findById(newPlanId);
+
     if (!newPlan || !newPlan.isActive) {
       throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
     }
+
     if (currentSubscription.planId === newPlan.id) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_ALREADY_EXISTS);
     }
-    if (newPlan.price <= currentSubscription.planPrice) {
+
+    if (!currentPlan.canUpgradeTo(newPlan)) {
       throw new ApplicationError(ERROR_CODES.DOWNGRADE_NOT_ALLOWED);
     }
 
@@ -42,39 +54,26 @@ export class UpgradeSubscriptionUseCase {
       planType: newPlan.planType,
       durationMonths,
       jobPostActiveDays: newPlan.jobPostActiveDays,
-
       startDate: now,
       endDate,
-
       currentPeriodStart: now,
       currentPeriodEnd: endDate,
-
       jobPostsUsed: 0,
       screeningUsed: 0,
-      resumeUsed: 0,
       aiScoreUsed: 0,
-
       jobPostsLimit:
         newPlan.jobPostsPerMonth === -1
           ? -1
           : newPlan.jobPostsPerMonth * durationMonths,
-
       screeningLimit:
         newPlan.screeningCredits === -1
           ? -1
           : newPlan.screeningCredits * durationMonths,
-
-      resumeLimit:
-        newPlan.resumeParsesPerMonth === -1
-          ? -1
-          : newPlan.resumeParsesPerMonth * durationMonths,
-
       aiScoreLimit:
         newPlan.aiScoreCredits === -1
           ? -1
           : newPlan.aiScoreCredits * durationMonths,
     });
-
     await this.subscriptionRepo.update(upgradedSubscription);
 
     return upgradedSubscription;

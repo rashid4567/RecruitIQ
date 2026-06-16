@@ -9,7 +9,7 @@ import {
   Check,
   Wifi,
 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
 
 interface Props {
@@ -87,9 +87,13 @@ function DepartmentDropdown({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // FIX: Only the DOM side-effect (focus) stays in useEffect — talking to an
+  // external system (the DOM) is exactly what effects are for.
+  // The search reset (setSearch) has been moved into the click handler below
+  // so it runs as a direct consequence of the user's action, not as a
+  // cascading state update triggered by another state change.
   useEffect(() => {
     if (!open) return;
-    setSearch("");
     const timer = setTimeout(() => {
       searchRef.current?.focus();
     }, 50);
@@ -104,7 +108,15 @@ function DepartmentDropdown({
     <div ref={ref} className="relative">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          // Reset search text when opening the dropdown — done here in the
+          // event handler rather than inside a useEffect to avoid the
+          // setState-in-effect cascade.
+          setOpen((prev) => {
+            if (!prev) setSearch("");
+            return !prev;
+          });
+        }}
         className={`w-full h-12 px-4 flex items-center justify-between rounded-xl border-2 bg-white text-left transition-all duration-200 ${
           open
             ? "border-indigo-500 ring-4 ring-indigo-50 shadow-sm"
@@ -223,9 +235,7 @@ export default function Step1BasicInfo({
             <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
               <Building2
                 className={`w-4 h-4 transition-colors duration-200 ${
-                  formData.companyName
-                    ? "text-indigo-500"
-                    : "text-gray-300"
+                  formData.companyName ? "text-indigo-500" : "text-gray-300"
                 }`}
               />
             </div>

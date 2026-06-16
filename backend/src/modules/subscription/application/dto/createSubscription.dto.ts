@@ -13,7 +13,6 @@ export interface CreatePlanInput {
   jobPostsPerMonth: number;
   jobPostActiveDays: number;
   screeningCredits: number;
-  resumeParsesPerMonth: number;
   aiScoreCredits: number;
   featuresAccess: FeatureAccess;
   features: PlanFeature[];

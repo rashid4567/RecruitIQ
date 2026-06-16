@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { useNavigate } from "react-router-dom";
 
@@ -15,11 +15,11 @@ export default function NotFoundPage() {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!canvasRef.current) return;
 
     const renderer = new THREE.WebGLRenderer({

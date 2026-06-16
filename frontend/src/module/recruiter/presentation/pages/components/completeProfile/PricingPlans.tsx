@@ -374,7 +374,7 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
 
     fetchPlans();
 
-  }, []);
+  }, [selectedPlan]);
 
 
   const handlePlanSelect = (plan: SubscriptionPlan) => {

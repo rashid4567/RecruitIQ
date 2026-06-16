@@ -12,7 +12,6 @@ export interface UpdatePlanInput {
   jobPostsPerMonth?: number;
   jobPostActiveDays?: number;
   screeningCredits?: number;
-  resumeParsesPerMonth?: number;
   aiScoreCredits?: number;
   featuresAccess?: Partial<FeatureAccess>;
   features?: PlanFeature[];

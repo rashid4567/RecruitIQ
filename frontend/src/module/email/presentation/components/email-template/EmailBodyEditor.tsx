@@ -67,7 +67,6 @@ export function EmailBodyEditor({
   const detectedVars = extractVariables(body);
   const lineCount = body.split("\n").length;
 
-  // Track edit history for undo
   const lastSaved = useRef(body);
   useEffect(() => {
     if (body !== lastSaved.current) {

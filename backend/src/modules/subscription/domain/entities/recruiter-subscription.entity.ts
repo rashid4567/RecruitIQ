@@ -27,11 +27,9 @@ export interface RecruiterSubscriptionProps {
   cancelledAt?: Date;
   jobPostsUsed: number;
   screeningUsed: number;
-  resumeUsed: number;
   aiScoreUsed: number;
   jobPostsLimit: number;
   screeningLimit: number;
-  resumeLimit: number;
   aiScoreLimit: number;
   createdAt: Date;
   updatedAt: Date;
@@ -67,7 +65,6 @@ export class RecruiterSubscription {
     if (
       props.jobPostsUsed < 0 ||
       props.screeningUsed < 0 ||
-      props.resumeUsed < 0 ||
       props.aiScoreUsed < 0
     ) {
       throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_USAGE);
@@ -76,7 +73,6 @@ export class RecruiterSubscription {
     if (
       props.jobPostsLimit < -1 ||
       props.screeningLimit < -1 ||
-      props.resumeLimit < -1 ||
       props.aiScoreLimit < -1
     ) {
       throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_POST_LIMIT);
@@ -156,9 +152,7 @@ export class RecruiterSubscription {
     return this.props.screeningUsed;
   }
 
-  get resumeUsed() {
-    return this.props.resumeUsed;
-  }
+
 
   get aiScoreUsed() {
     return this.props.aiScoreUsed;
@@ -172,9 +166,7 @@ export class RecruiterSubscription {
     return this.props.screeningLimit;
   }
 
-  get resumeLimit() {
-    return this.props.resumeLimit;
-  }
+
 
   get aiScoreLimit() {
     return this.props.aiScoreLimit;
@@ -212,9 +204,6 @@ export class RecruiterSubscription {
     );
   }
 
-  hasResumeAccess(): boolean {
-    return this.resumeLimit === -1 || this.resumeUsed < this.resumeLimit;
-  }
 
   hasAIScoreAccess(): boolean {
     return this.aiScoreLimit === -1 || this.aiScoreUsed < this.aiScoreLimit;
@@ -244,17 +233,7 @@ export class RecruiterSubscription {
     });
   }
 
-  consumeResume() {
-    if (!this.hasResumeAccess()) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.RESUME_LIMIT_EXCEEDED);
-    }
 
-    return new RecruiterSubscription({
-      ...this.props,
-      resumeUsed: this.resumeUsed + 1,
-      updatedAt: new Date(),
-    });
-  }
 
   consumeAIScore() {
     if (!this.hasAIScoreAccess()) {
@@ -275,7 +254,6 @@ export class RecruiterSubscription {
       currentPeriodEnd: nextPeriodEnd,
       jobPostsUsed: 0,
       screeningUsed: 0,
-      resumeUsed: 0,
       aiScoreUsed: 0,
       updatedAt: new Date(),
     });

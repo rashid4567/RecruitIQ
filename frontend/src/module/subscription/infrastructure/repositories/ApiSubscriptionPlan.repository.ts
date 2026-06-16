@@ -28,7 +28,6 @@ interface RawFeaturesAccess {
   advancedAnalytics: boolean;
   prioritySupport: boolean;
   aiResumeScoring: boolean;
-  resumeParsing: boolean;
   candidateShortlisting: boolean;
   exportReports: boolean;
 }
@@ -46,7 +45,6 @@ interface RawSubscriptionPlan {
   billingInterval?: number;
   jobPostsPerMonth?: number;
   screeningCredits?: number;
-  resumeParsesPerMonth?: number;
   aiScoreCredits?: number;
   razorpayPlanId?: string;
   featuresAccess?: Partial<RawFeaturesAccess>;
@@ -129,7 +127,6 @@ export class ApiSubscriptionPlanRepository implements SubscriptionPlanRepository
       advancedAnalytics: source.featuresAccess?.advancedAnalytics ?? false,
       prioritySupport: source.featuresAccess?.prioritySupport ?? false,
       aiResumeScoring: source.featuresAccess?.aiResumeScoring ?? false,
-      resumeParsing: source.featuresAccess?.resumeParsing ?? false,
       candidateShortlisting:
         source.featuresAccess?.candidateShortlisting ?? false,
       exportReports: source.featuresAccess?.exportReports ?? false,
@@ -146,7 +143,6 @@ export class ApiSubscriptionPlanRepository implements SubscriptionPlanRepository
       billingInterval: source.billingInterval ?? 1,
       jobPostsPerMonth: source.jobPostsPerMonth ?? 0,
       screeningCredits: source.screeningCredits ?? 0,
-      resumeParsesPerMonth: source.resumeParsesPerMonth ?? 0,
       aiScoreCredits: source.aiScoreCredits ?? 0,
       razorpayPlanId: source.razorpayPlanId,
       featuresAccess,

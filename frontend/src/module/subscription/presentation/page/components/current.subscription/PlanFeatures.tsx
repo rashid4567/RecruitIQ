@@ -24,11 +24,7 @@ export default function PlanFeatures({
       value: subscription.screeningLimit,
       unit: "credits",
     },
-    {
-      name: "Resume Parsing",
-      value: subscription.resumeLimit,
-      unit: "/month",
-    },
+ 
     {
       name: "AI Scoring",
       value: subscription.aiScoreLimit,

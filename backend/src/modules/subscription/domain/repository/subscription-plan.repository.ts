@@ -1,5 +1,4 @@
 import { PlanType } from "../entities/subscription-plan.entity";
-
 import { SubscriptionPlan } from "../entities/subscription-plan.entity";
 
 export interface SubscriptionPlanFilter {

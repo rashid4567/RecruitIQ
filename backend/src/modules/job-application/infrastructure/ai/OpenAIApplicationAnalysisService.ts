@@ -275,7 +275,7 @@ Return ONLY valid JSON.
         return AnalysisSchema.parse(JSON.parse(content));
       } catch (error: unknown) {
         lastError = error;
-
+        console.log(lastError)
         const { status, code } = this.extractErrorMeta(error);
 
         console.error(`Application analysis attempt ${attempt} failed`, {

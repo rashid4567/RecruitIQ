@@ -83,8 +83,8 @@ export class TokenService implements AuthTokenServicePort {
       }
 
       return { userId: decoded.userId };
-    } catch (err: any) {
-      if (err.name === "TokenExpiredError") {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "TokenExpiredError") {
         throw new Error(INFRA_ERRORS.PASSWORD_RESET_TOKEN_EXPIRED);
       }
 

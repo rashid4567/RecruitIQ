@@ -24,7 +24,6 @@ export interface IFeaturesAccess {
   interviewScheduling: boolean;
   advancedAnalytics: boolean;
   prioritySupport: boolean;
-  resumeParsing: boolean;
   aiResumeScoring: boolean;
   candidateShortlisting: boolean;
   exportReports: boolean;
@@ -46,7 +45,6 @@ export interface ISubscriptionPlan extends Document {
   jobPostsPerMonth: number;
   jobPostActiveDays: number;
   screeningCredits: number;
-  resumeParsesPerMonth: number;
   aiScoreCredits: number;
   featuresAccess: IFeaturesAccess;
   features: IFeature[];
@@ -93,10 +91,7 @@ const FeaturesAccessSchema = new Schema<IFeaturesAccess>(
       default: false,
     },
 
-    resumeParsing: {
-      type: Boolean,
-      default: false,
-    },
+
 
     aiResumeScoring: {
       type: Boolean,
@@ -184,11 +179,7 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       default: 10,
     },
 
-    resumeParsesPerMonth: {
-      type: Number,
-      min: -1,
-      default: 20,
-    },
+   
 
     aiScoreCredits: {
       type: Number,

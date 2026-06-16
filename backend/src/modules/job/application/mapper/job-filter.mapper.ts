@@ -1,3 +1,4 @@
+import { JobStatus, JobType } from "../../domain/entities/job.entity";
 import { JobFilters } from "../../domain/types/job-filter.type";
 import { GetJobQueryDTO } from "../../presentation/dto/get-job-query.dto";
 
@@ -5,8 +6,8 @@ export class JobFilterMapper {
   static toDomain(query: GetJobQueryDTO): JobFilters {
     return {
       search: query.search,
-      status: query.status as any,
-      jobType: query.jobType as any,
+      status: query.status as JobStatus,
+      jobType: query.jobType as JobType,
       department: query.department,
       isRemote:
         query.isRemote === "true"

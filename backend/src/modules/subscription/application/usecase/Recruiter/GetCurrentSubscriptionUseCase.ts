@@ -43,8 +43,7 @@ export class GetCurrentSubscriptionUseCase {
       jobPostActiveDays: currentSubscription.jobPostActiveDays,
       screeningUsed: currentSubscription.screeningUsed,
       screeningLimit: currentSubscription.screeningLimit,
-      resumeUsed: currentSubscription.resumeUsed,
-      resumeLimit: currentSubscription.resumeLimit,
+
       aiScoreUsed: currentSubscription.aiScoreUsed,
       aiScoreLimit: currentSubscription.aiScoreLimit,
       autoRenew: currentSubscription.autoRenew,

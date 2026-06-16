@@ -1,5 +1,18 @@
-import { model, Schema } from "mongoose";
+import { HydratedDocument, model, Schema } from "mongoose";
 import { EmailEvent } from "../../domain/constant/templateEvents";
+
+export interface EmailTemplateDocument {
+  name: string;
+  event: EmailEvent;
+  subject: string;
+  body: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type EmailTemplateDoc = HydratedDocument<EmailTemplateDocument>;
+
 
 const emailTemplateSchema = new Schema(
   {

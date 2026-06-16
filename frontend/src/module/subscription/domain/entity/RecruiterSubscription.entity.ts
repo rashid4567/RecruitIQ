@@ -20,11 +20,9 @@ export interface RecruiterSubscriptionProps {
   cancelledAt?: Date;
   jobPostsUsed: number;
   screeningUsed: number;
-  resumeUsed: number;
   aiScoreUsed: number;
   jobPostsLimit: number;
   screeningLimit: number;
-  resumeLimit: number;
   aiScoreLimit: number;
   createdAt: Date;
   updatedAt: Date;
@@ -95,9 +93,7 @@ export class RecruiterSubscription {
   get screeningUsed() {
     return this.props.screeningUsed;
   }
-  get resumeUsed() {
-    return this.props.resumeUsed;
-  }
+
   get aiScoreUsed() {
     return this.props.aiScoreUsed;
   }
@@ -107,9 +103,7 @@ export class RecruiterSubscription {
   get screeningLimit() {
     return this.props.screeningLimit;
   }
-  get resumeLimit() {
-    return this.props.resumeLimit;
-  }
+
   get aiScoreLimit() {
     return this.props.aiScoreLimit;
   }
@@ -147,13 +141,7 @@ get remainingScreenings() {
   return this.screeningLimit - this.screeningUsed;
 }
 
-get remainingResumeParses() {
-  if (this.resumeLimit === -1) {
-    return -1;
-  }
 
-  return this.resumeLimit - this.resumeUsed;
-}
 
 get remainingAIScores() {
   if (this.aiScoreLimit === -1) {
@@ -180,15 +168,7 @@ get remainingAIScores() {
     }
     return this.props.screeningUsed < this.props.screeningLimit;
   }
-  canUseResume(): boolean {
-    if (!this.isActive) {
-      return false;
-    }
-    if (this.props.resumeLimit === -1) {
-      return true;
-    }
-    return this.props.resumeUsed < this.props.resumeLimit;
-  }
+ 
   canUseAIScore(): boolean {
     if (!this.isActive) {
       return false;
@@ -212,13 +192,7 @@ get remainingAIScores() {
       updatedAt: new Date(),
     });
   }
-  consumeResume() {
-    return new RecruiterSubscription({
-      ...this.props,
-      resumeUsed: this.props.resumeUsed + 1,
-      updatedAt: new Date(),
-    });
-  }
+ 
   consumeAIScore() {
     return new RecruiterSubscription({
       ...this.props,
@@ -252,7 +226,6 @@ get remainingAIScores() {
       ...this.props,
       jobPostsUsed: 0,
       screeningUsed: 0,
-      resumeUsed: 0,
       aiScoreUsed: 0,
       updatedAt: new Date(),
     });

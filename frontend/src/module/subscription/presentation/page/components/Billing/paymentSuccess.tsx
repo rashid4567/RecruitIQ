@@ -430,20 +430,7 @@ export default function PaymentSuccessPage() {
             : 0,
       color: "from-blue-400 to-indigo-400",
     },
-    {
-      label: "Resume Parses",
-      icon: <Shield className="w-3.5 h-3.5" />,
-      used: sub?.resumeUsed ?? 0,
-      limit: sub?.resumeLimit ?? 0,
-      unlimited: sub?.resumeLimit === -1,
-      pct:
-        sub?.resumeLimit === -1
-          ? 100
-          : sub
-            ? Math.round(((sub.resumeUsed ?? 0) / (sub.resumeLimit ?? 1)) * 100)
-            : 0,
-      color: "from-violet-400 to-purple-400",
-    },
+
     {
       label: "AI Score Credits",
       icon: <Star className="w-3.5 h-3.5" />,

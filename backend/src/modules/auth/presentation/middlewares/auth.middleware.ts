@@ -15,7 +15,6 @@ export const authenticate = (
   }
 
   try {
-  
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -28,24 +27,15 @@ export const authenticate = (
 
     const token = authHeader.split(" ")[1];
 
-
-
     const decoded = tokenService.verifyAccessToken(token);
-
-
 
     req.user = {
       userId: decoded.userId,
-      role: decoded.role as
-        | "admin"
-        | "recruiter"
-        | "candidate",
+      role: decoded.role as "admin" | "recruiter" | "candidate",
     };
 
     next();
-  } catch (err: any) {
-  
-
+  } catch (err: unknown) {
     if (err instanceof jwt.TokenExpiredError) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,

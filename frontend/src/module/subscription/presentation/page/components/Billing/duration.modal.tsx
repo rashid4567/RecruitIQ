@@ -1,7 +1,15 @@
 import {
-  Loader2, X, Briefcase, FileText,
-  Star, Cpu, ArrowRight, ShieldCheck, Lock,
-  Plus, Minus,
+  Loader2,
+  X,
+  Briefcase,
+  Star,
+  Cpu,
+  ArrowRight,
+  ShieldCheck,
+  Lock,
+  Plus,
+  Minus,
+  Sparkles,
 } from "lucide-react";
 import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
 
@@ -21,12 +29,39 @@ const fmt = (value: number, multiplier: number) =>
 
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
-const CREDITS = [
-  { icon: Briefcase, label: "Job posts",         key: "jobPostsPerMonth"     },
-  { icon: Star,      label: "Screening credits",  key: "screeningCredits"     },
-  { icon: FileText,  label: "Resume parses",      key: "resumeParsesPerMonth" },
-  { icon: Cpu,       label: "AI score credits",   key: "aiScoreCredits"       },
-] as const;
+interface CreditRow {
+  icon: React.ElementType;
+  label: string;
+  getValue: (plan: SubscriptionPlan) => number;
+  color: string;
+  bg: string;
+}
+
+const CREDITS: CreditRow[] = [
+  {
+    icon: Briefcase,
+    label: "Job posts",
+    getValue: (p) => p.jobPostsPerMonth,
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+  },
+  {
+    icon: Star,
+    label: "Screening credits",
+    getValue: (p) => p.screeningCredits,
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+  },
+  {
+    icon: Cpu,
+    label: "AI score credits",
+    getValue: (p) => p.aiScoreCredits,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+  },
+];
+
+const DURATION_PRESETS = [1, 3, 6, 12];
 
 export default function SubscriptionDurationModal({
   isOpen,
@@ -43,77 +78,134 @@ export default function SubscriptionDurationModal({
   const dec = () => setDurationMonths(Math.max(1, durationMonths - 1));
   const inc = () => setDurationMonths(Math.min(12, durationMonths + 1));
 
+  const savings =
+    durationMonths >= 12
+      ? 20
+      : durationMonths >= 6
+        ? 10
+        : durationMonths >= 3
+          ? 5
+          : 0;
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 px-0 sm:px-4 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-[400px] overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200">
+      <div className="w-full sm:max-w-105 overflow-hidden rounded-t-3xl sm:rounded-2xl bg-white shadow-2xl">
+        <div className="flex justify-center pt-3 pb-1 sm:hidden">
+          <div className="w-10 h-1 rounded-full bg-slate-200" />
+        </div>
+        <div className="relative bg-[#0f172a] px-5 pt-5 pb-6">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(0deg,#fff 0px,#fff 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,#fff 0px,#fff 1px,transparent 1px,transparent 28px)",
+            }}
+          />
 
-        {/* ── Header ── */}
-        <div className="bg-[#0f172a] px-5 py-4">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="relative flex items-start justify-between mb-4">
             <div>
-              <p className="mb-[3px] text-[10px] uppercase tracking-[0.1em] font-medium text-slate-500">
-                Subscription
-              </p>
-              <h2 className="text-[16px] font-medium text-slate-100">
-                Choose duration
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/15 px-2.5 py-1 mb-2">
+                <Sparkles className="h-3 w-3 text-blue-400" />
+                <span className="text-[11px] font-semibold tracking-wide text-blue-300 uppercase">
+                  {selectedPlan.name} Plan
+                </span>
+              </div>
+              <h2 className="text-[18px] font-semibold text-white leading-tight">
+                Choose your duration
               </h2>
+              <p className="text-[12px] text-slate-400 mt-0.5">
+                Longer plans unlock bigger savings
+              </p>
             </div>
             <button
               onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-[7px] border border-white/10 bg-white/[0.06] text-slate-500 transition-colors hover:bg-white/[0.12]"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.07] text-slate-400 transition-colors hover:bg-white/15 hover:text-white mt-1"
             >
-              <X className="h-[14px] w-[14px]" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="inline-flex items-center gap-[6px] rounded-full border border-blue-500/30 bg-blue-500/15 px-[10px] py-1">
-              <span className="h-[6px] w-[6px] rounded-full bg-blue-500" />
-              <span className="text-[12px] font-medium text-blue-300">
-                {selectedPlan.name} Plan
-              </span>
+          <div className="relative flex items-end justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5">
+                Monthly rate
+              </p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-[26px] font-bold text-white leading-none">
+                  {inr(selectedPlan.price)}
+                </span>
+                <span className="text-[12px] text-slate-400">/mo</span>
+              </div>
             </div>
-            <div className="flex items-baseline gap-[2px]">
-              <span className="text-[17px] font-medium text-slate-200">
-                {inr(selectedPlan.price)}
-              </span>
-              <span className="text-[11px] text-slate-500">/mo</span>
-            </div>
+            {savings > 0 && (
+              <div className="flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full px-2.5 py-1">
+                <span className="text-[11px] font-semibold text-emerald-400">
+                  Save {savings}%
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ── Body ── */}
-        <div className="flex flex-col gap-[14px] p-5">
+        <div className="flex flex-col gap-4 p-5">
+          <div>
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-2">
+              Quick select
+            </p>
+            <div className="grid grid-cols-4 gap-2">
+              {DURATION_PRESETS.map((n) => {
+                const isActive = durationMonths === n;
+                const label = n === 12 ? "1 yr" : `${n} mo`;
+                return (
+                  <button
+                    key={n}
+                    onClick={() => setDurationMonths(n)}
+                    className={`relative py-2 rounded-xl text-[12px] font-semibold border transition-all ${
+                      isActive
+                        ? "bg-[#0f172a] text-white border-[#0f172a] shadow-sm"
+                        : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100"
+                    }`}
+                  >
+                    {label}
+                    {n === 12 && (
+                      <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
+                        BEST
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-          {/* Stepper */}
-          <div className="rounded-xl border border-slate-100 bg-slate-50 px-[14px] py-3">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-3">
+              Fine-tune
+            </p>
             <div className="flex items-center justify-between gap-3">
-
-              {/* − */}
               <button
                 onClick={dec}
                 disabled={durationMonths === 1}
-                className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-all hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-30"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:shadow disabled:cursor-not-allowed disabled:opacity-30"
               >
-                <Minus className="h-[14px] w-[14px]" />
+                <Minus className="h-3.5 w-3.5" />
               </button>
 
-              {/* Counter */}
               <div className="flex-1 text-center">
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-[28px] font-medium leading-none text-slate-900">
+                <div className="flex items-baseline justify-center gap-1.5">
+                  <span className="text-[32px] font-bold leading-none text-slate-900 tabular-nums">
                     {durationMonths}
                   </span>
-                  <span className="text-[12px] text-slate-400">
+                  <span className="text-[13px] text-slate-400 font-medium">
                     {durationMonths === 1 ? "month" : "months"}
                   </span>
                 </div>
 
-                {/* Dot indicator */}
-                <div className="mt-[7px] flex items-center justify-center gap-[3px]">
+                <div className="mt-2.5 flex items-center justify-center gap-0.75">
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => {
                     const isActive = n === durationMonths;
                     const isPast = n < durationMonths;
@@ -121,119 +213,108 @@ export default function SubscriptionDurationModal({
                       <button
                         key={n}
                         onClick={() => setDurationMonths(n)}
+                        aria-label={`${n} month${n > 1 ? "s" : ""}`}
                         className="transition-all duration-150"
                         style={{
-                          width: isActive ? "14px" : "5px",
+                          width: isActive ? "16px" : "5px",
                           height: "5px",
                           borderRadius: isActive ? "3px" : "50%",
                           background: isActive
-                            ? "#2563eb"
+                            ? "#0f172a"
                             : isPast
-                            ? "#93c5fd"
-                            : "#e2e8f0",
+                              ? "#94a3b8"
+                              : "#e2e8f0",
                           border: "none",
                           cursor: "pointer",
                           padding: 0,
                           flexShrink: 0,
                         }}
-                        aria-label={`${n} month${n > 1 ? "s" : ""}`}
                       />
                     );
                   })}
                 </div>
               </div>
 
-              {/* + */}
               <button
                 onClick={inc}
                 disabled={durationMonths === 12}
-                className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-30"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0f172a] text-white shadow-sm transition-all hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-30"
               >
-                <Plus className="h-[14px] w-[14px]" />
+                <Plus className="h-3.5 w-3.5" />
               </button>
-
             </div>
           </div>
 
-          {/* Summary card */}
-          <div className="overflow-hidden rounded-xl border border-slate-100">
-
-            {/* Top: price + duration */}
-            <div className="flex flex-col gap-[7px] border-b border-slate-100 px-[14px] py-3">
-              <Row label="Monthly price" value={inr(selectedPlan.price)} />
-              <Row
-                label="Duration"
-                value={`${durationMonths} month${durationMonths > 1 ? "s" : ""}`}
-              />
-            </div>
-
-            {/* Credits */}
-            <div className="flex flex-col gap-[6px] border-b border-slate-100 bg-slate-50 px-[14px] py-[10px]">
-              {CREDITS.map(({ icon: Icon, label, key }) => (
-                <div key={key} className="flex items-center justify-between">
-                  <span className="flex items-center gap-[5px] text-[12px] text-slate-500">
-                    <Icon className="h-[13px] w-[13px]" />
-                    {label}
+          <div className="rounded-xl border border-slate-200 overflow-hidden">
+            <div className="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-100">
+              {CREDITS.map(({ icon: Icon, label, getValue, color, bg }) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center gap-1.5 py-3 px-2"
+                >
+                  <div
+                    className={`flex h-7 w-7 items-center justify-center rounded-lg ${bg}`}
+                  >
+                    <Icon className={`h-3.5 w-3.5 ${color}`} />
+                  </div>
+                  <span className="text-[13px] font-semibold text-slate-800 tabular-nums">
+                    {fmt(getValue(selectedPlan), durationMonths)}
                   </span>
-                  <span className="text-[12px] font-medium text-slate-800">
-                    {fmt(selectedPlan[key] as number, durationMonths)}
+                  <span className="text-[10px] text-slate-400 text-center leading-tight">
+                    {label}
                   </span>
                 </div>
               ))}
             </div>
 
-            {/* Total */}
-            <div className="flex items-center justify-between px-[14px] py-[10px]">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.07em] font-medium text-slate-400">
+            <div className="flex items-center justify-between px-4 py-3 bg-slate-50">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[11px] text-slate-400">
+                  {inr(selectedPlan.price)} × {durationMonths} month
+                  {durationMonths > 1 ? "s" : ""}
+                </span>
+                {savings > 0 && (
+                  <span className="text-[11px] font-medium text-emerald-600">
+                    {savings}% discount applied
+                  </span>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] uppercase tracking-widest text-slate-400 mb-0.5">
                   Total
                 </p>
-                <p className="text-[11px] text-slate-400">
-                  {inr(selectedPlan.price)} × {durationMonths}
+                <p className="text-[24px] font-bold text-slate-900 leading-none">
+                  {inr(totalAmount)}
                 </p>
               </div>
-              <p className="text-[22px] font-medium text-slate-900">
-                {inr(totalAmount)}
-              </p>
             </div>
           </div>
 
-          {/* Pay CTA */}
           <button
             onClick={handleSubscribe}
             disabled={paymentLoading}
-            className="flex w-full items-center justify-center gap-[7px] rounded-[9px] bg-blue-600 py-[11px] text-[13px] font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-60 active:scale-[0.99]"
+            className="relative flex w-full items-center justify-center gap-2 rounded-xl bg-[#0f172a] py-3.5 text-[14px] font-semibold text-white transition-all hover:bg-slate-800 disabled:opacity-60 active:scale-[0.99] shadow-lg shadow-slate-900/20"
           >
             {paymentLoading ? (
               <>
-                <Loader2 className="h-[13px] w-[13px] animate-spin" />
-                Processing...
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Processing…
               </>
             ) : (
               <>
-                <Lock className="h-[13px] w-[13px]" />
+                <Lock className="h-3.5 w-3.5 text-slate-400" />
                 Pay {inr(totalAmount)}
-                <ArrowRight className="h-[13px] w-[13px]" />
+                <ArrowRight className="h-4 w-4 ml-auto absolute right-4" />
               </>
             )}
           </button>
 
-          <p className="flex items-center justify-center gap-[3px] text-center text-[10px] text-slate-400">
-            <ShieldCheck className="h-[11px] w-[11px]" />
-            Secured payment · Cancel anytime
+          <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-slate-400">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+            Secured by Razorpay · Cancel anytime
           </p>
-
         </div>
       </div>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-[12px] text-slate-500">{label}</span>
-      <span className="text-[12px] font-medium text-slate-800">{value}</span>
     </div>
   );
 }

@@ -9,7 +9,6 @@ export interface FeatureAccess {
   advancedAnalytics: boolean;
   prioritySupport: boolean;
   aiResumeScoring: boolean;
-  resumeParsing: boolean;
   candidateShortlisting: boolean;
   exportReports: boolean;
 }
@@ -31,7 +30,6 @@ export interface SubscriptionPlanProps {
   jobPostsPerMonth: number;
   jobPostActiveDays: number;
   screeningCredits: number;
-  resumeParsesPerMonth: number;
   aiScoreCredits: number;
   featuresAccess: FeatureAccess;
   features: PlanFeature[];
@@ -89,15 +87,13 @@ export class SubscriptionPlan {
   get screeningCredits() {
     return this.props.screeningCredits;
   }
-  get resumeParsesPerMonth() {
-    return this.props.resumeParsesPerMonth;
-  }
+
   get aiScoreCredits() {
     return this.props.aiScoreCredits;
   }
   get jobPostActiveDays() {
-  return this.props.jobPostActiveDays;
-}
+    return this.props.jobPostActiveDays;
+  }
   get featuresAccess() {
     return {
       ...this.props.featuresAccess,
@@ -136,13 +132,10 @@ export class SubscriptionPlan {
   get hasUnlimitedScreening() {
     return this.props.screeningCredits === -1;
   }
-  get hasUnlimitedResumeParses() {
-    return this.props.resumeParsesPerMonth === -1;
-  }
 
   get displayJobPostDuration() {
-  return `${this.jobPostActiveDays} days`;
-}
+    return `${this.jobPostActiveDays} days`;
+  }
   get hasUnlimitedAIScoring() {
     return this.props.aiScoreCredits === -1;
   }
@@ -155,9 +148,7 @@ export class SubscriptionPlan {
   supportsPriority() {
     return this.props.featuresAccess.prioritySupport;
   }
-  supportsResumeParsing() {
-    return this.props.featuresAccess.resumeParsing;
-  }
+
   supportsAIScoring() {
     return this.props.featuresAccess.aiResumeScoring;
   }
@@ -196,11 +187,7 @@ export class SubscriptionPlan {
       ? "Unlimited"
       : String(this.screeningCredits);
   }
-  get displayResumeParses() {
-    return this.hasUnlimitedResumeParses
-      ? "Unlimited"
-      : String(this.resumeParsesPerMonth);
-  }
+
   get displayAIScoreCredits() {
     return this.hasUnlimitedAIScoring
       ? "Unlimited"

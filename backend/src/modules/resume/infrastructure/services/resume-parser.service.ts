@@ -159,6 +159,7 @@ ${normalizedText}
       return ResumeSchema.parse(parsed);
     } catch (error) {
       console.error("Invalid resume parser response:", content);
+      console.log("error :", error)
       throw new Error("Invalid AI response format");
     }
   }

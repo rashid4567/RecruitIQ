@@ -1,4 +1,4 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Types, HydratedDocument } from "mongoose";
 
 export enum RecipientRole {
   RECRUITER = "recruiter",
@@ -14,12 +14,31 @@ export enum NotificationType {
   SUBSCRIPTION_EXPIRING = "SUBSCRIPTION_EXPIRING",
   SUBSCRIPTION_EXPIRED = "SUBSCRIPTION_EXPIRED",
   SUBSCRIPTION_RENEWED = "SUBSCRIPTION_RENEWED",
+  SUBSCRIPTION_CREATED = "SUBSCRIPTION_CREATED",
   RECRUITER_VERIFIED = "RECRUITER_VERIFIED",
   RECRUITER_REJECTED = "RECRUITER_REJECTED",
+  SUBSCRIPTION_UPGRADED = "SUBSCRIPTION_UPGRADED",
   JOB_APPROVED = "JOB_APPROVED",
   JOB_REJECTED = "JOB_REJECTED",
   APPLICATION_SELECTED = "APPLICATION_SELECTED",
 }
+
+export interface NotificationDocument {
+  recipientId: Types.ObjectId;
+  recipientRole: RecipientRole;
+  title: string;
+  message: string;
+  type: NotificationType;
+  isRead: boolean;
+  readAt?: Date | null;
+  actionUrl?: string;
+  referenceId?: Types.ObjectId;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type NotificationDoc = HydratedDocument<NotificationDocument>;
 
 const NotificationSchema = new Schema(
   {

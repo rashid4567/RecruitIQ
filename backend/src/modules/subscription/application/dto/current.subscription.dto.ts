@@ -13,8 +13,6 @@ export interface CurrentSubscriptionResponse {
   jobPostActiveDays: number; 
   screeningUsed: number;
   screeningLimit: number;
-  resumeUsed: number;
-  resumeLimit: number;
   aiScoreUsed: number;
   aiScoreLimit: number;
   autoRenew: boolean;

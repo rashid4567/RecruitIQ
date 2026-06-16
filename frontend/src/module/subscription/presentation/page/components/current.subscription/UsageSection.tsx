@@ -1,4 +1,4 @@
-import { Brain, FileText, Search, Briefcase, TrendingUp } from "lucide-react";
+import { Brain, Search, Briefcase, TrendingUp } from "lucide-react";
 import UsageCard from "./UsageCard";
 import type { RecruiterSubscription } from "@/module/subscription/domain/entity/RecruiterSubscription.entity";
 
@@ -30,14 +30,7 @@ export default function UsageSection({ subscription }: UsageSectionProps) {
           linear="from-emerald-600 to-emerald-500"
           description="AI-powered screening"
         />
-        <UsageCard
-          title="Resume Parsing"
-          used={subscription.resumeUsed}
-          limit={subscription.resumeLimit}
-          icon={<FileText className="h-6 w-6 text-white" />}
-          linear="from-purple-600 to-purple-500"
-          description="Automated parsing per month"
-        />
+       
         <UsageCard
           title="AI Scoring"
           used={subscription.aiScoreUsed}

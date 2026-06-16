@@ -6,6 +6,11 @@ export class WithdrawApplicationUseCase {
   constructor(private readonly applicationRepo: JobApplicationRepository) {}
 
   async execute(applicationId: string, candidateId: string): Promise<void> {
+
+    const candidate = await this.applicationRepo.findByCandidate(candidateId);
+    if(!candidate){
+      throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND)
+    }
     const application = await this.applicationRepo.findById(applicationId);
 
     if (!application) {

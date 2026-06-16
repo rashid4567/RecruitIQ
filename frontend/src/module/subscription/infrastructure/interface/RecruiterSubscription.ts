@@ -18,11 +18,9 @@ export interface RawRecruiterSubscription {
   cancelledAt?: string;
   jobPostsUsed: number;
   screeningUsed: number;
-  resumeUsed: number;
   aiScoreUsed: number;
   jobPostsLimit: number;
   screeningLimit: number;
-  resumeLimit: number;
   aiScoreLimit: number;
   createdAt?: string;
   updatedAt?: string;

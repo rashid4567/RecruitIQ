@@ -1,6 +1,6 @@
 import type { PlanFormData } from "../../../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
 import { CollapsibleSection } from "./CollapsibleSection";
-import { Briefcase, Brain, FileText, Star, CalendarDays } from "lucide-react";
+import { Briefcase, Brain, Star, CalendarDays } from "lucide-react";
 
 interface PlanLimitsQuotasProps {
   formData: PlanFormData;
@@ -101,15 +101,7 @@ export default function PlanLimitsQuotas({
           fieldCls={fieldCls}
         />
 
-        <QuotaField
-          label="Resume Parses per Month"
-          icon={<FileText className="h-4 w-4 text-zinc-400" />}
-          field="resumeParsesPerMonth"
-          value={formData.resumeParsesPerMonth}
-          error={errors.resumeParsesPerMonth}
-          onChange={handleChange}
-          fieldCls={fieldCls}
-        />
+        
         <div>
   <label className="text-sm font-medium text-zinc-700 mb-2 block">
     <span className="flex items-center gap-1.5">

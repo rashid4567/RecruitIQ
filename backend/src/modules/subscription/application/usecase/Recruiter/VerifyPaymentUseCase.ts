@@ -58,10 +58,13 @@ export class VerifyPaymentUseCase {
 
     if (!isValid) {
       const failedPayment = payment.markFailed("Invalid Razorpay Signature");
+
       await this.paymentRepo.update(failedPayment);
+
       throw new ApplicationError(ERROR_CODES.INVALID_PAYMENT_SIGNATURE);
     }
 
+    // Upgrade Flow
     if (payment.paymentType === PaymentType.Upgrade) {
       const upgradedSubscription = await this.upgradeSubscriptionUC.execute(
         payment.recruiterId,
@@ -75,29 +78,29 @@ export class VerifyPaymentUseCase {
       );
 
       try {
-  await this.createNotificationUC.execute({
-    recipientId: payment.recruiterId,
-    recipientRole: "recruiter",
-    title: "Subscription Upgraded",
-    message: `Your subscription has been upgraded successfully.`,
-    type: NotificationType.SUBSCRIPTION_RENEWED,
-    actionUrl: "/recruiter/subscription",
-    referenceId: upgradedSubscription.id,
-    metadata: {
-      subscriptionId: upgradedSubscription.id,
-      planId: payment.planId,
-    },
-  });
-} catch (err) {
-  console.error(
-    "SUBSCRIPTION_UPGRADE notification failed:",
-    err
-  );
-}
+        await this.createNotificationUC.execute({
+          recipientId: payment.recruiterId,
+          recipientRole: "recruiter",
+          title: "Subscription Upgraded",
+          message: "Your subscription has been upgraded successfully.",
+          type: NotificationType.SUBSCRIPTION_UPGRADED,
+          actionUrl: "/recruiter/subscription",
+          referenceId: upgradedSubscription.id,
+          metadata: {
+            subscriptionId: upgradedSubscription.id,
+            planId: payment.planId,
+          },
+        });
+      } catch (err) {
+        console.error("SUBSCRIPTION_UPGRADE notification failed:", err);
+      }
+
       const paidPayment = payment
         .markPaid(request.razorpayPaymentId)
         .attachSubscription(upgradedSubscription.id);
+
       await this.paymentRepo.update(paidPayment);
+
       return {
         subscriptionId: upgradedSubscription.id,
         paymentId: paidPayment.id,
@@ -105,13 +108,16 @@ export class VerifyPaymentUseCase {
       };
     }
 
+    // New Subscription Flow
     const plan = await this.planRepo.findById(payment.planId);
+
     if (!plan) {
       throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
     }
 
     const now = new Date();
     const endDate = new Date(now);
+
     endDate.setMonth(endDate.getMonth() + payment.durationMonths);
 
     const subscription = RecruiterSubscription.create({
@@ -135,7 +141,6 @@ export class VerifyPaymentUseCase {
 
       jobPostsUsed: 0,
       screeningUsed: 0,
-      resumeUsed: 0,
       aiScoreUsed: 0,
 
       jobPostsLimit:
@@ -148,11 +153,6 @@ export class VerifyPaymentUseCase {
           ? -1
           : plan.screeningCredits * payment.durationMonths,
 
-      resumeLimit:
-        plan.resumeParsesPerMonth === -1
-          ? -1
-          : plan.resumeParsesPerMonth * payment.durationMonths,
-
       aiScoreLimit:
         plan.aiScoreCredits === -1
           ? -1
@@ -163,14 +163,36 @@ export class VerifyPaymentUseCase {
     });
 
     const savedSubscription = await this.subscriptionRepo.save(subscription);
+
     await this.updateRecruiterSubscriptionStatusUC.execute(
       payment.recruiterId,
       "active",
     );
+
+    try {
+      await this.createNotificationUC.execute({
+        recipientId: payment.recruiterId,
+        recipientRole: "recruiter",
+        title: "Subscription Activated",
+        message: "Your subscription has been activated successfully.",
+        type: NotificationType.SUBSCRIPTION_CREATED,
+        actionUrl: "/recruiter/subscription",
+        referenceId: savedSubscription.id,
+        metadata: {
+          subscriptionId: savedSubscription.id,
+          planId: plan.id,
+        },
+      });
+    } catch (err) {
+      console.error("SUBSCRIPTION_CREATED notification failed:", err);
+    }
+
     const paidPayment = payment
       .markPaid(request.razorpayPaymentId)
       .attachSubscription(savedSubscription.id);
+
     await this.paymentRepo.update(paidPayment);
+
     return {
       subscriptionId: savedSubscription.id,
       paymentId: paidPayment.id,

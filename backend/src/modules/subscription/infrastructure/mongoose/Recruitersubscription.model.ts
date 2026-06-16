@@ -15,7 +15,7 @@ export interface IRecruiterSubscription extends Document {
   jobPostActiveDays: number;
   paymentReferenceId?: string;
   status: SubscriptionStatus;
-  durationMonths : number;
+  durationMonths: number;
   startDate: Date;
   endDate: Date;
   currentPeriodStart: Date;
@@ -24,11 +24,9 @@ export interface IRecruiterSubscription extends Document {
   cancelledAt?: Date;
   jobPostsUsed: number;
   screeningUsed: number;
-  resumeUsed: number;
   aiScoreUsed: number;
   jobPostsLimit: number;
   screeningLimit: number;
-  resumeLimit: number;
   aiScoreLimit: number;
   createdAt: Date;
   updatedAt: Date;
@@ -80,11 +78,11 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
       required: true,
       default: SubscriptionStatus.Active,
     },
-    durationMonths:{
-      type : Number,
-      required : true,
-      min : 1,
-      max : 12,
+    durationMonths: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 12,
     },
 
     startDate: {
@@ -128,12 +126,6 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
       min: 0,
     },
 
-    resumeUsed: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
     aiScoreUsed: {
       type: Number,
       default: 0,
@@ -147,12 +139,6 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
     },
 
     screeningLimit: {
-      type: Number,
-      required: true,
-      min: -1,
-    },
-
-    resumeLimit: {
       type: Number,
       required: true,
       min: -1,

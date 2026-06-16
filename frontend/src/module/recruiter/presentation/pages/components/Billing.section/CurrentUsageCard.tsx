@@ -9,17 +9,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { TrendingUp } from "lucide-react";
 import type { RecruiterSubscription } from "@/module/subscription/domain/entity/RecruiterSubscription.entity";
-import type { PlanType } from "@/module/subscription/domain/constant/subscription.constants";
 import { UsageMetricRow } from "./UsageMetricRow";
 
 interface CurrentUsageCardProps {
   subscription: RecruiterSubscription | undefined;
   nextBillingDate: string;
   daysRemaining: number;
-}
-
-function isYearlyPlan(planType: PlanType | undefined): boolean {
-  return planType === "yearly";
 }
 
 export function CurrentUsageCard({
@@ -61,14 +56,7 @@ export function CurrentUsageCard({
             progressBgClass="bg-emerald-100"
             unit="credits"
           />
-          <UsageMetricRow
-            label="Resume Parsing"
-            used={subscription?.resumeUsed ?? 0}
-            limit={subscription?.resumeLimit ?? 0}
-            colorClass="text-amber-600"
-            progressBgClass="bg-amber-100"
-            unit="parses"
-          />
+
           <UsageMetricRow
             label="AI Scoring"
             used={subscription?.aiScoreUsed ?? 0}
@@ -86,10 +74,7 @@ export function CurrentUsageCard({
             <div>
               <h4 className="font-medium text-slate-900">Billing Cycle</h4>
               <p className="text-sm text-slate-500">
-                {isYearlyPlan(subscription?.planType)
-                  ? "Annual billing"
-                  : "Monthly billing"}{" "}
-                • Next billing date: {nextBillingDate}
+                Monthly billing • Next billing date: {nextBillingDate}
                 {daysRemaining > 0 && ` (${daysRemaining} days remaining)`}
               </p>
             </div>

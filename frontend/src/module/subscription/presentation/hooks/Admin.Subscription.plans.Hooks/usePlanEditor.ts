@@ -10,7 +10,6 @@ import {
 
 export interface PlanFormData extends CreatePlanPayload {
   razorpayPlanId?: string;
-  resumeParsesPerMonth: number;
   aiScoreCredits: number;
   jobPostActiveDays: number;
 }
@@ -92,16 +91,7 @@ function validatePlanForm(formData: PlanFormData): Record<string, string> {
     errors.screeningCredits = "Screening credits seems too high.";
   }
 
-  if (
-    formData.resumeParsesPerMonth === undefined ||
-    formData.resumeParsesPerMonth < -1
-  ) {
-    errors.resumeParsesPerMonth =
-      "Resume parses per month cannot be lesser than -1.";
-  } else if (formData.resumeParsesPerMonth > 100_000) {
-    errors.resumeParsesPerMonth = "Resume parses per month seems too high.";
-  }
-
+ 
   if (formData.aiScoreCredits === undefined || formData.aiScoreCredits < -1) {
     errors.aiScoreCredits = "AI score credits cannot be lesser than -1.";
   } else if (formData.aiScoreCredits > 100_000) {
@@ -142,14 +132,12 @@ export function usePlanEditor(id?: string) {
     jobPostsPerMonth: 10,
     jobPostActiveDays: 7,
     screeningCredits: 50,
-    resumeParsesPerMonth: 10,
     aiScoreCredits: 10,
     featuresAccess: {
       interviewScheduling: false,
       advancedAnalytics: false,
       prioritySupport: false,
       aiResumeScoring: false,
-      resumeParsing: false,
       candidateShortlisting: false,
       exportReports: false,
     },
@@ -189,7 +177,6 @@ export function usePlanEditor(id?: string) {
             jobPostsPerMonth: plan.jobPostsPerMonth,
             jobPostActiveDays: plan.jobPostActiveDays,
             screeningCredits: plan.screeningCredits,
-            resumeParsesPerMonth: plan.resumeParsesPerMonth,
             aiScoreCredits: plan.aiScoreCredits,
             featuresAccess: plan.featuresAccess,
             features: plan.features || [],
@@ -273,7 +260,6 @@ export function usePlanEditor(id?: string) {
           billingInterval: formData.billingInterval,
           jobPostsPerMonth: formData.jobPostsPerMonth,
           screeningCredits: formData.screeningCredits,
-          resumeParsesPerMonth: formData.resumeParsesPerMonth,
           jobPostActiveDays: formData.jobPostActiveDays,
           aiScoreCredits: formData.aiScoreCredits,
           featuresAccess: formData.featuresAccess,

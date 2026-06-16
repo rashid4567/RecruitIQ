@@ -1,13 +1,10 @@
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-
 import { ActivityTrackerService } from "../../../../Activity.logger/application/services/activityTracker.service";
 import { ActivityAction } from "../../../../Activity.logger/domain/constants/activityActions";
-
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
-
+import { RecruiterSubscription } from "../../../../subscription/domain/entities/recruiter-subscription.entity";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
-
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 
@@ -102,7 +99,7 @@ export class PublishJobUseCase {
 
   private async consumeCreditsIfNeeded(
     job: Job,
-    subscription: any,
+    subscription: RecruiterSubscription,
   ): Promise<void> {
     const shouldConsumeCredit =
       job.status === "draft" || job.status === "expired";

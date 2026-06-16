@@ -45,12 +45,7 @@ export default function UsageThisMonth({ subscription }: UsageThisMonthProps) {
           limit={subscription.screeningLimit}
           color="bg-emerald-600"
         />
-        <MiniBar
-          label="Parsing"
-          used={subscription.resumeUsed}
-          limit={subscription.resumeLimit}
-          color="bg-purple-600"
-        />
+       
       </div>
     </div>
   );

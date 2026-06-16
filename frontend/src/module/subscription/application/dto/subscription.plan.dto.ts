@@ -19,8 +19,7 @@ export interface CreatePlanPayload {
   billingInterval: number;
   jobPostsPerMonth: number;
   screeningCredits: number;
-  resumeParsesPerMonth: number;
-   jobPostActiveDays : number;
+  jobPostActiveDays: number;
   aiScoreCredits: number;
   featuresAccess: FeatureAccess;
   features: PlanFeature[];
@@ -39,7 +38,6 @@ export interface UpdatePlanPayload {
   billingInterval?: number;
   jobPostsPerMonth?: number;
   screeningCredits?: number;
-  resumeParsesPerMonth?: number;
   aiScoreCredits?: number;
   featuresAccess?: Partial<FeatureAccess>;
   features?: PlanFeature[];

@@ -1,11 +1,11 @@
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { ResumeParseStatus } from "../../../../resume/domain/entity/resume.entity";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
+import { ResumeParseStatus } from "../../../../resume/domain/entity/resume.entity";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
+import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { JobApplication } from "../../../domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
-
 import {
   ApplicationAnalysis,
   ApplicationAnalysisService,
@@ -17,6 +17,7 @@ export class AnalyzeApplicationUseCase {
     private readonly jobRepository: JobRepository,
     private readonly resumeRepository: ResumeRepository,
     private readonly analysisService: ApplicationAnalysisService,
+    private readonly subscriptionRepo: RecruiterSubscriptionRepository,
   ) {}
 
   async execute(applicationId: string): Promise<void> {
@@ -24,8 +25,7 @@ export class AnalyzeApplicationUseCase {
 
     if (
       application.isAnalysisCompleted() ||
-      application.isAnalysisProcessing() ||
-      application.isAnalysisFailed()
+      application.isAnalysisProcessing()
     ) {
       return;
     }
@@ -35,7 +35,25 @@ export class AnalyzeApplicationUseCase {
       return;
     }
 
+    const subscription = await this.subscriptionRepo.findActiveByRecruiter(
+      application.recruiterId,
+    );
+
+    if (!subscription) {
+      application.markAnalysisQuotaExceeded();
+      await this.applicationRepo.save(application);
+      return;
+    }
+
+    if (!subscription.hasAIScoreAccess()) {
+      application.markAnalysisQuotaExceeded();
+      await this.applicationRepo.save(application);
+      return;
+    }
+
     try {
+      const updatedSubscription = subscription.consumeAIScore();
+      await this.subscriptionRepo.update(updatedSubscription);
       application.markAnalysisProcessing();
       await this.applicationRepo.save(application);
       const job = await this.getJob(application.jobId);

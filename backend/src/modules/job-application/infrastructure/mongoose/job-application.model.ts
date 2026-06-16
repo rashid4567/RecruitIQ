@@ -14,6 +14,7 @@ export enum ApplicationAnalysisStatus {
   PROCESSING = "PROCESSING",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
+  QUOTA_EXCEEDED = "QUOTA_EXCEEDED",
 }
 
 export interface InterviewDetails {

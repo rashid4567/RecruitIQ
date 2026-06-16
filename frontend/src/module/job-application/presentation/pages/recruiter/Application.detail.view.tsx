@@ -133,6 +133,22 @@ function AnalysisPending({ status }: { status: string | undefined }) {
     );
   }
 
+  if (status === ApplicationAnalysisStatus.QUOTA_EXCEEDED) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-amber-50 border border-amber-100">
+      <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+      <div>
+        <p className="text-sm font-medium text-amber-700">
+          AI analysis unavailable
+        </p>
+        <p className="text-xs text-amber-600">
+          Your AI score limit has been reached. Upgrade your subscription to unlock this analysis.
+        </p>
+      </div>
+    </div>
+  );
+}
+
   if (status === ApplicationAnalysisStatus.FAILED) {
     return (
       <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-red-50 border border-red-100">

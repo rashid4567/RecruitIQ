@@ -30,6 +30,9 @@ import { UpdateRecruiterSubscriptionStatusUseCase } from "../../../recruiter/app
 import { MongooseRecruiterProfileRepository } from "../../../recruiter/infrastructure/repositories/mongoose-recruiter.repository";
 import { UUIDGenerator } from "../../infrastructure/service/uuid-generator.service";
 import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
+import { JobApplicationRepository } from "../../../job-application/domain/repository/job-application.repository";
+import { MongooseJobApplicationRepository } from "../../../job-application/infrastructure/repository/MongooseJobApplicationRepository";
+import { AnalyzeApplicationUC } from "../../../job-application/presenatation/container/JobApplication.module";
 
 const subscriptionRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
@@ -37,6 +40,8 @@ const recruiterSubscriptionRepo: RecruiterSubscriptionRepository =
   new MongooseRecruiterSubscriptionRepository();
 const paymentRepo: PaymentRepository = new MongoosePaymentRepository();
 const paymentGateway = new RazorpayGateway();
+export const applicationRepo: JobApplicationRepository =
+  new MongooseJobApplicationRepository();
 const recruiterProfileRepo = new MongooseRecruiterProfileRepository();
 const updateRecruiterSubscriptionStatusUC =
   new UpdateRecruiterSubscriptionStatusUseCase(recruiterProfileRepo);
@@ -57,6 +62,8 @@ const currentSubscriptionUC = new GetCurrentSubscriptionUseCase(
 const upgaradeSubscriptionUC = new UpgradeSubscriptionUseCase(
   subscriptionRepo,
   recruiterSubscriptionRepo,
+  applicationRepo,
+  AnalyzeApplicationUC,
 );
 const createPaymentOrderUC = new CreatePaymentOrderUseCase(
   paymentRepo,

@@ -59,4 +59,8 @@ export interface JobApplicationRepository {
     applicationId: string,
   ): Promise<RecruiterApplicationDetailsOutput | null>;
   findByResumeId(resumeId: string): Promise<JobApplication[]>;
+  findByAnalysisStatus(
+    recruiterId: string,
+    status: ApplicationAnalysisStatus,
+  ): Promise<JobApplication[]>;
 }

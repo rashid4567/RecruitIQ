@@ -1,3 +1,4 @@
+import { ERROR_CODES } from "../../../../constants/errorcode.constants";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { APPLICATION_ERRORS } from "../error/Application.error";
 
@@ -15,6 +16,7 @@ export const ApplicationAnalysisStatus = {
   PROCESSING: "PROCESSING",
   COMPLETED: "COMPLETED",
   FAILED: "FAILED",
+  QUOTA_EXCEEDED: "QUOTA_EXCEEDED",
 } as const;
 
 export type ApplicationAnalysisStatus =
@@ -93,9 +95,11 @@ export class JobApplication {
       updatedAt: new Date(),
     });
   }
+
   static rehydrate(props: JobApplicationProps): JobApplication {
     return new JobApplication(props);
   }
+
   private validate(): void {
     if (!this.props.jobId?.trim()) {
       throw new DomainError(APPLICATION_ERRORS.JOB_REQUIRED);
@@ -110,9 +114,11 @@ export class JobApplication {
       throw new DomainError(APPLICATION_ERRORS.RESUME_REQUIRED);
     }
   }
+
   private touch(): void {
     this.props.updatedAt = new Date();
   }
+
   private ensureMutable(): void {
     if (this.props.status === ApplicationStatus.WITHDRAWN) {
       throw new DomainError(APPLICATION_ERRORS.APPLICATION_WITHDRAWN);
@@ -124,6 +130,8 @@ export class JobApplication {
       throw new DomainError(APPLICATION_ERRORS.CANDIDATE_REJECTED);
     }
   }
+
+
   shortlist(): void {
     if (this.props.status !== ApplicationStatus.APPLIED) {
       throw new DomainError(APPLICATION_ERRORS.INVALID_APPLICATION_STATUS);
@@ -132,6 +140,8 @@ export class JobApplication {
     this.props.rejectionReason = undefined;
     this.touch();
   }
+
+
   updateAIAnalysis(analysis: ApplicationAIAnalysis): void {
     if (this.props.aiAnalysis) {
       throw new DomainError(APPLICATION_ERRORS.ANALYSIS_ALREADY_EXISTS);
@@ -145,6 +155,7 @@ export class JobApplication {
     this.props.analysisStatus = ApplicationAnalysisStatus.COMPLETED;
     this.touch();
   }
+
   private validateAIAnalysis(analysis: ApplicationAIAnalysis): void {
     const scores = [
       analysis.overallScore,
@@ -159,6 +170,8 @@ export class JobApplication {
       throw new DomainError(APPLICATION_ERRORS.INVALID_ANALYSIS_SCORE);
     }
   }
+
+
   markAnalysisFailed(): void {
     if (this.props.analysisStatus === ApplicationAnalysisStatus.COMPLETED) {
       return;
@@ -168,10 +181,16 @@ export class JobApplication {
   }
 
   markAnalysisProcessing(): void {
-    if (this.props.analysisStatus !== ApplicationAnalysisStatus.PENDING) {
+    if (
+      this.props.analysisStatus !== ApplicationAnalysisStatus.PENDING &&
+      this.props.analysisStatus !== ApplicationAnalysisStatus.QUOTA_EXCEEDED &&
+      this.props.analysisStatus !== ApplicationAnalysisStatus.FAILED
+    ) {
       throw new DomainError(APPLICATION_ERRORS.INVALID_ANALYSIS_STATUS);
     }
+
     this.props.analysisStatus = ApplicationAnalysisStatus.PROCESSING;
+
     this.touch();
   }
 
@@ -184,15 +203,27 @@ export class JobApplication {
 
     this.touch();
   }
- reject(reason?: string): void {
-  this.ensureMutable();
 
-  this.props.status = ApplicationStatus.REJECTED;
-  this.props.rejectionReason = reason?.trim() || undefined;
-  this.props.interview = undefined;
+  markAnalysisQuotaExceeded(): void {
+    if (this.props.analysisStatus === ApplicationAnalysisStatus.COMPLETED) {
+      return;
+    }
 
-  this.touch();
-}
+    this.props.analysisStatus = ApplicationAnalysisStatus.QUOTA_EXCEEDED;
+
+    this.touch();
+  }
+
+  reject(reason?: string): void {
+    this.ensureMutable();
+
+    this.props.status = ApplicationStatus.REJECTED;
+    this.props.rejectionReason = reason?.trim() || undefined;
+    this.props.interview = undefined;
+
+    this.touch();
+  }
+
   scheduleInterview(interview: InterviewInfo): void {
     this.ensureMutable();
     if (
@@ -217,6 +248,7 @@ export class JobApplication {
     };
     this.touch();
   }
+
   rescheduleInterview(interview: InterviewInfo): void {
     if (
       this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED ||
@@ -230,6 +262,7 @@ export class JobApplication {
     this.props.interview = interview;
     this.touch();
   }
+
   select(): void {
     if (this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED) {
       throw new DomainError(
@@ -239,6 +272,7 @@ export class JobApplication {
     this.props.status = ApplicationStatus.SELECTED;
     this.touch();
   }
+
   withdraw(): void {
     if (
       this.props.status === ApplicationStatus.SELECTED ||
@@ -250,6 +284,7 @@ export class JobApplication {
     this.props.status = ApplicationStatus.WITHDRAWN;
     this.touch();
   }
+
   canCandidateWithdraw(): boolean {
     return (
       this.props.status !== ApplicationStatus.SELECTED &&
@@ -257,18 +292,22 @@ export class JobApplication {
       this.props.status !== ApplicationStatus.WITHDRAWN
     );
   }
+  
   canRecruiterShortlist(): boolean {
     return this.props.status === ApplicationStatus.APPLIED;
   }
+
   canScheduleInterview(): boolean {
     return (
       this.props.status === ApplicationStatus.APPLIED ||
       this.props.status === ApplicationStatus.SHORTLISTED
     );
   }
+
   canSelect(): boolean {
     return this.props.status === ApplicationStatus.INTERVIEW_SCHEDULED;
   }
+
   canReject(): boolean {
     return (
       this.props.status !== ApplicationStatus.REJECTED &&
@@ -276,87 +315,124 @@ export class JobApplication {
       this.props.status !== ApplicationStatus.WITHDRAWN
     );
   }
+
   canRescheduleInterview(): boolean {
     return this.props.status === ApplicationStatus.INTERVIEW_SCHEDULED;
   }
+
   isPending(): boolean {
     return this.props.status === ApplicationStatus.APPLIED;
   }
+
   isInterviewScheduled(): boolean {
     return this.props.status === ApplicationStatus.INTERVIEW_SCHEDULED;
   }
+
   isRejected(): boolean {
     return this.props.status === ApplicationStatus.REJECTED;
   }
+
   isSelected(): boolean {
     return this.props.status === ApplicationStatus.SELECTED;
   }
+
   isWithdrawn(): boolean {
     return this.props.status === ApplicationStatus.WITHDRAWN;
   }
+
   isAnalysisPending(): boolean {
     return this.props.analysisStatus === ApplicationAnalysisStatus.PENDING;
   }
+
   isAnalysisProcessing(): boolean {
     return this.props.analysisStatus === ApplicationAnalysisStatus.PROCESSING;
   }
+
   isAnalysisCompleted(): boolean {
     return this.props.analysisStatus === ApplicationAnalysisStatus.COMPLETED;
   }
+
+  isAnalysisQuotaExceeded(): boolean {
+    return (
+      this.props.analysisStatus === ApplicationAnalysisStatus.QUOTA_EXCEEDED
+    );
+  }
+
   isAnalysisFailed(): boolean {
     return this.props.analysisStatus === ApplicationAnalysisStatus.FAILED;
   }
+
   belongsToCandidate(candidateId: string): boolean {
     return this.props.candidateId === candidateId;
   }
+
   belongsToRecruiter(recruiterId: string): boolean {
     return this.props.recruiterId === recruiterId;
   }
+
   toObject(): JobApplicationProps {
     return { ...this.props };
   }
-  get id() {
+
+  get id():string {
+    if(!this.props.id){
+      throw new DomainError(ERROR_CODES.APPLICATION_ID_IS_MISSING)
+    }
     return this.props.id;
   }
+
   get jobId() {
     return this.props.jobId;
   }
+
   get candidateId() {
     return this.props.candidateId;
   }
+
   get recruiterId() {
     return this.props.recruiterId;
   }
+
   get resumeId() {
     return this.props.resumeId;
   }
+  
   get coverLetter() {
     return this.props.coverLetter;
   }
+
   get status() {
     return this.props.status;
   }
+
   get interview() {
     return this.props.interview;
   }
+
   get rejectionReason() {
     return this.props.rejectionReason;
   }
+
   get analysisStatus(): ApplicationAnalysisStatus {
     return this.props.analysisStatus;
   }
+
   get appliedAt() {
     return this.props.appliedAt;
   }
+
   get updatedAt() {
     return this.props.updatedAt;
   }
+
   get aiAnalysis() {
     return this.props.aiAnalysis;
   }
+
   get aiScore(): number | undefined {
     return this.props.aiAnalysis?.overallScore;
   }
+
   get aiRecommendation(): ApplicationRecommendation | undefined {
     return this.props.aiAnalysis?.recommendation;
   }

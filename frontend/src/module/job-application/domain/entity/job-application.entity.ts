@@ -25,6 +25,7 @@ export const ApplicationAnalysisStatus = {
   PROCESSING: "PROCESSING",
   COMPLETED: "COMPLETED",
   FAILED: "FAILED",
+  QUOTA_EXCEEDED: "QUOTA_EXCEEDED",
 } as const;
 
 export type ApplicationAnalysisStatus =
@@ -153,7 +154,7 @@ export class JobApplication {
     return this.coverLetter;
   }
 
-    getStatus(): ApplicationStatus {
+  getStatus(): ApplicationStatus {
     return this.status;
   }
 
@@ -206,6 +207,10 @@ export class JobApplication {
 
   isAnalysisCompleted(): boolean {
     return this.analysisStatus === ApplicationAnalysisStatus.COMPLETED;
+  }
+
+  isAnalysisQuotaExceeded(): boolean {
+    return this.analysisStatus === ApplicationAnalysisStatus.QUOTA_EXCEEDED;
   }
 
   isAnalysisFailed(): boolean {

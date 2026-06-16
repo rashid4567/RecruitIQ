@@ -35,4 +35,5 @@ export interface RecruiterSubscriptionRepository {
     recruiterId: string,
   ): Promise<RecruiterSubscription | null>;
   findAll(params: GetSubscribersParams): Promise<PaginatedSubscribers>;
+  consumeAIScoreIfAvailable(recruiterId: string): Promise<boolean>;
 }

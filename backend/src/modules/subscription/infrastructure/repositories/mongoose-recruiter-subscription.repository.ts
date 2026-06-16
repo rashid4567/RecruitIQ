@@ -138,6 +138,30 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
     return this.toEntity(doc);
   }
 
+  async consumeAIScoreIfAvailable(recruiterId: string): Promise<boolean> {
+    const result = await RecruiterSubscriptionModel.updateOne(
+      {
+        recruiterId,
+        status: SubscriptionStatus.Active,
+        $expr: {
+          $or: [
+            { $eq: ["$aiScoreLimit", -1] },
+            { $lt: ["$aiScoreUsed", "$aiScoreLimit"] },
+          ],
+        },
+      },
+      {
+        $inc: {
+          aiScoreUsed: 1,
+        },
+        $set: {
+          updatedAt: new Date(),
+        },
+      },
+    );
+
+    return result.modifiedCount === 1;
+  }
   private toEntity(doc: IRecruiterSubscription): RecruiterSubscription {
     const props: RecruiterSubscriptionProps = {
       id: doc._id.toString(),

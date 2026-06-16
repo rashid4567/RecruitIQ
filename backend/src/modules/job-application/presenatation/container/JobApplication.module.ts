@@ -7,6 +7,8 @@ import { MongooseJobRepository } from "../../../job/infrastructure/repositories/
 import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
 import { ResumeRepository } from "../../../resume/domain/repository/resume.repository";
 import { MongooseResumeRepository } from "../../../resume/infrastructure/repository/mongoose.resume.repository";
+import { RecruiterSubscriptionRepository } from "../../../subscription/domain/repository/recruiter-subscription-plan-repository";
+import { MongooseRecruiterSubscriptionRepository } from "../../../subscription/infrastructure/repositories/mongoose-recruiter-subscription.repository";
 import { AnalyzeApplicationUseCase } from "../../application/usecase/candidate/AnalyzeApplicationUseCase";
 import { ApplyJobUseCase } from "../../application/usecase/candidate/ApplyJobUseCase";
 import { GetApplicationDetailUseCase } from "../../application/usecase/candidate/GetApplicationDetailUseCase";
@@ -31,6 +33,8 @@ export const applicationRepo: JobApplicationRepository =
 const jobpostRepo: JobRepository = new MongooseJobRepository();
 const resumeRepo: ResumeRepository = new MongooseResumeRepository();
 const userRepo: UserRepository = new MongooseUserRepository();
+const recruiterSubscriptionRepo: RecruiterSubscriptionRepository =
+  new MongooseRecruiterSubscriptionRepository();
 const analysisService = new OpenAIApplicationAnalysisService(openai);
 
 export const AnalyzeApplicationUC = new AnalyzeApplicationUseCase(
@@ -38,6 +42,7 @@ export const AnalyzeApplicationUC = new AnalyzeApplicationUseCase(
   jobpostRepo,
   resumeRepo,
   analysisService,
+  recruiterSubscriptionRepo,
 );
 
 const ApplyJobUC = new ApplyJobUseCase(

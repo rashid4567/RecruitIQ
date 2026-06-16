@@ -6,16 +6,16 @@ import { useApplicationDetail } from "../../hooks/candidate/useApplicationDetail
 import { useDownloadResume } from "@/module/resume/presentation/hook/useDownloadResume";
 import { ApplicationStatus } from "../../../domain/entity/job-application.entity";
 import Sidebar from "../../../../candidate/presentation/components/shared/candidateSidebar";
-import { ApplicationHeader } from "../component/my-application.details/Applicationheader";
-import { LeftPanel } from "../component/my-application.details/Leftpanel";
-import { Timeline, type TimelineStep } from "../component/my-application.details/Timeline";
-import { InterviewCard } from "../component/my-application.details/Interviewcard";
-import { SkillsSection } from "../component/my-application.details/Skillssection";
-import { SectionCard } from "../component/my-application.details/Sectioncard";
-import { WithdrawModal } from "../component/my-application.details/Withdrawmodal";
-import { InterviewTipsSection } from "../component/my-application.details/Interviewtipssection";
-import { statusToStep, getStatusConfig } from "../component/my-application.details/Statusconfig";
-import { formatDate } from "../component/my-application.details/Formatters";
+import { ApplicationHeader } from "../component/candidate-details/Applicationheader";
+import { LeftPanel } from "../component/candidate-details/Leftpanel";
+import { Timeline, type TimelineStep } from "../component/candidate-details/Timeline";
+import { InterviewCard } from "../component/candidate-details/Interviewcard";
+import { SkillsSection } from "../component/candidate-details/Skillssection";
+import { SectionCard } from "../component/candidate-details/Sectioncard";
+import { WithdrawModal } from "../component/candidate-details/Withdrawmodal";
+import { InterviewTipsSection } from "../component/candidate-details/Interviewtipssection";
+import { statusToStep, getStatusConfig } from "../component/candidate-details/Statusconfig";
+import { formatDate } from "../component/candidate-details/Formatters";
 
 
 

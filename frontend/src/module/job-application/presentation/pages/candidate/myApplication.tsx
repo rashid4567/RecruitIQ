@@ -8,11 +8,11 @@ import {
   type JobApplication,
 } from "@/module/job-application/domain/entity/job-application.entity";
 import Sidebar from "../../../../candidate/presentation/components/shared/candidateSidebar";
-import { StatsCards } from "../component/my-applications/StatsCards";
-import { FilterBar } from "../component/my-applications/FilterBar";
-import { ApplicationsTable } from "../component/my-applications/ApplicationsTable";
-import { WithdrawModal } from "../component/my-applications/WithdrawModal";
-import { Toast } from "../component/my-applications/Toast";
+import { StatsCards } from "../component/candidate-applications/StatsCards";
+import { FilterBar } from "../component/candidate-applications/FilterBar";
+import { ApplicationsTable } from "../component/candidate-applications/ApplicationsTable";
+import { WithdrawModal } from "../component/candidate-applications/WithdrawModal";
+import { Toast } from "../component/candidate-applications/Toast";
 import { RefreshCw, Search } from "lucide-react";
 
 const PER_PAGE = 7;

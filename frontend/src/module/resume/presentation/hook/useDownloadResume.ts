@@ -16,6 +16,7 @@ export function useDownloadResume() {
         const link = document.createElement("a");
         link.href = downloadUrl;
         link.download = "";
+        link.style.display = "none";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -23,10 +24,7 @@ export function useDownloadResume() {
         return true;
       } catch (err) {
         const message =
-          err instanceof Error
-            ? err.message
-            : "Failed to download resume";
-
+          err instanceof Error ? err.message : "Failed to download resume";
         setError(message);
         return false;
       } finally {
@@ -36,9 +34,7 @@ export function useDownloadResume() {
     [],
   );
 
-  return {
-    downloadResume,
-    loading,
-    error,
-  };
+  const clearError = useCallback(() => setError(null), []);
+
+  return { downloadResume, loading, error, clearError };
 }

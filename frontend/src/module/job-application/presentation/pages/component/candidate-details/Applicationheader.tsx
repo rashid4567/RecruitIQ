@@ -1,13 +1,20 @@
-
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Share2, MoreHorizontal } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Share2,
+  MoreHorizontal,
+} from "lucide-react";
 
 interface ApplicationHeaderProps {
   jobTitle: string;
   companyName?: string;
 }
 
-export function ApplicationHeader({ jobTitle, companyName }: ApplicationHeaderProps) {
+export function ApplicationHeader({
+  jobTitle,
+  companyName,
+}: ApplicationHeaderProps) {
   const navigate = useNavigate();
 
   return (

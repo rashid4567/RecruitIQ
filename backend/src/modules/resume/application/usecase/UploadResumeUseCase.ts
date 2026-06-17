@@ -1,13 +1,10 @@
 import { ERROR_CODES } from "../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../shared/errors/application.error";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
-
 import { CandidateRepository } from "../../../candidate/domain/repositories/candidate.repository";
-
 import { Resume, ResumeParseStatus } from "../../domain/entity/resume.entity";
 import { FileStorageRepository } from "../../domain/repository/fileStorage.repository";
 import { ResumeRepository } from "../../domain/repository/resume.repository";
-
 import { UploadResumeDTO } from "../dto/upload.resume.dto";
 import { ParseResumeUseCase } from "./ParseResumeUseCase";
 

@@ -9,7 +9,6 @@ export interface GetNotificationsRequest {
 
 export class GetNotificationsUseCase {
   constructor(private readonly notificationRepo: NotificationRepository) {}
-
   async execute(request: GetNotificationsRequest): Promise<Notification[]> {
     return await this.notificationRepo.findByRecipientId(
       request.recipientId,

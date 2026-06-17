@@ -19,11 +19,8 @@ export class CreateNotificationUseCase{
     constructor(
         private readonly notificationRepo : NotificationRepository
     ){};
-
     async execute(request : CreateNotificationRequest):Promise<Notification>{
-
         const notification = Notification.create(
-       
             request.recipientId,
             request.recipientRole,
             request.title,
@@ -33,7 +30,6 @@ export class CreateNotificationUseCase{
             request.referenceId,
             request.metadata,
         );
-
         return await this.notificationRepo.create(notification);
     }
 }

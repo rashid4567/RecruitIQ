@@ -9,11 +9,9 @@ export class MarkNotificationAsReadUseCase{
 
     async execute(notificationId : string):Promise<void>{
         const notification = await this.notificationRepo.findById(notificationId);
-
         if(!notification){
             throw new ApplicationError(ERROR_CODES.NOTIFICATION_NOT_FOUND);
         }
-
         await this.notificationRepo.markAsRead(notificationId)
     }
 }

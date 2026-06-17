@@ -30,7 +30,6 @@ type AnalysisResponse = z.infer<typeof AnalysisSchema>;
 
 const MODEL = "gpt-5-mini";
 const MAX_RETRIES = 3;
-
 const PENALTY_PER_MISSING_SKILL = 3;
 const MAX_PENALTY = 15;
 
@@ -69,8 +68,6 @@ export class OpenAIApplicationAnalysisService implements ApplicationAnalysisServ
       ERROR_CODES.RESUME_PARSE_NOT_FOUND,
     );
   }
-
-  
 
     const prompt = this.buildPrompt(job, parsedData, coverLetter);
     const raw = await this.fetchAnalysisWithRetry(

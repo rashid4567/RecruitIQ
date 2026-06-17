@@ -13,5 +13,4 @@ export interface NotificationRepository {
   markAsRead(notificationId: string): Promise<void>;
   markAllAsRead(recipientId: string): Promise<void>;
   deleteById(notificationId: string): Promise<void>;
-  //deleteAllForRecipient(recipientId: string): Promise<void>;
 }

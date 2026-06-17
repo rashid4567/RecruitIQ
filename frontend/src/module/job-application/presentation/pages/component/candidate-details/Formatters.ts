@@ -18,7 +18,11 @@ export function formatDateShort(dateStr?: string | Date): string {
   });
 }
 
-export function formatSalary(min: number, max: number, currency: string): string {
+export function formatSalary(
+  min: number,
+  max: number,
+  currency: string,
+): string {
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",

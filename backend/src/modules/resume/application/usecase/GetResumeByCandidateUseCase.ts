@@ -6,7 +6,6 @@ import { GetResumeByCandidateDTO } from "../dto/get-resume-by-candidate.dto";
 
 export class GetResumeByCandidateUseCase {
   constructor(private readonly resumeRepository: ResumeRepository) {}
-
   async execute(dto: GetResumeByCandidateDTO): Promise<Resume> {
     const resume = await this.resumeRepository.findByCandidateId(
       dto.candidateId,

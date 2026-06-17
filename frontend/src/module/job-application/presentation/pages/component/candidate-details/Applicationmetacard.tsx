@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Copy, CheckCheck } from "lucide-react";
 import type { JobApplication } from "../../../../domain/entity/job-application.entity";
-import { formatDate, formatDateShort  } from "./Formatters";
+import { formatDate, formatDateShort } from "./Formatters";
 import type { Job } from "@/module/jobs/domain/entity/jobPost.entity";
 
 interface ApplicationMetaCardProps {
@@ -9,16 +9,27 @@ interface ApplicationMetaCardProps {
   job: Job;
 }
 
-function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
+function InfoRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex items-start justify-between gap-4 py-2.5 border-b border-slate-50 last:border-0">
       <span className="text-xs text-slate-400 shrink-0 pt-0.5">{label}</span>
-      <div className="text-xs font-medium text-slate-700 text-right">{children}</div>
+      <div className="text-xs font-medium text-slate-700 text-right">
+        {children}
+      </div>
     </div>
   );
 }
 
-export function ApplicationMetaCard({ application, job }: ApplicationMetaCardProps) {
+export function ApplicationMetaCard({
+  application,
+  job,
+}: ApplicationMetaCardProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -47,8 +58,12 @@ export function ApplicationMetaCard({ application, job }: ApplicationMetaCardPro
           </button>
         </span>
       </InfoRow>
-      <InfoRow label="Applied">{formatDateShort(application.getAppliedAt())}</InfoRow>
-      <InfoRow label="Updated">{formatDate(application.getUpdatedAt())}</InfoRow>
+      <InfoRow label="Applied">
+        {formatDateShort(application.getAppliedAt())}
+      </InfoRow>
+      <InfoRow label="Updated">
+        {formatDate(application.getUpdatedAt())}
+      </InfoRow>
       {job.expiresAt && (
         <InfoRow label="Expires">{formatDateShort(job.expiresAt)}</InfoRow>
       )}

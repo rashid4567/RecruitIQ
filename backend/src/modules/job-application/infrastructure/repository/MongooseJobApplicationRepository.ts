@@ -284,23 +284,23 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
   }
 
   async findByAnalysisStatus(
-  recruiterId: string,
-  status: ApplicationAnalysisStatus,
-): Promise<JobApplication[]> {
-  if (!this.isValidObjectId(recruiterId)) {
-    return [];
+    recruiterId: string,
+    status: ApplicationAnalysisStatus,
+  ): Promise<JobApplication[]> {
+    if (!this.isValidObjectId(recruiterId)) {
+      return [];
+    }
+
+    const docs = await JobApplicationModel.find({
+      recruiterId: new mongoose.Types.ObjectId(recruiterId),
+      analysisStatus: status,
+      isDeleted: false,
+    }).sort({
+      appliedAt: -1,
+    });
+
+    return docs.map((doc) => this.toDomain(doc));
   }
-
-  const docs = await JobApplicationModel.find({
-    recruiterId: new mongoose.Types.ObjectId(recruiterId),
-    analysisStatus: status,
-    isDeleted: false,
-  }).sort({
-    appliedAt: -1,
-  });
-
-  return docs.map((doc) => this.toDomain(doc));
-}
 
   private mapAIAnalysis(
     aiAnalysis?: PersistenceApplicationAIAnalysis,

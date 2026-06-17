@@ -12,7 +12,6 @@ export class GetMyApplicationController {
   ) => {
     try {
       const candidateId = req.user?.userId;
-
       if (!candidateId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
@@ -21,7 +20,6 @@ export class GetMyApplicationController {
       }
 
       const application = await this.getMyApplicationUC.execute(candidateId);
-
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "Application loaded succesfully",

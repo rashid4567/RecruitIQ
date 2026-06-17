@@ -1,6 +1,6 @@
-import React from 'react';
-import { Loader2, X, AlertTriangle } from 'lucide-react';
-import { type JobApplication } from '../../../../domain/entity/job-application.entity';
+import React from "react";
+import { Loader2, X, AlertTriangle } from "lucide-react";
+import { type JobApplication } from "../../../../domain/entity/job-application.entity";
 
 interface Props {
   app: JobApplication;
@@ -9,10 +9,17 @@ interface Props {
   loading: boolean;
 }
 
-export const WithdrawModal: React.FC<Props> = ({ app, onConfirm, onCancel, loading }) => (
+export const WithdrawModal: React.FC<Props> = ({
+  app,
+  onConfirm,
+  onCancel,
+  loading,
+}) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-[2px]"
-    onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
+    onClick={(e) => {
+      if (e.target === e.currentTarget) onCancel();
+    }}
   >
     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-100 mx-4 overflow-hidden">
       <div className="h-1 bg-linear-to-r from-red-400 to-rose-500" />
@@ -27,7 +34,9 @@ export const WithdrawModal: React.FC<Props> = ({ app, onConfirm, onCancel, loadi
               <h3 className="text-[15px] font-bold text-slate-900 leading-tight">
                 Withdraw Application
               </h3>
-              <p className="text-[11px] text-slate-400 mt-0.5">This action cannot be undone</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                This action cannot be undone
+              </p>
             </div>
           </div>
           <button
@@ -50,9 +59,10 @@ export const WithdrawModal: React.FC<Props> = ({ app, onConfirm, onCancel, loadi
         </div>
 
         <p className="text-[13px] text-slate-500 mb-6 leading-relaxed">
-          Withdrawing will notify the recruiter and remove this application from your active pipeline. You won't be able to reapply for the same position.
+          Withdrawing will notify the recruiter and remove this application from
+          your active pipeline. You won't be able to reapply for the same
+          position.
         </p>
-
 
         <div className="flex gap-3">
           <button
@@ -73,7 +83,7 @@ export const WithdrawModal: React.FC<Props> = ({ app, onConfirm, onCancel, loadi
                 Withdrawing…
               </>
             ) : (
-              'Yes, Withdraw'
+              "Yes, Withdraw"
             )}
           </button>
         </div>

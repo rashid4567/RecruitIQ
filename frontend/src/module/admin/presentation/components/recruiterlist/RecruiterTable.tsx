@@ -120,7 +120,7 @@ export function RecruiterTable({
 
       {!loading && totalPages > 0 && (
         <div className="flex items-center justify-between px-6 py-4 border-t bg-slate-50">
-          {/* Result count */}
+        
           <p className="text-sm text-slate-500">
             Showing{" "}
             <span className="font-medium text-slate-700">{startItem}</span>

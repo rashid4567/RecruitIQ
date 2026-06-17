@@ -9,7 +9,6 @@ export class ApplyJobController {
   apply = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const candidateId = req.user?.userId;
-
       if (!candidateId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,

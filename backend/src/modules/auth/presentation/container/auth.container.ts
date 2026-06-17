@@ -49,6 +49,7 @@ const passwordResetEmailService = new PasswordResetEmailService(
 );
 const emailService = new AuthEmailService(passwordResetEmailService);
 const otpService = new OTPService(otpEmailService);
+
 const sendOtpUC = new SendRegistrationOTPUseCase(userRepo, otpService);
 const verifyRegistrationUC = new VerifyRegistrationUseCase(
   userRepo,

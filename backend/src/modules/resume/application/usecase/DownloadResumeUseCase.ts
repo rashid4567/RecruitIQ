@@ -9,14 +9,11 @@ export class DownloadResumeUseCase {
         private readonly fileStorageRepo : FileStorageRepository
     ){};
 
-
     async execute(resumeId :string):Promise<string>{
         const resume = await this.resumeRepo.findById(resumeId);
-
         if(!resume){
             throw new ApplicationError(ERROR_CODES.RESUME_NOT_FOUND)
         }
-
         return this.fileStorageRepo.getDownloadUrl(
             resume.getFileKey(),
             resume.getFileName(),

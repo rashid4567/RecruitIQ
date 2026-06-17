@@ -14,7 +14,6 @@ export class GetRecruiterApplicationDetailsController {
   ) => {
     try {
       const recruiterId = req.user?.userId;
-
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
@@ -23,7 +22,6 @@ export class GetRecruiterApplicationDetailsController {
       }
 
       const { applicationId } = req.params;
-
       if (!applicationId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
@@ -36,7 +34,6 @@ export class GetRecruiterApplicationDetailsController {
         recruiterId,
       );
 
-      console.log("application :", application);
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,

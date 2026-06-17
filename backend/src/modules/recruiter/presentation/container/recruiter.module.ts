@@ -14,31 +14,26 @@ import { S3FileStorageRepository } from "../../../resume/infrastructure/storage/
 const recruiterRepository: RecruiterProfileRepository =
   new MongooseRecruiterProfileRepository();
 const userRepository: UserRepository = new MongooseUserRepository();
-const fileStorageRepo : FileStorageRepository = new S3FileStorageRepository();
+const fileStorageRepo: FileStorageRepository = new S3FileStorageRepository();
 
 const getRecruiterProfileUC = new GetRecruiterProfileUseCase(
   recruiterRepository,
   userRepository,
-  fileStorageRepo
+  fileStorageRepo,
 );
-
 const updateRecruiterProfileUC = new UpdateRecruiterProfileUseCase(
   recruiterRepository,
   userRepository,
 );
-
 const completeRecruiterProfileUC = new CompleteRecruiterProfileUseCase(
   recruiterRepository,
 );
-
 export const updaterecruiterController = new UpdateRecruiterProfileController(
   updateRecruiterProfileUC,
 );
-
 export const completeProfileController = new CompleteRecruiterProfileController(
   completeRecruiterProfileUC,
 );
-
 export const getRecruiterProfile = new GetRecruiterProfileController(
   getRecruiterProfileUC,
 );

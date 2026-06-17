@@ -14,7 +14,6 @@ export class GetApplicationsByJobController {
   ) => {
     try {
       const recruiterId = req.user?.userId;
-
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
@@ -23,7 +22,6 @@ export class GetApplicationsByJobController {
       }
 
       const { jobId } = req.params;
-
       if (!jobId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
@@ -32,7 +30,6 @@ export class GetApplicationsByJobController {
       }
 
       const applications = await this.getApplicationByJobPostUC.execute(jobId);
-
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: "Applications fetched successfully",

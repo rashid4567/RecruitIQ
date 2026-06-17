@@ -131,7 +131,6 @@ export class JobApplication {
     }
   }
 
-
   shortlist(): void {
     if (this.props.status !== ApplicationStatus.APPLIED) {
       throw new DomainError(APPLICATION_ERRORS.INVALID_APPLICATION_STATUS);
@@ -140,7 +139,6 @@ export class JobApplication {
     this.props.rejectionReason = undefined;
     this.touch();
   }
-
 
   updateAIAnalysis(analysis: ApplicationAIAnalysis): void {
     if (this.props.aiAnalysis) {
@@ -171,7 +169,6 @@ export class JobApplication {
     }
   }
 
-
   markAnalysisFailed(): void {
     if (this.props.analysisStatus === ApplicationAnalysisStatus.COMPLETED) {
       return;
@@ -198,9 +195,7 @@ export class JobApplication {
     if (this.props.analysisStatus === ApplicationAnalysisStatus.COMPLETED) {
       return;
     }
-
     this.props.analysisStatus = ApplicationAnalysisStatus.PENDING;
-
     this.touch();
   }
 
@@ -208,19 +203,15 @@ export class JobApplication {
     if (this.props.analysisStatus === ApplicationAnalysisStatus.COMPLETED) {
       return;
     }
-
     this.props.analysisStatus = ApplicationAnalysisStatus.QUOTA_EXCEEDED;
-
     this.touch();
   }
 
   reject(reason?: string): void {
     this.ensureMutable();
-
     this.props.status = ApplicationStatus.REJECTED;
     this.props.rejectionReason = reason?.trim() || undefined;
     this.props.interview = undefined;
-
     this.touch();
   }
 
@@ -292,7 +283,7 @@ export class JobApplication {
       this.props.status !== ApplicationStatus.WITHDRAWN
     );
   }
-  
+
   canRecruiterShortlist(): boolean {
     return this.props.status === ApplicationStatus.APPLIED;
   }
@@ -374,9 +365,9 @@ export class JobApplication {
     return { ...this.props };
   }
 
-  get id():string {
-    if(!this.props.id){
-      throw new DomainError(ERROR_CODES.APPLICATION_ID_IS_MISSING)
+  get id(): string {
+    if (!this.props.id) {
+      throw new DomainError(ERROR_CODES.APPLICATION_ID_IS_MISSING);
     }
     return this.props.id;
   }
@@ -396,7 +387,7 @@ export class JobApplication {
   get resumeId() {
     return this.props.resumeId;
   }
-  
+
   get coverLetter() {
     return this.props.coverLetter;
   }

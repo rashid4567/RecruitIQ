@@ -1,12 +1,10 @@
 import { MongooseNotificationRepository } from "../../infrastructure/repositories/mongoose.notification.repository";
-
 import { CreateNotificationUseCase } from "../../application/usecases/create-notification.usecase";
 import { GetNotificationsUseCase } from "../../application/usecases/GetNotificationsUseCase";
 import { GetUnreadNotificationCountUseCase } from "../../application/usecases/GetUnreadNotificationCountUseCase";
 import { MarkNotificationAsReadUseCase } from "../../application/usecases/MarkNotificationAsReadUseCase";
 import { MarkAllNotificationsAsReadUseCase } from "../../application/usecases/MarkAllNotificationsAsReadUseCase";
 import { DeleteNotificationUseCase } from "../../application/usecases/DeleteNotificationUseCase";
-
 import { GetNotificationsController } from "../controllers/GetNotifications.controller";
 import { GetUnreadNotificationCountController } from "../controllers/GetUnreadNotificationcount.controller";
 import { MarkNotificationAsReadController } from "../controllers/MarkNotificationAsRead.controller";

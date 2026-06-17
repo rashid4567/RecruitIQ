@@ -22,16 +22,13 @@ export class ParseResumeUseCase {
 
   async execute(dto: ParseResumeDTO): Promise<ParsedResumeData> {
     const resume = await this.resumeRepository.findById(dto.resumeId);
-
     if (!resume) {
       throw new ApplicationError(ERROR_CODES.RESUME_NOT_FOUND);
     }
-
     await this.resumeRepository.updateParseStatus(
       dto.resumeId,
       ResumeParseStatus.PROCESSING,
     );
-
     try {
       const extractedText = await this.resumeTextExtractor.extractText(
         dto.fileBuffer,

@@ -24,14 +24,18 @@ export function InterviewCard({ interview }: InterviewCardProps) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <div className="bg-white/10 hover:bg-white/15 rounded-xl p-3.5 transition-colors">
-          <p className="text-blue-200 text-[11px] font-medium mb-1">Date & time</p>
+          <p className="text-blue-200 text-[11px] font-medium mb-1">
+            Date & time
+          </p>
           <p className="text-white font-semibold text-sm">
             {formatDate(interview.scheduledAt)}
           </p>
         </div>
         {interview.location && (
           <div className="bg-white/10 hover:bg-white/15 rounded-xl p-3.5 transition-colors">
-            <p className="text-blue-200 text-[11px] font-medium mb-1">Location</p>
+            <p className="text-blue-200 text-[11px] font-medium mb-1">
+              Location
+            </p>
             <p className="text-white font-semibold text-sm flex items-center gap-1.5">
               <MapPin className="w-3 h-3 opacity-70" />
               {interview.location}
@@ -42,8 +46,12 @@ export function InterviewCard({ interview }: InterviewCardProps) {
 
       {interview.notes && (
         <div className="bg-white/10 rounded-xl p-3.5 mb-4">
-          <p className="text-blue-200 text-[11px] font-medium mb-1">Recruiter notes</p>
-          <p className="text-white/90 text-sm leading-relaxed">{interview.notes}</p>
+          <p className="text-blue-200 text-[11px] font-medium mb-1">
+            Recruiter notes
+          </p>
+          <p className="text-white/90 text-sm leading-relaxed">
+            {interview.notes}
+          </p>
         </div>
       )}
 

@@ -4,7 +4,6 @@ import { JobApplicationRepository } from "../../../domain/repository/job-applica
 
 export class WithdrawApplicationUseCase {
   constructor(private readonly applicationRepo: JobApplicationRepository) {}
-
   async execute(applicationId: string, candidateId: string): Promise<void> {
 
     const candidate = await this.applicationRepo.findByCandidate(candidateId);
@@ -12,15 +11,12 @@ export class WithdrawApplicationUseCase {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND)
     }
     const application = await this.applicationRepo.findById(applicationId);
-
     if (!application) {
       throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
 
     console.log("Application status:", application.status);
-
     application.withdraw();
-
     await this.applicationRepo.save(application);
   }
 }

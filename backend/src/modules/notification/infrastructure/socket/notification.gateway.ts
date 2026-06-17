@@ -8,10 +8,8 @@ export class NotificationGateway {
 
     io.on("connection", (socket: Socket) => {
       console.log(`[Socket Connected] ${socket.id}`);
-
       socket.on("notification:join", (userId: string) => {
         socket.join(userId);
-
         console.log(`[Notification Room Joined] ${userId}`);
       });
 
@@ -25,15 +23,12 @@ export class NotificationGateway {
     if (!this.io) {
       throw new Error("Socket.IO not initialized");
     }
-
     this.io.to(recipientId).emit("notification:new", notification);
   }
-
   emitUnreadCount(recipientId: string, count: number): void {
     if (!this.io) {
       throw new Error("Socket.IO not initialized");
     }
-
     this.io.to(recipientId).emit("notification:unread-count", count);
   }
 }

@@ -6,10 +6,8 @@ export class DeleteNotificationUseCase{
     constructor(
         private readonly notificationRepo : NotificationRepository
     ){};
-
     async execute(notificationId : string):Promise<void>{
         const notification = await this.notificationRepo.findById(notificationId);
-
         if(!notification){
             throw new ApplicationError(ERROR_CODES.NOTIFICATION_NOT_FOUND);
         }

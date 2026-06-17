@@ -9,10 +9,8 @@ export interface GetResumeByIdDTO {
 
 export class GetResumeByIdUseCase {
   constructor(private readonly resumeRepository: ResumeRepository) {}
-
   async execute(dto: GetResumeByIdDTO): Promise<Resume> {
     const resume = await this.resumeRepository.findById(dto.resumeId);
-
     if (!resume) {
       throw new ApplicationError(ERROR_CODES.RESUME_NOT_FOUND);
     }

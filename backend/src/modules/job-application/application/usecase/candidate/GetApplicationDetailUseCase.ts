@@ -29,7 +29,6 @@ export class GetApplicationDetailUseCase {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
     const job = await this.jobRepo.findById(application.jobId);
-
     if (!job) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }

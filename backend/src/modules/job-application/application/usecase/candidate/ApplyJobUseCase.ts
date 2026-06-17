@@ -48,7 +48,6 @@ export class ApplyJobUseCase {
     job.incrementApplications();
     await this.jobRepo.save(job);
     this.triggerPostApplicationActions(created, candidate, job);
-
     return created;
   }
 

@@ -1,15 +1,15 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight, Briefcase } from 'lucide-react';
-import { type JobApplication } from '../../../../domain/entity/job-application.entity';
-import { ApplicationRow } from './Applicationrow';
+import React from "react";
+import { ChevronLeft, ChevronRight, Briefcase } from "lucide-react";
+import { type JobApplication } from "../../../../domain/entity/job-application.entity";
+import { ApplicationRow } from "./Applicationrow";
 
 const TABLE_HEADERS = [
-  'Company & Job',
-  'Applied',
-  'Status',
-  'Interview Details',
-  'Resume',
-  '',
+  "Company & Job",
+  "Applied",
+  "Status",
+  "Interview Details",
+  "Resume",
+  "",
 ];
 
 interface Props {
@@ -35,7 +35,6 @@ export const ApplicationsTable: React.FC<Props> = ({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -85,8 +84,11 @@ export const ApplicationsTable: React.FC<Props> = ({
       {applications.length > perPage && (
         <div className="px-5 py-3.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/40">
           <p className="text-[11px] text-slate-400 font-medium">
-            Showing <span className="text-slate-600">{from}–{to}</span> of{' '}
-            <span className="text-slate-600">{applications.length}</span>
+            Showing{" "}
+            <span className="text-slate-600">
+              {from}–{to}
+            </span>{" "}
+            of <span className="text-slate-600">{applications.length}</span>
           </p>
 
           <div className="flex items-center gap-1">
@@ -104,8 +106,8 @@ export const ApplicationsTable: React.FC<Props> = ({
                 onClick={() => onPageChange(n)}
                 className={`w-8 h-8 rounded-xl text-[12px] font-bold transition ${
                   page === n
-                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-300'
-                    : 'text-slate-500 hover:bg-slate-100'
+                    ? "bg-blue-600 text-white shadow-sm shadow-blue-300"
+                    : "text-slate-500 hover:bg-slate-100"
                 }`}
               >
                 {n}

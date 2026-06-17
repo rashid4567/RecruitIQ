@@ -1,3 +1,4 @@
+import { ERROR_CODES } from "../../../../constants/errorcode.constants";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { NotificationType } from "../constant/notification.constants";
 import { NOTIFICATION_ERROR } from "../error/notification.error";
@@ -52,14 +53,11 @@ export class Notification {
       title: title.trim(),
       message: message.trim(),
       type,
-
       isRead: false,
       readAt: null,
-
       actionUrl,
       referenceId,
       metadata,
-
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -85,7 +83,7 @@ export class Notification {
 
   public updateMessage(message: string): void {
     if (!message?.trim()) {
-      throw new DomainError("MESSAGE_REQUIRED");
+      throw new DomainError(ERROR_CODES.MESSAGE_REQUIRED);
     }
 
     this.props.message = message.trim();

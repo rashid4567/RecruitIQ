@@ -6,11 +6,8 @@ import { BlockUserController } from "../controller/user-management/blockUser.con
 import { UnblockUserController } from "../controller/user-management/unblock.User.controller";
 
 const userRepo: UserRepository = new MongooseUserRepository();
-
 const blockUserUC = new BlockUserUseCase(userRepo);
 
 const unblockUserUC = new UnblockUserUseCase(userRepo);
-
 export const blockUserController = new BlockUserController(blockUserUC);
-
 export const unblockUserController = new UnblockUserController(unblockUserUC);

@@ -31,22 +31,26 @@ export default function MyApplicationsPage() {
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | ApplicationStatus>("ALL");
-  const [withdrawTarget, setWithdrawTarget] = useState<JobApplication | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"ALL" | ApplicationStatus>(
+    "ALL",
+  );
+  const [withdrawTarget, setWithdrawTarget] = useState<JobApplication | null>(
+    null,
+  );
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const filtered = applications.filter((a) => {
     const q = search.toLowerCase();
     const matchSearch = a.getJobId().toLowerCase().includes(q);
-    const matchStatus = statusFilter === "ALL" || a.getStatus() === statusFilter;
+    const matchStatus =
+      statusFilter === "ALL" || a.getStatus() === statusFilter;
     return matchSearch && matchStatus;
   });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const safePage = Math.min(page, totalPages);
 
-  // Page number pills: always show first, last, current ±1, with ellipsis gaps
   const getPageNumbers = (): (number | "...")[] => {
     const pages: (number | "...")[] = [];
     const delta = 1;
@@ -69,7 +73,10 @@ export default function MyApplicationsPage() {
     return pages;
   };
 
-  const handleSearch = (v: string) => { setSearch(v); setPage(1); };
+  const handleSearch = (v: string) => {
+    setSearch(v);
+    setPage(1);
+  };
   const handleStatusFilter = (v: string) => {
     setStatusFilter(v as "ALL" | ApplicationStatus);
     setPage(1);
@@ -102,7 +109,9 @@ export default function MyApplicationsPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <Loader2 size={26} className="animate-spin text-blue-500" />
-            <p className="text-[13px] text-slate-500">Loading your applications…</p>
+            <p className="text-[13px] text-slate-500">
+              Loading your applications…
+            </p>
           </div>
         </div>
       </div>
@@ -127,7 +136,10 @@ export default function MyApplicationsPage() {
               disabled={refreshing}
               className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-[13px] font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-60"
             >
-              <RefreshCw size={13} className={refreshing ? "animate-spin" : ""} />
+              <RefreshCw
+                size={13}
+                className={refreshing ? "animate-spin" : ""}
+              />
               {refreshing ? "Retrying…" : "Try again"}
             </button>
           </div>
@@ -150,7 +162,6 @@ export default function MyApplicationsPage() {
       )}
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
         <header className="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between shrink-0">
           <div>
             <h1 className="text-[15px] font-medium text-slate-900 tracking-tight">
@@ -171,7 +182,10 @@ export default function MyApplicationsPage() {
               aria-label="Refresh applications"
               className="w-8.5 h-8.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-700 transition disabled:opacity-50"
             >
-              <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+              <RefreshCw
+                size={14}
+                className={refreshing ? "animate-spin" : ""}
+              />
             </button>
             <button
               onClick={() => navigate("/candidate/jobs")}
@@ -183,7 +197,6 @@ export default function MyApplicationsPage() {
           </div>
         </header>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto px-8 py-6">
           <div className="max-w-7xl mx-auto space-y-4">
             <StatsCards apps={applications} />
@@ -203,16 +216,13 @@ export default function MyApplicationsPage() {
               onPageChange={setPage}
             />
 
-            {/* Pagination */}
             <div className="flex items-center justify-between pt-1">
               {/* Result count */}
               <p className="text-[12px] text-slate-400">
                 Showing{" "}
                 <span className="font-medium text-slate-600">
-                  {filtered.length === 0
-                    ? 0
-                    : (safePage - 1) * PER_PAGE + 1}
-                  –{Math.min(safePage * PER_PAGE, filtered.length)}
+                  {filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1}–
+                  {Math.min(safePage * PER_PAGE, filtered.length)}
                 </span>{" "}
                 of{" "}
                 <span className="font-medium text-slate-600">
@@ -224,10 +234,8 @@ export default function MyApplicationsPage() {
                 )}
               </p>
 
-              {/* Page controls */}
               {totalPages > 1 && (
                 <div className="flex items-center gap-1">
-                  {/* Prev */}
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={safePage === 1}
@@ -237,7 +245,6 @@ export default function MyApplicationsPage() {
                     <ChevronLeft size={14} />
                   </button>
 
-                  {/* Page pills */}
                   {getPageNumbers().map((p, i) =>
                     p === "..." ? (
                       <span
@@ -258,10 +265,9 @@ export default function MyApplicationsPage() {
                       >
                         {p}
                       </button>
-                    )
+                    ),
                   )}
 
-                  {/* Next */}
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={safePage === totalPages}

@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-
 import { WithdrawApplicationUseCase } from "../../../application/usecase/candidate/WithdrawApplicationUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
@@ -11,7 +10,6 @@ export class WithdrawApplicationController {
   withdraw = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const candidateId = req.user?.userId;
-
       if (!candidateId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,

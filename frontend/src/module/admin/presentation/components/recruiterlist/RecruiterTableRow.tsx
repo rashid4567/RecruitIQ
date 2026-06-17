@@ -1,7 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Eye, MoreVertical, ShieldCheck, XCircle, Ban, Shield } from "lucide-react";
+import {
+  Eye,
+  MoreVertical,
+  ShieldCheck,
+  XCircle,
+  Ban,
+  Shield,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,13 +37,26 @@ export function RecruiterTableRow({
   const getVerificationBadge = (status?: string) => {
     switch (status?.toLowerCase()) {
       case "verified":
-        return { label: "Verified", className: "bg-emerald-100 text-emerald-800 border border-emerald-200" };
+        return {
+          label: "Verified",
+          className:
+            "bg-emerald-100 text-emerald-800 border border-emerald-200",
+        };
       case "pending":
-        return { label: "Pending", className: "bg-amber-100 text-amber-800 border border-amber-200" };
+        return {
+          label: "Pending",
+          className: "bg-amber-100 text-amber-800 border border-amber-200",
+        };
       case "rejected":
-        return { label: "Rejected", className: "bg-rose-100 text-rose-800 border border-rose-200" };
+        return {
+          label: "Rejected",
+          className: "bg-rose-100 text-rose-800 border border-rose-200",
+        };
       default:
-        return { label: "Unknown", className: "bg-slate-100 text-slate-700 border border-slate-200" };
+        return {
+          label: "Unknown",
+          className: "bg-slate-100 text-slate-700 border border-slate-200",
+        };
     }
   };
 
@@ -59,7 +79,6 @@ export function RecruiterTableRow({
 
   return (
     <tr className="hover:bg-indigo-50/30 transition-colors duration-200 group border-b last:border-0">
-    
       <td className="px-6 py-5">
         <div className="flex items-center gap-3.5">
           <Avatar className="h-11 w-11 ring-2 ring-white shadow-sm">
@@ -68,7 +87,7 @@ export function RecruiterTableRow({
                 "text-white font-semibold text-sm",
                 isActive
                   ? "bg-linear-to-br from-emerald-500 to-emerald-600"
-                  : "bg-linear-to-br from-rose-500 to-rose-600"
+                  : "bg-linear-to-br from-rose-500 to-rose-600",
               )}
             >
               {initials || "?"}
@@ -85,12 +104,11 @@ export function RecruiterTableRow({
         </div>
       </td>
 
-
       <td className="px-5 py-5">
         <Badge
           className={cn(
             "px-3.5 py-1 text-xs font-medium rounded-full",
-            badge.className
+            badge.className,
           )}
         >
           {badge.label}
@@ -98,12 +116,14 @@ export function RecruiterTableRow({
       </td>
 
       <td className="px-5 py-5">
-        <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
+        <Badge
+          variant="secondary"
+          className="rounded-full px-3 py-1 text-xs font-medium"
+        >
           {recruiter.subscriptionStatus || "—"}
         </Badge>
       </td>
 
- 
       <td className="px-5 py-5 text-center font-medium text-slate-700">
         {recruiter.jobPostsUsed || 0}
       </td>
@@ -113,7 +133,9 @@ export function RecruiterTableRow({
           <div
             className={cn(
               "h-2.5 w-2.5 rounded-full ring-2 ring-offset-2 ring-offset-white",
-              isActive ? "bg-emerald-500 ring-emerald-300/50" : "bg-rose-500 ring-rose-300/50"
+              isActive
+                ? "bg-emerald-500 ring-emerald-300/50"
+                : "bg-rose-500 ring-rose-300/50",
             )}
           />
           <Badge
@@ -121,14 +143,13 @@ export function RecruiterTableRow({
               "px-3 py-1 text-xs font-medium rounded-full",
               isActive
                 ? "bg-emerald-50 text-emerald-800"
-                : "bg-rose-50 text-rose-800"
+                : "bg-rose-50 text-rose-800",
             )}
           >
             {isActive ? "Active" : "Blocked"}
           </Badge>
         </div>
       </td>
-
 
       <td className="px-5 py-5 text-slate-600 text-sm">
         {recruiter.joinedDate
@@ -140,7 +161,6 @@ export function RecruiterTableRow({
           : "—"}
       </td>
 
-    
       <td className="px-6 py-5 text-right pr-8">
         <div className="flex items-center justify-end gap-2">
           <Button
@@ -184,12 +204,18 @@ export function RecruiterTableRow({
               )}
 
               <DropdownMenuItem
-                onClick={() => onAction(recruiter, isActive ? "block" : "unblock")}
+                onClick={() =>
+                  onAction(recruiter, isActive ? "block" : "unblock")
+                }
               >
                 {isActive ? (
-                  <><Ban className="mr-2 h-4 w-4" /> Block Recruiter</>
+                  <>
+                    <Ban className="mr-2 h-4 w-4" /> Block Recruiter
+                  </>
                 ) : (
-                  <><Shield className="mr-2 h-4 w-4" /> Unblock Recruiter</>
+                  <>
+                    <Shield className="mr-2 h-4 w-4" /> Unblock Recruiter
+                  </>
                 )}
               </DropdownMenuItem>
             </DropdownMenuContent>

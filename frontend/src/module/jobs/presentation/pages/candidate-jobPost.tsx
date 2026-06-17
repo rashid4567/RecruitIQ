@@ -76,7 +76,6 @@ export default function CareerPage() {
       }
     } catch (error) {
       console.error("Failed to apply:", error);
-
       alert("Failed to apply for this job. Please try again.");
     }
   }, [selectedJob, apply]);
@@ -121,10 +120,10 @@ export default function CareerPage() {
         <ApplicationSuccessModal
           applicationId={application.getId()}
           jobTitle={selectedJob.title}
+          companyName={selectedJob.companyName}
           status={application.getStatus()}
           appliedAt={application.getAppliedAt()}
           onClose={handleCloseSuccess}
-          onContinueBrowsing={handleCloseSuccess}
         />
       )}
     </div>

@@ -36,6 +36,11 @@ export class ApplyJobUseCase {
     await this.validateAndGetResume(resumeId, candidateId);
     await this.ensureApplicationDoesNotExist(candidateId, jobId);
     const candidate = await this.userRepo.findById(candidateId);
+
+    if (!candidate) {
+      throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
+    }
+
     const application = JobApplication.apply({
       jobId,
       candidateId,

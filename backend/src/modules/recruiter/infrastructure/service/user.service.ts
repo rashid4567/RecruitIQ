@@ -2,21 +2,17 @@ import { UserServicePort } from "../../../subscription/application/ports/user.se
 import { UserModel } from "../../../auth/infrastructure/mongoose/model/user.model";
 
 export class UserService implements UserServicePort {
-
   async updateProfile(
     userId: string,
     data: {
       fullName?: string;
       profileImage?: string;
-    }
+    },
   ): Promise<void> {
     await UserModel.findByIdAndUpdate(userId, { $set: data });
   }
 
-
-  async findUserById(
-    userId: string
-  ): Promise<{
+  async findUserById(userId: string): Promise<{
     id: string;
     fullName: string;
     email: string;
@@ -36,7 +32,4 @@ export class UserService implements UserServicePort {
       createdAt: user.createdAt,
     };
   }
-
-
-
 }

@@ -15,6 +15,7 @@ export interface JobPostFilters {
   salaryMin?: number;
   salaryMax?: number;
   department?: string;
+  location ?: string;
 }
 
 export interface PaginatedJobPosts {

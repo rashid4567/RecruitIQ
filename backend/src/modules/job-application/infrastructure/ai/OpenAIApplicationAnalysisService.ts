@@ -13,7 +13,6 @@ import { ApplicationError } from "../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../constants/errorcode.constants";
 import { ApplicationRecommendation } from "../../domain/entity/job-application.entity";
 
-
 const AnalysisSchema = z.object({
   requiredSkillsScore: z.number().min(0).max(100),
   preferredSkillsScore: z.number().min(0).max(100),
@@ -60,14 +59,11 @@ export class OpenAIApplicationAnalysisService implements ApplicationAnalysisServ
     resume: Resume,
     coverLetter?: string,
   ): Promise<ApplicationAnalysis> {
-     
-  const parsedData = resume.getParsedData();
+    const parsedData = resume.getParsedData();
 
-  if (!parsedData) {
-    throw new ApplicationError(
-      ERROR_CODES.RESUME_PARSE_NOT_FOUND,
-    );
-  }
+    if (!parsedData) {
+      throw new ApplicationError(ERROR_CODES.RESUME_PARSE_NOT_FOUND);
+    }
 
     const prompt = this.buildPrompt(job, parsedData, coverLetter);
     const raw = await this.fetchAnalysisWithRetry(
@@ -101,130 +97,127 @@ You are both:
 1. A Senior Technical Recruiter
 2. An Applicant Tracking System (ATS)
 
-Evaluate the candidate objectively.
-
+Your task is to evaluate the candidate objectively against the job requirements.
 
 JOB INFORMATION
 
-
-Company:
-${job.companyName}
-
-Job Title:
-${job.title}
-
-Job Description:
-${job.description ?? "Not provided"}
-
-Responsibilities:
-${this.formatArray(jobData.responsibilities)}
-
-Requirements:
-${this.formatArray(jobData.requirements)}
-
-Required Skills:
-${this.formatArray(jobData.requiredSkills)}
-
-Preferred Skills:
-${this.formatArray(jobData.preferredSkills)}
-
-Experience Required:
-${jobData.experienceMin ?? 0} - ${jobData.experienceMax ?? 0} years
-
-Department:
-${job.department ?? "Not provided"}
-
-Job Type:
-${jobData.jobType ?? "Not provided"}
-
-Remote:
-${jobData.isRemote ? "Yes" : "No"}
-
+Company:${job.companyName}
+Job Title:${job.title}
+Job Description:${job.description ?? "Not provided"}
+Responsibilities:${this.formatArray(jobData.responsibilities)}
+Requirements:${this.formatArray(jobData.requirements)}
+Required Skills:${this.formatArray(jobData.requiredSkills)}
+Preferred Skills:${this.formatArray(jobData.preferredSkills)}
+Experience Required:${jobData.experienceMin ?? 0} - ${jobData.experienceMax ?? 0} years
+Department:${job.department ?? "Not provided"}
+Job Type:${jobData.jobType ?? "Not provided"}
+Remote:${jobData.isRemote ? "Yes" : "No"}
 
 CANDIDATE INFORMATION
+Full Name:${parsedData.fullName ?? "Not provided"}
+Email:${parsedData.email ?? "Not provided"}
+Current Company:${parsedData.currentCompany ?? "Not provided"}
+Current Role:${parsedData.currentRole ?? "Not provided"}
+Total Experience:${parsedData.totalExperienceYears ?? 0} years
+Skills:${parsedData.skills?.join(", ") || "Not provided"}
+Experience:${experienceText}
+Education:${educationText}
+LinkedIn:${parsedData.linkedin ?? "Not provided"}
+GitHub:${parsedData.github ?? "Not provided"}
+Portfolio:${parsedData.portfolio ?? "Not provided"}
+Cover Letter:${coverLetter ?? "Not provided"}
 
+ANALYSIS PROCESS
+Before assigning scores:
+1. Compare required skills with candidate skills.
+2. Compare preferred skills with candidate skills.
+3. Compare candidate experience against required experience.
+4. Compare job requirements against resume evidence.
+5. Evaluate education relevance.
+6. Identify missing required skills.
+7. Then assign scores.
 
-Full Name:
-${parsedData.fullName ?? "Not provided"}
+Do not assume skills or experience that are not explicitly mentioned.
 
-Email:
-${parsedData.email ?? "Not provided"}
-
-Current Company:
-${parsedData.currentCompany ?? "Not provided"}
-
-Current Role:
-${parsedData.currentRole ?? "Not provided"}
-
-Total Experience:
-${parsedData.totalExperienceYears ?? 0} years
-
-Skills:
-${parsedData.skills?.join(", ") || "Not provided"}
-
-Experience:
-${experienceText}
-
-Education:
-${educationText}
-
-LinkedIn:
-${parsedData.linkedin ?? "Not provided"}
-
-GitHub:
-${parsedData.github ?? "Not provided"}
-
-Portfolio:
-${parsedData.portfolio ?? "Not provided"}
-
-Cover Letter:
-${coverLetter ?? "Not provided"}
-
-
-SCORING RULES
-
-
-Treat closely related technologies as partial matches.
+TECHNOLOGY MATCHING RULES
+Treat related technologies as partial matches only.
 
 Examples:
+* NestJS → Node.js
+* Express.js → Node.js
+* Next.js → React
+* React Native → React
+* PostgreSQL → SQL
+* MySQL → SQL
+* MongoDB → NoSQL Databases
+* AWS Lambda → AWS
+* TypeScript → JavaScript
 
-- NestJS implies Node.js experience
-- Express.js implies Node.js experience
-- React Native implies React knowledge
-- PostgreSQL implies SQL knowledge
-- AWS Lambda implies AWS experience
-- TypeScript implies JavaScript proficiency
+Partial matches should receive 50%–80% credit.
+Do not treat related technologies as full matches.
 
-Score categories from 0 to 100.
+SCORING RULES
+Required skills are the most important factor.
+
+Rules:
+* Missing required skills must significantly reduce scores.
+* Preferred skills must not outweigh required skills.
+* If more than 50% of required skills are missing, requiredSkillsScore should not exceed 50.
+* If all required skills are present, requiredSkillsScore should generally be above 80.
+* Relevant experience is more important than total years of experience.
+* Candidates should not receive scores above 85 unless they satisfy most required skills and experience requirements.
+* Be realistic and conservative.
+* Do not inflate scores.
+
+Score each category from 0–100.
 
 100 = Perfect Match
-90  = Exceptional Match
-80  = Strong Match
-70  = Good Match
-60  = Acceptable Match
-50  = Weak Match
-0–40 = Poor Match
+90-99 = Exceptional Match
+80-89 = Strong Match
+70-79 = Good Match
+60-69 = Acceptable Match
+50-59 = Weak Match
+0-49 = Poor Match
 
 Evaluate:
-
 1. Required Skills Match
 2. Preferred Skills Match
 3. Experience Alignment
 4. Requirements Fulfillment
 5. Education Relevance
 
-Return ONLY valid JSON.
+OUTPUT RULES
+strengths:
 
+* Maximum 5 items
+* Short and specific
+
+gaps:
+* Maximum 5 items
+* Focus on weaknesses and missing qualifications
+
+missingCriticalSkills:
+* Include only missing REQUIRED skills
+* Do not include preferred skills
+
+summary:
+* Maximum 75 words
+* Explain overall suitability
+* Mention key strengths
+* Mention major gaps
+* Be concise and recruiter-friendly
+
+ RETURN ONLY VALID JSON
 {
-  "requiredSkillsScore": 0,
-  "preferredSkillsScore": 0,
-  "experienceScore": 0,
-  "requirementsScore": 0,
-  "educationScore": 0,
-  "strengths": [],
-  "gaps": [],
-  "missingCriticalSkills": [],
-  "summary": ""
+"requiredSkillsScore": 0,
+"preferredSkillsScore": 0,
+"experienceScore": 0,
+"requirementsScore": 0,
+"educationScore": 0,
+"strengths": [],
+"gaps": [],
+"missingCriticalSkills": [],
+"summary": ""
 }
 `.trim();
   }
@@ -264,15 +257,13 @@ Return ONLY valid JSON.
         });
 
         const content = completion.choices[0]?.message?.content;
-
         if (!content) {
           throw new ApplicationError(ERROR_CODES.AI_RESPONSE_IS_EMPTY);
         }
-
         return AnalysisSchema.parse(JSON.parse(content));
       } catch (error: unknown) {
         lastError = error;
-        console.log(lastError)
+        console.log(lastError);
         const { status, code } = this.extractErrorMeta(error);
 
         console.error(`Application analysis attempt ${attempt} failed`, {
@@ -280,11 +271,9 @@ Return ONLY valid JSON.
           code,
           message: error instanceof Error ? error.message : "Unknown error",
         });
-
         if (code === "insufficient_quota") {
           throw new ApplicationError(ERROR_CODES.AI_QUOTA_EXCEEDED);
         }
-
         if (
           status === HTTP_STATUS.UNAUTHORIZED ||
           status === HTTP_STATUS.FORBIDDEN
@@ -300,17 +289,14 @@ Return ONLY valid JSON.
           status === HTTP_STATUS.GATEWAY_TIMEOUT ||
           (error instanceof Error &&
             error.message.includes("Invalid AI analysis response"));
-
         if (!isRetriable || attempt === MAX_RETRIES) {
           break;
         }
-
         const delay = Math.pow(2, attempt) * 1000;
         console.log(`Retrying application analysis in ${delay}ms…`);
         await this.sleep(delay);
       }
     }
-
     throw new ApplicationError(ERROR_CODES.APPLICATION_ANALYSIS_FAILED);
   }
 
@@ -325,7 +311,6 @@ Return ONLY valid JSON.
     const requirementsScore = this.normalizeScore(analysis.requirementsScore);
     const educationScore = this.normalizeScore(analysis.educationScore);
     const { missingCriticalSkills, strengths, gaps, summary } = analysis;
-
     const penalty = Math.min(
       missingCriticalSkills.length * PENALTY_PER_MISSING_SKILL,
       MAX_PENALTY,
@@ -342,7 +327,6 @@ Return ONLY valid JSON.
           penalty,
       ),
     );
-
     return {
       overallScore,
       requiredSkillsScore,
@@ -362,7 +346,6 @@ Return ONLY valid JSON.
     if (!Array.isArray(value) || value.length === 0) {
       return "Not provided";
     }
-
     return value
       .map((item) =>
         typeof item === "string" ? item : JSON.stringify(item, null, 2),
@@ -372,11 +355,9 @@ Return ONLY valid JSON.
 
   private normalizeScore(score: unknown): number {
     const value = typeof score === "number" ? score : Number(score);
-
     if (Number.isNaN(value)) {
       return 0;
     }
-
     return Math.max(0, Math.min(100, Math.round(value)));
   }
 
@@ -392,7 +373,6 @@ Return ONLY valid JSON.
     if (overallScore >= 55) {
       return ApplicationRecommendation.PARTIAL_MATCH;
     }
-
     return ApplicationRecommendation.POOR_MATCH;
   }
 
@@ -406,10 +386,8 @@ Return ONLY valid JSON.
 
     const status =
       "status" in error ? (error as { status?: number }).status : undefined;
-
     const code =
       "code" in error ? (error as { code?: string }).code : undefined;
-
     return { status, code };
   }
 

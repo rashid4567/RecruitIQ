@@ -18,7 +18,7 @@ import { JobPostModel } from "../mongoose/job-post.model";
 type JobLeanDocument = {
   _id: Types.ObjectId;
   recruiterId: Types.ObjectId;
-  companyName : string;
+  companyName: string;
   title: string;
   description: string;
   responsibilities: string[];
@@ -189,6 +189,56 @@ export class MongooseJobRepository implements JobRepository {
         ],
       });
     }
+    if (filters.search?.trim()) {
+      query.$and = query.$and ?? [];
+
+      query.$and.push({
+        $or: [
+          {
+            title: {
+              $regex: filters.search.trim(),
+              $options: "i",
+            },
+          },
+          {
+            description: {
+              $regex: filters.search.trim(),
+              $options: "i",
+            },
+          },
+          {
+            companyName: {
+              $regex: filters.search.trim(),
+              $options: "i",
+            },
+          },
+          {
+            requiredSkills: {
+              $regex: filters.search.trim(),
+              $options: "i",
+            },
+          },
+          {
+            "location.city": {
+              $regex: filters.search.trim(),
+              $options: "i",
+            },
+          },
+          {
+            "location.state": {
+              $regex: filters.search.trim(),
+              $options: "i",
+            },
+          },
+          {
+            "location.country": {
+              $regex: filters.search.trim(),
+              $options: "i",
+            },
+          },
+        ],
+      });
+    }
     if (filters.recruiterId) {
       query.recruiterId = new Types.ObjectId(filters.recruiterId);
     }
@@ -204,6 +254,7 @@ export class MongooseJobRepository implements JobRepository {
     if (filters.department) {
       query.department = filters.department;
     }
+
     if (filters.isRemote !== undefined) {
       query.isRemote = filters.isRemote;
     }
@@ -212,6 +263,7 @@ export class MongooseJobRepository implements JobRepository {
         $in: filters.requiredSkills,
       };
     }
+
     if (filters.salaryMin !== undefined) {
       query["salary.min"] = {
         $gte: filters.salaryMin,
@@ -249,7 +301,7 @@ export class MongooseJobRepository implements JobRepository {
     return Job.rehydrate({
       id: doc._id.toString(),
       recruiterId: doc.recruiterId.toString(),
-      companyName : doc.companyName,
+      companyName: doc.companyName,
       title: doc.title,
       description: doc.description,
       responsibilities: doc.responsibilities,

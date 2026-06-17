@@ -2,9 +2,7 @@ import type {
   LocationVO,
   SalaryVO,
 } from "../../../recruiter/presentation/types/jobForm.types";
-
 import type { JobStatus, JobType, JobVisibility } from "../dto/jobPost.dto";
-
 import type { CreateJobDTO } from "../dto/jobPost.dto";
 
 export class Job {

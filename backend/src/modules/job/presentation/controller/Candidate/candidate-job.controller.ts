@@ -17,6 +17,7 @@ export class CandidateJobController {
           search: req.query.search as string,
           jobType: req.query.jobType as JobType,
           department: req.query.department as string,
+          location : req.query.location as string,
           isRemote:
             req.query.isRemote !== undefined
               ? req.query.isRemote === "true"

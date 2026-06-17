@@ -9,6 +9,7 @@ export interface JobFilters {
   isBlocked?: boolean;
   includeDeleted?: boolean;
   department?: string;
+  location ?: string;
   isRemote?: boolean;
   requiredSkills?: string[];
   salaryMin?: number;

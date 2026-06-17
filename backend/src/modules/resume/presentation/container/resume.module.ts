@@ -25,7 +25,6 @@ import {
   applicationRepo,
 } from "../../../job-application/presenatation/container/JobApplication.module";
 
-
 const resumeRepo: ResumeRepository = new MongooseResumeRepository();
 const candidateRepo: CandidateRepository = new MongooseCandidateRepository();
 const fileStorage: FileStorageRepository = new S3FileStorageRepository();

@@ -28,8 +28,6 @@ export class CreateJobUseCase {
       throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_FOUND);
     }
 
-   
-
     const subscription =
       await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
 
@@ -81,13 +79,9 @@ export class CreateJobUseCase {
 
   private validateExpiryDate(expiresAt: Date, activeDays: number): void {
     const maxAllowedDate = new Date();
-
     maxAllowedDate.setDate(maxAllowedDate.getDate() + activeDays);
-
     maxAllowedDate.setHours(23, 59, 59, 999);
-
     const expiryDate = new Date(expiresAt);
-
     expiryDate.setHours(23, 59, 59, 999);
 
     if (expiryDate > maxAllowedDate) {

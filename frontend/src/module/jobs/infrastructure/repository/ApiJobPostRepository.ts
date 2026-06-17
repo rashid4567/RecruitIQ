@@ -35,33 +35,33 @@ export class ApiJobPostRepository implements JobPostRepository {
     return this.toEntity(res.data.data);
   }
 
-async getJobPosts(filters?: JobPostFilters): Promise<PaginatedJobs> {
-  const res = await api.get(`/${this.role}/jobs`, {
-    params: {
-      page: filters?.page,
-      limit: filters?.limit,
-      search: filters?.search,
-      status: filters?.status,      
-      isBlocked: filters?.isBlocked,
-      jobType: filters?.jobType,
-      isRemote: filters?.isRemote,
-      skills: filters?.skills,
-      experienceMin: filters?.experienceMin,
-      experienceMax: filters?.experienceMax,
-      salaryMin: filters?.salaryMin,
-      salaryMax: filters?.salaryMax,
-      department: filters?.department,
-    },
-  });
-  const response: PaginatedJobResponse = res.data.data;
-  return {
-    data: response.data.map((job) => this.toEntity(job)),
-    total: response.total,
-    page: response.page,
-    limit: response.limit,
-    totalPages: response.totalPages,
-  };
-}
+  async getJobPosts(filters?: JobPostFilters): Promise<PaginatedJobs> {
+    const res = await api.get(`/${this.role}/jobs`, {
+      params: {
+        page: filters?.page,
+        limit: filters?.limit,
+        search: filters?.search,
+        status: filters?.status,
+        isBlocked: filters?.isBlocked,
+        jobType: filters?.jobType,
+        isRemote: filters?.isRemote,
+        skills: filters?.skills,
+        experienceMin: filters?.experienceMin,
+        experienceMax: filters?.experienceMax,
+        salaryMin: filters?.salaryMin,
+        salaryMax: filters?.salaryMax,
+        department: filters?.department,
+      },
+    });
+    const response: PaginatedJobResponse = res.data.data;
+    return {
+      data: response.data.map((job) => this.toEntity(job)),
+      total: response.total,
+      page: response.page,
+      limit: response.limit,
+      totalPages: response.totalPages,
+    };
+  }
 
   async getJobPostById(id: string): Promise<Job> {
     const res = await api.get(`/${this.role}/jobs/${id}`);
@@ -70,7 +70,7 @@ async getJobPosts(filters?: JobPostFilters): Promise<PaginatedJobs> {
 
   async updateJobPost(id: string, job: Job): Promise<Job> {
     const res = await api.put(`/${this.role}/jobs/${id}`, {
-      companyName : job.companyName,
+      companyName: job.companyName,
       title: job.title,
       description: job.description,
       responsibilities: job.responsibilities,
@@ -85,7 +85,7 @@ async getJobPosts(filters?: JobPostFilters): Promise<PaginatedJobs> {
       salary: job.salary,
       department: job.department,
       positions: job.positions,
-      expiresAt : job.expiresAt,
+      expiresAt: job.expiresAt,
       externalLink: job.externalLink,
     });
 
@@ -132,7 +132,7 @@ async getJobPosts(filters?: JobPostFilters): Promise<PaginatedJobs> {
     return new Job({
       id,
       recruiterId: data.recruiterId,
-      companyName : data.companyName,
+      companyName: data.companyName,
       title: data.title,
       description: data.description,
       responsibilities: data.responsibilities,

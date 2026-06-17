@@ -39,7 +39,6 @@ export class ResumeParserService {
           model: "gpt-5-mini",
           input: `
 You are an expert ATS resume parser.
-
 Extract resume information and return ONLY a valid JSON object.
 
 {
@@ -56,7 +55,6 @@ Extract resume information and return ONLY a valid JSON object.
   "currentCompany": string | null,
   "currentRole": string | null
 }
-
 Resume:
 
 ${normalizedText}
@@ -70,11 +68,9 @@ ${normalizedText}
         });
 
         const content = response.output_text?.trim();
-
         if (!content) {
           throw new Error("Empty AI response");
         }
-
         const parsed = this.parseAndValidateResponse(content);
         return {
           fullName: parsed.fullName ?? null,
@@ -115,14 +111,12 @@ ${normalizedText}
         if (code === "insufficient_quota") {
           throw new ApplicationError(ERROR_CODES.AI_QUOTA_EXCEEDED);
         }
-
         if (
           status === HTTP_STATUS.UNAUTHORIZED ||
           status === HTTP_STATUS.FORBIDDEN
         ) {
           throw error;
         }
-
         const shouldRetry =
           status === HTTP_STATUS.TOO_MANY_REQUESTS ||
           status === HTTP_STATUS.INTERNAL_SERVER_ERROR ||
@@ -141,7 +135,6 @@ ${normalizedText}
     }
 
     console.error("Resume parsing failed after all retries", lastError);
-
     throw new ApplicationError(ERROR_CODES.RESUME_PARSE_FAILED);
   }
 
@@ -159,7 +152,7 @@ ${normalizedText}
       return ResumeSchema.parse(parsed);
     } catch (error) {
       console.error("Invalid resume parser response:", content);
-      console.log("error :", error)
+      console.log("error :", error);
       throw new Error("Invalid AI response format");
     }
   }

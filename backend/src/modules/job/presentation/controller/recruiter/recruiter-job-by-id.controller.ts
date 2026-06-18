@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { GetJobByIdUseCase } from "../../../application/usecase/job/get-jobpost-by-id.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 
 export class RecruiterJobByIdController {
   constructor(private readonly getUc: GetJobByIdUseCase) {}
@@ -10,7 +11,7 @@ export class RecruiterJobByIdController {
       if(!recruiterId){
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
             success : false,
-            message : "Unauthorized"
+            message : ERROR_MESSAGE.UNAUTHORIZED,
         })
       }
 
@@ -18,7 +19,7 @@ export class RecruiterJobByIdController {
       if(!jobId){
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
             success : false,
-            message : "Jobpost not found"
+            message :ERROR_MESSAGE.JOB_ID_REQUIRED
         })
       }
       const job = await this.getUc.execute(jobId);

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { GetApplicationsByJobUseCase } from "../../../application/usecase/recruiter/GetApplicationsByJob.useCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class GetApplicationsByJobController {
   constructor(
@@ -17,7 +19,7 @@ export class GetApplicationsByJobController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED
         });
       }
 
@@ -25,14 +27,14 @@ export class GetApplicationsByJobController {
       if (!jobId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Job post is required",
+          message: ERROR_MESSAGE.JOB_POST_IS_REQUIRED 
         });
       }
 
       const applications = await this.getApplicationByJobPostUC.execute(jobId);
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Applications fetched successfully",
+        message: SUCCESS_MESSAGES.APPLICATIONS_FETCHED_SUCCESSFULLY,
         data: applications,
       });
     } catch (err) {

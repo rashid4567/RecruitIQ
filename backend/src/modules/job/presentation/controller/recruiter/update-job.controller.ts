@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { UpdateJobUseCase } from "../../../application/usecase/job/update-job.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus"; 
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class UpdateJobController {
   constructor(private readonly updateUc: UpdateJobUseCase) {}
@@ -13,21 +15,21 @@ export class UpdateJobController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
       const jobId = req.params.id;
       if (!jobId) {
         return res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
-          message: "Jobpost not found",
+          message: ERROR_MESSAGE.JOB_ID_REQUIRED,
         });
       }
       const job = await this.updateUc.execute(jobId, recruiterId, req.body);
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Job updated succesfully",
+        message: SUCCESS_MESSAGES.JOB_POST_UPDATED_SUCCESSFULLY,
         data: job,
       });
     } catch (err) {

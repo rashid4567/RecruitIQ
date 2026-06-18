@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { GetEmailTemplatesUseCase } from "../../../application/usecase/email-template/get-email-templates.usecase";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class ListEmailTemplateController {
   constructor(
@@ -18,7 +19,7 @@ export class ListEmailTemplateController {
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Email templates listed successfully",
+        message: SUCCESS_MESSAGES.EMAIL_TEMPLATES_LISTED_SUCCESSFULLY,
         data: result,
       });
     } catch (error) {

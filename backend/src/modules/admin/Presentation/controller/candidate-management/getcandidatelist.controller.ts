@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { GetCandidateUseCase } from "../../../Application/use-Cases/candidate-management/get-candidates.usecase";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class GetCandidateAdminController {
   constructor(private readonly getCandidatesUC: GetCandidateUseCase) {}
@@ -27,7 +28,7 @@ export class GetCandidateAdminController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Candidates listed successfully",
+        message: SUCCESS_MESSAGES.CANDIDATES_LISTED_SUCCESSFULLY,
         data: result,
       });
     } catch (err) {

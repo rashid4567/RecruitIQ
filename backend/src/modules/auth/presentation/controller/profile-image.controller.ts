@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { UpdateProfileImageUseCase } from "../../application/useCase/update-profile-image.usecase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { profileImageSchema } from "../validators/profile-image.schema";
+import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class ProfileImageController {
   constructor(
@@ -19,7 +21,7 @@ export class ProfileImageController {
       if (!userId) {
         res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
         return;
       }
@@ -29,7 +31,7 @@ export class ProfileImageController {
       if (!file) {
         res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "File is required",
+          message: SUCCESS_MESSAGES.FILE_IS_REQUIRED,
         });
         return;
       }
@@ -46,7 +48,7 @@ export class ProfileImageController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Profile image updated successfully",
+        message: SUCCESS_MESSAGES.PROFILE_IMAGE_UPDATED_SUCCESFULLY,
       });
     } catch (error) {
       next(error);

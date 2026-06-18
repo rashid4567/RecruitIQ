@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { GetRecruiterApplicationDetailsUseCase } from "../../../application/usecase/recruiter/GetRecruiterApplicationDetailsUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class GetRecruiterApplicationDetailsController {
   constructor(
@@ -17,7 +19,7 @@ export class GetRecruiterApplicationDetailsController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
@@ -25,7 +27,7 @@ export class GetRecruiterApplicationDetailsController {
       if (!applicationId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Application ID is Required",
+          message: ERROR_MESSAGE.APPLICATION_REQUIRED,
         });
       }
 
@@ -34,10 +36,9 @@ export class GetRecruiterApplicationDetailsController {
         recruiterId,
       );
 
-
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Application details fetched successfully",
+        message: SUCCESS_MESSAGES.APPLICATIONS_FETCHED_SUCCESSFULLY,
         data: application,
       });
     } catch (err) {

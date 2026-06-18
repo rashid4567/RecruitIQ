@@ -4,6 +4,7 @@ import { ResetPasswordUseCase } from "../../application/useCase/password/reset-p
 import { ForgotPasswordSchema } from "../validators/forgot-password.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { ResetPasswordSchema } from "../validators/reset-password.schema";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class ForgotPasswordController {
   constructor(
@@ -18,7 +19,7 @@ export class ForgotPasswordController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Password reset email sent",
+        message: SUCCESS_MESSAGES.PASSWORD_RESET_EMAIL_SENT,
       });
     } catch (err) {
       console.log("error",err)
@@ -33,7 +34,7 @@ export class ForgotPasswordController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Password reset successfully",
+        message: SUCCESS_MESSAGES.PASSWORD_RESET_SUCCESFULLY,
       });
     } catch (err) {
       console.log("error",err)

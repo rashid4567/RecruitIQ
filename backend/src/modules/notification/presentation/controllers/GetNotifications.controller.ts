@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { GetNotificationsUseCase } from "../../application/usecases/GetNotificationsUseCase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class GetNotificationsController {
   constructor(private readonly getNotificationUC: GetNotificationsUseCase) {}
@@ -11,7 +13,7 @@ export class GetNotificationsController {
       if (!recipientId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
       const page = Number(req.query.page) || 1;
@@ -24,7 +26,7 @@ export class GetNotificationsController {
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Get notifications successfully",
+        message: SUCCESS_MESSAGES.NOTIFICATIONS_FETCHED_SUCCESSFULLY,
         data: notifications.map((notification) => notification.getProps()),
       });
     } catch (err) {

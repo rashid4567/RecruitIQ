@@ -3,31 +3,20 @@ import { GoogleLoginUseCase } from "../../application/useCase/google/google-logi
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { GoogleLoginSchema } from "../validators/google-login.schema";
 import { setRefreshCookie } from "../utils/cookie.util";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class GoogleController {
-  constructor(
-    private readonly googleLoginUC: GoogleLoginUseCase,
-  ) {}
+  constructor(private readonly googleLoginUC: GoogleLoginUseCase) {}
 
-  login = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { credential, role } =
-        GoogleLoginSchema.parse(req.body);
-
-      const result = await this.googleLoginUC.execute(
-        credential,
-        role,
-      );
+      const { credential, role } = GoogleLoginSchema.parse(req.body);
+      const result = await this.googleLoginUC.execute(credential, role);
 
       setRefreshCookie(res, result.refreshToken);
-
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Google login successfully",
+        message: SUCCESS_MESSAGES.GOOGLE_LOGIN_SUCCESSFULLY,
         data: {
           accessToken: result.accessToken,
           user: {

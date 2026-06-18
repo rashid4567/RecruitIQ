@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { GetApplicationDetailUseCase } from "../../../application/usecase/candidate/GetApplicationDetailUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 
 export class GetApplicationDetailController {
   constructor(
@@ -17,7 +19,7 @@ export class GetApplicationDetailController {
       if (!candidateId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
@@ -25,7 +27,7 @@ export class GetApplicationDetailController {
       if (!applicationId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Application required",
+          message: ERROR_MESSAGE.APPLICATION_REQUIRED,
         });
       }
       const application = await this.getApplicationDetailUC.execute(

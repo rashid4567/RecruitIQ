@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../../constants/httpStatus";
 import { GetAllSubscriptionPlansUseCase } from "../../../../application/usecase/Admin/subscription/get-all-subscription-plans.usecase";
 import { SubscriptionPlanFilter } from "../../../../domain/repository/subscription-plan.repository";
+import { SUCCESS_MESSAGES } from "../../../../../../constants/success-message.constants";
 
 export class GetSubscriptionPlanController {
   constructor(private readonly getAllPlansUC: GetAllSubscriptionPlansUseCase) {}
@@ -26,7 +27,7 @@ export class GetSubscriptionPlanController {
       const limitValue = filter.limit ?? 10;
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Subscription plans fetched successfully",
+        message: SUCCESS_MESSAGES.SUBSCRIPTION_PLANS_FETCHED_SUCCESSFULLY,
         data,
         total,
         page: pageValue,

@@ -3,6 +3,8 @@ import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { userIdSchema } from "../validator/userId.validator";
 import { UpdateRecruiterProfileSchema } from "../validator/updateRecruiterProfile-validator";
 import { UpdateRecruiterProfileUseCase } from "../../application/useCase/profile/update-recruiter-profile.usecase";
+import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class UpdateRecruiterProfileController {
   constructor(
@@ -13,25 +15,25 @@ export class UpdateRecruiterProfileController {
     try {
       const userId = userIdSchema.parse(req.user?.userId);
 
-      if(!userId){
+      if (!userId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success : false,
-          message : "Unautorized"
-        })
+          success: false,
+          message: ERROR_MESSAGE.UNAUTHORIZED,
+        });
       }
 
       const body = UpdateRecruiterProfileSchema.parse(req.body);
 
-      if(!body){
+      if (!body) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success : false,
-          message : "Missing fields"
-        })
+          success: false,
+          message: ERROR_MESSAGE.MISSING_FILEDS,
+        });
       }
       const profile = await this.updateProfileUC.execute(userId, body);
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Profile update succesfully",
+        message: SUCCESS_MESSAGES.PROFILE_UPDATED_SUCCESSFULLY,
         data: profile,
       });
     } catch (err) {

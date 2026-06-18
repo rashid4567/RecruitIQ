@@ -2,19 +2,21 @@ import { Request, Response, NextFunction } from "express";
 import { ParseResumeUseCase } from "../../application/usecase/ParseResumeUseCase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { parseResumeSchema } from "../validatior/parseResume.schema";
+import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class ParseResumeController {
   constructor(private readonly parseResumeUC: ParseResumeUseCase) {}
 
   parseResume = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log("hit resume parse service")
+      console.log("hit resume parse service");
       const file = req.file;
 
       if (!file) {
-         res.status(HTTP_STATUS.BAD_REQUEST).json({
+        res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Resume file is required",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
         return;
       }
@@ -31,7 +33,7 @@ export class ParseResumeController {
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Resume parsed succesfully",
+        message: SUCCESS_MESSAGES.RESUME_PARSED_SUCCESSFULLY,
         data: parsedData,
       });
     } catch (err) {

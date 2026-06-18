@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { BlockUserUseCase } from "../../../Application/use-Cases/user-management/block-user.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 
 export class BlockUserController {
   constructor(private readonly blockUserUC: BlockUserUseCase) {}
@@ -9,21 +11,18 @@ export class BlockUserController {
     try {
       const { userId } = req.params;
 
-
-      if(!userId || typeof userId !== "string"){
+      if (!userId || typeof userId !== "string") {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success : false,
-          message : "Invalid userId in route params"
-        })
+          success: false,
+          message: ERROR_MESSAGE.INVALID_USERID_IN_ROUTE_PARAMS,
+        });
       }
-      await this.blockUserUC.execute(userId); 
-
+      await this.blockUserUC.execute(userId);
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "User blocked succesfully",
+        message: SUCCESS_MESSAGES.USER_BLOCKED_SUCCESFULLY,
       });
     } catch (err) {
-
       return next(err);
     }
   };

@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { HideJobUseCase } from "../../../application/usecase/job/hide-job.usecase";
 import { UnhideJobUseCase } from "../../../application/usecase/job/unhide-job.post.usecase";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class ToggleJobVisibilityController {
   constructor(
@@ -15,13 +17,13 @@ export class ToggleJobVisibilityController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorizes",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
       const job = await this.hideUC.execute(req.params.id, recruiterId!);
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Job hidden",
+        message: SUCCESS_MESSAGES.JOB_HIDE_SUCCESSFULLY, 
         data: job,
       });
     } catch (err) {
@@ -35,13 +37,13 @@ export class ToggleJobVisibilityController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorizes",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
       const job = await this.unhideUC.execute(req.params.id, recruiterId!);
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Job unhidden",
+        message: SUCCESS_MESSAGES.JOB_UNHIDE_SUCCESSFULLY,
         data: job,
       });
     } catch (err) {

@@ -6,6 +6,7 @@ import {
   setRefreshCookie,
   clearRefreshCookie,
 } from "../utils/cookie.util";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class AuthController {
   constructor(
@@ -29,7 +30,7 @@ export class AuthController {
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Login successfully",
+        message: SUCCESS_MESSAGES.LOGIN_SUCCESSFULLY, 
         data: {
           accessToken: result.accessToken,
           user: {
@@ -49,7 +50,7 @@ export class AuthController {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: "Logout successfully",
+      message: SUCCESS_MESSAGES.LOGOUT_SUCCESSFULLY, 
     });
   };
 }

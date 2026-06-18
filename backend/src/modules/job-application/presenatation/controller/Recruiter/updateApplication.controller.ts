@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { UpdateApplicationStatusUseCase } from "../../../application/usecase/recruiter/UpdateApplicationStatusUseCase";
 import { ApplicationStatus } from "../../../domain/entity/job-application.entity";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 
 export class UpdateApplicationStatusController {
   constructor(
@@ -19,7 +20,7 @@ export class UpdateApplicationStatusController {
       if (!recruiterId) {
         res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED
         });
         return;
       }
@@ -29,7 +30,7 @@ export class UpdateApplicationStatusController {
       if (!applicationId?.trim()) {
         res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Application ID is required",
+          message: ERROR_MESSAGE.APPLICATION_REQUIRED,
         });
         return;
       }
@@ -45,7 +46,7 @@ export class UpdateApplicationStatusController {
       if (!allowedStatuses.includes(status)) {
         res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Invalid application status",
+          message: ERROR_MESSAGE.INVALID_APPLICATION_STATUS, 
         });
         return;
       }

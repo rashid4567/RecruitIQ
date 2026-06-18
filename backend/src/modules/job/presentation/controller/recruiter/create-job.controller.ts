@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { CreateJobUseCase } from "../../../application/usecase/job/create-job.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { CreateJobSchema } from "../../validator/create.jobpost.validation";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class CreateJobController {
   constructor(private readonly createUc: CreateJobUseCase) {}
@@ -13,21 +15,21 @@ export class CreateJobController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
-      const dto = CreateJobSchema.parse(req.body)
+      const dto = CreateJobSchema.parse(req.body);
 
       const job = await this.createUc.execute(recruiterId, dto);
       console.log("job :", job);
       res.status(HTTP_STATUS.CREATED).json({
         success: true,
-        message: "Job created successfully",
+        message: SUCCESS_MESSAGES.JOB_CREATED_SUCCESSFULLY,
         data: job,
       });
     } catch (err) {
-        console.log("err", err);
+      console.log("err", err);
       next(err);
     }
   };

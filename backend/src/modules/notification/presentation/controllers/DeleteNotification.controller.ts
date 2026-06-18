@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { DeleteNotificationUseCase } from "../../application/usecases/DeleteNotificationUseCase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class DeleteNotificationController {
   constructor(
@@ -16,13 +18,13 @@ export class DeleteNotificationController {
       if (!id) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
       const notification = await this.deleteNotificationUC.execute(id);
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Message deleted succesfully",
+        message: SUCCESS_MESSAGES.MESSAGE_DELETED_SUCCESSFULLY,
         data: notification,
       });
     } catch (err) {

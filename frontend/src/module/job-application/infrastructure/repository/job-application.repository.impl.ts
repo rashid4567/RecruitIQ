@@ -111,13 +111,10 @@ export class ApiJobApplicationRepository implements JobApplicationRepository {
       candidateEmail: item.candidateEmail,
       candidateProfileImage: item.candidateProfileImage,
       resumeId: item.resumeId,
-
       status: item.status,
       analysisStatus: item.analysisStatus as ApplicationAnalysisStatus,
-
       aiScore: item.aiScore,
       aiRecommendation: item.aiRecommendation,
-
       appliedAt: item.appliedAt,
     }));
   }

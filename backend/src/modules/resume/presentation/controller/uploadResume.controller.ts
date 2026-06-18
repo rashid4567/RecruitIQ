@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { UploadResumeUseCase } from "../../application/usecase/UploadResumeUseCase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class UploadResumeController {
   constructor(private readonly uploadResumeUC: UploadResumeUseCase) {}
@@ -12,7 +14,7 @@ export class UploadResumeController {
       if (!candidateId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
@@ -21,7 +23,7 @@ export class UploadResumeController {
       if (!file) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Resume is required",
+          message: ERROR_MESSAGE.RESUME_ID_REQUIRED,
         });
       }
 
@@ -34,7 +36,7 @@ export class UploadResumeController {
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Resume uploaded successfully",
+        message: SUCCESS_MESSAGES.RESUME_UPLOADED_SUCCESSFULLY, 
         data: resume.toJSON(),
       });
     } catch (err) {

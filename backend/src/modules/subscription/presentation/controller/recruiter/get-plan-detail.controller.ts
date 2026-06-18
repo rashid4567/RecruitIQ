@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { GetSubscriptionPlanUseCase } from "../../../application/usecase/Admin/subscription/get-subscription-plan.usecase";
 import { planIdParamSchema } from "../../../../recruiter/presentation/validator/Planidparam.validator";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class GetPlanDetailController {
   constructor(private readonly getPlanUC: GetSubscriptionPlanUseCase) {}
@@ -9,16 +11,16 @@ export class GetPlanDetailController {
     try {
       const { planId } = planIdParamSchema.parse(req.params);
 
-      if(!planId){
+      if (!planId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success : false,
-          message : "PlanId not found",
-        })
+          success: false,
+          message: ERROR_MESSAGE.PLAN_ID_NOT_FOUND,
+        });
       }
       const result = await this.getPlanUC.execute(planId);
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Plan details fetched successfully",
+        message: SUCCESS_MESSAGES.PLAN_DETAILS_FETCHED_SUCCESSFULLY,
         data: result,
       });
     } catch (err) {

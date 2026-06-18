@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { GetUnreadNotificationCountUseCase } from "../../application/usecases/GetUnreadNotificationCountUseCase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class GetUnreadNotificationCountController {
   constructor(
@@ -13,14 +15,14 @@ export class GetUnreadNotificationCountController {
       if (!recipientId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
       const unreadCount = await this.getUnreadCountUC.execute(recipientId);
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Unread message count fetched succesfully",
+        message: SUCCESS_MESSAGES.UNREAD_NOTIFICATION_COUNT_FETCHED_SUCCESSFULLY,
         data: unreadCount,
       });
     } catch (err) {

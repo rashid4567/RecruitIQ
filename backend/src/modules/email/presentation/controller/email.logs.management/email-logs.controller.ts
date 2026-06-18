@@ -1,22 +1,21 @@
-import { Request, Response ,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { ListEmailLogsUseCase } from "../../../../email/application/usecase/email.logs/list-email-logs.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class EmailLogsController {
-    constructor(
-        private readonly listLoginUC : ListEmailLogsUseCase
-    ){};
+  constructor(private readonly listLoginUC: ListEmailLogsUseCase) {}
 
-    list = async (req : Request, res : Response, next : NextFunction) =>{
-        try{
-            const logs = await this.listLoginUC.execute();
-            return res.status(HTTP_STATUS.OK).json({
-                success : true,
-                message : "Email logs loaded succesfully",
-                data : logs
-            })
-        }catch(err){
-            return next(err);
-        }
+  list = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const logs = await this.listLoginUC.execute();
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: SUCCESS_MESSAGES.EMAIL_LOGS_LOADED_SUCCESSFULLY,
+        data: logs,
+      });
+    } catch (err) {
+      return next(err);
     }
+  };
 }

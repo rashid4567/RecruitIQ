@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { ApplyJobUseCase } from "../../../application/usecase/candidate/ApplyJobUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { applyJobSchema } from "../../validator/apply-job.validator";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class ApplyJobController {
   constructor(private readonly applyJobUC: ApplyJobUseCase) {}
@@ -12,7 +14,7 @@ export class ApplyJobController {
       if (!candidateId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
@@ -28,7 +30,7 @@ export class ApplyJobController {
 
       return res.status(HTTP_STATUS.CREATED).json({
         success: true,
-        message: "Job application submitted successfully",
+        message: SUCCESS_MESSAGES.JOB_APPLICATION_SUBMITTED_SUCCESSFULLY,
         data: application.toObject(),
       });
     } catch (err) {

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { UpgradeSubscriptionUseCase } from "../../../application/usecase/Recruiter/UpgradeSubscriptionUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class UpgradeSubscriptionController {
   constructor(
@@ -14,7 +16,7 @@ export class UpgradeSubscriptionController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
@@ -23,14 +25,14 @@ export class UpgradeSubscriptionController {
       if (!planId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Plan ID is required",
+          message: ERROR_MESSAGE.PLAN_ID_NOT_FOUND
         });
       }
 
       if (!durationMonths || durationMonths < 1) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Valid durationMonths is required",
+          message: ERROR_MESSAGE.VALID_DURATION_MONTHS_IS_REQUIRED, 
         });
       }
 
@@ -42,7 +44,7 @@ export class UpgradeSubscriptionController {
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Subscription upgraded successfully",
+        message: SUCCESS_MESSAGES.SUBSCRIPTION_UPGRADED_SUCCESSFULLY, 
         data: subscription,
       });
     } catch (err) {

@@ -3,6 +3,8 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 
 import { UnblockJobUseCase } from "../../../application/usecase/job/unblock-job-usecase";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class UnblockJobController {
   constructor(private readonly unBlockUc: UnblockJobUseCase) {}
@@ -13,13 +15,13 @@ export class UnblockJobController {
       if (!jobId) {
         return res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
-          message: "Job post not found",
+          message: ERROR_MESSAGE.JOB_ID_REQUIRED,
         });
       }
       const job = await this.unBlockUc.execute(jobId);
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Job unblocked successfully",
+        message: SUCCESS_MESSAGES.JOB_UNBLOCKED_SUCCESSFULLY,
         data: job,
       });
     } catch (err) {

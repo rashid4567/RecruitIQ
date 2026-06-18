@@ -1,23 +1,24 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { CreateEmailTemplateUseCase } from "../../../application/usecase/email-template/create-email-template.usecase";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class CreateEmailTemplateController {
   constructor(
-    private readonly createEmailTemplateUC: CreateEmailTemplateUseCase
+    private readonly createEmailTemplateUC: CreateEmailTemplateUseCase,
   ) {}
 
   createEmailTemplate = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const result = await this.createEmailTemplateUC.execute(req.body);
 
       return res.status(HTTP_STATUS.CREATED).json({
         success: true,
-        message: "Email template created successfully",
+        message: SUCCESS_MESSAGES.EMAIL_TEMPLATE_CREATED_SUCCESSFULLY,
         data: result,
       });
     } catch (error) {

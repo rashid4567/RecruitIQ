@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { DeleteJobUseCase } from "../../../application/usecase/job/delete-job.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class DeleteJobController {
   constructor(private readonly deleteUC: DeleteJobUseCase) {}
@@ -12,7 +14,7 @@ export class DeleteJobController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
@@ -21,16 +23,16 @@ export class DeleteJobController {
       if (!jobId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          mesasge: "Jobpost not found",
+          mesasge: ERROR_MESSAGE.JOB_POST_IS_REQUIRED,
         });
       }
       await this.deleteUC.execute(jobId, recruiterId);
       res.status(HTTP_STATUS.OK).json({
         success: false,
-        message: "Job deleted succesfully",
+        message: SUCCESS_MESSAGES.JOB_DELETED_SUCCESSFULLY,
       });
     } catch (err) {
-      console.log("error :",err);
+      console.log("error :", err);
       next(err);
     }
   };

@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { DeleteResumeUseCase } from "../../application/usecase/DeleteResumeUseCase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { parseResumeSchema } from "../validatior/parseResume.schema";
+import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class DeleteResumeController {
   constructor(private readonly deleteResumeUC: DeleteResumeUseCase) {}
@@ -15,7 +17,7 @@ export class DeleteResumeController {
       if (!resumeId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Resume id is required",
+          message: ERROR_MESSAGE.RESUME_ID_REQUIRED
         });
       }
 
@@ -25,7 +27,7 @@ export class DeleteResumeController {
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Resume deleted successfully",
+        message: SUCCESS_MESSAGES.RESUME_DELETED_SUCCESSFULLY,
       });
     } catch (err) {
       next(err);

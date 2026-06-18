@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { GetSubscribersUseCase } from "../../../../application/usecase/Admin/subscribers/GetSubscribersUseCase";
 import { HTTP_STATUS } from "../../../../../../constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../../constants/success-message.constants";
 
 export class GetSubscribersController {
   constructor(private readonly getSubscribersUC: GetSubscribersUseCase) {}
@@ -24,7 +25,7 @@ export class GetSubscribersController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Subscribers fetched successfully",
+        message: SUCCESS_MESSAGES.SUBSCRIBERS_FETCHED_SUCCESSFULLY,
         data: result.items,
         pagination: {
           total: result.total,

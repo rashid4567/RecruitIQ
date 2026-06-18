@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { GetCurrentSubscriptionUseCase } from "../../../application/usecase/Recruiter/GetCurrentSubscriptionUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class GetCurrentSubsriptionController {
   constructor(
@@ -18,7 +20,7 @@ export class GetCurrentSubsriptionController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
@@ -27,7 +29,7 @@ export class GetCurrentSubsriptionController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Current subscription fetched successfully",
+        message: SUCCESS_MESSAGES.CURRENT_SUBSCRIPTION_FETCHED_SUCCESSFULLY,
         data: subscription,
       });
     } catch (err) {

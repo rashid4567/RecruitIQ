@@ -2,8 +2,9 @@ import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { JobApplication } from "../../../domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
+import { IGetMyApplications } from "../../interfaces/IGetMyApplicationUseCase";
 
-export class GetMyApplicationUseCase {
+export class GetMyApplicationUseCase implements IGetMyApplications {
   constructor(private readonly applicationRepo: JobApplicationRepository) {}
 
   async execute(candidateId: string): Promise<JobApplication[]> {

@@ -1,0 +1,16 @@
+export const ERROR_MESSAGE = {
+  UNAUTHORIZED: "Unauthorized",
+  PLAN_ID_NOT_FOUND: "Plan ID not found",
+  INVALID_USERID_IN_ROUTE_PARAMS: "Invalid userId in route params",
+  ACCESS_DENIED: "Access denied",
+  MISSING_FILEDS: "Missing fileds",
+  EMAIL_IS_REQUIRED: "Email is required",
+  APPLICATION_REQUIRED: "Application required",
+  JOB_POST_IS_REQUIRED: "Job post is required",
+  INVALID_APPLICATION_STATUS: "Invalid application status",
+  NOTIFICATION_REQUIRED: "notification required",
+  RESUME_ID_REQUIRED :  "Resume id is required",
+  DURATION_IS_REQUIRED : "Duration is required",
+VALID_DURATION_MONTHS_IS_REQUIRED : "Valid durationMonths is required",
+JOB_ID_REQUIRED : "Job id is required",
+};

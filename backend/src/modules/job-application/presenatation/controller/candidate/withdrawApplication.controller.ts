@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { WithdrawApplicationUseCase } from "../../../application/usecase/candidate/WithdrawApplicationUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 
 export class WithdrawApplicationController {
   constructor(
@@ -13,7 +14,7 @@ export class WithdrawApplicationController {
       if (!candidateId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
@@ -26,7 +27,7 @@ export class WithdrawApplicationController {
       if (!applicationId) {
         return res.send(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: "Application is required",
+          message: ERROR_MESSAGE.APPLICATION_REQUIRED,
         });
       }
 

@@ -3,6 +3,7 @@ import { UpdatePasswordUseCase } from "../../application/useCase/password/update
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { UpdatePasswordSchema } from "../validators/updatepassword.validator";
 import { userIdSchema } from "../validators/userId.validator";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class ChangePasswordController {
   constructor(private readonly updatePasswordUC: UpdatePasswordUseCase) {}
@@ -21,7 +22,7 @@ export class ChangePasswordController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Password updated successfully",
+        message: SUCCESS_MESSAGES.PASSWORD_UPDATED_SUCCESSFULLY, 
       });
     } catch (err) {
     console.error("password updated failed :", err)

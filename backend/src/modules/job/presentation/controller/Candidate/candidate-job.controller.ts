@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { GetJobsUseCase } from "../../../application/usecase/job/get-jobs.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { JobType } from "../../../domain/entities/job.entity";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class CandidateJobController {
   constructor(private readonly jobsUc: GetJobsUseCase) {}
@@ -29,7 +30,7 @@ export class CandidateJobController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Job posts loaded successfully",
+        message: SUCCESS_MESSAGES.JOB_POST_LOADED_SUCCESSFULLY,
         data: result,
       });
     } catch (err) {

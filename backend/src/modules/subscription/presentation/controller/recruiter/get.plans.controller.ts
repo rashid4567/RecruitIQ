@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { GetAllSubscriptionPlansUseCase } from "../../../application/usecase/Admin/subscription/get-all-subscription-plans.usecase";
 import { SubscriptionPlanFilter } from "../../../domain/repository/subscription-plan.repository";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class RecruiterPlanDetailController {
   constructor(private readonly getPlansUC: GetAllSubscriptionPlansUseCase) {}
@@ -22,7 +23,7 @@ export class RecruiterPlanDetailController {
       const { data, total } = await this.getPlansUC.execute(filter);
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Plans fetched successfully",
+        message: SUCCESS_MESSAGES.PLAN_DETAILS_FETCHED_SUCCESSFULLY,
         data,
         total,
         page: filter.page,

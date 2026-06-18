@@ -9,6 +9,7 @@ import { ResumeRepository } from "../../../resume/domain/repository/resume.repos
 import { MongooseResumeRepository } from "../../../resume/infrastructure/repository/mongoose.resume.repository";
 import { RecruiterSubscriptionRepository } from "../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { MongooseRecruiterSubscriptionRepository } from "../../../subscription/infrastructure/repositories/mongoose-recruiter-subscription.repository";
+import { IGetMyApplications } from "../../application/interfaces/IGetMyApplicationUseCase";
 import { AnalyzeApplicationUseCase } from "../../application/usecase/candidate/AnalyzeApplicationUseCase";
 import { ApplyJobUseCase } from "../../application/usecase/candidate/ApplyJobUseCase";
 import { GetApplicationDetailUseCase } from "../../application/usecase/candidate/GetApplicationDetailUseCase";
@@ -54,7 +55,9 @@ const ApplyJobUC = new ApplyJobUseCase(
   createNotificationUC,
   AnalyzeApplicationUC,
 );
-const getMyApplicationUC = new GetMyApplicationUseCase(applicationRepo);
+const getMyApplicationUC: IGetMyApplications = new GetMyApplicationUseCase(
+  applicationRepo,
+);
 const withdrawApplicationUC = new WithdrawApplicationUseCase(applicationRepo);
 const getApplicationUC = new GetApplicationDetailUseCase(
   applicationRepo,

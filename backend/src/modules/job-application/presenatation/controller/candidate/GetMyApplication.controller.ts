@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { GetMyApplicationUseCase } from "../../../application/usecase/candidate/GetMyApplicationsUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { IGetMyApplications } from "../../../application/interfaces/IGetMyApplicationUseCase";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class GetMyApplicationController {
-  constructor(private readonly getMyApplicationUC: GetMyApplicationUseCase) {}
+  constructor(private readonly getMyApplicationUC: IGetMyApplications) {}
 
   getMyApplication = async (
     req: Request,
@@ -15,14 +17,14 @@ export class GetMyApplicationController {
       if (!candidateId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
       const application = await this.getMyApplicationUC.execute(candidateId);
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Application loaded succesfully",
+        message: SUCCESS_MESSAGES.APPLICATION_LOADED_SUCCESSFULLY,
         data: application.map((app) => app.toObject()),
       });
     } catch (err) {

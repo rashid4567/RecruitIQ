@@ -2,12 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { SendRegistrationOTPUseCase } from "../../application/useCase/registration/send-registration-otp.usecase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { SendOtpSchema } from "../validators/send-otp.schema";
-
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class OtpController {
-  constructor(
-    private readonly sendOtpUC: SendRegistrationOTPUseCase,
-  ) {}
+  constructor(private readonly sendOtpUC: SendRegistrationOTPUseCase) {}
 
   sendOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -16,10 +14,10 @@ export class OtpController {
       await this.sendOtpUC.execute(email, role);
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "OTP sent successfully",
+        message: SUCCESS_MESSAGES.OTP_SENT_SUCCESSFULLY,
       });
     } catch (err) {
-      console.log("error",err)
+      console.log("error", err);
       next(err);
     }
   };

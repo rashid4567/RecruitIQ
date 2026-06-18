@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { VerifyPaymentUseCase } from "../../../application/usecase/Recruiter/VerifyPaymentUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 
 export class VerifyPaymentController {
   constructor(
@@ -29,7 +30,7 @@ export class VerifyPaymentController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Payment verified successfully",
+        message: SUCCESS_MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY,
         data: result,
       });
     } catch (err) {

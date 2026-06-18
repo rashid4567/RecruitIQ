@@ -3,28 +3,24 @@ import { VerifyRegistrationUseCase } from "../../application/useCase/registratio
 import { RegisterSchema } from "../validators/register.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { setRefreshCookie } from "../utils/cookie.util";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class RegistrationController {
   constructor(
     private readonly verifyRegistrationUC: VerifyRegistrationUseCase,
   ) {}
 
-  register = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  register = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const dto = RegisterSchema.parse(req.body);
 
-      const result =
-        await this.verifyRegistrationUC.execute(dto);
+      const result = await this.verifyRegistrationUC.execute(dto);
 
       setRefreshCookie(res, result.refreshToken);
 
       return res.status(HTTP_STATUS.CREATED).json({
         success: true,
-        message: "User registered successfully",
+        message: SUCCESS_MESSAGES.USESR_REGISTERED_SUCCESSFULLY, 
         data: result,
       });
     } catch (err) {

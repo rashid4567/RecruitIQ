@@ -6,6 +6,8 @@ import {
   RequestEmailUpdateSchema,
   VerifyEmailUpdateSchema,
 } from "../validators/email-update.validation";
+import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class EmailUpdateController {
   constructor(
@@ -25,20 +27,20 @@ export class EmailUpdateController {
     if (!userId || !role) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
-        message: "Unauthorized",
+        message: ERROR_MESSAGE.UNAUTHORIZED
       });
     }
 
     if (role !== "candidate" && role !== "recruiter") {
       return res.status(HTTP_STATUS.FORBIDDEN).json({
         success: false,
-        message: "Email update not allowed for this role",
+        message: SUCCESS_MESSAGES.EMAIL_UPDATE_NOT_ALLOWED_FOR_THIS_ROLE,
       });
     }
 
     const { newEmail } = RequestEmailUpdateSchema.parse(req.body);
 
-    await this.requestEmailUpdateUc.execute(userId, newEmail, role); // ← now typed correctly
+    await this.requestEmailUpdateUc.execute(userId, newEmail, role); 
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,

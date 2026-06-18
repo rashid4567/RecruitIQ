@@ -3,6 +3,7 @@ import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { UpdateCandidateProfileUseCase } from "../../application/use-cases/profile/update-candidate-profile.usecase";
 import { userIdSchema } from "../validator/userId.validatort";
 import { updateCandidateProfileSchema } from "../validator/updateCandidate-validator";
+import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 
 export class UpdateCandidateProfileController {
   constructor(
@@ -18,7 +19,7 @@ export class UpdateCandidateProfileController {
       console.log("result :-", result);
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: "Profile updated successfully",
+        message: SUCCESS_MESSAGES.PROFILE_UPDATED_SUCCESSFULLY, 
         data: result,
       });
     } catch (err) {

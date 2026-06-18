@@ -41,6 +41,8 @@ export class ApplyJobUseCase {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
     }
 
+    
+
     const application = JobApplication.apply({
       jobId,
       candidateId,

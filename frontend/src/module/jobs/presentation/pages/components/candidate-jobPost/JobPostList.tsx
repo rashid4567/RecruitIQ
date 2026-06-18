@@ -49,7 +49,7 @@ export default function JobPostList({
   return (
     <div className="min-h-screen bg-slate-50">
       <Header />
-      <CompanyBanner total={jobs.length} />
+     <CompanyBanner total={jobs.length} jobs={jobs} />
 
       
       <SearchBar

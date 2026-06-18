@@ -187,7 +187,6 @@ export class JobApplication {
     }
 
     this.props.analysisStatus = ApplicationAnalysisStatus.PROCESSING;
-
     this.touch();
   }
 

@@ -3,9 +3,14 @@ import { DeleteJobUseCase } from "../../../application/usecase/job/delete-job.us
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { DeleteJobPostRequestDTO } from "../../../application/dto/deleteJob.Dto";
 
 export class DeleteJobController {
-  constructor(private readonly deleteUC: DeleteJobUseCase) {}
+  constructor(private readonly deleteUC:  UseCase<
+    DeleteJobPostRequestDTO,
+    void
+  >) {}
 
   delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -26,7 +31,7 @@ export class DeleteJobController {
           mesasge: ERROR_MESSAGE.JOB_POST_IS_REQUIRED,
         });
       }
-      await this.deleteUC.execute(jobId, recruiterId);
+      await this.deleteUC.execute({jobId, recruiterId});
       res.status(HTTP_STATUS.OK).json({
         success: false,
         message: SUCCESS_MESSAGES.JOB_DELETED_SUCCESSFULLY,

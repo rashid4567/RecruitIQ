@@ -3,10 +3,15 @@ import { UpdateApplicationStatusUseCase } from "../../../application/usecase/rec
 import { ApplicationStatus } from "../../../domain/entity/job-application.entity";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { UpdateApplicationStatusDTO } from "../../../application/dto/UpdateApplicationStatusDTO";
 
 export class UpdateApplicationStatusController {
   constructor(
-    private readonly updateApplicationStatusUseCase: UpdateApplicationStatusUseCase,
+    private readonly updateApplicationStatusUseCase: UseCase<
+      UpdateApplicationStatusDTO,
+      void
+    >,
   ) {}
 
   updateStatus = async (
@@ -20,7 +25,7 @@ export class UpdateApplicationStatusController {
       if (!recruiterId) {
         res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
         return;
       }
@@ -46,7 +51,7 @@ export class UpdateApplicationStatusController {
       if (!allowedStatuses.includes(status)) {
         res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: ERROR_MESSAGE.INVALID_APPLICATION_STATUS, 
+          message: ERROR_MESSAGE.INVALID_APPLICATION_STATUS,
         });
         return;
       }

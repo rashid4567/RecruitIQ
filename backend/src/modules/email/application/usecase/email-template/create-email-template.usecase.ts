@@ -3,8 +3,9 @@ import { EmailTemplate } from "../../../domain/entities/email-template.entity";
 import { EmailTemplateRepository } from "../../../domain/repository/email-template.repository"; 
 import { ERROR_CODES } from "../../Errors/error.codes";
 import { CreateEmailTemplateInputDto } from "../../dto/email.template/createEmailTemplate.input.dto";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class CreateEmailTemplateUseCase {
+export class CreateEmailTemplateUseCase implements UseCase<CreateEmailTemplateInputDto,EmailTemplate> {
   constructor(
     private readonly emailTemplateRepository: EmailTemplateRepository,
   ) {}

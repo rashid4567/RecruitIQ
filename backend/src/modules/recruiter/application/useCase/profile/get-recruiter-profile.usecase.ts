@@ -3,30 +3,38 @@ import { RecruiterProfileRepository } from "../../../domain/repositories/recruit
 import { UserRepository } from "../../../domain/repositories/user.entity";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ERROR_CODES } from "../../constants/error.code.constants";
-import { RecruiterProfileReponse } from "../../dto/recruiter-profile.dto";
+import {
+  GetRecruiterProfileRequestDTO,
+  RecruiterProfileReponse,
+} from "../../dto/recruiter-profile.dto";
 import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GetRecruiterProfileUseCase {
+export class GetRecruiterProfileUseCase implements UseCase<
+  GetRecruiterProfileRequestDTO,
+  RecruiterProfileReponse
+> {
   constructor(
     private readonly recruiterRepo: RecruiterProfileRepository,
     private readonly userRepo: UserRepository,
-     private readonly fileStorageRepo: FileStorageRepository,
+    private readonly fileStorageRepo: FileStorageRepository,
   ) {}
 
-  async execute(userId: string): Promise<RecruiterProfileReponse> {
-    const id = UserId.create(userId);
+  async execute(
+    request: GetRecruiterProfileRequestDTO,
+  ): Promise<RecruiterProfileReponse> {
+    const id = UserId.create(request.userId);
 
     const user = await this.userRepo.findById(id);
     if (!user) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    
     const profileImageKey = user.getProfileImage();
-    let profileImageUrl : string | undefined;
+    let profileImageUrl: string | undefined;
 
-    if(profileImageKey){
-      profileImageUrl = await this.fileStorageRepo.getViewUrl(profileImageKey)
+    if (profileImageKey) {
+      profileImageUrl = await this.fileStorageRepo.getViewUrl(profileImageKey);
     }
 
     const profile = await this.recruiterRepo.findByUserId(id);

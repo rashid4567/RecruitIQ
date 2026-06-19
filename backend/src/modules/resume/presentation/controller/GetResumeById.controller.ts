@@ -4,9 +4,12 @@ import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { parseResumeSchema } from "../validatior/parseResume.schema";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { GetResumeByIdDTO } from "../../application/dto/getResumeByid.dto";
+import { Resume } from "../../domain/entity/resume.entity";
 
 export class GetResumeByIdController {
-  constructor(private readonly getResumeByIdUC: GetResumeByIdUseCase) {}
+  constructor(private readonly getResumeByIdUC: UseCase<GetResumeByIdDTO, Resume>) {}
 
   handle = async (req: Request, res: Response, next: NextFunction) => {
     try {

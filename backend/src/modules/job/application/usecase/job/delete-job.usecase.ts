@@ -1,25 +1,30 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { ERROR_CODES } from "../../../../recruiter/application/constants/error.code.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { DeleteJobPostRequestDTO } from "../../dto/deleteJob.Dto";
 
-export class DeleteJobUseCase {
+export class DeleteJobUseCase implements UseCase<
+  DeleteJobPostRequestDTO,
+  void
+> {
   constructor(private readonly jobRepo: JobRepository) {}
-  async execute(jobId: string, recruiterId: string): Promise<void> {
-    if (!jobId) {
+  async execute(request: DeleteJobPostRequestDTO): Promise<void> {
+    if (!request.jobId) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
 
-    if (!recruiterId) {
+    if (!request.recruiterId) {
       throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_FOUND);
     }
 
-    const job = await this.jobRepo.findById(jobId);
+    const job = await this.jobRepo.findById(request.jobId);
 
     if (!job) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
 
-    if (!job.belongsToRecruiter(recruiterId)) {
+    if (!job.belongsToRecruiter(request.recruiterId)) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
 

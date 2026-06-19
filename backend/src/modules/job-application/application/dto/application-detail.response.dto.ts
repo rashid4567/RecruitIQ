@@ -49,3 +49,8 @@ export interface ApplicationDetailResponseDTO {
     expiresAt?: Date;
   };
 }
+
+export interface GetApplicationDetailRequestDTO {
+   candidateId: string,
+    applicationId: string,
+}

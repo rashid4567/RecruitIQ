@@ -1,20 +1,20 @@
-
 import { RecruiterProfileRepository } from "../../../domain/repositories/recruiter.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import { CompleteRecruiterProfileDTO } from "../../dto/complete-recruiter-profile.dto";
+import {
+  CompleteRecruiterProfileDTO,
+  CompleteRecruiterProfileRequestDTO,
+} from "../../dto/complete-recruiter-profile.dto";
 import { RecruiterProfile } from "../../../domain/entities/recruiter-profile.entity";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class CompleteRecruiterProfileUseCase {
-  constructor(
-    private readonly recruiterRepo: RecruiterProfileRepository
-  ) {}
+export class CompleteRecruiterProfileUseCase implements UseCase<
+  CompleteRecruiterProfileRequestDTO,
+  void
+> {
+  constructor(private readonly recruiterRepo: RecruiterProfileRepository) {}
 
-  async execute(
-    userId: string,
-    data: CompleteRecruiterProfileDTO
-  ): Promise<void> {
-
-    const id = UserId.create(userId);
+  async execute(request: CompleteRecruiterProfileRequestDTO): Promise<void> {
+    const id = UserId.create(request.userId);
 
     let profile = await this.recruiterRepo.findByUserId(id);
 
@@ -22,6 +22,7 @@ export class CompleteRecruiterProfileUseCase {
       profile = RecruiterProfile.createEmpty(id);
     }
 
+    const data = request.data;
     if (data.companyName !== undefined) {
       profile.updateCompanyName(data.companyName);
     }

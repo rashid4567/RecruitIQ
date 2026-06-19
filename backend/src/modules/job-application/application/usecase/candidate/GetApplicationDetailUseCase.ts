@@ -2,30 +2,38 @@ import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
-import { ApplicationDetailResponseDTO } from "../../dto/application-detail.response.dto";
+import {
+  ApplicationDetailResponseDTO,
+  GetApplicationDetailRequestDTO,
+} from "../../dto/application-detail.response.dto";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GetApplicationDetailUseCase {
+export class GetApplicationDetailUseCase implements UseCase<
+  GetApplicationDetailRequestDTO,
+  ApplicationDetailResponseDTO
+> {
   constructor(
     private readonly applicationRepo: JobApplicationRepository,
     private readonly jobRepo: JobRepository,
   ) {}
 
   async execute(
-    candidateId: string,
-    applicationId: string,
+    request: GetApplicationDetailRequestDTO,
   ): Promise<ApplicationDetailResponseDTO> {
-    if (!candidateId) {
+    if (!request.candidateId) {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
     }
 
-    if (!applicationId) {
+    if (!request.applicationId) {
       throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
-    const application = await this.applicationRepo.findById(applicationId);
+    const application = await this.applicationRepo.findById(
+      request.applicationId,
+    );
     if (!application) {
       throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
-    if (!application.belongsToCandidate(candidateId)) {
+    if (!application.belongsToCandidate(request.candidateId)) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
     const job = await this.jobRepo.findById(application.jobId);

@@ -1,13 +1,11 @@
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { EmailLog } from "../../../domain/entities/email-log.entity";
 import { EmailLogRepository } from "../../../domain/repository/email-log.repository";
 
-export class ListEmailLogsUseCase {
+export class ListEmailLogsUseCase implements UseCase<void, EmailLog[]> {
+  constructor(private readonly emailLogRepo: EmailLogRepository) {}
 
-  constructor(
-    private readonly emailLogRepo:
-    EmailLogRepository
-  ) {}
-
-  async execute() {
-    return await this.emailLogRepo.list();
+  async execute(): Promise<EmailLog[]> {
+    return this.emailLogRepo.list();
   }
 }

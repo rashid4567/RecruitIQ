@@ -3,9 +3,17 @@ import { GetNotificationsUseCase } from "../../application/usecases/GetNotificat
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { GetNotificationsRequest } from "../../application/dto/getNotification.dto";
+import { Notification } from "../../domain/entities/Notification";
 
 export class GetNotificationsController {
-  constructor(private readonly getNotificationUC: GetNotificationsUseCase) {}
+  constructor(
+    private readonly getNotificationUC: UseCase<
+      GetNotificationsRequest,
+      Notification[]
+    >,
+  ) {}
 
   getNotification = async (req: Request, res: Response, next: NextFunction) => {
     try {

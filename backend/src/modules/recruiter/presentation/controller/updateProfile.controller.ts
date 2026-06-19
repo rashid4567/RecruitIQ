@@ -5,10 +5,16 @@ import { UpdateRecruiterProfileSchema } from "../validator/updateRecruiterProfil
 import { UpdateRecruiterProfileUseCase } from "../../application/useCase/profile/update-recruiter-profile.usecase";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { UpdateRecruiterProfileRequestDTO } from "../../application/dto/update-recruiter-profile.dto";
+import { RecruiterProfileReponse } from "../../application/dto/recruiter-profile.dto";
 
 export class UpdateRecruiterProfileController {
   constructor(
-    private readonly updateProfileUC: UpdateRecruiterProfileUseCase,
+    private readonly updateProfileUC: UseCase<
+      UpdateRecruiterProfileRequestDTO,
+      RecruiterProfileReponse
+    >,
   ) {}
 
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
@@ -30,7 +36,10 @@ export class UpdateRecruiterProfileController {
           message: ERROR_MESSAGE.MISSING_FILEDS,
         });
       }
-      const profile = await this.updateProfileUC.execute(userId, body);
+      const profile = await this.updateProfileUC.execute({
+        userId,
+        input: body,
+      });
       res.status(HTTP_STATUS.OK).json({
         success: true,
         message: SUCCESS_MESSAGES.PROFILE_UPDATED_SUCCESSFULLY,

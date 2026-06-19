@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
-import { GetCandidateProfileUseCase } from "../../application/use-cases/profile/get-candidate-profile.usecase";
 import { userIdSchema } from "../validator/userId.validatort";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { GetCandidateProfileRequestDTO, GetCandidateProfileResponseDTO } from "../../application/dto/candidate-profile.dto";
 
 export class GetCandidateProfileController {
-  constructor(private readonly getProfileUC: GetCandidateProfileUseCase) {}
+  constructor(private readonly getProfileUC: UseCase<
+    GetCandidateProfileRequestDTO,
+    GetCandidateProfileResponseDTO
+  >) {}
 
   getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,11 +21,11 @@ export class GetCandidateProfileController {
           message : ERROR_MESSAGE.UNAUTHORIZED
         })
       }
-      const profile = await this.getProfileUC.execute(userId);
+      const profile = await this.getProfileUC.execute({userId});
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: SUCCESS_MESSAGES.CANDIDATE_PROFILE_lOADED_SUCCESFULLY,
+        message: SUCCESS_MESSAGES.CANDIDATE_PROFILE_LOADED_SUCCESSFULLY,
         data: profile,
       });
     } catch (err) {

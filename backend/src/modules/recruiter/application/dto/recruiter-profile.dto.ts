@@ -20,7 +20,12 @@ export interface UserProfileDTO{
     profileImage?:string,
 }
 
+export interface GetRecruiterProfileRequestDTO{
+    userId: string
+}
+
 export interface RecruiterProfileReponse {
   user: UserProfileDTO;
   recruiter: RecruiterProfileDTO;
 }
+

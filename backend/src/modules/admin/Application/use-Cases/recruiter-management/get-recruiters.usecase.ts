@@ -1,11 +1,18 @@
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
 import { AccountStatus } from "../../../Domain/constatns/verification.status";
-import { GetRecruitersQuery } from "../../dto/recruiter.dto/get-recruiters.query";
+import {
+  GetRecruitersQuery,
+  GetRecruitersResponseDTO,
+} from "../../dto/recruiter.dto/get-recruiters.query";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GetRecruitersUseCase {
+export class GetRecruitersUseCase implements UseCase<
+  GetRecruitersQuery,
+  GetRecruitersResponseDTO
+> {
   constructor(private readonly repo: RecruiterRepository) {}
 
-  async execute(query: GetRecruitersQuery) {
+  async execute(query: GetRecruitersQuery): Promise<GetRecruitersResponseDTO> {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
 
@@ -14,9 +21,7 @@ export class GetRecruitersUseCase {
       verificationStatus: query.verificationStatus as AccountStatus | undefined,
       subscriptionStatus: query.subscriptionStatus,
       isActive:
-        query.isActive !== undefined
-          ? query.isActive === true
-          : undefined,
+        query.isActive !== undefined ? query.isActive === true : undefined,
       sort: query.sort,
       skip: (page - 1) * limit,
       limit,

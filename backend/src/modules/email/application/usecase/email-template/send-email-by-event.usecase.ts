@@ -4,8 +4,9 @@ import { sendEmailByInputDto } from "../../dto/email.template/sentEmail.input.dt
 import { TemplateRendererService } from "../../services/template-renderer.service";
 import { ApplicationError } from "../../Errors/application.error";
 import { ERROR_CODES } from "../../Errors/error.codes";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class SendEmailByEventUseCase {
+export class SendEmailByEventUseCase implements UseCase<sendEmailByInputDto,void>{
   constructor(
     private readonly templateRepo: EmailTemplateRepository,
     private readonly emailService: EmailService,

@@ -23,3 +23,9 @@ export interface UpdateJobDTO {
   expiresAt?: Date;
   externalLink?: string;
 }
+
+export interface UpdateJobPostRequestDTO{
+    jobId: string,
+    recruiterId: string,
+    dto: UpdateJobDTO,
+}

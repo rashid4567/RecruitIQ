@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { ListEmailLogsUseCase } from "../../../../email/application/usecase/email.logs/list-email-logs.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { EmailLog } from "../../../domain/entities/email-log.entity";
 
 export class EmailLogsController {
-  constructor(private readonly listLoginUC: ListEmailLogsUseCase) {}
+  constructor(private readonly listLoginUC: UseCase<void, EmailLog[]>) {}
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {

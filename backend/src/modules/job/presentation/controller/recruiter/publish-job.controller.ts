@@ -3,9 +3,12 @@ import { PublishJobUseCase } from "../../../application/usecase/job/publish-job.
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { PublishJobPostRequestDTO } from "../../../application/dto/publish.job.dto";
+import { Job } from "../../../domain/entities/job.entity";
 
 export class PublishJobController {
-  constructor(private readonly publishUc: PublishJobUseCase) {}
+  constructor(private readonly publishUc: UseCase<PublishJobPostRequestDTO,Job>) {}
   publish = async (req: Request, res: Response, next: NextFunction) => {
     try {
       console.log("Hit publish controller");
@@ -23,7 +26,7 @@ export class PublishJobController {
           message: ERROR_MESSAGE.JOB_ID_REQUIRED,
         });
       }
-      const job = await this.publishUc.execute(jobId, recruiterId);
+      const job = await this.publishUc.execute({jobId, recruiterId});
       console.log("job :", job);
       res.status(HTTP_STATUS.OK).json({
         success: true,

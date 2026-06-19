@@ -3,10 +3,16 @@ import { GetResumeByCandidateUseCase } from "../../application/usecase/GetResume
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { GetResumeByCandidateDTO } from "../../application/dto/get-resume-by-candidate.dto";
+import { Resume } from "../../domain/entity/resume.entity";
 
 export class GetResumeByCandidateController {
   constructor(
-    private readonly getResumeByCandidateUC: GetResumeByCandidateUseCase,
+    private readonly getResumeByCandidateUC: UseCase<
+      GetResumeByCandidateDTO,
+      Resume
+    >,
   ) {}
 
   handle = async (req: Request, res: Response, next: NextFunction) => {

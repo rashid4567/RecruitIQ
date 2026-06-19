@@ -1,11 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { GetCandidateUseCase } from "../../../Application/use-Cases/candidate-management/get-candidates.usecase";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import {
+  CandidateListRequestDTO,
+  CandidateListResponseDTO,
+} from "../../../Application/dto/candidate.dto/candidate-list-response.dto";
 
 export class GetCandidateAdminController {
-  constructor(private readonly getCandidatesUC: GetCandidateUseCase) {}
+  constructor(
+    private readonly getCandidatesUC: UseCase<
+      CandidateListRequestDTO,
+      CandidateListResponseDTO
+    >,
+  ) {}
 
   getCandidates = async (req: Request, res: Response, next: NextFunction) => {
     try {

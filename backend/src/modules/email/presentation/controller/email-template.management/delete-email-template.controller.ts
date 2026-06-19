@@ -2,9 +2,16 @@ import { Request, Response, NextFunction } from "express";
 import { DeleteEmailTemplateUseCase } from "../../../application/usecase/email-template/delete-email-template.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { DeleteEmailTemplateRequestDTO } from "../../../application/dto/email.template/deleteEmailTemplateDTO";
 
 export class DeleteEmailTemplateController {
-  constructor(private readonly DeleteTemplateUC: DeleteEmailTemplateUseCase) {}
+  constructor(
+    private readonly DeleteTemplateUC: UseCase<
+      DeleteEmailTemplateRequestDTO,
+      void
+    >,
+  ) {}
 
   deleteEmailTemplate = async (
     req: Request,
@@ -12,7 +19,8 @@ export class DeleteEmailTemplateController {
     next: NextFunction,
   ) => {
     try {
-      await this.DeleteTemplateUC.execute(req.params.id);
+      const id = req.params.id;
+      await this.DeleteTemplateUC.execute({ id });
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: SUCCESS_MESSAGES.TEMPLATE_DELETED_SUCCESSFULLY,

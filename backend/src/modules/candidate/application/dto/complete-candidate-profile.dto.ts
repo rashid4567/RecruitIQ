@@ -10,3 +10,8 @@ export interface CompleteCandidateProfileDTO {
   linkedinUrl?: string;
   portfolioUrl?: string;
 }
+
+export interface CompleteCandidateProfileRequestDTO {
+  userId: string;
+  profile: CompleteCandidateProfileDTO;
+}

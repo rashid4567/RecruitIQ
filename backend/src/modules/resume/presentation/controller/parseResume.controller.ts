@@ -4,9 +4,15 @@ import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { parseResumeSchema } from "../validatior/parseResume.schema";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { ParseResumeDTO } from "../../application/dto/parse.resume.dto";
+import { ParsedResumeData } from "../../domain/entity/resume.entity";
 
 export class ParseResumeController {
-  constructor(private readonly parseResumeUC: ParseResumeUseCase) {}
+  constructor(private readonly parseResumeUC: UseCase<
+    ParseResumeDTO,
+    ParsedResumeData
+  >) {}
 
   parseResume = async (req: Request, res: Response, next: NextFunction) => {
     try {

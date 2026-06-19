@@ -4,34 +4,41 @@ import { ResumeRepository } from "../../../../resume/domain/repository/resume.re
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../constants/error-code.constant";
-import { GetCandidateProfileResponseDTO } from "../../dto/candidate-profile.dto";
+import {
+  GetCandidateProfileRequestDTO,
+  GetCandidateProfileResponseDTO,
+} from "../../dto/candidate-profile.dto";
 import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GetCandidateProfileUseCase {
+export class GetCandidateProfileUseCase implements UseCase<
+  GetCandidateProfileRequestDTO,
+  GetCandidateProfileResponseDTO
+> {
   constructor(
     private readonly candidateRepo: CandidateRepository,
     private readonly userRepo: UserRepository,
     private readonly resumeRepo: ResumeRepository,
-     private readonly fileStorageRepo: FileStorageRepository,
+    private readonly fileStorageRepo: FileStorageRepository,
   ) {}
 
-  async execute(userId: string): Promise<GetCandidateProfileResponseDTO> {
-    const id = UserId.create(userId);
+  async execute(
+    Request: GetCandidateProfileRequestDTO,
+  ): Promise<GetCandidateProfileResponseDTO> {
+    const id = UserId.create(Request.userId);
     const user = await this.userRepo.findById(id);
     if (!user) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    let profileImageUrl : string | undefined;
+    let profileImageUrl: string | undefined;
     const profileImageKey = user.getProfileImage();
 
-    if(profileImageKey){
-      profileImageUrl = await this.fileStorageRepo.getViewUrl(profileImageKey)
+    if (profileImageKey) {
+      profileImageUrl = await this.fileStorageRepo.getViewUrl(profileImageKey);
     }
     const profile = await this.candidateRepo.findByUserId(id);
-    const resume = await this.resumeRepo.findByCandidateId(
-      id.getValue(),
-    );
+    const resume = await this.resumeRepo.findByCandidateId(id.getValue());
 
     return {
       user: {

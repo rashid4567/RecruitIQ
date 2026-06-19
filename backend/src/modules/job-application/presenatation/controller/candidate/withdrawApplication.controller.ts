@@ -2,10 +2,15 @@ import { Request, Response, NextFunction } from "express";
 import { WithdrawApplicationUseCase } from "../../../application/usecase/candidate/WithdrawApplicationUseCase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { WithdrawApplicationRequestDTO } from "../../../application/dto/withdrawApplication.dto";
 
 export class WithdrawApplicationController {
   constructor(
-    private readonly withdrawApplicationUC: WithdrawApplicationUseCase,
+    private readonly withdrawApplicationUC: UseCase<
+      WithdrawApplicationRequestDTO,
+      void
+    >,
   ) {}
 
   withdraw = async (req: Request, res: Response, next: NextFunction) => {
@@ -31,7 +36,7 @@ export class WithdrawApplicationController {
         });
       }
 
-      await this.withdrawApplicationUC.execute(applicationId, candidateId);
+      await this.withdrawApplicationUC.execute({ applicationId, candidateId });
     } catch (err) {
       next(err);
     }

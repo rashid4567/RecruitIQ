@@ -1,3 +1,7 @@
+export interface GetApplicationAIAnalysisRequestDTO{
+    applicationId: string,
+}
+
 export interface GetApplicationAIAnalysisOutput {
   applicationId: string;
   aiAnalysis: {

@@ -2,9 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { GetJobByIdUseCase } from "../../../application/usecase/job/get-jobpost-by-id.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { GetJobByIdRequestDTO } from "../../../application/dto/getJobPostById.dto";
+import { Job } from "../../../domain/entities/job.entity";
 
 export class RecruiterJobByIdController {
-  constructor(private readonly getUc: GetJobByIdUseCase) {}
+  constructor(private readonly getUc: UseCase<GetJobByIdRequestDTO, Job>) {}
   getOne = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const recruiterId = req.user?.userId;
@@ -22,7 +25,7 @@ export class RecruiterJobByIdController {
             message :ERROR_MESSAGE.JOB_ID_REQUIRED
         })
       }
-      const job = await this.getUc.execute(jobId);
+      const job = await this.getUc.execute({jobId});
       if (!job.belongsToRecruiter(recruiterId!)) {
         throw new Error("Unauthorized");
       }

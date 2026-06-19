@@ -3,10 +3,18 @@ import { GetApplicationDetailUseCase } from "../../../application/usecase/candid
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import {
+  ApplicationDetailResponseDTO,
+  GetApplicationDetailRequestDTO,
+} from "../../../application/dto/application-detail.response.dto";
 
 export class GetApplicationDetailController {
   constructor(
-    private readonly getApplicationDetailUC: GetApplicationDetailUseCase,
+    private readonly getApplicationDetailUC: UseCase<
+      GetApplicationDetailRequestDTO,
+      ApplicationDetailResponseDTO
+    >,
   ) {}
 
   ApplicationDetail = async (
@@ -30,14 +38,14 @@ export class GetApplicationDetailController {
           message: ERROR_MESSAGE.APPLICATION_REQUIRED,
         });
       }
-      const application = await this.getApplicationDetailUC.execute(
+      const application = await this.getApplicationDetailUC.execute({
         candidateId,
         applicationId,
-      );
+      });
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        messaage: "Application details fetched succesfully",
+        messaage: SUCCESS_MESSAGES.APPLICATION_LOADED_SUCCESSFULLY,
         data: application,
       });
     } catch (err) {

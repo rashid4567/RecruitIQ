@@ -3,10 +3,16 @@ import { GetRecruiterApplicationDetailsUseCase } from "../../../application/usec
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { GetRecruiterApplicationDetailsRequestDTO } from "../../../application/dto/getRecruiterApplicationDetail.dto";
+import { RecruiterApplicationDetailsOutput } from "../../../domain/repository/job-application.repository";
 
 export class GetRecruiterApplicationDetailsController {
   constructor(
-    private readonly getRecruiterApplicationUC: GetRecruiterApplicationDetailsUseCase,
+    private readonly getRecruiterApplicationUC: UseCase<
+      GetRecruiterApplicationDetailsRequestDTO,
+      RecruiterApplicationDetailsOutput
+    >,
   ) {}
 
   getApplicationDetails = async (
@@ -31,10 +37,10 @@ export class GetRecruiterApplicationDetailsController {
         });
       }
 
-      const application = await this.getRecruiterApplicationUC.execute(
+      const application = await this.getRecruiterApplicationUC.execute({
         applicationId,
         recruiterId,
-      );
+      });
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,

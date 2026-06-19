@@ -1,4 +1,4 @@
 
-export interface IAnalyzeApplicationUseCase {
-  execute(applicationId: string): Promise<void>;
-}
+// export interface IAnalyzeApplicationUseCase {
+//   execute(applicationId: string): Promise<void>;
+// }

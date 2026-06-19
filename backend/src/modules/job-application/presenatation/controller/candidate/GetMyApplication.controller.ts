@@ -1,11 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { IGetMyApplications } from "../../../application/interfaces/IGetMyApplicationUseCase";
+
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { GetMyApplicationRequestDTO } from "../../../application/dto/getMyApplication.dto";
+import { JobApplication } from "../../../domain/entity/job-application.entity";
 
 export class GetMyApplicationController {
-  constructor(private readonly getMyApplicationUC: IGetMyApplications) {}
+  constructor(
+    private readonly getMyApplicationUC: UseCase<
+      GetMyApplicationRequestDTO,
+      JobApplication[]
+    >,
+  ) {}
 
   getMyApplication = async (
     req: Request,
@@ -21,7 +29,9 @@ export class GetMyApplicationController {
         });
       }
 
-      const application = await this.getMyApplicationUC.execute(candidateId);
+      const application = await this.getMyApplicationUC.execute({
+        candidateId,
+      });
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: SUCCESS_MESSAGES.APPLICATION_LOADED_SUCCESSFULLY,

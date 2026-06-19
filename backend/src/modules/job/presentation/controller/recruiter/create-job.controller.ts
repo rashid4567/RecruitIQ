@@ -4,9 +4,14 @@ import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { CreateJobSchema } from "../../validator/create.jobpost.validation";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { createJobPostRequestDTO } from "../../../application/dto/create-job.dto";
+import { Job } from "../../../domain/entities/job.entity";
 
 export class CreateJobController {
-  constructor(private readonly createUc: CreateJobUseCase) {}
+  constructor(
+    private readonly createUc: UseCase<createJobPostRequestDTO, Job>,
+  ) {}
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -21,7 +26,7 @@ export class CreateJobController {
 
       const dto = CreateJobSchema.parse(req.body);
 
-      const job = await this.createUc.execute(recruiterId, dto);
+      const job = await this.createUc.execute({ recruiterId, dto });
       console.log("job :", job);
       res.status(HTTP_STATUS.CREATED).json({
         success: true,

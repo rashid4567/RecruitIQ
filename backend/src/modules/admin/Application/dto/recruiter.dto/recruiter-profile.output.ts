@@ -1,3 +1,7 @@
+export interface RecruiterProfileRequestDTO{
+  recruiterId: string
+}
+
 export interface RecruiterProfileOutput {
   id: string;
   name: string;
@@ -9,8 +13,7 @@ export interface RecruiterProfileOutput {
   companyWebsite: string;
   subscriptionStatus: string;
   jobPostsUsed: number;
-  joinedDate: Date;
-
+  joinedDate?: Date;
   companySize?: number;
   industry?: string;
   designation?: string;

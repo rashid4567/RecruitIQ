@@ -4,9 +4,19 @@ import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { VerificationStatus } from "../../../Domain/entities/recruiter.entity";
 import { GetRecruitersUseCase } from "../../../Application/use-Cases/recruiter-management/get-recruiters.usecase";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import {
+  GetRecruitersQuery,
+  GetRecruitersResponseDTO,
+} from "../../../Application/dto/recruiter.dto/get-recruiters.query";
 
 export class GetRecruitersController {
-  constructor(private readonly getRecruitersUC: GetRecruitersUseCase) {}
+  constructor(
+    private readonly getRecruitersUC: UseCase<
+      GetRecruitersQuery,
+      GetRecruitersResponseDTO
+    >,
+  ) {}
 
   recruiterList = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -30,7 +40,7 @@ export class GetRecruitersController {
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: SUCCESS_MESSAGES.RECRUITERS_LOADED_SUCCESFULLY,
+        message: SUCCESS_MESSAGES.RECRUITERS_LOADED_SUCCESSFULLY,
         data: result,
       });
     } catch (err) {

@@ -14,8 +14,12 @@ import {
 } from "../../../domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 import { UpdateApplicationStatusDTO } from "../../dto/UpdateApplicationStatusDTO";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class UpdateApplicationStatusUseCase {
+export class UpdateApplicationStatusUseCase implements UseCase<
+  UpdateApplicationStatusDTO,
+  void
+> {
   constructor(
     private readonly applicationRepo: JobApplicationRepository,
     private readonly userRepo: UserRepository,

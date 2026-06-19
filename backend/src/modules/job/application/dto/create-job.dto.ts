@@ -1,7 +1,7 @@
 import { JobType } from "../../domain/entities/job.entity";
 
 export interface CreateJobDTO {
-  companyName : string;
+  companyName: string;
   title: string;
   description: string;
   responsibilities?: string[];
@@ -14,7 +14,6 @@ export interface CreateJobDTO {
     city: string;
     state: string;
     country: string;
-
   };
   isRemote?: boolean;
   jobType: JobType;
@@ -22,11 +21,14 @@ export interface CreateJobDTO {
     min: number;
     max: number;
     currency: string;
-
   };
   department?: string;
   positions?: number;
   expiresAt?: Date;
   externalLink?: string;
+}
 
+export interface createJobPostRequestDTO {
+  recruiterId: string;
+  dto: CreateJobDTO;
 }

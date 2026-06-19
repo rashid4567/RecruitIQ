@@ -3,10 +3,16 @@ import { GetApplicationsByJobUseCase } from "../../../application/usecase/recrui
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { GetApplicationByJobRequestDTO } from "../../../application/dto/getApplicationByJob.dto";
+import { RecruiterApplicationListItem } from "../../../domain/repository/job-application.repository";
 
 export class GetApplicationsByJobController {
   constructor(
-    private readonly getApplicationByJobPostUC: GetApplicationsByJobUseCase,
+    private readonly getApplicationByJobPostUC: UseCase<
+      GetApplicationByJobRequestDTO,
+      RecruiterApplicationListItem[]
+    >,
   ) {}
 
   GetJobpostBasedApplicatiton = async (
@@ -19,7 +25,7 @@ export class GetApplicationsByJobController {
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
 
@@ -27,11 +33,13 @@ export class GetApplicationsByJobController {
       if (!jobId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: ERROR_MESSAGE.JOB_POST_IS_REQUIRED 
+          message: ERROR_MESSAGE.JOB_POST_IS_REQUIRED,
         });
       }
 
-      const applications = await this.getApplicationByJobPostUC.execute(jobId);
+      const applications = await this.getApplicationByJobPostUC.execute({
+        jobId,
+      });
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: SUCCESS_MESSAGES.APPLICATIONS_FETCHED_SUCCESSFULLY,

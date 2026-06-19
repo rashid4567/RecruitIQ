@@ -1,18 +1,20 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
 import { ERROR_CODES } from "../../constants/errorcode.constants";
+import { rejectRecruiterRequestDTO } from "../../dto/recruiter.dto/recruiter.status.dto";
 
-export class RejectRecruiterUseCase {
+export class RejectRecruiterUseCase implements UseCase<rejectRecruiterRequestDTO,void> {
   constructor(
     private readonly recruiterRepo: RecruiterRepository,
     private readonly createNotificationUC: CreateNotificationUseCase,
   ) {}
 
-  async execute(recruiterId: string): Promise<void> {
+  async execute(request : rejectRecruiterRequestDTO): Promise<void> {
     const recruiter =
-      await this.recruiterRepo.findById(recruiterId);
+      await this.recruiterRepo.findById(request.recruiterId);
 
     if (!recruiter) {
       throw new ApplicationError(

@@ -4,9 +4,19 @@ import { GetRecruiterProfileUseCase } from "../../application/useCase/profile/ge
 import { userIdSchema } from "../validator/userId.validator";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import {
+  GetRecruiterProfileRequestDTO,
+  RecruiterProfileReponse,
+} from "../../application/dto/recruiter-profile.dto";
 
 export class GetRecruiterProfileController {
-  constructor(private readonly getProfileUC: GetRecruiterProfileUseCase) {}
+  constructor(
+    private readonly getProfileUC: UseCase<
+      GetRecruiterProfileRequestDTO,
+      RecruiterProfileReponse
+    >,
+  ) {}
 
   getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,7 +27,7 @@ export class GetRecruiterProfileController {
           message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
-      const profile = await this.getProfileUC.execute(userId);
+      const profile = await this.getProfileUC.execute({ userId });
 
       res.status(HTTP_STATUS.OK).json({
         success: true,

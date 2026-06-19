@@ -9,3 +9,8 @@ export interface CompleteRecruiterProfileDTO {
   bio?: string;
   linkedinUrl?: string;
 }
+
+export interface CompleteRecruiterProfileRequestDTO{
+  userId: string,
+    data: CompleteRecruiterProfileDTO,
+}

@@ -32,6 +32,10 @@ export interface CandidateProfileDTO {
   resume: ResumeDTO | null;
 }
 
+export interface GetCandidateProfileRequestDTO{
+  userId: string
+}
+
 export interface GetCandidateProfileResponseDTO {
   user: UserProfileDTO;
   candidateProfile: CandidateProfileDTO;

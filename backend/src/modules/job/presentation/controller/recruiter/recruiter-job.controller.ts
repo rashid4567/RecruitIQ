@@ -1,12 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import { GetJobsUseCase } from "../../../application/usecase/job/get-jobs.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { JobStatus, JobType } from "../../../domain/entities/job.entity";
+import { Job, JobStatus, JobType } from "../../../domain/entities/job.entity";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { GetJobsRequestDTO } from "../../../application/dto/getJobPostRequest.dto";
+import { PaginatedResult } from "../../../domain/types/job-filter.type";
 
 export class RecruiterJobController {
-  constructor(private readonly jobsUc: GetJobsUseCase) {}
+  constructor(private readonly jobsUc: UseCase<
+    GetJobsRequestDTO,
+    PaginatedResult<Job>
+  >) {}
 
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -19,8 +25,8 @@ export class RecruiterJobController {
       }
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
-      const result = await this.jobsUc.execute(
-        {
+      const result = await this.jobsUc.execute({
+       filters : {
           recruiterId,
           search: req.query.search as string,
           status: req.query.status as JobStatus,
@@ -33,7 +39,7 @@ export class RecruiterJobController {
         },
         page,
         limit,
-      );
+    });
       res.status(HTTP_STATUS.OK).json({
         success: true,
         message : SUCCESS_MESSAGES.JOB_LISTED_SUCCESSFULLY,

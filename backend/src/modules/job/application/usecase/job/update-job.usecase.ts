@@ -1,36 +1,36 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ERROR_CODES } from "../../../../recruiter/application/constants/error.code.constants";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
-import { UpdateJobDTO } from "../../dto/update-job.dto";
+import {
+  UpdateJobDTO,
+  UpdateJobPostRequestDTO,
+} from "../../dto/update-job.dto";
 
-export class UpdateJobUseCase {
+export class UpdateJobUseCase implements UseCase<UpdateJobPostRequestDTO, Job> {
   constructor(
     private readonly repo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
   ) {}
 
-  async execute(
-    jobId: string,
-    recruiterId: string,
-    dto: UpdateJobDTO,
-  ): Promise<Job> {
-    if (!jobId) {
+  async execute(request: UpdateJobPostRequestDTO): Promise<Job> {
+    if (!request.jobId) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
 
-    if (!recruiterId) {
+    if (!request.recruiterId) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
 
-    const job = await this.repo.findById(jobId);
+    const job = await this.repo.findById(request.jobId);
 
     if (!job) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
 
-    if (!job.belongsToRecruiter(recruiterId)) {
+    if (!job.belongsToRecruiter(request.recruiterId)) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
 
@@ -39,14 +39,17 @@ export class UpdateJobUseCase {
     }
 
     if (job.status === "active") {
-  throw new ApplicationError(
-    ERROR_CODES.JOB_ALREADY_PUBLISHED_CANNOT_BE_UPDATED,
-  );
-}
+      throw new ApplicationError(
+        ERROR_CODES.JOB_ALREADY_PUBLISHED_CANNOT_BE_UPDATED,
+      );
+    }
+
+    const dto = request.dto;
 
     if (dto.expiresAt) {
-      const subscription =
-        await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
+      const subscription = await this.subscriptionRepo.findActiveByRecruiter(
+        request.recruiterId,
+      );
       if (!subscription) {
         throw new ApplicationError(
           ERROR_CODES.NO_ACTIVE_SUBSCRIPTION_FOUND_FOR_THIS_RECRUITER,

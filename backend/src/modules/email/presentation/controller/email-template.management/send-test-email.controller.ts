@@ -3,9 +3,13 @@ import { SendTestEmailUseCase } from "../../../application/usecase/email-templat
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { SendTestEmailInputDto } from "../../../application/dto/email.template/sent-test.email.input";
 
 export class SendTestEmailController {
-  constructor(private readonly sendTestEmailUC: SendTestEmailUseCase) {}
+  constructor(
+    private readonly sendTestEmailUC: UseCase<SendTestEmailInputDto, void>,
+  ) {}
   sendTestEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;

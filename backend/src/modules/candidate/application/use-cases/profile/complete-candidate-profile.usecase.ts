@@ -1,20 +1,22 @@
 import { CandidateRepository } from "../../../domain/repositories/candidate.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import { CompleteCandidateProfileDTO } from "../../dto/complete-candidate-profile.dto";
+import { CompleteCandidateProfileDTO, CompleteCandidateProfileRequestDTO } from "../../dto/complete-candidate-profile.dto";
 import { CandidateProfile } from "../../../domain/entities/candidate-profile.entity";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class CompleteCandidateProfileUseCase {
+export class CompleteCandidateProfileUseCase implements UseCase<CompleteCandidateProfileRequestDTO,void> {
   constructor(private readonly candidateRepo: CandidateRepository) {}
 
   async execute(
-    userId: string,
-    data: CompleteCandidateProfileDTO,
+   Request : CompleteCandidateProfileRequestDTO
   ): Promise<void> {
-    const id = UserId.create(userId);
+    const id = UserId.create(Request.userId);
     let profile = await this.candidateRepo.findByUserId(id);
     if (!profile) {
       profile = CandidateProfile.create(id);
     }
+
+    const data = Request.profile
 
     profile.updateSkills(data.skills);
     profile.updateEducation(data.educationLevel);

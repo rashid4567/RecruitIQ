@@ -1,5 +1,6 @@
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ActivityTrackerService } from "../../../../Activity.logger/application/services/activityTracker.service";
 import { ActivityAction } from "../../../../Activity.logger/domain/constants/activityActions";
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
@@ -7,10 +8,11 @@ import { RecruiterSubscription } from "../../../../subscription/domain/entities/
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
+import { PublishJobPostRequestDTO } from "../../dto/publish.job.dto";
 
 import { IdGenerator } from "../../ports/id.generator.prots";
 
-export class PublishJobUseCase {
+export class PublishJobUseCase implements UseCase<PublishJobPostRequestDTO,Job> {
   constructor(
     private readonly jobRepo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
@@ -19,14 +21,14 @@ export class PublishJobUseCase {
     private readonly userRepo: UserRepository,
   ) {}
 
-  async execute(jobId: string, recruiterId: string): Promise<Job> {
-    const job = await this.validateAndGetJob(jobId, recruiterId);
-    const subscription = await this.validateAndGetSubscription(recruiterId);
+  async execute(request : PublishJobPostRequestDTO): Promise<Job> {
+    const job = await this.validateAndGetJob(request.jobId, request.recruiterId);
+    const subscription = await this.validateAndGetSubscription(request.recruiterId);
     this.validateExpiryLimit(job, subscription.jobPostActiveDays);
     await this.consumeCreditsIfNeeded(job, subscription);
     job.publish();
     const savedJob = await this.jobRepo.save(job);
-    this.trackPublication(recruiterId, savedJob);
+    this.trackPublication(request.recruiterId, savedJob);
     return savedJob;
   }
 

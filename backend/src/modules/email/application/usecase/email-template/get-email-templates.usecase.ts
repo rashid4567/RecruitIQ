@@ -1,11 +1,14 @@
-import { EmailTemplateRepository } from "../../../domain/repository/email-template.repository"
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { EmailTemplate } from "../../../domain/entities/email-template.entity";
+import { EmailTemplateRepository } from "../../../domain/repository/email-template.repository";
 
-export class GetEmailTemplatesUseCase{
-    constructor(
-        private readonly emailTemplateRepo : EmailTemplateRepository,
-    ){};
-    async execute(){
-        return this.emailTemplateRepo.findAll()
-    }
+export class GetEmailTemplatesUseCase implements UseCase<
+  void,
+  EmailTemplate[]
+> {
+  constructor(private readonly emailTemplateRepo: EmailTemplateRepository) {}
+
+  async execute(): Promise<EmailTemplate[]> {
+    return this.emailTemplateRepo.findAll();
+  }
 }
-

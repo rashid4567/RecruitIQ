@@ -1,29 +1,33 @@
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   JobApplicationRepository,
   RecruiterApplicationDetailsOutput,
 } from "../../../domain/repository/job-application.repository";
+import { GetRecruiterApplicationDetailsRequestDTO } from "../../dto/getRecruiterApplicationDetail.dto";
 
-export class GetRecruiterApplicationDetailsUseCase {
+export class GetRecruiterApplicationDetailsUseCase implements UseCase<
+  GetRecruiterApplicationDetailsRequestDTO,
+  RecruiterApplicationDetailsOutput
+> {
   constructor(
     private readonly applicationRepository: JobApplicationRepository,
   ) {}
 
   async execute(
-    applicationId: string,
-    recruiterId: string,
+    request: GetRecruiterApplicationDetailsRequestDTO,
   ): Promise<RecruiterApplicationDetailsOutput> {
     const application =
       await this.applicationRepository.findApplicationDetailsForRecruiter(
-        applicationId,
+        request.applicationId,
       );
 
     if (!application) {
       throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
 
-    if (application.recruiterId !== recruiterId) {
+    if (application.recruiterId !== request.recruiterId) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
 

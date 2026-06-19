@@ -4,3 +4,4 @@ export interface ApplyJobDTO {
   resumeId: string;
   coverLetter?: string;
 }
+

@@ -4,31 +4,37 @@ import { UserRepository } from "../../../domain/repositories/user.entity";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ERROR_CODES } from "../../constants/error.code.constants";
 import { RecruiterProfileReponse } from "../../dto/recruiter-profile.dto";
-import { UpdateRecruiterProfileDTO } from "../../dto/update-recruiter-profile.dto";
+import {
+  UpdateRecruiterProfileDTO,
+  UpdateRecruiterProfileRequestDTO,
+} from "../../dto/update-recruiter-profile.dto";
 import { RecruiterProfile } from "../../../domain/entities/recruiter-profile.entity";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class UpdateRecruiterProfileUseCase {
+export class UpdateRecruiterProfileUseCase implements UseCase<
+  UpdateRecruiterProfileRequestDTO,
+  RecruiterProfileReponse
+> {
   constructor(
     private readonly recruiterRepo: RecruiterProfileRepository,
     private readonly userRepo: UserRepository,
   ) {}
 
   async execute(
-    userId: string,
-    input: UpdateRecruiterProfileDTO,
+    request: UpdateRecruiterProfileRequestDTO,
   ): Promise<RecruiterProfileReponse> {
-    const id = UserId.create(userId);
+    const id = UserId.create(request.userId);
 
     const user = await this.userRepo.findById(id);
     if (!user) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-
     const profile =
       (await this.recruiterRepo.findByUserId(id)) ??
       RecruiterProfile.createEmpty(id);
 
+    const input = request.input;
     if (input.fullName !== undefined) {
       user.updateFullName(input.fullName);
     }

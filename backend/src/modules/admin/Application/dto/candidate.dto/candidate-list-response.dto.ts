@@ -8,6 +8,12 @@ export interface CandidateListItemDTO {
 
 }
 
+export interface CandidateListRequestDTO {
+  search?: string;
+  limit: number;
+  page: number;
+  status?: boolean;
+}
 export interface CandidateListResponseDTO {
   candidates: CandidateListItemDTO[];
   pagination: {

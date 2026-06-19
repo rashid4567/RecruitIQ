@@ -1,24 +1,48 @@
 import { Request, Response, NextFunction } from "express";
-import { UpdateEmailTemplateUseCase } from "../../../application/usecase/email-template/update-email-template.usecase";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { UpdateEmailTemplateRequestDTO } from "../../../application/dto/email.template/updateEmailTemplate.input.dto";
+import { EmailTemplate } from "../../../domain/entities/email-template.entity";
+import { UpdateEmailTemplateSchema } from "../../validation/UpdateEmailTemplateSchema"; 
 
-export class UpdateEmailTemplateController{
-    constructor(
-        private readonly updateTemplateUC : UpdateEmailTemplateUseCase
-    ){};
+export class UpdateEmailTemplateController {
+  constructor(
+    private readonly updateTemplateUC: UseCase<
+      UpdateEmailTemplateRequestDTO,
+      EmailTemplate
+    >,
+  ) {}
 
-    updateEmailTemplate = async (req : Request, res : Response, next : NextFunction) =>{
-        try{
-            const result = await this.updateTemplateUC.execute(req.params.id, req.body);
+  updateEmailTemplate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const id = req.params.id;
 
-            return res.status(HTTP_STATUS.OK).json({
-                success : true,
-                message : SUCCESS_MESSAGES.TEMPLATE_UPDATED_SUCCESSFULLY, 
-                data : result,
-            })
-        }catch(err){
-            return next(err);
-        }
+      if (!id) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message: ERROR_MESSAGE.INVALID_ID,
+        });
+      }
+
+      const body = UpdateEmailTemplateSchema.parse(req.body);
+      const result = await this.updateTemplateUC.execute({
+        id,
+        input: body,
+      });
+
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: SUCCESS_MESSAGES.TEMPLATE_UPDATED_SUCCESSFULLY,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
     }
+  };
 }

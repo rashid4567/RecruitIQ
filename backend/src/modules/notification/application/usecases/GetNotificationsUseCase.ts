@@ -1,13 +1,12 @@
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import { Notification } from "../../domain/entities/Notification";
 import { NotificationRepository } from "../../domain/repositories/notification.repository";
+import { GetNotificationsRequest } from "../dto/getNotification.dto";
 
-export interface GetNotificationsRequest {
-  recipientId: string;
-  page?: number;
-  limit?: number;
-}
-
-export class GetNotificationsUseCase {
+export class GetNotificationsUseCase implements UseCase<
+  GetNotificationsRequest,
+  Notification[]
+> {
   constructor(private readonly notificationRepo: NotificationRepository) {}
   async execute(request: GetNotificationsRequest): Promise<Notification[]> {
     return await this.notificationRepo.findByRecipientId(

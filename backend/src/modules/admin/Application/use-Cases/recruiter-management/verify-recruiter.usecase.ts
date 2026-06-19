@@ -1,37 +1,34 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
 import { ERROR_CODES } from "../../constants/errorcode.constants";
+import { VerifyRecruiterRequestDTO } from "../../dto/recruiter.dto/recruiter.status.dto";
 
-export class VerifyRecruiterUseCase {
+export class VerifyRecruiterUseCase implements UseCase<
+  VerifyRecruiterRequestDTO,
+  void
+> {
   constructor(
     private readonly recruiterRepo: RecruiterRepository,
     private readonly createNotificationUC: CreateNotificationUseCase,
   ) {}
 
-  async execute(recruiterId: string): Promise<void> {
-    const recruiter =
-      await this.recruiterRepo.findById(recruiterId);
+  async execute(request: VerifyRecruiterRequestDTO): Promise<void> {
+    const recruiter = await this.recruiterRepo.findById(request.recruiterId);
 
     if (!recruiter) {
-      throw new ApplicationError(
-        ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND,
-      );
+      throw new ApplicationError(ERROR_CODES.RECRUITER_PROFILE_NOT_FOUND);
     }
 
     if (!recruiter.canBeVerified()) {
-      throw new ApplicationError(
-        ERROR_CODES.RECRUITER_CANNOT_BE_VERIFIED,
-      );
+      throw new ApplicationError(ERROR_CODES.RECRUITER_CANNOT_BE_VERIFIED);
     }
 
     const updated = recruiter.verify();
 
-    await this.recruiterRepo.verifyRecruiter(
-      updated.getId(),
-      "verified",
-    );
+    await this.recruiterRepo.verifyRecruiter(updated.getId(), "verified");
 
     try {
       await this.createNotificationUC.execute({
@@ -48,10 +45,7 @@ export class VerifyRecruiterUseCase {
         },
       });
     } catch (err) {
-      console.error(
-        "RECRUITER_VERIFIED notification failed:",
-        err,
-      );
+      console.error("RECRUITER_VERIFIED notification failed:", err);
     }
   }
 }

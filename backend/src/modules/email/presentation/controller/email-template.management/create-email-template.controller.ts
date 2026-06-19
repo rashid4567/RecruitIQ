@@ -2,10 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { CreateEmailTemplateUseCase } from "../../../application/usecase/email-template/create-email-template.usecase";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { CreateEmailTemplateInputDto } from "../../../application/dto/email.template/createEmailTemplate.input.dto";
+import { EmailTemplate } from "../../../domain/entities/email-template.entity";
 
 export class CreateEmailTemplateController {
   constructor(
-    private readonly createEmailTemplateUC: CreateEmailTemplateUseCase,
+    private readonly createEmailTemplateUC: UseCase<CreateEmailTemplateInputDto,EmailTemplate>,
   ) {}
 
   createEmailTemplate = async (

@@ -3,16 +3,18 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { GetEmailTemplatesUseCase } from "../../../application/usecase/email-template/get-email-templates.usecase";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { EmailTemplate } from "../../../domain/entities/email-template.entity";
 
 export class ListEmailTemplateController {
   constructor(
-    private readonly getEmailTemplatesUC: GetEmailTemplatesUseCase
+    private readonly getEmailTemplatesUC: UseCase<void, EmailTemplate[]>,
   ) {}
 
   listEmailTemplates = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const result = await this.getEmailTemplatesUC.execute();

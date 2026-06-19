@@ -3,10 +3,15 @@ import { GetUnreadNotificationCountUseCase } from "../../application/usecases/Ge
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { UnreadNotificationRequestDTO } from "../../application/dto/unreadNotification.dto";
 
 export class GetUnreadNotificationCountController {
   constructor(
-    private readonly getUnreadCountUC: GetUnreadNotificationCountUseCase,
+    private readonly getUnreadCountUC: UseCase<
+      UnreadNotificationRequestDTO,
+      number
+    >,
   ) {}
 
   getUnreadCount = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,10 +24,11 @@ export class GetUnreadNotificationCountController {
         });
       }
 
-      const unreadCount = await this.getUnreadCountUC.execute(recipientId);
+      const unreadCount = await this.getUnreadCountUC.execute({ recipientId });
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: SUCCESS_MESSAGES.UNREAD_NOTIFICATION_COUNT_FETCHED_SUCCESSFULLY,
+        message:
+          SUCCESS_MESSAGES.UNREAD_NOTIFICATION_COUNT_FETCHED_SUCCESSFULLY,
         data: unreadCount,
       });
     } catch (err) {

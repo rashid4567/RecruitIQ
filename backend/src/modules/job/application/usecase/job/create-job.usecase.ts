@@ -3,25 +3,26 @@ import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { ERROR_CODES } from "../../../../recruiter/application/constants/error.code.constants";
-import { CreateJobDTO } from "../../dto/create-job.dto";
+import { CreateJobDTO, createJobPostRequestDTO } from "../../dto/create-job.dto";
 import { RecruiterProfileRepository } from "../../../../recruiter/domain/repositories/recruiter.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
 
-export class CreateJobUseCase {
+export class CreateJobUseCase implements UseCase<createJobPostRequestDTO,Job> {
   constructor(
     private readonly jobRepo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
     private readonly recruiterRepo: RecruiterProfileRepository,
   ) {}
 
-  async execute(recruiterId: string, dto: CreateJobDTO): Promise<Job> {
-    if (!recruiterId) {
+  async execute(request : createJobPostRequestDTO): Promise<Job> {
+    if (!request.recruiterId) {
       throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_FOUND);
     }
 
     const profile = await this.recruiterRepo.findByUserId(
-      UserId.create(recruiterId),
+      UserId.create(request.recruiterId),
     );
 
     if (!profile) {
@@ -29,7 +30,7 @@ export class CreateJobUseCase {
     }
 
     const subscription =
-      await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
+      await this.subscriptionRepo.findActiveByRecruiter(request.recruiterId);
 
     if (!subscription) {
       throw new ApplicationError(
@@ -41,12 +42,14 @@ export class CreateJobUseCase {
       throw new ApplicationError(ERROR_CODES.JOB_POST_LIMIT_EXCEEDED);
     }
 
+    const dto = request.dto;
+
     if (dto.expiresAt) {
       this.validateExpiryDate(dto.expiresAt, subscription.jobPostActiveDays);
     }
 
     const job = Job.create({
-      recruiterId,
+      recruiterId : request.recruiterId,
       companyName : dto.companyName,
       title: dto.title,
       description: dto.description,

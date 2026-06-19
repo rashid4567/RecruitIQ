@@ -1,5 +1,6 @@
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { User } from "../../../../auth/domain/entities/user.entity";
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
 import { SendEmailByEventUseCase } from "../../../../email/application/usecase/email-template/send-email-by-event.usecase";
@@ -19,7 +20,7 @@ import { JobApplicationRepository } from "../../../domain/repository/job-applica
 import { ApplyJobDTO } from "../../dto/applyJobDto";
 import { AnalyzeApplicationUseCase } from "./AnalyzeApplicationUseCase";
 
-export class ApplyJobUseCase {
+export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
   constructor(
     private readonly applicationRepo: JobApplicationRepository,
     private readonly jobRepo: JobRepository,
@@ -40,8 +41,6 @@ export class ApplyJobUseCase {
     if (!candidate) {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
     }
-
-    
 
     const application = JobApplication.apply({
       jobId,
@@ -123,7 +122,7 @@ export class ApplyJobUseCase {
 
   private triggerAnalysis(application: JobApplication): void {
     void this.analyzeApplicationUC
-      .execute(application.id!)
+      .execute({ applicationId: application.id! })
       .catch((err) => console.error("Application analysis failed:", err));
   }
 

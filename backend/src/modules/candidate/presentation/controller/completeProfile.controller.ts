@@ -1,14 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
-import { CompleteCandidateProfileUseCase } from "../../application/use-cases/profile/complete-candidate-profile.usecase";
 import { userIdSchema } from "../validator/userId.validatort";
 import { completeCandidateProfileSchema } from "../validator/completeCandidateProfile-validator";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { CompleteCandidateProfileRequestDTO } from "../../application/dto/complete-candidate-profile.dto";
 
 export class CandidateController {
   constructor(
-    private readonly completeProfileUC: CompleteCandidateProfileUseCase,
+    private readonly completeProfileUC: UseCase<
+      CompleteCandidateProfileRequestDTO,
+      void
+    >,
   ) {}
 
   completeProfile = async (req: Request, res: Response, next: NextFunction) => {
@@ -18,7 +22,7 @@ export class CandidateController {
       if (!userId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED
+          message: ERROR_MESSAGE.UNAUTHORIZED,
         });
       }
       const body = completeCandidateProfileSchema.parse(req.body);
@@ -26,13 +30,16 @@ export class CandidateController {
       if (!body) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
-          message: ERROR_MESSAGE.MISSING_FILEDS
+          message: ERROR_MESSAGE.MISSING_FILEDS,
         });
       }
-      const profile = await this.completeProfileUC.execute(userId, body);
+      const profile = await this.completeProfileUC.execute({
+        userId,
+        profile: body,
+      });
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: SUCCESS_MESSAGES.PROFILE_COMPLETED_SUCCESFULLY, 
+        message: SUCCESS_MESSAGES.PROFILE_COMPLETED_SUCCESSFULLY,
         data: profile,
       });
     } catch (err) {

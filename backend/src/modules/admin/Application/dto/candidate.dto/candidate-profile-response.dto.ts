@@ -1,3 +1,7 @@
+export interface CandidateProfileRequestDTO{
+  candidateId: string
+}
+
 export interface CandidateProfileResponseDTO {
   id: string;
   name: string;

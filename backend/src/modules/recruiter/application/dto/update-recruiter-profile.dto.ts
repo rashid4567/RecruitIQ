@@ -1,3 +1,5 @@
+
+
 export interface UpdateRecruiterProfileDTO {
   companyName?: string;
   companyWebsite?: string;
@@ -10,4 +12,10 @@ export interface UpdateRecruiterProfileDTO {
   fullName?:string,
   profileImage?:string,
   email?:string,
+}
+
+
+export interface UpdateRecruiterProfileRequestDTO{
+   userId: string,
+    input: UpdateRecruiterProfileDTO,
 }

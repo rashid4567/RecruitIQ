@@ -1,11 +1,11 @@
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import { NotificationRepository } from "../../domain/repositories/notification.repository";
+import { UnreadNotificationRequestDTO } from "../dto/unreadNotification.dto";
 
-export class GetUnreadNotificationCountUseCase{
-    constructor(
-        private readonly notificationRepo : NotificationRepository
-    ){};
+export class GetUnreadNotificationCountUseCase implements UseCase<UnreadNotificationRequestDTO,number> {
+  constructor(private readonly notificationRepo: NotificationRepository) {}
 
-    async execute(recipientId : string):Promise<number>{
-        return await this.notificationRepo.getUnreadCount(recipientId)
-    }
+  async execute(request : UnreadNotificationRequestDTO): Promise<number> {
+    return await this.notificationRepo.getUnreadCount(request.recipientId);
+  }
 }

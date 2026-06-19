@@ -5,10 +5,15 @@ import { CompleteRecruiterProfileSchema } from "../validator/completeRecruiterPr
 import { CompleteRecruiterProfileUseCase } from "../../application/useCase/profile/complete-recruiter-profile.usecase";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { CompleteRecruiterProfileRequestDTO } from "../../application/dto/complete-recruiter-profile.dto";
 
 export class CompleteRecruiterProfileController {
   constructor(
-    private readonly completeProfileUC: CompleteRecruiterProfileUseCase,
+    private readonly completeProfileUC: UseCase<
+      CompleteRecruiterProfileRequestDTO,
+      void
+    >,
   ) {}
 
   completeProfile = async (req: Request, res: Response, next: NextFunction) => {
@@ -23,7 +28,10 @@ export class CompleteRecruiterProfileController {
         });
       }
 
-      const profile = await this.completeProfileUC.execute(userId, body);
+      const profile = await this.completeProfileUC.execute({
+        userId,
+        data: body,
+      });
       res.status(HTTP_STATUS.OK).json({
         success: true,
         message: SUCCESS_MESSAGES.PROFILE_COMPLETED_SUCCESSFULLY,

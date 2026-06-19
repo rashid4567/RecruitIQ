@@ -3,15 +3,14 @@ import { GetJobByIdUseCase } from "../../../application/usecase/job/get-jobpost-
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { GetJobByIdRequestDTO } from "../../../application/dto/getJobPostById.dto";
+import { Job } from "../../../domain/entities/job.entity";
 
 export class CandidateJobByIdController {
-  constructor(private readonly getUc: GetJobByIdUseCase) {}
+  constructor(private readonly getUc: UseCase<GetJobByIdRequestDTO, Job>) {}
 
-  getOne = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  getOne = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const jobId = req.params.id;
 
@@ -22,10 +21,11 @@ export class CandidateJobByIdController {
         });
       }
 
-      const job = await this.getUc.execute(jobId, true);
+      const job = await this.getUc.execute({ jobId, incrementView: true });
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
+        message: SUCCESS_MESSAGES.JOB_POST_LOADED_SUCCESSFULLY,
         data: job.candidateView(),
       });
     } catch (err) {

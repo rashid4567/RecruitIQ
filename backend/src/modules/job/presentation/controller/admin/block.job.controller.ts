@@ -3,9 +3,12 @@ import { BlockJobUseCase } from "../../../application/usecase/job/block-job-usec
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { BlockJobPostRequestDTO } from "../../../application/dto/job.status.dto";
+import { Job } from "../../../domain/entities/job.entity";
 
 export class BlockJobController {
-  constructor(private readonly blockUc: BlockJobUseCase) {}
+  constructor(private readonly blockUc: UseCase<BlockJobPostRequestDTO, Job>) {}
 
   block = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -16,7 +19,7 @@ export class BlockJobController {
           message: ERROR_MESSAGE.JOB_ID_REQUIRED,
         });
       }
-      const job = await this.blockUc.execute(jobId);
+      const job = await this.blockUc.execute({jobId});
       res.status(HTTP_STATUS.OK).json({
         success: true,
         message: SUCCESS_MESSAGES.JOB_BLOCKED_SUCCESSFULLY,

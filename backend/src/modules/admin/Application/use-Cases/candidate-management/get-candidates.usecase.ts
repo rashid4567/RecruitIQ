@@ -1,18 +1,20 @@
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { CandidateRepository } from "../../../Domain/repositories/candidate.repository";
 import {
   CandidateListItemDTO,
+  CandidateListRequestDTO,
   CandidateListResponseDTO,
 } from "../../dto/candidate.dto/candidate-list-response.dto";
 
-export class GetCandidateUseCase {
+export class GetCandidateUseCase implements UseCase<
+  CandidateListRequestDTO,
+  CandidateListResponseDTO
+> {
   constructor(private readonly candidateRepo: CandidateRepository) {}
 
-  async execute(query: {
-    search?: string;
-    limit: number;
-    page: number;
-    status?: boolean;
-  }): Promise<CandidateListResponseDTO> {
+  async execute(
+    query: CandidateListRequestDTO,
+  ): Promise<CandidateListResponseDTO> {
     const skip = (query.page - 1) * query.limit;
 
     const { candidates, total } = await this.candidateRepo.getCandidates({

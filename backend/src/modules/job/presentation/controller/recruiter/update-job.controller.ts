@@ -1,16 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import { UpdateJobUseCase } from "../../../application/usecase/job/update-job.usecase";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus"; 
+import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { UpdateJobPostRequestDTO } from "../../../application/dto/update-job.dto";
+import { Job } from "../../../domain/entities/job.entity";
+import { UpdateJobSchema } from "../../validator/UpdateJobSchema";
 
 export class UpdateJobController {
-  constructor(private readonly updateUc: UpdateJobUseCase) {}
+  constructor(
+    private readonly updateUc: UseCase<UpdateJobPostRequestDTO, Job>,
+  ) {}
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
-      console.log("hit job update controller")
+      console.log("hit job update controller");
       const recruiterId = req.user?.userId;
       if (!recruiterId) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
@@ -25,7 +30,9 @@ export class UpdateJobController {
           message: ERROR_MESSAGE.JOB_ID_REQUIRED,
         });
       }
-      const job = await this.updateUc.execute(jobId, recruiterId, req.body);
+
+      const dto = UpdateJobSchema.parse(req.body);
+      const job = await this.updateUc.execute({ jobId, recruiterId, dto });
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -33,8 +40,8 @@ export class UpdateJobController {
         data: job,
       });
     } catch (err) {
-      console.log("error :",err);
-             
+      console.log("error :", err);
+
       next(err);
     }
   };

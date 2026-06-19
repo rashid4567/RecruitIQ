@@ -1,5 +1,6 @@
 import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
 import { ResumeParseStatus } from "../../../../resume/domain/entity/resume.entity";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
@@ -10,8 +11,12 @@ import {
   ApplicationAnalysis,
   ApplicationAnalysisService,
 } from "../../../domain/services/ApplicationAnalysisService";
+import { AnalyzeApplicationRequestDTO } from "../../dto/analyseJobpost.dto";
 
-export class AnalyzeApplicationUseCase {
+export class AnalyzeApplicationUseCase implements UseCase<
+  AnalyzeApplicationRequestDTO,
+  void
+> {
   constructor(
     private readonly applicationRepo: JobApplicationRepository,
     private readonly jobRepository: JobRepository,
@@ -20,8 +25,8 @@ export class AnalyzeApplicationUseCase {
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
   ) {}
 
-  async execute(applicationId: string): Promise<void> {
-    const application = await this.getApplication(applicationId);
+  async execute(request: AnalyzeApplicationRequestDTO): Promise<void> {
+    const application = await this.getApplication(request.applicationId);
 
     if (
       application.isAnalysisCompleted() ||

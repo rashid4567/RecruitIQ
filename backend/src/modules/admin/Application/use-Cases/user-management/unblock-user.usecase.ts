@@ -1,27 +1,25 @@
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import { ApplicationError } from "../../../../../shared/errors/application.error"; 
+import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { UserRepository } from "../../../Domain/repositories/user.repository";
 import { ERROR_CODES } from "../../constants/errorcode.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { UserStatusRequestDTO } from "../../dto/recruiter.dto/user.status.dto";
 
-export class UnblockUserUseCase{
-    constructor(
-        private readonly userRepo : UserRepository
-    ){};
+export class UnblockUserUseCase implements UseCase<UserStatusRequestDTO, void> {
+  constructor(private readonly userRepo: UserRepository) {}
 
-    async execute(userId : string){
-          if (!userId || userId === "[object Object]") {
-    throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
-  }
-        const id = UserId.create(userId);
-        const user = await this.userRepo.findById(id);
+  async execute(request: UserStatusRequestDTO) {
+    if (!request.userId || request.userId === "[object Object]") {
+      throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
+    }
+    const id = UserId.create(request.userId);
+    const user = await this.userRepo.findById(id);
 
-        if(!user){
-            throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND)
-        }
-
-        user.unblock();
-        await this.userRepo.save(user);
+    if (!user) {
+      throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
 
-    
+    user.unblock();
+    await this.userRepo.save(user);
+  }
 }

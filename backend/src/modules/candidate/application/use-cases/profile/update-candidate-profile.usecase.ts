@@ -1,28 +1,30 @@
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { CandidateRepository } from "../../../domain/repositories/candidate.repository";
-import { UpdateCandidateProfileDTO } from "../../dto/update-candidate-profile.dto";
+import {
+  UpdateCandidateProfileDTO,
+  UpdateCandidateProfileRequestDTO,
+  UpdateCandidateProfileResult,
+} from "../../dto/update-candidate-profile.dto";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../constants/error-code.constant";
 import { User } from "../../../domain/entities/user.entity";
 import { CandidateProfile } from "../../../domain/entities/candidate-profile.entity";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export interface UpdateCandidateProfileResult {
-  user: User;
-  profile: CandidateProfile;
-}
-
-export class UpdateCandidateProfileUseCase {
+export class UpdateCandidateProfileUseCase implements UseCase<
+  UpdateCandidateProfileRequestDTO,
+  UpdateCandidateProfileResult
+> {
   constructor(
     private readonly candidateRepo: CandidateRepository,
     private readonly userRepo: UserRepository,
   ) {}
 
   async execute(
-    userIdRaw: string,
-    input: UpdateCandidateProfileDTO,
+    request: UpdateCandidateProfileRequestDTO,
   ): Promise<UpdateCandidateProfileResult> {
-    const userId = UserId.create(userIdRaw);
+    const userId = UserId.create(request.userId);
 
     const user = await this.userRepo.findById(userId);
     if (!user) {
@@ -33,6 +35,7 @@ export class UpdateCandidateProfileUseCase {
     if (!profile) {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_PROFILE_NOT_FOUND);
     }
+    const input = request.profile;
 
     if (input.fullName !== undefined) {
       user.updateFullName(input.fullName);

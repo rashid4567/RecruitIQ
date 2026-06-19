@@ -10,8 +10,12 @@ import { ResumeTextExtractor } from "../../domain/service/resumeTextExtractor.se
 import { ParseResumeDTO } from "../dto/parse.resume.dto";
 import { JobApplicationRepository } from "../../../job-application/domain/repository/job-application.repository";
 import { AnalyzeApplicationUseCase } from "../../../job-application/application/usecase/candidate/AnalyzeApplicationUseCase";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 
-export class ParseResumeUseCase {
+export class ParseResumeUseCase implements UseCase<
+  ParseResumeDTO,
+  ParsedResumeData
+> {
   constructor(
     private readonly resumeRepository: ResumeRepository,
     private readonly resumeTextExtractor: ResumeTextExtractor,
@@ -58,7 +62,7 @@ export class ParseResumeUseCase {
       await this.applicationRepository.findByResumeId(resumeId);
     for (const application of applications) {
       void this.analyzeApplicationUC
-        .execute(application.id!)
+        .execute({ applicationId: application.id! })
         .catch((error: unknown) =>
           console.error(
             `Failed to analyze application ${application.id}`,

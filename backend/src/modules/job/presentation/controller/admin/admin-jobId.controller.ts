@@ -3,15 +3,16 @@ import { GetJobByIdUseCase } from "../../../application/usecase/job/get-jobpost-
 import { HTTP_STATUS } from "../../../../../constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { GetJobByIdRequestDTO } from "../../../application/dto/getJobPostById.dto";
+import { Job } from "../../../domain/entities/job.entity";
 
 export class AdminJobByIdController {
-  constructor(private readonly getJobsIdUc: GetJobByIdUseCase) {}
+  constructor(
+    private readonly getJobsIdUc: UseCase<GetJobByIdRequestDTO, Job>,
+  ) {}
 
-  getOne = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  getOne = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const jobId = req.params.jobPostId;
 
@@ -22,7 +23,7 @@ export class AdminJobByIdController {
         });
       }
 
-      const job = await this.getJobsIdUc.execute(jobId);
+      const job = await this.getJobsIdUc.execute({ jobId });
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,

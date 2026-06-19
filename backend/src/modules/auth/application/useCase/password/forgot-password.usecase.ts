@@ -5,16 +5,18 @@ import { ERROR_CODES } from "../../constants/error-codes.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
 import { EmailServicePort } from "../../ports/email.service.port";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { ForgotPasswordRequestDTO } from "../../dto/forgot-password.dto";
 
-export class ForgotPasswordUseCase {
+export class ForgotPasswordUseCase implements UseCase<ForgotPasswordRequestDTO,void>{
   constructor(
     private readonly userRepo: UserRepository,
     private readonly tokenService: AuthTokenServicePort,
     private readonly emailService: EmailServicePort,
   ) {}
 
-  async execute(emailRaw: string): Promise<void> {
-    const email = Email.create(emailRaw);
+  async execute(Request : ForgotPasswordRequestDTO): Promise<void> {
+    const email = Email.create(Request.email);
 
     const user = await this.userRepo.findByEmail(email);
     if (!user) {

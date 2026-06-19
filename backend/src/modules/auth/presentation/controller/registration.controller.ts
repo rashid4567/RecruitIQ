@@ -1,13 +1,17 @@
 import { Request, Response, NextFunction } from "express";
-import { VerifyRegistrationUseCase } from "../../application/useCase/registration/verify-registration.usecase";
 import { RegisterSchema } from "../validators/register.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { setRefreshCookie } from "../utils/cookie.util";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { VerificationInput, VerifyRegistrationResponseDTO } from "../../application/dto/verification.input.dto";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 
 export class RegistrationController {
   constructor(
-    private readonly verifyRegistrationUC: VerifyRegistrationUseCase,
+    private readonly verifyRegistrationUC:  UseCase<
+      VerificationInput,
+      VerifyRegistrationResponseDTO
+    > ,
   ) {}
 
   register = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,7 +24,7 @@ export class RegistrationController {
 
       return res.status(HTTP_STATUS.CREATED).json({
         success: true,
-        message: SUCCESS_MESSAGES.USESR_REGISTERED_SUCCESSFULLY, 
+        message: SUCCESS_MESSAGES.USER_REGISTERED_SUCCESSFULLY, 
         data: result,
       });
     } catch (err) {

@@ -1,21 +1,21 @@
 import { Request, Response, NextFunction } from "express";
-import { ForgotPasswordUseCase } from "../../application/useCase/password/forgot-password.usecase";
-import { ResetPasswordUseCase } from "../../application/useCase/password/reset-password.usecase"; 
 import { ForgotPasswordSchema } from "../validators/forgot-password.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
-import { ResetPasswordSchema } from "../validators/reset-password.schema";
+import { ResetPasswordDTO, ResetPasswordSchema } from "../validators/reset-password.schema";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { ForgotPasswordRequestDTO } from "../../application/dto/forgot-password.dto";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 
 export class ForgotPasswordController {
   constructor(
-    private readonly forgotPasswordUC: ForgotPasswordUseCase,
-    private readonly resetPasswordUC: ResetPasswordUseCase,
+    private readonly forgotPasswordUC:  UseCase<ForgotPasswordRequestDTO,void>,
+    private readonly resetPasswordUC: UseCase<ResetPasswordDTO, void>,
   ) {}
 
   forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = ForgotPasswordSchema.parse(req.body);
-      await this.forgotPasswordUC.execute(email);
+      await this.forgotPasswordUC.execute({email});
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -30,11 +30,11 @@ export class ForgotPasswordController {
   resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { token, newPassword } = ResetPasswordSchema.parse(req.body);
-      await this.resetPasswordUC.execute(token, newPassword);
+      await this.resetPasswordUC.execute({token, newPassword});
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: SUCCESS_MESSAGES.PASSWORD_RESET_SUCCESFULLY,
+        message: SUCCESS_MESSAGES.PASSWORD_RESET_SUCCESSFULLY,
       });
     } catch (err) {
       console.log("error",err)

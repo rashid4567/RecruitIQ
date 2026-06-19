@@ -3,13 +3,13 @@ import { ApplicationError } from "../../../../shared/errors/application.error";
 import { FileStorageRepository } from "../../../resume/domain/repository/fileStorage.repository";
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { ERROR_CODES } from "../constants/error-codes.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { UpdateProfileImageRequest } from "../dto/update.profileDTO";
 
-interface UpdateProfileImageRequest {
-  userId: string;
-  file: Express.Multer.File;
-}
-
-export class UpdateProfileImageUseCase {
+export class UpdateProfileImageUseCase implements UseCase<
+  UpdateProfileImageRequest,
+  void
+> {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly fileStorageRepo: FileStorageRepository,

@@ -1,6 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { RequestEmailUpdateUseCase } from "../../application/useCase/email/request-email.update.usecase";
-import { VerifyEmailUpdateUseCase } from "../../application/useCase/email/verify-email-update.usecase";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import {
   RequestEmailUpdateSchema,
@@ -8,49 +6,52 @@ import {
 } from "../validators/email-update.validation";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { RequestEmailUpdateDTO } from "../../application/dto/EmailUpdateDTO";
+import { VerifyEmailUpdateDTO } from "../../application/dto/verify-email-update.dto";
 
 export class EmailUpdateController {
   constructor(
-    private readonly requestEmailUpdateUc: RequestEmailUpdateUseCase,
-    private readonly verifyEmailUc: VerifyEmailUpdateUseCase,
+    private readonly requestEmailUpdateUc: UseCase<RequestEmailUpdateDTO, void>,
+    private readonly verifyEmailUc: UseCase<VerifyEmailUpdateDTO, void>,
   ) {}
 
   requestEmailUpdate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const userId = req.user?.userId;
-    const role = req.user?.role;
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId = req.user?.userId;
+      const role = req.user?.role;
 
-    if (!userId || !role) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        success: false,
-        message: ERROR_MESSAGE.UNAUTHORIZED
+      if (!userId || !role) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          success: false,
+          message: ERROR_MESSAGE.UNAUTHORIZED,
+        });
+      }
+
+      if (role !== "candidate" && role !== "recruiter") {
+        return res.status(HTTP_STATUS.FORBIDDEN).json({
+          success: false,
+          message: SUCCESS_MESSAGES.EMAIL_UPDATE_NOT_ALLOWED_FOR_THIS_ROLE,
+        });
+      }
+
+      const { newEmail } = RequestEmailUpdateSchema.parse(req.body);
+
+      await this.requestEmailUpdateUc.execute({userId, newEmail, role});
+
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: "OTP sent to new email",
       });
+    } catch (err) {
+      console.log("error", err);
+      next(err);
     }
-
-    if (role !== "candidate" && role !== "recruiter") {
-      return res.status(HTTP_STATUS.FORBIDDEN).json({
-        success: false,
-        message: SUCCESS_MESSAGES.EMAIL_UPDATE_NOT_ALLOWED_FOR_THIS_ROLE,
-      });
-    }
-
-    const { newEmail } = RequestEmailUpdateSchema.parse(req.body);
-
-    await this.requestEmailUpdateUc.execute(userId, newEmail, role); 
-
-    return res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: "OTP sent to new email",
-    });
-  } catch (err) {
-    console.log("error",err)
-    next(err);
-  }
-};
+  };
 
   verifyEmailUpdate = async (
     req: Request,
@@ -85,7 +86,7 @@ export class EmailUpdateController {
         message: "Email updated successfully",
       });
     } catch (err) {
-      console.log("error",err)
+      console.log("error", err);
       next(err);
     }
   };

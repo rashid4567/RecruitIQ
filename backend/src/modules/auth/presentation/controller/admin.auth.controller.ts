@@ -1,18 +1,24 @@
 import { Request, Response, NextFunction } from "express";
-import { AdminLoginUseCase } from "../../application/useCase/auth/admin-login.usecase";
 import { LoginSchema } from "../validators/login.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { USER_ROLES } from "../../domain/constants/roles.constants";
 import { setRefreshCookie } from "../utils/cookie.util";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import {
+  LoginRequestDTO,
+  LoginResponseDTO,
+} from "../../application/dto/login.dto";
 
 export class AdminAuthController {
-  constructor(private readonly adminLoginUC: AdminLoginUseCase) {}
+  constructor(
+    private readonly adminLoginUC: UseCase<LoginRequestDTO, LoginResponseDTO>,
+  ) {}
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = LoginSchema.parse(req.body);
-      const result = await this.adminLoginUC.execute(email, password);
+      const result = await this.adminLoginUC.execute({ email, password });
       if (result.role !== USER_ROLES.ADMIN) {
         return res.status(HTTP_STATUS.FORBIDDEN).json({
           success: false,

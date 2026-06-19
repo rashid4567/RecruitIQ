@@ -8,23 +8,25 @@ import { USER_ROLES, userRoles } from "../../../domain/constants/roles.constants
 import { User } from "../../../domain/entities/user.entity";
 import { AuthResult } from "../../types/auth-result.type";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
+import { GoogleLoginRequestDTO } from "../../dto/google-login.dto";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GoogleLoginUseCase {
+export class GoogleLoginUseCase implements UseCase<GoogleLoginRequestDTO, AuthResult> {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly googleAuth: GoogleAuthPort,
     private readonly tokenServie: AuthTokenServicePort,
   ) {}
 
-  async execute(credential: string, role?: userRoles): Promise<AuthResult> {
-    const googleUser = await this.googleAuth.verifyToken(credential);
+  async execute(Request : GoogleLoginRequestDTO): Promise<AuthResult> {
+    const googleUser = await this.googleAuth.verifyToken(Request.credential);
 
     const email = Email.create(googleUser.email);
     const googleId = GoogleId.create(googleUser.googleId);
 
     let user = await this.userRepo.findByEmail(email);
 
-    if ((user && user.role === USER_ROLES.ADMIN) || role === USER_ROLES.ADMIN) {
+    if ((user && user.role === USER_ROLES.ADMIN) || Request.role === USER_ROLES.ADMIN) {
       throw new ApplicationError(
         ERROR_CODES.GOOGLE_LOGIN_NOT_ALLOWED_FOR_ADMIN,
       );
@@ -34,7 +36,7 @@ export class GoogleLoginUseCase {
       throw new ApplicationError(ERROR_CODES.EMAIL_ALREADY_EXISTS);
     }
 
-    if (user && role && user.role !== role) {
+    if (user && Request.role && user.role !== Request.role) {
       throw new ApplicationError(ERROR_CODES.ROLE_MISMATCH);
     }
 
@@ -43,13 +45,13 @@ export class GoogleLoginUseCase {
     }
  
     if (!user) {
-      if (!role) {
+      if (!Request.role) {
         throw new ApplicationError(ERROR_CODES.ROLE_REQUIRED);
       }
 
       user = User.registerWithGoogle({
         email,
-        role,
+        role : Request.role,
         fullName: googleUser.fullName,
         googleId,
       });

@@ -4,16 +4,20 @@ import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { UpdatePasswordSchema } from "../validators/updatepassword.validator";
 import { userIdSchema } from "../validators/userId.validator";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { RequestUpdatePassword } from "../../application/dto/UpdatePasswordDTO";
 
 export class ChangePasswordController {
-  constructor(private readonly updatePasswordUC: UpdatePasswordUseCase) {}
+  constructor(
+    private readonly updatePasswordUC: UseCase<RequestUpdatePassword, void>,
+  ) {}
 
   updatePassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = userIdSchema.parse(req.user?.userId);
       const body = UpdatePasswordSchema.parse(req.body);
-      console.log("raw body :",req.body);
-      console.log("after parse :", body)
+      console.log("raw body :", req.body);
+      console.log("after parse :", body);
       await this.updatePasswordUC.execute({
         userId,
         current: body.currentPassword,
@@ -22,10 +26,10 @@ export class ChangePasswordController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: SUCCESS_MESSAGES.PASSWORD_UPDATED_SUCCESSFULLY, 
+        message: SUCCESS_MESSAGES.PASSWORD_UPDATED_SUCCESSFULLY,
       });
     } catch (err) {
-    console.error("password updated failed :", err)
+      console.error("password updated failed :", err);
       next(err);
     }
   };

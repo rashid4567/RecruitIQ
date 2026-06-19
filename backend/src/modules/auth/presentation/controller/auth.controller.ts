@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { LoginUseCase } from "../../application/useCase/auth/login.useCase";
 import { LoginSchema } from "../validators/login.schema";
 import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import {
@@ -7,10 +6,12 @@ import {
   clearRefreshCookie,
 } from "../utils/cookie.util";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { LoginRequestDTO, LoginResponseDTO } from "../../application/dto/login.dto";
 
 export class AuthController {
   constructor(
-    private readonly loginUC: LoginUseCase,
+    private readonly loginUC: UseCase<LoginRequestDTO,LoginResponseDTO>,
   ) {}
 
   login = async (
@@ -21,10 +22,10 @@ export class AuthController {
     try {
       const { email, password } = LoginSchema.parse(req.body);
 
-      const result = await this.loginUC.execute(
-        email,
+      const result = await this.loginUC.execute({
+             email,
         password,
-      );
+      });
 
       setRefreshCookie(res, result.refreshToken);
 

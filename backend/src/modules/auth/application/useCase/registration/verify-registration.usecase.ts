@@ -3,7 +3,7 @@ import { User } from "../../../domain/entities/user.entity";
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Email } from "../../../domain/value.objects/email.vo";
 import { Password } from "../../../domain/value.objects/password-hash.vo";
-import { VerificationInput } from "../../dto/verification.input.dto";
+
 import { OTPServicePort } from "../../ports/otp.service.ports";
 import { PasswordHasherPort } from "../../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
@@ -13,8 +13,16 @@ import { EmailEvent } from "../../../../admin/Domain/constatns/email-enum.events
 import { ActivityTrackerService } from "../../../../Activity.logger/application/services/activityTracker.service";
 import { ActivityAction } from "../../../../Activity.logger/domain/constants/activityActions";
 import { SendEmailByEventUseCase } from "../../../../email/application/usecase/email-template/send-email-by-event.usecase";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import {
+  VerificationInput,
+  VerifyRegistrationResponseDTO,
+} from "../../dto/verification.input.dto";
 
-export class VerifyRegistrationUseCase {
+export class VerifyRegistrationUseCase implements UseCase<
+  VerificationInput,
+  VerifyRegistrationResponseDTO
+> {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly otpRepo: OTPServicePort,
@@ -24,20 +32,22 @@ export class VerifyRegistrationUseCase {
     private readonly sendEmailByEventUC: SendEmailByEventUseCase,
   ) {}
 
-  async execute(input: VerificationInput) {
+  async execute(
+    Request: VerificationInput,
+  ): Promise<VerifyRegistrationResponseDTO> {
     let email: Email;
     try {
-      email = Email.create(input.email);
+      email = Email.create(Request.email);
     } catch {
       throw new ApplicationError(ERROR_CODES.INVALID_EMAIL);
     }
 
-    if (!input.otp || !/^\d{6}$/.test(input.otp)) {
+    if (!Request.otp || !/^\d{6}$/.test(Request.otp)) {
       throw new ApplicationError(ERROR_CODES.INVALID_OTP);
     }
 
     try {
-      await this.otpRepo.verify(email, input.otp, input.role);
+      await this.otpRepo.verify(email, Request.otp, Request.role);
     } catch (err) {
       if (err instanceof ApplicationError) throw err;
       const msg = (err as Error)?.message?.toLowerCase() ?? "";
@@ -69,7 +79,7 @@ export class VerifyRegistrationUseCase {
 
     let password: Password;
     try {
-      password = Password.create(input.password);
+      password = Password.create(Request.password);
     } catch {
       throw new ApplicationError(ERROR_CODES.INVALID_PASSWORD);
     }
@@ -78,8 +88,8 @@ export class VerifyRegistrationUseCase {
 
     const user = User.register({
       email,
-      role: input.role,
-      fullName: input.fullName,
+      role: Request.role,
+      fullName: Request.fullName,
       passwordHash,
     });
 

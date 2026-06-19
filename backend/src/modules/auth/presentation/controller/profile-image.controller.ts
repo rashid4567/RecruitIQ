@@ -4,10 +4,15 @@ import { HTTP_STATUS } from "../../../../constants/httpStatus";
 import { profileImageSchema } from "../validators/profile-image.schema";
 import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { UpdateProfileImageRequest } from "../../application/dto/update.profileDTO";
 
 export class ProfileImageController {
   constructor(
-    private readonly updateProfileImageUC: UpdateProfileImageUseCase,
+    private readonly updateProfileImageUC: UseCase<
+      UpdateProfileImageRequest,
+      void
+    >,
   ) {}
 
   updateProfileImage = async (
@@ -48,7 +53,7 @@ export class ProfileImageController {
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: SUCCESS_MESSAGES.PROFILE_IMAGE_UPDATED_SUCCESFULLY,
+        message: SUCCESS_MESSAGES.PROFILE_IMAGE_UPDATED_SUCCESSFULLY,
       });
     } catch (error) {
       next(error);

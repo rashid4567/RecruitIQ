@@ -4,27 +4,29 @@ import { ApplicationError } from "../../../../../shared/errors/application.error
 import { ERROR_CODES } from "../../constants/error-codes.constants";
 import { PasswordHasherPort } from "../../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
+import { ResetPasswordDTO } from "../../../presentation/validators/reset-password.schema";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class ResetPasswordUseCase {
+export class ResetPasswordUseCase implements UseCase<ResetPasswordDTO, void> {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly hasher: PasswordHasherPort,
     private readonly tokenService: AuthTokenServicePort,
   ) {}
 
-  async execute(token: string, newPasswordRaw: string): Promise<void> {
-    if (!token) {
+  async execute(Request: ResetPasswordDTO): Promise<void> {
+    if (!Request.token) {
       throw new ApplicationError(ERROR_CODES.INVALID_OR_EXPIRED_TOKEN);
     }
 
-    if (!newPasswordRaw) {
+    if (!Request.newPassword) {
       throw new ApplicationError(ERROR_CODES.INVALID_PASSWORD);
     }
 
     let decoded: { userId: string };
 
     try {
-      decoded = this.tokenService.verifyPasswordResetToken(token);
+      decoded = this.tokenService.verifyPasswordResetToken(Request.token);
     } catch {
       throw new ApplicationError(ERROR_CODES.INVALID_OR_EXPIRED_TOKEN);
     }
@@ -47,7 +49,7 @@ export class ResetPasswordUseCase {
     let newPassword: Password;
 
     try {
-      newPassword = Password.create(newPasswordRaw);
+      newPassword = Password.create(Request.newPassword);
     } catch {
       throw new ApplicationError(ERROR_CODES.INVALID_PASSWORD);
     }

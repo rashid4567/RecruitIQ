@@ -1,7 +1,7 @@
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error"; 
 import { UserRepository } from "../../../Domain/repositories/user.repository";
-import { ERROR_CODES } from "../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UserStatusRequestDTO } from "../../dto/recruiter.dto/user.status.dto";
 

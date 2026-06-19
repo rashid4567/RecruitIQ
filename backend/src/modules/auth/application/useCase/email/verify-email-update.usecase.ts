@@ -3,7 +3,7 @@ import { OtpRole } from "../../../domain/constants/otp-roles.constants";
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Email } from "../../../domain/value.objects/email.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../constants/error-codes.constants";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { VerifyEmailUpdateDTO } from "../../dto/verify-email-update.dto";
 

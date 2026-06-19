@@ -1,5 +1,5 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { PAYMENT_ERRORS } from "../error/payment.codes";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 
 export enum PaymentStatus {
   Pending = "pending",
@@ -42,10 +42,10 @@ export class Payment {
   private constructor(private readonly props: PaymentProps) {}
   static create(props: PaymentProps): Payment {
     if (props.amount <= 0) {
-      throw new DomainError(PAYMENT_ERRORS.INVALID_AMOUNT);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_AMOUNT);
     }
     if (props.durationMonths < 1 || props.durationMonths > 12) {
-      throw new DomainError(PAYMENT_ERRORS.INVALID_SUBSCRIPTION_DURATION);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_SUBSCRIPTION_DURATION);
     }
 
     return new Payment(props);

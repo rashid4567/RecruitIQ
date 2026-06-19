@@ -1,7 +1,7 @@
 import { ERROR_CODES } from "../../../../constants/errorcode.constants";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { NotificationType } from "../constant/notification.constants";
-import { NOTIFICATION_ERROR } from "../error/notification.error";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code"; 
 
 export type NotificationRecipientRole = "recruiter" | "candidate";
 
@@ -36,15 +36,15 @@ export class Notification {
     metadata?: Record<string, unknown>,
   ): Notification {
     if (!recipientId?.trim()) {
-      throw new DomainError(NOTIFICATION_ERROR.RECIPIENT_ID_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.RECIPIENT_ID_REQUIRED);
     }
 
     if (!title?.trim()) {
-      throw new DomainError(NOTIFICATION_ERROR.TITLE_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.TITLE_REQUIRED);
     }
 
     if (!message?.trim()) {
-      throw new DomainError(NOTIFICATION_ERROR.MESSAGE_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.MESSAGE_REQUIRED);
     }
 
     return new Notification({

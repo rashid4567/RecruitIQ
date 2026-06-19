@@ -3,12 +3,11 @@ import { User } from "../../../domain/entities/user.entity";
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Email } from "../../../domain/value.objects/email.vo";
 import { Password } from "../../../domain/value.objects/password-hash.vo";
-
 import { OTPServicePort } from "../../ports/otp.service.ports";
 import { PasswordHasherPort } from "../../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../constants/error-codes.constants";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { EmailEvent } from "../../../../admin/Domain/constatns/email-enum.events";
 import { ActivityTrackerService } from "../../../../Activity.logger/application/services/activityTracker.service";
 import { ActivityAction } from "../../../../Activity.logger/domain/constants/activityActions";

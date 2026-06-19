@@ -1,6 +1,6 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
-import { CANDIDATE_ERROR } from "../error/error.codes";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 import { Gender } from "../type/gender.Types";
 
 export class CandidateProfile {
@@ -28,10 +28,10 @@ export class CandidateProfile {
     currentJob?: string,
     experienceYears?: number,
   ): CandidateProfile {
-    if (!userId) throw new DomainError(CANDIDATE_ERROR.USER_ID_IS_REQUIRED);
+    if (!userId) throw new DomainError(DOMAIN_ERROR_CODES.USER_ID_IS_REQUIRED);
     if (experienceYears !== undefined && experienceYears < 0)
       throw new DomainError(
-        CANDIDATE_ERROR.EXPERIENCE_YEARS_CANNOT_BE_NEGATIVE,
+        DOMAIN_ERROR_CODES.EXPERIENCE_YEARS_CANNOT_BE_NEGATIVE,
       );
 
     return new CandidateProfile(
@@ -81,46 +81,48 @@ export class CandidateProfile {
 
   public completeProfile(): void {
     if (!this.canBeCompleted()) {
-      throw new DomainError(CANDIDATE_ERROR.PROFILE_CANNOT_BE_COMPLETED);
+      throw new DomainError(DOMAIN_ERROR_CODES.PROFILE_CANNOT_BE_COMPLETED);
     }
     this.profileCompleted = true;
   }
 
   public updateCurrentJob(currentJob: string): void {
     if (!currentJob?.trim())
-      throw new DomainError(CANDIDATE_ERROR.CURRENT_JOB_CANNOT_BE_EMPTY);
+      throw new DomainError(DOMAIN_ERROR_CODES.CURRENT_JOB_CANNOT_BE_EMPTY);
     this.currentJob = currentJob.trim();
   }
 
   public updateExperienceYears(year?: number): void {
     if (year !== undefined && year < 0)
       throw new DomainError(
-        CANDIDATE_ERROR.EXPERIENCE_YEARS_CANNOT_BE_NEGATIVE,
+        DOMAIN_ERROR_CODES.EXPERIENCE_YEARS_CANNOT_BE_NEGATIVE,
       );
     this.experienceYears = year;
   }
 
   public updateSkills(skills: string[]): void {
     if (!skills || skills.length === 0)
-      throw new DomainError(CANDIDATE_ERROR.AT_LEAST_ONE_SKILL_IS_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.AT_LEAST_ONE_SKILL_IS_REQUIRED);
     this.skills = skills.map((s) => s.trim()).filter(Boolean);
   }
 
   public updateEducation(level: string): void {
     if (!level?.trim())
-      throw new DomainError(CANDIDATE_ERROR.EDUCATION_LEVEL_CANNOT_BE_EMPTY);
+      throw new DomainError(DOMAIN_ERROR_CODES.EDUCATION_LEVEL_CANNOT_BE_EMPTY);
     this.educationLevel = level.trim();
   }
 
   public updatePreferredLocations(locations: string[]): void {
     if (!locations || locations.length === 0)
-      throw new DomainError(CANDIDATE_ERROR.AT_LEAST_ONE_LOCATION_IS_REQUIRED);
+      throw new DomainError(
+        DOMAIN_ERROR_CODES.AT_LEAST_ONE_LOCATION_IS_REQUIRED,
+      );
     this.preferredJobLocations = locations.map((l) => l.trim()).filter(Boolean);
   }
 
   public updateBio(bio?: string): void {
     if (bio && bio.length > 500)
-      throw new DomainError(CANDIDATE_ERROR.BIO_EXCEEDS_MAX_LENGTH);
+      throw new DomainError(DOMAIN_ERROR_CODES.BIO_EXCEEDS_MAX_LENGTH);
     this.bio = bio?.trim() || undefined;
   }
 
@@ -134,13 +136,13 @@ export class CandidateProfile {
 
   public updateLinkedinUrl(url?: string): void {
     if (url && !url.startsWith("http"))
-      throw new DomainError(CANDIDATE_ERROR.INVALID_LINKEDIN_URL);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_LINKEDIN_URL);
     this.linkedinUrl = url?.trim() || undefined;
   }
 
   public updatePortfolioUrl(url?: string): void {
     if (url && !url.startsWith("http"))
-      throw new DomainError(CANDIDATE_ERROR.INVALID_PORTFOLIO_URL);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_PORTFOLIO_URL);
     this.portfolioUrl = url?.trim() || undefined;
   }
 

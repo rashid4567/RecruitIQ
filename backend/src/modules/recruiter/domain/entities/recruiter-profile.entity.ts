@@ -2,7 +2,7 @@ import { subscriptionStatus } from "../constatns/subscriptionStatus.constants";
 import { verificationStatus } from "../constatns/verificationStatus.constants";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { ERROR_CODES } from "../constatns/recruiter.profile.error";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code"; 
 
 
 export interface RecruiterProfileProps {
@@ -30,10 +30,10 @@ export class RecruiterProfile {
     companyWebsite: string,
   ): RecruiterProfile {
     if (!companyName?.trim()) {
-      throw new DomainError(ERROR_CODES.COMPANY_NAME_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.COMPANY_NAME_REQUIRED);
     }
     if (!companyWebsite?.trim()) {
-      throw new DomainError(ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
     } 
     return new RecruiterProfile({
       userId,
@@ -66,12 +66,12 @@ export class RecruiterProfile {
 
 
   public updateCompanyName(name: string): void {
-    this.assertNotEmpty(name, ERROR_CODES.COMPANY_NAME_REQUIRED);
+    this.assertNotEmpty(name, DOMAIN_ERROR_CODES.COMPANY_NAME_REQUIRED);
     this.props.companyName = name.trim();
   }
 
   public updateCompanyWebsite(url: string): void {
-    this.assertNotEmpty(url, ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
+    this.assertNotEmpty(url, DOMAIN_ERROR_CODES.COMPANY_WEBSITE_REQUIRED);
     this.props.companyWebsite = url.trim();
   }
 
@@ -80,12 +80,12 @@ export class RecruiterProfile {
   }
 
   public updateCompanySize(size: number): void {
-    if (size < 0) throw new DomainError(ERROR_CODES.COMPANY_SIZE_INVALID);
+    if (size < 0) throw new DomainError(DOMAIN_ERROR_CODES.COMPANY_SIZE_INVALID);
     this.props.companySize = size;
   }
 
   public updateDesignation(value: string): void {
-    this.assertNotEmpty(value, ERROR_CODES.DESIGNATION_REQUIRED);
+    this.assertNotEmpty(value, DOMAIN_ERROR_CODES.DESIGNATION_REQUIRED);
     this.props.designation = value.trim();
   }
 

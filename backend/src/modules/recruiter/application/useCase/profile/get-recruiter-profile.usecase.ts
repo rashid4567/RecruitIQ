@@ -2,7 +2,7 @@ import { ApplicationError } from "../../../../../shared/errors/application.error
 import { RecruiterProfileRepository } from "../../../domain/repositories/recruiter.repository";
 import { UserRepository } from "../../../domain/repositories/user.entity";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import { ERROR_CODES } from "../../constants/error.code.constants";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants"; 
 import {
   GetRecruiterProfileRequestDTO,
   RecruiterProfileReponse,

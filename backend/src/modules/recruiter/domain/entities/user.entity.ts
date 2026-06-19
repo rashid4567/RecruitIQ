@@ -1,7 +1,7 @@
 import { Email } from "../../../auth/domain/value.objects/email.vo";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { ERROR_CODES } from "../constatns/recruiter.profile.error";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 
 export class User {
   private constructor(
@@ -18,7 +18,7 @@ export class User {
     profileImage?: string,
   ): User {
     if (!fullName?.trim()) {
-      throw new DomainError(ERROR_CODES.FULL_NAME_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.FULL_NAME_REQUIRED);
     }
 
     return new User(
@@ -40,7 +40,7 @@ export class User {
 
   public updateFullName(name: string): void {
     if (!name?.trim()) {
-      throw new DomainError(ERROR_CODES.FULL_NAME_EMPTY);
+      throw new DomainError(DOMAIN_ERROR_CODES.FULL_NAME_EMPTY);
     }
 
     this.fullName = name.trim();

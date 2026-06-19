@@ -1,5 +1,5 @@
 import { USER_ROLES } from "../../../domain/constants/roles.constants";
-import { ERROR_CODES } from "../../constants/error-codes.constants";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { LoginUseCase } from "./login.useCase";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";

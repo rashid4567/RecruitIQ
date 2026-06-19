@@ -1,5 +1,5 @@
-import { DomainError } from "../errors/domain.error";
-import { JOB_ERRORS } from "../errors/job.error.codes";
+import { DomainError } from "../../../../shared/errors/domain.error";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 
 export type JobType = "full-time" | "part-time" | "contract" | "internship";
 export type JobStatus = "draft" | "active" | "expired";
@@ -90,13 +90,13 @@ export class Job {
   private validate() {
 
     if (!this.props.companyName?.trim()) {
-  throw new DomainError(JOB_ERRORS.COMPANY_NAME_REQUIRED);
+  throw new DomainError(DOMAIN_ERROR_CODES.COMPANY_NAME_REQUIRED);
 }
     if (!this.props.title?.trim()) {
-      throw new DomainError(JOB_ERRORS.TITLE_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.TITLE_REQUIRED);
     }
     if (!this.props.description?.trim()) {
-      throw new DomainError(JOB_ERRORS.DESCRIPTION_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.DESCRIPTION_REQUIRED);
     }
     const salary = this.props.salary ?? {
       min: 0,
@@ -104,19 +104,19 @@ export class Job {
       currency: "INR",
     };
     if (salary.min < 0 || salary.max < 0) {
-      throw new DomainError(JOB_ERRORS.INVALID_SALARY);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_SALARY);
     }
     if (salary.min > salary.max) {
-      throw new DomainError(JOB_ERRORS.INVALID_SALARY);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_SALARY);
     }
     if (this.props.experienceMin < 0 || this.props.experienceMax < 0) {
-      throw new DomainError(JOB_ERRORS.INVALID_EXPERIENCE);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_EXPERIENCE);
     }
     if (this.props.experienceMin > this.props.experienceMax) {
-      throw new DomainError(JOB_ERRORS.INVALID_EXPERIENCE);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_EXPERIENCE);
     }
     if (this.props.positions <= 0) {
-      throw new DomainError(JOB_ERRORS.INVALID_POSITION);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_POSITION);
     }
   }
   private touch() {
@@ -124,10 +124,10 @@ export class Job {
   }
   private ensureEditable() {
     if (this.props.isDeleted) {
-      throw new DomainError(JOB_ERRORS.JOB_DELETED);
+      throw new DomainError(DOMAIN_ERROR_CODES.JOB_DELETED);
     }
     if (this.props.isBlocked) {
-      throw new DomainError(JOB_ERRORS.JOB_BLOCKED);
+      throw new DomainError(DOMAIN_ERROR_CODES.JOB_BLOCKED);
     }
   }
   get id() {
@@ -200,17 +200,17 @@ export class Job {
   }
   unhide() {
     if (this.props.isDeleted) {
-      throw new DomainError(JOB_ERRORS.JOB_DELETED);
+      throw new DomainError(DOMAIN_ERROR_CODES.JOB_DELETED);
     }
     if (this.props.isBlocked) {
-      throw new DomainError(JOB_ERRORS.JOB_BLOCKED);
+      throw new DomainError(DOMAIN_ERROR_CODES.JOB_BLOCKED);
     }
     this.props.visibility = "active";
     this.touch();
   }
   block() {
     if (this.props.isDeleted) {
-      throw new DomainError(JOB_ERRORS.JOB_DELETED);
+      throw new DomainError(DOMAIN_ERROR_CODES.JOB_DELETED);
     }
     this.props.isBlocked = true;
     this.props.visibility = "hidden";
@@ -218,7 +218,7 @@ export class Job {
   }
   unblock() {
     if (this.props.isDeleted) {
-      throw new DomainError(JOB_ERRORS.JOB_DELETED);
+      throw new DomainError(DOMAIN_ERROR_CODES.JOB_DELETED);
     }
     this.props.isBlocked = false;
     if (this.props.status === "active") {
@@ -260,7 +260,7 @@ export class Job {
   updatePositions(positions: number) {
     this.ensureEditable();
     if (positions <= 0) {
-      throw new DomainError(JOB_ERRORS.INVALID_POSITION);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_POSITION);
     }
     this.props.positions = positions;
     this.touch();
@@ -360,7 +360,7 @@ export class Job {
     }
     if (data.positions !== undefined) {
       if (data.positions <= 0) {
-        throw new DomainError(JOB_ERRORS.INVALID_POSITION);
+        throw new DomainError(DOMAIN_ERROR_CODES.INVALID_POSITION);
       }
       this.props.positions = data.positions;
     }

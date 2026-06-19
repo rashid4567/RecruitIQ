@@ -1,5 +1,5 @@
-import { DomainError } from "../errors/domain.error";
-import { JOB_ERRORS } from "../errors/job.error.codes";
+import { DomainError } from "../../../../shared/errors/domain.error";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 
 export interface SavedJobProps {
   id?: string;
@@ -24,10 +24,10 @@ export class SavedJob {
   }
   private validate(): void {
     if (!this.props.candidateId.trim()) {
-      throw new DomainError(JOB_ERRORS.CANDIDATE_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.CANDIDATE_REQUIRED);
     }
     if (!this.props.jobId.trim()) {
-      throw new DomainError(JOB_ERRORS.JOB_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.JOB_REQUIRED);
     }
   }
   belongsToCandidate(candidateId: string): boolean {

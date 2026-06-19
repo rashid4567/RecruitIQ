@@ -2,8 +2,8 @@
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { EmailTemplateRepository } from "../../../domain/repository/email-template.repository"; 
 import { DeleteEmailTemplateRequestDTO } from "../../dto/email.template/deleteEmailTemplateDTO";
-import { ApplicationError } from "../../Errors/application.error";
-import { ERROR_CODES } from "../../Errors/error.codes";
+import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 
 export class DeleteEmailTemplateUseCase implements UseCase<
     DeleteEmailTemplateRequestDTO,

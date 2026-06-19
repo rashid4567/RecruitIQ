@@ -15,7 +15,6 @@ import {
 } from "../../../../resume/domain/entity/resume.entity";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
 import { JobApplication } from "../../../domain/entity/job-application.entity";
-import { APPLICATION_ERRORS } from "../../../domain/error/Application.error";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 import { ApplyJobDTO } from "../../dto/applyJobDto";
 import { AnalyzeApplicationUseCase } from "./AnalyzeApplicationUseCase";
@@ -61,14 +60,14 @@ export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
     const job = await this.jobRepo.findById(jobId);
 
     if (!job) {
-      throw new ApplicationError(APPLICATION_ERRORS.JOB_NOT_FOUND);
+      throw new ApplicationError(ERROR_CODES.JOB_NOT_FOUND);
     }
 
     if (!job.canApply()) {
-      throw new ApplicationError(APPLICATION_ERRORS.JOB_NOT_ACTIVE);
+      throw new ApplicationError(ERROR_CODES.JOB_NOT_ACTIVE);
     }
     if (job.isExpired()) {
-      throw new ApplicationError(APPLICATION_ERRORS.JOB_EXPIRED);
+      throw new ApplicationError(ERROR_CODES.JOB_EXPIRED);
     }
     return job;
   }
@@ -79,11 +78,11 @@ export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
   ): Promise<Resume> {
     const resume = await this.resumeRepo.findById(resumeId);
     if (!resume) {
-      throw new ApplicationError(APPLICATION_ERRORS.RESUME_NOT_FOUND);
+      throw new ApplicationError(ERROR_CODES.RESUME_NOT_FOUND);
     }
     if (resume.getCandidateId() !== candidateId) {
       throw new ApplicationError(
-        APPLICATION_ERRORS.UNAUTHORIZED_CANDIDATE_ACTION,
+        ERROR_CODES.UNAUTHORIZED_CANDIDATE_ACTION,
       );
     }
     if (resume.getParseStatus() === ResumeParseStatus.FAILED) {
@@ -102,7 +101,7 @@ export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
     );
 
     if (existing) {
-      throw new ApplicationError(APPLICATION_ERRORS.APPLICATION_ALREADY_EXISTS);
+      throw new ApplicationError(ERROR_CODES.APPLICATION_ALREADY_EXISTS);
     }
   }
 

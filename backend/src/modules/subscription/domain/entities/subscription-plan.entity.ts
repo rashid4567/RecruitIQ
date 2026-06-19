@@ -1,5 +1,5 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { SUBSCRIPTION_ERRORS } from "../error/error.codes";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code"; 
 
 export enum BillingCycle {
   Weekly = "weekly",
@@ -62,40 +62,40 @@ export class SubscriptionPlan {
   private constructor(private readonly props: SubscriptionPlanProps) {}
   static create(props: SubscriptionPlanProps): SubscriptionPlan {
     if (!props.name.trim()) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.PLAN_NAME_IS_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.PLAN_NAME_IS_REQUIRED);
     }
     if (props.price < 0) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.PRICE_CANNOT_BE_NEGATIVE);
+      throw new DomainError(DOMAIN_ERROR_CODES.PRICE_CANNOT_BE_NEGATIVE);
     }
     if (props.billingInterval < 1) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_BILLING_INTERVAL);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_BILLING_INTERVAL);
     }
     if (props.sortOrder < 0) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_SORT_ORDER);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_SORT_ORDER);
     }
     if (props.jobPostsPerMonth < -1) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_POST_LIMIT);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_JOB_POST_LIMIT);
     }
     if (props.screeningCredits < -1) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_SCREENING_CREDITS);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_SCREENING_CREDITS);
     }
 
     if (props.aiScoreCredits < -1) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_AI_SCORE_CREDIT);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_AI_SCORE_CREDIT);
     }
     if (props.planType === PlanType.Free && props.price !== 0) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.FREE_PLAN_MUST_BE_ZERO);
+      throw new DomainError(DOMAIN_ERROR_CODES.FREE_PLAN_MUST_BE_ZERO);
     }
     if (props.planType === PlanType.Free && props.razorpayPlanId) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.FREE_PLAN_CANNOT_HAVE_PAYMENT);
+      throw new DomainError(DOMAIN_ERROR_CODES.FREE_PLAN_CANNOT_HAVE_PAYMENT);
     }
 
     if (props.jobPostActiveDays < 1) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_POST_ACTIVE_DAYS);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_JOB_POST_ACTIVE_DAYS);
     }
     const names = new Set(props.features.map((x) => x.name.toLowerCase()));
     if (names.size !== props.features.length) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.DUPLICATE_FEATURE);
+      throw new DomainError(DOMAIN_ERROR_CODES.DUPLICATE_FEATURE);
     }
     return new SubscriptionPlan(props);
   }
@@ -199,7 +199,7 @@ export class SubscriptionPlan {
   }
   activate(): SubscriptionPlan {
     if (this.isActive) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.PLAN_ALREADY_ACTIVE);
+      throw new DomainError(DOMAIN_ERROR_CODES.PLAN_ALREADY_ACTIVE);
     }
     return new SubscriptionPlan({
       ...this.props,
@@ -210,7 +210,7 @@ export class SubscriptionPlan {
 
   deactivate(): SubscriptionPlan {
     if (!this.isActive) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.PLAN_ALREADY_INACTIVE);
+      throw new DomainError(DOMAIN_ERROR_CODES.PLAN_ALREADY_INACTIVE);
     }
     return new SubscriptionPlan({
       ...this.props,

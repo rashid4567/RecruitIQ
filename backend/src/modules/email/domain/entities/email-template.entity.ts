@@ -1,6 +1,6 @@
 import { EmailEvent } from "../constant/templateEvents";
-import { DomainError } from "../error/domain.errors";
-import { DOMAIN_ERRORS } from "../error/error.codes";
+import { DomainError } from "../../../../shared/errors/domain.error";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 
 export class EmailTemplate {
   constructor(
@@ -13,10 +13,10 @@ export class EmailTemplate {
     public createdAt: Date,
   ) {
     if (!name.trim()) {
-      throw new DomainError(DOMAIN_ERRORS.TEMPLATE_NAME_IS_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.TEMPLATE_NAME_IS_REQUIRED);
     }
     if (!subject.trim()) {
-      throw new DomainError(DOMAIN_ERRORS.SUBJECT_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.SUBJECT_REQUIRED);
     }
   }
 
@@ -26,10 +26,10 @@ export class EmailTemplate {
 
   updateContent(subject: string, body: string) {
     if (!subject.trim()) {
-      throw new DomainError(DOMAIN_ERRORS.SUBJECT_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.SUBJECT_REQUIRED);
     }
     if (!body.trim()) {
-      throw new DomainError(DOMAIN_ERRORS.BODY_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.BODY_REQUIRED);
     }
     this.subject = subject;
     this.body = body;

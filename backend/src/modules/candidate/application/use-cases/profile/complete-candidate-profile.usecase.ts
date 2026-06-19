@@ -1,6 +1,6 @@
 import { CandidateRepository } from "../../../domain/repositories/candidate.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import { CompleteCandidateProfileDTO, CompleteCandidateProfileRequestDTO } from "../../dto/complete-candidate-profile.dto";
+import { CompleteCandidateProfileRequestDTO } from "../../dto/complete-candidate-profile.dto";
 import { CandidateProfile } from "../../../domain/entities/candidate-profile.entity";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 

@@ -1,5 +1,5 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { SUBSCRIPTION_ERRORS } from "../error/error.codes";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 import { PlanType } from "./subscription-plan.entity";
 
 export enum SubscriptionStatus {
@@ -40,26 +40,26 @@ export class RecruiterSubscription {
 
   static create(props: RecruiterSubscriptionProps): RecruiterSubscription {
     if (!props.planName?.trim()) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.PLAN_NAME_IS_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.PLAN_NAME_IS_REQUIRED);
     }
 
     if (props.planPrice < 0) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.PRICE_CANNOT_BE_NEGATIVE);
+      throw new DomainError(DOMAIN_ERROR_CODES.PRICE_CANNOT_BE_NEGATIVE);
     }
 
     if (props.endDate <= props.startDate) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_SUBSCRIPTION_PERIOD);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_SUBSCRIPTION_PERIOD);
     }
 
     if (props.jobPostActiveDays < 1) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_POST_ACTIVE_DAYS);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_JOB_POST_ACTIVE_DAYS);
     }
 
     if (props.currentPeriodEnd <= props.currentPeriodStart) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_SUBSCRIPTION_PERIOD);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_SUBSCRIPTION_PERIOD);
     }
     if (props.durationMonths < 1 || props.durationMonths > 12) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_SUBSCRIPTION_DURATION);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_SUBSCRIPTION_DURATION);
     }
 
     if (
@@ -67,7 +67,7 @@ export class RecruiterSubscription {
       props.screeningUsed < 0 ||
       props.aiScoreUsed < 0
     ) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_USAGE);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_JOB_USAGE);
     }
 
     if (
@@ -75,7 +75,7 @@ export class RecruiterSubscription {
       props.screeningLimit < -1 ||
       props.aiScoreLimit < -1
     ) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_JOB_POST_LIMIT);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_JOB_POST_LIMIT);
     }
 
     return new RecruiterSubscription(props);
@@ -152,8 +152,6 @@ export class RecruiterSubscription {
     return this.props.screeningUsed;
   }
 
-
-
   get aiScoreUsed() {
     return this.props.aiScoreUsed;
   }
@@ -165,8 +163,6 @@ export class RecruiterSubscription {
   get screeningLimit() {
     return this.props.screeningLimit;
   }
-
-
 
   get aiScoreLimit() {
     return this.props.aiScoreLimit;
@@ -204,14 +200,13 @@ export class RecruiterSubscription {
     );
   }
 
-
   hasAIScoreAccess(): boolean {
     return this.aiScoreLimit === -1 || this.aiScoreUsed < this.aiScoreLimit;
   }
 
   consumeJobPost() {
     if (!this.hasJobPostAccess()) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.JOB_LIMIT_EXCEEDED);
+      throw new DomainError(DOMAIN_ERROR_CODES.JOB_LIMIT_EXCEEDED);
     }
 
     return new RecruiterSubscription({
@@ -223,7 +218,7 @@ export class RecruiterSubscription {
 
   consumeScreening() {
     if (!this.hasScreeningAccess()) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.SCREENING_LIMIT_EXCEEDED);
+      throw new DomainError(DOMAIN_ERROR_CODES.SCREENING_LIMIT_EXCEEDED);
     }
 
     return new RecruiterSubscription({
@@ -233,11 +228,9 @@ export class RecruiterSubscription {
     });
   }
 
-
-
   consumeAIScore() {
     if (!this.hasAIScoreAccess()) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.AI_SCORE_LIMIT_EXCEEDED);
+      throw new DomainError(DOMAIN_ERROR_CODES.AI_SCORE_LIMIT_EXCEEDED);
     }
 
     return new RecruiterSubscription({
@@ -261,7 +254,7 @@ export class RecruiterSubscription {
 
   renew(newEndDate: Date, nextPeriodStart: Date, nextPeriodEnd: Date) {
     if (newEndDate <= this.endDate) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.INVALID_RENEWAL_DATE);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_RENEWAL_DATE);
     }
 
     return new RecruiterSubscription({
@@ -277,7 +270,7 @@ export class RecruiterSubscription {
 
   cancel() {
     if (this.isCancelled()) {
-      throw new DomainError(SUBSCRIPTION_ERRORS.ALREADY_CANCELLED);
+      throw new DomainError(DOMAIN_ERROR_CODES.ALREADY_CANCELLED);
     }
 
     return new RecruiterSubscription({

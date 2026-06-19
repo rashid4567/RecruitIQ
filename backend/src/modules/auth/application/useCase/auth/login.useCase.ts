@@ -2,7 +2,7 @@ import { UserRepository } from "../../../domain/repositories/user.repository";
 import { PasswordHasherPort } from "../../../domain/ports/password-hasher.port";
 import { Email } from "../../../domain/value.objects/email.vo";
 import { Password } from "../../../domain/value.objects/password-hash.vo";
-import { ERROR_CODES } from "../../constants/error-codes.constants";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";

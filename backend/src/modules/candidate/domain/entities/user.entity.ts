@@ -1,7 +1,7 @@
 import { Email } from "../valueObject/email.vo";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { USER_ERROR } from "../error/user.error";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 
 export class User {
   private constructor(
@@ -18,7 +18,7 @@ export class User {
     profileImage?: string,
   ): User {
     if (!fullName || fullName.trim().length === 0) {
-      throw new DomainError(USER_ERROR.FULL_NAME_IS_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.FULL_NAME_IS_REQUIRED);
     }
 
     return new User(id, fullName.trim(), email, profileImage?.trim());
@@ -40,7 +40,7 @@ export class User {
 
   public updateFullName(name: string): void {
     if (!name || name.trim().length === 0) {
-      throw new DomainError(USER_ERROR.FULL_NAME_CANNOT_BE_EMPTY);
+      throw new DomainError(DOMAIN_ERROR_CODES.FULL_NAME_CANNOT_BE_EMPTY);
     }
     this.fullName = name.trim();
   }
@@ -51,7 +51,7 @@ export class User {
 
   public updateProfileImage(image?: string): void {
     if (image && !image.startsWith("http")) {
-      throw new DomainError(USER_ERROR.INVALID_PROFILE_IMAGE_URL);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_PROFILE_IMAGE_URL);
     }
     this.profileImage = image?.trim();
   }

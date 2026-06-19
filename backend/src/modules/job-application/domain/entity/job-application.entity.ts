@@ -1,6 +1,6 @@
 import { ERROR_CODES } from "../../../../constants/errorcode.constants";
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { APPLICATION_ERRORS } from "../error/Application.error";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 
 export enum ApplicationStatus {
   APPLIED = "APPLIED",
@@ -102,16 +102,16 @@ export class JobApplication {
 
   private validate(): void {
     if (!this.props.jobId?.trim()) {
-      throw new DomainError(APPLICATION_ERRORS.JOB_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.JOB_REQUIRED);
     }
     if (!this.props.candidateId?.trim()) {
-      throw new DomainError(APPLICATION_ERRORS.CANDIDATE_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.CANDIDATE_REQUIRED);
     }
     if (!this.props.recruiterId?.trim()) {
-      throw new DomainError(APPLICATION_ERRORS.RECRUITER_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.RECRUITER_REQUIRED);
     }
     if (!this.props.resumeId?.trim()) {
-      throw new DomainError(APPLICATION_ERRORS.RESUME_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.RESUME_REQUIRED);
     }
   }
 
@@ -121,19 +121,19 @@ export class JobApplication {
 
   private ensureMutable(): void {
     if (this.props.status === ApplicationStatus.WITHDRAWN) {
-      throw new DomainError(APPLICATION_ERRORS.APPLICATION_WITHDRAWN);
+      throw new DomainError(DOMAIN_ERROR_CODES.APPLICATION_WITHDRAWN);
     }
     if (this.props.status === ApplicationStatus.SELECTED) {
-      throw new DomainError(APPLICATION_ERRORS.CANDIDATE_SELECTED);
+      throw new DomainError(DOMAIN_ERROR_CODES.CANDIDATE_SELECTED);
     }
     if (this.props.status === ApplicationStatus.REJECTED) {
-      throw new DomainError(APPLICATION_ERRORS.CANDIDATE_REJECTED);
+      throw new DomainError(DOMAIN_ERROR_CODES.CANDIDATE_REJECTED);
     }
   }
 
   shortlist(): void {
     if (this.props.status !== ApplicationStatus.APPLIED) {
-      throw new DomainError(APPLICATION_ERRORS.INVALID_APPLICATION_STATUS);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_APPLICATION_STATUS);
     }
     this.props.status = ApplicationStatus.SHORTLISTED;
     this.props.rejectionReason = undefined;
@@ -142,11 +142,11 @@ export class JobApplication {
 
   updateAIAnalysis(analysis: ApplicationAIAnalysis): void {
     if (this.props.aiAnalysis) {
-      throw new DomainError(APPLICATION_ERRORS.ANALYSIS_ALREADY_EXISTS);
+      throw new DomainError(DOMAIN_ERROR_CODES.ANALYSIS_ALREADY_EXISTS);
     }
 
     if (this.props.analysisStatus !== ApplicationAnalysisStatus.PROCESSING) {
-      throw new DomainError(APPLICATION_ERRORS.INVALID_ANALYSIS_STATUS);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_ANALYSIS_STATUS);
     }
     this.validateAIAnalysis(analysis);
     this.props.aiAnalysis = analysis;
@@ -165,7 +165,7 @@ export class JobApplication {
     ];
     const hasInvalidScore = scores.some((score) => score < 0 || score > 100);
     if (hasInvalidScore) {
-      throw new DomainError(APPLICATION_ERRORS.INVALID_ANALYSIS_SCORE);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_ANALYSIS_SCORE);
     }
   }
 
@@ -183,7 +183,7 @@ export class JobApplication {
       this.props.analysisStatus !== ApplicationAnalysisStatus.QUOTA_EXCEEDED &&
       this.props.analysisStatus !== ApplicationAnalysisStatus.FAILED
     ) {
-      throw new DomainError(APPLICATION_ERRORS.INVALID_ANALYSIS_STATUS);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_ANALYSIS_STATUS);
     }
 
     this.props.analysisStatus = ApplicationAnalysisStatus.PROCESSING;
@@ -220,15 +220,15 @@ export class JobApplication {
       this.props.status !== ApplicationStatus.APPLIED &&
       this.props.status !== ApplicationStatus.SHORTLISTED
     ) {
-      throw new DomainError(APPLICATION_ERRORS.INVALID_APPLICATION_STATUS);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_APPLICATION_STATUS);
     }
     if (interview.scheduledAt < new Date()) {
-      throw new DomainError(APPLICATION_ERRORS.INVALID_INTERVIEW_DATE);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_INTERVIEW_DATE);
     }
     const location = interview.location?.trim();
     const meetingLink = interview.meetingLink?.trim();
     if (!location && !meetingLink) {
-      throw new DomainError(APPLICATION_ERRORS.INTERVIEW_LOCATION_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_LOCATION_REQUIRED);
     }
     this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
     this.props.interview = {
@@ -244,10 +244,10 @@ export class JobApplication {
       this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED ||
       !this.props.interview
     ) {
-      throw new DomainError(APPLICATION_ERRORS.INTERVIEW_NOT_FOUND);
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_NOT_FOUND);
     }
     if (interview.scheduledAt < new Date()) {
-      throw new DomainError(APPLICATION_ERRORS.INVALID_INTERVIEW_DATE);
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_INTERVIEW_DATE);
     }
     this.props.interview = interview;
     this.touch();
@@ -256,7 +256,7 @@ export class JobApplication {
   select(): void {
     if (this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED) {
       throw new DomainError(
-        APPLICATION_ERRORS.INTERVIEW_REQUIRED_BEFORE_SELECTION,
+        DOMAIN_ERROR_CODES.INTERVIEW_REQUIRED_BEFORE_SELECTION,
       );
     }
     this.props.status = ApplicationStatus.SELECTED;
@@ -269,7 +269,7 @@ export class JobApplication {
       this.props.status === ApplicationStatus.REJECTED ||
       this.props.status === ApplicationStatus.WITHDRAWN
     ) {
-      throw new DomainError(APPLICATION_ERRORS.CANNOT_WITHDRAW);
+      throw new DomainError(DOMAIN_ERROR_CODES.CANNOT_WITHDRAW);
     }
     this.props.status = ApplicationStatus.WITHDRAWN;
     this.touch();

@@ -1,7 +1,7 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { EmailTemplateRepository } from "../../../domain/repository/email-template.repository";
 import { EmailService } from "../../ports/email.service";
-import { ERROR_CODES } from "../../Errors/error.codes";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { SendTestEmailInputDto } from "../../dto/email.template/sent-test.email.input";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 

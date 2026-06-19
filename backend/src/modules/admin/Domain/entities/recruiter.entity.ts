@@ -1,15 +1,9 @@
-import { ERROR_CODES } from "../../../../constants/errorcode.constants";
+import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
 import { DomainError } from "../../../../shared/errors/domain.error";
 
-export type VerificationStatus =
-  | "pending"
-  | "verified"
-  | "rejected";
+export type VerificationStatus = "pending" | "verified" | "rejected";
 
-export type SubscriptionStatus =
-  | "free"
-  | "active"
-  | "expired";
+export type SubscriptionStatus = "free" | "active" | "expired";
 
 export interface RecruiterProps {
   id: string;
@@ -52,9 +46,7 @@ export class Recruiter {
     public readonly bio?: string,
   ) {}
 
-  static fromPersistence(
-    props: RecruiterProps,
-  ): Recruiter {
+  static fromPersistence(props: RecruiterProps): Recruiter {
     return new Recruiter(
       props.id,
       props.name,
@@ -90,9 +82,7 @@ export class Recruiter {
 
   verify(): Recruiter {
     if (!this.canBeVerified()) {
-      throw new DomainError(
-        ERROR_CODES.RECRUITER_CANNOT_BE_VERIFIED,
-      );
+      throw new DomainError(DOMAIN_ERROR_CODES.RECRUITER_CANNOT_BE_VERIFIED);
     }
 
     return Recruiter.fromPersistence({
@@ -103,9 +93,7 @@ export class Recruiter {
 
   reject(): Recruiter {
     if (!this.canBeRejected()) {
-      throw new DomainError(
-        ERROR_CODES.RECRUITER_CANNOT_BE_REJECTED,
-      );
+      throw new DomainError(DOMAIN_ERROR_CODES.RECRUITER_CANNOT_BE_REJECTED);
     }
 
     return Recruiter.fromPersistence({

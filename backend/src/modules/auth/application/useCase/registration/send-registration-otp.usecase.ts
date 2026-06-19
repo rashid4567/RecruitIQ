@@ -1,9 +1,8 @@
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Email } from "../../../domain/value.objects/email.vo";
-import { ERROR_CODES } from "../../constants/error-codes.constants";
+import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { OTPServicePort } from "../../ports/otp.service.ports";
-import { OtpRole } from "../../../domain/constants/otp-roles.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { SendRegistrationOTPRequest } from "../../dto/sendRegistration.otp.DTO";
 

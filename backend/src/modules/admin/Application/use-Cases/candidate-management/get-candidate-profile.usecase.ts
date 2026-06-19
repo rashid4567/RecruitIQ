@@ -20,7 +20,7 @@ export class GetCandidateprofileUseCase implements UseCase<
   async execute(
     request: CandidateProfileRequestDTO,
   ): Promise<CandidateProfileResponseDTO> {
-    const profile = await this.candidateRepo.findProfileById(
+    const profile = await this.candidateRepo.findById(
       request.candidateId,
     );
 

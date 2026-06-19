@@ -128,7 +128,7 @@ export class MongooseCandidateRepository implements CandidateRepository {
     };
   }
 
-  async findProfileById(candidateId: string): Promise<Candidate | null> {
+  async findById(candidateId: string): Promise<Candidate | null> {
     if (!Types.ObjectId.isValid(candidateId)) {
       return null;
     }

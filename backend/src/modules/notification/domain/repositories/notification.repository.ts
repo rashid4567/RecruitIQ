@@ -1,8 +1,8 @@
+import { BaseRepository } from "../../../../shared/repositories/base.repository";
 import { Notification } from "../entities/Notification";
 
-export interface NotificationRepository {
+export interface NotificationRepository extends BaseRepository<Notification> {
   create(notification: Notification): Promise<Notification>;
-  findById(notificationId: string): Promise<Notification | null>;
   findByRecipientId(
     recipientId: string,
     page?: number,

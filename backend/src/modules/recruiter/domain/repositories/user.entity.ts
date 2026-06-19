@@ -1,9 +1,9 @@
 import { User } from "../entities/user.entity";
 import { Email } from "../../../auth/domain/value.objects/email.vo";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
+import { BaseRepository } from "../../../../shared/repositories/base.repository";
 
-export interface UserRepository{
-    findById(userId : UserId):Promise<User | null>;
-    findByEmail(email : Email):Promise<User | null>;
-    save(userId : User):Promise<void>;
+export interface UserRepository extends BaseRepository<User, UserId> {
+  findByEmail(email: Email): Promise<User | null>;
+  save(user: User): Promise<void>;
 }

@@ -1,3 +1,4 @@
+import { BaseRepository } from "../../../../shared/repositories/base.repository";
 import { RecruiterSubscription } from "../entities/recruiter-subscription.entity";
 
 export interface GetSubscribersParams {
@@ -11,7 +12,7 @@ export interface SubscribersListItem {
   id: string;
   recruiterId: string;
   recruiterName: string;
-  profileImage ?: string;
+  profileImage?: string;
   companyName: string;
   planName: string;
   status: string;
@@ -27,10 +28,9 @@ export interface PaginatedSubscribers {
   totalPages: number;
 }
 
-export interface RecruiterSubscriptionRepository {
+export interface RecruiterSubscriptionRepository extends BaseRepository<RecruiterSubscription> {
   save(subscription: RecruiterSubscription): Promise<RecruiterSubscription>;
   update(subscription: RecruiterSubscription): Promise<void>;
-  findById(id: string): Promise<RecruiterSubscription | null>;
   findActiveByRecruiter(
     recruiterId: string,
   ): Promise<RecruiterSubscription | null>;

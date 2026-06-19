@@ -8,6 +8,7 @@ import {
   ApplicationStatus,
   InterviewInfo,
 } from "../../domain/entity/job-application.entity";
+import { BaseRepository } from "../../../../shared/repositories/base.repository";
 
 export interface RecruiterApplicationListItem {
   applicationId: string;
@@ -41,10 +42,10 @@ export interface RecruiterApplicationDetailsOutput {
   appliedAt: Date;
   updatedAt: Date;
 }
-export interface JobApplicationRepository {
+
+export interface JobApplicationRepository extends BaseRepository<JobApplication> {
   create(application: JobApplication): Promise<JobApplication>;
   save(application: JobApplication): Promise<JobApplication>;
-  findById(id: string): Promise<JobApplication | null>;
   findByJob(jobId: string): Promise<JobApplication[]>;
   findApplicationsWithCandidateDetails(
     jobId: string,

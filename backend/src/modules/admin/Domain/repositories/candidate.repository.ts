@@ -1,6 +1,7 @@
+import { BaseRepository } from "../../../../shared/repositories/base.repository";
 import { Candidate } from "../entities/candidate.entity";
 
-export interface CandidateRepository {
+export interface CandidateRepository extends BaseRepository<Candidate> {
   getCandidates(input: {
     search?: string;
     status?: boolean;
@@ -10,6 +11,4 @@ export interface CandidateRepository {
     candidates: Candidate[];
     total: number;
   }>;
-
-  findProfileById(candidateId: string): Promise<Candidate | null>;
 }

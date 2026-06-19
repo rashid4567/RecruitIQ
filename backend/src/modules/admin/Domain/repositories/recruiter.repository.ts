@@ -1,7 +1,7 @@
-
 import { Recruiter } from "../entities/recruiter.entity";
-import {AccountStatus} from "../constatns/verification.status"
+import { AccountStatus } from "../constatns/verification.status";
 import { VerificationStatus } from "../entities/recruiter.entity";
+import { BaseRepository } from "../../../../shared/repositories/base.repository";
 
 export interface GetRecruitersInput {
   search?: string;
@@ -13,21 +13,14 @@ export interface GetRecruitersInput {
   sort?: "latest" | "oldest";
 }
 
-export interface RecruiterRepository {
-
-  getRecruiters(
-    input: GetRecruitersInput
-  ): Promise<{
+export interface RecruiterRepository extends BaseRepository<Recruiter> {
+  getRecruiters(input: GetRecruitersInput): Promise<{
     recruiters: Recruiter[];
     total: number;
   }>;
 
-  findById(
-    recruiterId: string
-  ): Promise<Recruiter | null>;
-
   verifyRecruiter(
     recruiterId: string,
-    status: VerificationStatus
+    status: VerificationStatus,
   ): Promise<void>;
 }

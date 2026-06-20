@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { UpdatePasswordUseCase } from "../../application/useCase/password/update-password.usecase";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { UpdatePasswordSchema } from "../validators/updatepassword.validator";
 import { userIdSchema } from "../validators/userId.validator";

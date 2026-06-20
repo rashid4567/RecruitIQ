@@ -1,6 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-
-import { toggleEmailTemplateUseCase } from "../../../application/usecase/email-template/toggle-email-template.usecase";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";

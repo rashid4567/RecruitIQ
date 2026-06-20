@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { RefreshTokenUseCase } from "../../application/useCase/token/refreshToken.useCase";
 import { RefreshSchema } from "../validators/refresh.schema";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import {

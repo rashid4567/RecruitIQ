@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { GetApplicationDetailUseCase } from "../../../application/usecase/candidate/GetApplicationDetailUseCase";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";

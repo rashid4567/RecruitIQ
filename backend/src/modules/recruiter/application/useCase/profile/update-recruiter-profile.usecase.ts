@@ -2,12 +2,9 @@ import { ApplicationError } from "../../../../../shared/errors/application.error
 import { RecruiterProfileRepository } from "../../../domain/repositories/recruiter.repository";
 import { UserRepository } from "../../../domain/repositories/user.entity";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants"; 
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { RecruiterProfileReponse } from "../../dto/recruiter-profile.dto";
-import {
-  UpdateRecruiterProfileDTO,
-  UpdateRecruiterProfileRequestDTO,
-} from "../../dto/update-recruiter-profile.dto";
+import { UpdateRecruiterProfileRequestDTO } from "../../dto/update-recruiter-profile.dto";
 import { RecruiterProfile } from "../../../domain/entities/recruiter-profile.entity";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 

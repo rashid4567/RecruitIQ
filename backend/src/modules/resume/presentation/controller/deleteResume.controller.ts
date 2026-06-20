@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { DeleteResumeUseCase } from "../../application/usecase/DeleteResumeUseCase";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { parseResumeSchema } from "../validatior/parseResume.schema";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";

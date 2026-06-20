@@ -1,4 +1,3 @@
-import { userRoles } from "../../domain/constants/roles.constants";
 import { UserRole } from "../../infrastructure/mongoose/model/user.model";
 
 export interface LoginRequestDTO {

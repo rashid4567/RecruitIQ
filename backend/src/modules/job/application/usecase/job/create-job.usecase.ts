@@ -2,8 +2,8 @@ import { ApplicationError } from "../../../../../shared/errors/application.error
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
-import { ERROR_CODES } from "../../../../recruiter/application/constants/error.code.constants";
-import { CreateJobDTO, createJobPostRequestDTO } from "../../dto/create-job.dto";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
+import {  createJobPostRequestDTO } from "../../dto/create-job.dto";
 import { RecruiterProfileRepository } from "../../../../recruiter/domain/repositories/recruiter.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";

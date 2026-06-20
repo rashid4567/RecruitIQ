@@ -1,5 +1,4 @@
 import { OTPServicePort } from "../../ports/otp.service.ports";
-import { OtpRole } from "../../../domain/constants/otp-roles.constants";
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Email } from "../../../domain/value.objects/email.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error";

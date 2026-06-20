@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
-import { GetEmailTemplatesUseCase } from "../../../application/usecase/email-template/get-email-templates.usecase";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { EmailTemplate } from "../../../domain/entities/email-template.entity";

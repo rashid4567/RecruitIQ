@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { WithdrawApplicationUseCase } from "../../../application/usecase/candidate/WithdrawApplicationUseCase";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";

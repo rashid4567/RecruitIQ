@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { UpdateApplicationStatusUseCase } from "../../../application/usecase/recruiter/UpdateApplicationStatusUseCase";
 import { ApplicationStatus } from "../../../domain/entity/job-application.entity";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";

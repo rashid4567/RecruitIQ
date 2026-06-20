@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { UpdateProfileImageUseCase } from "../../application/useCase/update-profile-image.usecase";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { profileImageSchema } from "../validators/profile-image.schema";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";

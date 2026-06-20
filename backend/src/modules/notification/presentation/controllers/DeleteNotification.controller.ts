@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { DeleteNotificationUseCase } from "../../application/usecases/DeleteNotificationUseCase";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";

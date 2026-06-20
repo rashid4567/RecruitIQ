@@ -3,7 +3,6 @@ import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import {
   PaginationOptions,
-  JobFilters,
   PaginatedResult,
 } from "../../../domain/types/job-filter.type";
 import { GetJobsRequestDTO } from "../../dto/getJobPostRequest.dto";

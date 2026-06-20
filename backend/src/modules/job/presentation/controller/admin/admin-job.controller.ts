@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { GetJobsUseCase } from "../../../application/usecase/job/get-jobs.usecase";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { Job, JobStatus, JobType } from "../../../domain/entities/job.entity";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";

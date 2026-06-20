@@ -1,4 +1,5 @@
 export const AUTH_ROUTES = {
+  ROOT :"/",
   LOGIN: "/login",
   ADMIN_LOGIN: "/admin/login",
   LOGOUT: "/logout",

@@ -1,9 +1,6 @@
 import { RecruiterProfileRepository } from "../../../domain/repositories/recruiter.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import {
-  CompleteRecruiterProfileDTO,
-  CompleteRecruiterProfileRequestDTO,
-} from "../../dto/complete-recruiter-profile.dto";
+import { CompleteRecruiterProfileRequestDTO } from "../../dto/complete-recruiter-profile.dto";
 import { RecruiterProfile } from "../../../domain/entities/recruiter-profile.entity";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 

@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { ApplyJobUseCase } from "../../../application/usecase/candidate/ApplyJobUseCase";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { applyJobSchema } from "../../validator/apply-job.validator";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";

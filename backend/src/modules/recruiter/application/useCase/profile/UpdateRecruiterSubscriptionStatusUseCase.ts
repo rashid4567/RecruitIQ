@@ -1,9 +1,8 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import { subscriptionStatus } from "../../../domain/constatns/subscriptionStatus.constants";
 import { RecruiterProfileRepository } from "../../../domain/repositories/recruiter.repository";
-import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants"; 
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { UpdateRecruiterSubscriptionStatusRequestDTO } from "../../dto/updateRecruiterSubscriptionStatus.dto";
 
 export class UpdateRecruiterSubscriptionStatusUseCase implements UseCase<

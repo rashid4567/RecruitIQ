@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
-import { RejectRecruiterUseCase } from "../../../Application/use-Cases/recruiter-management/reject-recruiter.usecase";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";

@@ -1,4 +1,4 @@
-import { USER_ROLES, userRoles } from "../../domain/constants/roles.constants";
+import { USER_ROLES } from "../../domain/constants/roles.constants";
 import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants"; 
 import { ApplicationError } from "../../../../shared/errors/application.error";
 import { ProfileCreatorPort } from "../ports/profile-creator.port";

@@ -1,7 +1,6 @@
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { CandidateRepository } from "../../../domain/repositories/candidate.repository";
 import {
-  UpdateCandidateProfileDTO,
   UpdateCandidateProfileRequestDTO,
   UpdateCandidateProfileResult,
 } from "../../dto/update-candidate-profile.dto";

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus"; 
-import { UnblockUserUseCase } from "../../../Application/use-Cases/user-management/unblock-user.usecase";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";

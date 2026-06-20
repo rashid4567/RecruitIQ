@@ -4,7 +4,7 @@ import { GoogleId } from "../../../domain/value.objects/google-id.vo";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { GoogleAuthPort } from "../../ports/google-auth.ports";
-import { USER_ROLES, userRoles } from "../../../domain/constants/roles.constants";
+import { USER_ROLES } from "../../../domain/constants/roles.constants";
 import { User } from "../../../domain/entities/user.entity";
 import { AuthResult } from "../../types/auth-result.type";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";

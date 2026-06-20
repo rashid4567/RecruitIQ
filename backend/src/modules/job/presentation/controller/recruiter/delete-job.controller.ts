@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { DeleteJobUseCase } from "../../../application/usecase/job/delete-job.usecase";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
-import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { DeleteJobPostRequestDTO } from "../../../application/dto/deleteJob.Dto";
 

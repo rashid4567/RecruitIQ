@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { VerifyPaymentUseCase } from "../../../application/usecase/Recruiter/VerifyPaymentUseCase";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 
 export class VerifyPaymentController {
   constructor(

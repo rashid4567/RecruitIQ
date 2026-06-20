@@ -6,12 +6,13 @@ import {
   blockJobController,
   unblockJobController,
 } from "../container/jobpost.module";
+import { JOB_ROUTES } from "../constant/job-routes.constants";
 
 const JobPostRouter = Router();
 
-JobPostRouter.get("/", adminJobsController.getAll);
-JobPostRouter.get("/:jobPostId", adminJobByIdController.getOne);
-JobPostRouter.patch("/:jobPostId/block", blockJobController.block);
-JobPostRouter.patch("/:jobPostId/unblock", unblockJobController.unblock);
+JobPostRouter.get(JOB_ROUTES.ADMIN.ROOT, adminJobsController.getAll);
+JobPostRouter.get(JOB_ROUTES.ADMIN.BY_ID, adminJobByIdController.getOne);
+JobPostRouter.patch(JOB_ROUTES.ADMIN.BLOCK, blockJobController.block);
+JobPostRouter.patch(JOB_ROUTES.ADMIN.UNBLOCK, unblockJobController.unblock);
 
 export default JobPostRouter;

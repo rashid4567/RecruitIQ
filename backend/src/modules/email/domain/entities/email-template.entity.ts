@@ -1,6 +1,6 @@
 import { EmailEvent } from "../constant/templateEvents";
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
+import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code";
 
 export class EmailTemplate {
   constructor(

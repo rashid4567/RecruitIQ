@@ -2,7 +2,7 @@ import { OTPServicePort } from "../../ports/otp.service.ports";
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Email } from "../../../domain/value.objects/email.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants"; 
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants"; 
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { RequestEmailUpdateDTO } from "../../dto/EmailUpdateDTO";
 

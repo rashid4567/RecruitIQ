@@ -1,7 +1,7 @@
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Password } from "../../../domain/value.objects/password-hash.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { PasswordHasherPort } from "../../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
 import { ResetPasswordDTO } from "../../../presentation/validators/reset-password.schema";

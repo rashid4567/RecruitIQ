@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { DeactivateSubscriptionPlanUseCase } from "../../../../application/usecase/Admin/subscription/deactivate-subscription-plan.usecase";
-import { HTTP_STATUS } from "../../../../../../constants/httpStatus";
-import { SUCCESS_MESSAGES } from "../../../../../../constants/success-message.constants";
+import { HTTP_STATUS } from "../../../../../../shared/constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../../shared/constants/success-message.constants";
 
 export class HideSubscriptionPlanController {
   constructor(private readonly hideUC: DeactivateSubscriptionPlanUseCase) {}

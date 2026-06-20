@@ -4,19 +4,20 @@ import {
   getRecruiterApplicationDetailsController,
   updateApplicationStatuscontroller,
 } from "../container/JobApplication.module";
+import { JOB_APPLICATION_ROUTES } from "../constants/job-application-routes.constants";
 
 const router = Router();
 
 router.get(
-  "/:jobId/applications",
+  JOB_APPLICATION_ROUTES.RECRUITER.JOB_APPLICATIONS,
   getApplicationByjobpostController.GetJobpostBasedApplicatiton,
 );
 router.get(
-  "/applications/:applicationId",
+  JOB_APPLICATION_ROUTES.RECRUITER.APPLICATION_DETAILS,
   getRecruiterApplicationDetailsController.getApplicationDetails,
 );
 router.patch(
-  "/applications/:applicationId/status",
+  JOB_APPLICATION_ROUTES.RECRUITER.UPDATE_STATUS,
   updateApplicationStatuscontroller.updateStatus,
 );
 

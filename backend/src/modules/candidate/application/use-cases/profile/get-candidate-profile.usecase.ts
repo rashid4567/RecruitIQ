@@ -3,7 +3,7 @@ import { UserRepository } from "../../../domain/repositories/user.repository";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import {
   GetCandidateProfileRequestDTO,
   GetCandidateProfileResponseDTO,

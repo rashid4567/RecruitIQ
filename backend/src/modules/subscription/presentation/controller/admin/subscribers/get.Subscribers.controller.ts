@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { GetSubscribersUseCase } from "../../../../application/usecase/Admin/subscribers/GetSubscribersUseCase";
-import { HTTP_STATUS } from "../../../../../../constants/httpStatus";
-import { SUCCESS_MESSAGES } from "../../../../../../constants/success-message.constants";
+import { HTTP_STATUS } from "../../../../../../shared/constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../../shared/constants/success-message.constants";
 
 export class GetSubscribersController {
   constructor(private readonly getSubscribersUC: GetSubscribersUseCase) {}

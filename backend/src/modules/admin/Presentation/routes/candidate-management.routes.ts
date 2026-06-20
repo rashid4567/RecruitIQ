@@ -7,7 +7,6 @@ import {
 const candidateManagementRouter = Router();
 
 candidateManagementRouter.get("/", getCandidatesController.getCandidates);
-
 candidateManagementRouter.get(
   "/:candidateId",
   getCandidateProfileController.getCandidateProfile,

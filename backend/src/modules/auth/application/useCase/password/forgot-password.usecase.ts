@@ -1,7 +1,7 @@
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Email } from "../../../domain/value.objects/email.vo";
 
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
 import { EmailServicePort } from "../../ports/email.service.port";

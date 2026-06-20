@@ -2,7 +2,7 @@ import { subscriptionStatus } from "../constatns/subscriptionStatus.constants";
 import { verificationStatus } from "../constatns/verificationStatus.constants";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code"; 
+import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code"; 
 
 
 export interface RecruiterProfileProps {

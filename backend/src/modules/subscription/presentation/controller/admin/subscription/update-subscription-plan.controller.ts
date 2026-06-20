@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { UpdateSubscriptionPlanUseCase } from "../../../../application/usecase/Admin/subscription/update-subscription-plan.usecase";
 import { UpdatePlanSchema } from "../../../validator/subscription-plan.schema";
-import { HTTP_STATUS } from "../../../../../../constants/httpStatus";
-import { ERROR_MESSAGE } from "../../../../../../constants/error-message.constants";
-import { SUCCESS_MESSAGES } from "../../../../../../constants/success-message.constants";
+import { HTTP_STATUS } from "../../../../../../shared/constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../../shared/constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../../shared/constants/success-message.constants";
 
 export class UpdateSubscriptionPlanController {
   constructor(private readonly updateUc: UpdateSubscriptionPlanUseCase) {}

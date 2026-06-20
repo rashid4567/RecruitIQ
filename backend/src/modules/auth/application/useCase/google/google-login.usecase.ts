@@ -1,7 +1,7 @@
 import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Email } from "../../../domain/value.objects/email.vo";
 import { GoogleId } from "../../../domain/value.objects/google-id.vo";
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { GoogleAuthPort } from "../../ports/google-auth.ports";
 import { USER_ROLES, userRoles } from "../../../domain/constants/roles.constants";

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { TokenService } from "../../infrastructure/service/token.service";
 
 const tokenService = new TokenService();

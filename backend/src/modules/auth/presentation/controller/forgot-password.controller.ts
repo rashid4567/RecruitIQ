@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { ForgotPasswordSchema } from "../validators/forgot-password.schema";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ResetPasswordDTO, ResetPasswordSchema } from "../validators/reset-password.schema";
-import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { ForgotPasswordRequestDTO } from "../../application/dto/forgot-password.dto";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 

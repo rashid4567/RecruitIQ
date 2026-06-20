@@ -1,6 +1,6 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
-import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
+import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code";
 import { Gender } from "../type/gender.Types";
 
 export class CandidateProfile {

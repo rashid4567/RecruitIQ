@@ -1,6 +1,6 @@
 import { ActivityActionType } from "../constants/activityActions";
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
+import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code";
 
 export type ActivityMetadata = Record<string, string | number | boolean | null>;
 

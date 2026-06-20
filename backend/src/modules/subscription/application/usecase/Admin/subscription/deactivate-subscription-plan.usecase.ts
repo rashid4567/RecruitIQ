@@ -1,4 +1,4 @@
-import { ERROR_CODES } from "../../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../../shared/errors/application.error";
 import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
 

@@ -2,9 +2,9 @@ import OpenAI from "openai";
 import { z } from "zod";
 
 import { ParsedResumeData } from "../../domain/entity/resume.entity";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ApplicationError } from "../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
 
 const ResumeSchema = z.object({
   fullName: z.string().nullable(),

@@ -8,9 +8,9 @@ import {
 
 import { Job } from "../../../job/domain/entities/job.entity";
 import { Resume } from "../../../resume/domain/entity/resume.entity";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ApplicationError } from "../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
 import { ApplicationRecommendation } from "../../domain/entity/job-application.entity";
 
 const AnalysisSchema = z.object({

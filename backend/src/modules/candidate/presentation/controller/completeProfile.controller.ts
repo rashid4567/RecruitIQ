@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { userIdSchema } from "../validator/userId.validatort";
 import { completeCandidateProfileSchema } from "../validator/completeCandidateProfile-validator";
-import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
-import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import { CompleteCandidateProfileRequestDTO } from "../../application/dto/complete-candidate-profile.dto";
 

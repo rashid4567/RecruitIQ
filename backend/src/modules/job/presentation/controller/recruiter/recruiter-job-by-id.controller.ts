@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { GetJobByIdUseCase } from "../../../application/usecase/job/get-jobpost-by-id.usecase";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
+import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { GetJobByIdRequestDTO } from "../../../application/dto/getJobPostById.dto";
 import { Job } from "../../../domain/entities/job.entity";

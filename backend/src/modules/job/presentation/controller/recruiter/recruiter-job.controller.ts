@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { GetJobsUseCase } from "../../../application/usecase/job/get-jobs.usecase";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { Job, JobStatus, JobType } from "../../../domain/entities/job.entity";
-import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
-import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { GetJobsRequestDTO } from "../../../application/dto/getJobPostRequest.dto";
 import { PaginatedResult } from "../../../domain/types/job-filter.type";

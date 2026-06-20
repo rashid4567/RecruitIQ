@@ -79,6 +79,5 @@ export const SUCCESS_MESSAGES = {
   JOB_UNHIDE_SUCCESSFULLY: "Job unhide successfully",
   JOB_HIDE_SUCCESSFULLY: "Job hide successfully",
   JOB_POST_UPDATED_SUCCESSFULLY: "Job post updated successfully",
-  ADMIN_LOGIN_SUCCESFULLY : "Admin login succesfully",
-
+  ADMIN_LOGIN_SUCCESFULLY: "Admin login succesfully",
 } as const;

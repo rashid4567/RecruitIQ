@@ -1,6 +1,6 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error"; 
 import { EmailTemplateRepository } from "../../../domain/repository/email-template.repository";
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ToggleEmailTemplateRequestDTO } from "../../dto/email.template/toggleEmail.template.input.dto";
 import { EmailTemplate } from "../../../domain/entities/email-template.entity";

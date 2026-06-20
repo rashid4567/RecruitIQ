@@ -1,7 +1,7 @@
-import { ERROR_CODES } from "../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
 import { DomainError } from "../../../../shared/errors/domain.error";
 import { NotificationType } from "../constant/notification.constants";
-import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code"; 
+import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code"; 
 
 export type NotificationRecipientRole = "recruiter" | "candidate";
 

@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { LoginSchema } from "../validators/login.schema";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { USER_ROLES } from "../../domain/constants/roles.constants";
 import { setRefreshCookie } from "../utils/cookie.util";
-import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
-import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
+import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import {
   LoginRequestDTO,

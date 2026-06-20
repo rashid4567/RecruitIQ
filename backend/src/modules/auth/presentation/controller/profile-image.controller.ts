@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { UpdateProfileImageUseCase } from "../../application/useCase/update-profile-image.usecase";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { profileImageSchema } from "../validators/profile-image.schema";
-import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
-import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UpdateProfileImageRequest } from "../../application/dto/update.profileDTO";
 

@@ -1,4 +1,4 @@
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";

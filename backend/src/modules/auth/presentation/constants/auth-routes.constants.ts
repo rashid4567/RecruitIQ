@@ -1,0 +1,15 @@
+export const AUTH_ROUTES = {
+  LOGIN: "/login",
+  ADMIN_LOGIN: "/admin/login",
+  LOGOUT: "/logout",
+  SEND_OTP: "/send-otp",
+  VERIFY_OTP: "/verify-otp",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
+  UPDATE_PASSWORD: "/update-password",
+  REFRESH: "/refresh",
+  PROFILE_IMAGE: "/profile-image",
+  EMAIL_REQUEST_OTP: "/email/request-otp",
+  EMAIL_VERIFY_OTP: "/email/verify-otp",
+  GOOGLE : "/google",
+} as const;

@@ -1,5 +1,5 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
 import { RecruiterSubscriptionRepository } from "../../../domain/repository/recruiter-subscription-plan-repository";
 import {

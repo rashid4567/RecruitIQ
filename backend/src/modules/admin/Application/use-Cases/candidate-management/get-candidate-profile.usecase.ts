@@ -2,7 +2,7 @@ import { ApplicationError } from "../../../../../shared/errors/application.error
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
 import { CandidateRepository } from "../../../Domain/repositories/candidate.repository";
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import {
   CandidateProfileRequestDTO,
   CandidateProfileResponseDTO,

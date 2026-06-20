@@ -9,17 +9,18 @@ import JobPostRouter from "../../../job/presentation/router/admin.jobPost.routes
 import SubscriptionPlanRouter from "../../../subscription/presentation/routes/admin.subscription.routes"
 import { authenticate } from "../../../auth/presentation/middlewares/auth.middleware";
 import { requireAdmin } from "../../../../shared/middlewares/role.middleware";
+import { ADMIN_ROUTES } from "../constants/admin-routes.constants";
 
 const adminRoutes = Router();
 adminRoutes.use(authenticate, requireAdmin);
 
 adminRoutes.use("/", userManagementRouter);
-adminRoutes.use("/candidates", candidateMangmentRouter);
-adminRoutes.use("/recruiters", recruiterManagementRouter);
-adminRoutes.use("/email-templates", EmailTemplaterouter);
-adminRoutes.use("/email-logs", EmailLogrouter);
-adminRoutes.use("/activity-logs", ActivityLogRouter);
-adminRoutes.use("/jobs", JobPostRouter);
+adminRoutes.use(ADMIN_ROUTES.CANDIDATES, candidateMangmentRouter);
+adminRoutes.use(ADMIN_ROUTES.RECRUITERS, recruiterManagementRouter);
+adminRoutes.use(ADMIN_ROUTES.EMAIL_TEMPLATES, EmailTemplaterouter);
+adminRoutes.use(ADMIN_ROUTES.EMAIL_LOGS, EmailLogrouter);
+adminRoutes.use(ADMIN_ROUTES.ACTIVITY_LOGS, ActivityLogRouter);
+adminRoutes.use(ADMIN_ROUTES.JOBS, JobPostRouter);
 adminRoutes.use("/", SubscriptionPlanRouter);
 
 export default adminRoutes;

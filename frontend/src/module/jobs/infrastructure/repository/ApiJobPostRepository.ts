@@ -13,7 +13,6 @@ import type {
 } from "../interface/jobPostApiResponse";
 
 type JobResponse = JobApiProps | WrappedJobResponse;
-
 type Role = "recruiter" | "candidate" | "admin";
 
 interface PaginatedJobResponse {

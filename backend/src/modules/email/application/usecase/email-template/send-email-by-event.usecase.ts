@@ -3,7 +3,7 @@ import { EmailService } from "../../ports/email.service";
 import { sendEmailByInputDto } from "../../dto/email.template/sentEmail.input.dto";
 import { TemplateRendererService } from "../../services/template-renderer.service";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants"; 
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants"; 
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 
 export class SendEmailByEventUseCase implements UseCase<sendEmailByInputDto,void>{

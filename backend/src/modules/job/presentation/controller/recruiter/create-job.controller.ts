@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { CreateJobUseCase } from "../../../application/usecase/job/create-job.usecase";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { CreateJobSchema } from "../../validator/create.jobpost.validation";
-import { ERROR_MESSAGE } from "../../../../../constants/error-message.constants";
-import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { createJobPostRequestDTO } from "../../../application/dto/create-job.dto";
 import { Job } from "../../../domain/entities/job.entity";

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { UpdatePasswordUseCase } from "../../application/useCase/password/update-password.usecase";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { UpdatePasswordSchema } from "../validators/updatepassword.validator";
 import { userIdSchema } from "../validators/userId.validator";
-import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import { RequestUpdatePassword } from "../../application/dto/UpdatePasswordDTO";
 

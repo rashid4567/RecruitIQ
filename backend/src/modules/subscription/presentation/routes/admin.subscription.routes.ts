@@ -8,14 +8,36 @@ import {
   unhideSubscriptionPlanController,
   updateSubscriptionPlanController,
 } from "../container/admin-subscription.module";
+import { SUBSCRIPTION_ROUTES } from "../constants/subscription-routes.constants";
 
 const router = Router();
 
-router.post("/plans", createSubscriptionPlanController.create);
-router.get("/plans", getSubscriptionPlanController.getAllPlans);
-router.get("/plans/:planId", getPlanDetailController.getPlanDetail);
-router.patch("/plans/:planId", updateSubscriptionPlanController.update);
-router.patch("/plans/:planId/hide", hideSubscriptionPlanController.hide);
-router.patch("/plans/:planId/unhide", unhideSubscriptionPlanController.unhide);
-router.get("/subscribers", getSubscribersController.getSubscribers);
+router.post(
+  SUBSCRIPTION_ROUTES.ADMIN.PLANS,
+  createSubscriptionPlanController.create,
+);
+router.get(
+  SUBSCRIPTION_ROUTES.ADMIN.PLANS,
+  getSubscriptionPlanController.getAllPlans,
+);
+router.get(
+  SUBSCRIPTION_ROUTES.ADMIN.PLAN_DETAIL,
+  getPlanDetailController.getPlanDetail,
+);
+router.patch(
+  SUBSCRIPTION_ROUTES.ADMIN.PLAN_DETAIL,
+  updateSubscriptionPlanController.update,
+);
+router.patch(
+  SUBSCRIPTION_ROUTES.ADMIN.HIDE_PLAN,
+  hideSubscriptionPlanController.hide,
+);
+router.patch(
+  SUBSCRIPTION_ROUTES.ADMIN.UNHIDE_PLAN,
+  unhideSubscriptionPlanController.unhide,
+);
+router.get(
+  SUBSCRIPTION_ROUTES.ADMIN.SUBSCRIBERS,
+  getSubscribersController.getSubscribers,
+);
 export default router;

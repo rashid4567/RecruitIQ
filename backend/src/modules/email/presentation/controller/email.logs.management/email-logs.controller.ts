@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ListEmailLogsUseCase } from "../../../../email/application/usecase/email.logs/list-email-logs.usecase";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { EmailLog } from "../../../domain/entities/email-log.entity";
 

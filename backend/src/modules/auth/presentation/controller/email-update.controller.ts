@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import {
   RequestEmailUpdateSchema,
   VerifyEmailUpdateSchema,
 } from "../validators/email-update.validation";
-import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
-import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import { RequestEmailUpdateDTO } from "../../application/dto/EmailUpdateDTO";
 import { VerifyEmailUpdateDTO } from "../../application/dto/verify-email-update.dto";

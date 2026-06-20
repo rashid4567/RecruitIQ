@@ -10,17 +10,18 @@ import {
   toggleJobVisibilityController,
 } from "../container/jobpost.module";
 import JobApplicationRouter from "../../../job-application/presenatation/routes/recruiter.application.routes"
+import { JOB_ROUTES } from "../constant/job-routes.constants";
 
 const router = Router();
 
-router.post("/create", createJobController.create);
-router.get("/", recruiterJobsController.getAll);
-router.get("/:id", getJobByIdController.getOne);
-router.patch("/:id/publish", publishJobController.publish);
-router.put("/:id", updateJobController.update);
-router.patch("/:id/hide", toggleJobVisibilityController.hide);
-router.patch("/:id/unhide", toggleJobVisibilityController.unhide);
-router.delete("/:id", deleteJobController.delete);
+router.post(JOB_ROUTES.RECRUITER.CREATE, createJobController.create);
+router.get(JOB_ROUTES.RECRUITER.ROOT, recruiterJobsController.getAll);
+router.get(JOB_ROUTES.RECRUITER.BY_ID, getJobByIdController.getOne);
+router.patch(JOB_ROUTES.RECRUITER.PUBLISH, publishJobController.publish);
+router.put(JOB_ROUTES.RECRUITER.BY_ID, updateJobController.update);
+router.patch(JOB_ROUTES.RECRUITER.HIDE, toggleJobVisibilityController.hide);
+router.patch(JOB_ROUTES.RECRUITER.UNHIDE, toggleJobVisibilityController.unhide);
+router.delete(JOB_ROUTES.RECRUITER.BY_ID, deleteJobController.delete);
 
 
 router.use("/",JobApplicationRouter)

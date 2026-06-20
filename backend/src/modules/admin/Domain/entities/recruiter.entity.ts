@@ -1,4 +1,4 @@
-import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
+import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code";
 import { DomainError } from "../../../../shared/errors/domain.error";
 
 export type VerificationStatus = "pending" | "verified" | "rejected";

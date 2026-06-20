@@ -3,7 +3,7 @@ import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
-import { ERROR_CODES } from "../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { rejectRecruiterRequestDTO } from "../../dto/recruiter.dto/recruiter.status.dto";
 
 export class RejectRecruiterUseCase implements UseCase<rejectRecruiterRequestDTO,void> {

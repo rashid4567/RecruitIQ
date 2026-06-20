@@ -1,5 +1,5 @@
 import { DomainError } from "../../../../shared/errors/domain.error";
-import { DOMAIN_ERROR_CODES } from "../../../../constants/domain.error.code";
+import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code";
 
 export type JobType = "full-time" | "part-time" | "contract" | "internship";
 export type JobStatus = "draft" | "active" | "expired";

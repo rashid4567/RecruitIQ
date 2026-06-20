@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { GetAllSubscriptionPlansUseCase } from "../../../application/usecase/Admin/subscription/get-all-subscription-plans.usecase";
 import { SubscriptionPlanFilter } from "../../../domain/repository/subscription-plan.repository";
-import { HTTP_STATUS } from "../../../../../constants/httpStatus";
-import { SUCCESS_MESSAGES } from "../../../../../constants/success-message.constants";
+import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
+import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 
 export class RecruiterPlanDetailController {
   constructor(private readonly getPlansUC: GetAllSubscriptionPlansUseCase) {}

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { UploadResumeUseCase } from "../../application/usecase/UploadResumeUseCase";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
-import { ERROR_MESSAGE } from "../../../../constants/error-message.constants";
-import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UploadResumeDTO } from "../../application/dto/upload.resume.dto";
 import { Resume } from "../../domain/entity/resume.entity";

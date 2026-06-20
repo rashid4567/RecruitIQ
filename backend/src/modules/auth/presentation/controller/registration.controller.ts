@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { RegisterSchema } from "../validators/register.schema";
-import { HTTP_STATUS } from "../../../../constants/httpStatus";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { setRefreshCookie } from "../utils/cookie.util";
-import { SUCCESS_MESSAGES } from "../../../../constants/success-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { VerificationInput, VerifyRegistrationResponseDTO } from "../../application/dto/verification.input.dto";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 

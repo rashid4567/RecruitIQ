@@ -8,7 +8,7 @@ import {
   BillingCycle,
 } from "../../../../domain/entities/subscription-plan.entity";
 import { ApplicationError } from "../../../../../../shared/errors/application.error";
-import { ERROR_CODES } from "../../../../../../constants/errorcode.constants";
+import { ERROR_CODES } from "../../../../../../shared/constants/errorcode.constants";
 
 export class CreateSubscriptionPlanUseCase {
   constructor(private readonly repo: SubscriptionPlanRepository) {}

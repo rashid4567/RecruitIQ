@@ -118,13 +118,13 @@ const handleRowClick = () => {
     
       <td className="px-5 py-4">
         <div className="flex items-center gap-3">
-          <JobAvatar jobId={app.getJobId()} />
+          <JobAvatar jobId={app.getJobTitle()} />
           <div>
             <p className="text-[13px] font-bold text-slate-800 leading-snug group-hover:text-blue-600 transition-colors">
-              {app.getJobId()}
+              {app.getJobTitle()}
             </p>
             <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
-              #{app.getId().slice(0, 8)}
+              #{app.getJobTitle().slice(0, 8)}
             </p>
           </div>
         </div>
@@ -155,7 +155,7 @@ const handleRowClick = () => {
             <FileDown size={13} className="group-hover/dl:translate-y-0.5 transition-transform text-blue-500" />
           </div>
           <span className="font-mono text-[10px] text-slate-500">
-            {app.getResumeId().slice(0, 12)}…
+            {app.getResumeFileName().slice(0, 12)}…
           </span>
         </button>
       </td>

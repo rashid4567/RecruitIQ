@@ -9,9 +9,11 @@ import type {
 export interface JobApplicationResponseDTO {
   id: string;
   jobId: string;
+  jobTitle ?: string;
   candidateId: string;
   recruiterId: string;
   resumeId: string;
+  resumeFileName ?: string;
   coverLetter?: string;
   status: ApplicationStatus;
   analysisStatus: ApplicationAnalysisStatus;

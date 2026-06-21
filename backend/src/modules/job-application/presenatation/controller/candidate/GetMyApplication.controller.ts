@@ -35,7 +35,7 @@ export class GetMyApplicationController {
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: SUCCESS_MESSAGES.APPLICATION_LOADED_SUCCESSFULLY,
-        data: application.map((app) => app.toObject()),
+        data: application,
       });
     } catch (err) {
       next(err);

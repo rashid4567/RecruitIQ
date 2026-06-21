@@ -1,4 +1,4 @@
-export const USER_ROLES = {
+      export const USER_ROLES = {
   CANDIDATE: "candidate",
   RECRUITER: "recruiter",
   ADMIN: "admin",

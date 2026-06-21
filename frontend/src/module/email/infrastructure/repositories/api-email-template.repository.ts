@@ -2,7 +2,7 @@ import api from "@/api/axios";
 
 import { EmailTemplate } from "../../domain/entity/email-template.entity";
 import type { EmailTempleteRepository } from "../../domain/repositories/email-template.repository";
-import type { EmailTemplateEvent } from "@/types/admin/email-template.types";
+import type { EmailTemplateEvent } from "@/module/email/application/dto/email-template.dto";
 
 interface EmailTemplateApiDto {
   id: string;

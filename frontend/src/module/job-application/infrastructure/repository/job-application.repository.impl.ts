@@ -9,6 +9,7 @@ import {
 import type {
   ApplicationDetailDTO,
   ApplyJobDTO,
+  CandidateApplication,
   JobApplicationRepository,
   RecruiterApplication,
 } from "../../domain/repository/application.repository";
@@ -53,28 +54,22 @@ export class ApiJobApplicationRepository implements JobApplicationRepository {
     });
   }
 
-  async getMyApplications(): Promise<JobApplication[]> {
+  async getMyApplications(): Promise<CandidateApplication[]> {
     const response = await api.get<GetMyApplicationsResponse>(
       "/candidate/application",
     );
 
-    return response.data.data.map((item) =>
-      JobApplication.create({
-        id: item.id,
-        jobId: item.jobId,
-        candidateId: item.candidateId,
-        recruiterId: item.recruiterId,
-        resumeId: item.resumeId,
-        coverLetter: item.coverLetter,
-        status: item.status,
-        analysisStatus: item.analysisStatus as ApplicationAnalysisStatus,
-        interview: item.interview,
-        rejectionReason: item.rejectionReason,
-        aiAnalysis: item.aiAnalysis,
-        appliedAt: item.appliedAt,
-        updatedAt: item.updatedAt,
-      }),
-    );
+    return response.data.data.map((application: any) => ({
+      applicationId: application.applicationId,
+      jobId: application.jobId,
+      jobTitle: application.jobTitle,
+      resumeId: application.resumeId,
+      resumeFileName: application.resumeFileName,
+      status: application.status,
+      appliedAt: application.appliedAt,
+      rejectionReason: application.rejectionReason,
+      interview: application.interview,
+    }));
   }
 
   async getById(applicationId: string): Promise<ApplicationDetailDTO> {

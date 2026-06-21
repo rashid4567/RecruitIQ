@@ -1,4 +1,4 @@
-import type { EmailLog } from "@/types/admin/email-log.types";
+import type { EmailLog } from "@/module/email/application/dto/email-log.dto";
 
 
 export class ExportEmailLogsUseCase {

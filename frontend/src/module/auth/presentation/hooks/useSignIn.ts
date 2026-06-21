@@ -6,7 +6,7 @@ import { ZodError } from "zod";
 
 import { SignInUC, googleAuthUc } from "../di/auth";
 import type { GoogleRoles } from "@/module/auth/domain/constants/google-role";
-import type { SignInFormData } from "@/types/auth/auth.types";
+import type { SignInFormData } from "@/module/auth/Application/dto/auth.types";
 import { signInSchema } from "../validation/signin.schema";
 
 import type { AuthError } from "../types/auth.error";

@@ -33,10 +33,19 @@ export interface ApplicationDetailDTO {
   application: JobApplication;
   job: Job;
 }
+export interface CandidateApplication {
+  applicationId: string;
+  jobId: string;
+  jobTitle: string;
+  resumeId: string;
+  resumeFileName: string;
+  status: ApplicationStatus;
+  appliedAt: string;
+}
 
 export interface JobApplicationRepository {
   apply(data: ApplyJobDTO): Promise<JobApplication>;
-  getMyApplications(): Promise<JobApplication[]>;
+  getMyApplications(): Promise<CandidateApplication[]>;
   getApplicationsByJob(jobId: string): Promise<RecruiterApplication[]>;
   getApplicationDetailsForRecruiter(
     applicationId: string,

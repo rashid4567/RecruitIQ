@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import type { CredentialResponse } from "@react-oauth/google";
-import type { SignInFormData } from "@/types/auth/auth.types";
+import type { SignInFormData } from "@/module/auth/Application/dto/auth.types";
 
 interface SignInFormProps {
   formData: SignInFormData;

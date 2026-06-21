@@ -1,4 +1,4 @@
-import type { VerificationStatus } from "@/types/admin/recruiter.types";
+import type { VerificationStatus } from "@/module/admin/application/dto/recruiter.dto";
 
 
 export interface GetRecruitersQuery {

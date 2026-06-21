@@ -13,7 +13,7 @@ export const JOB_ROUTES = {
 
   CANDIDATE: {
     ROOT: "/",
-    BY_ID: "/:jobId",
+    BY_ID: "/:id",
   },
 
   RECRUITER: {

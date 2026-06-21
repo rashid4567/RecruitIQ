@@ -15,8 +15,10 @@ export interface RecruiterApplicationListItem {
   candidateId: string;
   candidateName: string;
   candidateEmail: string;
+  Jobtitle: string;
   candidateProfileImage?: string;
   resumeId: string;
+  fileName: string;
   status: ApplicationStatus;
   aiScore?: number;
   aiRecommendation?: ApplicationRecommendation;
@@ -43,6 +45,18 @@ export interface RecruiterApplicationDetailsOutput {
   updatedAt: Date;
 }
 
+export interface CandidateApplicationListItem {
+  applicationId: string;
+  jobId: string;
+  jobTitle: string;
+  resumeId: string;
+  resumeFileName: string;
+  status: ApplicationStatus;
+  appliedAt: Date;
+}
+
+
+
 export interface JobApplicationRepository extends BaseRepository<JobApplication> {
   create(application: JobApplication): Promise<JobApplication>;
   save(application: JobApplication): Promise<JobApplication>;
@@ -59,6 +73,7 @@ export interface JobApplicationRepository extends BaseRepository<JobApplication>
   findApplicationDetailsForRecruiter(
     applicationId: string,
   ): Promise<RecruiterApplicationDetailsOutput | null>;
+  findApplicationsForCandidate(candidateId :string):Promise<CandidateApplicationListItem[]>;
   findByResumeId(resumeId: string): Promise<JobApplication[]>;
   findByAnalysisStatus(
     recruiterId: string,

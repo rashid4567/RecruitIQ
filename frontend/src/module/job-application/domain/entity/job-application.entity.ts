@@ -59,6 +59,11 @@ export class JobApplication {
   private readonly candidateId: string;
   private readonly recruiterId: string;
   private readonly resumeId: string;
+
+  // NEW FIELDS
+  private readonly jobTitle?: string;
+  private readonly resumeFileName?: string;
+
   private readonly coverLetter?: string;
   private readonly status: ApplicationStatus;
   private readonly interview?: InterviewInfo;
@@ -82,12 +87,16 @@ export class JobApplication {
     interview?: InterviewInfo,
     rejectionReason?: string,
     aiAnalysis?: ApplicationAIAnalysis,
+    jobTitle?: string,
+    resumeFileName?: string,
   ) {
     this.id = id;
     this.jobId = jobId;
     this.candidateId = candidateId;
     this.recruiterId = recruiterId;
     this.resumeId = resumeId;
+    this.jobTitle = jobTitle;
+    this.resumeFileName = resumeFileName;
     this.status = status;
     this.analysisStatus = analysisStatus;
     this.appliedAt = appliedAt;
@@ -104,6 +113,8 @@ export class JobApplication {
     candidateId: string;
     recruiterId: string;
     resumeId: string;
+    jobTitle?: string;
+    resumeFileName?: string;
     status: ApplicationStatus;
     analysisStatus: ApplicationAnalysisStatus;
     appliedAt: string;
@@ -127,6 +138,8 @@ export class JobApplication {
       props.interview,
       props.rejectionReason,
       props.aiAnalysis,
+      props.jobTitle,
+      props.resumeFileName,
     );
   }
 
@@ -136,6 +149,10 @@ export class JobApplication {
 
   getJobId(): string {
     return this.jobId;
+  }
+
+  getJobTitle(): string {
+    return this.jobTitle ?? this.jobId;
   }
 
   getCandidateId(): string {
@@ -148,6 +165,10 @@ export class JobApplication {
 
   getResumeId(): string {
     return this.resumeId;
+  }
+
+  getResumeFileName(): string {
+    return this.resumeFileName ?? this.resumeId;
   }
 
   getCoverLetter(): string | undefined {
@@ -165,6 +186,7 @@ export class JobApplication {
   getRejectionReason(): string | undefined {
     return this.rejectionReason;
   }
+
   getAnalysisStatus(): ApplicationAnalysisStatus {
     return this.analysisStatus;
   }
@@ -240,6 +262,8 @@ export class JobApplication {
       candidateId: this.candidateId,
       recruiterId: this.recruiterId,
       resumeId: this.resumeId,
+      jobTitle: this.jobTitle,
+      resumeFileName: this.resumeFileName,
       coverLetter: this.coverLetter,
       status: this.status,
       interview: this.interview,

@@ -8,6 +8,7 @@ import {
 } from "../../domain/entity/job-application.entity";
 
 import {
+  CandidateApplicationListItem,
   JobApplicationRepository,
   RecruiterApplicationDetailsOutput,
   RecruiterApplicationListItem,
@@ -24,6 +25,16 @@ interface PopulatedCandidate {
   fullName?: string;
   email?: string;
   profileImage?: string;
+}
+
+interface PopulatedJob {
+  _id: mongoose.Types.ObjectId;
+  title: string;
+}
+
+interface PopulatedResume {
+  _id: mongoose.Types.ObjectId;
+  fileName: string;
 }
 
 export class MongooseJobApplicationRepository implements JobApplicationRepository {
@@ -87,6 +98,38 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
     return docs.map((doc) => this.toDomain(doc));
   }
+  async findApplicationsForCandidate(candidateId: string): Promise<CandidateApplicationListItem[]> {
+    const docs = await JobApplicationModel.find({
+      candidateId : new mongoose.Types.ObjectId(candidateId),
+      isDeleted : false,
+    })
+    .populate({
+      path : "jobId",
+      select : "title"
+    })
+    .populate({
+      path : "resumeId",
+      select : "fileName",
+    })
+    .sort({
+      createdAt : -1
+    });
+
+    return docs.map((doc)=>{
+      const job = doc.jobId as unknown as PopulatedJob;
+      const resume = doc.resumeId as unknown as PopulatedResume;
+
+      return{
+        applicationId : doc._id.toString(),
+        jobId :  job._id.toString(),
+        jobTitle : job.title,
+        resumeId : resume._id.toString(),
+        resumeFileName : resume.fileName,
+        status : doc.status,
+        appliedAt : doc.appliedAt,
+      }
+    })
+  }
 
   async findApplicationsWithCandidateDetails(
     jobId: string,
@@ -103,6 +146,14 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
         path: "candidateId",
         select: "fullName email profileImage",
       })
+      .populate({
+        path: "jobId",
+        select: "title",
+      })
+      .populate({
+        path: "resumeId",
+        select: "fileName",
+      })
       .sort({
         appliedAt: -1,
       });
@@ -111,6 +162,8 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       .filter((doc) => Boolean(doc.candidateId))
       .map((doc) => {
         const candidate = doc.candidateId as PopulatedCandidate;
+        const job = doc.jobId as unknown as PopulatedJob;
+        const resume = doc.resumeId as unknown as PopulatedResume;
 
         return {
           applicationId: doc._id.toString(),
@@ -118,6 +171,8 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
           candidateName: candidate.fullName ?? "Unknown Candidate",
           candidateEmail: candidate.email ?? "",
           candidateProfileImage: candidate.profileImage,
+          Jobtitle: job.title,
+          fileName: resume.fileName,
           resumeId: doc.resumeId.toString(),
           status: doc.status,
           aiScore: doc.aiAnalysis?.overallScore,

@@ -1,5 +1,5 @@
 import api from "../../../../api/axios";
-import type { GoogleLoginPayload } from "@/types/auth/google.types";
+import type { GoogleLoginPayload } from "@/module/auth/Application/dto/google.types";
 
 export const googleService = {
   googleLogin: async (credential: string, role?: "candidate" | "recruiter") => {

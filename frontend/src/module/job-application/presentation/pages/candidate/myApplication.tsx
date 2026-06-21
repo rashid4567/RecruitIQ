@@ -42,9 +42,11 @@ export default function MyApplicationsPage() {
 
   const filtered = applications.filter((a) => {
     const q = search.toLowerCase();
-    const matchSearch = a.getJobId().toLowerCase().includes(q);
+
+    const matchSearch = a.getJobTitle().toLowerCase().includes(q);
     const matchStatus =
       statusFilter === "ALL" || a.getStatus() === statusFilter;
+
     return matchSearch && matchStatus;
   });
 

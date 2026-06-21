@@ -54,6 +54,7 @@ export interface ApplicationAIAnalysis {
 export interface JobApplicationProps {
   id?: string;
   jobId: string;
+
   candidateId: string;
   recruiterId: string;
   resumeId: string;

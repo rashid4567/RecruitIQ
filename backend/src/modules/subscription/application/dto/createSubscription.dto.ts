@@ -1,10 +1,12 @@
+import { PaymentType } from "../../domain/entities/payment.entity";
 import {
   FeatureAccess,
   PlanFeature,
 } from "../../domain/entities/subscription-plan.entity";
 
 
-export interface CreatePlanInput {
+
+export interface CreateSubscriptionPlanRequestDTO {
   name: string;
   description?: string;
   planType: "free" | "basic" | "pro" | "enterprise";
@@ -21,4 +23,21 @@ export interface CreatePlanInput {
   isPopular?: boolean;
   sortOrder?: number;
   razorpayPlanId?: string;
+}        
+
+
+export interface CreatePaymentOrderRequestDTO {
+  recruiterId: string;
+  planId: string;
+  durationMonths: number;
+}
+
+export interface CreatePaymentOrderResponseDTO {
+  paymentId: string;
+  orderId: string;
+  razorpayKeyId: string;
+  amount: number;
+  currency: string;
+  planName: string;
+  paymentType: PaymentType;
 }

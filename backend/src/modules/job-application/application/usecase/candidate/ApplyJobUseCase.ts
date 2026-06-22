@@ -3,12 +3,13 @@ import { ApplicationError } from "../../../../../shared/errors/application.error
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { User } from "../../../../auth/domain/entities/user.entity";
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
-import { SendEmailByEventUseCase } from "../../../../email/application/usecase/email-template/send-email-by-event.usecase";
+import { sendEmailByInputDto } from "../../../../email/application/dto/email.template/sentEmail.input.dto";
 import { EmailEvent } from "../../../../email/domain/constant/templateEvents";
 import { Job } from "../../../../job/domain/entities/job.entity";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
-import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
+import { CreateNotificationRequest } from "../../../../notification/application/dto/createNotification.dto";
 import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
+import { Notification } from "../../../../notification/domain/entities/Notification";
 import {
   Resume,
   ResumeParseStatus,
@@ -16,8 +17,8 @@ import {
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
 import { JobApplication } from "../../../domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
+import { AnalyzeApplicationRequestDTO } from "../../dto/analyseJobpost.dto";
 import { ApplyJobDTO } from "../../dto/applyJobDto";
-import { AnalyzeApplicationUseCase } from "./AnalyzeApplicationUseCase";
 
 export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
   constructor(
@@ -25,9 +26,15 @@ export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
     private readonly jobRepo: JobRepository,
     private readonly resumeRepo: ResumeRepository,
     private readonly userRepo: UserRepository,
-    private readonly sendEmailByEventUC: SendEmailByEventUseCase,
-    private readonly createNotificationUC: CreateNotificationUseCase,
-    private readonly analyzeApplicationUC: AnalyzeApplicationUseCase,
+    private readonly sendEmailByEventUC: UseCase<sendEmailByInputDto, void>,
+    private readonly createNotificationUC: UseCase<
+      CreateNotificationRequest,
+      Notification
+    >,
+    private readonly analyzeApplicationUC: UseCase<
+      AnalyzeApplicationRequestDTO,
+      void
+    >,
   ) {}
 
   async execute(dto: ApplyJobDTO): Promise<JobApplication> {
@@ -81,9 +88,7 @@ export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
       throw new ApplicationError(ERROR_CODES.RESUME_NOT_FOUND);
     }
     if (resume.getCandidateId() !== candidateId) {
-      throw new ApplicationError(
-        ERROR_CODES.UNAUTHORIZED_CANDIDATE_ACTION,
-      );
+      throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_CANDIDATE_ACTION);
     }
     if (resume.getParseStatus() === ResumeParseStatus.FAILED) {
       throw new ApplicationError(ERROR_CODES.RESUME_PARSE_FAILED);

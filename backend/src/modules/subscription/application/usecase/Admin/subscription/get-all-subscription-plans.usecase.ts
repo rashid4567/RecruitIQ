@@ -1,16 +1,21 @@
-import { SubscriptionPlanFilter } from "../../../../../admin/Domain/repositories/subscription-plan.repository";
-import { SubscriptionPlan } from "../../../../domain/entities/subscription-plan.entity";
 import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
+import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import {
+  GetAllPlansRequestDTO,
+  GetAllPlansResponseDTO,
+} from "../../../dto/get-all-plans.dto";
 
-export interface GetAllPlansOutput {
-  data: SubscriptionPlan[];
-
-  total: number;
-}
-export class GetAllSubscriptionPlansUseCase {
+export class GetAllSubscriptionPlansUseCase implements UseCase<
+  GetAllPlansRequestDTO,
+  GetAllPlansResponseDTO
+> {
   constructor(private readonly repo: SubscriptionPlanRepository) {}
-  async execute(filter: SubscriptionPlanFilter): Promise<GetAllPlansOutput> {
+
+  async execute(
+    filter: GetAllPlansRequestDTO,
+  ): Promise<GetAllPlansResponseDTO> {
     const { data, total } = await this.repo.findAll(filter);
+
     return {
       data,
       total,

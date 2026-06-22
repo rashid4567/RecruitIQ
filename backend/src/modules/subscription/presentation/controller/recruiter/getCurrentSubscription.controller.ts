@@ -3,10 +3,18 @@ import { GetCurrentSubscriptionUseCase } from "../../../application/usecase/Recr
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import {
+  CurrentSubscriptionResponse,
+  GetCurrentSubscriptionRequestDTO,
+} from "../../../application/dto/current.subscription.dto";
 
 export class GetCurrentSubsriptionController {
   constructor(
-    private readonly getCurrentSubscriptionUC: GetCurrentSubscriptionUseCase,
+    private readonly getCurrentSubscriptionUC: UseCase<
+      GetCurrentSubscriptionRequestDTO,
+      CurrentSubscriptionResponse
+    >,
   ) {}
 
   getCurrentSubscription = async (
@@ -24,8 +32,9 @@ export class GetCurrentSubsriptionController {
         });
       }
 
-      const subscription =
-        await this.getCurrentSubscriptionUC.execute(recruiterId);
+      const subscription = await this.getCurrentSubscriptionUC.execute({
+        recruiterId,
+      });
 
       res.status(HTTP_STATUS.OK).json({
         success: true,

@@ -4,7 +4,7 @@ import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
-import { UpdateJobPostRequestDTO } from "../../dto/update-job.dto";
+import { JobStatus, UpdateJobPostRequestDTO } from "../../dto/update-job.dto";
 
 export class UpdateJobUseCase implements UseCase<UpdateJobPostRequestDTO, Job> {
   constructor(
@@ -35,7 +35,7 @@ export class UpdateJobUseCase implements UseCase<UpdateJobPostRequestDTO, Job> {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
 
-    if (job.status === "active") {
+    if (job.status === JobStatus.Active) {
       throw new ApplicationError(
         ERROR_CODES.JOB_ALREADY_PUBLISHED_CANNOT_BE_UPDATED,
       );

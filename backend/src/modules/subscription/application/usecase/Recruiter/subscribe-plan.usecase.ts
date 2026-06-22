@@ -6,18 +6,22 @@ import {
   RecruiterSubscription,
   SubscriptionStatus,
 } from "../../../domain/entities/recruiter-subscription.entity";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { SubscribePlanRequestDTO } from "../../dto/subscribe.plan-dto";
 
-export class SubscribePlanUseCase {
+export class SubscribePlanUseCase implements UseCase<
+  SubscribePlanRequestDTO,
+  RecruiterSubscription
+> {
   constructor(
     private readonly planRepo: SubscriptionPlanRepository,
     private readonly recruiterRepo: RecruiterSubscriptionRepository,
   ) {}
 
   async execute(
-    recruiterId: string,
-    planId: string,
+    request: SubscribePlanRequestDTO,
   ): Promise<RecruiterSubscription> {
-    const plan = await this.planRepo.findById(planId);
+    const plan = await this.planRepo.findById(request.planId);
     if (!plan || !plan.isActive) {
       throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
     }
@@ -26,8 +30,9 @@ export class SubscribePlanUseCase {
         ERROR_CODES.FREE_PLAN_DOES_NOT_REQUIRE_PAYMENT,
       );
     }
-    const existing =
-      await this.recruiterRepo.findActiveByRecruiter(recruiterId);
+    const existing = await this.recruiterRepo.findActiveByRecruiter(
+      request.recruiterId,
+    );
     if (existing) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_ALREADY_EXISTS);
     }
@@ -37,7 +42,7 @@ export class SubscribePlanUseCase {
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + durationMonths);
     const subscription = RecruiterSubscription.create({
-      recruiterId,
+      recruiterId: request.recruiterId,
       planId: plan.id,
       planName: plan.name,
       planPrice: plan.price,

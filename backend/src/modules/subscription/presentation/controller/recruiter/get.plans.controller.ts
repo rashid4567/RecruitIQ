@@ -3,9 +3,19 @@ import { GetAllSubscriptionPlansUseCase } from "../../../application/usecase/Adm
 import { SubscriptionPlanFilter } from "../../../domain/repository/subscription-plan.repository";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import {
+  GetAllPlansRequestDTO,
+  GetAllPlansResponseDTO,
+} from "../../../application/dto/get-all-plans.dto";
 
 export class RecruiterPlanDetailController {
-  constructor(private readonly getPlansUC: GetAllSubscriptionPlansUseCase) {}
+  constructor(
+    private readonly getPlansUC: UseCase<
+      GetAllPlansRequestDTO,
+      GetAllPlansResponseDTO
+    >,
+  ) {}
 
   getAllPlans = async (req: Request, res: Response, next: NextFunction) => {
     try {

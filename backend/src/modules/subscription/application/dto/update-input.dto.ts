@@ -19,3 +19,8 @@ export interface UpdatePlanInput {
   sortOrder?: number;
   razorpayPlanId?: string;
 }
+
+export interface UpdateSubscriptionPlanRequestDTO {
+  planId: string;
+  data: UpdatePlanInput;
+}

@@ -3,9 +3,10 @@ import { ApplicationError } from "../../../../shared/errors/application.error";
 import { UseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { CandidateRepository } from "../../../candidate/domain/repositories/candidate.repository";
-import { Resume, ResumeParseStatus } from "../../domain/entity/resume.entity";
+import { ParsedResumeData, Resume, ResumeParseStatus } from "../../domain/entity/resume.entity";
 import { FileStorageRepository } from "../../domain/repository/fileStorage.repository";
 import { ResumeRepository } from "../../domain/repository/resume.repository";
+import { ParseResumeDTO } from "../dto/parse.resume.dto";
 import { UploadResumeDTO } from "../dto/upload.resume.dto";
 import { ParseResumeUseCase } from "./ParseResumeUseCase";
 
@@ -14,7 +15,10 @@ export class UploadResumeUseCase implements UseCase<UploadResumeDTO, Resume> {
     private readonly resumeRepository: ResumeRepository,
     private readonly candidateRepository: CandidateRepository,
     private readonly fileStorageRepository: FileStorageRepository,
-    private readonly parseResumeUseCase: ParseResumeUseCase,
+    private readonly parseResumeUseCase: UseCase<
+      ParseResumeDTO,
+      ParsedResumeData
+    >,
   ) {}
 
   async execute(dto: UploadResumeDTO): Promise<Resume> {

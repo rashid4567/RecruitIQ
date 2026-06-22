@@ -4,8 +4,16 @@ import {
   JobSalary,
 } from "../../domain/entities/job.entity";
 
+export const JobStatus = {
+  Draft: "draft",
+  Active: "active",
+  Expired: "expired",
+} as const;
+
+export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus];
+
 export interface UpdateJobDTO {
-  companyName ?: string;
+  companyName?: string;
   title?: string;
   description?: string;
   responsibilities?: string[];
@@ -24,8 +32,8 @@ export interface UpdateJobDTO {
   externalLink?: string;
 }
 
-export interface UpdateJobPostRequestDTO{
-    jobId: string,
-    recruiterId: string,
-    dto: UpdateJobDTO,
+export interface UpdateJobPostRequestDTO {
+  jobId: string;
+  recruiterId: string;
+  dto: UpdateJobDTO;
 }

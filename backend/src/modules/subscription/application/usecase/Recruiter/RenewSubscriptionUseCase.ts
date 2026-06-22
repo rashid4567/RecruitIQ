@@ -3,15 +3,25 @@ import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants
 import { RecruiterSubscriptionRepository } from "../../../domain/repository/recruiter-subscription-plan-repository";
 
 import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { RenewSubscriptionRequestDTO } from "../../dto/renew-subscription.dto";
+import { RecruiterSubscription } from "../../../domain/entities/recruiter-subscription.entity";
 
-export class RenewSubscriptionUseCase {
+export class RenewSubscriptionUseCase implements UseCase<
+  RenewSubscriptionRequestDTO,
+  RecruiterSubscription
+> {
   constructor(
     private readonly repo: RecruiterSubscriptionRepository,
     private readonly planRepo: SubscriptionPlanRepository,
   ) {}
 
-  async execute(recruiterId: string) {
-    const subscription = await this.repo.findActiveByRecruiter(recruiterId);
+  async execute(
+    request: RenewSubscriptionRequestDTO,
+  ): Promise<RecruiterSubscription> {
+    const subscription = await this.repo.findActiveByRecruiter(
+      request.recruiterId,
+    );
 
     if (!subscription) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_NOT_FOUND);

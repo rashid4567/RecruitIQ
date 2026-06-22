@@ -13,31 +13,42 @@ import { UpgradeSubscriptionUseCase } from "./UpgradeSubscriptionUseCase";
 import { UpdateRecruiterSubscriptionStatusUseCase } from "../../../../recruiter/application/useCase/profile/UpdateRecruiterSubscriptionStatusUseCase";
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/infrastructure/mongoose/notification.model";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { UpdateRecruiterSubscriptionStatusRequestDTO } from "../../../../recruiter/application/dto/updateRecruiterSubscriptionStatus.dto";
+import { UpgradeSubscriptionRequestDTO } from "../../dto/upgrade-subscription.dto";
+import { CreateNotificationRequest } from "../../../../notification/application/dto/createNotification.dto";
+import { Notification } from "../../../../notification/domain/entities/Notification";
+import {
+  VerifyPaymentRequestDTO,
+  VerifyPaymentResponseDTO,
+} from "../../dto/verifyPayment.dto";
 
-export interface VerifyPaymentRequest {
-  razorpayOrderId: string;
-  razorpayPaymentId: string;
-  razorpaySignature: string;
-}
-
-export interface VerifyPaymentResponse {
-  subscriptionId: string;
-  paymentId: string;
-  status: string;
-}
-
-export class VerifyPaymentUseCase {
+export class VerifyPaymentUseCase implements UseCase<
+  VerifyPaymentRequestDTO,
+  VerifyPaymentResponseDTO
+> {
   constructor(
     private readonly paymentRepo: PaymentRepository,
     private readonly planRepo: SubscriptionPlanRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
     private readonly paymentGateway: PaymentGateway,
-    private readonly upgradeSubscriptionUC: UpgradeSubscriptionUseCase,
-    private readonly updateRecruiterSubscriptionStatusUC: UpdateRecruiterSubscriptionStatusUseCase,
-    private readonly createNotificationUC: CreateNotificationUseCase,
+    private readonly upgradeSubscriptionUC: UseCase<
+      UpgradeSubscriptionRequestDTO,
+      RecruiterSubscription
+    >,
+    private readonly updateRecruiterSubscriptionStatusUC: UseCase<
+      UpdateRecruiterSubscriptionStatusRequestDTO,
+      void
+    >,
+    private readonly createNotificationUC: UseCase<
+      CreateNotificationRequest,
+      Notification
+    >,
   ) {}
 
-  async execute(request: VerifyPaymentRequest): Promise<VerifyPaymentResponse> {
+  async execute(
+    request: VerifyPaymentRequestDTO,
+  ): Promise<VerifyPaymentResponseDTO> {
     const payment = await this.paymentRepo.findByRazorpayOrderId(
       request.razorpayOrderId,
     );
@@ -64,18 +75,17 @@ export class VerifyPaymentUseCase {
       throw new ApplicationError(ERROR_CODES.INVALID_PAYMENT_SIGNATURE);
     }
 
-    // Upgrade Flow
     if (payment.paymentType === PaymentType.Upgrade) {
-      const upgradedSubscription = await this.upgradeSubscriptionUC.execute(
-        payment.recruiterId,
-        payment.planId,
-        payment.durationMonths,
-      );
+      const upgradedSubscription = await this.upgradeSubscriptionUC.execute({
+        recruiterId: payment.recruiterId,
+        newPlanId: payment.planId,
+        durationMonths: payment.durationMonths,
+      });
 
-      await this.updateRecruiterSubscriptionStatusUC.execute(
-        payment.recruiterId,
-        "active",
-      );
+      await this.updateRecruiterSubscriptionStatusUC.execute({
+        recruiterId: payment.recruiterId,
+        status: "active",
+      });
 
       try {
         await this.createNotificationUC.execute({
@@ -108,7 +118,6 @@ export class VerifyPaymentUseCase {
       };
     }
 
-    // New Subscription Flow
     const plan = await this.planRepo.findById(payment.planId);
 
     if (!plan) {
@@ -164,10 +173,10 @@ export class VerifyPaymentUseCase {
 
     const savedSubscription = await this.subscriptionRepo.save(subscription);
 
-    await this.updateRecruiterSubscriptionStatusUC.execute(
-      payment.recruiterId,
-      "active",
-    );
+    await this.updateRecruiterSubscriptionStatusUC.execute({
+      recruiterId: payment.recruiterId,
+      status: "active",
+    });
 
     try {
       await this.createNotificationUC.execute({

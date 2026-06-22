@@ -4,14 +4,16 @@ import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
-import { GetMyApplicationRequestDTO } from "../../../application/dto/getMyApplication.dto";
-import { JobApplication } from "../../../domain/entity/job-application.entity";
+import {
+  CandidateApplicationListItemDTO,
+  GetMyApplicationRequestDTO,
+} from "../../../application/dto/getMyApplication.dto";
 
 export class GetMyApplicationController {
   constructor(
     private readonly getMyApplicationUC: UseCase<
       GetMyApplicationRequestDTO,
-      JobApplication[]
+      CandidateApplicationListItemDTO[]
     >,
   ) {}
 

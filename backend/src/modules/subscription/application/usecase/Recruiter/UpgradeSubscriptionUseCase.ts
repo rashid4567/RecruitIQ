@@ -1,26 +1,34 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { AnalyzeApplicationRequestDTO } from "../../../../job-application/application/dto/analyseJobpost.dto";
 import { AnalyzeApplicationUseCase } from "../../../../job-application/application/usecase/candidate/AnalyzeApplicationUseCase";
 import { ApplicationAnalysisStatus } from "../../../../job-application/domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../../../job-application/domain/repository/job-application.repository";
+import { RecruiterSubscription } from "../../../domain/entities/recruiter-subscription.entity";
 import { RecruiterSubscriptionRepository } from "../../../domain/repository/recruiter-subscription-plan-repository";
 import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
+import { UpgradeSubscriptionRequestDTO } from "../../dto/upgrade-subscription.dto";
 
-export class UpgradeSubscriptionUseCase {
+export class UpgradeSubscriptionUseCase implements UseCase<
+  UpgradeSubscriptionRequestDTO,
+  RecruiterSubscription
+> {
   constructor(
     private readonly planRepo: SubscriptionPlanRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
     private readonly applicationRepo: JobApplicationRepository,
-    private readonly analyzeApplicationUC: AnalyzeApplicationUseCase,
+    private readonly analyzeApplicationUC: UseCase<
+      AnalyzeApplicationRequestDTO,
+      void
+    >,
   ) {}
 
   async execute(
-    recruiterId: string,
-    newPlanId: string,
-    durationMonths: number,
-  ) {
+    request: UpgradeSubscriptionRequestDTO,
+  ): Promise<RecruiterSubscription> {
     const currentSubscription =
-      await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
+      await this.subscriptionRepo.findActiveByRecruiter(request.recruiterId);
 
     if (!currentSubscription) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_NOT_FOUND);
@@ -34,7 +42,7 @@ export class UpgradeSubscriptionUseCase {
       throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
     }
 
-    const newPlan = await this.planRepo.findById(newPlanId);
+    const newPlan = await this.planRepo.findById(request.newPlanId);
 
     if (!newPlan || !newPlan.isActive) {
       throw new ApplicationError(ERROR_CODES.PLAN_NOT_FOUND);
@@ -50,14 +58,14 @@ export class UpgradeSubscriptionUseCase {
 
     const now = new Date();
     const endDate = new Date(now);
-    endDate.setMonth(endDate.getMonth() + durationMonths);
+    endDate.setMonth(endDate.getMonth() + request.durationMonths);
 
     const upgradedSubscription = currentSubscription.update({
       planId: newPlan.id,
       planName: newPlan.name,
-      planPrice: newPlan.price * durationMonths,
+      planPrice: newPlan.price * request.durationMonths,
       planType: newPlan.planType,
-      durationMonths,
+      durationMonths: request.durationMonths,
       jobPostActiveDays: newPlan.jobPostActiveDays,
       startDate: now,
       endDate,
@@ -69,27 +77,29 @@ export class UpgradeSubscriptionUseCase {
       jobPostsLimit:
         newPlan.jobPostsPerMonth === -1
           ? -1
-          : newPlan.jobPostsPerMonth * durationMonths,
+          : newPlan.jobPostsPerMonth * request.durationMonths,
       screeningLimit:
         newPlan.screeningCredits === -1
           ? -1
-          : newPlan.screeningCredits * durationMonths,
+          : newPlan.screeningCredits * request.durationMonths,
       aiScoreLimit:
         newPlan.aiScoreCredits === -1
           ? -1
-          : newPlan.aiScoreCredits * durationMonths,
+          : newPlan.aiScoreCredits * request.durationMonths,
     });
     await this.subscriptionRepo.update(upgradedSubscription);
 
     const quotaExceededApplications =
       await this.applicationRepo.findByAnalysisStatus(
-        recruiterId,
+        request.recruiterId,
         ApplicationAnalysisStatus.QUOTA_EXCEEDED,
       );
 
     for (const application of quotaExceededApplications) {
       void this.analyzeApplicationUC
-        .execute(application.id)
+        .execute({
+          applicationId: application.id,
+        })
         .catch((error) =>
           console.error(
             `Failed to re-analyze application ${application.id}`,

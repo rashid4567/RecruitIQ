@@ -10,24 +10,16 @@ import { PaymentGateway } from "../../ports/Paymentgateway.port";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { IdGenerator } from "../../ports/id-generator.port";
+import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import {
+  CreatePaymentOrderRequestDTO,
+  CreatePaymentOrderResponseDTO,
+} from "../../dto/createSubscription.dto";
 
-export interface CreatePaymentOrderRequest {
-  recruiterId: string;
-  planId: string;
-  durationMonths: number;
-}
-
-export interface CreatePaymentOrderResponse {
-  paymentId: string;
-  orderId: string;
-  razorpayKeyId: string;
-  amount: number;
-  currency: string;
-  planName: string;
-  paymentType: PaymentType;
-}
-
-export class CreatePaymentOrderUseCase {
+export class CreatePaymentOrderUseCase implements UseCase<
+  CreatePaymentOrderRequestDTO,
+  CreatePaymentOrderResponseDTO
+> {
   constructor(
     private readonly paymentRepo: PaymentRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
@@ -38,8 +30,8 @@ export class CreatePaymentOrderUseCase {
   ) {}
 
   async execute(
-    request: CreatePaymentOrderRequest,
-  ): Promise<CreatePaymentOrderResponse> {
+    request: CreatePaymentOrderRequestDTO,
+  ): Promise<CreatePaymentOrderResponseDTO> {
     const activeSubscription =
       await this.subscriptionRepo.findActiveByRecruiter(request.recruiterId);
 

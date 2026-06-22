@@ -1,21 +1,22 @@
+import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
 import { RecruiterSubscriptionRepository } from "../../../../domain/repository/recruiter-subscription-plan-repository";
+import {
+  GetSubscribersRequestDTO,
+  GetSubscribersResponseDTO,
+} from "../../../dto/get-subscribers.dto";
 
-export interface GetSubscribersRequest {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: string;
-}
-
-export class GetSubscribersUseCase {
+export class GetSubscribersUseCase implements UseCase<
+  GetSubscribersRequestDTO,
+  GetSubscribersResponseDTO
+> {
   constructor(
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
   ) {}
 
   async execute(
-    request: GetSubscribersRequest,
-  ) {
-    return await this.subscriptionRepo.findAll({
+    request: GetSubscribersRequestDTO,
+  ): Promise<GetSubscribersResponseDTO> {
+    return this.subscriptionRepo.findAll({
       page: request.page ?? 1,
       limit: request.limit ?? 10,
       search: request.search,

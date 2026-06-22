@@ -1,3 +1,7 @@
+export interface GetCurrentSubscriptionRequestDTO {
+  recruiterId: string;
+}
+
 export interface CurrentSubscriptionResponse {
   id: string;
   planName: string;
@@ -10,7 +14,7 @@ export interface CurrentSubscriptionResponse {
   nextBillingDate: Date;
   jobPostsUsed: number;
   jobPostsLimit: number;
-  jobPostActiveDays: number; 
+  jobPostActiveDays: number;
   screeningUsed: number;
   screeningLimit: number;
   aiScoreUsed: number;

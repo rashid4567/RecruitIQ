@@ -40,6 +40,7 @@ export class CreateSubscriptionPlanUseCase implements UseCase<
       billingCycle,
       billingInterval: input.billingInterval,
       jobPostsPerMonth: input.jobPostsPerMonth,
+      ResumeDownload : input.ResumeDownload,
       jobPostActiveDays: input.jobPostActiveDays,
       screeningCredits: input.screeningCredits,
       aiScoreCredits: input.aiScoreCredits,

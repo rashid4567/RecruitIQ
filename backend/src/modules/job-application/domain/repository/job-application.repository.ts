@@ -75,6 +75,7 @@ export interface JobApplicationRepository extends BaseRepository<JobApplication>
     candidateId: string,
   ): Promise<CandidateApplicationListItem[]>;
   findByResumeId(resumeId: string): Promise<JobApplication[]>;
+  countTodayApplicationsByCandidate(candidateId: string): Promise<number>;
   findByAnalysisStatus(
     recruiterId: string,
     status: ApplicationAnalysisStatus,

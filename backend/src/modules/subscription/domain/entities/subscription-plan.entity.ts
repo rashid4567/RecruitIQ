@@ -25,6 +25,7 @@ export interface FeatureAccess {
   interviewScheduling: boolean;
   advancedAnalytics: boolean;
   prioritySupport: boolean;
+  resumeParsing : boolean;
   aiResumeScoring: boolean;
   candidateShortlisting: boolean;
   exportReports: boolean;
@@ -46,6 +47,7 @@ export interface SubscriptionPlanProps {
   billingInterval: number;
   jobPostsPerMonth: number;
   jobPostActiveDays: number;
+  ResumeDownload : number;
   screeningCredits: number;
   aiScoreCredits: number;
   featuresAccess: FeatureAccess;
@@ -75,6 +77,10 @@ export class SubscriptionPlan {
     }
     if (props.jobPostsPerMonth < -1) {
       throw new DomainError(DOMAIN_ERROR_CODES.INVALID_JOB_POST_LIMIT);
+    }
+
+    if(props.ResumeDownload < -1){
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_RESUME_DOWNLOAD_LIMIT)
     }
     if (props.screeningCredits < -1) {
       throw new DomainError(DOMAIN_ERROR_CODES.INVALID_SCREENING_CREDITS);
@@ -126,6 +132,10 @@ export class SubscriptionPlan {
   get jobPostsPerMonth(): number {
     return this.props.jobPostsPerMonth;
   }
+
+  get ResumeDownload():number{
+    return this.props.ResumeDownload;
+  }
   get screeningCredits(): number {
     return this.props.screeningCredits;
   }
@@ -170,6 +180,10 @@ export class SubscriptionPlan {
   }
   hasUnlimitedJobs(): boolean {
     return this.props.jobPostsPerMonth === -1;
+  }
+
+  hasUnlimitedResumeDownload():boolean{
+    return this.props.ResumeDownload === -1
   }
   hasUnlimitedScreening(): boolean {
     return this.props.screeningCredits === -1;

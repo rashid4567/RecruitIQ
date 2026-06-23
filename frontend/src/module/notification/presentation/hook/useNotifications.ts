@@ -26,7 +26,7 @@ export function useNotifications() {
   const fetchUnreadCount = useCallback(async () => {
     const count = await getUnreadNotificationCountUC.execute();
 
-    console.log("HOOK COUNT:", count);
+  
     
     setUnreadCount(count);
   }, []);

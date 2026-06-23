@@ -98,37 +98,39 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
     return docs.map((doc) => this.toDomain(doc));
   }
-  async findApplicationsForCandidate(candidateId: string): Promise<CandidateApplicationListItem[]> {
+  async findApplicationsForCandidate(
+    candidateId: string,
+  ): Promise<CandidateApplicationListItem[]> {
     const docs = await JobApplicationModel.find({
-      candidateId : new mongoose.Types.ObjectId(candidateId),
-      isDeleted : false,
+      candidateId: new mongoose.Types.ObjectId(candidateId),
+      isDeleted: false,
     })
-    .populate({
-      path : "jobId",
-      select : "title"
-    })
-    .populate({
-      path : "resumeId",
-      select : "fileName",
-    })
-    .sort({
-      createdAt : -1
-    });
+      .populate({
+        path: "jobId",
+        select: "title",
+      })
+      .populate({
+        path: "resumeId",
+        select: "fileName",
+      })
+      .sort({
+        createdAt: -1,
+      });
 
-    return docs.map((doc)=>{
+    return docs.map((doc) => {
       const job = doc.jobId as unknown as PopulatedJob;
       const resume = doc.resumeId as unknown as PopulatedResume;
 
-      return{
-        applicationId : doc._id.toString(),
-        jobId :  job._id.toString(),
-        jobTitle : job.title,
-        resumeId : resume._id.toString(),
-        resumeFileName : resume.fileName,
-        status : doc.status,
-        appliedAt : doc.appliedAt,
-      }
-    })
+      return {
+        applicationId: doc._id.toString(),
+        jobId: job._id.toString(),
+        jobTitle: job.title,
+        resumeId: resume._id.toString(),
+        resumeFileName: resume.fileName,
+        status: doc.status,
+        appliedAt: doc.appliedAt,
+      };
+    });
   }
 
   async findApplicationsWithCandidateDetails(
@@ -336,6 +338,23 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       appliedAt: data.appliedAt,
       updatedAt: data.updatedAt,
     };
+  }
+  async countTodayApplicationsByCandidate(
+    candidateId: string,
+  ): Promise<number> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return await JobApplicationModel.countDocuments({
+      candidateId: new mongoose.Types.ObjectId(candidateId),
+      createdAt: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
   }
 
   async findByAnalysisStatus(

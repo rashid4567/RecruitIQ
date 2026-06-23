@@ -137,6 +137,9 @@ export class MongooseJobRepository implements JobRepository {
       },
     );
   }
+
+
+
   async findAll(
     filters: JobFilters,
     pagination: PaginationOptions,

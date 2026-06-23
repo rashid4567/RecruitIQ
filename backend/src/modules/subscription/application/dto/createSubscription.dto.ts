@@ -15,6 +15,7 @@ export interface CreateSubscriptionPlanRequestDTO {
   billingCycle: "weekly" | "monthly" | "yearly";
   billingInterval: number;
   jobPostsPerMonth: number;
+  ResumeDownload : number;
   jobPostActiveDays: number;
   screeningCredits: number;
   aiScoreCredits: number;

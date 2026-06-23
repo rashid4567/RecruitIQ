@@ -8,9 +8,5 @@ export interface GetSubscribersRequestDTO {
   status?: string;
 }
 
-// export interface GetSubscribersResponseDTO {
-//   data: RecruiterSubscription[];
-//   total: number;
-// }
 
 export type GetSubscribersResponseDTO = PaginatedSubscribers;

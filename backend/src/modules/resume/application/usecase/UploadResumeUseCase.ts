@@ -23,6 +23,7 @@ export class UploadResumeUseCase implements UseCase<UploadResumeDTO, Resume> {
 
   async execute(dto: UploadResumeDTO): Promise<Resume> {
     await this.validateCandidate(dto.candidateId);
+     await this.validateDailyUploadLimit(dto.candidateId);
     const existingResume = await this.resumeRepository.findByCandidateId(
       dto.candidateId,
     );
@@ -54,6 +55,14 @@ export class UploadResumeUseCase implements UseCase<UploadResumeDTO, Resume> {
     const candidate = await this.candidateRepository.findByUserId(userId);
     if (!candidate) {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
+    }
+  }
+
+  private async validateDailyUploadLimit(candidateId : string):Promise<void>{
+    const todaysUploadCount = await this.resumeRepository.countTodayResumeUploadedByCandidate(candidateId);
+
+    if(todaysUploadCount >= 3){
+      throw new ApplicationError(ERROR_CODES.REACHED_DAILY_RESUME_UPLOAD_LIMIT)
     }
   }
 

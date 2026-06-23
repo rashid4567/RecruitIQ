@@ -26,9 +26,11 @@ export interface RecruiterSubscriptionProps {
   autoRenew: boolean;
   cancelledAt?: Date;
   jobPostsUsed: number;
+  resumeDownloadedCount: number;
   screeningUsed: number;
   aiScoreUsed: number;
   jobPostsLimit: number;
+  resumeDownloadLimit: number;
   screeningLimit: number;
   aiScoreLimit: number;
   createdAt: Date;
@@ -76,6 +78,10 @@ export class RecruiterSubscription {
       props.aiScoreLimit < -1
     ) {
       throw new DomainError(DOMAIN_ERROR_CODES.INVALID_JOB_POST_LIMIT);
+    }
+
+    if (props.resumeDownloadLimit < -1) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_RESUME_DOWNLOAD_LIMIT);
     }
 
     return new RecruiterSubscription(props);
@@ -147,7 +153,9 @@ export class RecruiterSubscription {
   get jobPostsUsed() {
     return this.props.jobPostsUsed;
   }
-
+  get resumeDownloadedCount() {
+    return this.props.resumeDownloadedCount;
+  }
   get screeningUsed() {
     return this.props.screeningUsed;
   }
@@ -158,6 +166,10 @@ export class RecruiterSubscription {
 
   get jobPostsLimit() {
     return this.props.jobPostsLimit;
+  }
+
+  get resumeDownloadLimit() {
+    return this.props.resumeDownloadLimit;
   }
 
   get screeningLimit() {
@@ -192,6 +204,13 @@ export class RecruiterSubscription {
 
   hasJobPostAccess(): boolean {
     return this.jobPostsLimit === -1 || this.jobPostsUsed < this.jobPostsLimit;
+  }
+
+  hasResumeDownloadLimit(): boolean {
+    return (
+      this.resumeDownloadLimit === -1 ||
+      this.resumeDownloadedCount < this.resumeDownloadLimit
+    );
   }
 
   hasScreeningAccess(): boolean {

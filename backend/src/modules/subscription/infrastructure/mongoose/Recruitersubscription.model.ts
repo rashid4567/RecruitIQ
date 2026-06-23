@@ -23,9 +23,11 @@ export interface IRecruiterSubscription extends Document {
   autoRenew: boolean;
   cancelledAt?: Date;
   jobPostsUsed: number;
+  resumeDownloadedCount : number;
   screeningUsed: number;
   aiScoreUsed: number;
   jobPostsLimit: number;
+  resumeDownloadLimit : number
   screeningLimit: number;
   aiScoreLimit: number;
   createdAt: Date;
@@ -119,6 +121,11 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
       default: 0,
       min: 0,
     },
+    resumeDownloadedCount : {
+      type : Number,
+      default : 0,
+      min : 0,
+    },
 
     screeningUsed: {
       type: Number,
@@ -136,6 +143,12 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
       type: Number,
       required: true,
       min: -1,
+    },
+
+    resumeDownloadLimit : {
+      type : Number,
+      required : true,
+      min : -1
     },
 
     screeningLimit: {

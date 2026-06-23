@@ -15,4 +15,5 @@ export interface ResumeRepository extends BaseRepository<Resume> {
     parsedData: ParsedResumeData,
   ): Promise<void>;
   updateParseStatus(resumeId: string, status: ResumeParseStatus): Promise<void>;
+  countTodayResumeUploadedByCandidate(candidateId : string):Promise<number>;
 }

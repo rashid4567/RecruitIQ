@@ -1,0 +1,1 @@
+export const DAILY_JOB_APPLICATION_LIMIT = 5;

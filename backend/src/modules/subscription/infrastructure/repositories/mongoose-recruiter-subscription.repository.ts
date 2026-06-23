@@ -76,7 +76,6 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
         .lean(),
       RecruiterSubscriptionModel.countDocuments(filter),
     ]);
-
     const items = await Promise.all(
       subscriptions.map(async (sub) => {
         const recruiterProfile = await RecruiterProfileModel.findOne({
@@ -106,7 +105,6 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
         };
       }),
     );
-
     return {
       items,
       total,
@@ -115,7 +113,6 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       totalPages: Math.ceil(total / limit),
     };
   }
-
   async findById(id: string): Promise<RecruiterSubscription | null> {
     const doc = await RecruiterSubscriptionModel.findById(id);
     if (!doc) {
@@ -134,7 +131,6 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
     if (!doc) {
       return null;
     }
-
     return this.toEntity(doc);
   }
 
@@ -181,9 +177,11 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       autoRenew: doc.autoRenew,
       cancelledAt: doc.cancelledAt,
       jobPostsUsed: doc.jobPostsUsed,
+      resumeDownloadedCount : doc.resumeDownloadedCount,
       screeningUsed: doc.screeningUsed,
       aiScoreUsed: doc.aiScoreUsed,
       jobPostsLimit: doc.jobPostsLimit,
+      resumeDownloadLimit : doc.resumeDownloadLimit,
       screeningLimit: doc.screeningLimit,
       aiScoreLimit: doc.aiScoreLimit,
       createdAt: doc.createdAt,

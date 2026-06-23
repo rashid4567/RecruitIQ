@@ -16,27 +16,22 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
   async save(plan: SubscriptionPlan): Promise<void> {
     await SubscriptionPlanModel.create(plan.toPlainObject());
   }
-
   async update(plan: SubscriptionPlan): Promise<void> {
     await SubscriptionPlanModel.findByIdAndUpdate(plan.id, {
       $set: plan.toPlainObject(),
     });
   }
-
   async delete(id: string): Promise<void> {
     await SubscriptionPlanModel.findByIdAndDelete(id);
   }
-
   async findById(id: string): Promise<SubscriptionPlan | null> {
     const doc = await SubscriptionPlanModel.findById(id);
-
     if (!doc) {
       return null;
     }
 
     return this.toEntity(doc);
   }
-
   async findByPlanType(type: PlanType): Promise<SubscriptionPlan | null> {
     const doc = await SubscriptionPlanModel.findOne({
       planType: type,
@@ -51,21 +46,16 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
 
   async findAll(filter: SubscriptionPlanFilter) {
     const query: Record<string, unknown> = {};
-
     if (filter.isActive !== undefined) {
       query.isActive = filter.isActive;
     }
-
     if (filter.planType) {
       query.planType = filter.planType;
     }
 
     const page = filter.page ?? 1;
-
     const limit = filter.limit ?? 10;
-
     const skip = (page - 1) * limit;
-
     const [docs, total] = await Promise.all([
       SubscriptionPlanModel.find(query)
         .sort({
@@ -79,7 +69,6 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
 
     return {
       data: docs.map((x) => this.toEntity(x)),
-
       total,
     };
   }
@@ -96,12 +85,14 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
       jobPostActiveDays : doc.jobPostActiveDays,
       billingInterval: doc.billingInterval,
       jobPostsPerMonth: doc.jobPostsPerMonth,
+      ResumeDownload : doc.ResumeDownload,
       screeningCredits: doc.screeningCredits,
       aiScoreCredits: doc.aiScoreCredits,
       featuresAccess: {
         interviewScheduling: doc.featuresAccess.interviewScheduling,
         advancedAnalytics: doc.featuresAccess.advancedAnalytics,
         prioritySupport: doc.featuresAccess.prioritySupport,
+        resumeParsing : doc.featuresAccess.resumeParsing,
         aiResumeScoring: doc.featuresAccess.aiResumeScoring,
         candidateShortlisting: doc.featuresAccess.candidateShortlisting,
         exportReports: doc.featuresAccess.exportReports,
@@ -114,7 +105,6 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };
-
     return SubscriptionPlan.create(props);
   }
 }

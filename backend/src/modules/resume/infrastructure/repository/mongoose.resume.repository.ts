@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import {
   ParsedResumeData,
   Resume,
@@ -79,6 +80,22 @@ export class MongooseResumeRepository implements ResumeRepository {
       parseStatus: doc.parseStatus,
       parsedData: doc.parsedData ?? undefined,
     });
+  }
+
+  async countTodayResumeUploadedByCandidate(candidateId: string): Promise<number> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0,0,0,0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23,59,59,59);
+
+    return await ResumeModel.countDocuments({
+      candidateId : new mongoose.Types.ObjectId("candidateId"),
+      createdAt : {
+        $gte : startOfDay,
+        $lte : endOfDay
+      }
+    })
   }
 
   async updateParsedData(

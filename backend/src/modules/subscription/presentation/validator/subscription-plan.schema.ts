@@ -63,7 +63,7 @@ const BasePlanSchema = z.object({
     .int("Billing interval must be a whole number")
     .min(1, "Billing interval must be at least 1")
     .max(12, "Billing interval cannot exceed 12"),
-
+  resumeDownloadedCount: z.number().int().min(-1, "Use -1 for unlimited").max(100000),
   jobPostsPerMonth: z
     .number()
     .int("Job posts per month must be a whole number")

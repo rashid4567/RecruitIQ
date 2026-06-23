@@ -13,7 +13,7 @@ export class ApiNotificationRepository
     `/notification?page=${page}&limit=${limit}`,
   );
 
-  console.log("Notifications API:", res.data);
+
 
   return res.data.data.map(
     (notification: NotificationProps) =>

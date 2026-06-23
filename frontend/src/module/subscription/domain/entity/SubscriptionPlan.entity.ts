@@ -30,6 +30,7 @@ export interface SubscriptionPlanProps {
   jobPostsPerMonth: number;
   jobPostActiveDays: number;
   screeningCredits: number;
+  resumeParsesPerMonth: number;
   aiScoreCredits: number;
   featuresAccess: FeatureAccess;
   features: PlanFeature[];
@@ -87,7 +88,9 @@ export class SubscriptionPlan {
   get screeningCredits() {
     return this.props.screeningCredits;
   }
-
+get resumeParsesPerMonth() {
+  return this.props.resumeParsesPerMonth;
+}
   get aiScoreCredits() {
     return this.props.aiScoreCredits;
   }

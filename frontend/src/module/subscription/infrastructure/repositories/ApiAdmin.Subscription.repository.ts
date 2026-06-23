@@ -35,13 +35,14 @@ interface RawSubscriptionPlan {
   name?: string;
   description?: string;
   planType?: string;
-  jobPostActiveDays : number;
+  jobPostActiveDays: number;
   price?: number;
   currency?: string;
   billingCycle?: string;
   billingInterval?: number;
   jobPostsPerMonth?: number;
   screeningCredits?: number;
+  resumeParsesPerMonth?: number;
   aiScoreCredits?: number;
   razorpayPlanId?: string;
   featuresAccess?: Partial<RawFeaturesAccess>;
@@ -130,31 +131,28 @@ export class ApiAdminSubscriptionPlanRepository implements AdminSubscriptionPlan
     return this.toEntity(res.data.data);
   }
   async update(plan: SubscriptionPlan): Promise<SubscriptionPlan> {
-  const payload = {
-    name: plan.name,
-    description: plan.description,
-    price: plan.price,
-    currency: plan.currency,
-    billingCycle: plan.billingCycle,
-    billingInterval: plan.billingInterval,
-    jobPostsPerMonth: plan.jobPostsPerMonth,
-    jobPostActiveDays: plan.jobPostActiveDays,
-    screeningCredits: plan.screeningCredits,
-    aiScoreCredits: plan.aiScoreCredits,
-    featuresAccess: plan.featuresAccess,
-    features: plan.features,
-    isPopular: plan.isPopular,
-    sortOrder: plan.sortOrder,
-    razorpayPlanId: plan.razorpayPlanId,
-  };
+    const payload = {
+      name: plan.name,
+      description: plan.description,
+      price: plan.price,
+      currency: plan.currency,
+      billingCycle: plan.billingCycle,
+      billingInterval: plan.billingInterval,
+      jobPostsPerMonth: plan.jobPostsPerMonth,
+      jobPostActiveDays: plan.jobPostActiveDays,
+      screeningCredits: plan.screeningCredits,
+      aiScoreCredits: plan.aiScoreCredits,
+      featuresAccess: plan.featuresAccess,
+      features: plan.features,
+      isPopular: plan.isPopular,
+      sortOrder: plan.sortOrder,
+      razorpayPlanId: plan.razorpayPlanId,
+    };
 
-  const res = await api.patch(
-    `/admin/plans/${plan.id}`,
-    payload,
-  );
+    const res = await api.patch(`/admin/plans/${plan.id}`, payload);
 
-  return this.toEntity(res.data.data);
-}
+    return this.toEntity(res.data.data);
+  }
 
   async hide(planId: string): Promise<void> {
     console.log("HIDE:", planId);
@@ -182,20 +180,19 @@ export class ApiAdminSubscriptionPlanRepository implements AdminSubscriptionPlan
         source.featuresAccess?.candidateShortlisting ?? false,
       exportReports: source.featuresAccess?.exportReports ?? false,
     };
-
     const props: SubscriptionPlanProps = {
       id: String(source.id ?? source._id ?? "").trim(),
       name: source.name ?? "",
       description: source.description,
       planType: (source.planType ?? PlanType.Free) as PlanType,
-      jobPostActiveDays : source.jobPostActiveDays ?? 1,
+      jobPostActiveDays: source.jobPostActiveDays ?? 1,
       price: source.price ?? 0,
       currency: (source.currency ?? "INR") as Currency,
       billingCycle: (source.billingCycle ?? "monthly") as BillingCycle,
       billingInterval: source.billingInterval ?? 1,
-   
       jobPostsPerMonth: source.jobPostsPerMonth ?? 0,
       screeningCredits: source.screeningCredits ?? 0,
+      resumeParsesPerMonth: source.resumeParsesPerMonth ?? 0,
       aiScoreCredits: source.aiScoreCredits ?? 0,
       razorpayPlanId: source.razorpayPlanId,
       featuresAccess,

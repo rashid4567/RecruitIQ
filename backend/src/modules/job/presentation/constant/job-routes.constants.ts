@@ -1,7 +1,7 @@
 export const JOB_ROUTES = {
   COMMON: {
     ROOT: "/",
-    BY_ID: "/:jobId",
+    BY_ID: "/:id",
   },
 
   ADMIN: {
@@ -19,9 +19,9 @@ export const JOB_ROUTES = {
   RECRUITER: {
     CREATE: "/create",
     ROOT: "/",
-    BY_ID: "/:jobId",
-    PUBLISH: "/:jobId/publish",
-    HIDE: "/:jobId/hide",
-    UNHIDE: "/:jobId/unhide",
+    BY_ID: "/:id",
+    PUBLISH: "/:id/publish",
+    HIDE: "/:id/hide",
+    UNHIDE: "/:id/unhide",
   },
 } as const;

@@ -155,7 +155,7 @@ export default function QuickViewModal({
 
   const rawStatus = job.status as string;
   const status = statusConfig[rawStatus as JobStatus] ?? statusConfig.Draft;
-
+  const canEdit = job.status !== "Active";
   const conversionRate =
     job.views > 0 ? ((job.applications / job.views) * 100).toFixed(1) : "0.0";
 
@@ -675,13 +675,28 @@ export default function QuickViewModal({
           )}
 
           <div className="p-5 flex items-center gap-3">
-            <button
-              onClick={handleEdit}
-              className="flex-1 flex items-center justify-center gap-2 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white py-3 rounded-2xl text-sm font-bold shadow-lg shadow-indigo-200/50 hover:shadow-xl hover:shadow-indigo-200/60 transition-all duration-200"
-            >
-              <Edit3 className="w-4 h-4" />
-              Edit Job Post
-            </button>
+           <div className="flex-1 relative group/edit">
+  <button
+    onClick={handleEdit}
+    disabled={!canEdit}
+    className={`w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold transition-all duration-200
+      ${canEdit
+        ? "bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-200/50 hover:shadow-xl hover:shadow-indigo-200/60"
+        : "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
+      }`}
+  >
+    <Edit3 className="w-4 h-4" />
+    Edit Job Post
+  </button>
+
+  {!canEdit && (
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 hidden group-hover/edit:flex items-center gap-2 px-3.5 py-2.5 bg-gray-900 text-white text-xs font-medium rounded-xl shadow-xl whitespace-nowrap z-10 pointer-events-none">
+      <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+      Pause or expire the job before editing
+      <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+    </div>
+  )}
+</div>
 
             <button
               onClick={() => {

@@ -1,3 +1,4 @@
+import { DAILY_JOB_APPLICATION_LIMIT } from "../../../../../shared/constants/application.constants";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
@@ -41,6 +42,7 @@ export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
     const { jobId, candidateId, resumeId, coverLetter } = dto;
     const job = await this.validateAndGetJob(jobId);
     await this.validateAndGetResume(resumeId, candidateId);
+    await this.validateDailyApplicationLimit(candidateId);
     await this.ensureApplicationDoesNotExist(candidateId, jobId);
     const candidate = await this.userRepo.findById(candidateId);
 
@@ -121,6 +123,19 @@ export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
 
     if (candidate) {
       this.sendCandidateConfirmationEmail(candidate, job);
+    }
+  }
+
+  private async validateDailyApplicationLimit(
+    candidateId: string,
+  ): Promise<void> {
+    const todaysApplicationCount =
+      await this.applicationRepo.countTodayApplicationsByCandidate(candidateId);
+
+    if (todaysApplicationCount >= DAILY_JOB_APPLICATION_LIMIT) {
+      throw new ApplicationError(
+        ERROR_CODES.DAILY_JOB_APPLICATION_LIMIT_REACHED,
+      );
     }
   }
 

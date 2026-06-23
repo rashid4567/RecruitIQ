@@ -139,16 +139,13 @@ export class VerifyPaymentUseCase implements UseCase<
       jobPostActiveDays: plan.jobPostActiveDays,
       paymentReferenceId: payment.id,
       status: SubscriptionStatus.Active,
-
       startDate: now,
       endDate,
-
       currentPeriodStart: now,
       currentPeriodEnd: endDate,
-
       autoRenew: false,
-
       jobPostsUsed: 0,
+      resumeDownloadedCount : 0,
       screeningUsed: 0,
       aiScoreUsed: 0,
 
@@ -156,7 +153,7 @@ export class VerifyPaymentUseCase implements UseCase<
         plan.jobPostsPerMonth === -1
           ? -1
           : plan.jobPostsPerMonth * payment.durationMonths,
-
+      resumeDownloadLimit : plan.ResumeDownload === -1 ? -1 : plan.ResumeDownload * payment.durationMonths,
       screeningLimit:
         plan.screeningCredits === -1
           ? -1

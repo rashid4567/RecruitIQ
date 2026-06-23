@@ -20,6 +20,7 @@ export interface CreatePlanPayload {
   jobPostsPerMonth: number;
   screeningCredits: number;
   jobPostActiveDays: number;
+  resumeParsesPerMonth : number;
   aiScoreCredits: number;
   featuresAccess: FeatureAccess;
   features: PlanFeature[];

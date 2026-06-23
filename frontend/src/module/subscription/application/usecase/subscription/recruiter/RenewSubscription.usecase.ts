@@ -19,12 +19,10 @@ export class RenewSubscriptionUseCase{
             throw new Error("Subscription is required");
         }
 
-        const input : RenewSubscriptionInput = {
-            subscriptionId : request.subscriptionId,
-            newStartDate : request.newStartDate,
-            newEndDate : request.newEndDate,
-            newRenewsAt : request.newRenewsAt,
-        }
+     const input: RenewSubscriptionInput = {
+  subscriptionId: request.subscriptionId,
+  durationMonths: 1,
+};
 
         const subscription = await this.subscriptionRepo.renew(input);
         return subscription;

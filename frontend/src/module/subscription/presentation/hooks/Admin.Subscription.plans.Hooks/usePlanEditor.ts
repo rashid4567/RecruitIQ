@@ -11,6 +11,7 @@ import {
 export interface PlanFormData extends CreatePlanPayload {
   razorpayPlanId?: string;
   aiScoreCredits: number;
+  resumeParsesPerMonth: number;
   jobPostActiveDays: number;
 }
 
@@ -101,7 +102,16 @@ function validatePlanForm(formData: PlanFormData): Record<string, string> {
   if (formData.sortOrder === undefined || formData.sortOrder < 1) {
     errors.sortOrder = "Sort order must be at least 1.";
   }
-
+if (
+  formData.resumeParsesPerMonth === undefined ||
+  formData.resumeParsesPerMonth < -1
+) {
+  errors.resumeParsesPerMonth =
+    "Resume parse credits cannot be lesser than -1.";
+} else if (formData.resumeParsesPerMonth > 100000) {
+  errors.resumeParsesPerMonth =
+    "Resume parse credits seems too high.";
+}
   if (!formData.features || formData.features.length === 0) {
     errors.features = "At least one feature is required.";
   } else {
@@ -132,6 +142,7 @@ export function usePlanEditor(id?: string) {
     jobPostsPerMonth: 10,
     jobPostActiveDays: 7,
     screeningCredits: 50,
+    resumeParsesPerMonth: 50, 
     aiScoreCredits: 10,
     featuresAccess: {
       interviewScheduling: false,
@@ -177,6 +188,7 @@ export function usePlanEditor(id?: string) {
             jobPostsPerMonth: plan.jobPostsPerMonth,
             jobPostActiveDays: plan.jobPostActiveDays,
             screeningCredits: plan.screeningCredits,
+              resumeParsesPerMonth: plan.resumeParsesPerMonth,
             aiScoreCredits: plan.aiScoreCredits,
             featuresAccess: plan.featuresAccess,
             features: plan.features || [],
@@ -260,6 +272,7 @@ export function usePlanEditor(id?: string) {
           billingInterval: formData.billingInterval,
           jobPostsPerMonth: formData.jobPostsPerMonth,
           screeningCredits: formData.screeningCredits,
+            resumeParsesPerMonth: formData.resumeParsesPerMonth,
           jobPostActiveDays: formData.jobPostActiveDays,
           aiScoreCredits: formData.aiScoreCredits,
           featuresAccess: formData.featuresAccess,

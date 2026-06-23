@@ -45,6 +45,7 @@ interface RawSubscriptionPlan {
   billingInterval?: number;
   jobPostsPerMonth?: number;
   screeningCredits?: number;
+   resumeParsesPerMonth ?: number,
   aiScoreCredits?: number;
   razorpayPlanId?: string;
   featuresAccess?: Partial<RawFeaturesAccess>;
@@ -143,6 +144,7 @@ export class ApiSubscriptionPlanRepository implements SubscriptionPlanRepository
       billingInterval: source.billingInterval ?? 1,
       jobPostsPerMonth: source.jobPostsPerMonth ?? 0,
       screeningCredits: source.screeningCredits ?? 0,
+       resumeParsesPerMonth: source.resumeParsesPerMonth ?? 0,
       aiScoreCredits: source.aiScoreCredits ?? 0,
       razorpayPlanId: source.razorpayPlanId,
       featuresAccess,

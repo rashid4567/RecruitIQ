@@ -58,12 +58,15 @@ export class SubscribePlanUseCase implements UseCase<
       autoRenew: false,
       cancelledAt: undefined,
       jobPostsUsed: 0,
+      resumeDownloadedCount: 0,
       screeningUsed: 0,
       aiScoreUsed: 0,
       jobPostsLimit:
         plan.jobPostsPerMonth === -1
           ? -1
           : plan.jobPostsPerMonth * durationMonths,
+      resumeDownloadLimit:
+        plan.ResumeDownload === -1 ? -1 : plan.ResumeDownload * durationMonths,
       screeningLimit:
         plan.screeningCredits === -1
           ? -1

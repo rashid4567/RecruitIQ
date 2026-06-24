@@ -39,7 +39,6 @@ export default function PlanBillingConfig({
   return (
     <CollapsibleSection title="Billing Configuration">
       <div className="space-y-5">
-        {/* Billing Cycle + Interval */}
         <div className="grid grid-cols-2 gap-5">
           <div>
             <label className="block text-sm font-medium text-zinc-700 mb-1.5">
@@ -86,7 +85,7 @@ export default function PlanBillingConfig({
           </div>
         </div>
 
-        {/* Currency */}
+
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1.5">
             Currency
@@ -104,7 +103,7 @@ export default function PlanBillingConfig({
           <ErrorMsg message={errors.currency} />
         </div>
 
-        {/* Razorpay Plan ID */}
+   
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1.5">
             Razorpay Plan ID{" "}

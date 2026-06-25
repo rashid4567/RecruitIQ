@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout } from "@/module/auth/presentation/hooks/useLogout";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useNotifications } from "@/module/notification/presentation/hook/useNotifications";
+import { useNotifications } from "@/module/notification/hook/useNotifications";
 
 function getNavItems(role: string | null) {
   const jobsHref =

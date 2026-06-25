@@ -43,7 +43,7 @@ const ActivityLogs = lazy(
   () => import("../module/activity.logger/presentation/pages/activity-log.tsx"),
 );
 const JobPostManagement = lazy(
-  () => import("../module/jobs/presentation/pages/jobPost.managment.tsx"),
+  () => import("../module/jobs/pages/jobPost.managment.tsx"),
 );
 const SubscribersPage = lazy(()=> import("../module/subscription/presentation/page/subscribers.list.tsx"))
 const AdminRoutes = () => {

@@ -14,7 +14,7 @@ const CompleteProfile = lazy(
 );
 
 const CareerPage = lazy(
-  () => import("../module/jobs/presentation/pages/candidate-jobPost"),
+  () => import("../module/jobs/pages/candidate-jobPost"),
 );
 
 const AccountSettingsPage = lazy(
@@ -29,7 +29,7 @@ const JobApplicationDetail = lazy(
     import("../module/job-application/presentation/pages/candidate/job.detail.application"),
 );
 
-const NotificationCenter = lazy(()=> import("../module/notification/presentation/page/notification.center"))
+const NotificationCenter = lazy(()=> import("../module/notification/page/notification.center"))
 const CandidateRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>

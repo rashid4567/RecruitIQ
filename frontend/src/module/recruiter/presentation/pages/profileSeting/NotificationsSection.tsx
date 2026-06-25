@@ -28,7 +28,7 @@ import {
   UserX,
   Undo2,
 } from "lucide-react";
-import { useNotifications } from "@/module/notification/presentation/hook/useNotifications";
+import { useNotifications } from "@/module/notification/hook/useNotifications";
 import {
   Notification,
   type NotificationType,

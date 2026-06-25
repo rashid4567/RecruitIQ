@@ -9,10 +9,10 @@ const RecruiterDetails = lazy(
   () => import("../module/recruiter/presentation/pages/completeProfile"),
 );
 const MyJobPost = lazy(
-  () => import("../module/jobs/presentation/pages/jobpost"),
+  () => import("../module/jobs/pages/jobpost"),
 );
 const JobPostEditor = lazy(
-  () => import("../module/jobs/presentation/pages/jobpost.Editor"),
+  () => import("../module/jobs/pages/jobpost.Editor"),
 );
 const RecruiterSettingsPage = lazy(
   () => import("../module/recruiter/presentation/pages/recruiter.profile"),
@@ -37,7 +37,7 @@ const RecruiterApplication = lazy(
   () =>
     import("../module/job-application/presentation/pages/recruiter/Recruiter.application"),
 );
-const NotificationCenter = lazy(()=> import("../module/notification/presentation/page/notification.center"))
+const NotificationCenter = lazy(()=> import("../module/notification/page/notification.center"))
 const CandidateScorecardPage = lazy(()=> import("../module/job-application/presentation/pages/recruiter/Application.detail.view"))
 const RecruiterRoutes = () => {
   return (

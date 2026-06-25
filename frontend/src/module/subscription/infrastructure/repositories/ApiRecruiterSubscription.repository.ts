@@ -45,7 +45,7 @@ export class ApiRecruiterSubscriptionRepository implements RecruiterSubscription
     const res = await api.get("/recruiter/subscriptions/current");
 
     const data = res.data?.data;
-
+    console.log("data :", data);
     if (!data) {
       return null;
     }
@@ -178,14 +178,14 @@ export class ApiRecruiterSubscriptionRepository implements RecruiterSubscription
       jobPostActiveDays: data.jobPostActiveDays,
       paymentReferenceId: data.paymentReferenceId,
       status: data.status as SubscriptionStatus,
-      startDate: data.startDate ? new Date(data.startDate) : new Date(),
-      endDate: data.endDate ? new Date(data.endDate) : new Date(),
+      startDate: data.startDate ? new Date(data.startDate) : null,
+      endDate: data.endDate ? new Date(data.endDate) : null,
       currentPeriodStart: data.currentPeriodStart
         ? new Date(data.currentPeriodStart)
-        : new Date(),
+        : null,
       currentPeriodEnd: data.currentPeriodEnd
         ? new Date(data.currentPeriodEnd)
-        : new Date(),
+        : null,
       autoRenew: data.autoRenew ?? false,
       cancelledAt: data.cancelledAt ? new Date(data.cancelledAt) : undefined,
       jobPostsUsed: data.jobPostsUsed ?? 0,

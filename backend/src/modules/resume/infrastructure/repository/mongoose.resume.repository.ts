@@ -90,7 +90,7 @@ export class MongooseResumeRepository implements ResumeRepository {
     endOfDay.setHours(23,59,59,59);
 
     return await ResumeModel.countDocuments({
-      candidateId : new mongoose.Types.ObjectId("candidateId"),
+      candidateId : new mongoose.Types.ObjectId(candidateId),
       createdAt : {
         $gte : startOfDay,
         $lte : endOfDay

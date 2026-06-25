@@ -9,9 +9,9 @@ export interface CurrentSubscriptionResponse {
   planPrice: number;
   status: string;
   isActive: boolean;
-  startDate: Date;
-  endDate: Date;
-  nextBillingDate: Date;
+  startDate: Date | null;
+  endDate: Date | null;
+  nextBillingDate: Date | null;
   jobPostsUsed: number;
   resumeDownloadedCount : number;
   jobPostsLimit: number;

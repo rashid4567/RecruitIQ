@@ -18,7 +18,6 @@ export class AdminJobController {
 
       const result = await this.jobsUc.execute({
         filters: {
-          includeDeleted: true,
           search: req.query.search as string,
           status: req.query.status as JobStatus,
           jobType: req.query.jobType as JobType,

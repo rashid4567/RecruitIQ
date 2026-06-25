@@ -51,6 +51,7 @@ const renewUC = new RenewSubscriptionUseCase(
 const cancelUC = new CancelSubscriptionUseCase(recruiterSubscriptionRepo);
 const currentSubscriptionUC = new GetCurrentSubscriptionUseCase(
   recruiterSubscriptionRepo,
+  subscriptionRepo,
   updateRecruiterSubscriptionStatusUC,
 );
 const upgaradeSubscriptionUC = new UpgradeSubscriptionUseCase(

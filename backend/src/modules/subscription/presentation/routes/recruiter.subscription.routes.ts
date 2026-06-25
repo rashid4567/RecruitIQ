@@ -37,7 +37,7 @@ router.patch(
   upgradeSubscriptionController.upgrade,
 );
 router.post(
-  SUBSCRIPTION_ROUTES.RECRUITER.SUBSCRIBE,
+  SUBSCRIPTION_ROUTES.RECRUITER.PAYMENT_ORDER,
   createPaymentOrderController.create,
 );
 router.post(

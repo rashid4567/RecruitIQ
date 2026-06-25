@@ -12,10 +12,10 @@ export interface RecruiterSubscriptionProps {
   jobPostActiveDays: number;
   paymentReferenceId?: string;
   status: SubscriptionStatus;
-  startDate: Date;
-  endDate: Date;
-  currentPeriodStart: Date;
-  currentPeriodEnd: Date;
+  startDate: Date | null;
+  endDate: Date | null;
+  currentPeriodStart: Date | null;
+  currentPeriodEnd: Date | null;
   autoRenew: boolean;
   cancelledAt?: Date;
   jobPostsUsed: number;
@@ -34,7 +34,7 @@ export class RecruiterSubscription {
     this.props = props;
   }
   static create(props: RecruiterSubscriptionProps): RecruiterSubscription {
-    if (props.endDate <= props.startDate) {
+    if (props.startDate && props.endDate && props.endDate <= props.startDate) {
       throw new Error("Invalid subscription period");
     }
     return new RecruiterSubscription(props);
@@ -120,6 +120,9 @@ export class RecruiterSubscription {
     return this.props.status === SubscriptionStatus.Cancelled;
   }
   get isExpired() {
+    if(!this.props.endDate){
+      return false;
+    }
     return (
       this.props.status === SubscriptionStatus.Expired ||
       new Date() > this.props.endDate

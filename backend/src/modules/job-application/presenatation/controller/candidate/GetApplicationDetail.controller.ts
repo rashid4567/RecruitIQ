@@ -31,6 +31,7 @@ export class GetApplicationDetailController {
       }
 
       const { applicationId } = req.params;
+      
       if (!applicationId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,

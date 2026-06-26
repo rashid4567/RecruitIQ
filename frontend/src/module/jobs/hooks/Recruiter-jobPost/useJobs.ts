@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getJobs } from "@/module/jobs/api/job.api";
-import type { Job } from "@/module/jobs/types/job.types";
 import type {
   JobCardProps,
   ViewMode,

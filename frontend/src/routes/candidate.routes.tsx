@@ -22,11 +22,11 @@ const AccountSettingsPage = lazy(
 );
 
 const MyApplication = lazy(
-  () => import("../module/job-application/presentation/pages/candidate/myApplication"),
+  () => import("../module/job-application/pages/candidate/myApplication"),
 );
 const JobApplicationDetail = lazy(
   () =>
-    import("../module/job-application/presentation/pages/candidate/job.detail.application"),
+    import("../module/job-application/pages/candidate/job.detail.application"),
 );
 
 const NotificationCenter = lazy(()=> import("../module/notification/page/notification.center"))

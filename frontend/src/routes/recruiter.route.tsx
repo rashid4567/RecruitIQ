@@ -35,10 +35,10 @@ const CurrentSubscriptionPage = lazy(
 );
 const RecruiterApplication = lazy(
   () =>
-    import("../module/job-application/presentation/pages/recruiter/Recruiter.application"),
+    import("../module/job-application/pages/recruiter/Recruiter.application"),
 );
 const NotificationCenter = lazy(()=> import("../module/notification/page/notification.center"))
-const CandidateScorecardPage = lazy(()=> import("../module/job-application/presentation/pages/recruiter/Application.detail.view"))
+const CandidateScorecardPage = lazy(()=> import("../module/job-application/pages/recruiter/Application.detail.view"))
 const RecruiterRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>

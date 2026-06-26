@@ -43,49 +43,7 @@ type JobType =
   | "internship"
   | "freelance";
 
-type JobVisibility = "active" | "hidden";
 
-interface LocationVO {
-  city: string;
-  state: string;
-  country: string;
-}
-interface SalaryVO {
-  min: number;
-  max: number;
-  currency: string;
-}
-
-// export interface Job {
-//   id: string;
-//   recruiterId: string;
-//   companyName : string,
-//   title: string;
-//   description: string;
-//   responsibilities: string[];
-//   requirements: string[];
-//   requiredSkills: string[];
-//   preferredSkills: string[];
-//   experienceMin: number;
-//   experienceMax: number;
-//   location: LocationVO;
-//   isRemote: boolean;
-//   jobType: JobType;
-//   salary: SalaryVO;
-//   department: string;
-//   positions: number;
-//   visibility: JobVisibility;
-//   isBlocked: boolean;
-//   status: JobStatus;
-//   views: number;
-//   applicationsCount: number;
-//   isDeleted: boolean;
-//   postedOn?: Date;
-//   expiresAt?: Date;
-//   externalLink?: string;
-//   createdAt?: Date;
-//   updatedAt?: Date;
-// }
 
 interface JobDetailModalProps {
   job: Job;

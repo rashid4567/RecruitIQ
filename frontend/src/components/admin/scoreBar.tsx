@@ -1,19 +1,27 @@
 interface ScoreBarProps {
-  label: string
-  value: number
-  color?: string
+  label: string;
+  value: number;
+  fill?: string;
 }
 
-export function ScoreBar({ label, value, color = "bg-primary" }: ScoreBarProps) {
+export function ScoreBar({
+  label,
+  value,
+  fill = "bg-indigo-500",
+}: ScoreBarProps) {
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-semibold">{value}%</span>
+    <div className="space-y-1">
+      <div className="flex justify-between text-sm">
+        <span>{label}</span>
+        <span>{value}%</span>
       </div>
-      <div className="h-2 rounded-full bg-muted overflow-hidden">
-        <div className={`h-full rounded-full transition-all duration-500 ${color}`} style={{ width: `${value}%` }} />
+
+      <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+        <div
+          className={`h-full rounded-full ${fill}`}
+          style={{ width: `${value}%` }}
+        />
       </div>
     </div>
-  )
+  );
 }

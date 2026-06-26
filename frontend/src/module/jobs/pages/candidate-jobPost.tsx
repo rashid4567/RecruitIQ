@@ -8,7 +8,7 @@ import type { Job } from "../types/job.types";
 import type { ApplyJobDTO } from "@/module/job-application/domain/repository/application.repository";
 import type { JobApplication } from "@/module/job-application/domain/entity/job-application.entity";
 import { useJobPosts } from "../hooks/candidate-jobPost.hooks/useJobPosts"; 
-import { useApplyJob } from "@/module/job-application/presentation/hooks/candidate/useApplyJob";
+import { useApplyJob } from "@/module/job-application/hooks/candidate/useApplyJob";
 import { getJobById } from "../api/job.api";
 import { getMyResumeUC } from "@/module/resume/presentation/di/resume.di";
 

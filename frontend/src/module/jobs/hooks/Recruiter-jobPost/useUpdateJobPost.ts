@@ -11,7 +11,6 @@ export function useUpdateJobPost(jobId: string) {
   const [formData, setFormData] = useState<JobFormData>(defaultJobFormData);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-
   const [showPublishConfirmation, setShowPublishConfirmation] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
@@ -32,29 +31,23 @@ export function useUpdateJobPost(jobId: string) {
           positions: job.positions ?? 1,
           jobType: job.jobType,
           isRemote: job.isRemote,
-
           location: {
             city: job.location?.city ?? "",
             state: job.location?.state ?? "",
             country: job.location?.country ?? "",
           },
-
           responsibilities: job.responsibilities ?? [],
           requirements: job.requirements ?? [],
           requiredSkills: job.requiredSkills ?? [],
           preferredSkills: job.preferredSkills ?? [],
-
           experienceMin: job.experienceMin ?? 0,
           experienceMax: job.experienceMax ?? 0,
-
           salary: {
             min: job.salary?.min ?? 0,
             max: job.salary?.max ?? 0,
             currency: job.salary?.currency ?? "INR",
           },
-
           externalLink: job.externalLink ?? "",
-
           expiresAt: job.expiresAt
             ? new Date(job.expiresAt).toISOString().split("T")[0]
             : "",

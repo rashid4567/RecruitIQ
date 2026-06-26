@@ -9,7 +9,6 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import {
-  type JobApplication,
   ApplicationStatus,
 } from "@/module/job-application/types/jobApplication.types";
 
@@ -136,9 +135,7 @@ export const ApplicationRow: React.FC<Props> = ({
   const isWithdrawn = status === ApplicationStatus.WITHDRAWN;
 
   const handleRowClick = () => {
-    console.log("clicked App : ", app);
-    console.log("Application Id ", app.applicationId ? app.applicationId : "no id found")
- console.log("Navigate URL:", `/candidate/applications/${app.applicationId}`);
+
 
   navigate(`/candidate/applications/${app.applicationId}`);
 };

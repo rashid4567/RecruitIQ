@@ -31,13 +31,13 @@ const PlanEditor = lazy(
     import("../module/subscription/presentation/page/subscription.plan.tsx"),
 );
 const EmailTemplateManagement = lazy(
-  () => import("../module/email/presentation/pages/emailTemplate.mangment.tsx"),
+  () => import("../module/email/pages/emailTemplate.mangment.tsx"),
 );
 const EmailTemplateEditor = lazy(
-  () => import("../module/email/presentation/pages/emailTemplate.editor.tsx"),
+  () => import("../module/email/pages/emailTemplate.editor.tsx"),
 );
 const EmailLogs = lazy(
-  () => import("../module/email/presentation/pages/email.logs.tsx"),
+  () => import("../module/email/pages/email.logs.tsx"),
 );
 const ActivityLogs = lazy(
   () => import("../module/activity.logger/presentation/pages/activity-log.tsx"),

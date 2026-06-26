@@ -1,6 +1,5 @@
 import React from "react";
 import { Loader2, X, AlertTriangle } from "lucide-react";
-import { type JobApplication } from "@/module/job-application/types/jobApplication.types";
 import type { CandidateApplication } from "@/module/job-application/types/application.types";
 
 interface Props {

@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { VerifyPaymentUseCase } from "../../../application/usecase/Recruiter/VerifyPaymentUseCase";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   VerifyPaymentRequestDTO,
   VerifyPaymentResponseDTO,
@@ -10,7 +9,7 @@ import {
 
 export class VerifyPaymentController {
   constructor(
-    private readonly verifyPaymentUC: UseCase<
+    private readonly verifyPaymentUC: IUseCase<
       VerifyPaymentRequestDTO,
       VerifyPaymentResponseDTO
     >,

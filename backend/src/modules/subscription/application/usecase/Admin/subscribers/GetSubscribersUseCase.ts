@@ -1,11 +1,11 @@
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 import { RecruiterSubscriptionRepository } from "../../../../domain/repository/recruiter-subscription-plan-repository";
 import {
   GetSubscribersRequestDTO,
   GetSubscribersResponseDTO,
 } from "../../../dto/get-subscribers.dto";
 
-export class GetSubscribersUseCase implements UseCase<
+export class GetSubscribersUseCase implements IUseCase<
   GetSubscribersRequestDTO,
   GetSubscribersResponseDTO
 > {

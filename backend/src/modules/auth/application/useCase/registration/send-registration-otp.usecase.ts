@@ -3,10 +3,10 @@ import { Email } from "../../../domain/value.objects/email.vo";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { OTPServicePort } from "../../ports/otp.service.ports";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { SendRegistrationOTPRequest } from "../../dto/sendRegistration.otp.DTO";
 
-export class SendRegistrationOTPUseCase implements UseCase<
+export class SendRegistrationOTPUseCase implements IUseCase<
   SendRegistrationOTPRequest,
   void
 > {

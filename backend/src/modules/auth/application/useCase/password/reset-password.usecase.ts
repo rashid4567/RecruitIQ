@@ -5,9 +5,9 @@ import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants
 import { PasswordHasherPort } from "../../../domain/ports/password-hasher.port";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
 import { ResetPasswordDTO } from "../../../presentation/validators/reset-password.schema";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class ResetPasswordUseCase implements UseCase<ResetPasswordDTO, void> {
+export class ResetPasswordUseCase implements IUseCase<ResetPasswordDTO, void> {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly hasher: PasswordHasherPort,

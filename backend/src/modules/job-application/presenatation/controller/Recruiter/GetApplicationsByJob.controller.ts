@@ -2,13 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { GetApplicationByJobRequestDTO } from "../../../application/dto/getApplicationByJob.dto";
 import { RecruiterApplicationListItem } from "../../../domain/repository/job-application.repository";
 
 export class GetApplicationsByJobController {
   constructor(
-    private readonly getApplicationByJobPostUC: UseCase<
+    private readonly getApplicationByJobPostUC: IUseCase<
       GetApplicationByJobRequestDTO,
       RecruiterApplicationListItem[]
     >,

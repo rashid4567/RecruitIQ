@@ -1,11 +1,11 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { GetJobByIdRequestDTO } from "../../dto/getJobPostById.dto";
 
-export class GetJobByIdUseCase implements UseCase<GetJobByIdRequestDTO, Job> {
+export class GetJobByIdUseCase implements IUseCase<GetJobByIdRequestDTO, Job> {
   constructor(private readonly repo: JobRepository) {}
 
   async execute(input: GetJobByIdRequestDTO): Promise<Job> {

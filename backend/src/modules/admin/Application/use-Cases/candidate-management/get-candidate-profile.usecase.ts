@@ -1,5 +1,5 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
 import { CandidateRepository } from "../../../Domain/repositories/candidate.repository";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
@@ -8,7 +8,7 @@ import {
   CandidateProfileResponseDTO,
 } from "../../dto/candidate.dto/candidate-profile-response.dto";
 
-export class GetCandidateprofileUseCase implements UseCase<
+export class GetCandidateprofileUseCase implements IUseCase<
   CandidateProfileRequestDTO,
   CandidateProfileResponseDTO
 > {

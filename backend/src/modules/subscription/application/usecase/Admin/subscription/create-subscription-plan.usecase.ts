@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { ERROR_CODES } from "../../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 import {
   SubscriptionPlan,
   PlanType,
@@ -11,7 +11,7 @@ import {
 import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
 import { CreateSubscriptionPlanRequestDTO } from "../../../dto/createSubscription.dto";
 
-export class CreateSubscriptionPlanUseCase implements UseCase<
+export class CreateSubscriptionPlanUseCase implements IUseCase<
   CreateSubscriptionPlanRequestDTO,
   SubscriptionPlan
 > {

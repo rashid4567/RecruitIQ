@@ -1,8 +1,10 @@
+import type { ElementType } from "react";
 import { Rocket, Star, Crown, Building2, Check, X } from "lucide-react";
-import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import type { SubscriptionPlan } from "@/module/subscription/types/subscription-plan.types";
 import { getDisplayPrice, getYearlyTotal } from "./Pricing.utils";
 
-const planIcons: Record<string, React.ElementType> = {
+
+const planIcons: Record<string, ElementType> = {
   free: Rocket,
   basic: Star,
   pro: Crown,
@@ -73,7 +75,7 @@ export default function PlanCards({
                       <p
                         className={`text-sm ${isHighlighted ? "text-blue-200" : "text-slate-500"}`}
                       >
-                        {plan.isFree
+                        {plan.planType === "free"
                           ? "Get started for free"
                           : plan.isPopular
                             ? "Most popular choice"
@@ -89,7 +91,7 @@ export default function PlanCards({
                       >
                         {displayPrice}
                       </span>
-                      {!plan.isFree && (
+                      {plan.planType !== "free" && (
                         <span
                           className={`text-base ${isHighlighted ? "text-blue-200" : "text-slate-500"}`}
                         >
@@ -97,7 +99,7 @@ export default function PlanCards({
                         </span>
                       )}
                     </div>
-                    {billingCycle === "yearly" && !plan.isFree && (
+                    {billingCycle === "yearly" && plan.planType !== "free" && (
                       <p
                         className={`text-sm mt-1 ${isHighlighted ? "text-blue-200" : "text-slate-500"}`}
                       >

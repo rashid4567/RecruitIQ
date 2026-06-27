@@ -36,7 +36,6 @@ const CandidateRoutes = () => {
           <Route element={<CandidateLayout />}>
             <Route path="home" element={<CandidateHome />} />
             <Route path="profile/complete" element={<CompleteProfile />} />
-
             <Route path="profile/setting" element={<AccountSettingsPage />} />
             <Route path="notification" element={<NotificationCenter />} />
             <Route path="applications" element={<MyApplication />} />

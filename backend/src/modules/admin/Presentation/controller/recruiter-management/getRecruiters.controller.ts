@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { VerificationStatus } from "../../../Domain/entities/recruiter.entity";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   GetRecruitersQuery,
   GetRecruitersResponseDTO,
@@ -11,7 +11,7 @@ import {
 
 export class GetRecruitersController {
   constructor(
-    private readonly getRecruitersUC: UseCase<
+    private readonly getRecruitersUC: IUseCase<
       GetRecruitersQuery,
       GetRecruitersResponseDTO
     >,

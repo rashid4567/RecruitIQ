@@ -4,9 +4,9 @@ import {
   GetRecruitersQuery,
   GetRecruitersResponseDTO,
 } from "../../dto/recruiter.dto/get-recruiters.query";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GetRecruitersUseCase implements UseCase<
+export class GetRecruitersUseCase implements IUseCase<
   GetRecruitersQuery,
   GetRecruitersResponseDTO
 > {

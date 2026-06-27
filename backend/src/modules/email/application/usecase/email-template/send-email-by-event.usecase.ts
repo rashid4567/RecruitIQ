@@ -4,9 +4,9 @@ import { sendEmailByInputDto } from "../../dto/email.template/sentEmail.input.dt
 import { TemplateRendererService } from "../../services/template-renderer.service";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants"; 
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class SendEmailByEventUseCase implements UseCase<sendEmailByInputDto,void>{
+export class SendEmailByEventUseCase implements IUseCase<sendEmailByInputDto,void>{
   constructor(
     private readonly templateRepo: EmailTemplateRepository,
     private readonly emailService: EmailService,

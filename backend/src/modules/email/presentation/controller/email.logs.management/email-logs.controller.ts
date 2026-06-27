@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { EmailLog } from "../../../domain/entities/email-log.entity";
 
 export class EmailLogsController {
-  constructor(private readonly listLoginUC: UseCase<void, EmailLog[]>) {}
+  constructor(private readonly listLoginUC: IUseCase<void, EmailLog[]>) {}
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {

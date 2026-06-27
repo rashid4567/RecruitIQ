@@ -1,6 +1,6 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
 import { ResumeParseStatus } from "../../../../resume/domain/entity/resume.entity";
 import { ResumeRepository } from "../../../../resume/domain/repository/resume.repository";
@@ -13,7 +13,7 @@ import {
 } from "../../../domain/services/ApplicationAnalysisService";
 import { AnalyzeApplicationRequestDTO } from "../../dto/analyseJobpost.dto";
 
-export class AnalyzeApplicationUseCase implements UseCase<
+export class AnalyzeApplicationUseCase implements IUseCase<
   AnalyzeApplicationRequestDTO,
   void
 > {

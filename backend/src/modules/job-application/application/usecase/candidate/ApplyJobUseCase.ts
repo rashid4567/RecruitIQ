@@ -1,7 +1,7 @@
 import { DAILY_JOB_APPLICATION_LIMIT } from "../../../../../shared/constants/application.constants";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { User } from "../../../../auth/domain/entities/user.entity";
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
 import { sendEmailByInputDto } from "../../../../email/application/dto/email.template/sentEmail.input.dto";
@@ -21,18 +21,18 @@ import { JobApplicationRepository } from "../../../domain/repository/job-applica
 import { AnalyzeApplicationRequestDTO } from "../../dto/analyseJobpost.dto";
 import { ApplyJobDTO } from "../../dto/applyJobDto";
 
-export class ApplyJobUseCase implements UseCase<ApplyJobDTO, JobApplication> {
+export class ApplyJobUseCase implements IUseCase<ApplyJobDTO, JobApplication> {
   constructor(
     private readonly applicationRepo: JobApplicationRepository,
     private readonly jobRepo: JobRepository,
     private readonly resumeRepo: ResumeRepository,
     private readonly userRepo: UserRepository,
-    private readonly sendEmailByEventUC: UseCase<sendEmailByInputDto, void>,
-    private readonly createNotificationUC: UseCase<
+    private readonly sendEmailByEventUC: IUseCase<sendEmailByInputDto, void>,
+    private readonly createNotificationUC: IUseCase<
       CreateNotificationRequest,
       Notification
     >,
-    private readonly analyzeApplicationUC: UseCase<
+    private readonly analyzeApplicationUC: IUseCase<
       AnalyzeApplicationRequestDTO,
       void
     >,

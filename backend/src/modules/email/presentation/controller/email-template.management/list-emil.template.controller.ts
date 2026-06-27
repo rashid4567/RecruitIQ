@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { EmailTemplate } from "../../../domain/entities/email-template.entity";
 
 export class ListEmailTemplateController {
   constructor(
-    private readonly getEmailTemplatesUC: UseCase<void, EmailTemplate[]>,
+    private readonly getEmailTemplatesUC: IUseCase<void, EmailTemplate[]>,
   ) {}
 
   listEmailTemplates = async (

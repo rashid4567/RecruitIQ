@@ -1,9 +1,9 @@
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import {
-  createSubscriptionPaymentUC,
-  verifyPaymentUC,
-} from "../../di/subscription.di";
+  createSubscriptionPayment,
+  verifySubscriptionPayment,
+} from "../../api/payment.api";
 
 interface RazorpayPaymentResponse {
   razorpay_payment_id: string;
@@ -134,10 +134,7 @@ export function useRazorpay({
   }, []);
 
   const initiatePayment = useCallback(
-   async (
-  planId: string,
-  durationMonths: number,
-) => {
+    async (planId: string, durationMonths: number) => {
       if (isInProgress.current) {
         toast.warning("Payment already in progress.");
         return;
@@ -165,7 +162,7 @@ export function useRazorpay({
         toast.loading("Creating order...", {
           id: loadingToastId,
         });
-        const orderData = await createSubscriptionPaymentUC.execute({
+        const orderData = await createSubscriptionPayment({
           planId,
           durationMonths,
         });
@@ -196,7 +193,7 @@ export function useRazorpay({
                   id: loadingToastId,
                 });
                 restoreAuthIfWiped(authSnapshot);
-                const result = await verifyPaymentUC.execute({
+                const result = await verifySubscriptionPayment({
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_signature: response.razorpay_signature,

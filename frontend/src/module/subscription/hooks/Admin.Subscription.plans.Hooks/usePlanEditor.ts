@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { CreatePlanPayload } from "@/module/subscription/application/dto/subscription.plan.dto";
+import type { CreatePlanPayload } from "../../types/subscription-plan.types";
 import axios from "axios";
 import {
-  createPlanUC, 
-  getPlanByIdUC,
-  updatePlanUC,
-} from "../../presentation/di/admin.subscription.plans.di";
+  createPlan, 
+  getPlanById,
+  updatePlan,
+} from "../../api/admin-subscription.api"
 
 export interface PlanFormData extends CreatePlanPayload {
   razorpayPlanId?: string;
@@ -176,7 +176,7 @@ export function usePlanEditor(id?: string) {
     const loadPlan = async () => {
       setLoading(true);
       try {
-        const plan = await getPlanByIdUC.execute(id);
+        const plan = await getPlanById(id);
         if (plan) {
           setFormData({
             name: plan.name,
@@ -264,7 +264,7 @@ export function usePlanEditor(id?: string) {
     setSaving(true);
     try {
       if (isEditMode && id) {
-        await updatePlanUC.execute(id, {
+        await updatePlan(id, {
           name: formData.name,
           price: formData.price,
           currency: formData.currency,
@@ -283,7 +283,7 @@ export function usePlanEditor(id?: string) {
           razorpayPlanId: formData.razorpayPlanId,
         });
       } else {
-        await createPlanUC.execute(formData);
+        await createPlan(formData);
       }
 
       setSaveSuccess(true);

@@ -4,12 +4,12 @@ import { userIdSchema } from "../validator/userId.validator";
 import { CompleteRecruiterProfileSchema } from "../validator/completeRecruiterProfile-validator";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { CompleteRecruiterProfileRequestDTO } from "../../application/dto/complete-recruiter-profile.dto";
 
 export class CompleteRecruiterProfileController {
   constructor(
-    private readonly completeProfileUC: UseCase<
+    private readonly completeProfileUC: IUseCase<
       CompleteRecruiterProfileRequestDTO,
       void
     >,

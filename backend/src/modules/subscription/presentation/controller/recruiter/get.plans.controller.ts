@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { GetAllSubscriptionPlansUseCase } from "../../../application/usecase/Admin/subscription/get-all-subscription-plans.usecase";
 import { SubscriptionPlanFilter } from "../../../domain/repository/subscription-plan.repository";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   GetAllPlansRequestDTO,
   GetAllPlansResponseDTO,
@@ -11,7 +10,7 @@ import {
 
 export class RecruiterPlanDetailController {
   constructor(
-    private readonly getPlansUC: UseCase<
+    private readonly getPlansUC: IUseCase<
       GetAllPlansRequestDTO,
       GetAllPlansResponseDTO
     >,

@@ -1,4 +1,4 @@
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import {
@@ -7,7 +7,7 @@ import {
 } from "../../../domain/types/job-filter.type";
 import { GetJobsRequestDTO } from "../../dto/getJobPostRequest.dto";
 
-export class GetJobsUseCase implements UseCase<
+export class GetJobsUseCase implements IUseCase<
   GetJobsRequestDTO,
   PaginatedResult<Job>
 > {

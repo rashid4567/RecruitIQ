@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { DeactivateSubscriptionPlanUseCase } from "../../../../application/usecase/Admin/subscription/deactivate-subscription-plan.usecase";
 import { HTTP_STATUS } from "../../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../../shared/constants/success-message.constants";
 import { DeactivateSubscriptionPlanRequestDTO } from "../../../../application/dto/deactivate-subscription-plan.dto";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 
 export class HideSubscriptionPlanController {
   constructor(
-    private readonly hideUC: UseCase<
+    private readonly hideUC: IUseCase<
       DeactivateSubscriptionPlanRequestDTO,
       void
     >,

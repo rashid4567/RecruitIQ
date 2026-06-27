@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { SendOtpSchema } from "../validators/send-otp.schema";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { SendRegistrationOTPRequest } from "../../application/dto/sendRegistration.otp.DTO";
 
 export class OtpController {
   constructor(
-    private readonly sendOtpUC: UseCase<SendRegistrationOTPRequest, void>,
+    private readonly sendOtpUC: IUseCase<SendRegistrationOTPRequest, void>,
   ) {}
 
   sendOtp = async (req: Request, res: Response, next: NextFunction) => {

@@ -1,11 +1,11 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { UnblockJobPostRequestDTO } from "../../dto/job.status.dto";
 
-export class UnblockJobUseCase implements UseCase<
+export class UnblockJobUseCase implements IUseCase<
   UnblockJobPostRequestDTO,
   Job
 > {

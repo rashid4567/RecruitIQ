@@ -3,7 +3,7 @@ import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { userIdSchema } from "../validator/userId.validatort";
 import { updateCandidateProfileSchema } from "../validator/updateCandidate-validator";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import {
   UpdateCandidateProfileRequestDTO,
   UpdateCandidateProfileResult,
@@ -11,7 +11,7 @@ import {
 
 export class UpdateCandidateProfileController {
   constructor(
-    private readonly updateProfileUC: UseCase<
+    private readonly updateProfileUC: IUseCase<
       UpdateCandidateProfileRequestDTO,
       UpdateCandidateProfileResult
     >,

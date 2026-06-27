@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { getSubscribersUseCase } from "../../presentation/di/admin.subscription.plans.di";
-import type { PaginatedSubscribers } from "@/module/subscription/domain/repositories/subscribers.plan.repository"; 
+import { getSubscribers } from "../../api/admin-subscription.api"; 
+import type { PaginatedSubscribers } from "../../types/subscriber.types"; 
 
 interface UseSubscribersParams {
   page: number;
@@ -38,7 +38,7 @@ export const useSubscribers = ({
     setIsError(false);
 
     try {
-      const result = await getSubscribersUseCase.execute({
+      const result = await getSubscribers({
         page,
         limit,
         search,

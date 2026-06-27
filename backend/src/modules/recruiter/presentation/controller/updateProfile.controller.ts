@@ -4,13 +4,13 @@ import { userIdSchema } from "../validator/userId.validator";
 import { UpdateRecruiterProfileSchema } from "../validator/updateRecruiterProfile-validator";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UpdateRecruiterProfileRequestDTO } from "../../application/dto/update-recruiter-profile.dto";
 import { RecruiterProfileReponse } from "../../application/dto/recruiter-profile.dto";
 
 export class UpdateRecruiterProfileController {
   constructor(
-    private readonly updateProfileUC: UseCase<
+    private readonly updateProfileUC: IUseCase<
       UpdateRecruiterProfileRequestDTO,
       RecruiterProfileReponse
     >,

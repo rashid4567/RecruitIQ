@@ -5,10 +5,10 @@ import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
 import { EmailServicePort } from "../../ports/email.service.port";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ForgotPasswordRequestDTO } from "../../dto/forgot-password.dto";
 
-export class ForgotPasswordUseCase implements UseCase<ForgotPasswordRequestDTO,void>{
+export class ForgotPasswordUseCase implements IUseCase<ForgotPasswordRequestDTO,void>{
   constructor(
     private readonly userRepo: UserRepository,
     private readonly tokenService: AuthTokenServicePort,

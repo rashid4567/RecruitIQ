@@ -1,5 +1,5 @@
 import { ArrowRight, Loader2 } from "lucide-react";
-import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import type { SubscriptionPlan } from "@/module/subscription/types/subscription-plan.types";
 import {
   getDisplayPrice,
   getDisplayJobPosts,
@@ -59,7 +59,7 @@ export default function SelectedPlanDetail({
                     )}
                   </span>
 
-                  {!selectedPlan.isFree && (
+                  {selectedPlan.planType !== "free" && (
                     <span className="text-slate-400">/month</span>
                   )}
                 </div>
@@ -73,7 +73,7 @@ export default function SelectedPlanDetail({
                     {getDisplayScreeningCredits(selectedPlan)} Screening Credits
                   </span>
 
-                  {!selectedPlan.isFree && (
+                  {selectedPlan.planType !== "free" && (
                     <span className="bg-green-500/20 text-green-200 text-xs px-3 py-1 rounded-full">
                       Choose 1–12 Months
                     </span>
@@ -117,7 +117,7 @@ export default function SelectedPlanDetail({
                 </h3>
 
                 <p className="text-blue-100 mt-1">
-                  {selectedPlan.isFree
+                  {selectedPlan.planType === "free"
                     ? "Get started for free — no credit card required"
                     : "Subscribe now and choose your preferred duration"}
                 </p>

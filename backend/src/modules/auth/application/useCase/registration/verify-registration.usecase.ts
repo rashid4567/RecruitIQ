@@ -11,14 +11,14 @@ import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants
 import { EmailEvent } from "../../../../admin/Domain/constatns/email-enum.events";
 import { ActivityTrackerService } from "../../../../Activity.logger/application/services/activityTracker.service";
 import { ActivityAction } from "../../../../Activity.logger/domain/constants/activityActions";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   VerificationInput,
   VerifyRegistrationResponseDTO,
 } from "../../dto/verification.input.dto";
 import { sendEmailByInputDto } from "../../../../email/application/dto/email.template/sentEmail.input.dto";
 
-export class VerifyRegistrationUseCase implements UseCase<
+export class VerifyRegistrationUseCase implements IUseCase<
   VerificationInput,
   VerifyRegistrationResponseDTO
 > {
@@ -28,7 +28,7 @@ export class VerifyRegistrationUseCase implements UseCase<
     private readonly passwordHasher: PasswordHasherPort,
     private readonly tokenService: AuthTokenServicePort,
     private readonly activityTracker: ActivityTrackerService,
-    private readonly sendEmailByEventUC: UseCase<sendEmailByInputDto,void>,
+    private readonly sendEmailByEventUC: IUseCase<sendEmailByInputDto,void>,
   ) {}
 
   async execute(

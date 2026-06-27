@@ -1,11 +1,11 @@
 import { ERROR_CODES } from "../../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 import { SubscriptionPlan } from "../../../../domain/entities/subscription-plan.entity";
 import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
 import { GetSubscriptionPlanRequestDTO } from "../../../dto/getSubscription.plan.dto";
 
-export class GetSubscriptionPlanUseCase implements UseCase<
+export class GetSubscriptionPlanUseCase implements IUseCase<
   GetSubscriptionPlanRequestDTO,
   SubscriptionPlan
 > {

@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 import Sidebar from "@/components/admin/sideBar";
-import { usePlanEditor } from "../../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
+import { usePlanEditor } from "../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
 import PlanHeader from "./components/Admin.subscription-plan-management/PlanHeader";
 import PlanBasicDetails from "./components/Admin.subscription-plan-management/PlanBasicDetails";
 import PlanBillingConfig from "./components/Admin.subscription-plan-management/PlanBillingConfig";

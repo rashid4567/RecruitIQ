@@ -3,13 +3,13 @@ import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { CreateJobSchema } from "../../validator/create.jobpost.validation";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { createJobPostRequestDTO } from "../../../application/dto/create-job.dto";
 import { Job } from "../../../domain/entities/job.entity";
 
 export class CreateJobController {
   constructor(
-    private readonly createUc: UseCase<createJobPostRequestDTO, Job>,
+    private readonly createUc: IUseCase<createJobPostRequestDTO, Job>,
   ) {}
 
   create = async (req: Request, res: Response, next: NextFunction) => {

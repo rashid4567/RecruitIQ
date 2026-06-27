@@ -1,15 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { UpdateSubscriptionPlanUseCase } from "../../../../application/usecase/Admin/subscription/update-subscription-plan.usecase";
 import { UpdatePlanSchema } from "../../../validator/subscription-plan.schema";
 import { HTTP_STATUS } from "../../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../../shared/constants/success-message.constants";
 import { SubscriptionPlan } from "../../../../domain/entities/subscription-plan.entity";
 import { UpdateSubscriptionPlanRequestDTO } from "../../../../application/dto/update-input.dto";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 
 export class UpdateSubscriptionPlanController {
-  constructor(private readonly updateUc: UseCase<
+  constructor(private readonly updateUc: IUseCase<
     UpdateSubscriptionPlanRequestDTO,
     SubscriptionPlan
   > ) {}

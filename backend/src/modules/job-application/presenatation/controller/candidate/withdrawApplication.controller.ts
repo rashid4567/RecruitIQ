@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { WithdrawApplicationRequestDTO } from "../../../application/dto/withdrawApplication.dto";
 
 export class WithdrawApplicationController {
   constructor(
-    private readonly withdrawApplicationUC: UseCase<
+    private readonly withdrawApplicationUC: IUseCase<
       WithdrawApplicationRequestDTO,
       void
     >,

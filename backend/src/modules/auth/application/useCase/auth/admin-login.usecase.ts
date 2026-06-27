@@ -1,14 +1,14 @@
 import { USER_ROLES } from "../../../domain/constants/roles.constants";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { LoginRequestDTO, LoginResponseDTO } from "../../dto/login.dto";
 
-export class AdminLoginUseCase implements UseCase<
+export class AdminLoginUseCase implements IUseCase<
   LoginRequestDTO,
   LoginResponseDTO
 > {
-  constructor(private readonly loginUseCase: UseCase<
+  constructor(private readonly loginUseCase: IUseCase<
   LoginRequestDTO,
   LoginResponseDTO
 >) {}

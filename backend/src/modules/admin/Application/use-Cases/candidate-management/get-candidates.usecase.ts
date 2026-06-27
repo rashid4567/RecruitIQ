@@ -1,4 +1,4 @@
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { CandidateRepository } from "../../../Domain/repositories/candidate.repository";
 import {
   CandidateListItemDTO,
@@ -6,7 +6,7 @@ import {
   CandidateListResponseDTO,
 } from "../../dto/candidate.dto/candidate-list-response.dto";
 
-export class GetCandidateUseCase implements UseCase<
+export class GetCandidateUseCase implements IUseCase<
   CandidateListRequestDTO,
   CandidateListResponseDTO
 > {

@@ -1,14 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { SubscribePlanUseCase } from "../../../application/usecase/Recruiter/subscribe-plan.usecase";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { SubscribePlanRequestDTO } from "../../../application/dto/subscribe.plan-dto";
 import { RecruiterSubscription } from "../../../domain/entities/recruiter-subscription.entity";
 
 export class SubscribePlanController {
-  constructor(private readonly subscribeUC: UseCase<SubscribePlanRequestDTO,RecruiterSubscription>) {}
+  constructor(private readonly subscribeUC: IUseCase<SubscribePlanRequestDTO,RecruiterSubscription>) {}
 
   subscribe = async (req: Request, res: Response, next: NextFunction) => {
     try {

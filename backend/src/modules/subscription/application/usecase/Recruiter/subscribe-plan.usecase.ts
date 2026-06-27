@@ -6,10 +6,10 @@ import {
   RecruiterSubscription,
   SubscriptionStatus,
 } from "../../../domain/entities/recruiter-subscription.entity";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { SubscribePlanRequestDTO } from "../../dto/subscribe.plan-dto";
 
-export class SubscribePlanUseCase implements UseCase<
+export class SubscribePlanUseCase implements IUseCase<
   SubscribePlanRequestDTO,
   RecruiterSubscription
 > {

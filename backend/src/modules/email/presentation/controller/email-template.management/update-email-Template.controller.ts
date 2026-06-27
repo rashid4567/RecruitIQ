@@ -2,14 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UpdateEmailTemplateRequestDTO } from "../../../application/dto/email.template/updateEmailTemplate.input.dto";
 import { EmailTemplate } from "../../../domain/entities/email-template.entity";
 import { UpdateEmailTemplateSchema } from "../../validation/UpdateEmailTemplateSchema"; 
 
 export class UpdateEmailTemplateController {
   constructor(
-    private readonly updateTemplateUC: UseCase<
+    private readonly updateTemplateUC: IUseCase<
       UpdateEmailTemplateRequestDTO,
       EmailTemplate
     >,

@@ -3,12 +3,12 @@ import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { parseResumeSchema } from "../validatior/parseResume.schema";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { DownloadResumeDTO } from "../../application/dto/download.resume.dto";
 
 export class DownloadResumeController {
   constructor(
-    private readonly downloadResumeUC: UseCase<DownloadResumeDTO, string>,
+    private readonly downloadResumeUC: IUseCase<DownloadResumeDTO, string>,
   ) {}
 
   downloadResume = async (req: Request, res: Response, next: NextFunction) => {

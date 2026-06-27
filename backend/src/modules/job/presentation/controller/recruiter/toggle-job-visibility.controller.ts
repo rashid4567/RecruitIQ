@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   HideJobPostRequestDTO,
   UnHideJobPostRequestDTO,
@@ -11,8 +11,8 @@ import { Job } from "../../../domain/entities/job.entity";
 
 export class ToggleJobVisibilityController {
   constructor(
-    private readonly hideUC: UseCase<HideJobPostRequestDTO, Job>,
-    private readonly unhideUC: UseCase<UnHideJobPostRequestDTO, Job>,
+    private readonly hideUC: IUseCase<HideJobPostRequestDTO, Job>,
+    private readonly unhideUC: IUseCase<UnHideJobPostRequestDTO, Job>,
   ) {}
 
   hide = async (req: Request, res: Response, next: NextFunction) => {

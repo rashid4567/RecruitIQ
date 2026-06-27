@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   ApplicationDetailResponseDTO,
   GetApplicationDetailRequestDTO,
@@ -10,7 +10,7 @@ import {
 
 export class GetApplicationDetailController {
   constructor(
-    private readonly getApplicationDetailUC: UseCase<
+    private readonly getApplicationDetailUC: IUseCase<
       GetApplicationDetailRequestDTO,
       ApplicationDetailResponseDTO
     >,

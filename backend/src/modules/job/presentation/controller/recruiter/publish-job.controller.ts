@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { PublishJobPostRequestDTO } from "../../../application/dto/publish.job.dto";
 import { Job } from "../../../domain/entities/job.entity";
 
 export class PublishJobController {
-  constructor(private readonly publishUc: UseCase<PublishJobPostRequestDTO,Job>) {}
+  constructor(private readonly publishUc: IUseCase<PublishJobPostRequestDTO,Job>) {}
   publish = async (req: Request, res: Response, next: NextFunction) => {
     try {
       console.log("Hit publish controller");

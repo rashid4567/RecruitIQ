@@ -9,7 +9,7 @@ import {
   Star,
   Sparkles,
 } from "lucide-react";
-import { useCurrentSubscription } from "@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription";
+import { useCurrentSubscription } from "@/module/subscription/hooks/subscriptions/useCurrentSubscription";
 
 function Fireworks() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -380,9 +380,9 @@ export default function PaymentSuccessPage() {
     };
   }, []);
 
-  const sub = subscriptionData?.subscription;
+  const sub = subscriptionData;
 
-  const formatDate = (d?: Date) =>
+  const formatDate = (d?: string | null) =>
     d
       ? new Date(d).toLocaleDateString("en-IN", {
           day: "numeric",
@@ -451,9 +451,18 @@ export default function PaymentSuccessPage() {
 
   const billingPct = sub
     ? (() => {
+        if (!sub.currentPeriodStart || !sub.currentPeriodEnd) {
+          return 0;
+        }
+
         const now = Date.now();
         const start = new Date(sub.currentPeriodStart).getTime();
         const end = new Date(sub.currentPeriodEnd).getTime();
+
+        if (Number.isNaN(start) || Number.isNaN(end) || end <= start) {
+          return 0;
+        }
+
         return Math.min(
           100,
           Math.max(0, Math.round(((now - start) / (end - start)) * 100)),

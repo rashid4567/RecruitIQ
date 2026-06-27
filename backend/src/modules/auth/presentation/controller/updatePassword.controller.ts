@@ -3,12 +3,12 @@ import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { UpdatePasswordSchema } from "../validators/updatepassword.validator";
 import { userIdSchema } from "../validators/userId.validator";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { RequestUpdatePassword } from "../../application/dto/UpdatePasswordDTO";
 
 export class ChangePasswordController {
   constructor(
-    private readonly updatePasswordUC: UseCase<RequestUpdatePassword, void>,
+    private readonly updatePasswordUC: IUseCase<RequestUpdatePassword, void>,
   ) {}
 
   updatePassword = async (req: Request, res: Response, next: NextFunction) => {

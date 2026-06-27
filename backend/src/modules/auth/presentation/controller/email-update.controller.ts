@@ -6,14 +6,14 @@ import {
 } from "../validators/email-update.validation";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { RequestEmailUpdateDTO } from "../../application/dto/EmailUpdateDTO";
 import { VerifyEmailUpdateDTO } from "../../application/dto/verify-email-update.dto";
 
 export class EmailUpdateController {
   constructor(
-    private readonly requestEmailUpdateUc: UseCase<RequestEmailUpdateDTO, void>,
-    private readonly verifyEmailUc: UseCase<VerifyEmailUpdateDTO, void>,
+    private readonly requestEmailUpdateUc: IUseCase<RequestEmailUpdateDTO, void>,
+    private readonly verifyEmailUc: IUseCase<VerifyEmailUpdateDTO, void>,
   ) {}
 
   requestEmailUpdate = async (

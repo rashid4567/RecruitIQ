@@ -2,13 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UnblockJobPostRequestDTO } from "../../../application/dto/job.status.dto";
 import { Job } from "../../../domain/entities/job.entity";
 
 export class UnblockJobController {
   constructor(
-    private readonly unBlockUc: UseCase<UnblockJobPostRequestDTO, Job>,
+    private readonly unBlockUc: IUseCase<UnblockJobPostRequestDTO, Job>,
   ) {}
 
   unblock = async (req: Request, res: Response, next: NextFunction) => {

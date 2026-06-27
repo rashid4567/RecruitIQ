@@ -1,17 +1,14 @@
 import { ERROR_CODES } from "../../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../../shared/errors/application.error";
-import {
-  UpdatePlanInput,
-  UpdateSubscriptionPlanRequestDTO,
-} from "../../../dto/update-input.dto";
+import { UpdateSubscriptionPlanRequestDTO } from "../../../dto/update-input.dto";
 import {
   SubscriptionPlan,
   SubscriptionPlanProps,
 } from "../../../../domain/entities/subscription-plan.entity";
 import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 
-export class UpdateSubscriptionPlanUseCase implements UseCase<
+export class UpdateSubscriptionPlanUseCase implements IUseCase<
   UpdateSubscriptionPlanRequestDTO,
   SubscriptionPlan
 > {

@@ -1,6 +1,6 @@
 import { Brain, Search, Briefcase, TrendingUp } from "lucide-react";
 import UsageCard from "./UsageCard";
-import type { RecruiterSubscription } from "@/module/subscription/domain/entity/RecruiterSubscription.entity";
+import type { RecruiterSubscription } from "@/module/subscription/types/RecruiterSubscription.types";
 
 interface UsageSectionProps {
   subscription: RecruiterSubscription;

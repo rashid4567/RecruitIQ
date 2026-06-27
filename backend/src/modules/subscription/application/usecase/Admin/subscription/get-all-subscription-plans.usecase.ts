@@ -1,11 +1,11 @@
 import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 import {
   GetAllPlansRequestDTO,
   GetAllPlansResponseDTO,
 } from "../../../dto/get-all-plans.dto";
 
-export class GetAllSubscriptionPlansUseCase implements UseCase<
+export class GetAllSubscriptionPlansUseCase implements IUseCase<
   GetAllPlansRequestDTO,
   GetAllPlansResponseDTO
 > {

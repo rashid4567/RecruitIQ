@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../../shared/constants/httpStatus";
-import { GetAllSubscriptionPlansUseCase } from "../../../../application/usecase/Admin/subscription/get-all-subscription-plans.usecase";
 import { SubscriptionPlanFilter } from "../../../../domain/repository/subscription-plan.repository";
 import { SUCCESS_MESSAGES } from "../../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 import { GetAllPlansRequestDTO, GetAllPlansResponseDTO } from "../../../../application/dto/get-all-plans.dto";
 
 export class GetSubscriptionPlanController {
-  constructor(private readonly getAllPlansUC: UseCase<
+  constructor(private readonly getAllPlansUC: IUseCase<
     GetAllPlansRequestDTO,
     GetAllPlansResponseDTO
   >) {}

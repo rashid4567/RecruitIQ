@@ -3,13 +3,13 @@ import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { applyJobSchema } from "../../validator/apply-job.validator";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ApplyJobDTO } from "../../../application/dto/applyJobDto";
 import { JobApplication } from "../../../domain/entity/job-application.entity";
 
 export class ApplyJobController {
   constructor(
-    private readonly applyJobUC: UseCase<ApplyJobDTO, JobApplication>,
+    private readonly applyJobUC: IUseCase<ApplyJobDTO, JobApplication>,
   ) {}
 
   apply = async (req: Request, res: Response, next: NextFunction) => {

@@ -2,9 +2,9 @@ import { RecruiterProfileRepository } from "../../../domain/repositories/recruit
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { CompleteRecruiterProfileRequestDTO } from "../../dto/complete-recruiter-profile.dto";
 import { RecruiterProfile } from "../../../domain/entities/recruiter-profile.entity";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class CompleteRecruiterProfileUseCase implements UseCase<
+export class CompleteRecruiterProfileUseCase implements IUseCase<
   CompleteRecruiterProfileRequestDTO,
   void
 > {

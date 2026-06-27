@@ -4,11 +4,11 @@ import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { setRefreshCookie } from "../utils/cookie.util";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { VerificationInput, VerifyRegistrationResponseDTO } from "../../application/dto/verification.input.dto";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 
 export class RegistrationController {
   constructor(
-    private readonly verifyRegistrationUC:  UseCase<
+    private readonly verifyRegistrationUC:  IUseCase<
       VerificationInput,
       VerifyRegistrationResponseDTO
     > ,

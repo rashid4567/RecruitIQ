@@ -1,8 +1,8 @@
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { NotificationRepository } from "../../domain/repositories/notification.repository";
 import { MarkAllNotificationsAsReadRequestDTO } from "../dto/markAllAsNeedNotification.dto";
 
-export class MarkAllNotificationsAsReadUseCase implements UseCase<
+export class MarkAllNotificationsAsReadUseCase implements IUseCase<
   MarkAllNotificationsAsReadRequestDTO,
   void
 > {

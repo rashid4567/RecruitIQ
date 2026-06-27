@@ -5,7 +5,8 @@ export const PlanType = {
   Enterprise: "enterprise",
 } as const;
 
-export type PlanType = (typeof PlanType)[keyof typeof PlanType];
+export type PlanType =
+  (typeof PlanType)[keyof typeof PlanType];
 
 export const BillingCycle = {
   Weekly: "weekly",
@@ -13,7 +14,8 @@ export const BillingCycle = {
   Yearly: "yearly",
 } as const;
 
-export type BillingCycle = (typeof BillingCycle)[keyof typeof BillingCycle];
+export type BillingCycle =
+  (typeof BillingCycle)[keyof typeof BillingCycle];
 
 export const Currency = {
   INR: "INR",
@@ -22,7 +24,8 @@ export const Currency = {
   GBP: "GBP",
 } as const;
 
-export type Currency = (typeof Currency)[keyof typeof Currency];
+export type Currency =
+  (typeof Currency)[keyof typeof Currency];
 
 export const SubscriptionStatus = {
   Pending: "pending",
@@ -47,3 +50,21 @@ export const CancellationReason = {
 
 export type CancellationReason =
   (typeof CancellationReason)[keyof typeof CancellationReason];
+
+export const PaymentStatus = {
+  Pending: "pending",
+  Paid: "paid",
+  Failed: "failed",
+} as const;
+
+export type PaymentStatus =
+  (typeof PaymentStatus)[keyof typeof PaymentStatus];
+
+export const PaymentType = {
+  Subscription: "subscription",
+  Upgrade: "upgrade",
+  Renewal: "renewal",
+} as const;
+
+export type PaymentType =
+  (typeof PaymentType)[keyof typeof PaymentType];

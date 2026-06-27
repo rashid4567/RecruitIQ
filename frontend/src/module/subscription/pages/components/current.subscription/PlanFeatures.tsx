@@ -1,5 +1,5 @@
 import { CheckCircle2 } from "lucide-react";
-import type { RecruiterSubscription } from "@/module/subscription/domain/entity/RecruiterSubscription.entity";
+import type { RecruiterSubscription } from "@/module/subscription/types/RecruiterSubscription.types";
 
 interface PlanFeaturesProps {
   subscription: RecruiterSubscription;

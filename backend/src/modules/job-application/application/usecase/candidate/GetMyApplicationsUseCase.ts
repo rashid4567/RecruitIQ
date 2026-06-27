@@ -1,6 +1,6 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 import {
   CandidateApplicationListItemDTO,
@@ -9,7 +9,7 @@ import {
 
 export class GetMyApplicationUseCase
   implements
-    UseCase<
+    IUseCase<
       GetMyApplicationRequestDTO,
       CandidateApplicationListItemDTO[]
     >

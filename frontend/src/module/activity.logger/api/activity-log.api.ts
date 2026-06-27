@@ -1,9 +1,6 @@
 import api from "@/api/axios";
 
-import type {
-  ActivityLog,
-  MetadataValue,
-} from "../types/activity-log.types";
+import type { ActivityLog, MetadataValue } from "../types/activity-log.types";
 
 interface ActivityLogResponse {
   userId?: string;

@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { ApplicationStatus } from "../../../domain/entity/job-application.entity";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UpdateApplicationStatusDTO } from "../../../application/dto/UpdateApplicationStatusDTO";
 
 export class UpdateApplicationStatusController {
   constructor(
-    private readonly updateApplicationStatusUseCase: UseCase<
+    private readonly updateApplicationStatusUseCase: IUseCase<
       UpdateApplicationStatusDTO,
       void
     >,

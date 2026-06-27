@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { GetSubscribersUseCase } from "../../../../application/usecase/Admin/subscribers/GetSubscribersUseCase";
 import { HTTP_STATUS } from "../../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 import { GetSubscribersRequestDTO, GetSubscribersResponseDTO } from "../../../../application/dto/get-subscribers.dto";
 
 export class GetSubscribersController {
-  constructor(private readonly getSubscribersUC: UseCase<
+  constructor(private readonly getSubscribersUC: IUseCase<
     GetSubscribersRequestDTO,
     GetSubscribersResponseDTO
   >) {}

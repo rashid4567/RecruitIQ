@@ -6,10 +6,10 @@ import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants
 import {  createJobPostRequestDTO } from "../../dto/create-job.dto";
 import { RecruiterProfileRepository } from "../../../../recruiter/domain/repositories/recruiter.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
 
-export class CreateJobUseCase implements UseCase<createJobPostRequestDTO,Job> {
+export class CreateJobUseCase implements IUseCase<createJobPostRequestDTO,Job> {
   constructor(
     private readonly jobRepo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,

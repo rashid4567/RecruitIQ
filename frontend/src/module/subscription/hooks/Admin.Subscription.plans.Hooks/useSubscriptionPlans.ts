@@ -1,10 +1,10 @@
-import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import type { SubscriptionPlan } from "../../types/subscription-plan.types";
 import { useState, useEffect, useCallback } from "react";
 import {
-  getPlansUC,
-  hidePlanUC,
-  unhidePlanUC,
-} from "../../presentation/di/admin.subscription.plans.di";
+  getPlans,
+  hidePlan,
+  unhidePlan,
+} from "../../api/admin-subscription.api";
 
 export interface UIPlan {
   id: string;
@@ -62,7 +62,7 @@ export function useSubscriptionPlans() {
     setLoading(true);
     setError(null);
     try {
-      const result = await getPlansUC.execute({ page: 1, limit: 50 });
+      const result = await getPlans({ page: 1, limit: 50 });
 
       setPlans(result.plans);
       setUiPlans(result.plans.map(mapToUIPlan));
@@ -83,9 +83,9 @@ export function useSubscriptionPlans() {
       const plan = plans.find((p) => p.id === id);
       if (!plan) return;
       if (plan.isActive) {
-        await hidePlanUC.execute(id);
+        await hidePlan(id);
       } else {
-        await unhidePlanUC.execute(id);
+        await unhidePlan(id);
       }
 
       await fetchPlans();

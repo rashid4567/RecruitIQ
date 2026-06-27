@@ -6,12 +6,12 @@ import {
   clearRefreshCookie,
 } from "../utils/cookie.util";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { LoginRequestDTO, LoginResponseDTO } from "../../application/dto/login.dto";
 
 export class AuthController {
   constructor(
-    private readonly loginUC: UseCase<LoginRequestDTO,LoginResponseDTO>,
+    private readonly loginUC: IUseCase<LoginRequestDTO,LoginResponseDTO>,
   ) {}
 
   login = async (

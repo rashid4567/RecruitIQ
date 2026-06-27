@@ -1,6 +1,6 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { RecruiterSubscriptionRepository } from "../../../domain/repository/recruiter-subscription-plan-repository";
 import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
 import {
@@ -13,7 +13,7 @@ import { PlanType } from "../../../domain/entities/subscription-plan.entity";
 
 export class GetCurrentSubscriptionUseCase
   implements
-    UseCase<
+    IUseCase<
       GetCurrentSubscriptionRequestDTO,
       CurrentSubscriptionResponse
     >
@@ -21,7 +21,7 @@ export class GetCurrentSubscriptionUseCase
   constructor(
     private readonly repo: RecruiterSubscriptionRepository,
     private readonly subscriptionPlanRepo: SubscriptionPlanRepository,
-    private readonly updateRecruiterSubscriptionStatusUC: UseCase<
+    private readonly updateRecruiterSubscriptionStatusUC: IUseCase<
       UpdateRecruiterSubscriptionStatusRequestDTO,
       void
     >,

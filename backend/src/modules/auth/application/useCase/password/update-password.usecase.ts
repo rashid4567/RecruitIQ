@@ -3,10 +3,10 @@ import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Password } from "../../../domain/value.objects/password-hash.vo";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants"; 
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { RequestUpdatePassword } from "../../dto/UpdatePasswordDTO";
 
-export class UpdatePasswordUseCase implements UseCase<
+export class UpdatePasswordUseCase implements IUseCase<
   RequestUpdatePassword,
   void
 > {

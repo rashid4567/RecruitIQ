@@ -1,3 +1,24 @@
+import type { PaymentStatus, PaymentType } from "../constant/subscription.constants";
+
+
+export interface Payment {
+  id: string;
+  recruiterId: string;
+  planId: string;
+  durationMonths: number;
+  subscriptionId?: string;
+  paymentType: PaymentType;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  razorpayOrderId: string;
+  razorpayPaymentId?: string;
+  failureReason?: string;
+  paidAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CreateSubscriptionPaymentInput {
   planId: string;
   durationMonths: number;
@@ -24,11 +45,4 @@ export interface VerifyPaymentOutput {
   subscriptionId: string;
   paymentId: string;
   status: string;
-}
-
-export interface PaymentRepository {
-  createSubscription(
-    input: CreateSubscriptionPaymentInput,
-  ): Promise<CreateSubscriptionPaymentOutput>;
-  verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentOutput>;
 }

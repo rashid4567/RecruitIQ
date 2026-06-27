@@ -2,13 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { GetJobByIdRequestDTO } from "../../../application/dto/getJobPostById.dto";
 import { Job } from "../../../domain/entities/job.entity";
 
 export class AdminJobByIdController {
   constructor(
-    private readonly getJobsIdUc: UseCase<GetJobByIdRequestDTO, Job>,
+    private readonly getJobsIdUc: IUseCase<GetJobByIdRequestDTO, Job>,
   ) {}
 
   getOne = async (req: Request, res: Response, next: NextFunction) => {

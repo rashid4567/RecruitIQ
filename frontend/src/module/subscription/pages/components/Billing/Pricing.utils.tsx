@@ -11,13 +11,13 @@ import {
   Webhook,
   Headphones,
 } from "lucide-react";
-import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import type { SubscriptionPlan } from "@/module/subscription/types/subscription-plan.types";
 
 export const getDisplayPrice = (
   plan: SubscriptionPlan,
   yearly: boolean,
 ): string => {
-  if (plan.isFree) return "Free";
+  if (plan.planType === "free") return "Free";
   const monthly = plan.price ?? 0;
   const price = yearly ? Math.round(monthly * 0.8) : monthly;
   const symbol = plan.currency === "INR" ? "₹" : "$";
@@ -25,7 +25,7 @@ export const getDisplayPrice = (
 };
 
 export const getYearlyTotal = (plan: SubscriptionPlan): string => {
-  if (plan.isFree) return "";
+  if (plan.planType === "free") return "";
   const monthly = plan.price ?? 0;
   const symbol = plan.currency === "INR" ? "₹" : "$";
   const yearly = Math.round(monthly * 0.8 * 12);
@@ -50,7 +50,7 @@ export const getDisplayAiScoreCredits = (plan: SubscriptionPlan): string => {
 };
 
 export const getPlanCTA = (plan: SubscriptionPlan): string => {
-  return plan.isFree ? "Get Started Free" : "Subscribe Now";
+  return plan.planType === "free" ? "Get Started Free" : "Subscribe Now";
 };
 
 export const planIcons: Record<string, React.ElementType> = {

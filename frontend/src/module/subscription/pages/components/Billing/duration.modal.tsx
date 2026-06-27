@@ -11,7 +11,7 @@ import {
   Minus,
   Sparkles,
 } from "lucide-react";
-import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import type { SubscriptionPlan } from "@/module/subscription/types/subscription-plan.types";
 
 interface SubscriptionDurationModalProps {
   isOpen: boolean;

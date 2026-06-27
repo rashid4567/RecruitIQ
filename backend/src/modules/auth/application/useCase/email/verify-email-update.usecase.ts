@@ -3,10 +3,10 @@ import { UserRepository } from "../../../domain/repositories/user.repository";
 import { Email } from "../../../domain/value.objects/email.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { VerifyEmailUpdateDTO } from "../../dto/verify-email-update.dto";
 
-export class VerifyEmailUpdateUseCase implements UseCase<
+export class VerifyEmailUpdateUseCase implements IUseCase<
   VerifyEmailUpdateDTO,
   void
 > {

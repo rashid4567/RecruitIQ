@@ -1,6 +1,6 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ActivityTrackerService } from "../../../../Activity.logger/application/services/activityTracker.service";
 import { ActivityAction } from "../../../../Activity.logger/domain/constants/activityActions";
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
@@ -12,7 +12,7 @@ import { PublishJobPostRequestDTO } from "../../dto/publish.job.dto";
 
 import { IdGenerator } from "../../ports/id.generator.prots";
 
-export class PublishJobUseCase implements UseCase<PublishJobPostRequestDTO,Job> {
+export class PublishJobUseCase implements IUseCase<PublishJobPostRequestDTO,Job> {
   constructor(
     private readonly jobRepo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,

@@ -9,11 +9,8 @@ import {
   RecruiterSubscription,
   SubscriptionStatus,
 } from "../../../domain/entities/recruiter-subscription.entity";
-import { UpgradeSubscriptionUseCase } from "./UpgradeSubscriptionUseCase";
-import { UpdateRecruiterSubscriptionStatusUseCase } from "../../../../recruiter/application/useCase/profile/UpdateRecruiterSubscriptionStatusUseCase";
-import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/infrastructure/mongoose/notification.model";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UpdateRecruiterSubscriptionStatusRequestDTO } from "../../../../recruiter/application/dto/updateRecruiterSubscriptionStatus.dto";
 import { UpgradeSubscriptionRequestDTO } from "../../dto/upgrade-subscription.dto";
 import { CreateNotificationRequest } from "../../../../notification/application/dto/createNotification.dto";
@@ -23,7 +20,7 @@ import {
   VerifyPaymentResponseDTO,
 } from "../../dto/verifyPayment.dto";
 
-export class VerifyPaymentUseCase implements UseCase<
+export class VerifyPaymentUseCase implements IUseCase<
   VerifyPaymentRequestDTO,
   VerifyPaymentResponseDTO
 > {
@@ -32,15 +29,15 @@ export class VerifyPaymentUseCase implements UseCase<
     private readonly planRepo: SubscriptionPlanRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
     private readonly paymentGateway: PaymentGateway,
-    private readonly upgradeSubscriptionUC: UseCase<
+    private readonly upgradeSubscriptionUC: IUseCase<
       UpgradeSubscriptionRequestDTO,
       RecruiterSubscription
     >,
-    private readonly updateRecruiterSubscriptionStatusUC: UseCase<
+    private readonly updateRecruiterSubscriptionStatusUC: IUseCase<
       UpdateRecruiterSubscriptionStatusRequestDTO,
       void
     >,
-    private readonly createNotificationUC: UseCase<
+    private readonly createNotificationUC: IUseCase<
       CreateNotificationRequest,
       Notification
     >,

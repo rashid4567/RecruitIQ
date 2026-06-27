@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ActivityLog } from "../../../domain/entity/activity-log.entity";
 
 export class ActivityLogsController {
-  constructor(private readonly listActivityUC:   UseCase<void, ActivityLog[]>) {}
+  constructor(private readonly listActivityUC: IUseCase<void, ActivityLog[]>) {}
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {

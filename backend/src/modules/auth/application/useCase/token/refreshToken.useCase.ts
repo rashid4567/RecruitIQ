@@ -2,13 +2,13 @@ import { UserRepository } from "../../../domain/repositories/user.repository";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   RefershTokenResponseDTO,
   RefreshTokenRequestDTO,
 } from "../../dto/refresh.TokenDTO";
 
-export class RefreshTokenUseCase implements UseCase<
+export class RefreshTokenUseCase implements IUseCase<
   RefreshTokenRequestDTO,
   RefershTokenResponseDTO
 > {

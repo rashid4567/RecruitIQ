@@ -9,7 +9,12 @@ interface ActivityLogsSearchProps {
   totalCount?: number;
 }
 
-export function ActivityLogsSearch({ search, onSearch, resultCount, totalCount }: ActivityLogsSearchProps) {
+export function ActivityLogsSearch({
+  search,
+  onSearch,
+  resultCount,
+  totalCount,
+}: ActivityLogsSearchProps) {
   const isFiltered = search.trim().length > 0;
 
   return (
@@ -48,10 +53,14 @@ export function ActivityLogsSearch({ search, onSearch, resultCount, totalCount }
           <Sparkles className="h-3 w-3 text-indigo-400" />
           <p className="text-[12px] text-slate-400 font-medium">
             Found{" "}
-            <span className="text-indigo-600 font-bold">{resultCount.toLocaleString()}</span>
-            {" "}of{" "}
-            <span className="text-slate-600 font-semibold">{totalCount.toLocaleString()}</span>
-            {" "}events for{" "}
+            <span className="text-indigo-600 font-bold">
+              {resultCount.toLocaleString()}
+            </span>{" "}
+            of{" "}
+            <span className="text-slate-600 font-semibold">
+              {totalCount.toLocaleString()}
+            </span>{" "}
+            events for{" "}
             <span className="text-indigo-600 font-semibold">"{search}"</span>
           </p>
         </div>

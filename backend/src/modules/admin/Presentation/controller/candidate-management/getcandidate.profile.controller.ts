@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   CandidateProfileRequestDTO,
   CandidateProfileResponseDTO,
@@ -10,7 +10,7 @@ import {
 
 export class GetCandidateProfileController {
   constructor(
-    private readonly getCandidteProfileUC: UseCase<
+    private readonly getCandidteProfileUC: IUseCase<
       CandidateProfileRequestDTO,
       CandidateProfileResponseDTO
     >,

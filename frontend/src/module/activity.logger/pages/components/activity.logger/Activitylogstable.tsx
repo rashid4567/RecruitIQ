@@ -18,8 +18,6 @@ import { cn } from "@/lib/utils";
 import type { ActivityLog } from "@/module/activity.logger/types/activity-log.types";
 import { ActivityLogsTableRow } from "./Activitylogstablerow";
 
-
-
 const SkeletonRow = () => (
   <TableRow className="border-b border-slate-100">
     <TableCell className="pl-6 w-12">
@@ -63,8 +61,6 @@ const SkeletonRow = () => (
     </TableCell>
   </TableRow>
 );
-
-
 
 function PaginationNav({
   page,
@@ -114,31 +110,58 @@ function PaginationNav({
         {start > 1 && (
           <>
             <PageBtn n={1} active={false} onClick={() => onChangePage(1)} />
-            {start > 2 && <span className="w-6 text-center text-slate-300 text-xs">…</span>}
+            {start > 2 && (
+              <span className="w-6 text-center text-slate-300 text-xs">…</span>
+            )}
           </>
         )}
         {pages.map((n) => (
-          <PageBtn key={n} n={n} active={n === page} onClick={() => onChangePage(n)} />
+          <PageBtn
+            key={n}
+            n={n}
+            active={n === page}
+            onClick={() => onChangePage(n)}
+          />
         ))}
         {end < totalPages && (
           <>
-            {end < totalPages - 1 && <span className="w-6 text-center text-slate-300 text-xs">…</span>}
-            <PageBtn n={totalPages} active={false} onClick={() => onChangePage(totalPages)} />
+            {end < totalPages - 1 && (
+              <span className="w-6 text-center text-slate-300 text-xs">…</span>
+            )}
+            <PageBtn
+              n={totalPages}
+              active={false}
+              onClick={() => onChangePage(totalPages)}
+            />
           </>
         )}
       </div>
 
-      <NavBtn onClick={() => onChangePage(page + 1)} disabled={page >= totalPages}>
+      <NavBtn
+        onClick={() => onChangePage(page + 1)}
+        disabled={page >= totalPages}
+      >
         <ChevronRight className="h-3.5 w-3.5" />
       </NavBtn>
-      <NavBtn onClick={() => onChangePage(totalPages)} disabled={page >= totalPages}>
+      <NavBtn
+        onClick={() => onChangePage(totalPages)}
+        disabled={page >= totalPages}
+      >
         <ChevronsRight className="h-3.5 w-3.5" />
       </NavBtn>
     </div>
   );
 }
 
-function PageBtn({ n, active, onClick }: { n: number; active: boolean; onClick: () => void }) {
+function PageBtn({
+  n,
+  active,
+  onClick,
+}: {
+  n: number;
+  active: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
       onClick={onClick}
@@ -153,8 +176,6 @@ function PageBtn({ n, active, onClick }: { n: number; active: boolean; onClick: 
     </button>
   );
 }
-
-
 
 interface ActivityLogsTableProps {
   paginated: ActivityLog[];
@@ -182,8 +203,6 @@ export function ActivityLogsTable({
 
   return (
     <div className="rounded-2xl border border-slate-200/70 bg-white shadow-sm overflow-hidden">
-
-
       <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-600/25">
@@ -195,32 +214,38 @@ export function ActivityLogsTable({
             </h2>
             {!loading && (
               <p className="text-[11px] text-slate-400 mt-0.5">
-                {filtered.length.toLocaleString()} event{filtered.length !== 1 ? "s" : ""}
+                {filtered.length.toLocaleString()} event
+                {filtered.length !== 1 ? "s" : ""}
                 {search && (
-                  <span className="text-indigo-500 font-semibold"> (filtered)</span>
+                  <span className="text-indigo-500 font-semibold">
+                    {" "}
+                    (filtered)
+                  </span>
                 )}
               </p>
             )}
           </div>
         </div>
 
-
         <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 h-9">
           <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400" />
-          <span className="text-xs font-semibold text-slate-400 hidden sm:block">Rows</span>
+          <span className="text-xs font-semibold text-slate-400 hidden sm:block">
+            Rows
+          </span>
           <select
             value={pagination.limit}
             onChange={(e) => onChangeLimit(Number(e.target.value))}
             className="bg-transparent text-sm font-semibold text-slate-700 focus:outline-none cursor-pointer"
           >
             {[10, 20, 50, 100].map((n) => (
-              <option key={n} value={n}>{n}</option>
+              <option key={n} value={n}>
+                {n}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
- 
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -250,19 +275,26 @@ export function ActivityLogsTable({
 
           <TableBody>
             {loading ? (
-              Array(10).fill(0).map((_, i) => <SkeletonRow key={i} />)
+              Array(10)
+                .fill(0)
+                .map((_, i) => <SkeletonRow key={i} />)
             ) : paginated.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="py-20 text-center">
                   <div className="flex flex-col items-center gap-3">
                     <div className="h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center">
-                      <Activity className="h-7 w-7 text-slate-300" strokeWidth={1.5} />
+                      <Activity
+                        className="h-7 w-7 text-slate-300"
+                        strokeWidth={1.5}
+                      />
                     </div>
                     <p className="text-[15px] font-semibold text-slate-600">
                       No activity logs found
                     </p>
                     <p className="text-sm text-slate-400">
-                      {search ? "Try adjusting your search" : "No events have been recorded yet"}
+                      {search
+                        ? "Try adjusting your search"
+                        : "No events have been recorded yet"}
                     </p>
                   </div>
                 </TableCell>
@@ -276,21 +308,25 @@ export function ActivityLogsTable({
         </Table>
       </div>
 
-   
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 bg-slate-50/50">
           {/* Summary */}
           <p className="text-[12px] text-slate-400 font-medium">
             Showing{" "}
-            <span className="text-slate-700 font-bold">{start.toLocaleString()}</span>
+            <span className="text-slate-700 font-bold">
+              {start.toLocaleString()}
+            </span>
             {" – "}
-            <span className="text-slate-700 font-bold">{end.toLocaleString()}</span>
+            <span className="text-slate-700 font-bold">
+              {end.toLocaleString()}
+            </span>
             {" of "}
-            <span className="text-slate-700 font-bold">{filtered.length.toLocaleString()}</span>
+            <span className="text-slate-700 font-bold">
+              {filtered.length.toLocaleString()}
+            </span>
             {" events"}
           </p>
 
-         
           <PaginationNav
             page={pagination.page}
             totalPages={totalPages}

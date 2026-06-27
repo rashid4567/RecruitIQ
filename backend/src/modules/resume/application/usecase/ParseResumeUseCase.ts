@@ -10,9 +10,9 @@ import { ResumeTextExtractor } from "../../domain/service/resumeTextExtractor.se
 import { ParseResumeDTO } from "../dto/parse.resume.dto";
 import { JobApplicationRepository } from "../../../job-application/domain/repository/job-application.repository";
 import { AnalyzeApplicationUseCase } from "../../../job-application/application/usecase/candidate/AnalyzeApplicationUseCase";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 
-export class ParseResumeUseCase implements UseCase<
+export class ParseResumeUseCase implements IUseCase<
   ParseResumeDTO,
   ParsedResumeData
 > {

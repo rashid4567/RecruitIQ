@@ -8,9 +8,9 @@ import {
   RecruiterProfileReponse,
 } from "../../dto/recruiter-profile.dto";
 import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GetRecruiterProfileUseCase implements UseCase<
+export class GetRecruiterProfileUseCase implements IUseCase<
   GetRecruiterProfileRequestDTO,
   RecruiterProfileReponse
 > {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { RefreshSchema } from "../validators/refresh.schema";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import {
   RefershTokenResponseDTO,
   RefreshTokenRequestDTO,
@@ -8,7 +8,7 @@ import {
 
 export class TokenController {
   constructor(
-    private readonly refreshUC: UseCase<
+    private readonly refreshUC: IUseCase<
       RefreshTokenRequestDTO,
       RefershTokenResponseDTO
     >,

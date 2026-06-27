@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { ActiveSubscriptionPlanUseCase } from "../../../../application/usecase/Admin/subscription/activate-subscription-plan.usecase";
 import { HTTP_STATUS } from "../../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 import { ActiveSubscriptionPlanRequestDTO } from "../../../../application/dto/active-subscription-plan.dto";
 
 export class UnhideSubscriptionPlanController {
   constructor(
-    private readonly unhideUC: UseCase<ActiveSubscriptionPlanRequestDTO, void>,
+    private readonly unhideUC: IUseCase<ActiveSubscriptionPlanRequestDTO, void>,
   ) {}
   unhide = async (req: Request, res: Response, next: NextFunction) => {
     try {

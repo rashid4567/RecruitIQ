@@ -1,21 +1,16 @@
 import { useEffect, useState } from "react";
-import { getCurrentSubscriptionUC } from "../../presentation/di/subscription.di"; 
-import type { RecruiterSubscription } from "@/module/subscription/domain/entity/RecruiterSubscription.entity";
-
-interface CurrentSubscriptionData {
-  subscription: RecruiterSubscription | null;
-}
+import { getCurrentSubscription } from "../../api/subscription.api";
+import type { RecruiterSubscription } from "../../types/RecruiterSubscription.types";
 
 export const useCurrentSubscription = () => {
-  const [data, setData] = useState<CurrentSubscriptionData | null>(null);
+  const [data, setData] = useState<RecruiterSubscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const result = await getCurrentSubscriptionUC.execute();
-       
+        const result = await getCurrentSubscription();
         setData(result);
       } catch (err) {
         setError(err);
@@ -23,8 +18,13 @@ export const useCurrentSubscription = () => {
         setIsLoading(false);
       }
     };
+
     load();
   }, []);
 
-  return { data, isLoading, error };
+  return {
+    data,
+    isLoading,
+    error,
+  };
 };

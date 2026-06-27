@@ -1,15 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { UpgradeSubscriptionUseCase } from "../../../application/usecase/Recruiter/UpgradeSubscriptionUseCase";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UpgradeSubscriptionRequestDTO } from "../../../application/dto/upgrade-subscription.dto";
 import { RecruiterSubscription } from "../../../domain/entities/recruiter-subscription.entity";
 
 export class UpgradeSubscriptionController {
   constructor(
-    private readonly upgradeSubscriptionUC: UseCase<
+    private readonly upgradeSubscriptionUC: IUseCase<
       UpgradeSubscriptionRequestDTO,
       RecruiterSubscription
     >,

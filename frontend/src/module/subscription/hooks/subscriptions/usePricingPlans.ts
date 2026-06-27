@@ -1,19 +1,20 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
-import { getAllPlansUC } from "../../di/subscription.di";
+import type { SubscriptionPlan } from "../../types/subscription-plan.types";
+import { findActivePlans } from "../../api/subscription-plan.api";
 import { useRazorpay } from "./useRazorpay";
 
 export const usePricingPlans = () => {
   const navigate = useNavigate();
-
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
-  const [durationMonths, setDurationMonths] = useState<number>(1);
-  const [showDurationModal, setShowDurationModal] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
+  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
+    "monthly",
+  );
+  const [durationMonths, setDurationMonths] = useState(1);
+  const [showDurationModal, setShowDurationModal] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([
     "Job Posting & Management",
     "Candidate Management",
@@ -24,45 +25,46 @@ export const usePricingPlans = () => {
       toast.success("Subscription activated successfully!");
       navigate("/recruiter/subscription/success");
     },
-    onError: (err) => {
-      toast.error(String(err));
-      navigate("/recruiter/subscription/failed");   // ← was missing
+    onError: (error) => {
+      toast.error(String(error));
+      navigate("/recruiter/subscription/failed");
     },
     onDismiss: () => {
       toast.info("Payment cancelled");
-      // stay on the page — user may want to retry
     },
   });
 
   useEffect(() => {
-    const fetchPlans = async () => {
+    const loadPlans = async () => {
       try {
         setLoading(true);
-        const response = await getAllPlansUC.execute({ activeOnly: true });
-        const sortedPlans = [...response.plans].sort((a, b) => a.sortOrder - b.sortOrder);
-        setPlans(sortedPlans);
-        const popularPlan = sortedPlans.find((plan) => plan.isPopular) ?? sortedPlans[0];
-        if (popularPlan) setSelectedPlanId(popularPlan.id);
+        const data = await findActivePlans();
+        const sorted = [...data].sort((a, b) => a.sortOrder - b.sortOrder);
+        setPlans(sorted);
+        const defaultPlan = sorted.find((plan) => plan.isPopular) ?? sorted[0];
+        if (defaultPlan) {
+          setSelectedPlanId(defaultPlan.id);
+        }
       } catch (error) {
-        console.error("Failed to fetch pricing plans:", error);
+        console.error(error);
         toast.error("Failed to load pricing plans");
       } finally {
         setLoading(false);
       }
     };
-    fetchPlans();
+    loadPlans();
   }, []);
 
   const selectedPlan = useMemo(
-    () => plans.find((plan) => plan.id === selectedPlanId),
+    () => plans.find((plan) => plan.id === selectedPlanId) ?? null,
     [plans, selectedPlanId],
   );
 
   const toggleCategory = (category: string) => {
-    setExpandedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((item) => item !== category)
-        : [...prev, category],
+    setExpandedCategories((previous) =>
+      previous.includes(category)
+        ? previous.filter((item) => item !== category)
+        : [...previous, category],
     );
   };
 
@@ -71,7 +73,7 @@ export const usePricingPlans = () => {
       toast.error("Please select a subscription plan");
       return;
     }
-    if (selectedPlan.isFree) {
+    if (selectedPlan.planType === "free") {
       handleSubscribe();
       return;
     }
@@ -88,7 +90,8 @@ export const usePricingPlans = () => {
         toast.error("Subscription duration must be between 1 and 12 months");
         return;
       }
-      if (selectedPlan.isFree) {
+
+      if (selectedPlan.planType === "free") {
         toast.success("🎉 Free plan activated successfully!");
         navigate("/recruiter/subscription/success");
         return;
@@ -96,20 +99,22 @@ export const usePricingPlans = () => {
       await initiatePayment(selectedPlan.id, durationMonths);
       setShowDurationModal(false);
     } catch (error) {
-      console.error("Subscription failed:", error);
+      console.error(error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to process subscription",
+        error instanceof Error
+          ? error.message
+          : "Failed to process subscription",
       );
-      navigate("/recruiter/subscription/failed");  
+      navigate("/recruiter/subscription/failed");
     }
   };
-
+  const totalAmount = useMemo(() => {
+    if (!selectedPlan) {
+      return 0;
+    }
+    return selectedPlan.price * durationMonths;
+  }, [selectedPlan, durationMonths]);
   const goBack = () => navigate(-1);
-
-  const totalAmount = useMemo(
-    () => (selectedPlan ? selectedPlan.price * durationMonths : 0),
-    [selectedPlan, durationMonths],
-  );
 
   return {
     plans,
@@ -124,10 +129,10 @@ export const usePricingPlans = () => {
     setShowDurationModal,
     expandedCategories,
     setExpandedCategories,
-    toggleCategory,
     selectedPlan,
     totalAmount,
     paymentLoading,
+    toggleCategory,
     openSubscribeModal,
     handleSubscribe,
     goBack,

@@ -1,12 +1,12 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
 import { RecruiterRepository } from "../../../Domain/repositories/recruiter.repository";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { rejectRecruiterRequestDTO } from "../../dto/recruiter.dto/recruiter.status.dto";
 
-export class RejectRecruiterUseCase implements UseCase<rejectRecruiterRequestDTO,void> {
+export class RejectRecruiterUseCase implements IUseCase<rejectRecruiterRequestDTO,void> {
   constructor(
     private readonly recruiterRepo: RecruiterRepository,
     private readonly createNotificationUC: CreateNotificationUseCase,

@@ -3,7 +3,7 @@ import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   CandidateApplicationListItemDTO,
   GetMyApplicationRequestDTO,
@@ -11,7 +11,7 @@ import {
 
 export class GetMyApplicationController {
   constructor(
-    private readonly getMyApplicationUC: UseCase<
+    private readonly getMyApplicationUC: IUseCase<
       GetMyApplicationRequestDTO,
       CandidateApplicationListItemDTO[]
     >,

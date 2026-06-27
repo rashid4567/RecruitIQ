@@ -10,8 +10,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Sidebar from "@/components/admin/sideBar";
-import { useSubscribers } from "../../hooks/Admin.subscribers.Hooks/useSubscribers";
-import type { SubscribersListItem } from "@/module/subscription/domain/repositories/subscribers.plan.repository";
+import { useSubscribers } from "../hooks/Admin.subscribers.Hooks/useSubscribers";
+import type { SubscribersListItem } from "../types/subscriber.types";
 
 const getStatusColor = (status: string) => {
   switch (status?.toLowerCase()) {
@@ -362,18 +362,29 @@ export default function BillingControl() {
                           {sub.planName}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-500">
-                          {sub.startDate.toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          {sub.startDate
+                            ? new Date(sub.startDate).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )
+                            : "-"}
                         </td>
+
                         <td className="px-6 py-4 text-sm text-gray-500">
-                          {sub.endDate.toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          {sub.endDate
+                            ? new Date(sub.endDate).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )
+                            : "-"}
                         </td>
                         <td className="px-6 py-4">
                           <span

@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { CreatePaymentOrderUseCase } from "../../../application/usecase/Recruiter/CreatePaymentOrderUseCase";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   CreatePaymentOrderRequestDTO,
   CreatePaymentOrderResponseDTO,
@@ -11,7 +10,7 @@ import {
 
 export class CreatePaymentOrderController {
   constructor(
-    private readonly createPaymentUc: UseCase<
+    private readonly createPaymentUc: IUseCase<
       CreatePaymentOrderRequestDTO,
       CreatePaymentOrderResponseDTO
     >,

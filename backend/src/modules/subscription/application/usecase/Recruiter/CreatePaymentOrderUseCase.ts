@@ -10,13 +10,13 @@ import { PaymentGateway } from "../../ports/Paymentgateway.port";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { IdGenerator } from "../../ports/id-generator.port";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
   CreatePaymentOrderRequestDTO,
   CreatePaymentOrderResponseDTO,
 } from "../../dto/createSubscription.dto";
 
-export class CreatePaymentOrderUseCase implements UseCase<
+export class CreatePaymentOrderUseCase implements IUseCase<
   CreatePaymentOrderRequestDTO,
   CreatePaymentOrderResponseDTO
 > {

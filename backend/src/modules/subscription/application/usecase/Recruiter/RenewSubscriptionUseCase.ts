@@ -3,11 +3,11 @@ import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants
 import { RecruiterSubscriptionRepository } from "../../../domain/repository/recruiter-subscription-plan-repository";
 
 import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { RenewSubscriptionRequestDTO } from "../../dto/renew-subscription.dto";
 import { RecruiterSubscription } from "../../../domain/entities/recruiter-subscription.entity";
 
-export class RenewSubscriptionUseCase implements UseCase<
+export class RenewSubscriptionUseCase implements IUseCase<
   RenewSubscriptionRequestDTO,
   RecruiterSubscription
 > {

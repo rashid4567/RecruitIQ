@@ -2,13 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UploadResumeDTO } from "../../application/dto/upload.resume.dto";
 import { Resume } from "../../domain/entity/resume.entity";
 
 export class UploadResumeController {
   constructor(
-    private readonly uploadResumeUC: UseCase<UploadResumeDTO, Resume>,
+    private readonly uploadResumeUC: IUseCase<UploadResumeDTO, Resume>,
   ) {}
 
   handle = async (req: Request, res: Response, next: NextFunction) => {

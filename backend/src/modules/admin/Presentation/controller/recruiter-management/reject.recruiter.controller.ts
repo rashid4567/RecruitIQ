@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { rejectRecruiterRequestDTO } from "../../../Application/dto/recruiter.dto/recruiter.status.dto";
 
 export class RejectRecruiterController {
   constructor(
-    private readonly rejectRecruiterUC: UseCase<
+    private readonly rejectRecruiterUC: IUseCase<
       rejectRecruiterRequestDTO,
       void
     >,

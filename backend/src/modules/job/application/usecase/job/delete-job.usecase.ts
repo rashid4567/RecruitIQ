@@ -1,10 +1,10 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { DeleteJobPostRequestDTO } from "../../dto/deleteJob.Dto";
 
-export class DeleteJobUseCase implements UseCase<
+export class DeleteJobUseCase implements IUseCase<
   DeleteJobPostRequestDTO,
   void
 > {

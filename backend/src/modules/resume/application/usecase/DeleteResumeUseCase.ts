@@ -1,11 +1,11 @@
 import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../shared/errors/application.error";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { FileStorageRepository } from "../../domain/repository/fileStorage.repository";
 import { ResumeRepository } from "../../domain/repository/resume.repository";
 import { DeleteResumeDTO } from "../dto/delete-resume.dto";
 
-export class DeleteResumeUseCase implements UseCase<DeleteResumeDTO,void>{
+export class DeleteResumeUseCase implements IUseCase<DeleteResumeDTO,void>{
   constructor(
     private readonly resumeRepository: ResumeRepository,
     private readonly fileStorageRepository: FileStorageRepository,

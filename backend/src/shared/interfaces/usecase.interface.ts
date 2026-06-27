@@ -1,3 +1,3 @@
-export interface UseCase<TInput, TOutput> {
+export interface IUseCase<TInput, TOutput> {
   execute(input: TInput): Promise<TOutput>;
 }

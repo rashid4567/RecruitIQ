@@ -3,12 +3,12 @@ import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { Job, JobStatus, JobType } from "../../../domain/entities/job.entity";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { GetJobsRequestDTO } from "../../../application/dto/getJobPostRequest.dto";
 import { PaginatedResult } from "../../../domain/types/job-filter.type";
 
 export class RecruiterJobController {
-  constructor(private readonly jobsUc: UseCase<
+  constructor(private readonly jobsUc: IUseCase<
     GetJobsRequestDTO,
     PaginatedResult<Job>
   >) {}

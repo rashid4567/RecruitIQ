@@ -4,11 +4,11 @@ import { parseResumeSchema } from "../validatior/parseResume.schema";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { DeleteResumeDTO } from "../../application/dto/delete-resume.dto";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 
 export class DeleteResumeController {
   constructor(
-    private readonly deleteResumeUC: UseCase<DeleteResumeDTO, void>,
+    private readonly deleteResumeUC: IUseCase<DeleteResumeDTO, void>,
   ) {}
 
   handle = async (req: Request, res: Response, next: NextFunction) => {

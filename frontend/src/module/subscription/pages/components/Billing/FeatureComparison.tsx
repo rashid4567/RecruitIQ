@@ -1,5 +1,5 @@
 import { ChevronDown, Check, X, Shield } from "lucide-react";
-import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+import type { SubscriptionPlan } from "@/module/subscription/types/subscription-plan.types";
 import { buildFeatureCategories, categoryIcons } from "./Pricing.utils";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 
 export default function FeatureComparison({
   plans,
-  expandedCategories, 
+  expandedCategories,
   toggleCategory,
 }: Props) {
   const featureCategories = buildFeatureCategories(plans);

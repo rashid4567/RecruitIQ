@@ -1,16 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import { GetSubscriptionPlanUseCase } from "../../../application/usecase/Admin/subscription/get-subscription-plan.usecase";
 import { planIdParamSchema } from "../../../../recruiter/presentation/validator/Planidparam.validator";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { GetSubscriptionPlanRequestDTO } from "../../../application/dto/getSubscription.plan.dto";
 import { SubscriptionPlan } from "../../../domain/entities/subscription-plan.entity";
 
 export class GetPlanDetailController {
   constructor(
-    private readonly getPlanUC: UseCase<
+    private readonly getPlanUC: IUseCase<
       GetSubscriptionPlanRequestDTO,
       SubscriptionPlan
     >,

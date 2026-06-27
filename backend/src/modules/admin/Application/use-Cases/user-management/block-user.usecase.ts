@@ -2,11 +2,11 @@ import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ApplicationError } from "../../../../../shared/errors/application.error"; 
 import { UserRepository } from "../../../Domain/repositories/user.repository";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UserStatusRequestDTO } from "../../dto/recruiter.dto/user.status.dto";
 
 
-export class BlockUserUseCase implements UseCase<UserStatusRequestDTO,void>{
+export class BlockUserUseCase implements IUseCase<UserStatusRequestDTO,void>{
     constructor(
         private readonly userRepo : UserRepository,
     ){};

@@ -20,13 +20,15 @@ function computeOverallUsage(sub: {
   aiScoreUsed: number;
   aiScoreLimit: number;
 }): number {
-  return Math.round(
-    ((sub.jobPostsUsed / sub.jobPostsLimit +
-      sub.screeningUsed / sub.screeningLimit +
-      sub.aiScoreUsed / sub.aiScoreLimit) /
-      4) *
-      100,
-  );
+  const jobUsage =
+    sub.jobPostsLimit > 0 ? sub.jobPostsUsed / sub.jobPostsLimit : 0;
+
+  const screeningUsage =
+    sub.screeningLimit > 0 ? sub.screeningUsed / sub.screeningLimit : 0;
+
+  const aiUsage = sub.aiScoreLimit > 0 ? sub.aiScoreUsed / sub.aiScoreLimit : 0;
+
+  return Math.round(((jobUsage + screeningUsage + aiUsage) / 3) * 100);
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -88,17 +90,21 @@ function EmptyState() {
 export default function CurrentSubscriptionPage() {
   const { data, isLoading, error } = useCurrentSubscription();
 
-  if (isLoading) return <LoadingState />;
-  if (error) return <ErrorState />;
-  if (!data?.subscription) return <EmptyState />;
+  if (isLoading) {
+    return <LoadingState />;
+  }
+  if (error) {
+    return <ErrorState />;
+  }
 
-  const subscription = data.subscription;
+  if (!data) {
+    return <EmptyState />;
+  }
+  const subscription = data;
   const overallUsage = computeOverallUsage(subscription);
-
   return (
     <div className="flex h-screen bg-white">
       <Sidebar />
-
       <div className="flex-1 overflow-auto bg-slate-50">
         <div className="p-8 max-w-6xl">
           <div className="mb-8">
@@ -113,13 +119,11 @@ export default function CurrentSubscriptionPage() {
               </div>
               <StatusBadge status={subscription.status} />
             </div>
-
             <SubscriptionOverview
               subscription={subscription}
               overallUsage={overallUsage}
             />
           </div>
-
           <div className="grid lg:grid-cols-3 gap-8 mb-8">
             <div className="lg:col-span-2 space-y-8">
               <UsageSection subscription={subscription} />
@@ -127,7 +131,6 @@ export default function CurrentSubscriptionPage() {
               <PlanFeatures subscription={subscription} />
               <UpgradeBanner />
             </div>
-
             <div className="space-y-6">
               <QuickActions />
               <EnterpriseCard />

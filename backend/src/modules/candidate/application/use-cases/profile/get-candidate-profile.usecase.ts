@@ -9,9 +9,9 @@ import {
   GetCandidateProfileResponseDTO,
 } from "../../dto/candidate-profile.dto";
 import { FileStorageRepository } from "../../../../resume/domain/repository/fileStorage.repository";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GetCandidateProfileUseCase implements UseCase<
+export class GetCandidateProfileUseCase implements IUseCase<
   GetCandidateProfileRequestDTO,
   GetCandidateProfileResponseDTO
 > {

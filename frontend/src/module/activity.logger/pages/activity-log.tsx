@@ -40,7 +40,10 @@ export default function ActivityLogsPage() {
           <main className="flex-1 p-6 lg:p-8">
             <div className="max-w-screen-2xl mx-auto space-y-6">
               {error ? (
-                <ActivityLogsError message={error} onRetry={() => fetchLogs()} />
+                <ActivityLogsError
+                  message={error}
+                  onRetry={() => fetchLogs()}
+                />
               ) : (
                 <>
                   {/* Stats row */}

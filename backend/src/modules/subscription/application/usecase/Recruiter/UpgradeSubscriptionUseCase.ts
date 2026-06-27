@@ -1,8 +1,7 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { AnalyzeApplicationRequestDTO } from "../../../../job-application/application/dto/analyseJobpost.dto";
-import { AnalyzeApplicationUseCase } from "../../../../job-application/application/usecase/candidate/AnalyzeApplicationUseCase";
 import { ApplicationAnalysisStatus } from "../../../../job-application/domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../../../job-application/domain/repository/job-application.repository";
 import { RecruiterSubscription } from "../../../domain/entities/recruiter-subscription.entity";
@@ -10,7 +9,7 @@ import { RecruiterSubscriptionRepository } from "../../../domain/repository/recr
 import { SubscriptionPlanRepository } from "../../../domain/repository/subscription-plan.repository";
 import { UpgradeSubscriptionRequestDTO } from "../../dto/upgrade-subscription.dto";
 
-export class UpgradeSubscriptionUseCase implements UseCase<
+export class UpgradeSubscriptionUseCase implements IUseCase<
   UpgradeSubscriptionRequestDTO,
   RecruiterSubscription
 > {
@@ -18,7 +17,7 @@ export class UpgradeSubscriptionUseCase implements UseCase<
     private readonly planRepo: SubscriptionPlanRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
     private readonly applicationRepo: JobApplicationRepository,
-    private readonly analyzeApplicationUC: UseCase<
+    private readonly analyzeApplicationUC: IUseCase<
       AnalyzeApplicationRequestDTO,
       void
     >,

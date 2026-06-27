@@ -2,9 +2,9 @@ import { CandidateRepository } from "../../../domain/repositories/candidate.repo
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { CompleteCandidateProfileRequestDTO } from "../../dto/complete-candidate-profile.dto";
 import { CandidateProfile } from "../../../domain/entities/candidate-profile.entity";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class CompleteCandidateProfileUseCase implements UseCase<CompleteCandidateProfileRequestDTO,void> {
+export class CompleteCandidateProfileUseCase implements IUseCase<CompleteCandidateProfileRequestDTO,void> {
   constructor(private readonly candidateRepo: CandidateRepository) {}
 
   async execute(

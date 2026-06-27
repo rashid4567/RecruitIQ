@@ -2,13 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { GetResumeByCandidateDTO } from "../../application/dto/get-resume-by-candidate.dto";
 import { Resume } from "../../domain/entity/resume.entity";
 
 export class GetResumeByCandidateController {
   constructor(
-    private readonly getResumeByCandidateUC: UseCase<
+    private readonly getResumeByCandidateUC: IUseCase<
       GetResumeByCandidateDTO,
       Resume
     >,

@@ -1,10 +1,10 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { RecruiterSubscriptionRepository } from "../../../domain/repository/recruiter-subscription-plan-repository";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { CancelSubscriptionRequestDTO } from "../../dto/cancel-subscription.dto";
 import { RecruiterSubscription } from "../../../domain/entities/recruiter-subscription.entity";
-export class CancelSubscriptionUseCase implements UseCase<
+export class CancelSubscriptionUseCase implements IUseCase<
   CancelSubscriptionRequestDTO,
   RecruiterSubscription
 > {

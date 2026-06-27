@@ -1,10 +1,10 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 import { WithdrawApplicationRequestDTO } from "../../dto/withdrawApplication.dto";
 
-export class WithdrawApplicationUseCase implements UseCase<
+export class WithdrawApplicationUseCase implements IUseCase<
   WithdrawApplicationRequestDTO,
   void
 > {

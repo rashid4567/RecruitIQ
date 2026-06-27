@@ -3,13 +3,13 @@ import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { GoogleLoginSchema } from "../validators/google-login.schema";
 import { setRefreshCookie } from "../utils/cookie.util";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { GoogleLoginRequestDTO } from "../../application/dto/google-login.dto";
 import { AuthResult } from "../../application/types/auth-result.type";
 
 export class GoogleController {
   constructor(
-    private readonly googleLoginUC: UseCase<GoogleLoginRequestDTO, AuthResult>,
+    private readonly googleLoginUC: IUseCase<GoogleLoginRequestDTO, AuthResult>,
   ) {}
 
   login = async (req: Request, res: Response, next: NextFunction) => {

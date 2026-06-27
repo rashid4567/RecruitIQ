@@ -1,12 +1,12 @@
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { JobStatus, UpdateJobPostRequestDTO } from "../../dto/update-job.dto";
 
-export class UpdateJobUseCase implements UseCase<UpdateJobPostRequestDTO, Job> {
+export class UpdateJobUseCase implements IUseCase<UpdateJobPostRequestDTO, Job> {
   constructor(
     private readonly repo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,

@@ -1,10 +1,10 @@
 import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../shared/errors/application.error";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { NotificationRepository } from "../../domain/repositories/notification.repository";
 import { MarkNotificationAsReadRequestDTO } from "../dto/markNotificationAs.read";
 
-export class MarkNotificationAsReadUseCase implements UseCase<
+export class MarkNotificationAsReadUseCase implements IUseCase<
   MarkNotificationAsReadRequestDTO,
   void
 > {

@@ -3,10 +3,10 @@ import { ApplicationError } from "../../../../shared/errors/application.error";
 import { FileStorageRepository } from "../../../resume/domain/repository/fileStorage.repository";
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UpdateProfileImageRequest } from "../dto/update.profileDTO";
 
-export class UpdateProfileImageUseCase implements UseCase<
+export class UpdateProfileImageUseCase implements IUseCase<
   UpdateProfileImageRequest,
   void
 > {

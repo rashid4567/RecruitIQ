@@ -1,10 +1,10 @@
 import { ERROR_CODES } from "../../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
 import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
 import { DeleteSubscriptionRequestDTO } from "../../../dto/delete-subscription.dto";
 
-export class DeleteSubscriptionPlanUseCase implements UseCase<DeleteSubscriptionRequestDTO,void> {
+export class DeleteSubscriptionPlanUseCase implements IUseCase<DeleteSubscriptionRequestDTO,void> {
   constructor(private readonly repo: SubscriptionPlanRepository) {}
   async execute(request : DeleteSubscriptionRequestDTO): Promise<void> {
     const existing = await this.repo.findById(request.planId);

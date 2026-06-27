@@ -2,14 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UpdateJobPostRequestDTO } from "../../../application/dto/update-job.dto";
 import { Job } from "../../../domain/entities/job.entity";
 import { UpdateJobSchema } from "../../validator/UpdateJobSchema";
 
 export class UpdateJobController {
   constructor(
-    private readonly updateUc: UseCase<UpdateJobPostRequestDTO, Job>,
+    private readonly updateUc: IUseCase<UpdateJobPostRequestDTO, Job>,
   ) {}
 
   update = async (req: Request, res: Response, next: NextFunction) => {

@@ -1,13 +1,13 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 import {
   GetApplicationAIAnalysisOutput,
   GetApplicationAIAnalysisRequestDTO,
 } from "../../dto/GetApplicationAIAnalysisOutput.dto";
 
-export class GetApplicationAIAnalysisUseCase implements UseCase<
+export class GetApplicationAIAnalysisUseCase implements IUseCase<
   GetApplicationAIAnalysisRequestDTO,
   GetApplicationAIAnalysisOutput
 > {

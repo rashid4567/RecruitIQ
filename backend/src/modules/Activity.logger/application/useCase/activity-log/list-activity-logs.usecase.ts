@@ -1,9 +1,9 @@
 import { ActivityLogRepository } from "../../../domain/repositories/activity-log.repository";
 
 import { ActivityLog } from "../../../domain/entity/activity-log.entity";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class ListActivityLogsUseCase implements UseCase<void, ActivityLog[]> {
+export class ListActivityLogsUseCase implements IUseCase<void, ActivityLog[]> {
   constructor(private readonly activityLogRepo: ActivityLogRepository) {}
 
   async execute(): Promise<ActivityLog[]> {

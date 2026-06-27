@@ -3,9 +3,9 @@ import { EmailTemplateRepository } from "../../../domain/repository/email-templa
 import { EmailService } from "../../ports/email.service";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { SendTestEmailInputDto } from "../../dto/email.template/sent-test.email.input";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class SendTestEmailUseCase implements UseCase<SendTestEmailInputDto,void>{
+export class SendTestEmailUseCase implements IUseCase<SendTestEmailInputDto,void>{
   constructor(
     private readonly emailTemplateRepo: EmailTemplateRepository,
     private readonly emailService: EmailService,

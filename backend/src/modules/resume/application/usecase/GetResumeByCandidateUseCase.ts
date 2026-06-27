@@ -1,11 +1,11 @@
 import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../shared/errors/application.error";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { Resume } from "../../domain/entity/resume.entity";
 import { ResumeRepository } from "../../domain/repository/resume.repository";
 import { GetResumeByCandidateDTO } from "../dto/get-resume-by-candidate.dto";
 
-export class GetResumeByCandidateUseCase implements UseCase<
+export class GetResumeByCandidateUseCase implements IUseCase<
   GetResumeByCandidateDTO,
   Resume
 > {

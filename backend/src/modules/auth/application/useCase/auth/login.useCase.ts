@@ -5,10 +5,10 @@ import { Password } from "../../../domain/value.objects/password-hash.vo";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { LoginRequestDTO, LoginResponseDTO } from "../../dto/login.dto";
 
-export class LoginUseCase implements UseCase<
+export class LoginUseCase implements IUseCase<
   LoginRequestDTO,
   LoginResponseDTO
 > {

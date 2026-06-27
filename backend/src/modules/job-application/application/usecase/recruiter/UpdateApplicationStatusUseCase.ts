@@ -14,9 +14,9 @@ import {
 } from "../../../domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
 import { UpdateApplicationStatusDTO } from "../../dto/UpdateApplicationStatusDTO";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class UpdateApplicationStatusUseCase implements UseCase<
+export class UpdateApplicationStatusUseCase implements IUseCase<
   UpdateApplicationStatusDTO,
   void
 > {

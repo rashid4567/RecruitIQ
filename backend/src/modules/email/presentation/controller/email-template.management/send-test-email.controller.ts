@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { SendTestEmailInputDto } from "../../../application/dto/email.template/sent-test.email.input";
 
 export class SendTestEmailController {
   constructor(
-    private readonly sendTestEmailUC: UseCase<SendTestEmailInputDto, void>,
+    private readonly sendTestEmailUC: IUseCase<SendTestEmailInputDto, void>,
   ) {}
   sendTestEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {

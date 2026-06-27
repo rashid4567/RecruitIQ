@@ -1,11 +1,11 @@
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { EmailTemplate } from "../../../domain/entities/email-template.entity";
 import { EmailTemplateRepository } from "../../../domain/repository/email-template.repository";
 import { UpdateEmailTemplateRequestDTO } from "../../dto/email.template/updateEmailTemplate.input.dto";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 
-export class UpdateEmailTemplateUseCase implements UseCase<
+export class UpdateEmailTemplateUseCase implements IUseCase<
   UpdateEmailTemplateRequestDTO,
   EmailTemplate
 > {

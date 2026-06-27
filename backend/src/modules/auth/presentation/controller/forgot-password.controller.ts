@@ -4,12 +4,12 @@ import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ResetPasswordDTO, ResetPasswordSchema } from "../validators/reset-password.schema";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { ForgotPasswordRequestDTO } from "../../application/dto/forgot-password.dto";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 
 export class ForgotPasswordController {
   constructor(
-    private readonly forgotPasswordUC:  UseCase<ForgotPasswordRequestDTO,void>,
-    private readonly resetPasswordUC: UseCase<ResetPasswordDTO, void>,
+    private readonly forgotPasswordUC:  IUseCase<ForgotPasswordRequestDTO,void>,
+    private readonly resetPasswordUC: IUseCase<ResetPasswordDTO, void>,
   ) {}
 
   forgotPassword = async (req: Request, res: Response, next: NextFunction) => {

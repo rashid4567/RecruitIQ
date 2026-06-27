@@ -1,10 +1,10 @@
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 
 import { Notification } from "../../domain/entities/Notification";
 import { NotificationRepository } from "../../domain/repositories/notification.repository";
 import { CreateNotificationRequest } from "../dto/createNotification.dto";
 
-export class CreateNotificationUseCase implements UseCase<
+export class CreateNotificationUseCase implements IUseCase<
   CreateNotificationRequest,
   Notification
 > {

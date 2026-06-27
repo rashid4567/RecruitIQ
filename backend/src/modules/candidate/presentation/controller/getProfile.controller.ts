@@ -3,11 +3,11 @@ import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { userIdSchema } from "../validator/userId.validatort";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { GetCandidateProfileRequestDTO, GetCandidateProfileResponseDTO } from "../../application/dto/candidate-profile.dto";
 
 export class GetCandidateProfileController {
-  constructor(private readonly getProfileUC: UseCase<
+  constructor(private readonly getProfileUC: IUseCase<
     GetCandidateProfileRequestDTO,
     GetCandidateProfileResponseDTO
   >) {}

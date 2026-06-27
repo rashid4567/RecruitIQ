@@ -1,9 +1,11 @@
-import type { ActivityLog, MetadataValue } from "@/module/activity.logger/types/activity-log.types"; 
+import type {
+  ActivityLog,
+  MetadataValue,
+} from "@/module/activity.logger/types/activity-log.types";
 
 type Metadata = Record<string, MetadataValue>;
 
-const getMeta = (log: ActivityLog): Metadata =>
-  log.metadata ?? {};
+const getMeta = (log: ActivityLog): Metadata => log.metadata ?? {};
 
 export const getUserName = (log: ActivityLog): string => {
   const meta = getMeta(log);
@@ -19,16 +21,13 @@ export const getUserName = (log: ActivityLog): string => {
   );
 };
 
-
-
 export const getRole = (log: ActivityLog): string => {
   const meta = getMeta(log);
   const role = (meta.role as string) ?? "system";
   return role.toLowerCase();
 };
 
-export const getUserIdSafe = (log: ActivityLog): string =>
-  log.userId ?? "";
+export const getUserIdSafe = (log: ActivityLog): string => log.userId ?? "";
 
 export const getDescription = (log: ActivityLog): string => {
   const user = getUserName(log);
@@ -45,14 +44,11 @@ export const getDescription = (log: ActivityLog): string => {
     LOGIN_FAILED: `${user} login attempt failed`,
     LOGOUT: `${user} signed out`,
     PASSWORD_RESET: `${user} requested password reset`,
-    JOB_PUBLISHED: `${user} published job • ${
-  (meta.title as string) || "—"
-}`, 
+    JOB_PUBLISHED: `${user} published job • ${(meta.title as string) || "—"}`,
   };
 
   return (
-    templates[action] ??
-    `${user} • ${action.replace(/_/g, " ").toLowerCase()}`
+    templates[action] ?? `${user} • ${action.replace(/_/g, " ").toLowerCase()}`
   );
 };
 
@@ -75,9 +71,7 @@ export const getSeverity = (action: string = ""): Severity => {
   return "info";
 };
 
-export const formatRelativeTime = (
-  timestamp?: string | number
-): string => {
+export const formatRelativeTime = (timestamp?: string | number): string => {
   if (!timestamp) return "—";
   const date = new Date(timestamp);
   const diff = Date.now() - date.getTime();

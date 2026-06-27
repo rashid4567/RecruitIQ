@@ -5,7 +5,7 @@ import { USER_ROLES } from "../../domain/constants/roles.constants";
 import { setRefreshCookie } from "../utils/cookie.util";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import {
   LoginRequestDTO,
   LoginResponseDTO,
@@ -13,7 +13,7 @@ import {
 
 export class AdminAuthController {
   constructor(
-    private readonly adminLoginUC: UseCase<LoginRequestDTO, LoginResponseDTO>,
+    private readonly adminLoginUC: IUseCase<LoginRequestDTO, LoginResponseDTO>,
   ) {}
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {

@@ -9,9 +9,9 @@ import { User } from "../../../domain/entities/user.entity";
 import { AuthResult } from "../../types/auth-result.type";
 import { AuthTokenServicePort } from "../../ports/token.service.ports";
 import { GoogleLoginRequestDTO } from "../../dto/google-login.dto";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GoogleLoginUseCase implements UseCase<GoogleLoginRequestDTO, AuthResult> {
+export class GoogleLoginUseCase implements IUseCase<GoogleLoginRequestDTO, AuthResult> {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly googleAuth: GoogleAuthPort,

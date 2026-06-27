@@ -8,27 +8,16 @@ const LandingPage = lazy(() => import("../pages/landing/landingPage"));
 const RoleSelection = lazy(
   () => import("../module/auth/pages/auth/role.selection"),
 );
-
-const SignIn = lazy(
-  () => import("../module/auth/pages/auth/signIn"),
-);
-
-const Signup = lazy(
-  () => import("../module/auth/pages/auth/signup"),
-);
-
-const VerifyOTP = lazy(
-  () => import("../module/auth/pages/auth/verifyOtp"),
-);
-
+const SignIn = lazy(() => import("../module/auth/pages/auth/signIn"));
+const Signup = lazy(() => import("../module/auth/pages/auth/signup"));
+const VerifyOTP = lazy(() => import("../module/auth/pages/auth/verifyOtp"));
 const ForgotPassword = lazy(
   () => import("../module/auth/pages/auth/forgot-password"),
 );
-
 const ResetPassword = lazy(
   () => import("../module/auth/pages/auth/ResetPassword"),
 );
-const AboutPage  = lazy(()=> import("./../pages/aboutus"))
+const AboutPage = lazy(() => import("./../pages/aboutus"));
 
 const PublicRoutes = () => {
   return (
@@ -39,7 +28,7 @@ const PublicRoutes = () => {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
-        <Route path="/aboutUs" element={<AboutPage/>}/>;
+        <Route path="/aboutUs" element={<AboutPage />} />;
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route

@@ -6,9 +6,9 @@ import {
   ApplicationDetailResponseDTO,
   GetApplicationDetailRequestDTO,
 } from "../../dto/application-detail.response.dto";
-import { UseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-export class GetApplicationDetailUseCase implements UseCase<
+export class GetApplicationDetailUseCase implements IUseCase<
   GetApplicationDetailRequestDTO,
   ApplicationDetailResponseDTO
 > {

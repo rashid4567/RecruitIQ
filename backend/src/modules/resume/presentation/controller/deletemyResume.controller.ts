@@ -2,15 +2,15 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
-import { UseCase } from "../../../../shared/interfaces/usecase.interface";
+import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { DeleteResumeDTO } from "../../application/dto/delete-resume.dto";
 import { GetResumeByCandidateDTO } from "../../application/dto/get-resume-by-candidate.dto";
 import { Resume } from "../../domain/entity/resume.entity";
 
 export class DeleteMyResumeController {
   constructor(
-    private readonly deleteResumeUC: UseCase<DeleteResumeDTO, void>,
-    private readonly getResumeByCandidateUC: UseCase<
+    private readonly deleteResumeUC: IUseCase<DeleteResumeDTO, void>,
+    private readonly getResumeByCandidateUC: IUseCase<
       GetResumeByCandidateDTO,
       Resume
     >,

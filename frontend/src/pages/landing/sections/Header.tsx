@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useLogout } from "@/module/auth/presentation/hooks/useLogout";
+import { useLogout } from "@/module/auth/hooks/useLogout";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/module/notification/hook/useNotifications";

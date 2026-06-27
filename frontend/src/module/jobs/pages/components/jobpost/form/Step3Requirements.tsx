@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Code2, Star, TrendingUp } from "lucide-react";
 import TagInput from "./TagInput";
-import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
+import type { JobFormData } from "@/module/recruiter/types/jobForm.types";
 import { skillSuggestions } from "@/module/jobs/constant/jobFormConstants";
 
 interface Props {

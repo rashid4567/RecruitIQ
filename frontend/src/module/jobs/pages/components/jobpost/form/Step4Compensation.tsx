@@ -8,7 +8,7 @@ import {
   PoundSterling,
   Info,
 } from "lucide-react";
-import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
+import type { JobFormData } from "@/module/recruiter/types/jobForm.types";
 
 interface Props {
   formData: JobFormData;

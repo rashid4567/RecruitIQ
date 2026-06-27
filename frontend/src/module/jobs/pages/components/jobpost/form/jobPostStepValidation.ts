@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { jobFormSchema } from "@/module/jobs/validator/jobFormSchema";
-import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
+import type { JobFormData } from "@/module/recruiter/types/jobForm.types";
 
 function buildStepSchema(step: number): z.ZodTypeAny | null {
   if (step === 1) {

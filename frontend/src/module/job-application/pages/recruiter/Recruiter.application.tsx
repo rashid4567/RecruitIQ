@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import Sidebar from "@/module/recruiter/presentation/pages/components/layout/Sidebar";
+import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
 import { useJobApplications } from "../../hooks/recruiter/useJobApplications";
 import type { ApplicationRow, JobMeta, SortOption } from "../../presentation/component/Recruiter.application/Application.types";
 import type { ApplicationStatus } from "../../types/jobApplication.types";

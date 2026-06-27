@@ -1,4 +1,4 @@
-import { useLogout } from "@/module/auth/presentation/hooks/useLogout";
+import { useLogout } from "@/module/auth/hooks/useLogout";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import {

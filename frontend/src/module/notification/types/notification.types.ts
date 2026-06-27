@@ -18,6 +18,7 @@ export type NotificationType =
   | "VERIFICATION_REJECTED"
   | "SYSTEM_NOTIFICATION";
 
+  
 export interface Notification {
   id: string;
   recipientId: string;

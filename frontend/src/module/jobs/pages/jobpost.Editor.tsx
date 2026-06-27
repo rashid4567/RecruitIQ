@@ -8,7 +8,7 @@ import Step2Description from "./components/jobpost/form/Step2Description";
 import Step3Requirements from "./components/jobpost/form/Step3Requirements";
 import Step4Compensation from "./components/jobpost/form/Step4Compensation";
 import Step5Preview from "./components/jobpost/form/Step5Preview";
-import Sidebar from "../../recruiter/presentation/pages/components/layout/Sidebar";
+import Sidebar from "../../recruiter/pages/components/layout/Sidebar";
 import Header from "../../../pages/landing/sections/Header";
 import JobStepper from "./components/jobpost/form/JobStepper";
 import PublishDialog from "./components/jobpost/PublishDialog";

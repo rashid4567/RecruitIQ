@@ -7,7 +7,7 @@ import {
   ApplicationStatus,
   type JobApplication,
 } from "../../types/jobApplication.types"
-import Sidebar from "../../../candidate/presentation/components/shared/candidateSidebar"
+import Sidebar from "../../../candidate/pages/components/personalInfo/shared/candidateSidebar"
 import { StatsCards } from "../component/candidate-applications/StatsCards";
 import { FilterBar } from "../component/candidate-applications/FilterBar";
 import { ApplicationsTable } from "../component/candidate-applications/ApplicationsTable";

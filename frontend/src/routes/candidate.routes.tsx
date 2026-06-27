@@ -5,20 +5,16 @@ import CandidateLayout from "../layout/CandidateLayout";
 import RouteLoader from "../components/RouterLoader";
 import NotFoundPage from "../pages/landing/pageNotFount";
 
-const CandidateHome = lazy(
-  () => import("../module/candidate/presentation/pages/Home"),
-);
+const CandidateHome = lazy(() => import("../module/candidate/pages/Home"));
 
 const CompleteProfile = lazy(
-  () => import("../module/candidate/presentation/pages/comleteProfile"),
+  () => import("../module/candidate/pages/comleteProfile"),
 );
 
-const CareerPage = lazy(
-  () => import("../module/jobs/pages/candidate-jobPost"),
-);
+const CareerPage = lazy(() => import("../module/jobs/pages/candidate-jobPost"));
 
 const AccountSettingsPage = lazy(
-  () => import("../module/candidate/presentation/pages/personal-info"),
+  () => import("../module/candidate/pages/personal-info"),
 );
 
 const MyApplication = lazy(
@@ -29,7 +25,9 @@ const JobApplicationDetail = lazy(
     import("../module/job-application/pages/candidate/job.detail.application"),
 );
 
-const NotificationCenter = lazy(()=> import("../module/notification/page/notification.center"))
+const NotificationCenter = lazy(
+  () => import("../module/notification/page/notification.center"),
+);
 const CandidateRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -40,7 +38,7 @@ const CandidateRoutes = () => {
             <Route path="profile/complete" element={<CompleteProfile />} />
 
             <Route path="profile/setting" element={<AccountSettingsPage />} />
-            <Route path="notification" element={<NotificationCenter/>}/>
+            <Route path="notification" element={<NotificationCenter />} />
             <Route path="applications" element={<MyApplication />} />
             <Route
               path="applications/:applicationId"

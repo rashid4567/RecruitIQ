@@ -6,22 +6,22 @@ import RouteLoader from "../components/RouterLoader";
 import NotFoundPage from "../pages/landing/pageNotFount";
 
 const AdminLogin = lazy(
-  () => import("../module/admin/presentation/pages/login.tsx"),
+  () => import("../module/admin/pages/login.tsx"),
 );
 const AdminDashboard = lazy(
-  () => import("../module/admin/presentation/pages/dashboard.tsx"),
+  () => import("../module/admin/pages/dashboard.tsx"),
 );
 const RecruitersPage = lazy(
-  () => import("../module/admin/presentation/pages/getRecruiterList"),
+  () => import("../module/admin/pages/getRecruiterList.tsx"),
 );
 const RecruiterProfilePage = lazy(
-  () => import("../module/admin/presentation/pages/recruiterProfile"),
+  () => import("../module/admin/pages/recruiterProfile.tsx"),
 );
 const CandidateManagement = lazy(
-  () => import("../module/admin/presentation/pages/candidateList"),
+  () => import("../module/admin/pages/candidateList.tsx"),
 );
 const CandidateProfile = lazy(
-  () => import("../module/admin/presentation/pages/candidateProfile"),
+  () => import("../module/admin/pages/candidateProfile.tsx"),
 );
 const PlanController = lazy(
   () => import("../module/subscription/presentation/page/plan-controller.tsx"),

@@ -6,7 +6,7 @@ import RouteLoader from "../components/RouterLoader";
 import NotFoundPage from "../pages/landing/pageNotFount";
 const RecruiterHome = lazy(() => import("../pages/landing/landingPage"));
 const RecruiterDetails = lazy(
-  () => import("../module/recruiter/presentation/pages/completeProfile"),
+  () => import("../module/recruiter/pages/completeProfile"),
 );
 const MyJobPost = lazy(
   () => import("../module/jobs/pages/jobpost"),
@@ -15,7 +15,7 @@ const JobPostEditor = lazy(
   () => import("../module/jobs/pages/jobpost.Editor"),
 );
 const RecruiterSettingsPage = lazy(
-  () => import("../module/recruiter/presentation/pages/recruiter.profile"),
+  () => import("../module/recruiter/pages/recruiter.profile"),
 );
 const SubscriptionPlans = lazy(
   () =>

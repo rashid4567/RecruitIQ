@@ -10,7 +10,7 @@ import {
   Wifi,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
+import type { JobFormData } from "@/module/recruiter/types/jobForm.types";
 import { departments } from "@/module/jobs/constant/jobFormConstants";
 
 interface Props {

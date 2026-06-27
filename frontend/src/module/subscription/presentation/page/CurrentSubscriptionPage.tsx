@@ -1,6 +1,6 @@
 import { CreditCard, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../../recruiter/presentation/pages/components/layout/Sidebar";
+import Sidebar from "../../../recruiter/pages/components/layout/Sidebar";
 import { useCurrentSubscription } from "../hooks/subscriptions/useCurrentSubscription";
 import StatusBadge from "./components/current.subscription/StatusBadge";
 import SubscriptionOverview from "./components/current.subscription/SubscriptionOverview";

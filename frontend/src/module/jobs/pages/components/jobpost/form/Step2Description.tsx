@@ -1,7 +1,7 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { FileText, Plus, X } from "lucide-react";
-import type { JobFormData } from "@/module/recruiter/presentation/types/jobForm.types";
+import type { JobFormData } from "@/module/recruiter/types/jobForm.types";
 
 interface Props {
   formData: JobFormData;

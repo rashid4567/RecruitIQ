@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 
-import CandidateSidebar from "@/module/candidate/presentation/components/shared/candidateSidebar.tsx";
+import CandidateSidebar from "@/module/candidate/pages/components/personalInfo/shared/candidateSidebar";
 import JobPostList from "./components/candidate-jobPost/JobPostList";
 import JobDetailModal from "./components/candidate-jobPost/candidate-JobDetailModal";
 import ApplicationSuccessModal from "./components/candidate-jobPost/ApplicationSuccessModal";

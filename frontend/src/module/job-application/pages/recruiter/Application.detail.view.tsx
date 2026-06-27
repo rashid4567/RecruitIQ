@@ -23,7 +23,7 @@ import {
   type ApplicationAIAnalysis,
   type InterviewInfo,
 } from "../../types/jobApplication.types";
-import Sidebar from "@/module/recruiter/presentation/pages/components/layout/Sidebar";
+import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
 import Header from "@/pages/landing/sections/Header";
 import {
   Empty,

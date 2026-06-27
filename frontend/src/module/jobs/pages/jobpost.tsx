@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useJobs } from "../hooks/Recruiter-jobPost/useJobs";
-import Sidebar from "@/module/recruiter/presentation/pages/components/layout/Sidebar";
+import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
 import Header from "../../../pages/landing/sections/Header";
 import StatsOverview from "./components/jobpost/StatsOverview";
 import JobCard from "./components/jobpost/JobCard";

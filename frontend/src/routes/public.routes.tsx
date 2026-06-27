@@ -6,27 +6,27 @@ import NotFoundPage from "../pages/landing/pageNotFount";
 const LandingPage = lazy(() => import("../pages/landing/landingPage"));
 
 const RoleSelection = lazy(
-  () => import("../module/auth/presentation/pages/auth/role.selection"),
+  () => import("../module/auth/pages/auth/role.selection"),
 );
 
 const SignIn = lazy(
-  () => import("../module/auth/presentation/pages/auth/signIn"),
+  () => import("../module/auth/pages/auth/signIn"),
 );
 
 const Signup = lazy(
-  () => import("../module/auth/presentation/pages/auth/signup"),
+  () => import("../module/auth/pages/auth/signup"),
 );
 
 const VerifyOTP = lazy(
-  () => import("../module/auth/presentation/pages/auth/verifyOtp"),
+  () => import("../module/auth/pages/auth/verifyOtp"),
 );
 
 const ForgotPassword = lazy(
-  () => import("../module/auth/presentation/pages/auth/forgot-password"),
+  () => import("../module/auth/pages/auth/forgot-password"),
 );
 
 const ResetPassword = lazy(
-  () => import("../module/auth/presentation/pages/auth/ResetPassword"),
+  () => import("../module/auth/pages/auth/ResetPassword"),
 );
 const AboutPage  = lazy(()=> import("./../pages/aboutus"))
 

@@ -5,7 +5,7 @@ import { AlertCircle, TrendingUp, FileText, Check } from "lucide-react";
 import { useApplicationDetail } from "../../hooks/candidate/useApplicationDetail";
 import { useDownloadResume } from "@/module/resume/presentation/hook/useDownloadResume";
 import { ApplicationStatus } from "../../types/jobApplication.types";
-import Sidebar from "../../../candidate/presentation/components/shared/candidateSidebar";
+import Sidebar from "../../../candidate/pages/components/personalInfo/shared/candidateSidebar";
 import { ApplicationHeader } from "../component/candidate-details/Applicationheader";
 import { LeftPanel } from "../component/candidate-details/Leftpanel";
 import { Timeline, type TimelineStep } from "../component/candidate-details/Timeline";

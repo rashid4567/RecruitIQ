@@ -25,10 +25,7 @@ import {
   Star,
   TrendingUp,
 } from "lucide-react";
-import type {
-  CandidateListItem,
-  CandidateProfile,
-} from "@/module/admin/types/candidate.types";
+import type { CandidateProfile } from "@/module/admin/types/candidate.types";
 
 function getExperienceDisplay(years: number): string {
   if (years <= 0) return "Entry Level";
@@ -99,7 +96,7 @@ function StatCard({
   accent: string;
 }) {
   return (
-    <div className="flex-1 min-w-[130px] bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3 hover:shadow-md transition-shadow duration-200">
+    <div className="flex-1 min-w-32.5 bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3 hover:shadow-md transition-shadow duration-200">
       <div
         className={`w-9 h-9 rounded-xl flex items-center justify-center ${accent}`}
       >
@@ -163,14 +160,13 @@ export function CandidateProfileContent({
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] font-sans p-4 sm:p-8 space-y-6">
-      {/* ── Hero Card ─────────────────────────────────────────────────── */}
+     
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        {/* Top bar stripe */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-slate-300 via-gray-200 to-slate-300" />
+       
+        <div className="h-1.5 w-full bg-linear-to-r from-slate-300 via-gray-200 to-slate-300" />
 
         <div className="px-6 sm:px-10 py-8">
           <div className="flex flex-col sm:flex-row items-start gap-7">
-            {/* Avatar */}
             <div className="relative shrink-0">
               <div className="rounded-2xl overflow-hidden ring-4 ring-gray-50 shadow-lg w-24 h-24 sm:w-28 sm:h-28">
                 <Avatar className="w-full h-full rounded-2xl">
@@ -179,18 +175,16 @@ export function CandidateProfileContent({
                     alt={profile.name}
                     className="object-cover"
                   />
-                  <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-2xl">
+                  <AvatarFallback className="text-3xl font-bold bg-linear-to-br from-slate-700 to-slate-900 text-white rounded-2xl">
                     {getInitials(profile.name)}
                   </AvatarFallback>
                 </Avatar>
               </div>
-              {/* Status dot */}
               <span
                 className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-2 border-white shadow-sm ${isBlocked ? "bg-red-400" : "bg-emerald-400"}`}
               />
             </div>
 
-            {/* Identity */}
             <div className="flex-1 space-y-3">
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
@@ -242,7 +236,6 @@ export function CandidateProfileContent({
               </div>
             </div>
 
-            {/* CTA buttons */}
             <div className="flex flex-wrap sm:flex-col gap-2 shrink-0">
               {profile.linkedinUrl && (
                 <Button
@@ -288,7 +281,6 @@ export function CandidateProfileContent({
           </div>
         </div>
 
-        {/* Stats row */}
         <div className="border-t border-gray-50 px-6 sm:px-10 py-5">
           <div className="flex flex-wrap gap-4">
             <StatCard
@@ -323,9 +315,7 @@ export function CandidateProfileContent({
         </div>
       </div>
 
-      {/* ── Main Content Grid ──────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column */}
         <div className="lg:col-span-2 space-y-6">
           {profile.bio && (
             <SectionCard
@@ -390,9 +380,7 @@ export function CandidateProfileContent({
           )}
         </div>
 
-        {/* Right sidebar */}
         <div className="space-y-6">
-          {/* Experience card */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
@@ -409,7 +397,7 @@ export function CandidateProfileContent({
               <p className="text-sm text-gray-400 mt-0.5">
                 {profile.experienceYears === 1
                   ? "year"
-                  : profile.experienceYears ?? 0 > 1
+                  : (profile.experienceYears ?? 0 > 1)
                     ? "years total"
                     : "Entry level"}
               </p>
@@ -431,8 +419,6 @@ export function CandidateProfileContent({
               </div>
             )}
           </div>
-
-          {/* Match score */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
@@ -455,8 +441,6 @@ export function CandidateProfileContent({
               Recommend Candidate
             </Button>
           </div>
-
-          {/* Quick actions */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-3">
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
               Quick Actions

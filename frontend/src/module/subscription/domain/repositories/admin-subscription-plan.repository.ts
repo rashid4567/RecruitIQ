@@ -1,4 +1,4 @@
-import type { PlanType } from "../constant/subscription.constants";
+import type { PlanType } from "../../constant/subscription.constants";
 import type { SubscriptionPlan } from "../entity/SubscriptionPlan.entity";
 
 export interface AdminSubscriptionPlanRepository {

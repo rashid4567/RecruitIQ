@@ -1,7 +1,7 @@
-// pages/candidate/ComingSoon.tsx
+
 export default function ComingSoonPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-blue-50">
       <div className="text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Coming Soon</h1>
         <p className="text-gray-600 mb-8">This page is under development.</p>

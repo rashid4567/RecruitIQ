@@ -1,4 +1,4 @@
-import type { PlanType } from "@/module/subscription/domain/constant/subscription.constants";
+import type { PlanType } from "@/module/subscription/constant/subscription.constants";
 import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
 import type { AdminSubscriptionPlanRepository } from "@/module/subscription/domain/repositories/admin-subscription-plan.repository";
  

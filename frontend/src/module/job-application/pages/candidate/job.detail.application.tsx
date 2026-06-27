@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { AlertCircle, TrendingUp, FileText, Check } from "lucide-react";
 
 import { useApplicationDetail } from "../../hooks/candidate/useApplicationDetail";
-import { useDownloadResume } from "@/module/resume/presentation/hook/useDownloadResume";
+import { useDownloadResume } from "@/module/resume/hook/useDownloadResume";
 import { ApplicationStatus } from "../../types/jobApplication.types";
 import Sidebar from "../../../candidate/pages/components/personalInfo/shared/candidateSidebar";
 import { ApplicationHeader } from "../component/candidate-details/Applicationheader";

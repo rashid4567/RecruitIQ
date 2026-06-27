@@ -1,5 +1,3 @@
-'use client';
-
 import {
   Dialog,
   DialogContent,
@@ -30,7 +28,7 @@ export function CandidateStatusDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
-        {/* Animated Background */}
+
         <div className="absolute inset-0 -z-10">
           <div
             className={cn(
@@ -48,7 +46,6 @@ export function CandidateStatusDialog({
           ></div>
         </div>
 
-        {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
           disabled={loading}
@@ -57,9 +54,8 @@ export function CandidateStatusDialog({
           <X className="w-5 h-5 text-muted-foreground" />
         </button>
 
-        {/* Main Content */}
+
         <div className="relative pt-12 pb-8 px-8">
-          {/* Icon Section */}
           <div className="flex justify-center mb-6">
             <div
               className={cn(
@@ -82,22 +78,21 @@ export function CandidateStatusDialog({
             </div>
           </div>
 
-          {/* Title */}
           <h2 className="text-center text-2xl font-bold text-foreground mb-2">
             {isBlock ? "Block This Candidate?" : "Unblock This Candidate?"}
           </h2>
 
-          {/* Divider */}
+        
           <div className="h-1 w-12 mx-auto mb-6 bg-linear-to-r from-transparent via-foreground/20 to-transparent rounded-full"></div>
 
-          {/* Description */}
+  
           <p className="text-center text-muted-foreground mb-6 leading-relaxed">
             {isBlock
               ? `You&apos;re about to restrict access for ${candidateName}. This action will prevent them from viewing job opportunities.`
               : `You&apos;re about to restore full access for ${candidateName}. They will be able to view all job opportunities.`}
           </p>
 
-          {/* Impact Box */}
+
           <div
             className={cn(
               "rounded-xl p-4 mb-8 border-2 transition-all duration-300",
@@ -136,13 +131,11 @@ export function CandidateStatusDialog({
             </p>
           </div>
 
-          {/* Candidate Name Highlight */}
           <div className="text-center mb-8 px-4 py-3 rounded-lg bg-foreground/5 border border-foreground/10">
             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Candidate</p>
             <p className="text-lg font-bold text-foreground wrap-break-word">{candidateName}</p>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -173,7 +166,6 @@ export function CandidateStatusDialog({
             </Button>
           </div>
 
-          {/* Footer Info */}
           <p className="text-center text-xs text-muted-foreground mt-6 px-2">
             This action can be reversed at any time from the candidate details page.
           </p>

@@ -2,7 +2,7 @@ import type {
   BillingCycle,
   Currency,
   PlanType,
-} from "../constant/subscription.constants";
+} from "../../constant/subscription.constants";
 
 export interface FeatureAccess {
   interviewScheduling: boolean;

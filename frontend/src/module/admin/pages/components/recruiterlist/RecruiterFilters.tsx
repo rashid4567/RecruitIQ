@@ -29,7 +29,6 @@ export function RecruiterFilters({
     <div className="sticky top-24.25 z-40 bg-white border-b border-slate-200 px-6 py-5 shadow-sm">
       <div className="max-w-screen-2xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-4 items-center">
-          {/* Tab Filters */}
           <div className="flex gap-2 flex-wrap">
             {tabs.map(({ label, value, color }) => (
               <Button

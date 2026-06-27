@@ -1,4 +1,4 @@
-import type { SubscriptionStatus } from "@/module/subscription/domain/constant/subscription.constants";
+import type { SubscriptionStatus } from "@/module/subscription/constant/subscription.constants";
 import type { VerificationStatus } from "../constants/status";
 
 export interface RecruiterProfile {

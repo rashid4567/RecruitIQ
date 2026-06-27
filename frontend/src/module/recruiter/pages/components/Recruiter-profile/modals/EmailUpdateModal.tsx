@@ -1,10 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   InputOTP,
   InputOTPGroup,
@@ -72,7 +69,6 @@ export function EmailUpdateModal({
       >
         <AnimatePresence mode="wait">
           {!otpSent ? (
-            /* ==================== EMAIL STEP ==================== */
             <motion.div
               key="email-step"
               initial={{ opacity: 0, x: -24 }}
@@ -82,7 +78,7 @@ export function EmailUpdateModal({
               className="bg-white"
             >
               {/* Dark header */}
-              <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8 overflow-hidden">
+              <div className="relative bg-linear-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8 overflow-hidden">
                 <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
                 <div className="absolute bottom-0 left-0 w-28 h-28 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
 
@@ -99,15 +95,17 @@ export function EmailUpdateModal({
                     <Mail className="h-6 w-6 text-white" strokeWidth={1.5} />
                   </div>
                   <div className="space-y-1">
-                    <h2 className="text-xl font-bold text-white">Update email</h2>
+                    <h2 className="text-xl font-bold text-white">
+                      Update email
+                    </h2>
                     <p className="text-sm text-white/55 leading-relaxed">
-                      Enter your new email address and we'll send a verification code
+                      Enter your new email address and we'll send a verification
+                      code
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Body */}
               <div className="px-8 py-7 space-y-5">
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
@@ -139,7 +137,7 @@ export function EmailUpdateModal({
                         "pl-10 h-12 rounded-2xl border-2 text-sm transition-all",
                         error
                           ? "border-red-300 bg-red-50 focus-visible:ring-0 focus-visible:border-red-400"
-                          : "border-slate-200 bg-slate-50 focus-visible:ring-0 focus-visible:border-slate-900 focus-visible:bg-white"
+                          : "border-slate-200 bg-slate-50 focus-visible:ring-0 focus-visible:border-slate-900 focus-visible:bg-white",
                       )}
                     />
                   </div>
@@ -162,7 +160,6 @@ export function EmailUpdateModal({
                   </AnimatePresence>
                 </div>
 
-                {/* Info box */}
                 <div className="flex gap-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                   <ShieldCheck
                     className="h-5 w-5 text-slate-400 shrink-0 mt-0.5"
@@ -173,13 +170,12 @@ export function EmailUpdateModal({
                       Secure verification
                     </p>
                     <p className="text-xs text-slate-500 leading-relaxed">
-                      Your email won't change until you verify the 6-digit
-                      code. Codes expire in 15 minutes.
+                      Your email won't change until you verify the 6-digit code.
+                      Codes expire in 15 minutes.
                     </p>
                   </div>
                 </div>
 
-                {/* Buttons */}
                 <div className="flex gap-3 pt-1">
                   <Button
                     variant="outline"
@@ -210,7 +206,6 @@ export function EmailUpdateModal({
               </div>
             </motion.div>
           ) : (
-            /* ==================== OTP STEP ==================== */
             <motion.div
               key="otp-step"
               initial={{ opacity: 0, x: 24 }}
@@ -219,8 +214,7 @@ export function EmailUpdateModal({
               transition={{ duration: 0.22, ease: "easeOut" }}
               className="bg-white"
             >
-              {/* Dark header */}
-              <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8 overflow-hidden">
+              <div className="relative bg-linear-to-br from-slate-900 to-slate-800 px-8 pt-10 pb-8 overflow-hidden">
                 <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
                 <div className="absolute bottom-0 left-0 w-28 h-28 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
 
@@ -284,8 +278,8 @@ export function EmailUpdateModal({
                             error
                               ? "border-red-300 bg-red-50 text-red-600"
                               : otp[i]
-                              ? "border-slate-900 bg-white text-slate-900"
-                              : "border-slate-200 text-slate-900 focus:border-slate-900 focus:bg-white"
+                                ? "border-slate-900 bg-white text-slate-900"
+                                : "border-slate-200 text-slate-900 focus:border-slate-900 focus:bg-white",
                           )}
                         />
                       ))}

@@ -14,7 +14,7 @@ import {
 import { ApplicationAnalysisStatus } from "@/module/job-application/types/jobApplication.types";
 import { type DS, SM } from "./Index";
 import { fmt } from "./Indexs";
-import { useResumeActions } from "@/module/resume/presentation/hook/Useresumeactions";
+import { useResumeActions } from "@/module/resume/hook/Useresumeactions";
 
 function ResumePreviewModal({
   url,

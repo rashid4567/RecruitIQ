@@ -1,5 +1,5 @@
-import { SubscriptionStatus } from "../constant/subscription.constants";
-import type { PlanType } from "../constant/subscription.constants";
+import { SubscriptionStatus } from "../../constant/subscription.constants";
+import type { PlanType } from "../../constant/subscription.constants";
 
 export interface RecruiterSubscriptionProps {
   id: string;

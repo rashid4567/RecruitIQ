@@ -19,19 +19,19 @@ const RecruiterSettingsPage = lazy(
 );
 const SubscriptionPlans = lazy(
   () =>
-    import("../module/subscription/presentation/page/Recruiter.pricePlaning"),
+    import("../module/subscription/pages/Recruiter.pricePlaning"),
 );
 const SubscriptionSuccess = lazy(
   () =>
-    import("../module/subscription/presentation/page/components/Billing/paymentSuccess"),
+    import("../module/subscription/pages/components/Billing/paymentSuccess"),
 );
 const SubscriptionFailed = lazy(
   () =>
-    import("../module/subscription/presentation/page/components/Billing/paymentFailed"),
+    import("../module/subscription/pages/components/Billing/paymentFailed"),
 );
 const CurrentSubscriptionPage = lazy(
   () =>
-    import("../module/subscription/presentation/page/CurrentSubscriptionPage"),
+    import("../module/subscription/pages/CurrentSubscriptionPage"),
 );
 const RecruiterApplication = lazy(
   () =>

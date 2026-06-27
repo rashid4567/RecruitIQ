@@ -19,7 +19,7 @@ import type {
 import {
   PlanType,
   SubscriptionStatus,
-} from "../../domain/constant/subscription.constants";
+} from "../../constant/subscription.constants";
 import type {
   RawPaginatedSubscriptions,
   RawRecruiterSubscription,

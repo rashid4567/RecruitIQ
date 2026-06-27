@@ -11,7 +11,7 @@ import type {
 import type {
   FilterStatusUI,
   UseCandidatesOptions,
-} from "../../../activity.logger/presentation/types/useCandidate.types";
+} from "../../../activity.logger/types/useCandidate.types";
 
 export function useCandidates(options?: UseCandidatesOptions) {
   const [searchTerm, setSearchTerm] = useState("");

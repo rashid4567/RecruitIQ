@@ -33,7 +33,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import type { JobStatus } from "@/module/jobs/types/jobPost.dto";
-import { useResume } from "@/module/resume/presentation/hook/useResume";
+import { useResume } from "@/module/resume/hook/useResume";
 import type { Job } from "@/module/jobs/types/job.types";
 
 type JobType =

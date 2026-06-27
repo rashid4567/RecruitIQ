@@ -38,16 +38,15 @@ export function CandidateProfileDialogs({
 }: CandidateProfileDialogsProps) {
   return (
     <>
-      {/* ── Block Dialog ───────────────────────────────────────────── */}
+    
       <Dialog open={blockDialogOpen} onOpenChange={onBlockDialogChange}>
         <DialogContent className="p-0 border border-gray-100 shadow-xl rounded-2xl max-w-sm w-full bg-white overflow-hidden">
 
-          {/* Top accent stripe */}
           <div className="h-1 w-full bg-linear-to-r from-red-400 to-rose-400" />
 
           <div className="px-7 pt-7 pb-7 flex flex-col items-center gap-5">
 
-            {/* Icon */}
+       
             <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center">
               <ShieldX className="w-7 h-7 text-red-500" strokeWidth={1.75} />
             </div>
@@ -62,7 +61,6 @@ export function CandidateProfileDialogs({
               </p>
             </DialogHeader>
 
-            {/* Notice chip */}
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-100">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span className="text-xs text-amber-700 font-medium">

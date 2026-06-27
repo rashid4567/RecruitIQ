@@ -11,7 +11,7 @@ import {
   PlanType,
   type BillingCycle,
   type Currency,
-} from "../../domain/constant/subscription.constants";
+} from "../../constant/subscription.constants";
 
 import type {
   PlanFilterOptions,

@@ -1,4 +1,4 @@
-import type { BillingCycle, Currency, PlanType } from "@/module/subscription/domain/constant/subscription.constants";
+import type { BillingCycle, Currency, PlanType } from "@/module/subscription/constant/subscription.constants";
 
 
 export interface PlanFeature {

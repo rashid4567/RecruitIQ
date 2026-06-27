@@ -24,7 +24,7 @@ const CandidateProfile = lazy(
   () => import("../module/admin/pages/candidateProfile.tsx"),
 );
 const PlanController = lazy(
-  () => import("../module/subscription/presentation/page/plan-controller.tsx"),
+  () => import("../module/subscription/pages/plan-controller.tsx"),
 );
 const PlanEditor = lazy(
   () =>
@@ -40,7 +40,7 @@ const EmailLogs = lazy(
   () => import("../module/email/pages/email.logs.tsx"),
 );
 const ActivityLogs = lazy(
-  () => import("../module/activity.logger/presentation/pages/activity-log.tsx"),
+  () => import("../module/activity.logger/pages/activity-log.tsx"),
 );
 const JobPostManagement = lazy(
   () => import("../module/jobs/pages/jobPost.managment.tsx"),

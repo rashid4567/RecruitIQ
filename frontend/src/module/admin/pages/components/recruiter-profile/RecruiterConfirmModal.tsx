@@ -38,19 +38,17 @@ export function RecruiterConfirmModal({
     <AlertDialog open={open} onOpenChange={(v) => !v && onClose()}>
       <AlertDialogContent className="sm:max-w-sm p-0 border border-gray-100 shadow-xl rounded-2xl bg-white overflow-hidden">
 
-        {/* Top accent stripe */}
         <div
           className={cn(
             "h-1 w-full",
             isDestructive
-              ? "bg-gradient-to-r from-red-400 to-rose-400"
-              : "bg-gradient-to-r from-emerald-400 to-teal-400"
+              ? "bg-linear-to-r from-red-400 to-rose-400"
+              : "bg-linear-to-r from-emerald-400 to-teal-400"
           )}
         />
 
         <div className="px-7 pt-7 pb-7 flex flex-col items-center gap-5">
 
-          {/* Icon */}
           <div
             className={cn(
               "w-14 h-14 rounded-2xl flex items-center justify-center border",
@@ -72,13 +70,10 @@ export function RecruiterConfirmModal({
             )}
           </div>
 
-          {/* Text */}
           <div className="text-center space-y-1.5">
             <h2 className="text-lg font-semibold text-gray-900 tracking-tight">{title}</h2>
             <p className="text-sm text-gray-400 leading-relaxed">{description}</p>
           </div>
-
-          {/* Buttons */}
           <div className="w-full flex gap-3">
             <Button
               variant="outline"

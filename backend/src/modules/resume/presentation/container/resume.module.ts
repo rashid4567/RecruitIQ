@@ -24,14 +24,17 @@ import {
   AnalyzeApplicationUC,
   applicationRepo,
 } from "../../../job-application/presenatation/container/JobApplication.module";
+import { MongooseJobApplicationRepository } from "../../../job-application/infrastructure/repository/MongooseJobApplicationRepository";
+import { JobApplicationRepository } from "../../../job-application/domain/repository/job-application.repository";
 
 const resumeRepo: ResumeRepository = new MongooseResumeRepository();
 const candidateRepo: CandidateRepository = new MongooseCandidateRepository();
 const fileStorage: FileStorageRepository = new S3FileStorageRepository();
 const resumeTextExtractor = new ResumeTextExtractorService();
+const jobApplicationRepo : JobApplicationRepository = new MongooseJobApplicationRepository();
 const resumeParser = new ResumeParserService(openai);
 
-const deleteResumeUC = new DeleteResumeUseCase(resumeRepo, fileStorage);
+const deleteResumeUC = new DeleteResumeUseCase(resumeRepo, fileStorage,jobApplicationRepo);
 const getResumeByCandidateUC = new GetResumeByCandidateUseCase(resumeRepo);
 const parseResumeUseCase = new ParseResumeUseCase(
   resumeRepo,

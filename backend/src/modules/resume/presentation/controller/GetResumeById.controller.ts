@@ -6,9 +6,12 @@ import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.c
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { GetResumeByIdDTO } from "../../application/dto/getResumeByid.dto";
 import { Resume } from "../../domain/entity/resume.entity";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class GetResumeByIdController {
-  constructor(private readonly getResumeByIdUC: IUseCase<GetResumeByIdDTO, Resume>) {}
+  constructor(
+    private readonly getResumeByIdUC: IUseCase<GetResumeByIdDTO, Resume>,
+  ) {}
 
   handle = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,21 +20,23 @@ export class GetResumeByIdController {
       });
 
       if (!resumeId) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.RESUME_ID_REQUIRED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.RESUME_ID_REQUIRED,
+        );
       }
 
       const resume = await this.getResumeByIdUC.execute({
         resumeId,
       });
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.RESUME_LOADED_SUCCESSFULLY,
-        data: resume.toJSON(),
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.RESUME_LOADED_SUCCESSFULLY,
+        resume.toJSON(),
+      );
     } catch (err) {
       next(err);
     }

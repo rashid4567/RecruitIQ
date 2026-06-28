@@ -8,6 +8,7 @@ import {
   CandidateApplicationListItemDTO,
   GetMyApplicationRequestDTO,
 } from "../../../application/dto/getMyApplication.dto";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class GetMyApplicationController {
   constructor(
@@ -25,20 +26,23 @@ export class GetMyApplicationController {
     try {
       const candidateId = req.user?.userId;
       if (!candidateId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
 
       const application = await this.getMyApplicationUC.execute({
         candidateId,
       });
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.APPLICATION_LOADED_SUCCESSFULLY,
-        data: application,
-      });
+
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.APPLICATION_LOADED_SUCCESSFULLY,
+        application,
+      );
     } catch (err) {
       next(err);
     }

@@ -5,6 +5,7 @@ import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.consta
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { DeleteResumeDTO } from "../../application/dto/delete-resume.dto";
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class DeleteResumeController {
   constructor(
@@ -18,20 +19,22 @@ export class DeleteResumeController {
       });
 
       if (!resumeId) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.RESUME_ID_REQUIRED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
 
       await this.deleteResumeUC.execute({
         resumeId,
       });
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.RESUME_DELETED_SUCCESSFULLY,
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.RESUME_DELETED_SUCCESSFULLY,
+      );
     } catch (err) {
       next(err);
     }

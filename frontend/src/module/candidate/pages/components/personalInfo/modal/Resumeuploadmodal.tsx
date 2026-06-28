@@ -1,6 +1,6 @@
 import { useRef, useCallback } from "react";
 import { X, Upload, File, CheckCircle2, AlertCircle, Trash2, Download } from "lucide-react";
-import { Resume } from "@/module/resume/domain/entity/Resume.entity";
+import type { Resume } from "@/module/candidate/types/candidate.types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -170,11 +170,11 @@ export function ResumeUploadModal({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-green-900 truncate">
-                    {resume.getFileName()}
+                    {resume.fileName}
                   </p>
                   <p className="text-xs text-green-700 mt-0.5">
                     Uploaded on{" "}
-                    {new Date(resume.getUploadedAt()).toLocaleDateString()}
+                    {new Date(resume.uploadedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">

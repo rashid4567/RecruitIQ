@@ -5,6 +5,7 @@ import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.c
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UploadResumeDTO } from "../../application/dto/upload.resume.dto";
 import { Resume } from "../../domain/entity/resume.entity";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class UploadResumeController {
   constructor(
@@ -15,19 +16,23 @@ export class UploadResumeController {
     try {
       const candidateId = req.user?.userId;
       if (!candidateId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        )
       }
 
       const file = req.file;
 
       if (!file) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.RESUME_ID_REQUIRED,
-        });
+
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.RESUME_ID_REQUIRED,
+        )
       }
 
       const resume = await this.uploadResumeUC.execute({
@@ -37,11 +42,13 @@ export class UploadResumeController {
         mimeType: file.mimetype,
       });
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.RESUME_UPLOADED_SUCCESSFULLY,
-        data: resume.toJSON(),
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.RESUME_UPLOADED_SUCCESSFULLY,
+        resume.toJSON()
+      )
+
     } catch (err) {
       next(err);
     }

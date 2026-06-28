@@ -4,6 +4,8 @@ import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UpdateApplicationStatusDTO } from "../../../application/dto/UpdateApplicationStatusDTO";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
+import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 
 export class UpdateApplicationStatusController {
   constructor(
@@ -22,25 +24,26 @@ export class UpdateApplicationStatusController {
       const recruiterId = req.user?.userId;
 
       if (!recruiterId) {
-        res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+         ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        )
         return;
       }
 
       const { applicationId } = req.params;
 
       if (!applicationId?.trim()) {
-        res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.APPLICATION_REQUIRED,
-        });
+        ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.APPLICATION_REQUIRED,
+        )
         return;
       }
 
       const { status, rejectionReason } = req.body;
-
       const allowedStatuses = [
         ApplicationStatus.SHORTLISTED,
         ApplicationStatus.SELECTED,
@@ -48,10 +51,12 @@ export class UpdateApplicationStatusController {
       ];
 
       if (!allowedStatuses.includes(status)) {
-        res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.INVALID_APPLICATION_STATUS,
-        });
+
+        ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.INVALID_APPLICATION_STATUS
+        )
         return;
       }
 
@@ -62,10 +67,11 @@ export class UpdateApplicationStatusController {
         rejectionReason,
       });
 
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: "Application status updated successfully",
-      });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.APPLICATION_STATUS_UPDATED_SUCCESSFULLY,
+      )
     } catch (error) {
       next(error);
     }

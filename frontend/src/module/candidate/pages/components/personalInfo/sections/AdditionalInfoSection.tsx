@@ -16,7 +16,7 @@ import {
   type ProfileFormData,
 } from "@/module/candidate/validators/profileValidation";
 import { useResume } from "@/module/resume/hook/useResume";
-import { Resume } from "@/module/resume/domain/entity/Resume.entity";
+import type { Resume } from "@/module/candidate/types/candidate.types";
 import { ResumeUploadModal } from "../modal/Resumeuploadmodal";
 
 interface AdditionalInfoSectionProps {
@@ -290,13 +290,7 @@ export function AdditionalInfoSection({
 }: AdditionalInfoSectionProps) {
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
 
-  // Issue 7: profile.resume may be a plain API object, not a Resume entity.
-  // Normalise it before passing to useResume so entity methods are available.
-  const initialResume = profile.resume
-    ? profile.resume instanceof Resume
-      ? profile.resume
-      : Resume.create(profile.resume)
-    : null;
+
 
   const {
     resume,
@@ -309,7 +303,7 @@ export function AdditionalInfoSection({
     downloadResume,
     deleteResume,
     clearError,
-  } = useResume(initialResume);
+  } = useResume();
 
   const {
     currentSkills,
@@ -409,11 +403,11 @@ export function AdditionalInfoSection({
                     <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
                     {/* Issue 3: was resume.name, now resume.getFileName() */}
                     <span className="flex-1 truncate font-medium">
-                      {resume.getFileName()}
+                      {resume.fileName}
                     </span>
                     {/* Issue 4 & 5: resume.size removed; show upload date instead */}
                     <span className="text-xs text-green-600 shrink-0">
-                      {new Date(resume.getUploadedAt()).toLocaleDateString()}
+                      {new Date(resume.uploadedAt).toLocaleDateString()}
                     </span>
                   </>
                 ) : (
@@ -430,11 +424,11 @@ export function AdditionalInfoSection({
                     <FileText className="h-4 w-4 text-amber-500 shrink-0" />
                     {/* Issue 3: was resume.name, now resume.getFileName() */}
                     <span className="text-slate-900 truncate flex-1">
-                      {resume.getFileName()}
+                      {resume.fileName}
                     </span>
                     {/* Issue 4 & 5: resume.size removed; show upload date instead */}
                     <span className="text-xs text-slate-400 shrink-0">
-                      {new Date(resume.getUploadedAt()).toLocaleDateString()}
+                      {new Date(resume.uploadedAt).toLocaleDateString()}
                     </span>
                   </div>
                 ) : (

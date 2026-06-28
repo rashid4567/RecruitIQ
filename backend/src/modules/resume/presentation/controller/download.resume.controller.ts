@@ -5,6 +5,7 @@ import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.consta
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { DownloadResumeDTO } from "../../application/dto/download.resume.dto";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class DownloadResumeController {
   constructor(
@@ -18,19 +19,21 @@ export class DownloadResumeController {
       });
 
       if (!resumeId) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.RESUME_ID_REQUIRED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.RESUME_ID_REQUIRED
+        )
       }
 
       const downloadUrl = await this.downloadResumeUC.execute({ resumeId });
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.RESUME_DOWNLOADED_SUCCESSFULLY,
-        data: downloadUrl,
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.RESUME_DOWNLOADED_SUCCESSFULLY,
+        downloadUrl,
+      )
     } catch (err) {
       next(err);
     }

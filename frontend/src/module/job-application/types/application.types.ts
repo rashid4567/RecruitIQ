@@ -21,37 +21,23 @@ export interface CandidateApplication {
   jobTitle: string;
   resumeId: string;
   resumeFileName: string;
-
   status: ApplicationStatus;
-
   appliedAt: string;
-
   rejectionReason?: string;
-
   interview?: InterviewInfo;
 }
 
 export interface RecruiterApplication {
   applicationId: string;
-
   candidateId: string;
-
   candidateName: string;
-
   candidateEmail: string;
-
   candidateProfileImage?: string;
-
   resumeId: string;
-
   status: ApplicationStatus;
-
   analysisStatus: ApplicationAnalysisStatus;
-
   aiScore?: number;
-
   aiRecommendation?: ApplicationRecommendation;
-
   appliedAt: string;
 }
 

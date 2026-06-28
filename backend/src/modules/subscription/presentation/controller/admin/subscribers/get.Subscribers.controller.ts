@@ -2,13 +2,19 @@ import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface";
-import { GetSubscribersRequestDTO, GetSubscribersResponseDTO } from "../../../../application/dto/get-subscribers.dto";
+import {
+  GetSubscribersRequestDTO,
+  GetSubscribersResponseDTO,
+} from "../../../../application/dto/get-subscribers.dto";
+import { ApiResponse } from "../../../../../../shared/utils/api-response";
 
 export class GetSubscribersController {
-  constructor(private readonly getSubscribersUC: IUseCase<
-    GetSubscribersRequestDTO,
-    GetSubscribersResponseDTO
-  >) {}
+  constructor(
+    private readonly getSubscribersUC: IUseCase<
+      GetSubscribersRequestDTO,
+      GetSubscribersResponseDTO
+    >,
+  ) {}
 
   getSubscribers = async (
     req: Request,
@@ -20,6 +26,7 @@ export class GetSubscribersController {
       const limit = Number(req.query.limit) || 10;
       const search = req.query.search ? String(req.query.search) : undefined;
       const status = req.query.status ? String(req.query.status) : undefined;
+
       const result = await this.getSubscribersUC.execute({
         page,
         limit,
@@ -27,17 +34,18 @@ export class GetSubscribersController {
         status,
       });
 
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.SUBSCRIBERS_FETCHED_SUCCESSFULLY,
-        data: result.items,
-        pagination: {
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.SUBSCRIBERS_FETCHED_SUCCESSFULLY,
+        result.items,
+        {
           total: result.total,
           page: result.page,
           limit: result.limit,
           totalPages: result.totalPages,
         },
-      });
+      );
     } catch (error) {
       next(error);
     }

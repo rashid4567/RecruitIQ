@@ -5,6 +5,7 @@ import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.c
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { GetResumeByCandidateDTO } from "../../application/dto/get-resume-by-candidate.dto";
 import { Resume } from "../../domain/entity/resume.entity";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class GetResumeByCandidateController {
   constructor(
@@ -19,21 +20,24 @@ export class GetResumeByCandidateController {
       const candidateId = req.user?.userId;
 
       if (!candidateId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        )
       }
 
       const resume = await this.getResumeByCandidateUC.execute({
         candidateId,
       });
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.RESUME_LOADED_SUCCESSFULLY,
-        data: resume.toJSON(),
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.RESUME_LOADED_SUCCESSFULLY,
+        resume.toJSON()
+      )
     } catch (err) {
       next(err);
     }

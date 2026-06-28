@@ -3,13 +3,19 @@ import { ApplicationError } from "../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 import { CandidateRepository } from "../../../candidate/domain/repositories/candidate.repository";
-import { ParsedResumeData, Resume, ResumeParseStatus } from "../../domain/entity/resume.entity";
+import {
+  ParsedResumeData,
+  Resume,
+  ResumeParseStatus,
+} from "../../domain/entity/resume.entity";
 import { FileStorageRepository } from "../../domain/repository/fileStorage.repository";
 import { ResumeRepository } from "../../domain/repository/resume.repository";
 import { ParseResumeDTO } from "../dto/parse.resume.dto";
 import { UploadResumeDTO } from "../dto/upload.resume.dto";
 
-export class UploadResumeUseCase implements IUseCase<UploadResumeDTO, Resume> {
+export class UploadResumeUseCase
+  implements IUseCase<UploadResumeDTO, Resume>
+{
   constructor(
     private readonly resumeRepository: ResumeRepository,
     private readonly candidateRepository: CandidateRepository,
@@ -22,12 +28,14 @@ export class UploadResumeUseCase implements IUseCase<UploadResumeDTO, Resume> {
 
   async execute(dto: UploadResumeDTO): Promise<Resume> {
     await this.validateCandidate(dto.candidateId);
-     await this.validateDailyUploadLimit(dto.candidateId);
+    await this.validateDailyUploadLimit(dto.candidateId);
+
     const existingResume = await this.resumeRepository.findByCandidateId(
       dto.candidateId,
     );
 
     const fileKey = this.generateFileKey(dto.candidateId, dto.fileName);
+
     await this.fileStorageRepository.uploadFile({
       key: fileKey,
       buffer: dto.fileBuffer,
@@ -35,50 +43,79 @@ export class UploadResumeUseCase implements IUseCase<UploadResumeDTO, Resume> {
     });
 
     try {
-      const savedResume = existingResume
-        ? await this.updateExistingResume(existingResume, dto, fileKey)
-        : await this.createNewResume(dto, fileKey);
+      let savedResume: Resume;
 
-      this.parseResumeAsync(savedResume.getId()!, dto.fileBuffer, dto.mimeType);
+      if (existingResume) {
+        savedResume = await this.replaceResume(
+          existingResume,
+          dto,
+          fileKey,
+        );
+      } else {
+        savedResume = await this.createResume(dto, fileKey);
+      }
+
+      this.parseResumeAsync(
+        savedResume.getId()!,
+        dto.fileBuffer,
+        dto.mimeType,
+      );
 
       return savedResume;
     } catch (error) {
       await this.rollbackUploadedFile(fileKey);
-
       throw error;
     }
   }
 
   private async validateCandidate(candidateId: string): Promise<void> {
     const userId = UserId.create(candidateId);
+
     const candidate = await this.candidateRepository.findByUserId(userId);
+
     if (!candidate) {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
     }
   }
 
-  private async validateDailyUploadLimit(candidateId : string):Promise<void>{
-    const todaysUploadCount = await this.resumeRepository.countTodayResumeUploadedByCandidate(candidateId);
+  private async validateDailyUploadLimit(
+    candidateId: string,
+  ): Promise<void> {
+    const uploadCount =
+      await this.resumeRepository.countTodayResumeUploadedByCandidate(
+        candidateId,
+      );
 
-    if(todaysUploadCount >= 3){
-      throw new ApplicationError(ERROR_CODES.REACHED_DAILY_RESUME_UPLOAD_LIMIT)
+    if (uploadCount >= 3) {
+      throw new ApplicationError(
+        ERROR_CODES.REACHED_DAILY_RESUME_UPLOAD_LIMIT,
+      );
     }
   }
 
-  private generateFileKey(candidateId: string, fileName: string): string {
-    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-    return `resumes/${candidateId}/${Date.now()}-${sanitizedFileName}`;
+  private generateFileKey(
+    candidateId: string,
+    fileName: string,
+  ): string {
+    const sanitized = fileName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+
+    return `resumes/${candidateId}/${Date.now()}-${sanitized}`;
   }
 
-  private async createNewResume(
+  private async createResume(
     dto: UploadResumeDTO,
     fileKey: string,
   ): Promise<Resume> {
-    const resume = Resume.create(dto.candidateId, dto.fileName, fileKey);
+    const resume = Resume.create(
+      dto.candidateId,
+      dto.fileName,
+      fileKey,
+    );
+
     return this.resumeRepository.create(resume);
   }
 
-  private async updateExistingResume(
+  private async replaceResume(
     existingResume: Resume,
     dto: UploadResumeDTO,
     fileKey: string,
@@ -93,17 +130,22 @@ export class UploadResumeUseCase implements IUseCase<UploadResumeDTO, Resume> {
       parsedData: undefined,
     });
 
-    const savedResume = await this.resumeRepository.update(updatedResume);
-    this.deleteOldResumeFile(existingResume.getFileKey());
+    const savedResume =
+      await this.resumeRepository.update(updatedResume);
+
+    void this.deleteOldResumeFile(existingResume.getFileKey());
+
     return savedResume;
   }
 
-  private deleteOldResumeFile(oldFileKey: string): void {
-    void this.fileStorageRepository
-      .deleteFile(oldFileKey)
-      .catch((error) =>
-        console.error("Failed to delete previous resume", error),
-      );
+  private async deleteOldResumeFile(
+    oldFileKey: string,
+  ): Promise<void> {
+    try {
+      await this.fileStorageRepository.deleteFile(oldFileKey);
+    } catch (error) {
+      console.error("Failed to delete previous resume", error);
+    }
   }
 
   private parseResumeAsync(
@@ -117,14 +159,18 @@ export class UploadResumeUseCase implements IUseCase<UploadResumeDTO, Resume> {
         fileBuffer,
         mimeType,
       })
-      .catch((error) => console.error("Resume parsing failed:", error));
+      .catch((error) => {
+        console.error("Resume parsing failed:", error);
+      });
   }
 
-  private async rollbackUploadedFile(fileKey: string): Promise<void> {
+  private async rollbackUploadedFile(
+    fileKey: string,
+  ): Promise<void> {
     try {
       await this.fileStorageRepository.deleteFile(fileKey);
-    } catch (rollbackError) {
-      console.error("Failed to rollback uploaded file", rollbackError);
+    } catch (error) {
+      console.error("Failed to rollback uploaded file", error);
     }
   }
 }

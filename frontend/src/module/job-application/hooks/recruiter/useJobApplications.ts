@@ -1,7 +1,5 @@
 import { useState, useCallback } from "react";
-
 import { getApplicationsByJob } from "../../api/application.api";
-
 import type { RecruiterApplication } from "../../types/application.types";
 
 export function useJobApplications() {

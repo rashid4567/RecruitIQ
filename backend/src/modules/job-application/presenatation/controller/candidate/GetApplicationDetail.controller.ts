@@ -7,6 +7,7 @@ import {
   ApplicationDetailResponseDTO,
   GetApplicationDetailRequestDTO,
 } from "../../../application/dto/application-detail.response.dto";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class GetApplicationDetailController {
   constructor(
@@ -24,30 +25,32 @@ export class GetApplicationDetailController {
     try {
       const candidateId = req.user?.userId;
       if (!candidateId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
 
       const { applicationId } = req.params;
-      
       if (!applicationId) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.APPLICATION_REQUIRED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.APPLICATION_REQUIRED,
+        );
       }
       const application = await this.getApplicationDetailUC.execute({
         candidateId,
         applicationId,
       });
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        messaage: SUCCESS_MESSAGES.APPLICATION_LOADED_SUCCESSFULLY,
-        data: application,
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.APPLICATION_LOADED_SUCCESSFULLY,
+        application,
+      );
     } catch (err) {
       next(err);
     }

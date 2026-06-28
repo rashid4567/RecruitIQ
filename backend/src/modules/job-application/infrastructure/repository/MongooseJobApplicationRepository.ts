@@ -160,6 +160,13 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
         appliedAt: -1,
       });
 
+      
+
+      docs.forEach((doc) => {
+  console.log("APPLICATION:", doc._id.toString());
+  console.log("resumeId:", doc.resumeId);
+});
+
     return docs
       .filter((doc) => Boolean(doc.candidateId))
       .map((doc) => {
@@ -192,6 +199,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
             : undefined,
         };
       });
+      
   }
 
   async findApplicationDetailsForRecruiter(

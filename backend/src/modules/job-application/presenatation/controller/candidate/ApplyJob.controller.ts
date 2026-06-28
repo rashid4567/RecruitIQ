@@ -6,6 +6,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ApplyJobDTO } from "../../../application/dto/applyJobDto";
 import { JobApplication } from "../../../domain/entity/job-application.entity";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class ApplyJobController {
   constructor(
@@ -16,27 +17,28 @@ export class ApplyJobController {
     try {
       const candidateId = req.user?.userId;
       if (!candidateId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
 
       const validatedData = applyJobSchema.parse({
         ...req.body,
         jobId: req.params.jobId,
       });
-
       const application = await this.applyJobUC.execute({
         ...validatedData,
         candidateId,
       });
 
-      return res.status(HTTP_STATUS.CREATED).json({
-        success: true,
-        message: SUCCESS_MESSAGES.JOB_APPLICATION_SUBMITTED_SUCCESSFULLY,
-        data: application.toObject(),
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.CREATED,
+        SUCCESS_MESSAGES.JOB_APPLICATION_SUBMITTED_SUCCESSFULLY,
+        application.toObject(),
+      );
     } catch (err) {
       next(err);
     }

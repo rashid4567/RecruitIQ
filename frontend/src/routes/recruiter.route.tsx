@@ -37,6 +37,7 @@ const CandidateScorecardPage = lazy(
   () =>
     import("../module/job-application/pages/recruiter/Application.detail.view"),
 );
+const InterviewDashboard = lazy(()=> import("../module/interview/pages/interview-mangment"))
 const RecruiterRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -72,6 +73,7 @@ const RecruiterRoutes = () => {
               path="application-detail/:applicationId"
               element={<CandidateScorecardPage />}
             />
+            <Route path="interviews" element={<InterviewDashboard/>}/>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

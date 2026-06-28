@@ -80,5 +80,6 @@ export const SUCCESS_MESSAGES = {
   JOB_HIDE_SUCCESSFULLY: "Job hide successfully",
   JOB_POST_UPDATED_SUCCESSFULLY: "Job post updated successfully",
   ADMIN_LOGIN_SUCCESFULLY: "Admin login succesfully",
+  INTERVIEW_SCHEDULED_SUCCESSFULLY : "Interview scheduled successfully",
   APPLICATION_STATUS_UPDATED_SUCCESSFULLY : "Application status updated successfully",
 } as const;

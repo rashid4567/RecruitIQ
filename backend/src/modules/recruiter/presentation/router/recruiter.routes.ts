@@ -8,6 +8,7 @@ import { authenticate } from "../../../auth/presentation/middlewares/auth.middle
 import { checkUserActive } from "../../../../shared/middlewares/checkUserActive.middleware"; 
 import jobPostRouter from "../../../job/presentation/router/Recruiter.jobPost.routes";
 import plansRouter from "../../../subscription/presentation/routes/recruiter.subscription.routes"
+import InterviewRouter from "../../../interview/presentation/router/recruiter.interview.routes"
 import { RECRUITER_ROUTES } from "../constants/recruiter-routes.constants";
 const router = Router();
 
@@ -19,5 +20,6 @@ router.put(RECRUITER_ROUTES.PROFILE, updaterecruiterController.updateProfile);
 router.put(RECRUITER_ROUTES.COMPLETE_PROFILE, completeProfileController.completeProfile);
 router.use(RECRUITER_ROUTES.JOBS, jobPostRouter);
 router.use(RECRUITER_ROUTES.ROOT, plansRouter)
+router.use(RECRUITER_ROUTES.INTERVIEW, InterviewRouter)
  
 export default router;

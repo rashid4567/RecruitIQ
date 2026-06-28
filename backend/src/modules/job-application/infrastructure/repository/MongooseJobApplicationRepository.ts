@@ -189,14 +189,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
             ?.recommendation as ApplicationRecommendation,
           analysisStatus: doc.analysisStatus as ApplicationAnalysisStatus,
           appliedAt: doc.appliedAt,
-          interview: doc.interview
-            ? {
-                scheduledAt: doc.interview.scheduledAt,
-                location: doc.interview.location,
-                meetingLink: doc.interview.meetingLink,
-                notes: doc.interview.notes,
-              }
-            : undefined,
+          
         };
       });
       
@@ -236,14 +229,6 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       status: doc.status,
       analysisStatus: doc.analysisStatus as ApplicationAnalysisStatus,
       aiAnalysis: this.mapAIAnalysis(doc.aiAnalysis),
-      interview: doc.interview
-        ? {
-            scheduledAt: doc.interview.scheduledAt,
-            location: doc.interview.location,
-            meetingLink: doc.interview.meetingLink,
-            notes: doc.interview.notes,
-          }
-        : undefined,
       rejectionReason: doc.rejectionReason,
       appliedAt: doc.appliedAt,
       updatedAt: doc.updatedAt,
@@ -314,14 +299,6 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       coverLetter: doc.coverLetter,
       status: doc.status,
       aiAnalysis: this.mapAIAnalysis(doc.aiAnalysis),
-      interview: doc.interview
-        ? {
-            scheduledAt: doc.interview.scheduledAt,
-            location: doc.interview.location,
-            meetingLink: doc.interview.meetingLink,
-            notes: doc.interview.notes,
-          }
-        : undefined,
       analysisStatus: doc.analysisStatus as ApplicationAnalysisStatus,
       rejectionReason: doc.rejectionReason,
       appliedAt: doc.appliedAt,

@@ -17,12 +17,6 @@ export enum ApplicationAnalysisStatus {
   QUOTA_EXCEEDED = "QUOTA_EXCEEDED",
 }
 
-export interface InterviewDetails {
-  scheduledAt: Date;
-  location?: string;
-  meetingLink?: string;
-  notes?: string;
-}
 
 export interface ApplicationAIAnalysis {
   overallScore: number;
@@ -50,7 +44,6 @@ export interface JobApplicationDocument extends Document {
   resumeId: mongoose.Types.ObjectId;
   coverLetter?: string;
   status: ApplicationStatus;
-  interview?: InterviewDetails;
   rejectionReason?: string;
   analysisStatus: ApplicationAnalysisStatus;
   aiAnalysis?: ApplicationAIAnalysis;
@@ -131,28 +124,6 @@ const AIAnalysisSchema = new Schema<ApplicationAIAnalysis>(
   },
 );
 
-const InterviewSchema = new Schema<InterviewDetails>(
-  {
-    scheduledAt: {
-      type: Date,
-    },
-    location: {
-      type: String,
-      trim: true,
-    },
-    meetingLink: {
-      type: String,
-      trim: true,
-    },
-    notes: {
-      type: String,
-      trim: true,
-    },
-  },
-  {
-    _id: false,
-  },
-);
 
 const JobApplicationSchema = new Schema<JobApplicationDocument>(
   {
@@ -194,11 +165,6 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
       enum: Object.values(ApplicationStatus),
       default: ApplicationStatus.APPLIED,
       required: true,
-    },
-
-    interview: {
-      type: InterviewSchema,
-      required: false,
     },
 
     rejectionReason: {

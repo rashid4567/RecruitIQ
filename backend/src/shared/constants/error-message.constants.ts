@@ -14,5 +14,6 @@ export const ERROR_MESSAGE = {
   VALID_DURATION_MONTHS_IS_REQUIRED: "Valid durationMonths is required",
   JOB_ID_REQUIRED: "Job id is required",
   INVALID_ID: "Invalid Id",
+  INVALID_INPUT : "Invalid input",
   FILE_NOT_FOUND : "FILE_NOT_FOUND",
 };

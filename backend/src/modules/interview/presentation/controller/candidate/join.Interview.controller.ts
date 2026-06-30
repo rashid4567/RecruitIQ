@@ -1,27 +1,26 @@
 import { Request, Response, NextFunction } from "express";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import {
-  EndInterviewRequestDTO,
-  EndInterviewResponseDTO,
-} from "../../../application/dto/complete-interview.dto";
+  JoinInterviewRequestDTO,
+  JoinInterviewResponseDTO,
+} from "../../../application/dto/join-interview.dto";
 import { ApiResponse } from "../../../../../shared/utils/api-response";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
-import { CompleteInterviewSchema } from "../../validation/complente.interview.schema";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 
-export class EndInterviewController {
+export class JoinInterviewController {
   constructor(
-    private readonly endInterviewUC: IUseCase<
-      EndInterviewRequestDTO,
-      EndInterviewResponseDTO
+    private readonly joinInterviewUC: IUseCase<
+      JoinInterviewRequestDTO,
+      JoinInterviewResponseDTO
     >,
   ) {}
 
-  end = async (req: Request, res: Response, next: NextFunction) => {
+  join = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const recruiterId = req.user?.userId;
-      if (!recruiterId) {
+      const candidateId = req.user?.userId;
+      if (!candidateId) {
         return ApiResponse.error(
           res,
           HTTP_STATUS.UNAUTHORIZED,
@@ -38,18 +37,16 @@ export class EndInterviewController {
           ERROR_MESSAGE.INTERVIEW_REQUIRED,
         );
       }
-
-      const validateData = CompleteInterviewSchema.parse(req.body);
-      const result = await this.endInterviewUC.execute({
+      const result = await this.joinInterviewUC.execute({
         interviewId,
-        recruiterId,
-        notes: validateData.notes,
+        candidateId,
       });
 
-      return ApiResponse.success(
+      ApiResponse.success(
         res,
         HTTP_STATUS.OK,
-        SUCCESS_MESSAGES.INTERVIEW_COMPLETED_SUCCESSFULLY,
+        SUCCESS_MESSAGES.CANDIDATE_JOINED_INTERVIEW_SUCCESSFULLY,
+        result,
       );
     } catch (err) {
       next(err);

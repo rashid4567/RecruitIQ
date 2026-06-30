@@ -5,16 +5,11 @@ import {
   GetCandidateInterviewsResponseDTO,
 } from "../../dto/getCandidateInterviews.dto";
 
-export class GetCandidateInterviewUseCase
-  implements
-    IUseCase<
-      GetCandidateInterviewsRequestDTO,
-      GetCandidateInterviewsResponseDTO
-    >
-{
-  constructor(
-    private readonly interviewRepository: InterviewRepository,
-  ) {}
+export class GetCandidateInterviewUseCase implements IUseCase<
+  GetCandidateInterviewsRequestDTO,
+  GetCandidateInterviewsResponseDTO
+> {
+  constructor(private readonly interviewRepository: InterviewRepository) {}
 
   async execute(
     request: GetCandidateInterviewsRequestDTO,
@@ -43,6 +38,6 @@ export class GetCandidateInterviewUseCase
           createdAt: data.createdAt,
         };
       }),
-   };
+    };
   }
 }

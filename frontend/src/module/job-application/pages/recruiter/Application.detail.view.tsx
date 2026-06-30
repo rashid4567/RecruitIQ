@@ -14,7 +14,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useRecruiterApplicationDetails } from "../../hooks/recruiter/useRecruiterApplicationDetails";
 import { useUpdateApplicationStatus } from "../../hooks/recruiter/useUpdateApplicationStatus";
 import {
@@ -331,6 +331,7 @@ function RejectionReasonSection({ reason }: { reason: string }) {
 
 export default function CandidateScorecardPage() {
   const { applicationId } = useParams<{ applicationId: string }>();
+  const navigate = useNavigate();
   const [modal, setModal] = useState<ModalAction>(null);
 
   const { loading, error, application, fetchApplicationDetails } =
@@ -356,6 +357,35 @@ export default function CandidateScorecardPage() {
     },
     [modal, application, applicationId, updateStatus, fetchApplicationDetails],
   );
+
+  const handleAction = async (action: ModalAction) => {
+    if (!application) return;
+
+   try{
+     if (action === "interview") {
+      const ok = await updateStatus({
+        applicationId: application.applicationId,
+        status: ApplicationStatus.INTERVIEW_SCHEDULED,
+      });
+
+      if (ok) {
+        navigate(
+          `/recruiter/interviews?applicationId=${application.applicationId}`,
+        );
+      }
+
+      return;
+    }
+   }catch(err){
+    console.log("err", err)
+   }
+
+    setModal(action);
+  };
+
+  useEffect(() => {
+    if (applicationId) fetchApplicationDetails(applicationId);
+  }, [applicationId, fetchApplicationDetails]);
 
   if (loading) return <LoadingScreen />;
 
@@ -419,7 +449,7 @@ export default function CandidateScorecardPage() {
             isClosed={isClosed}
             isRejected={isRejected}
             isWithdrawn={isWithdrawn}
-            onAction={setModal}
+            onAction={handleAction}
           />
           {interview && <InterviewCard interview={interview} />}
           <ResumeCard resumeId={application.resumeId} />

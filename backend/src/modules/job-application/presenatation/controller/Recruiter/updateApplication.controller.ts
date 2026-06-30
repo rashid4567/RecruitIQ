@@ -24,11 +24,11 @@ export class UpdateApplicationStatusController {
       const recruiterId = req.user?.userId;
 
       if (!recruiterId) {
-         ApiResponse.error(
+        ApiResponse.error(
           res,
           HTTP_STATUS.UNAUTHORIZED,
           ERROR_MESSAGE.UNAUTHORIZED,
-        )
+        );
         return;
       }
 
@@ -39,24 +39,24 @@ export class UpdateApplicationStatusController {
           res,
           HTTP_STATUS.BAD_REQUEST,
           ERROR_MESSAGE.APPLICATION_REQUIRED,
-        )
+        );
         return;
       }
 
       const { status, rejectionReason } = req.body;
       const allowedStatuses = [
         ApplicationStatus.SHORTLISTED,
+        ApplicationStatus.INTERVIEW_SCHEDULED,
         ApplicationStatus.SELECTED,
         ApplicationStatus.REJECTED,
       ];
 
       if (!allowedStatuses.includes(status)) {
-
         ApiResponse.error(
           res,
           HTTP_STATUS.BAD_REQUEST,
-          ERROR_MESSAGE.INVALID_APPLICATION_STATUS
-        )
+          ERROR_MESSAGE.INVALID_APPLICATION_STATUS,
+        );
         return;
       }
 
@@ -71,7 +71,7 @@ export class UpdateApplicationStatusController {
         res,
         HTTP_STATUS.OK,
         SUCCESS_MESSAGES.APPLICATION_STATUS_UPDATED_SUCCESSFULLY,
-      )
+      );
     } catch (error) {
       next(error);
     }

@@ -3,17 +3,17 @@ import { useParams } from "react-router-dom";
 
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
 import { useJobApplications } from "../../hooks/recruiter/useJobApplications";
-import type { ApplicationRow, JobMeta, SortOption } from "../../presentation/component/Recruiter.application/Application.types";
+import type { ApplicationRow, JobMeta, SortOption } from "../component/Recruiter.application/Application.types";
 import type { ApplicationStatus } from "../../types/jobApplication.types";
 import { getInitials } from "../component/recruiter-application.detail/Indexs";
 import { formatDate } from "../component/candidate-details/Formatters";
-import { aiScoreBarColor } from "../../presentation/component/Recruiter.application/Helpers";
-import { ALL_STATUSES } from "../../presentation/component/Recruiter.application/Status.constants";
-import { TopBar } from "../../presentation/component/Recruiter.application/Topbar";
-import { JobHeader } from "../../presentation/component/Recruiter.application/Jobheader";
-import { FilterToolbar } from "../../presentation/component/Recruiter.application/Filtertoolbar";
-import { ApplicationTable } from "../../presentation/component/Recruiter.application/Applicationtable";
-import { Pagination } from "../../presentation/component/Recruiter.application/Pagination";
+import { aiScoreBarColor } from "../component/Recruiter.application/Helpers";
+import { ALL_STATUSES } from "../component/Recruiter.application/Status.constants";
+import { TopBar } from "../component/Recruiter.application/Topbar";
+import { JobHeader } from "../component/Recruiter.application/Jobheader";
+import { FilterToolbar } from "../component/Recruiter.application/Filtertoolbar";
+import { ApplicationTable } from "../component/Recruiter.application/Applicationtable";
+import { Pagination } from "../component/Recruiter.application/Pagination";
 
 const ITEMS_PER_PAGE = 8;
 

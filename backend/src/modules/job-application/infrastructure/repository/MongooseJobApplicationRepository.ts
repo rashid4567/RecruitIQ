@@ -5,6 +5,7 @@ import {
   ApplicationRecommendation,
   JobApplication,
   ApplicationAnalysisStatus,
+  ApplicationStatus,
 } from "../../domain/entity/job-application.entity";
 
 import {
@@ -12,6 +13,7 @@ import {
   JobApplicationRepository,
   RecruiterApplicationDetailsOutput,
   RecruiterApplicationListItem,
+  RecruiterInterviewApplication,
 } from "../../domain/repository/job-application.repository";
 
 import {
@@ -133,6 +135,20 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
     });
   }
 
+  async findByRecruiterAndStatuses(
+    recruiterId: string,
+    statuses: ApplicationStatus[],
+  ): Promise<JobApplication[]> {
+    const docs = await JobApplicationModel.find({
+      recruiterId: new mongoose.Types.ObjectId(recruiterId),
+      status: { $in: statuses },
+      isDeleted: false,
+    }).sort({
+      appliedAt: -1,
+    });
+
+    return docs.map((doc) => this.toDomain(doc));
+  }
   async findApplicationsWithCandidateDetails(
     jobId: string,
   ): Promise<RecruiterApplicationListItem[]> {
@@ -160,12 +176,10 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
         appliedAt: -1,
       });
 
-      
-
-      docs.forEach((doc) => {
-  console.log("APPLICATION:", doc._id.toString());
-  console.log("resumeId:", doc.resumeId);
-});
+    docs.forEach((doc) => {
+      console.log("APPLICATION:", doc._id.toString());
+      console.log("resumeId:", doc.resumeId);
+    });
 
     return docs
       .filter((doc) => Boolean(doc.candidateId))
@@ -189,10 +203,8 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
             ?.recommendation as ApplicationRecommendation,
           analysisStatus: doc.analysisStatus as ApplicationAnalysisStatus,
           appliedAt: doc.appliedAt,
-          
         };
       });
-      
   }
 
   async findApplicationDetailsForRecruiter(
@@ -324,6 +336,41 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       updatedAt: data.updatedAt,
     };
   }
+  async findRecruiterInterviewApplications(
+    recruiterId: string,
+    statuses: ApplicationStatus[],
+  ): Promise<RecruiterInterviewApplication[]> {
+    const applications = await JobApplicationModel.find({
+      recruiterId: new mongoose.Types.ObjectId(recruiterId),
+      status: { $in: statuses },
+    })
+      .populate({
+        path: "candidateId",
+        select: "fullName email profileImage",
+      })
+      .populate({
+        path: "jobId",
+        select: "title",
+      })
+      .lean();
+
+    return applications.map((app: any) => ({
+      applicationId: app._id.toString(),
+
+      jobId: app.jobId._id.toString(),
+      jobTitle: app.jobId.title,
+
+      candidateId: app.candidateId._id.toString(),
+      candidateName: app.candidateId.fullName,
+      candidateEmail: app.candidateId.email,
+      candidateProfileImage: app.candidateId.profileImage,
+
+      recruiterId: app.recruiterId.toString(),
+
+      status: app.status,
+    }));
+  }
+
   async countTodayApplicationsByCandidate(
     candidateId: string,
   ): Promise<number> {

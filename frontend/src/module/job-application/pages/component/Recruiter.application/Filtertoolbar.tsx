@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Search, X, ChevronDown, SlidersHorizontal, Check } from "lucide-react";
 import { ApplicationStatus } from "@/module/job-application/types/jobApplication.types";
-import type { UpdateApplicationStatusDTO } from "../../../pages/component/recruiter-application.detail/Index";
+import type { UpdateApplicationStatusDTO } from "../recruiter-application.detail/Index";
 import { useUpdateApplicationStatus } from "@/module/job-application/hooks/recruiter/useUpdateApplicationStatus";
 import type { SortOption } from "./Application.types";
 

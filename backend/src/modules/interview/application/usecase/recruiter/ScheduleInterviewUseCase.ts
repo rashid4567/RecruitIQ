@@ -1,75 +1,67 @@
-
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
-
 import { JobApplicationRepository } from "../../../../job-application/domain/repository/job-application.repository";
-import {
-  Interview,
-} from "../../../domain/entity/interview.entity";
+import { Interview } from "../../../domain/entity/interview.entity";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
   ScheduleInterviewRequestDTO,
   ScheduleInterviewResponseDTO,
 } from "../../dto/schedule.interview.dto";
 
-export class ScheduleInterviewUseCase
-  implements
-    IUseCase<
-      ScheduleInterviewRequestDTO,
-      ScheduleInterviewResponseDTO
-    >
-{
+export class ScheduleInterviewUseCase implements IUseCase<
+  ScheduleInterviewRequestDTO,
+  ScheduleInterviewResponseDTO
+> {
   constructor(
     private readonly interviewRepo: InterviewRepository,
     private readonly applicationRepo: JobApplicationRepository,
   ) {}
 
   async execute(
-    input: ScheduleInterviewRequestDTO,
+    request: ScheduleInterviewRequestDTO,
   ): Promise<ScheduleInterviewResponseDTO> {
-
     const application = await this.applicationRepo.findById(
-      input.applicationId,
+      request.applicationId,
     );
 
     if (!application) {
+      throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
+    }
+
+    if (!application.canScheduleInterview()) {
       throw new ApplicationError(
-        ERROR_CODES.APPLICATION_NOT_FOUND,
+        ERROR_CODES.APPLICATION_CANNOT_SCHEDULE_INTERVIEW,
       );
     }
 
     const existingInterview =
       await this.interviewRepo.findByApplicationAndRound(
-        input.applicationId,
-        input.round ?? 1,
+        request.applicationId,
+        request.round ?? 1,
       );
 
     if (existingInterview) {
-      throw new ApplicationError(
-        ERROR_CODES.INTERVIEW_ROUND_ALREADY_EXISTS,
-      );
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_ROUND_ALREADY_EXISTS);
     }
     const interview = Interview.create({
       applicationId: application.id,
       jobId: application.jobId,
       candidateId: application.candidateId,
       recruiterId: application.recruiterId,
-      round: input.round,
-      title: input.title,
-      description: input.description,
-      mode: input.mode,
-      scheduledAt: input.scheduledAt,
-      durationInMinutes: input.durationInMinutes,
-      location: input.location,
-      meetingLink: undefined,
-      meetingRoom: undefined,
+      roomId: request.roomId,
+      round: request.round,
+      title: request.title,
+      description: request.description,
+      mode: request.mode,
+      scheduledAt: request.scheduledAt,
+      durationInMinutes: request.durationInMinutes,
+      location: request.location,
+      meetingLink: request.meetingLink,
     });
 
-    const savedInterview =
-      await this.interviewRepo.create(interview);
-    application.scheduleInterview(interview);
-
+    const savedInterview = await this.interviewRepo.create(interview);
+    application.markInterviewScheduled();
     await this.applicationRepo.save(application);
     const result = savedInterview.toObject();
 
@@ -79,6 +71,7 @@ export class ScheduleInterviewUseCase
       jobId: result.jobId,
       candidateId: result.candidateId,
       recruiterId: result.recruiterId,
+      roomId: result.roomId,
       round: result.round,
       title: result.title,
       description: result.description,
@@ -87,7 +80,6 @@ export class ScheduleInterviewUseCase
       scheduledAt: result.scheduledAt,
       durationInMinutes: result.durationInMinutes,
       location: result.location,
-      meetingRoom: result.meetingRoom,
       meetingLink: result.meetingLink,
       reminderSent: result.reminderSent,
       createdAt: result.createdAt,

@@ -3,7 +3,7 @@ export const ERROR_MESSAGE = {
   PLAN_ID_NOT_FOUND: "Plan ID not found",
   INVALID_USERID_IN_ROUTE_PARAMS: "Invalid userId in route params",
   ACCESS_DENIED: "Access denied",
-  MISSING_FILEDS: "Missing fileds",
+  MISSING_FIELDS: "Missing fileds",
   EMAIL_IS_REQUIRED: "Email is required",
   APPLICATION_REQUIRED: "Application required",
   JOB_POST_IS_REQUIRED: "Job post is required",
@@ -15,5 +15,6 @@ export const ERROR_MESSAGE = {
   JOB_ID_REQUIRED: "Job id is required",
   INVALID_ID: "Invalid Id",
   INVALID_INPUT : "Invalid input",
-  FILE_NOT_FOUND : "FILE_NOT_FOUND",
+  FILE_NOT_FOUND : "File not found",
+  INTERVIEW_REQUIRED : "interview required"
 };

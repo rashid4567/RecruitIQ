@@ -28,6 +28,8 @@ const JobApplicationDetail = lazy(
 const NotificationCenter = lazy(
   () => import("../module/notification/page/notification.center"),
 );
+const MyInterviews = lazy(()=> import("../module/interview/pages/candidate.all.interview"))
+const MyInterviewDeatails = lazy(()=> import("../module/interview/pages/candidate.interview.detail"));
 const CandidateRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -44,6 +46,8 @@ const CandidateRoutes = () => {
               element={<JobApplicationDetail />}
             />
             <Route path="jobs" element={<CareerPage />} />
+            <Route path="interview" element={<MyInterviews/>}/>
+            <Route path="interview/:interviewId" element={<MyInterviewDeatails/>}/>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

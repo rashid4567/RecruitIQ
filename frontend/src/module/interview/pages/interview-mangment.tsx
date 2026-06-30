@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Calendar,
   ChevronLeft,
@@ -11,427 +11,630 @@ import {
   Search,
   Bell,
   Clock,
+  Loader2,
+  AlertCircle,
+  Video,
+  MapPin,
+  CheckCircle2,
+  XCircle,
+  RefreshCw,
+  UserX,
+  Play,
+  ExternalLink,
+  Mail,
 } from 'lucide-react';
-import ScheduleInterviewModal from "./components/schedule-interview-modal"
+import ScheduleInterviewModal from './components/schedule-interview-modal';
 import Sidebar from '@/module/recruiter/pages/components/layout/Sidebar';
+import { useRecruiterInterviews } from '../hooks/recruiter/useRecruiterInterviews';
+import type { RecruiterInterviewItem } from '../types/interview.types';
+import { InterviewStatus } from '../types/interview.types';
 
-interface Interview {
-  id: number;
-  date: string;
-  time: string;
-  candidate: string;
-  candidateInitial: string;
-  candidateColor: string;
-  jobTitle: string;
-  type: string;
-  interviewers: Array<{ initials: string; color: string }>;
-  status: 'cancelled' | 'pending' | 'scheduled' | 'pending_feedback';
-  meetingLink?: string;
+
+
+const ITEMS_PER_PAGE = 10;
+
+function toInitials(name: string): string {
+  return name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
 }
 
+const CANDIDATE_GRADIENTS = [
+  'from-orange-500 to-orange-600',
+  'from-purple-500 to-purple-600',
+  'from-blue-500 to-blue-600',
+  'from-green-500 to-green-600',
+  'from-cyan-500 to-cyan-600',
+  'from-pink-500 to-pink-600',
+  'from-indigo-500 to-indigo-600',
+  'from-teal-500 to-teal-600',
+];
+
+function hashString(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function candidateGradient(id: string) {
+  return CANDIDATE_GRADIENTS[hashString(id) % CANDIDATE_GRADIENTS.length];
+}
+
+function formatScheduledAt(scheduledAt?: string): { date: string; time: string } {
+  if (!scheduledAt) return { date: '—', time: '—' };
+  const d = new Date(scheduledAt);
+  const date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  return { date, time };
+}
+
+function isToday(scheduledAt?: string): boolean {
+  if (!scheduledAt) return false;
+  return new Date(scheduledAt).toDateString() === new Date().toDateString();
+}
+
+interface StatusConfig {
+  label: string;
+  pill: string;
+  dot: string;
+}
+
+const STATUS_CONFIG: Record<string, StatusConfig> = {
+  [InterviewStatus.SCHEDULED]: {
+    label: 'Scheduled',
+    pill: 'bg-blue-50 text-blue-700 border border-blue-200',
+    dot: 'bg-blue-500',
+  },
+  [InterviewStatus.RESCHEDULED]: {
+    label: 'Rescheduled',
+    pill: 'bg-violet-50 text-violet-700 border border-violet-200',
+    dot: 'bg-violet-500',
+  },
+  [InterviewStatus.ONGOING]: {
+    label: 'Ongoing',
+    pill: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    dot: 'bg-emerald-500',
+  },
+  [InterviewStatus.COMPLETED]: {
+    label: 'Completed',
+    pill: 'bg-slate-100 text-slate-600 border border-slate-200',
+    dot: 'bg-slate-400',
+  },
+  [InterviewStatus.CANCELLED]: {
+    label: 'Cancelled',
+    pill: 'bg-red-50 text-red-700 border border-red-200',
+    dot: 'bg-red-500',
+  },
+  [InterviewStatus.NO_SHOW]: {
+    label: 'No Show',
+    pill: 'bg-amber-50 text-amber-700 border border-amber-200',
+    dot: 'bg-amber-500',
+  },
+};
+
+function getStatusConfig(status?: string): StatusConfig {
+  return STATUS_CONFIG[status ?? ''] ?? {
+    label: 'Pending',
+    pill: 'bg-slate-50 text-slate-500 border border-slate-200',
+    dot: 'bg-slate-300',
+  };
+}
+
+const STATUS_TRANSITIONS: Record<string, { status: InterviewStatus; label: string; icon: React.ReactNode }[]> = {
+  [InterviewStatus.SCHEDULED]: [
+    { status: InterviewStatus.ONGOING, label: 'Mark as Ongoing', icon: <Play size={13} /> },
+    { status: InterviewStatus.RESCHEDULED, label: 'Reschedule', icon: <RefreshCw size={13} /> },
+    { status: InterviewStatus.CANCELLED, label: 'Cancel', icon: <XCircle size={13} /> },
+    { status: InterviewStatus.NO_SHOW, label: 'Mark No-Show', icon: <UserX size={13} /> },
+  ],
+  [InterviewStatus.RESCHEDULED]: [
+    { status: InterviewStatus.ONGOING, label: 'Mark as Ongoing', icon: <Play size={13} /> },
+    { status: InterviewStatus.CANCELLED, label: 'Cancel', icon: <XCircle size={13} /> },
+    { status: InterviewStatus.NO_SHOW, label: 'Mark No-Show', icon: <UserX size={13} /> },
+  ],
+  [InterviewStatus.ONGOING]: [
+    { status: InterviewStatus.COMPLETED, label: 'Mark Completed', icon: <CheckCircle2 size={13} /> },
+    { status: InterviewStatus.NO_SHOW, label: 'Mark No-Show', icon: <UserX size={13} /> },
+  ],
+  [InterviewStatus.COMPLETED]: [],
+  [InterviewStatus.CANCELLED]: [],
+  [InterviewStatus.NO_SHOW]: [],
+};
+
+
+
+type Tab = 'all' | 'upcoming' | 'today' | 'timeline';
+
+function filterByTab(interviews: RecruiterInterviewItem[], tab: Tab): RecruiterInterviewItem[] {
+  const now = new Date();
+  switch (tab) {
+    case 'upcoming':
+      return interviews.filter((i) => i.scheduledAt && new Date(i.scheduledAt) > now);
+    case 'today':
+      return interviews.filter((i) => isToday(i.scheduledAt));
+    default:
+      return interviews;
+  }
+}
+
+
+
+function deriveStats(interviews: RecruiterInterviewItem[]) {
+  const now = new Date();
+  const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const todayCount = interviews.filter((i) => isToday(i.scheduledAt)).length;
+  const thisWeek = interviews.filter((i) => i.scheduledAt && new Date(i.scheduledAt) >= weekAgo).length;
+  const completedThisMonth = interviews.filter(
+    (i) => i.interviewStatus === InterviewStatus.COMPLETED && i.scheduledAt && new Date(i.scheduledAt) >= monthStart,
+  ).length;
+  const pendingFeedback = interviews.filter((i) => i.interviewStatus === InterviewStatus.COMPLETED).length;
+
+  const upcoming = interviews
+    .filter((i) => i.scheduledAt && new Date(i.scheduledAt) > now)
+    .sort((a, b) => new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime());
+
+  const nextInterview =
+    upcoming[0]?.scheduledAt
+      ? new Date(upcoming[0].scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      : null;
+
+  return { todayCount, thisWeek, completedThisMonth, pendingFeedback, nextInterview };
+}
+
+// ─── main component ───────────────────────────────────────────────────────────
+
 export default function InterviewDashboard() {
-  const [selectedTab, setSelectedTab] = useState('all');
+  const [selectedTab, setSelectedTab] = useState<Tab>('all');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  // local optimistic status overrides: interviewId → InterviewStatus
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, InterviewStatus>>({});
 
-  const interviews: Interview[] = [
-    {
-      id: 1,
-      date: 'Jul 23, 2024',
-      time: '04:00 PM',
-      candidate: 'Olivia Brown',
-      candidateInitial: 'OB',
-      candidateColor: 'from-orange-500 to-orange-600',
-      jobTitle: 'Marketing Specialist',
-      type: 'Culture Fit',
-      interviewers: [{ initials: 'JD', color: 'bg-linear-to-br from-orange-400 to-orange-600' }],
-      status: 'cancelled',
-      meetingLink: 'N/A',
-    },
-    {
-      id: 2,
-      date: 'Jul 24, 2024',
-      time: '02:30 PM',
-      candidate: 'Michael Chen',
-      candidateInitial: 'MC',
-      candidateColor: 'from-purple-500 to-purple-600',
-      jobTitle: 'Product Manager',
-      type: 'Behavioral Interview',
-      interviewers: [{ initials: 'SJ', color: 'bg-linear-to-br from-purple-400 to-purple-600' }],
-      status: 'pending',
-      meetingLink: 'Schedule Interview',
-    },
-    {
-      id: 3,
-      date: 'Jul 25, 2024',
-      time: '10:00 AM',
-      candidate: 'Alice Johnson',
-      candidateInitial: 'AJ',
-      candidateColor: 'from-blue-500 to-blue-600',
-      jobTitle: 'Senior Frontend Developer',
-      type: 'Technical Interview',
-      interviewers: [
-        { initials: 'MK', color: 'bg-linear-to-br from-blue-400 to-blue-600' },
-        { initials: 'EM', color: 'bg-linear-to-br from-pink-400 to-pink-600' },
-      ],
-      status: 'scheduled',
-      meetingLink: 'Meeting',
-    },
-    {
-      id: 4,
-      date: 'Jul 26, 2024',
-      time: '11:00 AM',
-      candidate: 'David Lee',
-      candidateInitial: 'DL',
-      candidateColor: 'from-green-500 to-green-600',
-      jobTitle: 'Data Scientist',
-      type: 'Technical Interview',
-      interviewers: [
-        { initials: 'LM', color: 'bg-linear-to-br from-green-400 to-green-600' },
-        { initials: 'TW', color: 'bg-linear-to-br from-indigo-400 to-indigo-600' },
-      ],
-      status: 'pending_feedback',
-      meetingLink: 'Meeting',
-    },
-    {
-      id: 5,
-      date: 'Aug 1, 2024',
-      time: '09:00 AM',
-      candidate: 'Sophia Garcia',
-      candidateInitial: 'SG',
-      candidateColor: 'from-cyan-500 to-cyan-600',
-      jobTitle: 'UX Designer',
-      type: 'Portfolio Review',
-      interviewers: [
-        { initials: 'AK', color: 'bg-linear-to-br from-cyan-400 to-cyan-600' },
-        { initials: 'MY', color: 'bg-linear-to-br from-yellow-400 to-yellow-600' },
-      ],
-      status: 'scheduled',
-      meetingLink: 'Meeting',
-    },
-  ];
+  const { interviews, loading, error, refetch } = useRecruiterInterviews();
 
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'cancelled':
-        return 'bg-red-50 text-red-700 border border-red-200';
-      case 'pending':
-        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-      case 'scheduled':
-        return 'bg-blue-50 text-blue-700 border border-blue-200';
-      case 'pending_feedback':
-        return 'bg-slate-50 text-slate-700 border border-slate-200';
-      default:
-        return 'bg-slate-50 text-slate-700 border border-slate-200';
-    }
-  };
+  const enriched = useMemo(
+    () =>
+      interviews.map((i) => ({
+        ...i,
+        interviewStatus: i.interviewId && statusOverrides[i.interviewId]
+          ? statusOverrides[i.interviewId]
+          : i.interviewStatus,
+      })),
+    [interviews, statusOverrides],
+  );
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'cancelled':
-        return 'cancelled';
-      case 'pending':
-        return 'pending';
-      case 'scheduled':
-        return 'scheduled';
-      case 'pending_feedback':
-        return 'pending feedback';
-      default:
-        return status;
-    }
-  };
+  const filtered = useMemo(() => filterByTab(enriched, selectedTab), [enriched, selectedTab]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const stats = useMemo(() => deriveStats(enriched), [enriched]);
+
+  function handleTabChange(tab: Tab) {
+    setSelectedTab(tab);
+    setCurrentPage(1);
+  }
+
+  function handleStatusChange(interviewId: string, newStatus: InterviewStatus) {
+    setStatusOverrides((prev) => ({ ...prev, [interviewId]: newStatus }));
+    // TODO: call your API here → updateInterviewStatus(interviewId, newStatus)
+  }
 
   return (
     <div className="flex h-screen bg-slate-50">
+      <Sidebar />
 
-
-      <Sidebar/>
-
-      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
+        {/* ── Header ── */}
         <header className="bg-white border-b border-slate-200 shadow-sm">
           <div className="px-8 py-5">
-            {/* Title and Controls */}
             <div className="flex items-center justify-between gap-6 mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-slate-900">Interviews</h1>
+                <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-0.5">RecruitIQ</p>
+                <h1 className="text-2xl font-bold text-slate-900">Interviews</h1>
               </div>
-
-              <div className="flex items-center gap-3">
-                <button className="p-2.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors duration-200">
-                  <Search size={18} />
+              <div className="flex items-center gap-2">
+                <button className="p-2.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors">
+                  <Search size={17} />
                 </button>
-                <button className="p-2.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors duration-200 relative">
-                  <Bell size={18} />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                <button className="p-2.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors relative">
+                  <Bell size={17} />
+                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full ring-1 ring-white" />
                 </button>
               </div>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center justify-between gap-4">
-              {/* Tabs */}
-              <div className="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1">
-                <TabButton
-                  icon={BarChart3}
-                  label="Timeline"
-                  active={selectedTab === 'timeline'}
-                  onClick={() => setSelectedTab('timeline')}
-                />
-                <TabButton
-                  label="All"
-                  active={selectedTab === 'all'}
-                  onClick={() => setSelectedTab('all')}
-                />
-                <TabButton
-                  label="Upcoming"
-                  active={selectedTab === 'upcoming'}
-                  onClick={() => setSelectedTab('upcoming')}
-                />
-                <TabButton
-                  label="Today"
-                  active={selectedTab === 'today'}
-                  onClick={() => setSelectedTab('today')}
-                />
+            {/* Controls row */}
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                <TabButton icon={BarChart3} label="Timeline" active={selectedTab === 'timeline'} onClick={() => handleTabChange('timeline')} />
+                <TabButton label="All" active={selectedTab === 'all'} onClick={() => handleTabChange('all')} count={enriched.length} />
+                <TabButton label="Upcoming" active={selectedTab === 'upcoming'} onClick={() => handleTabChange('upcoming')} count={enriched.filter(i => i.scheduledAt && new Date(i.scheduledAt) > new Date()).length} />
+                <TabButton label="Today" active={selectedTab === 'today'} onClick={() => handleTabChange('today')} count={stats.todayCount} />
               </div>
 
-              {/* Date Picker */}
-              <button className="flex items-center gap-2 px-3 py-1.5 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium text-sm transition-colors duration-200">
-                <Calendar size={16} />
-                <span>Thu Dec 04 2025</span>
-              </button>
-
-              {/* Schedule Button */}
-              <button
-                onClick={() => setShowScheduleModal(true)}
-                className="bg-linear-to-r from-blue-600 to-blue-700 text-white px-4 py-1.5 rounded-lg hover:shadow-lg hover:shadow-blue-500/20 flex items-center gap-2 font-semibold text-sm transition-all duration-200 hover:-translate-y-0.5"
-              >
-                <Plus size={16} />
-                Schedule Interview
-              </button>
+              <div className="flex items-center gap-2">
+                <button className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors">
+                  <Calendar size={15} />
+                  {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' })}
+                </button>
+                <button
+                  onClick={() => setShowScheduleModal(true)}
+                  className="bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 flex items-center gap-2 font-semibold text-sm transition-colors shadow-sm shadow-blue-200"
+                >
+                  <Plus size={15} />
+                  Schedule Interview
+                </button>
+              </div>
             </div>
 
-            {/* Stats Cards - Compact Row */}
-            <div className="grid grid-cols-4 gap-3 mt-4">
-              <CompactStatCard
-                label="Today's interviews"
-                value="0"
-                subtext="Next interview in: now"
+            {/* Stat cards */}
+            <div className="grid grid-cols-4 gap-3">
+              <StatCard
+                label="Today's Interviews"
+                value={String(stats.todayCount)}
+                sub={stats.nextInterview ? `Next at ${stats.nextInterview}` : 'None scheduled today'}
+                accent="blue"
               />
-              <CompactStatCard 
-                label="This Week" 
-                value="20" 
-                chart 
-              />
-              <CompactStatCard
-                label="Completed This Month"
-                value="0"
-                subtext="Success rate: 75%"
-              />
-              <CompactStatCard 
-                label="Pending Feedback" 
-                value="1"
-              />
+              <StatCard label="This Week" value={String(stats.thisWeek)} sub="Across all rounds" accent="violet" chart />
+              <StatCard label="Completed This Month" value={String(stats.completedThisMonth)} sub="75% success rate" accent="emerald" />
+              <StatCard label="Pending Feedback" value={String(stats.pendingFeedback)} sub="Awaiting review" accent="amber" />
             </div>
           </div>
         </header>
 
-        {/* Table */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-6">
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-b border-slate-200 bg-linear-to-r from-slate-50 to-slate-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Date & Time
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Candidate
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Job Title
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Type
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Interviewers
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Meeting Link
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {interviews.map((interview) => (
-                      <tr
-                        key={interview.id}
-                        className="hover:bg-blue-50/30 transition-colors duration-200 group"
-                      >
-                        <td className="px-6 py-4 text-sm">
-                          <div className="text-slate-900 font-semibold">
-                            {interview.date}
-                          </div>
-                          <div className="text-slate-500 text-xs mt-0.5 flex items-center gap-1">
-                            <Clock size={12} />
-                            {interview.time}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 bg-linear-to-br ${interview.candidateColor} rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-md`}>
-                              {interview.candidateInitial}
-                            </div>
-                            <span className="text-slate-900 font-semibold">
-                              {interview.candidate}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-slate-900 font-medium">
-                            {interview.jobTitle}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-slate-600 text-sm font-medium">
-                          {interview.type}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center -space-x-2">
-                            {interview.interviewers.map((interviewer, idx) => (
-                              <div
-                                key={idx}
-                                className={`w-9 h-9 ${interviewer.color} rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white shadow-sm hover:scale-110 transition-transform duration-200`}
-                                title={`Interviewer ${idx + 1}`}
-                              >
-                                {interviewer.initials.charAt(0)}
-                              </div>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-bold inline-block ${getStatusStyle(
-                              interview.status
-                            )}`}
-                          >
-                            {getStatusLabel(interview.status)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          {interview.meetingLink === 'N/A' ? (
-                            <span className="text-slate-400 text-sm font-medium">N/A</span>
-                          ) : interview.meetingLink === 'Schedule Interview' ? (
-                            <button className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors duration-200">
-                              {interview.meetingLink}
-                            </button>
-                          ) : (
-                            <button className="text-blue-600 hover:text-blue-700 text-sm font-bold inline-flex items-center gap-1 transition-colors duration-200 group/link">
-                              {interview.meetingLink}
-                              <ChevronRight size={14} className="group-hover/link:translate-x-0.5 transition-transform duration-200" />
-                            </button>
-                          )}
-                        </td>
-                        <td className="px-6 py-4">
-                          <button className="text-slate-400 hover:text-slate-600 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-slate-100">
-                            <MoreVertical size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+        {/* ── Body ── */}
+        <div className="flex-1 overflow-auto p-6">
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
 
-              {/* Pagination */}
-              <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between bg-linear-to-r from-slate-50 to-slate-50">
-                <button className="text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-2 text-sm transition-colors duration-200">
-                  <ChevronLeft size={16} />
-                  Previous
-                </button>
-                <div className="flex items-center gap-2">
-                  <button className="w-8 h-8 rounded-lg border border-blue-300 flex items-center justify-center font-semibold text-blue-600 bg-blue-50 text-sm">
-                    1
-                  </button>
-                  <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-200 text-sm">
-                    2
-                  </button>
-                  <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-200 text-sm">
-                    3
-                  </button>
-                </div>
-                <button className="text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-2 text-sm transition-colors duration-200">
-                  Next
-                  <ChevronRight size={16} />
+            {loading && (
+              <div className="flex items-center justify-center py-24 gap-3 text-slate-400">
+                <Loader2 size={20} className="animate-spin text-blue-500" />
+                <span className="text-sm font-medium">Loading interviews…</span>
+              </div>
+            )}
+
+            {!loading && error && (
+              <div className="flex flex-col items-center justify-center py-24 gap-3 text-red-500">
+                <AlertCircle size={28} />
+                <p className="text-sm font-semibold">{error}</p>
+                <button
+                  onClick={refetch}
+                  className="text-xs px-4 py-2 border border-red-200 rounded-lg hover:bg-red-50 transition-colors text-red-600 font-medium"
+                >
+                  Try again
                 </button>
               </div>
-            </div>
+            )}
+
+            {!loading && !error && filtered.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-24 gap-2 text-slate-400">
+                <Calendar size={36} className="text-slate-200" />
+                <p className="text-sm font-semibold text-slate-500 mt-2">No interviews found</p>
+                <p className="text-xs text-slate-400">
+                  {selectedTab !== 'all' ? 'Switch to "All" to see everything.' : 'Schedule your first interview to get started.'}
+                </p>
+              </div>
+            )}
+
+            {!loading && !error && filtered.length > 0 && (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50/80">
+                        {['Date & Time', 'Candidate', 'Position', 'Round', 'Mode', 'Status', 'Meeting', 'Actions'].map((col) => (
+                          <th key={col} className="px-5 py-3 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                            {col}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {paginated.map((interview) => (
+                        <InterviewRow
+                          key={interview.interviewId ?? interview.applicationId}
+                          interview={interview}
+                          onStatusChange={handleStatusChange}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <span className="text-xs text-slate-500">
+                      Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <PageBtn onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
+                        <ChevronLeft size={14} />
+                      </PageBtn>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => setCurrentPage(p)}
+                          className={`w-7 h-7 rounded-md text-xs font-semibold transition-colors ${
+                            p === currentPage
+                              ? 'bg-blue-600 text-white'
+                              : 'text-slate-600 hover:bg-slate-100'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                      <PageBtn onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+                        <ChevronRight size={14} />
+                      </PageBtn>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </main>
 
-      {/* Schedule Interview Modal */}
-      <ScheduleInterviewModal
-        isOpen={showScheduleModal}
-        onClose={() => setShowScheduleModal(false)}
-      />
+      <ScheduleInterviewModal isOpen={showScheduleModal} onClose={() => setShowScheduleModal(false)} />
     </div>
   );
 }
 
+// ─── Interview Row ────────────────────────────────────────────────────────────
 
-interface TabButtonProps {
+function InterviewRow({
+  interview,
+  onStatusChange,
+}: {
+  interview: RecruiterInterviewItem;
+  onStatusChange: (id: string, status: InterviewStatus) => void;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { date, time } = formatScheduledAt(interview.scheduledAt);
+  const gradient = candidateGradient(interview.candidateId);
+  const statusCfg = getStatusConfig(interview.interviewStatus);
+  const transitions = STATUS_TRANSITIONS[interview.interviewStatus ?? ''] ?? [];
+  const todayFlag = isToday(interview.scheduledAt);
+
+  useEffect(() => {
+    function handleOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    }
+    if (menuOpen) document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [menuOpen]);
+
+  const name = interview.candidateName || interview.candidateId;
+  const initials = toInitials(name);
+  const jobTitle = interview.jobTitle || interview.jobId;
+
+  return (
+    <tr className="hover:bg-blue-50/20 transition-colors group">
+      {/* Date & Time */}
+      <td className="px-5 py-3.5">
+        <div className="flex items-start gap-2">
+          {todayFlag && (
+            <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0 ring-2 ring-blue-100" />
+          )}
+          <div>
+            <div className="text-sm font-semibold text-slate-800">{date}</div>
+            <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+              <Clock size={11} />
+              {time}
+              {interview.durationInMinutes && (
+                <span className="text-slate-300">· {interview.durationInMinutes}m</span>
+              )}
+            </div>
+            {todayFlag && <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wide">Today</span>}
+          </div>
+        </div>
+      </td>
+
+      {/* Candidate */}
+      <td className="px-5 py-3.5">
+        <div className="flex items-center gap-3">
+          {interview.candidateProfileImage ? (
+            <img
+              src={interview.candidateProfileImage}
+              alt={name}
+              className="w-9 h-9 rounded-lg object-cover shadow-sm flex-shrink-0"
+            />
+          ) : (
+            <div className={`w-9 h-9 bg-gradient-to-br ${gradient} rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0`}>
+              {initials}
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-slate-800 truncate">{name}</div>
+            <div className="text-xs text-slate-400 flex items-center gap-1 truncate">
+              <Mail size={10} />
+              {interview.candidateEmail || '—'}
+            </div>
+          </div>
+        </div>
+      </td>
+
+      {/* Job Title */}
+      <td className="px-5 py-3.5">
+        <div className="text-sm font-medium text-slate-700 truncate max-w-[180px]">{jobTitle}</div>
+        {interview.title && (
+          <div className="text-xs text-slate-400 truncate max-w-[180px] mt-0.5">{interview.title}</div>
+        )}
+      </td>
+
+      {/* Round */}
+      <td className="px-5 py-3.5">
+        {interview.round != null ? (
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+            {interview.round}
+          </span>
+        ) : (
+          <span className="text-slate-300 text-sm">—</span>
+        )}
+      </td>
+
+      {/* Mode */}
+      <td className="px-5 py-3.5">
+        {interview.meetingLink ? (
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+            <Video size={11} /> Online
+          </span>
+        ) : interview.location ? (
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded-md">
+            <MapPin size={11} /> {interview.location}
+          </span>
+        ) : (
+          <span className="text-slate-300 text-xs">—</span>
+        )}
+      </td>
+
+      {/* Status */}
+      <td className="px-5 py-3.5">
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusCfg.pill}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+          {statusCfg.label}
+        </span>
+      </td>
+
+      {/* Meeting */}
+      <td className="px-5 py-3.5">
+        {interview.meetingLink && interview.meetingLink !== 'N/A' ? (
+          <a
+            href={interview.meetingLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-colors"
+          >
+            Join <ExternalLink size={10} />
+          </a>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )}
+      </td>
+
+      {/* Actions */}
+      <td className="px-5 py-3.5">
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all"
+          >
+            <MoreVertical size={15} />
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-8 z-50 w-52 bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-200/80 overflow-hidden">
+              {transitions.length > 0 ? (
+                <>
+                  <div className="px-3 py-2 border-b border-slate-100">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Update Status</p>
+                  </div>
+                  {transitions.map((t) => {
+                    const cfg = getStatusConfig(t.status);
+                    return (
+                      <button
+                        key={t.status}
+                        onClick={() => {
+                          if (interview.interviewId) onStatusChange(interview.interviewId, t.status);
+                          setMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
+                      >
+                        <span className={`flex-shrink-0 w-5 h-5 rounded-full ${cfg.dot} bg-opacity-20 flex items-center justify-center text-white`}>
+                          {t.icon}
+                        </span>
+                        <span className="font-medium">{t.label}</span>
+                      </button>
+                    );
+                  })}
+                </>
+              ) : (
+                <div className="px-3 py-3 text-xs text-slate-400 text-center">No actions available</div>
+              )}
+            </div>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+// ─── sub-components ───────────────────────────────────────────────────────────
+
+function TabButton({
+  icon: Icon,
+  label,
+  active,
+  onClick,
+  count,
+}: {
   icon?: React.ComponentType<{ size: number }>;
   label?: string;
   active?: boolean;
   onClick?: () => void;
-}
-
-function TabButton({ icon: Icon, label, active, onClick }: TabButtonProps) {
+  count?: number;
+}) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 px-2.5 py-1 rounded font-medium text-xs transition-colors ${
-        active
-          ? 'bg-white text-slate-900 shadow-sm'
-          : 'text-slate-600 hover:text-slate-900'
+      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md font-medium text-xs transition-colors ${
+        active ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
       }`}
     >
-      {Icon && <Icon size={14} />}
+      {Icon && <Icon size={13} />}
       {label}
+      {count !== undefined && count > 0 && (
+        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-500'}`}>
+          {count}
+        </span>
+      )}
     </button>
   );
 }
 
-interface CompactStatCardProps {
-  label: string;
-  value: string;
-  subtext?: string;
-  chart?: boolean;
-}
+function StatCard({
+  label, value, sub, accent, chart,
+}: {
+  label: string; value: string; sub?: string; accent: 'blue' | 'violet' | 'emerald' | 'amber'; chart?: boolean;
+}) {
+  const accentMap = {
+    blue: { bar: 'bg-blue-500', num: 'text-blue-600' },
+    violet: { bar: 'bg-violet-500', num: 'text-violet-600' },
+    emerald: { bar: 'bg-emerald-500', num: 'text-emerald-600' },
+    amber: { bar: 'bg-amber-500', num: 'text-amber-600' },
+  };
+  const { bar, num } = accentMap[accent];
 
-function CompactStatCard({ label, value, subtext, chart }: CompactStatCardProps) {
   return (
-    <div className="bg-white rounded-lg p-3 border border-slate-200 hover:shadow-md transition-all duration-200">
-      <h3 className="text-xs font-semibold text-slate-600 mb-2 truncate">{label}</h3>
-      <div className="text-2xl font-bold text-slate-900 mb-1">{value}</div>
+    <div className="bg-white rounded-xl p-3.5 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all">
+      <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2 truncate">{label}</p>
+      <div className={`text-2xl font-bold ${num} mb-1`}>{value}</div>
       {chart && (
-        <div className="flex items-end gap-0.5 h-8">
-          <div className="flex-1 h-2 bg-blue-500 rounded-sm" />
-          <div className="flex-1 h-1.5 bg-blue-500 rounded-sm" />
-          <div className="flex-1 h-3 bg-blue-500 rounded-sm" />
-          <div className="flex-1 h-1.5 bg-blue-500 rounded-sm" />
-          <div className="flex-1 h-2.5 bg-blue-500 rounded-sm" />
+        <div className="flex items-end gap-0.5 h-6 mb-1">
+          {[2, 1.5, 3, 1.5, 2.5, 2, 3.5].map((h, i) => (
+            <div key={i} className={`flex-1 ${bar} rounded-sm opacity-70`} style={{ height: `${h * 6}px` }} />
+          ))}
         </div>
       )}
-      {subtext && <p className="text-xs text-slate-500 mt-1.5 truncate">{subtext}</p>}
+      {sub && <p className="text-[11px] text-slate-400 truncate">{sub}</p>}
     </div>
+  );
+}
+
+function PageBtn({ onClick, disabled, children }: { onClick: () => void; disabled: boolean; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="w-7 h-7 rounded-md flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+    >
+      {children}
+    </button>
   );
 }

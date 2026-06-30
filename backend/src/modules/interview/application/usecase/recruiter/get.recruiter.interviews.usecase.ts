@@ -1,0 +1,78 @@
+import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { ApplicationStatus } from "../../../../job-application/domain/entity/job-application.entity";
+import { JobApplicationRepository } from "../../../../job-application/domain/repository/job-application.repository";
+import { InterviewRepository } from "../../../domain/repository/interview.repository";
+import {
+  GetRecruiterInterviewsRequestDTO,
+  GetRecruiterInterviewsResponseDTO,
+} from "../../dto/getRecruiter.interviews.dto";
+
+export class GetRecruiterInterviewsUseCase implements IUseCase<
+  GetRecruiterInterviewsRequestDTO,
+  GetRecruiterInterviewsResponseDTO[]
+> {
+  constructor(
+    private readonly interviewRepo: InterviewRepository,
+    private readonly applicationRepo: JobApplicationRepository,
+  ) {}
+
+  async execute(
+    input: GetRecruiterInterviewsRequestDTO,
+  ): Promise<GetRecruiterInterviewsResponseDTO[]> {
+    const interviews = await this.interviewRepo.findByRecruiter(
+      input.recruiterId,
+      input.page,
+      input.limit,
+    );
+
+    const applications =
+      await this.applicationRepo.findRecruiterInterviewApplications(
+        input.recruiterId,
+        [ApplicationStatus.SHORTLISTED, ApplicationStatus.INTERVIEW_SCHEDULED],
+      );
+
+    const interviewMap = new Map(
+      interviews.map((interview) => [interview.applicationId, interview]),
+    );
+
+    return applications.map((application) => {
+      const interview = interviewMap.get(application.applicationId);
+
+      if (!interview) {
+        return {
+          applicationId: application.applicationId,
+          jobId: application.jobId,
+          jobTitle: application.jobTitle,
+          candidateId: application.candidateId,
+          candidateName: application.candidateName,
+          candidateEmail: application.candidateEmail,
+          candidateProfileImage: application.candidateProfileImage,
+          recruiterId: application.recruiterId,
+          applicationStatus: application.status,
+        };
+      }
+
+      const result = interview.toObject();
+      return {
+        interviewId: result.id,
+        applicationId: application.applicationId,
+        jobId: application.jobId,
+        jobTitle: application.jobTitle,
+        candidateId: application.candidateId,
+        candidateName: application.candidateName,
+        candidateEmail: application.candidateEmail,
+        candidateProfileImage: application.candidateProfileImage,
+        recruiterId: application.recruiterId,
+        roomId: result.roomId,
+        applicationStatus: application.status,
+        interviewStatus: result.status,
+        title: result.title,
+        round: result.round,
+        scheduledAt: result.scheduledAt,
+        durationInMinutes: result.durationInMinutes,
+        location: result.location,
+        meetingLink: result.meetingLink,
+      };
+    });
+  }
+}

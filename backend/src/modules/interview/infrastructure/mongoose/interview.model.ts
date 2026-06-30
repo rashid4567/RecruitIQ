@@ -19,6 +19,7 @@ export interface InterviewDocument extends Document {
   jobId: mongoose.Types.ObjectId;
   candidateId: mongoose.Types.ObjectId;
   recruiterId: mongoose.Types.ObjectId;
+  roomId?: string;
   round: number;
   title: string;
   description?: string;
@@ -27,7 +28,6 @@ export interface InterviewDocument extends Document {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
-  meetingRoom?: string;
   meetingLink?: string;
   startedAt?: Date;
   endedAt?: Date;
@@ -108,7 +108,7 @@ const InterviewSchema = new Schema<InterviewDocument>(
       type: String,
       trim: true,
     },
-    meetingRoom: {
+    roomId: {
       type: String,
       trim: true,
     },
@@ -116,7 +116,7 @@ const InterviewSchema = new Schema<InterviewDocument>(
       type: String,
       trim: true,
     },
-     
+
     startedAt: Date,
     endedAt: Date,
     recruiterJoinedAt: Date,
@@ -149,7 +149,6 @@ const InterviewSchema = new Schema<InterviewDocument>(
   },
 );
 
-
 InterviewSchema.index({
   candidateId: 1,
   scheduledAt: 1,
@@ -160,12 +159,15 @@ InterviewSchema.index({
   scheduledAt: 1,
 });
 
-InterviewSchema.index({
-  applicationId: 1,
-  round: 1,
-},{
-    unique : true,
-});
+InterviewSchema.index(
+  {
+    applicationId: 1,
+    round: 1,
+  },
+  {
+    unique: true,
+  },
+);
 
 InterviewSchema.index({
   status: 1,

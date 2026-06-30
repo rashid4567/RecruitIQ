@@ -5,7 +5,8 @@ import {
 
 export interface ScheduleInterviewRequestDTO {
   applicationId: string;
-  recruiterId : string;
+  recruiterId: string;
+  roomId?: string;
   round?: number;
   title: string;
   description?: string;
@@ -13,6 +14,7 @@ export interface ScheduleInterviewRequestDTO {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
+  meetingLink?: string;
 }
 
 export interface ScheduleInterviewResponseDTO {
@@ -21,6 +23,7 @@ export interface ScheduleInterviewResponseDTO {
   jobId: string;
   candidateId: string;
   recruiterId: string;
+  roomId?: string;
   round: number;
   title: string;
   description?: string;
@@ -29,7 +32,6 @@ export interface ScheduleInterviewResponseDTO {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
-  meetingRoom?: string;
   meetingLink?: string;
   reminderSent: boolean;
   createdAt?: Date;

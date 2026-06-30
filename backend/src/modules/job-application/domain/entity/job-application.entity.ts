@@ -215,44 +215,23 @@ export class JobApplication {
     this.touch();
   }
 
-  scheduleInterview(interview: InterviewInfo): void {
-    this.ensureMutable();
-    if (
-      this.props.status !== ApplicationStatus.APPLIED &&
-      this.props.status !== ApplicationStatus.SHORTLISTED
-    ) {
-      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_APPLICATION_STATUS);
-    }
-    if (interview.scheduledAt < new Date()) {
-      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_INTERVIEW_DATE);
-    }
-    const location = interview.location?.trim();
-    const meetingLink = interview.meetingLink?.trim();
-    if (!location && !meetingLink) {
-      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_LOCATION_REQUIRED);
-    }
-    this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
-    this.props.interview = {
-      ...interview,
-      location,
-      meetingLink,
-    };
-    this.touch();
+
+
+ selectInterview(): void {
+  this.ensureMutable();
+
+  if (
+    this.props.status !== ApplicationStatus.APPLIED &&
+    this.props.status !== ApplicationStatus.SHORTLISTED
+  ) {
+    throw new DomainError(
+      DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_SCHEDULED_FOR_CURRENT_APPLICATION_STATUS,
+    );
   }
 
-  rescheduleInterview(interview: InterviewInfo): void {
-    if (
-      this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED ||
-      !this.props.interview
-    ) {
-      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_NOT_FOUND);
-    }
-    if (interview.scheduledAt < new Date()) {
-      throw new DomainError(DOMAIN_ERROR_CODES.INVALID_INTERVIEW_DATE);
-    }
-    this.props.interview = interview;
-    this.touch();
-  }
+  this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
+  this.touch();
+}
 
   select(): void {
     if (this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED) {
@@ -283,6 +262,27 @@ export class JobApplication {
       this.props.status !== ApplicationStatus.WITHDRAWN
     );
   }
+
+  
+  markInterviewScheduled():void{
+     if(this.props.status !== ApplicationStatus.APPLIED && this.props.status !== ApplicationStatus.SHORTLISTED){
+      throw new DomainError(ERROR_CODES.INTERVIEW_CANNOT_BE_SCHEDULED_FOR_CURRENT_APPLICATION_STATUS)
+     }
+     this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
+     this.touch();
+  }
+
+  markInterviewCancelled(): void {
+  if (this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED) {
+    throw new DomainError(
+      DOMAIN_ERROR_CODES.INTERVIEW_NOT_SCHEDULED,
+    );
+  }
+
+  this.props.status = ApplicationStatus.SHORTLISTED;
+
+  this.touch();
+}
 
   canRecruiterShortlist(): boolean {
     return this.props.status === ApplicationStatus.APPLIED;

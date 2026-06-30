@@ -1,4 +1,6 @@
+import { boolean } from "zod";
 import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code";
+import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
 import { DomainError } from "../../../../shared/errors/domain.error";
 
 export enum InterviewStatus {
@@ -21,6 +23,7 @@ export interface InterviewProps {
   jobId: string;
   candidateId: string;
   recruiterId: string;
+  roomId?: string;
   round: number;
   title: string;
   description?: string;
@@ -29,7 +32,6 @@ export interface InterviewProps {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
-  meetingRoom?: string;
   meetingLink?: string;
   startedAt?: Date;
   endedAt?: Date;
@@ -157,7 +159,7 @@ export class Interview {
     scheduledAt: Date,
     durationInMinutes: number,
     meetingLink?: string,
-    meetingRoom?: string,
+    roomId?: string,
     location?: string,
   ): void {
     this.ensureMutable();
@@ -165,17 +167,38 @@ export class Interview {
     if (scheduledAt <= new Date()) {
       throw new DomainError(DOMAIN_ERROR_CODES.INVALID_INTERVIEW_DATE);
     }
+
+    if (durationInMinutes < 15) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_DURATION_INVALID);
+    }
+
+    if (this.props.mode === InterviewMode.ONLINE && !meetingLink?.trim()) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_MEETING_LINK_REQUIRED);
+    }
+
+    if (this.props.mode === InterviewMode.OFFLINE && !location?.trim()) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_LOCATION_REQUIRED);
+    }
+
     this.props.scheduledAt = scheduledAt;
     this.props.durationInMinutes = durationInMinutes;
-    this.props.meetingLink = meetingLink;
-    this.props.meetingRoom = meetingRoom;
-    this.props.location = location;
+    this.props.meetingLink = meetingLink?.trim();
+    this.props.roomId = roomId?.trim();
+    this.props.location = location?.trim();
     this.props.status = InterviewStatus.SCHEDULED;
+
     this.touch();
   }
 
-  reschedule(scheduledAt: Date, durationInMinutes: number): void {
+  reschedule(
+    scheduledAt: Date,
+    durationInMinutes: number,
+    meetingLink?: string,
+    roomId?: string,
+    location?: string,
+  ): void {
     this.ensureMutable();
+
     if (
       this.props.status !== InterviewStatus.SCHEDULED &&
       this.props.status !== InterviewStatus.RESCHEDULED
@@ -187,27 +210,46 @@ export class Interview {
       throw new DomainError(DOMAIN_ERROR_CODES.INVALID_INTERVIEW_DATE);
     }
 
-    this.props.scheduledAt = scheduledAt;
-    this.props.durationInMinutes = durationInMinutes;
-    this.props.status = InterviewStatus.RESCHEDULED;
-    this.touch();
-  }
-
-  start(): void {
-    if (
-      this.props.status !== InterviewStatus.SCHEDULED &&
-      this.props.status !== InterviewStatus.RESCHEDULED
-    ) {
-      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_STARTED);
+    if (durationInMinutes < 15) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_DURATION_INVALID);
     }
 
-    this.props.status = InterviewStatus.ONGOING;
-    this.props.startedAt = new Date();
+    if (this.props.mode === InterviewMode.ONLINE && !meetingLink?.trim()) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_MEETING_LINK_REQUIRED);
+    }
+
+    if (this.props.mode === InterviewMode.OFFLINE && !location?.trim()) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_LOCATION_REQUIRED);
+    }
+
+    this.props.scheduledAt = scheduledAt;
+    this.props.durationInMinutes = durationInMinutes;
+    this.props.meetingLink = meetingLink?.trim();
+    this.props.roomId = roomId?.trim();
+    this.props.location = location?.trim();
+    this.props.status = InterviewStatus.RESCHEDULED;
+
     this.touch();
   }
 
-  complete(notes?: string): void {
-    if (this.props.status !== InterviewStatus.ONGOING) {
+start(): void {
+  if (
+    this.props.status !== InterviewStatus.SCHEDULED &&
+    this.props.status !== InterviewStatus.RESCHEDULED
+  ) {
+    throw new DomainError(
+      DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_STARTED,
+    );
+  }
+
+  this.props.status = InterviewStatus.ONGOING;
+  this.props.startedAt = new Date();
+  this.touch();
+}
+
+  complete(notes ?: string):void{
+
+  if (this.props.status !== InterviewStatus.ONGOING) {
       throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_COMPLETED);
     }
     if (this.props.endedAt) {
@@ -248,18 +290,21 @@ export class Interview {
       throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_JOINED);
     }
 
-    if (this.props.candidateJoinedAt) {
-      throw new DomainError(
-        DOMAIN_ERROR_CODES.INTERVIEW_ALREADY_JOINED_BY_CANDIDATE,
-      );
+    if (!this.props.candidateJoinedAt) {
+      this.props.candidateJoinedAt = new Date();
     }
-
-    this.props.candidateJoinedAt = new Date();
 
     this.touch();
   }
   markRecruiterJoined(): void {
-    this.props.recruiterJoinedAt = new Date();
+    if (!this.canJoin()) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_JOINED);
+    }
+
+    if (!this.props.recruiterJoinedAt) {
+      this.props.recruiterJoinedAt = new Date();
+    }
+    this.touch();
   }
 
   markReminderSent(): void {
@@ -283,7 +328,7 @@ export class Interview {
     this.touch();
   }
 
-  canStart(): boolean {
+   canStart(): boolean {
     return (
       this.props.status === InterviewStatus.SCHEDULED ||
       this.props.status === InterviewStatus.RESCHEDULED
@@ -303,12 +348,8 @@ export class Interview {
   }
 
   canJoin(): boolean {
-    return (
-      this.props.status === InterviewStatus.SCHEDULED ||
-      this.props.status === InterviewStatus.RESCHEDULED ||
-      this.props.status === InterviewStatus.ONGOING
-    );
-  }
+  return this.props.status === InterviewStatus.ONGOING;
+}
 
   canReschedule(): boolean {
     return (

@@ -27,7 +27,10 @@ export function ActionBtn({
   disabled: boolean;
   active: boolean;
   variant: "blue" | "amber" | "emerald" | "red";
-}) {
+}) 
+
+
+{
   const V = {
     blue: {
       btn: "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-100",
@@ -80,7 +83,6 @@ export function RecruiterActionsPanel({
   statusLoading,
   isClosed,
   isRejected,
-
   onAction,
 }: {
   status: string | undefined;
@@ -89,7 +91,9 @@ export function RecruiterActionsPanel({
   isRejected: boolean;
   isWithdrawn: boolean;
   onAction: (action: ModalAction) => void;
-}) {
+})
+
+{
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100">

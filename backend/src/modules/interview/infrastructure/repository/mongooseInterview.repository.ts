@@ -6,7 +6,6 @@ import {
   InterviewModel,
   InterviewStatus,
 } from "../mongoose/interview.model";
-
 export class MongooseInterviewRepository implements InterviewRepository {
   async create(interview: Interview): Promise<Interview> {
     const created = await InterviewModel.create(this.toPersistence(interview));
@@ -32,7 +31,7 @@ export class MongooseInterviewRepository implements InterviewRepository {
           scheduledAt: data.scheduledAt,
           durationInMinutes: data.durationInMinutes,
           location: data.location,
-          meetingRoom: data.meetingRoom,
+          roomId: data.roomId,
           meetingLink: data.meetingLink,
           startedAt: data.startedAt,
           endedAt: data.endedAt,
@@ -212,7 +211,7 @@ export class MongooseInterviewRepository implements InterviewRepository {
       scheduledAt: doc.scheduledAt,
       durationInMinutes: doc.durationInMinutes,
       location: doc.location,
-      meetingRoom: doc.meetingRoom,
+      roomId: doc.roomId,
       meetingLink: doc.meetingLink,
       startedAt: doc.startedAt,
       endedAt: doc.endedAt,
@@ -247,7 +246,7 @@ export class MongooseInterviewRepository implements InterviewRepository {
       scheduledAt: data.scheduledAt,
       durationInMinutes: data.durationInMinutes,
       location: data.location,
-      meetingRoom: data.meetingRoom,
+      roomId: data.roomId,
       meetingLink: data.meetingLink,
       startedAt: data.startedAt,
       endedAt: data.endedAt,

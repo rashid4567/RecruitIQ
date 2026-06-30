@@ -54,6 +54,17 @@ export interface CandidateApplicationListItem {
   status: ApplicationStatus;
   appliedAt: Date;
 }
+export interface RecruiterInterviewApplication {
+  applicationId: string;
+  jobId: string;
+  jobTitle: string;
+  candidateId: string;
+  candidateName: string;
+  candidateEmail: string;
+  candidateProfileImage?: string;
+  recruiterId: string;
+  status: ApplicationStatus;
+}
 
 export interface JobApplicationRepository extends BaseRepository<JobApplication> {
   create(application: JobApplication): Promise<JobApplication>;
@@ -76,6 +87,14 @@ export interface JobApplicationRepository extends BaseRepository<JobApplication>
   ): Promise<CandidateApplicationListItem[]>;
   findByResumeId(resumeId: string): Promise<JobApplication[]>;
   countTodayApplicationsByCandidate(candidateId: string): Promise<number>;
+  findByRecruiterAndStatuses(
+    recruiterId: string,
+    statuses: ApplicationStatus[],
+  ): Promise<JobApplication[]>;
+    findRecruiterInterviewApplications(
+  recruiterId: string,
+  statuses: ApplicationStatus[],
+): Promise<RecruiterInterviewApplication[]>;
   findByAnalysisStatus(
     recruiterId: string,
     status: ApplicationAnalysisStatus,

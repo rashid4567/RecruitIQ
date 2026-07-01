@@ -60,8 +60,8 @@ export default function PreMeetingLobby() {
 
               {/* Camera Preview */}
               <div className="bg-gray-200 rounded-xl mb-5 h-48 flex items-center justify-center relative overflow-hidden border border-gray-300">
-                {/* Background gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-300 via-gray-250 to-gray-300"></div>
+                {/* Background linear */}
+                <div className="absolute inset-0 bg-linear-to-br from-gray-300 via-gray-250 to-gray-300"></div>
                 
                 {/* Camera icon at top */}
                 <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
@@ -132,7 +132,7 @@ export default function PreMeetingLobby() {
                   onChange={(e) => setMicLevel(parseInt(e.target.value))}
                   className="w-full h-2.5 bg-gray-300 rounded-full appearance-none cursor-pointer accent-blue-500 hover:accent-blue-600"
                   style={{
-                    background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${micLevel}%, #d1d5db ${micLevel}%, #d1d5db 100%)`
+                    background: `linear-linear(to right, #3b82f6 0%, #3b82f6 ${micLevel}%, #d1d5db ${micLevel}%, #d1d5db 100%)`
                   }}
                 />
               </div>
@@ -152,7 +152,7 @@ export default function PreMeetingLobby() {
           <div className="grid grid-cols-2 gap-6 mb-10">
             {/* Connection Quality */}
             <div className="flex items-start gap-4 bg-blue-50 rounded-xl p-4 border border-blue-100">
-              <Wifi className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+              <Wifi className="w-6 h-6 text-blue-600 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h4 className="font-bold text-gray-950 text-sm">Connection Quality</h4>
                 <p className="text-sm text-gray-600 mt-1 font-medium">Good connection. You&apos;re all set!</p>
@@ -161,7 +161,7 @@ export default function PreMeetingLobby() {
 
             {/* Browser Compatibility */}
             <div className="flex items-start gap-4 bg-green-50 rounded-xl p-4 border border-green-100">
-              <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle className="w-6 h-6 text-green-600 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h4 className="font-bold text-gray-950 text-sm">Browser Compatibility</h4>
                 <p className="text-sm text-gray-600 mt-1 font-medium">Your browser is fully compatible.</p>

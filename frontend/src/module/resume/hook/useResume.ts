@@ -2,11 +2,10 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 import {
-  
   getResumeDownloadUrl as getResumeDownloadUrlApi,
   uploadResume as uploadResumeApi,
   getMyResume,
-} from "../api/resume.api"
+} from "../api/resume.api";
 
 import { type Resume, ResumeParseStatus } from "../types/resume.types";
 

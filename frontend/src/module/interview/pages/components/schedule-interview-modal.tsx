@@ -1,7 +1,4 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { z } from 'zod';
+import React, { useEffect, useMemo, useState } from "react";
 import {
   X,
   Copy,
@@ -21,196 +18,299 @@ import {
   Hash,
   FileText,
   CalendarClock,
-} from 'lucide-react';
-import { useScheduleInterview } from '../../hooks/recruiter/useScheduleInterview';
-import { InterviewMode } from '../../types/interview.types';
-
-// ─── Zod schema ────────────────────────────────────────────────────────────────
-
-export const scheduleInterviewSchema = z
-  .object({
-    applicationId: z.string().min(1, 'Application ID is required'),
-    round: z
-      .coerce.number({ error: 'Round must be a number' })
-      .int('Round must be a whole number')
-      .min(1, 'Round must be at least 1')
-      .max(10, 'Round cannot exceed 10'),
-    title: z
-      .string()
-      .min(3, 'Title must be at least 3 characters')
-      .max(120, 'Title must be under 120 characters'),
-    description: z
-      .string()
-      .max(1000, 'Description must be under 1000 characters')
-      .optional(),
-    mode: z.enum(['ONLINE', 'OFFLINE'], {
-      error: 'Please select an interview mode',
-    }),
-    date: z.string().min(1, 'Date is required'),
-    hour: z.string().min(1, 'Hour is required'),
-    minute: z.string().min(1, 'Minute is required'),
-    durationInMinutes: z
-      .coerce.number({ error: 'Duration is required' })
-      .min(15, 'Minimum duration is 15 minutes')
-      .max(480, 'Maximum duration is 8 hours'),
-    location: z.string().max(200, 'Location must be under 200 characters').optional(),
-    meetingRoom: z.string().max(100, 'Meeting room must be under 100 characters').optional(),
-    // 'later' replaces the old 'auto' — backend generates the link on its own schedule
-    meetingLinkOption: z.enum(['later', 'paste']),
-    meetingLink: z.string().optional(),
-    sendEmail: z.boolean(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.mode === 'ONLINE' && data.meetingLinkOption === 'paste') {
-      if (!data.meetingLink || data.meetingLink.trim() === '') {
-        ctx.addIssue({ path: ['meetingLink'], code: z.ZodIssueCode.custom, message: 'Meeting link is required' });
-      } else {
-        try { new URL(data.meetingLink); } catch {
-          ctx.addIssue({ path: ['meetingLink'], code: z.ZodIssueCode.custom, message: 'Please enter a valid URL' });
-        }
-      }
-    }
-    if (data.mode === 'OFFLINE' && (!data.location || data.location.trim() === '')) {
-      ctx.addIssue({ path: ['location'], code: z.ZodIssueCode.custom, message: 'Location is required for in-person interviews' });
-    }
-    if (data.date && data.hour && data.minute) {
-      const selected = new Date(`${data.date}T${data.hour.padStart(2, '0')}:${data.minute.padStart(2, '0')}:00`);
-      const cutoff = new Date();
-      cutoff.setMinutes(cutoff.getMinutes() + 5); // 5-minute buffer
-      if (!isNaN(selected.getTime()) && selected <= cutoff) {
-        ctx.addIssue({ path: ['date'], code: z.ZodIssueCode.custom, message: 'Interview must be at least 5 minutes from now' });
-      }
-    }
-  });
-
-type FormValues = z.infer<typeof scheduleInterviewSchema>;
-type FieldErrors = Partial<Record<keyof FormValues, string>>;
-
-// ─── constants ─────────────────────────────────────────────────────────────────
+  RefreshCw,
+} from "lucide-react";
+import { useScheduleInterview } from "../../hooks/recruiter/useScheduleInterview";
+import { useRescheduleInterview } from "../../hooks/recruiter/useRescheduleInterview";
+import { useRecruiterInterviewDetails } from "../../hooks/recruiter/useRecruiterInterviewDetails";
+import type { InterviewMode } from "../../types/interview.types";
+import type {
+  RecruiterInterviewItem,
+  GetRecruiterInterviewDetailsResponse,
+} from "../../types/recruiterInterview.types";
+import {
+  scheduleInterviewSchema,
+  rescheduleInterviewSchema,
+  scheduleStepFields,
+  rescheduleStepFields,
+  toScheduleInterviewRequest,
+  toRescheduleInterviewRequest,
+  splitIsoToLocalParts,
+  type ScheduleFormValues,
+  type RescheduleFormValues,
+} from "../../validatoion/schedule.interview.validation";
 
 const DURATIONS = [
-  { label: '15 min', value: 15 },
-  { label: '30 min', value: 30 },
-  { label: '45 min', value: 45 },
-  { label: '1 hour', value: 60 },
-  { label: '75 min', value: 75 },
-  { label: '1.5 hours', value: 90 },
-  { label: '2 hours', value: 120 },
-  { label: '150 min', value: 150 },
-  { label: '3 hours', value: 180 },
+  { label: "15 min", value: 15 },
+  { label: "30 min", value: 30 },
+  { label: "45 min", value: 45 },
+  { label: "1 hour", value: 60 },
+  { label: "75 min", value: 75 },
+  { label: "1.5 hours", value: 90 },
+  { label: "2 hours", value: 120 },
+  { label: "150 min", value: 150 },
+  { label: "3 hours", value: 180 },
 ];
 
-const STEPS = ['Candidate', 'Details', 'Schedule', 'Confirm'] as const;
-type Step = 0 | 1 | 2 | 3;
+const SCHEDULE_STEPS = ["Candidate", "Details", "Schedule", "Confirm"] as const;
+const RESCHEDULE_STEPS = ["Reschedule", "Confirm"] as const;
 
-// ─── props ─────────────────────────────────────────────────────────────────────
-
-interface ScheduleInterviewModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  applicationId?: string;
-  candidateName?: string;
-  candidateEmail?: string;
-  jobTitle?: string;
-  applicationStatus?: string;
-  onSuccess?: () => void;
+export interface ExistingInterviewData {
+  title: string;
+  round: number;
+  mode: InterviewMode;
+  scheduledAt: string;
+  durationInMinutes: number;
+  location?: string;
+  roomId?: string;
+  meetingLink?: string;
 }
 
-// ─── helpers ───────────────────────────────────────────────────────────────────
+export interface ScheduleInterviewModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+  interview?: RecruiterInterviewItem;
+  applicationId?: string;
+}
 
-function buildInitialForm(applicationId: string, jobTitle: string): FormValues {
+function inferMode(interview: RecruiterInterviewItem): InterviewMode {
+  if (interview.meetingLink) return "ONLINE";
+  if (interview.location) return "OFFLINE";
+  return "ONLINE";
+}
+
+function toExistingInterviewData(
+  interview: RecruiterInterviewItem,
+): ExistingInterviewData {
+  return {
+    title:
+      interview.title ??
+      (interview.title
+        ? `${interview.title} — Round ${interview.round ?? 1}`
+        : "Interview"),
+    round: interview.round ?? 1,
+    mode: inferMode(interview),
+    scheduledAt: interview.scheduledAt as string,
+    durationInMinutes: interview.durationInMinutes ?? 60,
+    location: interview.location,
+    roomId: interview.roomId,
+    meetingLink: interview.meetingLink,
+  };
+}
+
+function toExistingInterviewDataFromDetails(
+  details: GetRecruiterInterviewDetailsResponse,
+): ExistingInterviewData {
+  return {
+    title: details.title,
+    round: details.round,
+    mode: details.mode,
+    scheduledAt: details.scheduledAt,
+    durationInMinutes: details.durationInMinutes,
+    location: details.location,
+    roomId: details.roomId,
+    meetingLink: details.meetingLink,
+  };
+}
+
+function buildInitialScheduleForm(
+  applicationId: string,
+  jobTitle: string,
+): ScheduleFormValues {
   return {
     applicationId,
     round: 1,
-    title: jobTitle ? `${jobTitle} — Round 1` : '',
-    description: '',
-    mode: 'ONLINE',
-    date: '',
-    hour: '10',
-    minute: '00',
+    title: jobTitle ? `${jobTitle} — Round 1` : "",
+    description: "",
+    mode: "ONLINE",
+    date: "",
+    hour: "10",
+    minute: "00",
     durationInMinutes: 60,
-    location: '',
-    meetingRoom: '',
-    meetingLinkOption: 'later',
-    meetingLink: '',
+    location: "",
+    roomId: "",
+    meetingLinkOption: "later",
+    meetingLink: "",
     sendEmail: true,
   };
 }
+
+function buildInitialRescheduleForm(
+  existing: ExistingInterviewData,
+): RescheduleFormValues {
+  const { date, hour, minute } = splitIsoToLocalParts(existing.scheduledAt);
+  return {
+    mode: existing.mode,
+    date,
+    hour,
+    minute,
+    durationInMinutes: existing.durationInMinutes,
+    location: existing.location ?? "",
+    roomId: existing.roomId ?? "",
+    meetingLinkOption: existing.meetingLink ? "paste" : "later",
+    meetingLink: existing.meetingLink ?? "",
+  };
+}
+
+const FALLBACK_EXISTING: ExistingInterviewData = {
+  title: "",
+  round: 1,
+  mode: "ONLINE",
+  scheduledAt: new Date().toISOString(),
+  durationInMinutes: 60,
+};
 
 // ─── component ─────────────────────────────────────────────────────────────────
 
 export default function ScheduleInterviewModal({
   isOpen,
   onClose,
-  applicationId = '',
-  candidateName = '',
-  candidateEmail = '',
-  jobTitle = '',
-  applicationStatus = '',
   onSuccess,
+  interview,
+  applicationId: applicationIdProp,
 }: ScheduleInterviewModalProps) {
-  const { submit, loading } = useScheduleInterview();
+  const isReschedule = Boolean(
+    interview?.interviewId && interview?.scheduledAt,
+  );
 
-  const [step, setStep] = useState<Step>(0);
-  const [form, setForm] = useState<FormValues>(() => buildInitialForm(applicationId, jobTitle));
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const candidateName = interview?.candidateName ?? "";
+  const candidateEmail = interview?.candidateEmail ?? "";
+  const jobTitle = interview?.jobTitle ?? "";
+  const applicationStatus = interview?.applicationStatus;
+  const resolvedApplicationId =
+    interview?.applicationId ?? applicationIdProp ?? "";
+  const missingApplicationContext = !isReschedule && !resolvedApplicationId;
+  const { submit: submitSchedule, loading: scheduleLoading } =
+    useScheduleInterview();
+  const { submit: submitReschedule, loading: rescheduleLoading } =
+    useRescheduleInterview();
+  const {
+    getDetails,
+    loading: detailsLoading,
+    error: detailsError,
+  } = useRecruiterInterviewDetails();
+  const loading = isReschedule ? rescheduleLoading : scheduleLoading;
+  const STEPS = isReschedule ? RESCHEDULE_STEPS : SCHEDULE_STEPS;
+  const lastStep = STEPS.length - 1;
+  const [step, setStep] = useState(0);
+  const [scheduleForm, setScheduleForm] = useState<ScheduleFormValues>(() =>
+    buildInitialScheduleForm(resolvedApplicationId, jobTitle),
+  );
+  const [rescheduleForm, setRescheduleForm] = useState<RescheduleFormValues>(
+    () => buildInitialRescheduleForm(FALLBACK_EXISTING),
+  );
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [copied, setCopied] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-
-  // Reset the entire form whenever the modal opens (or a different candidate is selected).
-  // This is the single authoritative reset — handleClose no longer needs to duplicate it.
+  const [fetchedDetails, setFetchedDetails] =
+    useState<GetRecruiterInterviewDetailsResponse | null>(null);
+  const existingInterview = useMemo<ExistingInterviewData | null>(() => {
+    if (!isReschedule) return null;
+    if (fetchedDetails)
+      return toExistingInterviewDataFromDetails(fetchedDetails);
+    if (interview) return toExistingInterviewData(interview);
+    return null;
+  }, [isReschedule, fetchedDetails, interview]);
   useEffect(() => {
-    if (isOpen) {
-      setForm(buildInitialForm(applicationId, jobTitle));
-      setErrors({});
-      setStep(0);
-      setSubmitSuccess(false);
+    if (!isOpen) return;
+    setErrors({});
+    setStep(0);
+    setSubmitSuccess(false);
+    setFetchedDetails(null);
+
+    if (!isReschedule) {
+      setScheduleForm(
+        buildInitialScheduleForm(resolvedApplicationId, jobTitle),
+      );
+      return;
     }
-  }, [isOpen, applicationId, jobTitle]);
-
-  // Fix 3: keep title in sync when the recruiter changes the round
+    if (interview) {
+      setRescheduleForm(
+        buildInitialRescheduleForm(toExistingInterviewData(interview)),
+      );
+    }
+  }, [isOpen, isReschedule, interview?.interviewId, resolvedApplicationId]);
   useEffect(() => {
-    if (!jobTitle) return;
-    setForm((prev) => ({
+    if (!isOpen || !isReschedule || !interview?.interviewId) return;
+    let cancelled = false;
+
+    getDetails(interview.interviewId).then((result) => {
+      if (cancelled || !result) return;
+      setFetchedDetails(result);
+      setRescheduleForm(
+        buildInitialRescheduleForm(toExistingInterviewDataFromDetails(result)),
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, isReschedule, interview?.interviewId]);
+
+  useEffect(() => {
+    if (isReschedule || !jobTitle) return;
+    setScheduleForm((prev) => ({
       ...prev,
       title: `${jobTitle} — Round ${prev.round}`,
     }));
-  }, [jobTitle, form.round]);
+  }, [jobTitle, scheduleForm.round]);
 
   const handleClose = () => onClose();
 
-  if (!isOpen) return null;
-
-  // ── form helpers ──
-
-  function set<K extends keyof FormValues>(key: K, value: FormValues[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  function setScheduleField<K extends keyof ScheduleFormValues>(
+    key: K,
+    value: ScheduleFormValues[K],
+  ) {
+    setScheduleForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
   }
 
-  function handleInput(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    const { name, value } = e.target;
-    set(name as keyof FormValues, value as never);
+  function setRescheduleField<K extends keyof RescheduleFormValues>(
+    key: K,
+    value: RescheduleFormValues[K],
+  ) {
+    setRescheduleForm((prev) => ({ ...prev, [key]: value }));
+    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
   }
 
-  // ── per-step validation (single source of truth — delegates to Zod) ──
+  function handleScheduleInput(
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) {
+    const { name, value } = e.target;
+    setScheduleField(name as keyof ScheduleFormValues, value as never);
+  }
 
-  function validateStep(s: Step): FieldErrors {
-    // Run the full schema and filter to the fields that belong to this step
-    const parsed = scheduleInterviewSchema.safeParse(form);
+  function handleRescheduleInput(
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) {
+    const { name, value } = e.target;
+    setRescheduleField(name as keyof RescheduleFormValues, value as never);
+  }
+
+  function validateStep(s: number): Record<string, string | undefined> {
+    if (isReschedule) {
+      const parsed = rescheduleInterviewSchema.safeParse(rescheduleForm);
+      if (parsed.success) return {};
+      const relevant = new Set<string>(rescheduleStepFields[s] ?? []);
+      const errs: Record<string, string | undefined> = {};
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as string;
+        if (relevant.has(key) && !errs[key]) errs[key] = issue.message;
+      }
+      return errs;
+    }
+
+    const parsed = scheduleInterviewSchema.safeParse(scheduleForm);
     if (parsed.success) return {};
-
-    const stepFields: Record<Step, Array<keyof FormValues>> = {
-      0: ['applicationId'],
-      1: ['title', 'mode', 'meetingLink', 'location'],
-      2: ['date', 'hour', 'minute', 'durationInMinutes'],
-      3: [], // final check runs handleSubmit's own safeParse
-    };
-
-    const relevant = new Set<string>(stepFields[s]);
-    const errs: FieldErrors = {};
+    const relevant = new Set<string>(scheduleStepFields[s] ?? []);
+    const errs: Record<string, string | undefined> = {};
     for (const issue of parsed.error.issues) {
-      const key = issue.path[0] as keyof FormValues;
+      const key = issue.path[0] as string;
       if (relevant.has(key) && !errs[key]) errs[key] = issue.message;
     }
     return errs;
@@ -218,50 +318,61 @@ export default function ScheduleInterviewModal({
 
   function nextStep() {
     const errs = validateStep(step);
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
     setErrors({});
-    setStep((s) => Math.min(s + 1, 3) as Step);
+    setStep((s) => Math.min(s + 1, lastStep));
   }
 
   function prevStep() {
     setErrors({});
-    setStep((s) => Math.max(s - 1, 0) as Step);
+    setStep((s) => Math.max(s - 1, 0));
   }
 
   async function handleSubmit() {
-    const parsed = scheduleInterviewSchema.safeParse(form);
+    if (isReschedule) {
+      const parsed = rescheduleInterviewSchema.safeParse(rescheduleForm);
+      if (!parsed.success) {
+        const fieldErrors: Record<string, string | undefined> = {};
+        for (const issue of parsed.error.issues) {
+          const key = issue.path[0] as string;
+          if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+        }
+        setErrors(fieldErrors);
+        return;
+      }
+
+      const payload = toRescheduleInterviewRequest(parsed.data);
+      const result = await submitReschedule(
+        interview!.interviewId as string,
+        payload,
+      );
+      if (result) {
+        setSubmitSuccess(true);
+        setTimeout(() => {
+          setSubmitSuccess(false);
+          onSuccess?.();
+          handleClose();
+        }, 2000);
+      }
+      return;
+    }
+
+    const parsed = scheduleInterviewSchema.safeParse(scheduleForm);
     if (!parsed.success) {
-      const fieldErrors: FieldErrors = {};
+      const fieldErrors: Record<string, string | undefined> = {};
       for (const issue of parsed.error.issues) {
-        const key = issue.path[0] as keyof FormValues;
+        const key = issue.path[0] as string;
         if (!fieldErrors[key]) fieldErrors[key] = issue.message;
       }
       setErrors(fieldErrors);
       return;
     }
 
-    const { date, hour, minute } = form;
-    const scheduledAt = new Date(
-      `${date}T${hour.padStart(2, '0')}:${minute.padStart(2, '0')}:00`,
-    ).toISOString();
-
-    const result = await submit({
-      applicationId: form.applicationId,
-      round: form.round,
-      title: form.title,
-      description: form.description || undefined,
-      mode: form.mode as InterviewMode,
-      scheduledAt,
-      durationInMinutes: form.durationInMinutes,
-      location: form.mode === 'OFFLINE' ? form.location : undefined,
-      meetingRoom: form.meetingRoom || undefined,
-      meetingLink:
-        form.mode === 'ONLINE' && form.meetingLinkOption === 'paste'
-          ? form.meetingLink
-          : undefined,
-      sendEmail: form.sendEmail,
-    });
-
+    const payload = toScheduleInterviewRequest(parsed.data);
+    const result = await submitSchedule(payload);
     if (result) {
       setSubmitSuccess(true);
       setTimeout(() => {
@@ -273,45 +384,80 @@ export default function ScheduleInterviewModal({
   }
 
   function handleCopyLink() {
-    if (!form.meetingLink) return;
-    navigator.clipboard.writeText(form.meetingLink);
+    const link = isReschedule
+      ? rescheduleForm.meetingLink
+      : scheduleForm.meetingLink;
+    if (!link) return;
+    navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
 
-  // ── derived ──
+  const activeMode: InterviewMode = isReschedule
+    ? rescheduleForm.mode
+    : scheduleForm.mode;
+  const activeDate = isReschedule ? rescheduleForm.date : scheduleForm.date;
+  const activeHour = isReschedule ? rescheduleForm.hour : scheduleForm.hour;
+  const activeMinute = isReschedule
+    ? rescheduleForm.minute
+    : scheduleForm.minute;
+  const activeDuration = isReschedule
+    ? rescheduleForm.durationInMinutes
+    : scheduleForm.durationInMinutes;
+  const activeMeetingLink = isReschedule
+    ? rescheduleForm.meetingLink
+    : scheduleForm.meetingLink;
+  const activeMeetingLinkOption = isReschedule
+    ? rescheduleForm.meetingLinkOption
+    : scheduleForm.meetingLinkOption;
+  const activeLocation = isReschedule
+    ? rescheduleForm.location
+    : scheduleForm.location;
+  const activeMeetingRoom = isReschedule
+    ? rescheduleForm.roomId
+    : scheduleForm.roomId;
 
-  const previewDate = form.date
-    ? new Date(
-        `${form.date}T${form.hour.padStart(2, '0')}:${form.minute.padStart(2, '0')}:00`,
-      ).toLocaleString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : null;
+  const previewDate = useMemo(() => {
+    if (!activeDate) return null;
+    return new Date(
+      `${activeDate}T${activeHour.padStart(2, "0")}:${activeMinute.padStart(2, "0")}:00`,
+    ).toLocaleString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }, [activeDate, activeHour, activeMinute]);
 
   const durationLabel =
-    DURATIONS.find((d) => d.value === form.durationInMinutes)?.label ?? '—';
+    DURATIONS.find((d) => d.value === activeDuration)?.label ?? "—";
+  const hasErrors = Object.values(errors).some(Boolean);
+  const todayStr = new Date().toISOString().split("T")[0];
 
-  const hasErrors = Object.keys(errors).length > 0;
-
-  // ── today as YYYY-MM-DD for the date input's min ──
-  const todayStr = new Date().toISOString().split('T')[0];
+  const displayTitle = isReschedule
+    ? (existingInterview?.title ?? "—")
+    : scheduleForm.title;
+  const displayRound = isReschedule
+    ? (existingInterview?.round ?? "—")
+    : scheduleForm.round;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden max-h-[90vh]">
-
-        {/* ── Header ── */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xs">R</span>
+              {isReschedule ? (
+                <RefreshCw size={13} className="text-white" />
+              ) : (
+                <span className="text-white font-bold text-xs">R</span>
+              )}
             </div>
-            <span className="font-semibold text-slate-900 text-sm">Schedule Interview</span>
+            <span className="font-semibold text-slate-900 text-sm">
+              {isReschedule ? "Reschedule Interview" : "Schedule Interview"}
+            </span>
             {candidateName && (
               <>
                 <span className="text-slate-300">·</span>
@@ -327,8 +473,6 @@ export default function ScheduleInterviewModal({
             <X size={16} />
           </button>
         </div>
-
-        {/* ── Step indicator ── */}
         <div className="px-6 pt-5 pb-0">
           <div className="flex items-center gap-0">
             {STEPS.map((label, i) => {
@@ -337,19 +481,27 @@ export default function ScheduleInterviewModal({
               return (
                 <React.Fragment key={label}>
                   <div className="flex items-center gap-2">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                      isDone ? 'bg-blue-600 text-white' :
-                      isActive ? 'bg-blue-600 text-white ring-4 ring-blue-100' :
-                      'bg-slate-100 text-slate-400'
-                    }`}>
+                    <div
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
+                        isDone
+                          ? "bg-blue-600 text-white"
+                          : isActive
+                            ? "bg-blue-600 text-white ring-4 ring-blue-100"
+                            : "bg-slate-100 text-slate-400"
+                      }`}
+                    >
                       {isDone ? <CheckCircle2 size={13} /> : i + 1}
                     </div>
-                    <span className={`text-xs font-medium ${isActive ? 'text-slate-900' : isDone ? 'text-slate-500' : 'text-slate-400'}`}>
+                    <span
+                      className={`text-xs font-medium ${isActive ? "text-slate-900" : isDone ? "text-slate-500" : "text-slate-400"}`}
+                    >
                       {label}
                     </span>
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div className={`flex-1 h-px mx-3 transition-colors ${i < step ? 'bg-blue-300' : 'bg-slate-200'}`} />
+                    <div
+                      className={`flex-1 h-px mx-3 transition-colors ${i < step ? "bg-blue-300" : "bg-slate-200"}`}
+                    />
                   )}
                 </React.Fragment>
               );
@@ -357,43 +509,68 @@ export default function ScheduleInterviewModal({
           </div>
         </div>
 
-        {/* ── Body ── */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
-
-          {/* ── Step 0: Candidate summary ── */}
-          {step === 0 && (
+          {!isReschedule && step === 0 && (
             <StepPanel
               title="Confirm the candidate"
               subtitle="Review the details below before setting up this interview."
             >
+              {missingApplicationContext && (
+                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start gap-2.5">
+                  <AlertCircle
+                    size={14}
+                    className="text-red-500 shrink-0 mt-0.5"
+                  />
+                  <p className="text-xs text-red-600">
+                    No application selected. Open this dialog from a candidate
+                    row so it has an application to schedule against.
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 {candidateName && (
-                  <InfoBadge icon={<Users size={13} />} label="Candidate" value={candidateName} />
+                  <InfoBadge
+                    icon={<Users size={13} />}
+                    label="Candidate"
+                    value={candidateName}
+                  />
                 )}
                 {candidateEmail && (
-                  <InfoBadge icon={<Mail size={13} />} label="Email" value={candidateEmail} />
+                  <InfoBadge
+                    icon={<Mail size={13} />}
+                    label="Email"
+                    value={candidateEmail}
+                  />
                 )}
                 {jobTitle && (
-                  <InfoBadge icon={<Building2 size={13} />} label="Position" value={jobTitle} />
+                  <InfoBadge
+                    icon={<Building2 size={13} />}
+                    label="Position"
+                    value={jobTitle}
+                  />
                 )}
                 {applicationStatus && (
-                  <StatusBadge status={applicationStatus} />
+                  <StatusBadge status={applicationStatus as string} />
                 )}
               </div>
 
-              {/* Round selector — surfaced here so recruiters set it early */}
               <div className="mt-5">
-                <Field label="Round" error={errors.round} required icon={<Hash size={14} />}>
+                <Field
+                  label="Round"
+                  error={errors.round}
+                  required
+                  icon={<Hash size={14} />}
+                >
                   <div className="flex gap-2 flex-wrap">
                     {[1, 2, 3, 4, 5].map((r) => (
                       <button
                         key={r}
                         type="button"
-                        onClick={() => set('round', r)}
+                        onClick={() => setScheduleField("round", r)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
-                          form.round === r
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-slate-200 text-slate-600 hover:border-slate-300 bg-white'
+                          scheduleForm.round === r
+                            ? "border-blue-500 bg-blue-50 text-blue-700"
+                            : "border-slate-200 text-slate-600 hover:border-slate-300 bg-white"
                         }`}
                       >
                         Round {r}
@@ -404,59 +581,77 @@ export default function ScheduleInterviewModal({
               </div>
             </StepPanel>
           )}
-
-          {/* ── Step 1: Details ── */}
-          {step === 1 && (
-            <StepPanel title="Interview details" subtitle="Set the title, format, and location for this interview.">
+          {!isReschedule && step === 1 && (
+            <StepPanel
+              title="Interview details"
+              subtitle="Set the title, format, and location for this interview."
+            >
               <Field label="Interview title" error={errors.title} required>
                 <Input
                   name="title"
-                  value={form.title}
-                  onChange={handleInput}
+                  value={scheduleForm.title}
+                  onChange={handleScheduleInput}
                   placeholder="e.g. Technical Interview — Round 1"
                   error={!!errors.title}
                 />
               </Field>
 
-              <Field label="Description" error={errors.description} className="mt-4">
+              <Field
+                label="Description"
+                error={errors.description}
+                className="mt-4"
+              >
                 <textarea
                   name="description"
-                  value={form.description}
-                  onChange={handleInput}
+                  value={scheduleForm.description}
+                  onChange={handleScheduleInput}
                   placeholder="Optional notes visible to the candidate…"
                   rows={3}
                   maxLength={1000}
                   className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 resize-none transition bg-slate-50/50"
                 />
                 <p className="text-right text-xs text-slate-400 mt-1">
-                  {(form.description ?? '').length} / 1000
+                  {(scheduleForm.description ?? "").length} / 1000
                 </p>
               </Field>
 
-              {/* Mode */}
               <div className="mt-4">
-                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Format</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+                  Format
+                </label>
                 <div className="grid grid-cols-2 gap-3">
-                  {(['ONLINE', 'OFFLINE'] as const).map((m) => {
-                    const active = form.mode === m;
+                  {(["ONLINE", "OFFLINE"] as const).map((m) => {
+                    const active = scheduleForm.mode === m;
                     return (
                       <button
                         key={m}
                         type="button"
-                        onClick={() => set('mode', m)}
+                        onClick={() => setScheduleField("mode", m)}
                         className={`relative flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all ${
-                          active ? 'border-blue-500 bg-blue-50/60' : 'border-slate-200 hover:border-slate-300 bg-white'
+                          active
+                            ? "border-blue-500 bg-blue-50/60"
+                            : "border-slate-200 hover:border-slate-300 bg-white"
                         }`}
                       >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${active ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
-                          {m === 'ONLINE' ? <Video size={15} /> : <MapPin size={15} />}
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-400"}`}
+                        >
+                          {m === "ONLINE" ? (
+                            <Video size={15} />
+                          ) : (
+                            <MapPin size={15} />
+                          )}
                         </div>
                         <div>
-                          <p className={`text-sm font-semibold ${active ? 'text-blue-700' : 'text-slate-700'}`}>
-                            {m === 'ONLINE' ? 'Online' : 'In-person'}
+                          <p
+                            className={`text-sm font-semibold ${active ? "text-blue-700" : "text-slate-700"}`}
+                          >
+                            {m === "ONLINE" ? "Online" : "In-person"}
                           </p>
                           <p className="text-xs text-slate-400">
-                            {m === 'ONLINE' ? 'Video or phone call' : 'Physical location'}
+                            {m === "ONLINE"
+                              ? "Video or phone call"
+                              : "Physical location"}
                           </p>
                         </div>
                         {active && (
@@ -470,86 +665,36 @@ export default function ScheduleInterviewModal({
                 </div>
               </div>
 
-              {/* Online options */}
-              {form.mode === 'ONLINE' && (
-                <div className="mt-4 space-y-2">
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">Meeting link</label>
-                  {[
-                    {
-                      value: 'later' as const,
-                      icon: <CalendarClock size={13} />,
-                      label: "I'll add the link later",
-                      sub: 'You can paste the URL before the interview',
-                    },
-                    {
-                      value: 'paste' as const,
-                      icon: <Link2 size={13} />,
-                      label: 'Paste link now',
-                      sub: 'Use your own meeting URL',
-                    },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => set('meetingLinkOption', opt.value)}
-                      className={`flex items-center gap-3 p-3 rounded-xl border w-full text-left transition-all ${
-                        form.meetingLinkOption === opt.value
-                          ? 'border-blue-400 bg-blue-50/50'
-                          : 'border-slate-200 hover:border-slate-300 bg-white'
-                      }`}
-                    >
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                        form.meetingLinkOption === opt.value ? 'border-blue-600 bg-blue-600' : 'border-slate-300'
-                      }`}>
-                        {form.meetingLinkOption === opt.value && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                        )}
-                      </div>
-                      <span className={form.meetingLinkOption === opt.value ? 'text-blue-500' : 'text-slate-400'}>
-                        {opt.icon}
-                      </span>
-                      <div>
-                        <p className={`text-sm font-medium ${form.meetingLinkOption === opt.value ? 'text-blue-700' : 'text-slate-700'}`}>
-                          {opt.label}
-                        </p>
-                        <p className="text-xs text-slate-400">{opt.sub}</p>
-                      </div>
-                    </button>
-                  ))}
-
-                  {form.meetingLinkOption === 'paste' && (
-                    <Field error={errors.meetingLink} className="mt-2">
-                      <Input
-                        name="meetingLink"
-                        value={form.meetingLink ?? ''}
-                        onChange={handleInput}
-                        placeholder="https://meet.google.com/…"
-                        error={!!errors.meetingLink}
-                      />
-                    </Field>
-                  )}
-                </div>
+              {scheduleForm.mode === "ONLINE" && (
+                <MeetingLinkPicker
+                  value={scheduleForm.meetingLinkOption}
+                  meetingLink={scheduleForm.meetingLink ?? ""}
+                  error={errors.meetingLink}
+                  onOptionChange={(v) =>
+                    setScheduleField("meetingLinkOption", v)
+                  }
+                  onLinkChange={(v) => setScheduleField("meetingLink", v)}
+                />
               )}
 
-              {/* Offline fields */}
-              {form.mode === 'OFFLINE' && (
+              {scheduleForm.mode === "OFFLINE" && (
                 <div className="mt-4 grid grid-cols-2 gap-4">
                   <Field label="Address" error={errors.location} required>
                     <Input
                       name="location"
-                      value={form.location ?? ''}
-                      onChange={handleInput}
+                      value={scheduleForm.location ?? ""}
+                      onChange={handleScheduleInput}
                       placeholder="Floor 3, Tech Park"
                       error={!!errors.location}
                     />
                   </Field>
-                  <Field label="Meeting room" error={errors.meetingRoom}>
+                  <Field label="Meeting room" error={errors.roomId}>
                     <Input
-                      name="meetingRoom"
-                      value={form.meetingRoom ?? ''}
-                      onChange={handleInput}
+                      name="roomId"
+                      value={scheduleForm.roomId ?? ""}
+                      onChange={handleScheduleInput}
                       placeholder="Conference Room A"
-                      error={!!errors.meetingRoom}
+                      error={!!errors.roomId}
                     />
                   </Field>
                 </div>
@@ -557,49 +702,140 @@ export default function ScheduleInterviewModal({
             </StepPanel>
           )}
 
-          {/* ── Step 2: Schedule ── */}
-          {step === 2 && (
-            <StepPanel title="Pick a time" subtitle="Times are stored in UTC and shown in the candidate's local timezone.">
+          {((!isReschedule && step === 2) || (isReschedule && step === 0)) && (
+            <StepPanel
+              title={isReschedule ? "Pick a new time" : "Pick a time"}
+              subtitle="Times are stored in UTC and shown in the candidate's local timezone."
+            >
+              {isReschedule && detailsLoading && (
+                <div className="mb-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 flex items-center gap-2.5">
+                  <Loader2
+                    size={14}
+                    className="text-slate-400 animate-spin shrink-0"
+                  />
+                  <p className="text-xs text-slate-500">
+                    Loading the latest interview details…
+                  </p>
+                </div>
+              )}
+
+              {isReschedule && detailsError && !detailsLoading && (
+                <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-2.5">
+                  <AlertCircle
+                    size={14}
+                    className="text-amber-500 shrink-0 mt-0.5"
+                  />
+                  <p className="text-xs text-amber-700">
+                    Couldn't refresh the latest interview details (
+                    {detailsError}). Showing the last known values — double
+                    check the format below before continuing.
+                  </p>
+                </div>
+              )}
+
+              {isReschedule && !detailsLoading && (
+                <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-2.5">
+                  <AlertCircle
+                    size={14}
+                    className="text-amber-500 shrink-0 mt-0.5"
+                  />
+                  <p className="text-xs text-amber-700">
+                    You're rescheduling{" "}
+                    <span className="font-semibold">{displayTitle}</span> (Round{" "}
+                    {displayRound}). The interview format (
+                    {activeMode === "ONLINE" ? "Online" : "In-person"}) can't be
+                    changed here — cancel and create a new interview instead if
+                    the format needs to change.
+                  </p>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Date" error={errors.date} required icon={<Calendar size={14} />}>
+                <Field
+                  label="Date"
+                  error={errors.date}
+                  required
+                  icon={<Calendar size={14} />}
+                >
                   <Input
                     name="date"
                     type="date"
-                    value={form.date}
-                    onChange={handleInput}
+                    value={activeDate}
+                    onChange={
+                      isReschedule ? handleRescheduleInput : handleScheduleInput
+                    }
                     error={!!errors.date}
                     min={todayStr}
                   />
                 </Field>
 
-                <Field label="Time" error={errors.hour} icon={<Clock size={14} />}>
+                <Field
+                  label="Time"
+                  error={errors.hour}
+                  icon={<Clock size={14} />}
+                >
                   <div className="flex items-center gap-2">
-                    <Select name="hour" value={form.hour} onChange={handleInput} className="flex-1">
-                      {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map((h) => (
-                        <option key={h} value={h}>{h}</option>
+                    <Select
+                      name="hour"
+                      value={activeHour}
+                      onChange={
+                        isReschedule
+                          ? handleRescheduleInput
+                          : handleScheduleInput
+                      }
+                      className="flex-1"
+                    >
+                      {Array.from({ length: 24 }, (_, i) =>
+                        i.toString().padStart(2, "0"),
+                      ).map((h) => (
+                        <option key={h} value={h}>
+                          {h}
+                        </option>
                       ))}
                     </Select>
-                    <span className="text-slate-400 font-semibold text-sm select-none">:</span>
-                    <Select name="minute" value={form.minute} onChange={handleInput} className="flex-1">
-                      {['00', '15', '30', '45'].map((m) => (
-                        <option key={m} value={m}>{m}</option>
+                    <span className="text-slate-400 font-semibold text-sm select-none">
+                      :
+                    </span>
+                    <Select
+                      name="minute"
+                      value={activeMinute}
+                      onChange={
+                        isReschedule
+                          ? handleRescheduleInput
+                          : handleScheduleInput
+                      }
+                      className="flex-1"
+                    >
+                      {["00", "15", "30", "45"].map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
                       ))}
                     </Select>
                   </div>
                 </Field>
               </div>
 
-              <Field label="Duration" required icon={<Clock size={14} />} className="mt-4">
+              <Field
+                label="Duration"
+                required
+                icon={<Clock size={14} />}
+                className="mt-4"
+              >
                 <div className="flex flex-wrap gap-2">
                   {DURATIONS.map((d) => (
                     <button
                       key={d.value}
                       type="button"
-                      onClick={() => set('durationInMinutes', d.value)}
+                      onClick={() =>
+                        isReschedule
+                          ? setRescheduleField("durationInMinutes", d.value)
+                          : setScheduleField("durationInMinutes", d.value)
+                      }
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                        form.durationInMinutes === d.value
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-slate-200 text-slate-600 hover:border-slate-300 bg-white'
+                        activeDuration === d.value
+                          ? "border-blue-500 bg-blue-50 text-blue-700"
+                          : "border-slate-200 text-slate-600 hover:border-slate-300 bg-white"
                       }`}
                     >
                       {d.label}
@@ -608,137 +844,236 @@ export default function ScheduleInterviewModal({
                 </div>
               </Field>
 
+              {isReschedule && activeMode === "ONLINE" && (
+                <MeetingLinkPicker
+                  value={rescheduleForm.meetingLinkOption}
+                  meetingLink={rescheduleForm.meetingLink ?? ""}
+                  error={errors.meetingLink}
+                  onOptionChange={(v) =>
+                    setRescheduleField("meetingLinkOption", v)
+                  }
+                  onLinkChange={(v) => setRescheduleField("meetingLink", v)}
+                />
+              )}
+
+              {isReschedule && activeMode === "OFFLINE" && (
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  <Field label="Address" error={errors.location} required>
+                    <Input
+                      name="location"
+                      value={rescheduleForm.location ?? ""}
+                      onChange={handleRescheduleInput}
+                      placeholder="Floor 3, Tech Park"
+                      error={!!errors.location}
+                    />
+                  </Field>
+                  <Field label="Meeting room" error={errors.roomId}>
+                    <Input
+                      name="roomId"
+                      value={rescheduleForm.roomId ?? ""}
+                      onChange={handleRescheduleInput}
+                      placeholder="Conference Room A"
+                      error={!!errors.roomId}
+                    />
+                  </Field>
+                </div>
+              )}
+
               {previewDate && (
                 <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
                     <Calendar size={15} className="text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-xs text-blue-500 font-medium">Scheduled for</p>
-                    <p className="text-sm font-semibold text-blue-800">{previewDate}</p>
+                    <p className="text-xs text-blue-500 font-medium">
+                      {isReschedule ? "New time" : "Scheduled for"}
+                    </p>
+                    <p className="text-sm font-semibold text-blue-800">
+                      {previewDate}
+                    </p>
                   </div>
                 </div>
               )}
             </StepPanel>
           )}
 
-          {/* ── Step 3: Confirm ── */}
-          {step === 3 && (
-            <StepPanel title="Review and confirm" subtitle="Double-check everything before sending the invite.">
-
+          {step === lastStep && (
+            <StepPanel
+              title={isReschedule ? "Review and confirm" : "Review and confirm"}
+              subtitle={
+                isReschedule
+                  ? "Double-check the new time before updating the interview."
+                  : "Double-check everything before sending the invite."
+              }
+            >
               <div className="rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
                 {[
                   {
-                    label: 'Candidate',
-                    value: candidateName || form.applicationId,
+                    label: "Candidate",
+                    value:
+                      candidateName ||
+                      (isReschedule ? "—" : scheduleForm.applicationId),
                     icon: <Users size={14} className="text-slate-400" />,
                   },
                   {
-                    label: 'Title',
-                    value: form.title,
+                    label: "Title",
+                    value: displayTitle || "—",
                     icon: <FileText size={14} className="text-slate-400" />,
                   },
                   {
-                    label: 'Round',
-                    value: `Round ${form.round}`,
+                    label: "Round",
+                    value: `Round ${displayRound}`,
                     icon: <Hash size={14} className="text-slate-400" />,
                   },
                   {
-                    label: 'Date & time',
-                    value: previewDate ?? '—',
+                    label: isReschedule ? "New date & time" : "Date & time",
+                    value: previewDate ?? "—",
                     icon: <Calendar size={14} className="text-slate-400" />,
                   },
                   {
-                    label: 'Duration',
+                    label: "Duration",
                     value: durationLabel,
                     icon: <Clock size={14} className="text-slate-400" />,
                   },
                   {
-                    label: 'Format',
-                    value: form.mode === 'ONLINE' ? 'Online' : 'In-person',
+                    label: "Format",
+                    value: activeMode === "ONLINE" ? "Online" : "In-person",
                     icon:
-                      form.mode === 'ONLINE'
-                        ? <Video size={14} className="text-slate-400" />
-                        : <MapPin size={14} className="text-slate-400" />,
+                      activeMode === "ONLINE" ? (
+                        <Video size={14} className="text-slate-400" />
+                      ) : (
+                        <MapPin size={14} className="text-slate-400" />
+                      ),
                   },
-                  ...(form.mode === 'OFFLINE' && form.location
-                    ? [{ label: 'Location', value: form.location, icon: <MapPin size={14} className="text-slate-400" /> }]
+                  ...(activeMode === "OFFLINE" && activeLocation
+                    ? [
+                        {
+                          label: "Location",
+                          value: activeLocation,
+                          icon: <MapPin size={14} className="text-slate-400" />,
+                        },
+                      ]
                     : []),
-                  ...(form.mode === 'OFFLINE' && form.meetingRoom
-                    ? [{ label: 'Room', value: form.meetingRoom, icon: <Building2 size={14} className="text-slate-400" /> }]
+                  ...(activeMode === "OFFLINE" && activeMeetingRoom
+                    ? [
+                        {
+                          label: "Room",
+                          value: activeMeetingRoom,
+                          icon: (
+                            <Building2 size={14} className="text-slate-400" />
+                          ),
+                        },
+                      ]
                     : []),
                 ].map((row) => (
-                  <div key={row.label} className="flex items-start gap-3 px-4 py-3">
-                    <span className="mt-0.5 flex-shrink-0">{row.icon}</span>
+                  <div
+                    key={row.label}
+                    className="flex items-start gap-3 px-4 py-3"
+                  >
+                    <span className="mt-0.5 shrink-0">{row.icon}</span>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-slate-400">{row.label}</p>
-                      <p className="text-sm font-medium text-slate-800 truncate">{row.value}</p>
+                      <p className="text-sm font-medium text-slate-800 truncate">
+                        {row.value}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Meeting link preview (only when pasted) */}
-              {form.mode === 'ONLINE' && form.meetingLinkOption === 'paste' && form.meetingLink && (
-                <div className="mt-4 bg-slate-50 rounded-xl border border-slate-200 p-4">
-                  <p className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">Meeting link</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-slate-600 truncate flex-1">{form.meetingLink}</p>
-                    <button
-                      type="button"
-                      onClick={handleCopyLink}
-                      className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                        copied ? 'bg-emerald-100 text-emerald-700' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      <Copy size={11} />
-                      {copied ? 'Copied!' : 'Copy'}
-                    </button>
+              {activeMode === "ONLINE" &&
+                activeMeetingLinkOption === "paste" &&
+                activeMeetingLink && (
+                  <div className="mt-4 bg-slate-50 rounded-xl border border-slate-200 p-4">
+                    <p className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">
+                      Meeting link
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-slate-600 truncate flex-1">
+                        {activeMeetingLink}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleCopyLink}
+                        className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                          copied
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        <Copy size={11} />
+                        {copied ? "Copied!" : "Copy"}
+                      </button>
+                    </div>
                   </div>
+                )}
+
+              {!isReschedule && (
+                <div className="mt-4 flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setScheduleField("sendEmail", !scheduleForm.sendEmail)
+                    }
+                    className={`w-10 h-6 rounded-full transition-colors shrink-0 relative ${scheduleForm.sendEmail ? "bg-blue-600" : "bg-slate-300"}`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${scheduleForm.sendEmail ? "translate-x-4" : "translate-x-0"}`}
+                    />
+                  </button>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-slate-700">
+                      Send invite to candidate
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      An email with all interview details will be sent
+                      immediately.
+                    </p>
+                  </div>
+                  <Mail
+                    size={16}
+                    className={`shrink-0 ${scheduleForm.sendEmail ? "text-blue-400" : "text-slate-300"}`}
+                  />
                 </div>
               )}
 
-              {/* Send email toggle */}
-              <div className="mt-4 flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => set('sendEmail', !form.sendEmail)}
-                  className={`w-10 h-6 rounded-full transition-colors flex-shrink-0 relative ${form.sendEmail ? 'bg-blue-600' : 'bg-slate-300'}`}
-                >
-                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.sendEmail ? 'translate-x-4' : 'translate-x-0'}`} />
-                </button>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-700">Send invite to candidate</p>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    An email with all interview details will be sent immediately.
-                  </p>
-                </div>
-                <Mail size={16} className={`flex-shrink-0 ${form.sendEmail ? 'text-blue-400' : 'text-slate-300'}`} />
-              </div>
-
-              {/* Error summary */}
               {hasErrors && (
                 <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4">
                   <div className="flex items-center gap-2 text-red-600 mb-2">
                     <AlertCircle size={14} />
-                    <p className="text-xs font-semibold">Fix these before scheduling</p>
+                    <p className="text-xs font-semibold">
+                      Fix these before{" "}
+                      {isReschedule ? "rescheduling" : "scheduling"}
+                    </p>
                   </div>
                   <ul className="space-y-1">
-                    {Object.values(errors).filter(Boolean).map((msg, i) => (
-                      <li key={i} className="text-xs text-red-500">· {msg}</li>
-                    ))}
+                    {Object.values(errors)
+                      .filter(Boolean)
+                      .map((msg, i) => (
+                        <li key={i} className="text-xs text-red-500">
+                          · {msg}
+                        </li>
+                      ))}
                   </ul>
                 </div>
               )}
 
-              {/* Success banner */}
               {submitSuccess && (
                 <div className="mt-4 flex items-start gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3">
-                  <CheckCircle2 size={16} className="flex-shrink-0 mt-0.5 text-emerald-600" />
+                  <CheckCircle2
+                    size={16}
+                    className="shrink-0 mt-0.5 text-emerald-600"
+                  />
                   <div>
-                    <p className="text-sm font-semibold">Interview scheduled successfully</p>
-                    {form.sendEmail && (
-                      <p className="text-xs text-emerald-600 mt-0.5">Invitation sent to {candidateEmail || 'the candidate'}.</p>
+                    <p className="text-sm font-semibold">
+                      {isReschedule
+                        ? "Interview rescheduled successfully"
+                        : "Interview scheduled successfully"}
+                    </p>
+                    {!isReschedule && scheduleForm.sendEmail && (
+                      <p className="text-xs text-emerald-600 mt-0.5">
+                        Invitation sent to {candidateEmail || "the candidate"}.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -747,7 +1082,6 @@ export default function ScheduleInterviewModal({
           )}
         </div>
 
-        {/* ── Footer ── */}
         <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
           <button
             type="button"
@@ -755,7 +1089,7 @@ export default function ScheduleInterviewModal({
             disabled={loading}
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {step === 0 ? 'Cancel' : '← Back'}
+            {step === 0 ? "Cancel" : "← Back"}
           </button>
 
           <div className="flex items-center gap-3">
@@ -764,19 +1098,21 @@ export default function ScheduleInterviewModal({
                 <div
                   key={i}
                   className={`rounded-full transition-all ${
-                    i === step ? 'w-4 h-1.5 bg-blue-600' :
-                    i < step ? 'w-1.5 h-1.5 bg-blue-300' :
-                    'w-1.5 h-1.5 bg-slate-200'
+                    i === step
+                      ? "w-4 h-1.5 bg-blue-600"
+                      : i < step
+                        ? "w-1.5 h-1.5 bg-blue-300"
+                        : "w-1.5 h-1.5 bg-slate-200"
                   }`}
                 />
               ))}
             </div>
 
-            {step < 3 ? (
+            {step < lastStep ? (
               <button
                 type="button"
                 onClick={nextStep}
-                disabled={loading}
+                disabled={loading || (step === 0 && missingApplicationContext)}
                 className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm flex items-center gap-2 transition-colors shadow-sm shadow-blue-200 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Continue
@@ -790,11 +1126,19 @@ export default function ScheduleInterviewModal({
                 className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm flex items-center gap-2 transition-colors shadow-sm shadow-blue-200 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
-                  <><Loader2 size={14} className="animate-spin" /> Scheduling…</>
+                  <>
+                    <Loader2 size={14} className="animate-spin" />{" "}
+                    {isReschedule ? "Rescheduling…" : "Scheduling…"}
+                  </>
                 ) : submitSuccess ? (
-                  <><CheckCircle2 size={14} /> Scheduled!</>
+                  <>
+                    <CheckCircle2 size={14} />{" "}
+                    {isReschedule ? "Rescheduled!" : "Scheduled!"}
+                  </>
+                ) : isReschedule ? (
+                  "Reschedule Interview"
                 ) : (
-                  'Schedule Interview'
+                  "Schedule Interview"
                 )}
               </button>
             )}
@@ -804,8 +1148,6 @@ export default function ScheduleInterviewModal({
     </div>
   );
 }
-
-// ─── sub-components ───────────────────────────────────────────────────────────
 
 function StepPanel({
   title,
@@ -832,7 +1174,7 @@ function Field({
   error,
   required,
   children,
-  className = '',
+  className = "",
   icon,
 }: {
   label?: string;
@@ -864,7 +1206,7 @@ function Field({
 
 function Input({
   error,
-  className = '',
+  className = "",
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & { error?: boolean }) {
   return (
@@ -872,15 +1214,15 @@ function Input({
       {...props}
       className={`w-full px-3.5 py-2.5 border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition bg-white ${
         error
-          ? 'border-red-300 bg-red-50/30 focus:ring-red-400/20 focus:border-red-400'
-          : 'border-slate-200 hover:border-slate-300'
+          ? "border-red-300 bg-red-50/30 focus:ring-red-400/20 focus:border-red-400"
+          : "border-slate-200 hover:border-slate-300"
       } ${className}`}
     />
   );
 }
 
 function Select({
-  className = '',
+  className = "",
   children,
   ...props
 }: React.SelectHTMLAttributes<HTMLSelectElement> & { className?: string }) {
@@ -892,7 +1234,10 @@ function Select({
       >
         {children}
       </select>
-      <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+      <ChevronDown
+        size={13}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+      />
     </div>
   );
 }
@@ -908,41 +1253,163 @@ function InfoBadge({
 }) {
   return (
     <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5">
-      <span className="text-slate-400 flex-shrink-0">{icon}</span>
+      <span className="text-slate-400 shrink-0">{icon}</span>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{label}</p>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+          {label}
+        </p>
         <p className="text-sm font-semibold text-slate-700 truncate">{value}</p>
       </div>
     </div>
   );
 }
 
-// Colored badge for application status — maps common status strings to a palette
-const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
-  SHORTLISTED:   { bg: 'bg-blue-50',    text: 'text-blue-700',   dot: 'bg-blue-500' },
-  APPLIED:       { bg: 'bg-slate-100',  text: 'text-slate-600',  dot: 'bg-slate-400' },
-  INTERVIEWING:  { bg: 'bg-violet-50',  text: 'text-violet-700', dot: 'bg-violet-500' },
-  OFFERED:       { bg: 'bg-emerald-50', text: 'text-emerald-700',dot: 'bg-emerald-500' },
-  HIRED:         { bg: 'bg-emerald-50', text: 'text-emerald-700',dot: 'bg-emerald-500' },
-  REJECTED:      { bg: 'bg-red-50',     text: 'text-red-600',    dot: 'bg-red-400' },
-  WITHDRAWN:     { bg: 'bg-amber-50',   text: 'text-amber-700',  dot: 'bg-amber-400' },
-};
+const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> =
+  {
+    SHORTLISTED: {
+      bg: "bg-blue-50",
+      text: "text-blue-700",
+      dot: "bg-blue-500",
+    },
+    APPLIED: {
+      bg: "bg-slate-100",
+      text: "text-slate-600",
+      dot: "bg-slate-400",
+    },
+    INTERVIEWING: {
+      bg: "bg-violet-50",
+      text: "text-violet-700",
+      dot: "bg-violet-500",
+    },
+    OFFERED: {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      dot: "bg-emerald-500",
+    },
+    HIRED: {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      dot: "bg-emerald-500",
+    },
+    REJECTED: { bg: "bg-red-50", text: "text-red-600", dot: "bg-red-400" },
+    WITHDRAWN: {
+      bg: "bg-amber-50",
+      text: "text-amber-700",
+      dot: "bg-amber-400",
+    },
+  };
 
 function StatusBadge({ status }: { status: string }) {
-  const key = status.toUpperCase().replace(/\s+/g, '_');
-  const style = STATUS_STYLES[key] ?? { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-slate-400' };
-  const label = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase().replace(/_/g, ' ');
+  const key = status.toUpperCase().replace(/\s+/g, "_");
+  const style = STATUS_STYLES[key] ?? {
+    bg: "bg-slate-100",
+    text: "text-slate-600",
+    dot: "bg-slate-400",
+  };
+  const label =
+    status.charAt(0).toUpperCase() +
+    status.slice(1).toLowerCase().replace(/_/g, " ");
 
   return (
     <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5">
-      <span className="text-slate-400 flex-shrink-0"><CheckCircle2 size={13} /></span>
+      <span className="text-slate-400 shrink-0">
+        <CheckCircle2 size={13} />
+      </span>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Status</p>
-        <span className={`inline-flex items-center gap-1.5 mt-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ${style.bg} ${style.text}`}>
-          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${style.dot}`} />
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+          Status
+        </p>
+        <span
+          className={`inline-flex items-center gap-1.5 mt-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ${style.bg} ${style.text}`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${style.dot}`} />
           {label}
         </span>
       </div>
+    </div>
+  );
+}
+
+function MeetingLinkPicker({
+  value,
+  meetingLink,
+  error,
+  onOptionChange,
+  onLinkChange,
+}: {
+  value: "later" | "paste";
+  meetingLink: string;
+  error?: string;
+  onOptionChange: (v: "later" | "paste") => void;
+  onLinkChange: (v: string) => void;
+}) {
+  return (
+    <div className="mt-4 space-y-2">
+      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">
+        Meeting link
+      </label>
+      {[
+        {
+          value: "later" as const,
+          icon: <CalendarClock size={13} />,
+          label: "I'll add the link later",
+          sub: "You can paste the URL before the interview",
+        },
+        {
+          value: "paste" as const,
+          icon: <Link2 size={13} />,
+          label: "Paste link now",
+          sub: "Use your own meeting URL",
+        },
+      ].map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onOptionChange(opt.value)}
+          className={`flex items-center gap-3 p-3 rounded-xl border w-full text-left transition-all ${
+            value === opt.value
+              ? "border-blue-400 bg-blue-50/50"
+              : "border-slate-200 hover:border-slate-300 bg-white"
+          }`}
+        >
+          <div
+            className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+              value === opt.value
+                ? "border-blue-600 bg-blue-600"
+                : "border-slate-300"
+            }`}
+          >
+            {value === opt.value && (
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            )}
+          </div>
+          <span
+            className={value === opt.value ? "text-blue-500" : "text-slate-400"}
+          >
+            {opt.icon}
+          </span>
+          <div>
+            <p
+              className={`text-sm font-medium ${value === opt.value ? "text-blue-700" : "text-slate-700"}`}
+            >
+              {opt.label}
+            </p>
+            <p className="text-xs text-slate-400">{opt.sub}</p>
+          </div>
+        </button>
+      ))}
+
+      {value === "paste" && (
+        <Field error={error} className="mt-2">
+          <Input
+            name="meetingLink"
+            value={meetingLink}
+            onChange={(e) => onLinkChange(e.target.value)}
+            placeholder="https://meet.google.com/…"
+            error={!!error}
+          />
+        </Field>
+      )}
     </div>
   );
 }

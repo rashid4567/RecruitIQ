@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { getRecruiterInterviews } from "../../api/interview.api";
-import type { RecruiterInterviewItem } from "../../types/interview.types"; 
+import type { RecruiterInterviewItem } from "../../types/recruiterInterview.types"; 
 
 export function useRecruiterInterviews(
   page?: number,

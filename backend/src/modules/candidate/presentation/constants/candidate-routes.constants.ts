@@ -4,4 +4,5 @@ export const CANDIDATE_ROUTES = {
   RESUME: "/resume",
   JOBS: "/jobs",
   APPLICATIONS: "/application",
+  INTERVIEWS: "/interviews",
 } as const;

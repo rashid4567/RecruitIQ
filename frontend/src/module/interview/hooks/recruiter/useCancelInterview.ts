@@ -1,26 +1,30 @@
 import { useState } from "react";
-import { getRecruiterInterviewDetails } from "../../api/interview.api";
-import type { GetRecruiterInterviewDetailsResponse } from "../../types/recruiterInterview.types";
+import { cancelInterview } from "../../api/interview.api";
+import type {
+  CancelInterviewRequest,
+  CancelInterviewResponse,
+} from "../../types/recruiterInterview.types";
 
-export function useRecruiterInterviewDetails() {
+export function useCancelInterview() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getDetails = async (
+  const submit = async (
     interviewId: string,
-  ): Promise<GetRecruiterInterviewDetailsResponse | null> => {
+    data: CancelInterviewRequest,
+  ): Promise<CancelInterviewResponse | null> => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await getRecruiterInterviewDetails(interviewId);
+      const response = await cancelInterview(interviewId, data);
 
       return response;
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
-          : "Failed to fetch interview details";
+          : "Failed to cancel interview";
 
       setError(message);
 
@@ -31,7 +35,7 @@ export function useRecruiterInterviewDetails() {
   };
 
   return {
-    getDetails,
+    submit,
     loading,
     error,
   };

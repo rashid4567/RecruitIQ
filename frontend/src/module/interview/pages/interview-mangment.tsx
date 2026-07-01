@@ -22,14 +22,15 @@ import {
   Play,
   ExternalLink,
   Mail,
+  CalendarPlus,
 } from 'lucide-react';
 import ScheduleInterviewModal from './components/schedule-interview-modal';
+import CancelInterviewModal from './components/cancel-interview-modal';
 import Sidebar from '@/module/recruiter/pages/components/layout/Sidebar';
 import { useRecruiterInterviews } from '../hooks/recruiter/useRecruiterInterviews';
-import type { RecruiterInterviewItem } from '../types/interview.types';
+import { useCancelInterview } from '../hooks/recruiter/useCancelInterview';
+import type { RecruiterInterviewItem } from '../types/recruiterInterview.types';
 import { InterviewStatus } from '../types/interview.types';
-
-
 
 const ITEMS_PER_PAGE = 10;
 
@@ -76,6 +77,31 @@ function isToday(scheduledAt?: string): boolean {
   return new Date(scheduledAt).toDateString() === new Date().toDateString();
 }
 
+// An interview "row" is considered scheduled only when it actually has an
+// interviewId + scheduledAt. Rows from applications that haven't been
+// scheduled yet will only have applicationId/candidate/job info.
+function isInterviewScheduled(interview: RecruiterInterviewItem): boolean {
+  return Boolean(interview.interviewId && interview.scheduledAt);
+}
+
+function isUpcomingInterview(interview: RecruiterInterviewItem): boolean {
+  if (!isInterviewScheduled(interview)) return false;
+  if (!interview.scheduledAt) return false;
+  const activeStatuses: string[] = [InterviewStatus.SCHEDULED, InterviewStatus.RESCHEDULED];
+  return (
+    new Date(interview.scheduledAt) > new Date() &&
+    activeStatuses.includes(interview.interviewStatus ?? '')
+  );
+}
+
+// Reschedule / Cancel are only offered while the interview is still
+// upcoming and hasn't moved into ongoing/completed/cancelled/no-show.
+function canModifyInterview(interview: RecruiterInterviewItem): boolean {
+  if (!isInterviewScheduled(interview)) return false;
+  const modifiableStatuses: string[] = [InterviewStatus.SCHEDULED, InterviewStatus.RESCHEDULED];
+  return modifiableStatuses.includes(interview.interviewStatus ?? '');
+}
+
 interface StatusConfig {
   label: string;
   pill: string;
@@ -115,24 +141,32 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
   },
 };
 
-function getStatusConfig(status?: string): StatusConfig {
-  return STATUS_CONFIG[status ?? ''] ?? {
-    label: 'Pending',
-    pill: 'bg-slate-50 text-slate-500 border border-slate-200',
-    dot: 'bg-slate-300',
-  };
+const NOT_SCHEDULED_CONFIG: StatusConfig = {
+  label: 'Not Scheduled',
+  pill: 'bg-slate-50 text-slate-500 border border-slate-200 border-dashed',
+  dot: 'bg-slate-300',
+};
+
+function getStatusConfig(interview: RecruiterInterviewItem): StatusConfig {
+  if (!isInterviewScheduled(interview)) return NOT_SCHEDULED_CONFIG;
+  return (
+    STATUS_CONFIG[interview.interviewStatus ?? ''] ?? {
+      label: 'Pending',
+      pill: 'bg-slate-50 text-slate-500 border border-slate-200',
+      dot: 'bg-slate-300',
+    }
+  );
 }
 
+// Reschedule + Cancel now live as dedicated buttons in the status column, so
+// they're intentionally left out of this dropdown to avoid duplication.
 const STATUS_TRANSITIONS: Record<string, { status: InterviewStatus; label: string; icon: React.ReactNode }[]> = {
   [InterviewStatus.SCHEDULED]: [
     { status: InterviewStatus.ONGOING, label: 'Mark as Ongoing', icon: <Play size={13} /> },
-    { status: InterviewStatus.RESCHEDULED, label: 'Reschedule', icon: <RefreshCw size={13} /> },
-    { status: InterviewStatus.CANCELLED, label: 'Cancel', icon: <XCircle size={13} /> },
     { status: InterviewStatus.NO_SHOW, label: 'Mark No-Show', icon: <UserX size={13} /> },
   ],
   [InterviewStatus.RESCHEDULED]: [
     { status: InterviewStatus.ONGOING, label: 'Mark as Ongoing', icon: <Play size={13} /> },
-    { status: InterviewStatus.CANCELLED, label: 'Cancel', icon: <XCircle size={13} /> },
     { status: InterviewStatus.NO_SHOW, label: 'Mark No-Show', icon: <UserX size={13} /> },
   ],
   [InterviewStatus.ONGOING]: [
@@ -143,8 +177,6 @@ const STATUS_TRANSITIONS: Record<string, { status: InterviewStatus; label: strin
   [InterviewStatus.CANCELLED]: [],
   [InterviewStatus.NO_SHOW]: [],
 };
-
-
 
 type Tab = 'all' | 'upcoming' | 'today' | 'timeline';
 
@@ -160,11 +192,10 @@ function filterByTab(interviews: RecruiterInterviewItem[], tab: Tab): RecruiterI
   }
 }
 
-
-
 function deriveStats(interviews: RecruiterInterviewItem[]) {
   const now = new Date();
-  const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekAgo = new Date(now);
+  weekAgo.setDate(weekAgo.getDate() - 7);
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const todayCount = interviews.filter((i) => isToday(i.scheduledAt)).length;
@@ -178,32 +209,47 @@ function deriveStats(interviews: RecruiterInterviewItem[]) {
     .filter((i) => i.scheduledAt && new Date(i.scheduledAt) > now)
     .sort((a, b) => new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime());
 
-  const nextInterview =
-    upcoming[0]?.scheduledAt
-      ? new Date(upcoming[0].scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      : null;
+  const nextInterview = upcoming[0]?.scheduledAt
+    ? new Date(upcoming[0].scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    : null;
 
   return { todayCount, thisWeek, completedThisMonth, pendingFeedback, nextInterview };
+}
+
+// ─── modal state helpers ──────────────────────────────────────────────────────
+
+interface ScheduleModalState {
+  open: boolean;
+  applicationId?: string;
+  // present only when we're rescheduling an existing interview
+  interview?: RecruiterInterviewItem;
+}
+
+interface CancelModalState {
+  open: boolean;
+  interview?: RecruiterInterviewItem;
 }
 
 // ─── main component ───────────────────────────────────────────────────────────
 
 export default function InterviewDashboard() {
   const [selectedTab, setSelectedTab] = useState<Tab>('all');
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   // local optimistic status overrides: interviewId → InterviewStatus
   const [statusOverrides, setStatusOverrides] = useState<Record<string, InterviewStatus>>({});
 
+  const [scheduleModal, setScheduleModal] = useState<ScheduleModalState>({ open: false });
+  const [cancelModal, setCancelModal] = useState<CancelModalState>({ open: false });
+
   const { interviews, loading, error, refetch } = useRecruiterInterviews();
+  const { submit: submitCancel, loading: cancelLoading, error: cancelError } = useCancelInterview();
 
   const enriched = useMemo(
     () =>
       interviews.map((i) => ({
         ...i,
-        interviewStatus: i.interviewId && statusOverrides[i.interviewId]
-          ? statusOverrides[i.interviewId]
-          : i.interviewStatus,
+        interviewStatus:
+          i.interviewId && statusOverrides[i.interviewId] ? statusOverrides[i.interviewId] : i.interviewStatus,
       })),
     [interviews, statusOverrides],
   );
@@ -221,6 +267,43 @@ export default function InterviewDashboard() {
   function handleStatusChange(interviewId: string, newStatus: InterviewStatus) {
     setStatusOverrides((prev) => ({ ...prev, [interviewId]: newStatus }));
     // TODO: call your API here → updateInterviewStatus(interviewId, newStatus)
+  }
+
+  // Opens the schedule modal for a brand-new interview (no interview exists yet).
+  // We pass the *whole* row (not just applicationId) so the modal can show
+  // candidate/application context immediately.
+  function openScheduleForApplication(interview: RecruiterInterviewItem) {
+    setScheduleModal({ open: true, applicationId: interview.applicationId, interview });
+  }
+
+  // Opens the same modal but in "reschedule" mode, pre-scoped to the interview.
+  function openReschedule(interview: RecruiterInterviewItem) {
+    setScheduleModal({ open: true, applicationId: interview.applicationId, interview });
+  }
+
+  function closeScheduleModal() {
+    setScheduleModal({ open: false });
+  }
+
+  function openCancel(interview: RecruiterInterviewItem) {
+    setCancelModal({ open: true, interview });
+  }
+
+  function closeCancelModal() {
+    if (cancelLoading) return;
+    setCancelModal({ open: false });
+  }
+
+  async function handleConfirmCancel(reason: string) {
+    const interview = cancelModal.interview;
+    if (!interview?.interviewId) return;
+
+    const result = await submitCancel(interview.interviewId, { reason });
+    if (result) {
+      setStatusOverrides((prev) => ({ ...prev, [interview.interviewId!]: InterviewStatus.CANCELLED }));
+      setCancelModal({ open: false });
+      refetch();
+    }
   }
 
   return (
@@ -250,9 +333,19 @@ export default function InterviewDashboard() {
             {/* Controls row */}
             <div className="flex items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-                <TabButton icon={BarChart3} label="Timeline" active={selectedTab === 'timeline'} onClick={() => handleTabChange('timeline')} />
+                <TabButton
+                  icon={BarChart3}
+                  label="Timeline"
+                  active={selectedTab === 'timeline'}
+                  onClick={() => handleTabChange('timeline')}
+                />
                 <TabButton label="All" active={selectedTab === 'all'} onClick={() => handleTabChange('all')} count={enriched.length} />
-                <TabButton label="Upcoming" active={selectedTab === 'upcoming'} onClick={() => handleTabChange('upcoming')} count={enriched.filter(i => i.scheduledAt && new Date(i.scheduledAt) > new Date()).length} />
+                <TabButton
+                  label="Upcoming"
+                  active={selectedTab === 'upcoming'}
+                  onClick={() => handleTabChange('upcoming')}
+                  count={enriched.filter((i) => i.scheduledAt && new Date(i.scheduledAt) > new Date()).length}
+                />
                 <TabButton label="Today" active={selectedTab === 'today'} onClick={() => handleTabChange('today')} count={stats.todayCount} />
               </div>
 
@@ -262,7 +355,7 @@ export default function InterviewDashboard() {
                   {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' })}
                 </button>
                 <button
-                  onClick={() => setShowScheduleModal(true)}
+                  onClick={() => setScheduleModal({ open: true })}
                   className="bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 flex items-center gap-2 font-semibold text-sm transition-colors shadow-sm shadow-blue-200"
                 >
                   <Plus size={15} />
@@ -289,7 +382,6 @@ export default function InterviewDashboard() {
         {/* ── Body ── */}
         <div className="flex-1 overflow-auto p-6">
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-
             {loading && (
               <div className="flex items-center justify-center py-24 gap-3 text-slate-400">
                 <Loader2 size={20} className="animate-spin text-blue-500" />
@@ -339,6 +431,9 @@ export default function InterviewDashboard() {
                           key={interview.interviewId ?? interview.applicationId}
                           interview={interview}
                           onStatusChange={handleStatusChange}
+                          onOpenSchedule={openScheduleForApplication}
+                          onOpenReschedule={openReschedule}
+                          onOpenCancel={openCancel}
                         />
                       ))}
                     </tbody>
@@ -349,7 +444,8 @@ export default function InterviewDashboard() {
                 {totalPages > 1 && (
                   <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <span className="text-xs text-slate-500">
-                      Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
+                      Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of{' '}
+                      {filtered.length}
                     </span>
                     <div className="flex items-center gap-1.5">
                       <PageBtn onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
@@ -360,9 +456,7 @@ export default function InterviewDashboard() {
                           key={p}
                           onClick={() => setCurrentPage(p)}
                           className={`w-7 h-7 rounded-md text-xs font-semibold transition-colors ${
-                            p === currentPage
-                              ? 'bg-blue-600 text-white'
-                              : 'text-slate-600 hover:bg-slate-100'
+                            p === currentPage ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'
                           }`}
                         >
                           {p}
@@ -380,7 +474,27 @@ export default function InterviewDashboard() {
         </div>
       </main>
 
-      <ScheduleInterviewModal isOpen={showScheduleModal} onClose={() => setShowScheduleModal(false)} />
+      {/*
+        ScheduleInterviewModal auto-detects schedule vs. reschedule from
+        `interview` — reschedule mode only kicks in once interviewId +
+        scheduledAt are present on that row.
+      */}
+  <ScheduleInterviewModal
+  isOpen={scheduleModal.open}
+  onClose={closeScheduleModal}
+  interview={scheduleModal.interview}
+  applicationId={scheduleModal.applicationId}
+  onSuccess={() => { closeScheduleModal(); refetch(); }}
+/>
+
+      <CancelInterviewModal
+        isOpen={cancelModal.open}
+        onClose={closeCancelModal}
+        onConfirm={handleConfirmCancel}
+        loading={cancelLoading}
+        error={cancelError}
+        candidateName={cancelModal.interview?.candidateName}
+      />
     </div>
   );
 }
@@ -390,15 +504,24 @@ export default function InterviewDashboard() {
 function InterviewRow({
   interview,
   onStatusChange,
+  onOpenSchedule,
+  onOpenReschedule,
+  onOpenCancel,
 }: {
   interview: RecruiterInterviewItem;
   onStatusChange: (id: string, status: InterviewStatus) => void;
+  onOpenSchedule: (interview: RecruiterInterviewItem) => void;
+  onOpenReschedule: (interview: RecruiterInterviewItem) => void;
+  onOpenCancel: (interview: RecruiterInterviewItem) => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { date, time } = formatScheduledAt(interview.scheduledAt);
   const gradient = candidateGradient(interview.candidateId);
-  const statusCfg = getStatusConfig(interview.interviewStatus);
+  const scheduled = isInterviewScheduled(interview);
+  const upcoming = isUpcomingInterview(interview);
+  const modifiable = canModifyInterview(interview);
+  const statusCfg = getStatusConfig(interview);
   const transitions = STATUS_TRANSITIONS[interview.interviewStatus ?? ''] ?? [];
   const todayFlag = isToday(interview.scheduledAt);
 
@@ -413,40 +536,47 @@ function InterviewRow({
   const name = interview.candidateName || interview.candidateId;
   const initials = toInitials(name);
   const jobTitle = interview.jobTitle || interview.jobId;
+  function handleRowClick() {
+    if (!scheduled) onOpenSchedule(interview);
+  }
 
   return (
-    <tr className="hover:bg-blue-50/20 transition-colors group">
+    <tr
+      onClick={handleRowClick}
+      className={`transition-colors group ${
+        scheduled ? 'hover:bg-blue-50/20' : 'hover:bg-blue-50/40 cursor-pointer'
+      }`}
+      title={!scheduled ? 'Click to schedule this interview' : undefined}
+    >
       {/* Date & Time */}
       <td className="px-5 py-3.5">
-        <div className="flex items-start gap-2">
-          {todayFlag && (
-            <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0 ring-2 ring-blue-100" />
-          )}
-          <div>
-            <div className="text-sm font-semibold text-slate-800">{date}</div>
-            <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
-              <Clock size={11} />
-              {time}
-              {interview.durationInMinutes && (
-                <span className="text-slate-300">· {interview.durationInMinutes}m</span>
-              )}
+        {scheduled ? (
+          <div className="flex items-start gap-2">
+            {todayFlag && <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0 ring-2 ring-blue-100" />}
+            <div>
+              <div className="text-sm font-semibold text-slate-800">{date}</div>
+              <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                <Clock size={11} />
+                {time}
+                {interview.durationInMinutes && <span className="text-slate-300">· {interview.durationInMinutes}m</span>}
+              </div>
+              {todayFlag && <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wide">Today</span>}
             </div>
-            {todayFlag && <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wide">Today</span>}
           </div>
-        </div>
+        ) : (
+          <span className="text-sm text-slate-300">—</span>
+        )}
       </td>
 
       {/* Candidate */}
       <td className="px-5 py-3.5">
         <div className="flex items-center gap-3">
           {interview.candidateProfileImage ? (
-            <img
-              src={interview.candidateProfileImage}
-              alt={name}
-              className="w-9 h-9 rounded-lg object-cover shadow-sm flex-shrink-0"
-            />
+            <img src={interview.candidateProfileImage} alt={name} className="w-9 h-9 rounded-lg object-cover shadow-sm flex-shrink-0" />
           ) : (
-            <div className={`w-9 h-9 bg-gradient-to-br ${gradient} rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0`}>
+            <div
+              className={`w-9 h-9 bg-linear-to-br ${gradient} rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0`}
+            >
               {initials}
             </div>
           )}
@@ -463,9 +593,7 @@ function InterviewRow({
       {/* Job Title */}
       <td className="px-5 py-3.5">
         <div className="text-sm font-medium text-slate-700 truncate max-w-[180px]">{jobTitle}</div>
-        {interview.title && (
-          <div className="text-xs text-slate-400 truncate max-w-[180px] mt-0.5">{interview.title}</div>
-        )}
+        {interview.title && <div className="text-xs text-slate-400 truncate max-w-[180px] mt-0.5">{interview.title}</div>}
       </td>
 
       {/* Round */}
@@ -495,15 +623,55 @@ function InterviewRow({
       </td>
 
       {/* Status */}
-      <td className="px-5 py-3.5">
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusCfg.pill}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-          {statusCfg.label}
-        </span>
+      <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
+        {!scheduled ? (
+          <div className="flex items-center gap-2">
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusCfg.pill}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+              {statusCfg.label}
+            </span>
+            <button
+              onClick={() => onOpenSchedule(interview)}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-md transition-colors"
+            >
+              <CalendarPlus size={11} /> Schedule
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusCfg.pill}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                {statusCfg.label}
+              </span>
+              {upcoming && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-600 uppercase tracking-wide">
+                  Upcoming
+                </span>
+              )}
+            </div>
+            {modifiable && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => onOpenReschedule(interview)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-violet-600 hover:text-violet-700 bg-violet-50 hover:bg-violet-100 px-2 py-1 rounded-md transition-colors"
+                >
+                  <RefreshCw size={10} /> Reschedule
+                </button>
+                <button
+                  onClick={() => onOpenCancel(interview)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md transition-colors"
+                >
+                  <XCircle size={10} /> Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </td>
 
       {/* Meeting */}
-      <td className="px-5 py-3.5">
+      <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
         {interview.meetingLink && interview.meetingLink !== 'N/A' ? (
           <a
             href={interview.meetingLink}
@@ -519,47 +687,53 @@ function InterviewRow({
       </td>
 
       {/* Actions */}
-      <td className="px-5 py-3.5">
-        <div className="relative" ref={menuRef}>
-          <button
-            onClick={() => setMenuOpen((o) => !o)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all"
-          >
-            <MoreVertical size={15} />
-          </button>
+      <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
+        {scheduled ? (
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all"
+            >
+              <MoreVertical size={15} />
+            </button>
 
-          {menuOpen && (
-            <div className="absolute right-0 top-8 z-50 w-52 bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-200/80 overflow-hidden">
-              {transitions.length > 0 ? (
-                <>
-                  <div className="px-3 py-2 border-b border-slate-100">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Update Status</p>
-                  </div>
-                  {transitions.map((t) => {
-                    const cfg = getStatusConfig(t.status);
-                    return (
-                      <button
-                        key={t.status}
-                        onClick={() => {
-                          if (interview.interviewId) onStatusChange(interview.interviewId, t.status);
-                          setMenuOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
-                      >
-                        <span className={`flex-shrink-0 w-5 h-5 rounded-full ${cfg.dot} bg-opacity-20 flex items-center justify-center text-white`}>
-                          {t.icon}
-                        </span>
-                        <span className="font-medium">{t.label}</span>
-                      </button>
-                    );
-                  })}
-                </>
-              ) : (
-                <div className="px-3 py-3 text-xs text-slate-400 text-center">No actions available</div>
-              )}
-            </div>
-          )}
-        </div>
+            {menuOpen && (
+              <div className="absolute right-0 top-8 z-50 w-52 bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-200/80 overflow-hidden">
+                {transitions.length > 0 ? (
+                  <>
+                    <div className="px-3 py-2 border-b border-slate-100">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Update Status</p>
+                    </div>
+                    {transitions.map((t) => {
+                      const cfg = STATUS_CONFIG[t.status];
+                      return (
+                        <button
+                          key={t.status}
+                          onClick={() => {
+                            if (interview.interviewId) onStatusChange(interview.interviewId, t.status);
+                            setMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
+                        >
+                          <span
+                            className={`flex-shrink-0 w-5 h-5 rounded-full ${cfg.dot} bg-opacity-20 flex items-center justify-center text-white`}
+                          >
+                            {t.icon}
+                          </span>
+                          <span className="font-medium">{t.label}</span>
+                        </button>
+                      );
+                    })}
+                  </>
+                ) : (
+                  <div className="px-3 py-3 text-xs text-slate-400 text-center">No actions available</div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )}
       </td>
     </tr>
   );
@@ -599,9 +773,17 @@ function TabButton({
 }
 
 function StatCard({
-  label, value, sub, accent, chart,
+  label,
+  value,
+  sub,
+  accent,
+  chart,
 }: {
-  label: string; value: string; sub?: string; accent: 'blue' | 'violet' | 'emerald' | 'amber'; chart?: boolean;
+  label: string;
+  value: string;
+  sub?: string;
+  accent: 'blue' | 'violet' | 'emerald' | 'amber';
+  chart?: boolean;
 }) {
   const accentMap = {
     blue: { bar: 'bg-blue-500', num: 'text-blue-600' },

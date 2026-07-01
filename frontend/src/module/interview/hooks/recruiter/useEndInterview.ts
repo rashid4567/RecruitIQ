@@ -1,26 +1,26 @@
 import { useState } from "react";
-import { getRecruiterInterviewDetails } from "../../api/interview.api";
-import type { GetRecruiterInterviewDetailsResponse } from "../../types/recruiterInterview.types";
+import { endInterview } from "../../api/interview.api";
+import type { EndInterviewResponse } from "../../types/recruiterInterview.types";
 
-export function useRecruiterInterviewDetails() {
+export function useEndInterview() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getDetails = async (
+  const submit = async (
     interviewId: string,
-  ): Promise<GetRecruiterInterviewDetailsResponse | null> => {
+  ): Promise<EndInterviewResponse | null> => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await getRecruiterInterviewDetails(interviewId);
+      const response = await endInterview(interviewId);
 
       return response;
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
-          : "Failed to fetch interview details";
+          : "Failed to end interview";
 
       setError(message);
 
@@ -31,7 +31,7 @@ export function useRecruiterInterviewDetails() {
   };
 
   return {
-    getDetails,
+    submit,
     loading,
     error,
   };

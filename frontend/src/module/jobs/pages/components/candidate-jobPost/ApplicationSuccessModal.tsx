@@ -6,7 +6,7 @@ interface ApplicationSuccessModalProps {
   jobTitle: string;
   companyName?: string;
   status: string;
-  appliedAt: string;
+  appliedAt: Date;
   onClose: () => void;
 }
 

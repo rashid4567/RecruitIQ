@@ -46,7 +46,7 @@ const CandidateRoutes = () => {
               element={<JobApplicationDetail />}
             />
             <Route path="jobs" element={<CareerPage />} />
-            <Route path="interview" element={<MyInterviews/>}/>
+            <Route path="interviews" element={<MyInterviews/>}/>
             <Route path="interview/:interviewId" element={<MyInterviewDeatails/>}/>
             <Route path="*" element={<NotFoundPage />} />
           </Route>

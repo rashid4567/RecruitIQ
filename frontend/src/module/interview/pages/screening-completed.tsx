@@ -1,15 +1,15 @@
 'use client';
 
-import { CheckCircle, Home, FileText, Settings } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 
 export default function ScreeningComplete() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-linear-to-b from-white to-gray-50">
       {/* Header */}
       <header className="border-b border-gray-200 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-11 h-11 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md">
               <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
               </svg>
@@ -30,7 +30,7 @@ export default function ScreeningComplete() {
         <div className="flex-1 flex flex-col items-center justify-center px-8 py-16">
           {/* Checkmark Icon with Animation */}
           <div className="mb-10 animate-in fade-in zoom-in-50 duration-500">
-            <div className="w-32 h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center shadow-lg border-2 border-blue-100">
+            <div className="w-32 h-32 bg-linear-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center shadow-lg border-2 border-blue-100">
               <CheckCircle className="w-20 h-20 text-blue-600" strokeWidth={1.5} />
             </div>
           </div>
@@ -86,9 +86,9 @@ export default function ScreeningComplete() {
             <h3 className="text-xl font-bold text-gray-950 mb-8">Application Status</h3>
 
             {/* Status Badge with Background */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl border border-green-200 p-5 mb-10">
+            <div className="bg-linear-to-br from-green-50 to-green-100/50 rounded-xl border border-green-200 p-5 mb-10">
               <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                   <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>

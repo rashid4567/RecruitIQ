@@ -5,12 +5,12 @@ import JobPostList from "./components/candidate-jobPost/JobPostList";
 import JobDetailModal from "./components/candidate-jobPost/candidate-JobDetailModal";
 import ApplicationSuccessModal from "./components/candidate-jobPost/ApplicationSuccessModal";
 import type { Job } from "../types/job.types";
-import type { ApplyJobDTO } from "@/module/job-application/domain/repository/application.repository";
-import type { JobApplication } from "@/module/job-application/domain/entity/job-application.entity";
+import type { ApplyJobDTO } from "@/module/job-application/types/application.types";
+import type { JobApplication } from "@/module/job-application/types/jobApplication.types";
 import { useJobPosts } from "../hooks/candidate-jobPost.hooks/useJobPosts"; 
 import { useApplyJob } from "@/module/job-application/hooks/candidate/useApplyJob";
 import { getJobById } from "../api/job.api";
-import { getMyResumeUC } from "@/module/resume/presentation/di/resume.di";
+import { getMyResume } from "@/module/resume/api/resume.api"; 
 
 export default function CareerPage() {
   const {
@@ -55,7 +55,7 @@ export default function CareerPage() {
     if (!selectedJob) return;
 
     try {
-      const resume = await getMyResumeUC.execute();
+      const resume = await getMyResume();
 
       if (!resume) {
         alert("Please upload a resume before applying.");
@@ -64,7 +64,7 @@ export default function CareerPage() {
 
       const payload: ApplyJobDTO = {
         jobId: selectedJob.id,
-        resumeId: resume.getId(),
+        resumeId: resume.id,
       };
 
       const result = await apply(payload);
@@ -118,11 +118,11 @@ export default function CareerPage() {
 
       {showApplicationSuccess && application && selectedJob && (
         <ApplicationSuccessModal
-          applicationId={application.getId()}
+          applicationId={application.id}
           jobTitle={selectedJob.title}
           companyName={selectedJob.companyName}
-          status={application.getStatus()}
-          appliedAt={application.getAppliedAt()}
+          status={application.status}
+          appliedAt={application.appliedAt}
           onClose={handleCloseSuccess}
         />
       )}

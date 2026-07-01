@@ -45,13 +45,38 @@ export const ScheduleInterviewSchema = z
       .trim()
       .max(500, "Location cannot exceed 500 characters")
       .optional(),
+
+    meetingLink: z
+      .string()
+      .trim()
+      .url("Invalid meeting link")
+      .optional(),
+
+    roomId: z
+      .string()
+      .trim()
+      .max(100, "Room ID cannot exceed 100 characters")
+      .optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.scheduledAt <= new Date()) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 5);
+    if (data.scheduledAt <= now) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["scheduledAt"],
-        message: "Interview must be scheduled in the future",
+        message: "Interview must be scheduled at least 5 minutes in the future",
+      });
+    }
+
+    if (
+      data.mode === InterviewMode.ONLINE &&
+      (!data.meetingLink || data.meetingLink.trim() === "")
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["meetingLink"],
+        message: "Meeting link is required for online interviews",
       });
     }
 

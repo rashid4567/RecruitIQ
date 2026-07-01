@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ScheduleInterviewRequest, ScheduleInterviewResponse } from "../../types/interview.types";
+import type { ScheduleInterviewRequest, ScheduleInterviewResponse } from "../../types/recruiterInterview.types"
 import { scheduleInterview } from "../../api/interview.api";
 
 

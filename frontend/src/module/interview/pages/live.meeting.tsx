@@ -72,7 +72,7 @@ Areas for Development:
         <div className="flex-1 flex gap-4 p-4">
           {/* Video Feed */}
           <div className="flex-1 flex flex-col gap-4">
-            <div className="flex-1 bg-gradient-to-br from-gray-300 to-gray-400 rounded-lg overflow-hidden relative group">
+            <div className="flex-1 bg-linear-to-br from-gray-300 to-gray-400 rounded-lg overflow-hidden relative group">
               <img
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/visily-recruiter-live-meeting-kAUbCi51NjAZ14YWboQjejnOs5YJW5.png"
                 alt="Candidate"

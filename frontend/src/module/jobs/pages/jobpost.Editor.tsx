@@ -18,7 +18,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Rocket } from "lucide-react";
-import { useCurrentSubscription } from "@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription";
+import { useCurrentSubscription } from "@/module/subscription/hooks/subscriptions/useCurrentSubscription"; 
 
 function CreateMode() {
   const hook = useCreateJobPost();

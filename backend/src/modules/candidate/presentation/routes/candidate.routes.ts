@@ -9,6 +9,7 @@ import {
 import jobPostRouter from "../../../job/presentation/router/candidate.jobPost.routes";
 import resumeRouter from "../../../resume/presentation/routes/resume.routes";
 import candidateApplicationRouter from "../../../job-application/presenatation/routes/candidate.Application.routes";
+import CandidateInterviewRouter from "../../../interview/presentation/router/candidate.interview.routes"
 import { CANDIDATE_ROUTES } from "../constants/candidate-routes.constants";
 
 const router = Router();
@@ -24,5 +25,6 @@ router.put(
 router.use(CANDIDATE_ROUTES.RESUME, resumeRouter);
 router.use(CANDIDATE_ROUTES.JOBS, jobPostRouter);
 router.use(CANDIDATE_ROUTES.APPLICATIONS, candidateApplicationRouter);
+router.use(CANDIDATE_ROUTES.INTERVIEWS,CandidateInterviewRouter)
 
 export default router;

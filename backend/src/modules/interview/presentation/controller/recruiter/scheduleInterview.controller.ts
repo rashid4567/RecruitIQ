@@ -32,21 +32,14 @@ export class ScheduleInterviewController {
           ERROR_MESSAGE.UNAUTHORIZED,
         );
       }
-
-      const parsedBody = ScheduleInterviewSchema.parse({
-        applicationId: req.params.applicationId,
-        round: req.body.round,
-        title: req.body.title,
-        description: req.body.description,
-        mode: req.body.mode,
-        scheduledAt: req.body.scheduledAt,
-        durationInMinutes: req.body.durationInMinutes,
-        location: req.body.location,
-      });
+      console.log("req :", req.body);
+     const parsedBody = ScheduleInterviewSchema.parse(req.body);
+     console.log("After parse :", parsedBody);
       const input: ScheduleInterviewRequestDTO = {
         ...parsedBody,
         recruiterId,
       };
+
 
       const result = await this.scheduleInterviewUC.execute(input);
       return ApiResponse.success(

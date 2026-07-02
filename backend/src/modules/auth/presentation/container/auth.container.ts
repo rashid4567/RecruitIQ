@@ -36,6 +36,7 @@ import { EmailUpdateController } from "../controller/email-update.controller";
 import { S3FileStorageRepository } from "../../../resume/infrastructure/storage/s3-file-storage.repository";
 import { UpdateProfileImageUseCase } from "../../application/useCase/update-profile-image.usecase";
 import { ProfileImageController } from "../controller/profile-image.controller";
+import { assignFreeSubscriptionUC } from "../../../subscription/presentation/container/recruiter-subscription.module";
 
 const userRepo: UserRepository = new MongooseUserRepository();
 const passwordPort: PasswordHasherPort = new PasswordService();
@@ -58,6 +59,7 @@ const verifyRegistrationUC = new VerifyRegistrationUseCase(
   tokenService,
   activityTracker,
   sendEmailByEventUC,
+  assignFreeSubscriptionUC
 );
 const fileStorageRepo = new S3FileStorageRepository();
 const updateProfileImageUC = new UpdateProfileImageUseCase(

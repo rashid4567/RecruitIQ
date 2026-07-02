@@ -93,5 +93,9 @@ export const SUCCESS_MESSAGES = {
   CANDIDATE_JOINED_INTERVIEW_SUCCESSFULLY : "Candidate joined interview successfully",
   CANDIDATE_INTERVIEWS_LOADED_SUCCESSFULLY : "Candidate interview loaded successfully",
   CANDIDATE_INTERVIEW_DETAIL_FETCHED_SUCCESSFULLY : "Candidate interview detail fetched successfully",
-
+  INTERVIEW_ACCEPTED_SUCCESSFULLY : "Interview accepted successfully",
+  INTERVIEW_REJECTED_SUCCESSFULLY : "Interview rejected successfully",
+  INTERVIEW_RESCHEDULE_REQUESTED_SUCCESSFULLY : "Interview Reschedule request successfully",
+  RESCHEDULED_REQUEST_ACCEPTED_SUCCESSFULLY : "Rescheduled request accepted successfully",
+  RESCHEDULED_REQUEST_REJECTED_SUCCESSFULLY :  "Rescheduled request rejected successfully",
 } as const;

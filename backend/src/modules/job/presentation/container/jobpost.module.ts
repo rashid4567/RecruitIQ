@@ -30,6 +30,8 @@ import { MongooseUserRepository } from "../../../auth/infrastructure/repositorie
 import { RecruiterProfileRepository } from "../../../recruiter/domain/repositories/recruiter.repository";
 import { MongooseRecruiterProfileRepository } from "../../../recruiter/infrastructure/repositories/mongoose-recruiter.repository";
 import { UUIDGenerator } from "../../infrastructure/service/uuid.generator.service";
+import { SubscriptionPlanRepository } from "../../../subscription/domain/repository/subscription-plan.repository";
+import { MongooseSubscriptionPlanRepository } from "../../../subscription/infrastructure/repositories/mongoose-subscription-plan.repository";
 const jobRepo: JobRepository = new MongooseJobRepository();
 const activityTracker = new ActivityTrackerService();
 
@@ -37,15 +39,24 @@ const userRepo: UserRepository = new MongooseUserRepository();
 const recruiterSubscriptionRepo = new MongooseRecruiterSubscriptionRepository();
 const recruiterRepo: RecruiterProfileRepository =
   new MongooseRecruiterProfileRepository();
+const subscriptionPlanRepo: SubscriptionPlanRepository =
+  new MongooseSubscriptionPlanRepository();
+
 const createJobUC = new CreateJobUseCase(
   jobRepo,
   recruiterSubscriptionRepo,
+  subscriptionPlanRepo,
   recruiterRepo,
 );
+
 const idGenerator = new UUIDGenerator();
 const jobsUC = new GetJobsUseCase(jobRepo);
 const getJobByIdUC = new GetJobByIdUseCase(jobRepo);
-const updateJobUC = new UpdateJobUseCase(jobRepo, recruiterSubscriptionRepo);
+const updateJobUC = new UpdateJobUseCase(
+  jobRepo,
+  recruiterSubscriptionRepo,
+  subscriptionPlanRepo,
+);
 const deleteJobUC = new DeleteJobUseCase(jobRepo);
 const publishJobUC = new PublishJobUseCase(
   jobRepo,

@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { getSubscribers } from "../../api/admin-subscription.api"; 
-import type { PaginatedSubscribers } from "../../types/subscriber.types"; 
+import { useState, useEffect, useCallback, useRef } from "react";
+import { getSubscribers } from "../../api/admin-subscription.api";
+import type { PaginatedSubscribers } from "../../types/subscriber.types";
 
 interface UseSubscribersParams {
   page: number;
@@ -17,6 +17,38 @@ interface UseSubscribersResult {
   refetch: () => void;
 }
 
+// Normalizes whatever shape the API/axios layer hands back into
+// a guaranteed PaginatedSubscribers object, so the UI never breaks
+// silently if the api wrapper unwraps `.data` differently.
+function normalize(
+  raw: unknown,
+  fallback: { page: number; limit: number },
+): PaginatedSubscribers {
+  if (Array.isArray(raw)) {
+    return {
+      data: raw,
+      total: raw.length,
+      page: fallback.page,
+      limit: fallback.limit,
+      totalPages: 1,
+    };
+  }
+
+  const obj = raw as Partial<PaginatedSubscribers> & { data?: unknown };
+
+  if (obj && Array.isArray(obj.data)) {
+    return {
+      data: obj.data as PaginatedSubscribers["data"],
+      total: obj.total ?? obj.data.length,
+      page: obj.page ?? fallback.page,
+      limit: obj.limit ?? fallback.limit,
+      totalPages: obj.totalPages ?? 1,
+    };
+  }
+
+  return { data: [], total: 0, page: fallback.page, limit: fallback.limit, totalPages: 1 };
+}
+
 export const useSubscribers = ({
   page,
   limit,
@@ -27,9 +59,10 @@ export const useSubscribers = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const hasLoadedOnce = useRef(false);
 
   const fetchData = useCallback(async () => {
-    if (data === null) {
+    if (!hasLoadedOnce.current) {
       setIsLoading(true);
     } else {
       setIsFetching(true);
@@ -38,13 +71,9 @@ export const useSubscribers = ({
     setIsError(false);
 
     try {
-      const result = await getSubscribers({
-        page,
-        limit,
-        search,
-        status,
-      });
-      setData(result);
+      const result = await getSubscribers({ page, limit, search, status });
+      setData(normalize(result, { page, limit }));
+      hasLoadedOnce.current = true;
     } catch {
       setIsError(true);
     } finally {

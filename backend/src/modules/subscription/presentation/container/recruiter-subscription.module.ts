@@ -27,6 +27,7 @@ import { createNotificationUC } from "../../../notification/presentation/contain
 import { JobApplicationRepository } from "../../../job-application/domain/repository/job-application.repository";
 import { MongooseJobApplicationRepository } from "../../../job-application/infrastructure/repository/MongooseJobApplicationRepository";
 import { AnalyzeApplicationUC } from "../../../job-application/presenatation/container/JobApplication.module";
+import { AssignFreeSubscriptionUseCase } from "../../application/usecase/Recruiter/AssignFreeSubscriptionUseCase";
 
 const subscriptionRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
@@ -53,6 +54,11 @@ const currentSubscriptionUC = new GetCurrentSubscriptionUseCase(
   recruiterSubscriptionRepo,
   subscriptionRepo,
   updateRecruiterSubscriptionStatusUC,
+);
+
+export const assignFreeSubscriptionUC = new AssignFreeSubscriptionUseCase(
+  subscriptionRepo,
+  recruiterSubscriptionRepo,
 );
 const upgaradeSubscriptionUC = new UpgradeSubscriptionUseCase(
   subscriptionRepo,

@@ -30,6 +30,8 @@ export class GetCandidateInterviewUseCase implements IUseCase<
           round: data.round,
           mode: data.mode,
           status: data.status,
+          candidateResponseStatus : data.candidateResponseStatus,
+          rescheduleRequested : data.rescheduleRequested,
           scheduledAt: data.scheduledAt,
           durationInMinutes: data.durationInMinutes,
           meetingLink: data.meetingLink,

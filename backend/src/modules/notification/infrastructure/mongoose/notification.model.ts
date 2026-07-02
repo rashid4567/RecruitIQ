@@ -11,6 +11,7 @@ export enum NotificationType {
   APPLICATION_REJECTED = "APPLICATION_REJECTED",
   INTERVIEW_SCHEDULED = "INTERVIEW_SCHEDULED",
   INTERVIEW_CANCELLED = "INTERVIEW_CANCELLED",
+  INTERVIEW_RESCHEDULED = "INTERVIEW_RESCHEDULED",
   SUBSCRIPTION_EXPIRING = "SUBSCRIPTION_EXPIRING",
   SUBSCRIPTION_EXPIRED = "SUBSCRIPTION_EXPIRED",
   SUBSCRIPTION_RENEWED = "SUBSCRIPTION_RENEWED",
@@ -21,6 +22,8 @@ export enum NotificationType {
   JOB_APPROVED = "JOB_APPROVED",
   JOB_REJECTED = "JOB_REJECTED",
   APPLICATION_SELECTED = "APPLICATION_SELECTED",
+  INTERVIEW_RESCHEDULE_REQUEST_REJECTED = "INTERVIEW_RESCHEDULE_REQUEST_REJECTED",
+  INTERVIEW_RESCHEDULE_REQUEST_APPROVED = "INTERVIEW_RESCHEDULE_REQUEST_APPROVED",
 }
 
 export interface NotificationDocument {
@@ -93,7 +96,7 @@ const NotificationSchema = new Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 NotificationSchema.index({
@@ -102,7 +105,4 @@ NotificationSchema.index({
   createdAt: -1,
 });
 
-export const NotificationModel = model(
-  "Notification",
-  NotificationSchema
-);
+export const NotificationModel = model("Notification", NotificationSchema);

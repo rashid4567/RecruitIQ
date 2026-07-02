@@ -28,12 +28,17 @@ export interface PaginatedSubscribers {
   totalPages: number;
 }
 
-export interface RecruiterSubscriptionRepository extends BaseRepository<RecruiterSubscription> {
+export interface RecruiterSubscriptionRepository
+  extends BaseRepository<RecruiterSubscription> {
   save(subscription: RecruiterSubscription): Promise<RecruiterSubscription>;
   update(subscription: RecruiterSubscription): Promise<void>;
   findActiveByRecruiter(
     recruiterId: string,
   ): Promise<RecruiterSubscription | null>;
-  findAll(params: GetSubscribersParams): Promise<PaginatedSubscribers>;
-  consumeAIScoreIfAvailable(recruiterId: string): Promise<boolean>;
+  findAll(
+    params: GetSubscribersParams,
+  ): Promise<PaginatedSubscribers>;
+  consumeAIScoreIfAvailable(
+    recruiterId: string,
+  ): Promise<boolean>;
 }

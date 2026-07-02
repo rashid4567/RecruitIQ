@@ -2,21 +2,25 @@ import { ApplicationError } from "../../../../../shared/errors/application.error
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
+import { SubscriptionPlanRepository } from "../../../../subscription/domain/repository/subscription-plan.repository";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
-import {  createJobPostRequestDTO } from "../../dto/create-job.dto";
+import { createJobPostRequestDTO } from "../../dto/create-job.dto";
 import { RecruiterProfileRepository } from "../../../../recruiter/domain/repositories/recruiter.repository";
 import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 
-
-export class CreateJobUseCase implements IUseCase<createJobPostRequestDTO,Job> {
+export class CreateJobUseCase implements IUseCase<
+  createJobPostRequestDTO,
+  Job
+> {
   constructor(
     private readonly jobRepo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
+    private readonly subscriptionPlanRepo: SubscriptionPlanRepository,
     private readonly recruiterRepo: RecruiterProfileRepository,
   ) {}
 
-  async execute(request : createJobPostRequestDTO): Promise<Job> {
+  async execute(request: createJobPostRequestDTO): Promise<Job> {
     if (!request.recruiterId) {
       throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_FOUND);
     }
@@ -29,28 +33,39 @@ export class CreateJobUseCase implements IUseCase<createJobPostRequestDTO,Job> {
       throw new ApplicationError(ERROR_CODES.RECRUITER_NOT_FOUND);
     }
 
-    const subscription =
-      await this.subscriptionRepo.findActiveByRecruiter(request.recruiterId);
+    const subscription = await this.subscriptionRepo.findActiveByRecruiter(
+      request.recruiterId,
+    );
 
-    if (!subscription) {
-      throw new ApplicationError(
-        ERROR_CODES.NO_ACTIVE_SUBSCRIPTION_FOUND_FOR_THIS_RECRUITER,
-      );
-    }
+    let activeDays: number;
 
-    if (subscription.isExpired()) {
-      throw new ApplicationError(ERROR_CODES.JOB_POST_LIMIT_EXCEEDED);
+    if (subscription) {
+      if (subscription.isExpired()) {
+        throw new ApplicationError(ERROR_CODES.JOB_POST_LIMIT_EXCEEDED);
+      }
+
+      activeDays = subscription.jobPostActiveDays;
+    } else {
+      const freePlan = await this.subscriptionPlanRepo.findActiveFreePlan();
+
+      if (!freePlan) {
+        throw new ApplicationError(
+          ERROR_CODES.NO_ACTIVE_SUBSCRIPTION_FOUND_FOR_THIS_RECRUITER,
+        );
+      }
+
+      activeDays = freePlan.jobPostActiveDays;
     }
 
     const dto = request.dto;
 
     if (dto.expiresAt) {
-      this.validateExpiryDate(dto.expiresAt, subscription.jobPostActiveDays);
+      this.validateExpiryDate(dto.expiresAt, activeDays);
     }
 
     const job = Job.create({
-      recruiterId : request.recruiterId,
-      companyName : dto.companyName,
+      recruiterId: request.recruiterId,
+      companyName: dto.companyName,
       title: dto.title,
       description: dto.description,
       responsibilities: dto.responsibilities ?? [],
@@ -82,8 +97,10 @@ export class CreateJobUseCase implements IUseCase<createJobPostRequestDTO,Job> {
 
   private validateExpiryDate(expiresAt: Date, activeDays: number): void {
     const maxAllowedDate = new Date();
+
     maxAllowedDate.setDate(maxAllowedDate.getDate() + activeDays);
     maxAllowedDate.setHours(23, 59, 59, 999);
+
     const expiryDate = new Date(expiresAt);
     expiryDate.setHours(23, 59, 59, 999);
 

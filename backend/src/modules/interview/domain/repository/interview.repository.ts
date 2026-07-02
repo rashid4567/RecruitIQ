@@ -1,13 +1,16 @@
 import { ApplicationStatus } from "../../../job-application/domain/entity/job-application.entity";
 import { Interview } from "../entity/interview.entity";
 
-
 export interface InterviewRepository {
-  create(interview : Interview):Promise<Interview>;
+  create(interview: Interview): Promise<Interview>;
   save(interview: Interview): Promise<Interview>;
   findById(id: string): Promise<Interview | null>;
   findByApplicationId(applicationId: string): Promise<Interview | null>;
   findByApplicationAndRound(
+    applicationId: string,
+    round: number,
+  ): Promise<Interview | null>;
+  findActiveByApplicationAndRound(
     applicationId: string,
     round: number,
   ): Promise<Interview | null>;
@@ -21,6 +24,8 @@ export interface InterviewRepository {
     page?: number,
     limit?: number,
   ): Promise<Interview[]>;
+  getNextRound(applicationId : string):Promise<number>;
+  findPendingRescheduleRequests(recruiterId: string): Promise<Interview[]>;
   findUpcomingByCandidate(candidateId: string): Promise<Interview[]>;
   findUpcomingByRecruiter(recruiterId: string): Promise<Interview[]>;
   findScheduledInterviewsBefore(scheduledBefore: Date): Promise<Interview[]>;

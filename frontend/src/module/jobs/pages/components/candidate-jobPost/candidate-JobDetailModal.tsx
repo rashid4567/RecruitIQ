@@ -32,7 +32,6 @@ import {
   FileBadge,
   AlertCircle,
 } from "lucide-react";
-import type { JobStatus } from "@/module/jobs/types/jobPost.dto";
 import { useResume } from "@/module/resume/hook/useResume";
 import type { Job } from "@/module/jobs/types/job.types";
 
@@ -190,7 +189,7 @@ function ResumePanel() {
                 Resume uploaded
               </p>
               <p className="text-[11px] text-emerald-600 leading-snug mt-0.5 truncate">
-                {resume?.getFileName?.() ?? "Your resume is ready"}
+                {resume?.fileName ?? "Your resume is ready"}
               </p>
             </div>
           </div>

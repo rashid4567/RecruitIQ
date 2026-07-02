@@ -120,7 +120,6 @@ function buildInitialScheduleForm(
 ): ScheduleFormValues {
   return {
     applicationId,
-    round: 1,
     title: jobTitle ? `${jobTitle} — Round 1` : "",
     description: "",
     mode: "ONLINE",
@@ -248,13 +247,14 @@ export default function ScheduleInterviewModal({
     };
   }, [isOpen, isReschedule, interview?.interviewId]);
 
-  useEffect(() => {
-    if (isReschedule || !jobTitle) return;
-    setScheduleForm((prev) => ({
-      ...prev,
-      title: `${jobTitle} — Round ${prev.round}`,
-    }));
-  }, [jobTitle, scheduleForm.round]);
+useEffect(() => {
+  if (isReschedule || !jobTitle) return;
+
+  setScheduleForm((prev) => ({
+    ...prev,
+    title: jobTitle,
+  }));
+}, [jobTitle, isReschedule]);
 
   const handleClose = () => onClose();
 
@@ -435,12 +435,11 @@ export default function ScheduleInterviewModal({
   const hasErrors = Object.values(errors).some(Boolean);
   const todayStr = new Date().toISOString().split("T")[0];
 
-  const displayTitle = isReschedule
-    ? (existingInterview?.title ?? "—")
-    : scheduleForm.title;
-  const displayRound = isReschedule
-    ? (existingInterview?.round ?? "—")
-    : scheduleForm.round;
+const displayTitle = isReschedule
+  ? (existingInterview?.title ?? "—")
+  : scheduleForm.title;
+
+const displayRound = existingInterview?.round ?? "—";
   if (!isOpen) return null;
 
   return (
@@ -554,31 +553,6 @@ export default function ScheduleInterviewModal({
                 )}
               </div>
 
-              <div className="mt-5">
-                <Field
-                  label="Round"
-                  error={errors.round}
-                  required
-                  icon={<Hash size={14} />}
-                >
-                  <div className="flex gap-2 flex-wrap">
-                    {[1, 2, 3, 4, 5].map((r) => (
-                      <button
-                        key={r}
-                        type="button"
-                        onClick={() => setScheduleField("round", r)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
-                          scheduleForm.round === r
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-slate-200 text-slate-600 hover:border-slate-300 bg-white"
-                        }`}
-                      >
-                        Round {r}
-                      </button>
-                    ))}
-                  </div>
-                </Field>
-              </div>
             </StepPanel>
           )}
           {!isReschedule && step === 1 && (

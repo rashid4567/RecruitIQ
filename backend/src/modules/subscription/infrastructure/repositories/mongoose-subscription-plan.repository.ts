@@ -73,6 +73,15 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
     };
   }
 
+  async findActiveFreePlan(): Promise<SubscriptionPlan | null> {
+    const plan = await SubscriptionPlanModel.findOne({
+      planType: PlanType.Free,
+      isActive: true,
+    });
+
+    return plan ? this.toEntity(plan) : null;
+  }
+
   private toEntity(doc: ISubscriptionPlan): SubscriptionPlan {
     const props: SubscriptionPlanProps = {
       id: doc._id.toString(),
@@ -82,17 +91,17 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
       price: doc.price,
       currency: doc.currency,
       billingCycle: doc.billingCycle,
-      jobPostActiveDays : doc.jobPostActiveDays,
+      jobPostActiveDays: doc.jobPostActiveDays,
       billingInterval: doc.billingInterval,
       jobPostsPerMonth: doc.jobPostsPerMonth,
-      ResumeDownload : doc.ResumeDownload,
+      ResumeDownload: doc.ResumeDownload,
       screeningCredits: doc.screeningCredits,
       aiScoreCredits: doc.aiScoreCredits,
       featuresAccess: {
         interviewScheduling: doc.featuresAccess.interviewScheduling,
         advancedAnalytics: doc.featuresAccess.advancedAnalytics,
         prioritySupport: doc.featuresAccess.prioritySupport,
-        resumeParsing : doc.featuresAccess.resumeParsing,
+        resumeParsing: doc.featuresAccess.resumeParsing,
         aiResumeScoring: doc.featuresAccess.aiResumeScoring,
         candidateShortlisting: doc.featuresAccess.candidateShortlisting,
         exportReports: doc.featuresAccess.exportReports,

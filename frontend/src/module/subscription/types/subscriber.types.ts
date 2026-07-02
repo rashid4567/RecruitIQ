@@ -15,7 +15,15 @@ export interface SubscribersListItem {
   startDate: string;
   endDate: string;
 }
-
+export interface RawSubscribersResponse {
+  success: boolean;
+  message: string;
+  data: SubscribersListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 export interface PaginatedSubscribers {
   data: SubscribersListItem[];
 

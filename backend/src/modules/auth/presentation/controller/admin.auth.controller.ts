@@ -10,6 +10,7 @@ import {
   LoginRequestDTO,
   LoginResponseDTO,
 } from "../../application/dto/login.dto";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class AdminAuthController {
   constructor(
@@ -20,10 +21,11 @@ export class AdminAuthController {
       const { email, password } = LoginSchema.parse(req.body);
       const result = await this.adminLoginUC.execute({ email, password });
       if (result.role !== USER_ROLES.ADMIN) {
-        return res.status(HTTP_STATUS.FORBIDDEN).json({
-          success: false,
-          message: ERROR_MESSAGE.ACCESS_DENIED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.FORBIDDEN,
+          ERROR_MESSAGE.ACCESS_DENIED,
+        )
       }
 
       setRefreshCookie(res, result.refreshToken);

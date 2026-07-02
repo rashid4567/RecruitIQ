@@ -1,6 +1,7 @@
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ApplicationStatus } from "../../../../job-application/domain/entity/job-application.entity";
 import { JobApplicationRepository } from "../../../../job-application/domain/repository/job-application.repository";
+import { CandidateResponseStatus } from "../../../domain/entity/interview.entity";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
   GetRecruiterInterviewsRequestDTO,
@@ -49,10 +50,13 @@ export class GetRecruiterInterviewsUseCase implements IUseCase<
           candidateProfileImage: application.candidateProfileImage,
           recruiterId: application.recruiterId,
           applicationStatus: application.status,
+          candidateResponseStatus: CandidateResponseStatus.PENDING,
+          rescheduleRequested: false,
         };
       }
 
       const result = interview.toObject();
+
       return {
         interviewId: result.id,
         applicationId: application.applicationId,
@@ -66,6 +70,8 @@ export class GetRecruiterInterviewsUseCase implements IUseCase<
         roomId: result.roomId,
         applicationStatus: application.status,
         interviewStatus: result.status,
+        candidateResponseStatus: result.candidateResponseStatus,
+        rescheduleRequested: result.rescheduleRequested,
         title: result.title,
         round: result.round,
         scheduledAt: result.scheduledAt,

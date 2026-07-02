@@ -1,7 +1,13 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
+import { SendEmailByEventUseCase } from "../../../../email/application/usecase/email-template/send-email-by-event.usecase";
+import { EmailEvent } from "../../../../email/domain/constant/templateEvents";
 import { JobApplicationRepository } from "../../../../job-application/domain/repository/job-application.repository";
+import { JobRepository } from "../../../../job/domain/repositories/job.repository";
+import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
+import { NotificationType } from "../../../../notification/infrastructure/mongoose/notification.model";
 import { Interview } from "../../../domain/entity/interview.entity";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
@@ -16,6 +22,10 @@ export class ScheduleInterviewUseCase implements IUseCase<
   constructor(
     private readonly interviewRepo: InterviewRepository,
     private readonly applicationRepo: JobApplicationRepository,
+    private readonly userRepo: UserRepository,
+    private readonly jobRepo: JobRepository,
+    private readonly sendEmailByEventUC: SendEmailByEventUseCase,
+    private readonly createNotificationUC: CreateNotificationUseCase,
   ) {}
 
   async execute(
@@ -34,23 +44,18 @@ export class ScheduleInterviewUseCase implements IUseCase<
         ERROR_CODES.APPLICATION_CANNOT_SCHEDULE_INTERVIEW,
       );
     }
+    const round = await this.interviewRepo.getNextRound(
+  request.applicationId,
+);
+   
 
-    const existingInterview =
-      await this.interviewRepo.findByApplicationAndRound(
-        request.applicationId,
-        request.round ?? 1,
-      );
-
-    if (existingInterview) {
-      throw new ApplicationError(ERROR_CODES.INTERVIEW_ROUND_ALREADY_EXISTS);
-    }
     const interview = Interview.create({
       applicationId: application.id,
       jobId: application.jobId,
       candidateId: application.candidateId,
       recruiterId: application.recruiterId,
       roomId: request.roomId,
-      round: request.round,
+      round,
       title: request.title,
       description: request.description,
       mode: request.mode,
@@ -61,8 +66,13 @@ export class ScheduleInterviewUseCase implements IUseCase<
     });
 
     const savedInterview = await this.interviewRepo.create(interview);
-    application.markInterviewScheduled();
-    await this.applicationRepo.save(application);
+
+    if (!application.isSelected()) {
+      application.markInterviewScheduled();
+      await this.applicationRepo.save(application);
+    }
+
+    await this.notifyCandidate(savedInterview);
     const result = savedInterview.toObject();
 
     return {
@@ -72,7 +82,7 @@ export class ScheduleInterviewUseCase implements IUseCase<
       candidateId: result.candidateId,
       recruiterId: result.recruiterId,
       roomId: result.roomId,
-      round: result.round,
+      round: result.round, 
       title: result.title,
       description: result.description,
       mode: result.mode,
@@ -85,5 +95,63 @@ export class ScheduleInterviewUseCase implements IUseCase<
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
     };
+  }
+
+  private async notifyCandidate(interview: Interview): Promise<void> {
+    try {
+      const [candidate, recruiter, job] = await Promise.all([
+        this.userRepo.findById(interview.candidateId),
+        this.userRepo.findById(interview.recruiterId),
+        this.jobRepo.findById(interview.jobId),
+      ]);
+
+      if (!candidate || !job) {
+        return;
+      }
+
+      await this.sendEmailByEventUC.execute({
+        to: candidate.email.getValue(),
+        event: EmailEvent.INTERVIEW_SCHEDULED,
+        variables: {
+          candidateName: candidate.fullName,
+          recruiterName: recruiter?.fullName ?? "Recruiter",
+          companyName: job.companyName,
+          jobTitle: job.title,
+          interviewTitle: interview.title,
+          interviewRound: interview.round.toString(),
+          interviewMode: interview.mode,
+          interviewDate: interview.scheduledAt.toLocaleString(),
+          interviewDuration: `${interview.durationInMinutes} minutes`,
+          meetingLink: interview.meetingLink ?? "",
+          interviewLocation: interview.location ?? "N/A",
+          interviewDescription: interview.description ?? "",
+        },
+      });
+
+      await this.createNotificationUC.execute({
+        recipientId: interview.candidateId,
+        recipientRole: "candidate",
+        title: "Interview Scheduled",
+        message: `Your Round ${interview.round} interview for "${job.title}" at ${job.companyName} has been scheduled.`,
+        type: NotificationType.INTERVIEW_SCHEDULED,
+        actionUrl: "/candidate/interviews",
+        referenceId: interview.id,
+        metadata: {
+          interviewId: interview.id,
+          applicationId: interview.applicationId,
+          recruiterId: interview.recruiterId,
+          candidateId: interview.candidateId,
+          jobId: interview.jobId,
+          round: interview.round,
+          mode: interview.mode,
+          scheduledAt: interview.scheduledAt,
+          durationInMinutes: interview.durationInMinutes,
+          meetingLink: interview.meetingLink,
+          location: interview.location,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to send interview notification/email:", error);
+    }
   }
 }

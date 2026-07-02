@@ -18,11 +18,6 @@ const descriptionSchema = z
   .max(1000, 'Description must be under 1000 characters')
   .optional();
 
-const roundSchema = z
-  .coerce.number({ error: 'Round must be a number' })
-  .int('Round must be a whole number')
-  .min(1, 'Round must be at least 1')
-  .max(10, 'Round cannot exceed 10');
 
 const durationSchema = z
   .coerce.number({ error: 'Duration is required' })
@@ -112,7 +107,6 @@ function refineFutureDateTime(
 export const scheduleInterviewSchema = z
   .object({
     applicationId: z.string().min(1, 'Application ID is required'),
-    round: roundSchema,
     title: titleSchema,
     description: descriptionSchema,
     mode: interviewModeEnum,
@@ -134,7 +128,7 @@ export const scheduleInterviewSchema = z
 export type ScheduleFormValues = z.infer<typeof scheduleInterviewSchema>;
 
 export const scheduleStepFields: Record<number, Array<keyof ScheduleFormValues>> = {
-  0: ['applicationId', 'round'],
+  0: ['applicationId',],
   1: ['title', 'mode', 'meetingLink', 'location'],
   2: ['date', 'hour', 'minute', 'durationInMinutes'],
   3: [],
@@ -149,7 +143,6 @@ export function toScheduleInterviewRequest(
 
   return {
     applicationId: form.applicationId,
-    round: form.round,
     title: form.title,
     description: form.description || undefined,
     mode: form.mode,

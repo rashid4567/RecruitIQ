@@ -4,7 +4,7 @@ import { AUTH_ROUTES } from "../constants/auth-routes.constants";
 
 const router = Router();
 router.post(AUTH_ROUTES.FORGOT_PASSWORD, ForgotpasswordController.forgotPassword);
-router.post(AUTH_ROUTES.VERIFY_OTP, ForgotpasswordController.resetPassword);
+router.post(AUTH_ROUTES.RESET_PASSWORD, ForgotpasswordController.resetPassword);
 
 
 export default router;

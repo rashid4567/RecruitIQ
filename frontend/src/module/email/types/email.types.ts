@@ -12,11 +12,14 @@ export interface EmailLog {
 }
 
 export type EmailTemplateEvent =
+  | "ACCOUNT_CREATED"
   | "JOB_APPLIED"
   | "INTERVIEW_SCHEDULED"
+  | "INTERVIEW_RESCHEDULED"
+  | "INTERVIEW_RESCHEDULE_REQUEST_REJECTED"
   | "SELECTED"
   | "REJECTED"
-  | "ACCOUNT_CREATED"
+  | "SUBSCRIPTION_PURCHASED"
   | "SUBSCRIPTION_EXPIRING"
   | "SUBSCRIPTION_EXPIRED";
 
@@ -30,59 +33,32 @@ export interface EmailTemplate {
   createdAt: string;
 }
 
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  event: EmailTemplateEvent;
+  subject: string;
+  body: string;
+  isActive: boolean;
+  createdAt: string;
+}
 
-// export interface EmailLog {
-//   type: EmailLogType;
-//   to: string;
-//   subject: string;
-//   status: EmailLogStatus;
-//   timeStamp: string;
-//   error?: string;
-// }
+export interface createEmailTemplatePayload {
+  name: string;
+  event: EmailTemplateEvent;
+  subject: string;
+  body: string;
+}
 
+export interface UpdateEmailTemplatePayload {
+  subject?: string;
+  body?: string;
+}
 
-// export type EmailTemplateEvent =
-//   | "JOB_APPLIED"
-//   | "INTERVIEW_SCHEDULED"
-//   | "SELECTED"
-//   | "REJECTED"
-//   | "ACCOUNT_CREATED"
-//   | "SUBSCRIPTION_EXPIRING"
-//   | "SUBSCRIPTION_EXPIRED";
-
-
-    export interface EmailTemplate{
-        id : string,
-        name : string,
-        event : EmailTemplateEvent,
-        subject : string,
-        body : string,
-        isActive : boolean,
-        createdAt : string,
-    }
-
-    
-    export interface createEmailTemplatePayload {
-        name : string,
-        event : EmailTemplateEvent,
-        subject : string,
-        body : string,
-    }
-
-    
-    export interface UpdateEmailTemplatePayload {
-        subject?:string,
-        body?:string,
-    }
-
-    export interface ToggleEmailInputPayload {
-        isActive : boolean,
-    }
-    export interface sendTestEmailPayload {
-        id : string,
-        email : string,
-    }
-
-
-
-
+export interface ToggleEmailInputPayload {
+  isActive: boolean;
+}
+export interface sendTestEmailPayload {
+  id: string;
+  email: string;
+}

@@ -9,17 +9,15 @@ import type {
   UpdatePlanPayload,
 } from "../types/subscription-plan.types";
 import type {
-  SubscribersListItem,
   SubscriberFilters,
   PaginatedSubscribers,
-
+  RawSubscribersResponse,
 } from "../types/subscriber.types";
 import type {
   PlanType,
   BillingCycle,
   Currency,
 } from "../constant/subscription.constants";
-import type { RawSubscribersResponse } from "../types/subscription-api.types";
 
 interface WrappedSubscriptionPlan {
   props: RawSubscriptionPlan;
@@ -39,7 +37,8 @@ function toPlan(data: PlanSource): SubscriptionPlan {
     advancedAnalytics: source.featuresAccess?.advancedAnalytics ?? false,
     prioritySupport: source.featuresAccess?.prioritySupport ?? false,
     aiResumeScoring: source.featuresAccess?.aiResumeScoring ?? false,
-    candidateShortlisting: source.featuresAccess?.candidateShortlisting ?? false,
+    candidateShortlisting:
+      source.featuresAccess?.candidateShortlisting ?? false,
     exportReports: source.featuresAccess?.exportReports ?? false,
   };
 
@@ -89,14 +88,23 @@ export async function getPlans(query: {
   return { plans, total: plans.length };
 }
 
-export async function getPlanById(planId: string): Promise<SubscriptionPlan | null> {
+export async function getPlanById(
+  planId: string,
+): Promise<SubscriptionPlan | null> {
   const { data } = await api.get(`/admin/plans/${planId}`);
   if (!data.data) return null;
   return toPlan(data.data);
 }
 
-export async function getPlanByType(planType: PlanType): Promise<SubscriptionPlan | null> {
-  const result = await getPlans({ page: 1, limit: 1, planType, isActive: true });
+export async function getPlanByType(
+  planType: PlanType,
+): Promise<SubscriptionPlan | null> {
+  const result = await getPlans({
+    page: 1,
+    limit: 1,
+    planType,
+    isActive: true,
+  });
   return result.plans[0] ?? null;
 }
 
@@ -112,10 +120,7 @@ export async function updatePlan(
   id: string,
   payload: UpdatePlanPayload,
 ): Promise<SubscriptionPlan> {
-  const { data } = await api.patch(
-    `/admin/plans/${id}`,
-    payload,
-  );
+  const { data } = await api.patch(`/admin/plans/${id}`, payload);
 
   return toPlan(data.data);
 }
@@ -128,7 +133,9 @@ export async function unhidePlan(planId: string): Promise<void> {
   await api.patch(`/admin/plans/${planId}/unhide`);
 }
 
-export async function getSubscribers(filters: SubscriberFilters): Promise<PaginatedSubscribers> {
+export async function getSubscribers(
+  filters: SubscriberFilters,
+): Promise<PaginatedSubscribers> {
   const { data } = await api.get<RawSubscribersResponse>("/admin/subscribers", {
     params: {
       page: filters.page,
@@ -139,7 +146,7 @@ export async function getSubscribers(filters: SubscriberFilters): Promise<Pagina
   });
 
   return {
-    data: data.data.map((item): SubscribersListItem => ({
+    data: data.data.map((item) => ({
       id: item.id,
       recruiterId: item.recruiterId,
       recruiterName: item.recruiterName,
@@ -149,9 +156,9 @@ export async function getSubscribers(filters: SubscriberFilters): Promise<Pagina
       startDate: item.startDate,
       endDate: item.endDate,
     })),
-    total: data.pagination.total,
-    page: data.pagination.page,
-    limit: data.pagination.limit,
-    totalPages: data.pagination.totalPages,
+    total: data.total,
+    page: data.page,
+    limit: data.limit,
+    totalPages: data.totalPages,
   };
 }

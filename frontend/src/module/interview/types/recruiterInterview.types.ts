@@ -1,5 +1,5 @@
 import type { ApplicationStatus } from "@/module/job-application/types/jobApplication.types";
-import type { InterviewMode, InterviewStatus } from "./interview.types";
+import type { CandidateResponseStatus, InterviewMode, InterviewStatus } from "./interview.types";
 
 export interface ScheduleInterviewRequest {
   applicationId: string;
@@ -47,6 +47,8 @@ export interface RecruiterInterviewItem {
   recruiterId: string;
   applicationStatus: ApplicationStatus;
   interviewStatus?: InterviewStatus;
+  candidateResponseStatus: CandidateResponseStatus;
+  rescheduleRequested: boolean;
   title?: string;
   round?: number;
   scheduledAt?: string;
@@ -64,6 +66,12 @@ export interface GetRecruiterInterviewDetailsResponse {
   recruiterId: string;
   applicationStatus: ApplicationStatus;
   interviewStatus: InterviewStatus;
+  candidateResponseStatus: CandidateResponseStatus;
+  candidateRespondedAt?: string;
+  candidateResponseMessage?: string;
+  rescheduleRequested: boolean;
+  requestedReason?: string;
+  rescheduleRequestedAt?: string;
   title: string;
   description?: string;
   round: number;
@@ -161,5 +169,17 @@ export interface EndInterviewResponse {
   notes?: string;
   reminderSent: boolean;
   createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ApproveRescheduleResponse {
+  id: string;
+  rescheduleRequested: boolean;
+  updatedAt?: string;
+}
+
+export interface RejectRescheduleResponse {
+  id: string;
+  rescheduleRequested: boolean;
   updatedAt?: string;
 }

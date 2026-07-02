@@ -11,12 +11,6 @@ export const ScheduleInterviewSchema = z
       .min(1, "Application ID is required")
       .regex(objectIdRegex, "Invalid application ID"),
 
-    round: z
-      .number()
-      .int("Round must be an integer")
-      .min(1, "Round must be at least 1")
-      .max(20, "Round cannot exceed 20")
-      .optional(),
 
     title: z
       .string()

@@ -18,14 +18,22 @@ import {
   X,
   CalendarClock,
   CheckCircle2,
+  RefreshCw,
+  Hourglass,
   Sparkles,
 } from "lucide-react";
 import { useCandidateInterviews } from "../hooks/candidate/useCandidateInterviews";
 import { useJoinInterview } from "../hooks/candidate/useJoinInterview";
 import type { GetCandidateInterviewsResponse } from "../types/candidateInterview.types";
-import { InterviewMode, InterviewStatus } from "../types/interview.types";
+import {
+  InterviewMode,
+  InterviewStatus,
+  CandidateResponseStatus,
+} from "../types/interview.types";
 import Sidebar from "../../candidate/pages/components/personalInfo/shared/candidateSidebar";
 import Header from "@/pages/landing/sections/Header";
+import InterviewDecisionModal from "./components/interview-decision-modal";
+import RequestRescheduleModal from "./components/request-reschedule-modal";
 
 type ViewMode = "timeline" | "calendar" | "list";
 type StatusFilter = "ALL" | InterviewStatus;
@@ -33,6 +41,16 @@ type ModeFilter = "ALL" | InterviewMode;
 
 interface ExpandedState {
   [key: string]: boolean;
+}
+
+interface DecisionModalState {
+  open: boolean;
+  interview?: GetCandidateInterviewsResponse;
+}
+
+interface RescheduleModalState {
+  open: boolean;
+  interview?: GetCandidateInterviewsResponse;
 }
 
 const ITEMS_PER_PAGE = 6;
@@ -137,6 +155,28 @@ function isPast(interview: GetCandidateInterviewsResponse): boolean {
   return new Date(interview.scheduledAt).getTime() <= Date.now();
 }
 
+// A candidate can still ask for a new time as long as the interview hasn't
+// moved past SCHEDULED/RESCHEDULED (no point rescheduling something ongoing
+// or already resolved), and there isn't already a request in flight.
+function canRequestReschedule(
+  interview: GetCandidateInterviewsResponse,
+): boolean {
+  if (!isUpcoming(interview)) return false;
+  if (interview.rescheduleRequested) return false;
+  const modifiableStatuses: string[] = [
+    InterviewStatus.SCHEDULED,
+    InterviewStatus.RESCHEDULED,
+  ];
+  return modifiableStatuses.includes(interview.status ?? "");
+}
+
+function needsResponse(interview: GetCandidateInterviewsResponse): boolean {
+  return (
+    isUpcoming(interview) &&
+    interview.candidateResponseStatus === CandidateResponseStatus.PENDING
+  );
+}
+
 const JOINABLE_WINDOW_MS = 15 * 60 * 1000;
 
 function canJoinNow(interview: GetCandidateInterviewsResponse): boolean {
@@ -207,6 +247,35 @@ function getStatusConfig(
   interview: GetCandidateInterviewsResponse,
 ): StatusConfig {
   return STATUS_CONFIG[interview.status ?? ""] ?? DEFAULT_STATUS_CONFIG;
+}
+
+// Candidate's own response to the invite — surfaced separately from the
+// interview's lifecycle status above.
+const RESPONSE_CONFIG: Record<string, StatusConfig> = {
+  [CandidateResponseStatus.PENDING]: {
+    label: "Awaiting your response",
+    pill: "bg-amber-50 text-amber-700 border border-amber-200",
+    dot: "bg-amber-500",
+    bar: "bg-amber-500",
+  },
+  [CandidateResponseStatus.ACCEPTED]: {
+    label: "You accepted",
+    pill: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    dot: "bg-emerald-500",
+    bar: "bg-emerald-500",
+  },
+  [CandidateResponseStatus.DECLINED]: {
+    label: "You declined",
+    pill: "bg-red-50 text-red-700 border border-red-200",
+    dot: "bg-red-500",
+    bar: "bg-red-500",
+  },
+};
+
+function getResponseConfig(
+  interview: GetCandidateInterviewsResponse,
+): StatusConfig | null {
+  return RESPONSE_CONFIG[interview.candidateResponseStatus ?? ""] ?? null;
 }
 
 function groupByDate(
@@ -286,6 +355,13 @@ export default function MyInterviews() {
   const [modeFilter, setModeFilter] = useState<ModeFilter>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [decisionModal, setDecisionModal] = useState<DecisionModalState>({
+    open: false,
+  });
+  const [rescheduleModal, setRescheduleModal] = useState<RescheduleModalState>({
+    open: false,
+  });
+
   const { getInterviews, loading, error } = useCandidateInterviews();
   const {
     submit: submitJoin,
@@ -313,6 +389,66 @@ export default function MyInterviews() {
     if (!interview.id) return;
     navigate(`/candidate/interview/${interview.id}`);
   };
+
+  // ── reschedule / accept / decline actions ──────────────────────────────
+
+  function openDecision(
+    e: React.MouseEvent,
+    interview: GetCandidateInterviewsResponse,
+  ) {
+    e.stopPropagation();
+    setDecisionModal({ open: true, interview });
+  }
+
+  function closeDecisionModal() {
+    setDecisionModal({ open: false });
+  }
+
+  function handleAccepted(interviewId: string) {
+    setInterviews((prev) =>
+      prev.map((i) =>
+        i.id === interviewId
+          ? { ...i, candidateResponseStatus: CandidateResponseStatus.ACCEPTED }
+          : i,
+      ),
+    );
+    setDecisionModal({ open: false });
+    loadInterviews();
+  }
+
+  function handleRejected(interviewId: string) {
+    setInterviews((prev) =>
+      prev.map((i) =>
+        i.id === interviewId
+          ? { ...i, candidateResponseStatus: CandidateResponseStatus.DECLINED }
+          : i,
+      ),
+    );
+    setDecisionModal({ open: false });
+    loadInterviews();
+  }
+
+  function openRescheduleRequest(
+    e: React.MouseEvent,
+    interview: GetCandidateInterviewsResponse,
+  ) {
+    e.stopPropagation();
+    setRescheduleModal({ open: true, interview });
+  }
+
+  function closeRescheduleModal() {
+    setRescheduleModal({ open: false });
+  }
+
+  function handleRescheduleRequested(interviewId: string) {
+    setInterviews((prev) =>
+      prev.map((i) =>
+        i.id === interviewId ? { ...i, rescheduleRequested: true } : i,
+      ),
+    );
+    setRescheduleModal({ open: false });
+    loadInterviews();
+  }
 
   const scheduledInterviews = useMemo(
     () =>
@@ -372,7 +508,7 @@ export default function MyInterviews() {
     ).length;
 
     const pendingConfirmation = allUpcoming.filter(
-      (i) => i.status === InterviewStatus.SCHEDULED,
+      (i) => i.candidateResponseStatus === CandidateResponseStatus.PENDING,
     ).length;
 
     return {
@@ -429,16 +565,13 @@ export default function MyInterviews() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Fixed top header */}
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
       <Header />
 
-      {/* Fixed sidebar — pinned below the header, own scroll if it ever overflows */}
       <div className="fixed left-0 top-16 bottom-0 w-60 z-40 overflow-y-auto border-r border-slate-100 bg-white">
         <Sidebar />
       </div>
 
-      {/* Main content — offset by header height (pt-16) and sidebar width (ml-60) */}
       <div className="ml-60 pt-16 flex flex-col min-h-screen">
         <div className="px-8 py-6">
           {loading && interviews.length === 0 && (
@@ -475,7 +608,6 @@ export default function MyInterviews() {
                 </div>
               )}
 
-              {/* Compact stats bar */}
               <div className="grid grid-cols-3 gap-3 mb-6">
                 <StatCard
                   icon={Clock}
@@ -520,13 +652,24 @@ export default function MyInterviews() {
                   <Sparkles className="absolute -right-4 -top-4 w-28 h-28 text-white/10" />
                   <div className="relative flex items-center justify-between gap-4 flex-wrap">
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                         <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide bg-white/15 px-2 py-0.5 rounded-full">
                           <CalendarClock size={11} /> Next up
                         </span>
                         <span className="text-xs text-blue-100">
                           {formatRelative(nextInterview.scheduledAt!)}
                         </span>
+                        {nextInterview.candidateResponseStatus ===
+                          CandidateResponseStatus.PENDING && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide bg-amber-400/90 text-amber-950 px-2 py-0.5 rounded-full">
+                            Awaiting your response
+                          </span>
+                        )}
+                        {nextInterview.rescheduleRequested && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide bg-white/15 px-2 py-0.5 rounded-full">
+                            <Hourglass size={9} /> Reschedule requested
+                          </span>
+                        )}
                       </div>
                       <p className="text-lg font-bold truncate">
                         {nextInterview.title || "Interview"}
@@ -553,33 +696,58 @@ export default function MyInterviews() {
                       </div>
                     </div>
 
-                    {inferMode(nextInterview) === InterviewMode.ONLINE &&
-                      nextInterview.meetingLink && (
+                    <div className="flex items-center gap-2 shrink-0">
+                      {needsResponse(nextInterview) ? (
                         <button
-                          onClick={(e) => handleJoin(e, nextInterview)}
-                          disabled={
-                            !canJoinNow(nextInterview) ||
-                            joiningId === nextInterview.id
-                          }
-                          className={`inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0 ${
-                            canJoinNow(nextInterview)
-                              ? "bg-white text-blue-700 hover:bg-blue-50"
-                              : "bg-white/15 text-white/60 cursor-not-allowed"
-                          }`}
-                          title={
-                            canJoinNow(nextInterview)
-                              ? "Join the interview"
-                              : "Join link opens 15 minutes before start"
-                          }
+                          onClick={(e) => openDecision(e, nextInterview)}
+                          className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg bg-white text-blue-700 hover:bg-blue-50 transition-colors"
                         >
-                          {joiningId === nextInterview.id ? (
-                            <Loader2 size={14} className="animate-spin" />
-                          ) : (
-                            <ExternalLink size={14} />
-                          )}
-                          Join interview
+                          <CheckCircle2 size={14} />
+                          Respond
                         </button>
+                      ) : (
+                        <>
+                          {canRequestReschedule(nextInterview) && (
+                            <button
+                              onClick={(e) =>
+                                openRescheduleRequest(e, nextInterview)
+                              }
+                              className="inline-flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2.5 rounded-lg bg-white/15 text-white hover:bg-white/25 transition-colors"
+                            >
+                              <RefreshCw size={13} />
+                              Reschedule
+                            </button>
+                          )}
+                          {inferMode(nextInterview) === InterviewMode.ONLINE &&
+                            nextInterview.meetingLink && (
+                              <button
+                                onClick={(e) => handleJoin(e, nextInterview)}
+                                disabled={
+                                  !canJoinNow(nextInterview) ||
+                                  joiningId === nextInterview.id
+                                }
+                                className={`inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors ${
+                                  canJoinNow(nextInterview)
+                                    ? "bg-white text-blue-700 hover:bg-blue-50"
+                                    : "bg-white/15 text-white/60 cursor-not-allowed"
+                                }`}
+                                title={
+                                  canJoinNow(nextInterview)
+                                    ? "Join the interview"
+                                    : "Join link opens 15 minutes before start"
+                                }
+                              >
+                                {joiningId === nextInterview.id ? (
+                                  <Loader2 size={14} className="animate-spin" />
+                                ) : (
+                                  <ExternalLink size={14} />
+                                )}
+                                Join interview
+                              </button>
+                            )}
+                        </>
                       )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -598,7 +766,9 @@ export default function MyInterviews() {
                     {restUpcoming.map((interview) => {
                       const mode = inferMode(interview);
                       const statusCfg = getStatusConfig(interview);
+                      const responseCfg = getResponseConfig(interview);
                       const joinable = canJoinNow(interview);
+                      const pendingResponse = needsResponse(interview);
                       return (
                         <div
                           key={interview.id}
@@ -609,7 +779,7 @@ export default function MyInterviews() {
                             className={`absolute left-0 top-0 bottom-0 w-1 ${statusCfg.bar}`}
                           />
 
-                          <div className="flex items-start justify-between gap-2 mb-2.5">
+                          <div className="flex items-start justify-between gap-2 mb-2">
                             <p className="font-semibold text-slate-900 text-sm truncate">
                               {interview.title || "Interview"}
                             </p>
@@ -623,6 +793,24 @@ export default function MyInterviews() {
                             </span>
                           </div>
 
+                          <div className="flex items-center gap-2 flex-wrap mb-2.5">
+                            {responseCfg && (
+                              <span
+                                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${responseCfg.pill}`}
+                              >
+                                <span
+                                  className={`w-1 h-1 rounded-full ${responseCfg.dot}`}
+                                />
+                                {responseCfg.label}
+                              </span>
+                            )}
+                            {interview.rescheduleRequested && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">
+                                <Hourglass size={9} /> Reschedule requested
+                              </span>
+                            )}
+                          </div>
+
                           <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
                             <span className="flex items-center gap-1">
                               <Calendar size={12} />{" "}
@@ -634,8 +822,8 @@ export default function MyInterviews() {
                             </span>
                           </div>
 
-                          <div className="flex items-center justify-between">
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded-md">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded-md shrink-0">
                               {mode === InterviewMode.ONLINE ? (
                                 <Video size={11} />
                               ) : (
@@ -646,8 +834,16 @@ export default function MyInterviews() {
                                 : interview.location || "In-person"}
                             </span>
 
-                            {mode === InterviewMode.ONLINE &&
-                            interview.meetingLink ? (
+                            {pendingResponse ? (
+                              <button
+                                onClick={(e) => openDecision(e, interview)}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg text-white bg-amber-500 hover:bg-amber-600 transition-colors"
+                              >
+                                <CheckCircle2 size={12} />
+                                Respond
+                              </button>
+                            ) : mode === InterviewMode.ONLINE &&
+                              interview.meetingLink ? (
                               <button
                                 onClick={(e) => handleJoin(e, interview)}
                                 disabled={
@@ -677,6 +873,18 @@ export default function MyInterviews() {
                               </span>
                             )}
                           </div>
+
+                          {!pendingResponse &&
+                            canRequestReschedule(interview) && (
+                              <button
+                                onClick={(e) =>
+                                  openRescheduleRequest(e, interview)
+                                }
+                                className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-violet-600 hover:text-violet-700 bg-violet-50 hover:bg-violet-100 px-2 py-1 rounded-md transition-colors"
+                              >
+                                <RefreshCw size={10} /> Request reschedule
+                              </button>
+                            )}
                         </div>
                       );
                     })}
@@ -839,6 +1047,8 @@ export default function MyInterviews() {
                               <div className="p-4 space-y-2.5">
                                 {dateInterviews.map((interview) => {
                                   const statusCfg = getStatusConfig(interview);
+                                  const responseCfg =
+                                    getResponseConfig(interview);
                                   return (
                                     <div
                                       key={interview.id}
@@ -849,7 +1059,7 @@ export default function MyInterviews() {
                                         className={`absolute left-0 top-0 bottom-0 w-1 ${statusCfg.bar}`}
                                       />
                                       <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
                                           <p className="font-semibold text-slate-900 text-sm truncate">
                                             {interview.title || "Interview"}
                                           </p>
@@ -861,6 +1071,16 @@ export default function MyInterviews() {
                                             />
                                             {statusCfg.label}
                                           </span>
+                                          {responseCfg && (
+                                            <span
+                                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${responseCfg.pill}`}
+                                            >
+                                              <span
+                                                className={`w-1 h-1 rounded-full ${responseCfg.dot}`}
+                                              />
+                                              {responseCfg.label}
+                                            </span>
+                                          )}
                                         </div>
                                         <p className="text-xs text-slate-400 mt-1">
                                           {formatTime(interview.scheduledAt!)}
@@ -895,6 +1115,7 @@ export default function MyInterviews() {
                   <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
                     {paginatedViewSource.map((interview) => {
                       const statusCfg = getStatusConfig(interview);
+                      const responseCfg = getResponseConfig(interview);
                       const mode = inferMode(interview);
                       return (
                         <div
@@ -918,6 +1139,11 @@ export default function MyInterviews() {
                             <p className="font-semibold text-slate-900 text-sm truncate">
                               {interview.title || "Interview"}
                             </p>
+                            {interview.rescheduleRequested && (
+                              <span className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">
+                                <Hourglass size={9} /> Reschedule requested
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-1.5 text-xs text-slate-400 shrink-0">
                             <Clock size={12} />{" "}
@@ -935,6 +1161,16 @@ export default function MyInterviews() {
                               ? "Online"
                               : "In-person"}
                           </span>
+                          {responseCfg && (
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-semibold shrink-0 ${responseCfg.pill}`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${responseCfg.dot}`}
+                              />
+                              {responseCfg.label}
+                            </span>
+                          )}
                           <span
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0 ${statusCfg.pill}`}
                           >
@@ -943,6 +1179,14 @@ export default function MyInterviews() {
                             />
                             {statusCfg.label}
                           </span>
+                          {needsResponse(interview) && (
+                            <button
+                              onClick={(e) => openDecision(e, interview)}
+                              className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-md text-white bg-amber-500 hover:bg-amber-600 transition-colors shrink-0"
+                            >
+                              Respond
+                            </button>
+                          )}
                           <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
                         </div>
                       );
@@ -1042,6 +1286,21 @@ export default function MyInterviews() {
           <p>© 2025 My Interviews. All rights reserved.</p>
         </footer>
       </div>
+
+      <InterviewDecisionModal
+        isOpen={decisionModal.open}
+        onClose={closeDecisionModal}
+        interview={decisionModal.interview}
+        onAccepted={handleAccepted}
+        onRejected={handleRejected}
+      />
+
+      <RequestRescheduleModal
+        isOpen={rescheduleModal.open}
+        onClose={closeRescheduleModal}
+        interview={rescheduleModal.interview}
+        onRequested={handleRescheduleRequested}
+      />
     </div>
   );
 }

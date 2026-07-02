@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Users,
   TrendingUp,
@@ -8,6 +8,8 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Inbox,
+  AlertCircle,
 } from "lucide-react";
 import Sidebar from "@/components/admin/sideBar";
 import { useSubscribers } from "../hooks/Admin.subscribers.Hooks/useSubscribers";
@@ -30,6 +32,15 @@ const getStatusColor = (status: string) => {
 
 const getAvatar = (name: string) =>
   `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
+
+const formatDate = (d?: string) =>
+  d
+    ? new Date(d).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "-";
 
 const Pagination = ({
   currentPage,
@@ -58,7 +69,7 @@ const Pagination = ({
   };
 
   return (
-    <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100 bg-white">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-8 py-4 border-t border-gray-100 bg-white">
       <p className="text-sm text-gray-400">
         Page <span className="font-medium text-gray-600">{currentPage}</span> of{" "}
         {totalPages}
@@ -106,23 +117,66 @@ const Pagination = ({
   );
 };
 
+const StatCard = ({
+  label,
+  value,
+  icon,
+  iconBg,
+  iconColor,
+  sub,
+  subColor = "text-gray-400",
+}: {
+  label: string;
+  value: React.ReactNode;
+  icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
+  sub?: string;
+  subColor?: string;
+}) => (
+  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex items-start justify-between">
+      <div>
+        <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">
+          {label}
+        </p>
+        <p className="text-4xl font-bold text-gray-900 mt-3">{value}</p>
+        {sub && <p className={`text-xs font-medium mt-1 ${subColor}`}>{sub}</p>}
+      </div>
+      <div className={`w-10 h-10 ${iconBg} border rounded-xl flex items-center justify-center`}>
+        <div className={iconColor}>{icon}</div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function BillingControl() {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(
-    undefined,
-  );
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const limit = 10;
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, statusFilter]);
 
   const { data, isLoading, isError, isFetching, refetch } = useSubscribers({
     page: currentPage,
     limit,
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     status: statusFilter,
   });
 
   const subscribers = data?.data || [];
   const totalPages = data?.totalPages || 1;
+  const activeCount = subscribers.filter(
+    (s) => s.status?.toLowerCase() === "active",
+  ).length;
 
   return (
     <div className="flex h-screen bg-[#F7F8FA]">
@@ -147,9 +201,12 @@ export default function BillingControl() {
 
             <button
               onClick={refetch}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors"
+              disabled={isFetching || isLoading}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors disabled:opacity-50"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`}
+              />
               Refresh
             </button>
           </div>
@@ -166,58 +223,29 @@ export default function BillingControl() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">
-                    Total Subscribers
-                  </p>
-                  <p className="text-4xl font-bold text-gray-900 mt-3">
-                    {data?.total || 0}
-                  </p>
-                </div>
-                <div className="w-10 h-10 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center">
-                  <Users className="w-5 h-5 text-gray-500" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">
-                    Active Now
-                  </p>
-                  <p className="text-4xl font-bold text-emerald-600 mt-3">
-                    {
-                      subscribers.filter(
-                        (s) => s.status?.toLowerCase() === "active",
-                      ).length
-                    }
-                  </p>
-                </div>
-                <div className="w-10 h-10 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-emerald-500" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">
-                    Growth This Month
-                  </p>
-                  <p className="text-4xl font-bold text-gray-900 mt-3">+18%</p>
-                  <p className="text-xs text-emerald-500 font-medium mt-1">
-                    ↑ from last month
-                  </p>
-                </div>
-                <div className="w-10 h-10 bg-sky-50 border border-sky-100 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-sky-500" />
-                </div>
-              </div>
-            </div>
+            <StatCard
+              label="Total Subscribers"
+              value={data?.total ?? 0}
+              icon={<Users className="w-5 h-5" />}
+              iconBg="bg-gray-50 border-gray-100"
+              iconColor="text-gray-500"
+            />
+            <StatCard
+              label="Active on This Page"
+              value={<span className="text-emerald-600">{activeCount}</span>}
+              icon={<DollarSign className="w-5 h-5" />}
+              iconBg="bg-emerald-50 border-emerald-100"
+              iconColor="text-emerald-500"
+            />
+            <StatCard
+              label="Growth This Month"
+              value="+18%"
+              icon={<TrendingUp className="w-5 h-5" />}
+              iconBg="bg-sky-50 border-sky-100"
+              iconColor="text-sky-500"
+              sub="↑ from last month"
+              subColor="text-emerald-500"
+            />
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -227,7 +255,8 @@ export default function BillingControl() {
                   All Subscriptions
                 </h2>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {subscribers.length} results · Updated just now
+                  {data?.total ?? subscribers.length} results
+                  {isFetching && !isLoading ? " · Updating…" : ""}
                 </p>
               </div>
 
@@ -282,7 +311,7 @@ export default function BillingControl() {
                 </thead>
 
                 <tbody className="divide-y divide-gray-50">
-                  {isLoading || isFetching ? (
+                  {isLoading ? (
                     Array.from({ length: limit }).map((_, i) => (
                       <tr key={i} className="animate-pulse">
                         <td className="px-6 py-5">
@@ -314,24 +343,33 @@ export default function BillingControl() {
                   ) : isError ? (
                     <tr>
                       <td colSpan={8} className="py-20 text-center">
-                        <p className="text-sm text-red-500 mb-3">
-                          Unable to load subscription data
-                        </p>
-                        <button
-                          onClick={refetch}
-                          className="px-5 py-2 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl hover:bg-red-100 transition-colors"
-                        >
-                          Retry
-                        </button>
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-12 h-12 bg-red-50 border border-red-100 rounded-2xl flex items-center justify-center">
+                            <AlertCircle className="w-5 h-5 text-red-500" />
+                          </div>
+                          <p className="text-sm text-red-500">
+                            Unable to load subscription data
+                          </p>
+                          <button
+                            onClick={refetch}
+                            className="px-5 py-2 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl hover:bg-red-100 transition-colors"
+                          >
+                            Retry
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ) : subscribers.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan={8}
-                        className="py-20 text-center text-sm text-gray-400"
-                      >
-                        No matching subscribers found
+                      <td colSpan={8} className="py-20 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-12 h-12 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-center">
+                            <Inbox className="w-5 h-5 text-gray-300" />
+                          </div>
+                          <p className="text-sm text-gray-400">
+                            No matching subscribers found
+                          </p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -362,33 +400,14 @@ export default function BillingControl() {
                           {sub.planName}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-500">
-                          {sub.startDate
-                            ? new Date(sub.startDate).toLocaleDateString(
-                                "en-GB",
-                                {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                },
-                              )
-                            : "-"}
+                          {formatDate(sub.startDate)}
                         </td>
-
                         <td className="px-6 py-4 text-sm text-gray-500">
-                          {sub.endDate
-                            ? new Date(sub.endDate).toLocaleDateString(
-                                "en-GB",
-                                {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                },
-                              )
-                            : "-"}
+                          {formatDate(sub.endDate)}
                         </td>
                         <td className="px-6 py-4">
                           <span
-                            className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(sub.status)}`}
+                            className={`inline-block px-3 py-1 text-xs font-semibold rounded-full capitalize ${getStatusColor(sub.status)}`}
                           >
                             {sub.status}
                           </span>

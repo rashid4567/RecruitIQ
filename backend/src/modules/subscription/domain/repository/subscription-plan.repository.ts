@@ -16,6 +16,7 @@ export interface SubscriptionPlanRepository extends BaseRepository<SubscriptionP
   update(plan: SubscriptionPlan): Promise<void>;
   delete(id: string): Promise<void>;
   findByPlanType(type: PlanType): Promise<SubscriptionPlan | null>;
+    findActiveFreePlan(): Promise<SubscriptionPlan | null>;
   findAll(filter: SubscriptionPlanFilter): Promise<{
     data: SubscriptionPlan[];
     total: number;

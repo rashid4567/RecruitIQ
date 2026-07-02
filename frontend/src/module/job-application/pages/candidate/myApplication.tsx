@@ -5,7 +5,6 @@ import { useMyApplications } from "../../hooks/candidate/useMyApplications";
 import { useWithdrawApplication } from "../../hooks/candidate/useWithdrawApplication";
 import {
   ApplicationStatus,
-  type JobApplication,
 } from "../../types/jobApplication.types"
 import Sidebar from "../../../candidate/pages/components/personalInfo/shared/candidateSidebar"
 import { StatsCards } from "../component/candidate-applications/StatsCards";

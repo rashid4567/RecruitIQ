@@ -1,6 +1,4 @@
 import type { PlanSource } from "./subscription-plan.types";
-
-import type { SubscribersListItem } from "./subscriber.types";
 import type { RawRecruiterSubscription } from "./RecruiterSubscription.types";
 
 export interface PlanListApiResponse {
@@ -51,7 +49,3 @@ export interface RawPagination {
   totalPages: number;
 }
 
-export interface RawSubscribersResponse {
-  data: SubscribersListItem[];
-  pagination: RawPagination;
-}

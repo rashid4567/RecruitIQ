@@ -45,6 +45,12 @@ export class MongooseInterviewRepository implements InterviewRepository {
               ? new mongoose.Types.ObjectId(data.cancelledBy)
               : undefined,
           reminderSent: data.reminderSent,
+          candidateResponseStatus: data.candidateResponseStatus,
+          candidateRespondedAt: data.candidateRespondedAt,
+          candidateResponseMessage: data.candidateResponseMessage,
+          rescheduleRequested: data.rescheduleRequested,
+          requestedReason: data.requestedReason,
+          rescheduleRequestedAt: data.rescheduleRequestedAt,
           updatedAt: data.updatedAt,
         },
       },
@@ -91,6 +97,8 @@ export class MongooseInterviewRepository implements InterviewRepository {
       return [];
     }
 
+    console.log("candidatId :", candidateId);
+
     const skip = (page - 1) * limit;
 
     const docs = await InterviewModel.find({
@@ -101,6 +109,8 @@ export class MongooseInterviewRepository implements InterviewRepository {
       })
       .skip(skip)
       .limit(limit);
+
+    console.log("Mongo Docs:", docs ? docs : "no docs");
 
     return docs.map((doc) => this.toDomain(doc));
   }
@@ -138,11 +148,40 @@ export class MongooseInterviewRepository implements InterviewRepository {
     const doc = await InterviewModel.findOne({
       applicationId: new mongoose.Types.ObjectId(applicationId),
       round,
+      status: {
+        $in: [
+          InterviewStatus.SCHEDULED,
+          InterviewStatus.RESCHEDULED,
+          InterviewStatus.ONGOING,
+        ],
+      },
     });
 
     return doc ? this.toDomain(doc) : null;
   }
 
+async findActiveByApplicationAndRound(
+  applicationId: string,
+  round: number,
+): Promise<Interview | null> {
+  if (!this.isValidObjectId(applicationId)) {
+    return null;
+  }
+
+  const doc = await InterviewModel.findOne({
+    applicationId: new mongoose.Types.ObjectId(applicationId),
+    round,
+    status: {
+      $in: [
+        InterviewStatus.SCHEDULED,
+        InterviewStatus.RESCHEDULED,
+        InterviewStatus.ONGOING,
+      ],
+    },
+  });
+
+  return doc ? this.toDomain(doc) : null;
+}
   async findUpcomingByCandidate(candidateId: string): Promise<Interview[]> {
     if (!this.isValidObjectId(candidateId)) {
       return [];
@@ -189,6 +228,33 @@ export class MongooseInterviewRepository implements InterviewRepository {
     return docs.map((doc) => this.toDomain(doc));
   }
 
+  async getNextRound(applicationId: string): Promise<number> {
+    if(!this.isValidObjectId(applicationId)){
+      return 1;
+    }
+
+    const lastInterview = await InterviewModel.findOne({
+      applicationId : new mongoose.Types.ObjectId(applicationId),
+    }).sort({round : -1}).select("round");
+
+    return lastInterview ? lastInterview.round + 1 : 1;
+  }
+
+  async findPendingRescheduleRequests(
+    recruiterId: string,
+  ): Promise<Interview[]> {
+    if (!this.isValidObjectId(recruiterId)) return [];
+
+    const docs = await InterviewModel.find({
+      recruiterId: new mongoose.Types.ObjectId(recruiterId),
+      rescheduleRequested: true,
+    }).sort({
+      rescheduleRequestedAt: -1,
+    });
+
+    return docs.map((doc) => this.toDomain(doc));
+  }
+
   async delete(id: string): Promise<void> {
     if (!this.isValidObjectId(id)) {
       return;
@@ -221,6 +287,12 @@ export class MongooseInterviewRepository implements InterviewRepository {
       cancelledReason: doc.cancelledReason,
       cancelledBy: doc.cancelledBy?.toString(),
       reminderSent: doc.reminderSent,
+      candidateResponseStatus: doc.candidateResponseStatus,
+      candidateRespondedAt: doc.candidateRespondedAt,
+      candidateResponseMessage: doc.candidateResponseMessage,
+      rescheduleRequested: doc.rescheduleRequested,
+      requestedReason: doc.requestedReason,
+      rescheduleRequestedAt: doc.rescheduleRequestedAt,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });
@@ -259,6 +331,12 @@ export class MongooseInterviewRepository implements InterviewRepository {
           ? new mongoose.Types.ObjectId(data.cancelledBy)
           : undefined,
       reminderSent: data.reminderSent,
+      candidateResponseStatus: data.candidateResponseStatus,
+      candidateRespondedAt: data.candidateRespondedAt,
+      candidateResponseMessage: data.candidateResponseMessage,
+      rescheduleRequested: data.rescheduleRequested,
+      requestedReason: data.requestedReason,
+      rescheduleRequestedAt: data.rescheduleRequestedAt,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };

@@ -78,7 +78,6 @@ export class UpdateApplicationStatusUseCase implements IUseCase<
   ): void {
     const allowedStatuses: ApplicationStatus[] = [
       ApplicationStatus.SHORTLISTED,
-      ApplicationStatus.INTERVIEW_SCHEDULED,
       ApplicationStatus.SELECTED,
       ApplicationStatus.REJECTED,
     ];
@@ -90,8 +89,6 @@ export class UpdateApplicationStatusUseCase implements IUseCase<
       case ApplicationStatus.SHORTLISTED:
         application.shortlist();
         break;
-      case ApplicationStatus.INTERVIEW_SCHEDULED:
-        application.selectInterview();
       case ApplicationStatus.SELECTED:
         application.select();
         break;

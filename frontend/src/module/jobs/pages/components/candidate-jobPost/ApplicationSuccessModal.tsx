@@ -57,6 +57,22 @@ const ApplicationSuccessModal: React.FC<ApplicationSuccessModalProps> = ({
     minute: "2-digit",
   });
 
+  interface ConfettiDot {
+    top: number;
+    left?: number;
+    right?: number;
+    bg: string;
+    delay: string;
+    size: number;
+  }
+
+  const confettiDots: ConfettiDot[] = [
+    { top: 0, left: 14, bg: "#2563eb", delay: "0.4s", size: 6 },
+    { top: 2, right: 10, bg: "#7c3aed", delay: "0.55s", size: 6 },
+    { top: 6, left: 4, bg: "#0891b2", delay: "0.65s", size: 4 },
+    { top: 0, right: 2, bg: "#059669", delay: "0.5s", size: 4 },
+  ];
+
   const steps = [
     {
       icon: (
@@ -318,12 +334,7 @@ const ApplicationSuccessModal: React.FC<ApplicationSuccessModalProps> = ({
                   marginBottom: 16,
                 }}
               >
-                {[
-                  { top: 0, left: 14, bg: "#2563eb", delay: "0.4s", size: 6 },
-                  { top: 2, right: 10, bg: "#7c3aed", delay: "0.55s", size: 6 },
-                  { top: 6, left: 4, bg: "#0891b2", delay: "0.65s", size: 4 },
-                  { top: 0, right: 2, bg: "#059669", delay: "0.5s", size: 4 },
-                ].map((dot, i) => (
+                {confettiDots.map((dot, i) => (
                   <div
                     key={i}
                     className="asm-confetti"
@@ -335,8 +346,8 @@ const ApplicationSuccessModal: React.FC<ApplicationSuccessModalProps> = ({
                       background: dot.bg,
                       animationDelay: dot.delay,
                       top: dot.top,
-                      ...(dot.left !== undefined ? { left: dot.left } : {}),
-                      ...("right" in dot ? { right: (dot as any).right } : {}),
+                      left: dot.left,
+                      right: dot.right,
                     }}
                   />
                 ))}

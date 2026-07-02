@@ -1,5 +1,4 @@
 import type React from "react";
-import { useState, useEffect } from "react";
 import {
   Check,
   Briefcase,
@@ -14,22 +13,24 @@ import {
   Star,
   Crown,
   Building2,
-  AlertCircle,
   Calendar,
   BarChart3,
+  X,
 } from "lucide-react";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 
-import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
-import { useRazorpay } from "../../../../subscription/presentation/hooks/subscriptions/useRazorpay";
-import { ApiSubscriptionPlanRepository } from "@/module/subscription/infrastructure/repositories/ApiSubscriptionPlan.repository";
-import { GetAllPlansUseCase } from "@/module/subscription/application/usecase/subscription/recruiter/GetAllPlansUseCase";
+import type { SubscriptionPlan } from "@/module/subscription/types/subscription-plan.types";
+import { usePricingPlans } from "@/module/subscription/hooks/subscriptions/usePricingPlans";
 
+type PlanType = "free" | "basic" | "pro" | "enterprise";
 
 const planMeta: Record<
-  string,
-  { icon: React.ElementType; accent: string; iconBg: string; iconColor: string }
+  PlanType,
+  {
+    icon: React.ElementType;
+    accent: string;
+    iconBg: string;
+    iconColor: string;
+  }
 > = {
   free: {
     icon: Rocket,
@@ -56,14 +57,15 @@ const planMeta: Record<
     iconColor: "#059669",
   },
 };
-
-
+function isFreePlan(plan: SubscriptionPlan): boolean {
+  return plan.planType === "free";
+}
 
 function getDisplayPrice(plan: SubscriptionPlan): {
   amount: string;
   hasMonth: boolean;
 } {
-  if (plan.isFree) return { amount: "Free", hasMonth: false };
+  if (isFreePlan(plan)) return { amount: "Free", hasMonth: false };
   const symbol = plan.currency === "INR" ? "₹" : "$";
   return {
     amount: `${symbol}${(plan.price ?? 0).toLocaleString("en-IN")}`,
@@ -72,7 +74,7 @@ function getDisplayPrice(plan: SubscriptionPlan): {
 }
 
 function getPlanCTA(plan: SubscriptionPlan): string {
-  return plan.isFree ? "Get started free" : "Subscribe now";
+  return isFreePlan(plan) ? "Get started free" : "Subscribe now";
 }
 
 function getPlanFeatures(
@@ -133,21 +135,12 @@ function getPlanFeatures(
   return items.slice(0, 6);
 }
 
-
-
-interface PricingPlansProps {
-  selectedPlan: "free" | "active";
-  onPlanSelect: (plan: "free" | "active") => void;
-}
-
-
-
 interface PlanCardProps {
   plan: SubscriptionPlan;
   isSelected: boolean;
   isPaymentLoading: boolean;
   onSelect: (plan: SubscriptionPlan) => void;
-  onSubscribe: (plan: SubscriptionPlan) => void;
+  onSubscribe: () => void;
 }
 
 function PlanCard({
@@ -161,27 +154,27 @@ function PlanCard({
   const PlanIcon = meta.icon;
   const features = getPlanFeatures(plan);
   const { amount, hasMonth } = getDisplayPrice(plan);
+  const free = isFreePlan(plan);
 
   return (
-  <div
-    onClick={() => onSelect(plan)}
-    className={[
-      "relative flex flex-col rounded-2xl border cursor-pointer transition-all duration-200 overflow-hidden",
-      "hover:-translate-y-1",
-      isSelected
-        ? "shadow-lg ring-2 ring-offset-1"
-        : "shadow-sm hover:shadow-md",
-    ].join(" ")}
-    style={
-      isSelected
-        ? ({
-            borderColor: meta.accent,
-            "--tw-ring-color": `${meta.accent}40`,
-          } as React.CSSProperties)
-        : { borderColor: "#e5e7eb" }
-    }
-  >
-     
+    <div
+      onClick={() => onSelect(plan)}
+      className={[
+        "relative flex flex-col rounded-2xl border cursor-pointer transition-all duration-200 overflow-hidden",
+        "hover:-translate-y-1",
+        isSelected
+          ? "shadow-lg ring-2 ring-offset-1"
+          : "shadow-sm hover:shadow-md",
+      ].join(" ")}
+      style={
+        isSelected
+          ? ({
+              borderColor: meta.accent,
+              "--tw-ring-color": `${meta.accent}40`,
+            } as React.CSSProperties)
+          : { borderColor: "#e5e7eb" }
+      }
+    >
       {plan.isPopular && (
         <div
           className="absolute top-0 inset-x-0 py-1.5 text-center text-[10px] font-semibold tracking-widest text-white uppercase"
@@ -191,7 +184,6 @@ function PlanCard({
         </div>
       )}
 
-     
       {!plan.isPopular && (
         <div
           className="h-1 w-full"
@@ -205,16 +197,12 @@ function PlanCard({
           plan.isPopular ? "pt-9" : "",
         ].join(" ")}
       >
-
         <div className="flex items-start gap-3">
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
             style={{ backgroundColor: meta.iconBg }}
           >
-            <PlanIcon
-              className="w-4 h-4"
-              style={{ color: meta.iconColor }}
-            />
+            <PlanIcon className="w-4 h-4" style={{ color: meta.iconColor }} />
           </div>
           <div className="min-w-0">
             <h3 className="text-[15px] font-semibold text-gray-900 leading-tight">
@@ -239,7 +227,7 @@ function PlanCard({
             className="text-[10px] font-medium uppercase tracking-widest mt-1"
             style={{ color: meta.accent }}
           >
-            {plan.isFree ? "Always free" : "Billed monthly"}
+            {free ? "Always free" : "Billed monthly"}
           </p>
         </div>
 
@@ -254,10 +242,7 @@ function PlanCard({
                   className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5"
                   style={{ backgroundColor: meta.accent + "18" }}
                 >
-                  <Icon
-                    className="w-2.5 h-2.5"
-                    style={{ color: meta.accent }}
-                  />
+                  <Icon className="w-2.5 h-2.5" style={{ color: meta.accent }} />
                 </span>
                 <span className="text-[12px] text-gray-600 leading-snug">
                   {feat.text}
@@ -272,7 +257,7 @@ function PlanCard({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              if (!plan.isFree) onSubscribe(plan);
+              onSubscribe();
             }}
             disabled={isPaymentLoading}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all disabled:opacity-60"
@@ -283,7 +268,7 @@ function PlanCard({
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 Processing…
               </>
-            ) : plan.isFree ? (
+            ) : free ? (
               <>
                 <Check className="w-3.5 h-3.5" />
                 Selected
@@ -312,84 +297,95 @@ function PlanCard({
   );
 }
 
+function DurationModal({
+  plan,
+  durationMonths,
+  setDurationMonths,
+  totalAmount,
+  paymentLoading,
+  onClose,
+  onConfirm,
+}: {
+  plan: SubscriptionPlan;
+  durationMonths: number;
+  setDurationMonths: (n: number) => void;
+  totalAmount: number;
+  paymentLoading: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-semibold text-gray-900">
+            Subscribe to {plan.name}
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
+        <label className="text-xs font-medium text-gray-600">
+          Duration (months)
+        </label>
+        <input
+          type="number"
+          min={1}
+          max={12}
+          value={durationMonths}
+          onChange={(e) => setDurationMonths(Number(e.target.value))}
+          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
 
-export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) {
-  const navigate = useNavigate();
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+          <span className="text-sm text-gray-500">Total</span>
+          <span className="text-lg font-bold text-gray-900">
+            {plan.currency === "INR" ? "₹" : "$"}
+            {totalAmount.toLocaleString("en-IN")}
+          </span>
+        </div>
 
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={paymentLoading}
+          className="mt-5 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-60"
+        >
+          {paymentLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Processing…
+            </>
+          ) : (
+            "Confirm & Pay"
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
 
-  const { isLoading: paymentLoading, initiatePayment } = useRazorpay({
-    onSuccess: () => {
-      toast.success("Subscription activated successfully!");
-      navigate("/recruiter/subscription/success");
-    },
-    onError: (err) => toast.error(err),
-    onDismiss: () => {},
-  });
-
-
-  useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const repository = new ApiSubscriptionPlanRepository();
-        const useCase = new GetAllPlansUseCase(repository);
-        const { plans: fetchedPlans } = await useCase.execute({
-          activeOnly: false,
-        });
-
-        if (!fetchedPlans || fetchedPlans.length === 0) {
-          setError("No plans were returned from the server.");
-          return;
-        }
-
-        const sorted = [...fetchedPlans].sort(
-          (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
-        );
-        setPlans(sorted);
-
-        const initial =
-          selectedPlan === "free"
-            ? (sorted.find((p) => p.isFree) ?? sorted[0])
-            : (sorted.find((p) => p.isPopular && !p.isFree) ??
-              sorted.find((p) => !p.isFree) ??
-              sorted[0]);
-
-        if (initial) setSelectedPlanId(initial.id);
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "Unknown error";
-        console.error("[PricingPlans] fetch error:", err);
-        setError(msg);
-        toast.error(`Failed to load plans: ${msg}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPlans();
-
-  }, [selectedPlan]);
-
-
-  const handlePlanSelect = (plan: SubscriptionPlan) => {
-    setSelectedPlanId(plan.id);
-    onPlanSelect(plan.isFree ? "free" : "active");
-  };
-
-  const handleSubscribe = async (plan: SubscriptionPlan) => {
-    if (plan.isFree) {
-      toast.success("🎉 Free plan activated successfully!");
-      navigate("/recruiter/subscription/success");
-      return;
-    }
-    await initiatePayment(plan.id);
-  };
+export function PricingPlans() {
+  const {
+    plans,
+    loading,
+    selectedPlanId,
+    setSelectedPlanId,
+    durationMonths,
+    setDurationMonths,
+    showDurationModal,
+    setShowDurationModal,
+    selectedPlan,
+    totalAmount,
+    paymentLoading,
+    openSubscribeModal,
+    handleSubscribe,
+  } = usePricingPlans();
 
   if (loading) {
     return (
@@ -403,32 +399,6 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
     );
   }
 
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <PricingHeader />
-        <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
-            <AlertCircle className="w-6 h-6 text-red-500" />
-          </div>
-          <div>
-            <p className="font-semibold text-gray-800 text-sm">
-              Failed to load plans
-            </p>
-            <p className="text-xs text-gray-400 mt-1 max-w-xs">{error}</p>
-          </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-
   if (plans.length === 0) {
     return (
       <div className="space-y-6">
@@ -440,8 +410,6 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
     );
   }
 
-
-
   return (
     <div className="space-y-6">
       <PricingHeader />
@@ -452,13 +420,12 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
             plan={plan}
             isSelected={selectedPlanId === plan.id}
             isPaymentLoading={paymentLoading}
-            onSelect={handlePlanSelect}
-            onSubscribe={handleSubscribe}
+            onSelect={(p) => setSelectedPlanId(p.id)}
+            onSubscribe={openSubscribeModal}
           />
         ))}
       </div>
 
-    
       <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4">
         <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
           <Check className="w-4 h-4 text-blue-500" />
@@ -473,10 +440,21 @@ export function PricingPlans({ selectedPlan, onPlanSelect }: PricingPlansProps) 
           </p>
         </div>
       </div>
+
+      {showDurationModal && selectedPlan && (
+        <DurationModal
+          plan={selectedPlan}
+          durationMonths={durationMonths}
+          setDurationMonths={setDurationMonths}
+          totalAmount={totalAmount}
+          paymentLoading={paymentLoading}
+          onClose={() => setShowDurationModal(false)}
+          onConfirm={handleSubscribe}
+        />
+      )}
     </div>
   );
 }
-
 
 function PricingHeader() {
   return (

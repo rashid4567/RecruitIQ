@@ -1,4 +1,5 @@
 import {
+  CandidateResponseStatus,
   InterviewMode,
   InterviewStatus,
 } from "../../domain/entity/interview.entity";
@@ -20,6 +21,12 @@ export interface GetRecruiterInterviewDetailsResponseDTO {
   description?: string;
   mode: InterviewMode;
   status: InterviewStatus;
+  candidateResponseStatus: CandidateResponseStatus;
+  candidateRespondedAt?: Date;
+  candidateResponseMessage?: string;
+  rescheduleRequested: boolean;
+  requestedReason?: string;
+  rescheduleRequestedAt?: Date;
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;

@@ -23,12 +23,17 @@ import {
   ExternalLink,
   Mail,
   CalendarPlus,
+  History,
+  X,
+  CalendarClock,
 } from 'lucide-react';
 import ScheduleInterviewModal from './components/schedule-interview-modal';
 import CancelInterviewModal from './components/cancel-interview-modal';
 import Sidebar from '@/module/recruiter/pages/components/layout/Sidebar';
 import { useRecruiterInterviews } from '../hooks/recruiter/useRecruiterInterviews';
 import { useCancelInterview } from '../hooks/recruiter/useCancelInterview';
+import { useApproveRescheduleRequest } from '../hooks/recruiter/useApproveRescheduleRequest';
+import { useRejectRescheduleRequest } from '../hooks/recruiter/useRejectRescheduleRequest';
 import type { RecruiterInterviewItem } from '../types/recruiterInterview.types';
 import { InterviewStatus } from '../types/interview.types';
 
@@ -72,6 +77,20 @@ function formatScheduledAt(scheduledAt?: string): { date: string; time: string }
   return { date, time };
 }
 
+function formatFullDateTime(value?: string): string {
+  if (!value) return '—';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 function isToday(scheduledAt?: string): boolean {
   if (!scheduledAt) return false;
   return new Date(scheduledAt).toDateString() === new Date().toDateString();
@@ -100,6 +119,13 @@ function canModifyInterview(interview: RecruiterInterviewItem): boolean {
   if (!isInterviewScheduled(interview)) return false;
   const modifiableStatuses: string[] = [InterviewStatus.SCHEDULED, InterviewStatus.RESCHEDULED];
   return modifiableStatuses.includes(interview.interviewStatus ?? '');
+}
+
+// A reschedule request from the candidate can only be actioned while the
+// interview is still live/modifiable — once it's cancelled/completed/no-show
+// there's nothing to approve or reject.
+function hasPendingRescheduleRequest(interview: RecruiterInterviewItem): boolean {
+  return Boolean(interview.rescheduleRequested) && canModifyInterview(interview);
 }
 
 interface StatusConfig {
@@ -178,7 +204,7 @@ const STATUS_TRANSITIONS: Record<string, { status: InterviewStatus; label: strin
   [InterviewStatus.NO_SHOW]: [],
 };
 
-type Tab = 'all' | 'upcoming' | 'today' | 'timeline';
+type Tab = 'all' | 'upcoming' | 'today' | 'timeline' | 'reschedule';
 
 function filterByTab(interviews: RecruiterInterviewItem[], tab: Tab): RecruiterInterviewItem[] {
   const now = new Date();
@@ -187,6 +213,8 @@ function filterByTab(interviews: RecruiterInterviewItem[], tab: Tab): RecruiterI
       return interviews.filter((i) => i.scheduledAt && new Date(i.scheduledAt) > now);
     case 'today':
       return interviews.filter((i) => isToday(i.scheduledAt));
+    case 'reschedule':
+      return interviews.filter((i) => hasPendingRescheduleRequest(i));
     default:
       return interviews;
   }
@@ -204,6 +232,7 @@ function deriveStats(interviews: RecruiterInterviewItem[]) {
     (i) => i.interviewStatus === InterviewStatus.COMPLETED && i.scheduledAt && new Date(i.scheduledAt) >= monthStart,
   ).length;
   const pendingFeedback = interviews.filter((i) => i.interviewStatus === InterviewStatus.COMPLETED).length;
+  const pendingReschedules = interviews.filter((i) => hasPendingRescheduleRequest(i)).length;
 
   const upcoming = interviews
     .filter((i) => i.scheduledAt && new Date(i.scheduledAt) > now)
@@ -213,7 +242,7 @@ function deriveStats(interviews: RecruiterInterviewItem[]) {
     ? new Date(upcoming[0].scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     : null;
 
-  return { todayCount, thisWeek, completedThisMonth, pendingFeedback, nextInterview };
+  return { todayCount, thisWeek, completedThisMonth, pendingFeedback, pendingReschedules, nextInterview };
 }
 
 // ─── modal state helpers ──────────────────────────────────────────────────────
@@ -230,6 +259,14 @@ interface CancelModalState {
   interview?: RecruiterInterviewItem;
 }
 
+type RescheduleDecision = 'approve' | 'reject';
+
+interface RescheduleDecisionModalState {
+  open: boolean;
+  decision: RescheduleDecision;
+  interview?: RecruiterInterviewItem;
+}
+
 // ─── main component ───────────────────────────────────────────────────────────
 
 export default function InterviewDashboard() {
@@ -237,12 +274,28 @@ export default function InterviewDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   // local optimistic status overrides: interviewId → InterviewStatus
   const [statusOverrides, setStatusOverrides] = useState<Record<string, InterviewStatus>>({});
+  // local optimistic override for cleared reschedule requests: interviewId → true
+  const [rescheduleClearedIds, setRescheduleClearedIds] = useState<Record<string, boolean>>({});
 
   const [scheduleModal, setScheduleModal] = useState<ScheduleModalState>({ open: false });
   const [cancelModal, setCancelModal] = useState<CancelModalState>({ open: false });
+  const [rescheduleDecisionModal, setRescheduleDecisionModal] = useState<RescheduleDecisionModalState>({
+    open: false,
+    decision: 'approve',
+  });
 
   const { interviews, loading, error, refetch } = useRecruiterInterviews();
   const { submit: submitCancel, loading: cancelLoading, error: cancelError } = useCancelInterview();
+  const {
+    submit: submitApproveReschedule,
+    loading: approveLoading,
+    error: approveError,
+  } = useApproveRescheduleRequest();
+  const {
+    submit: submitRejectReschedule,
+    loading: rejectLoading,
+    error: rejectError,
+  } = useRejectRescheduleRequest();
 
   const enriched = useMemo(
     () =>
@@ -250,8 +303,10 @@ export default function InterviewDashboard() {
         ...i,
         interviewStatus:
           i.interviewId && statusOverrides[i.interviewId] ? statusOverrides[i.interviewId] : i.interviewStatus,
+        rescheduleRequested:
+          i.interviewId && rescheduleClearedIds[i.interviewId] ? false : i.rescheduleRequested,
       })),
-    [interviews, statusOverrides],
+    [interviews, statusOverrides, rescheduleClearedIds],
   );
 
   const filtered = useMemo(() => filterByTab(enriched, selectedTab), [enriched, selectedTab]);
@@ -270,8 +325,6 @@ export default function InterviewDashboard() {
   }
 
   // Opens the schedule modal for a brand-new interview (no interview exists yet).
-  // We pass the *whole* row (not just applicationId) so the modal can show
-  // candidate/application context immediately.
   function openScheduleForApplication(interview: RecruiterInterviewItem) {
     setScheduleModal({ open: true, applicationId: interview.applicationId, interview });
   }
@@ -306,6 +359,64 @@ export default function InterviewDashboard() {
     }
   }
 
+  // ── Candidate-initiated reschedule request: approve / reject ──
+  function openApproveReschedule(interview: RecruiterInterviewItem) {
+    setRescheduleDecisionModal({ open: true, decision: 'approve', interview });
+  }
+
+  function openRejectReschedule(interview: RecruiterInterviewItem) {
+    setRescheduleDecisionModal({ open: true, decision: 'reject', interview });
+  }
+
+  function closeRescheduleDecisionModal() {
+    if (approveLoading || rejectLoading) return;
+    setRescheduleDecisionModal({ open: false, decision: 'approve' });
+  }
+
+  async function handleApproveRescheduleDecision() {
+    const interview = rescheduleDecisionModal.interview;
+    if (!interview?.interviewId) return;
+
+    const result = await submitApproveReschedule(interview.interviewId);
+    if (!result) return;
+
+    // Clear the pending-request flag optimistically.
+    setRescheduleClearedIds((prev) => ({ ...prev, [interview.interviewId!]: true }));
+
+    // Close the decision modal, then immediately open the schedule modal
+    // pre-scoped to this interview so the recruiter can pick the new
+    // date/time in one continuous flow — no need to hunt for the row again.
+    setRescheduleDecisionModal({ open: false, decision: 'approve' });
+    setScheduleModal({ open: true, applicationId: interview.applicationId, interview });
+
+    // Refresh in the background so status badges elsewhere stay accurate
+    // while the schedule modal is open.
+    refetch();
+  }
+
+  async function handleRejectRescheduleDecision() {
+    const interview = rescheduleDecisionModal.interview;
+    if (!interview?.interviewId) return;
+
+    const result = await submitRejectReschedule(interview.interviewId);
+    if (!result) return;
+
+    setRescheduleClearedIds((prev) => ({ ...prev, [interview.interviewId!]: true }));
+    setRescheduleDecisionModal({ open: false, decision: 'approve' });
+    refetch();
+  }
+
+  function handleConfirmRescheduleDecision() {
+    return rescheduleDecisionModal.decision === 'approve'
+      ? handleApproveRescheduleDecision()
+      : handleRejectRescheduleDecision();
+  }
+
+  const rescheduleActionLoading =
+    rescheduleDecisionModal.decision === 'approve' ? approveLoading : rejectLoading;
+  const rescheduleActionError =
+    rescheduleDecisionModal.decision === 'approve' ? approveError : rejectError;
+
   return (
     <div className="flex h-screen bg-slate-50">
       <Sidebar />
@@ -332,7 +443,7 @@ export default function InterviewDashboard() {
 
             {/* Controls row */}
             <div className="flex items-center justify-between gap-4 mb-4">
-              <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+              <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 flex-wrap">
                 <TabButton
                   icon={BarChart3}
                   label="Timeline"
@@ -347,6 +458,13 @@ export default function InterviewDashboard() {
                   count={enriched.filter((i) => i.scheduledAt && new Date(i.scheduledAt) > new Date()).length}
                 />
                 <TabButton label="Today" active={selectedTab === 'today'} onClick={() => handleTabChange('today')} count={stats.todayCount} />
+                <TabButton
+                  icon={History}
+                  label="Reschedule Requests"
+                  active={selectedTab === 'reschedule'}
+                  onClick={() => handleTabChange('reschedule')}
+                  count={stats.pendingReschedules}
+                />
               </div>
 
               <div className="flex items-center gap-2">
@@ -365,7 +483,7 @@ export default function InterviewDashboard() {
             </div>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-5 gap-3">
               <StatCard
                 label="Today's Interviews"
                 value={String(stats.todayCount)}
@@ -375,6 +493,12 @@ export default function InterviewDashboard() {
               <StatCard label="This Week" value={String(stats.thisWeek)} sub="Across all rounds" accent="violet" chart />
               <StatCard label="Completed This Month" value={String(stats.completedThisMonth)} sub="75% success rate" accent="emerald" />
               <StatCard label="Pending Feedback" value={String(stats.pendingFeedback)} sub="Awaiting review" accent="amber" />
+              <StatCard
+                label="Reschedule Requests"
+                value={String(stats.pendingReschedules)}
+                sub="Needs your decision"
+                accent="rose"
+              />
             </div>
           </div>
         </header>
@@ -407,7 +531,11 @@ export default function InterviewDashboard() {
                 <Calendar size={36} className="text-slate-200" />
                 <p className="text-sm font-semibold text-slate-500 mt-2">No interviews found</p>
                 <p className="text-xs text-slate-400">
-                  {selectedTab !== 'all' ? 'Switch to "All" to see everything.' : 'Schedule your first interview to get started.'}
+                  {selectedTab === 'reschedule'
+                    ? 'No pending reschedule requests right now.'
+                    : selectedTab !== 'all'
+                    ? 'Switch to "All" to see everything.'
+                    : 'Schedule your first interview to get started.'}
                 </p>
               </div>
             )}
@@ -434,6 +562,8 @@ export default function InterviewDashboard() {
                           onOpenSchedule={openScheduleForApplication}
                           onOpenReschedule={openReschedule}
                           onOpenCancel={openCancel}
+                          onApproveReschedule={openApproveReschedule}
+                          onRejectReschedule={openRejectReschedule}
                         />
                       ))}
                     </tbody>
@@ -479,13 +609,16 @@ export default function InterviewDashboard() {
         `interview` — reschedule mode only kicks in once interviewId +
         scheduledAt are present on that row.
       */}
-  <ScheduleInterviewModal
-  isOpen={scheduleModal.open}
-  onClose={closeScheduleModal}
-  interview={scheduleModal.interview}
-  applicationId={scheduleModal.applicationId}
-  onSuccess={() => { closeScheduleModal(); refetch(); }}
-/>
+      <ScheduleInterviewModal
+        isOpen={scheduleModal.open}
+        onClose={closeScheduleModal}
+        interview={scheduleModal.interview}
+        applicationId={scheduleModal.applicationId}
+        onSuccess={() => {
+          closeScheduleModal();
+          refetch();
+        }}
+      />
 
       <CancelInterviewModal
         isOpen={cancelModal.open}
@@ -495,6 +628,190 @@ export default function InterviewDashboard() {
         error={cancelError}
         candidateName={cancelModal.interview?.candidateName}
       />
+
+      {/*
+        Candidate-initiated reschedule request — simple approve / reject
+        confirmation, defined inline right here in the page.
+      */}
+      <RescheduleDecisionModal
+        isOpen={rescheduleDecisionModal.open}
+        decision={rescheduleDecisionModal.decision}
+        interview={rescheduleDecisionModal.interview}
+        loading={rescheduleActionLoading}
+        error={rescheduleActionError}
+        onClose={closeRescheduleDecisionModal}
+        onConfirm={handleConfirmRescheduleDecision}
+      />
+    </div>
+  );
+}
+
+// ─── Reschedule Decision Modal (approve / reject only, inline in this page) ───
+
+function RescheduleDecisionModal({
+  isOpen,
+  decision,
+  interview,
+  loading,
+  error,
+  onClose,
+  onConfirm,
+}: {
+  isOpen: boolean;
+  decision: RescheduleDecision;
+  interview?: RecruiterInterviewItem;
+  loading: boolean;
+  error?: string | null;
+  onClose: () => void;
+  onConfirm: () => void | Promise<void>;
+}) {
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && !loading) onClose();
+    }
+    if (isOpen) document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, loading, onClose]);
+
+  if (!isOpen || !interview) return null;
+
+  const isApprove = decision === 'approve';
+  const name = interview.candidateName || interview.candidateId;
+  const initials = toInitials(name);
+  const gradient = candidateGradient(interview.candidateId);
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !loading) onClose();
+      }}
+    >
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl shadow-slate-900/20 border border-slate-200 overflow-hidden">
+        {/* Accent top bar */}
+        <div className={`h-1.5 w-full ${isApprove ? 'bg-emerald-500' : 'bg-red-500'}`} />
+
+        {/* Header */}
+        <div className="flex items-start justify-between px-6 pt-5 pb-4">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${
+                isApprove ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+              }`}
+            >
+              {isApprove ? <CheckCircle2 size={22} /> : <XCircle size={22} />}
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">
+                {isApprove ? 'Approve Reschedule Request' : 'Reject Reschedule Request'}
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {isApprove ? "The candidate couldn't make the original time" : 'Keep the current schedule as-is'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-40 flex-shrink-0"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Candidate + interview context */}
+        <div className="px-6 pb-2">
+          <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl p-3.5">
+            {interview.candidateProfileImage ? (
+              <img
+                src={interview.candidateProfileImage}
+                alt={name}
+                className="w-10 h-10 rounded-lg object-cover shadow-sm flex-shrink-0"
+              />
+            ) : (
+              <div
+                className={`w-10 h-10 bg-linear-to-br ${gradient} rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0`}
+              >
+                {initials}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-semibold text-slate-800 truncate">{name}</div>
+              <div className="text-xs text-slate-400 truncate">{interview.jobTitle || interview.jobId}</div>
+            </div>
+            {interview.round != null && (
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-bold flex-shrink-0">
+                {interview.round}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Current scheduled slot */}
+        <div className="px-6 pt-3 pb-1">
+          <div className="flex items-center gap-2.5 rounded-xl border border-amber-100 bg-amber-50 px-3.5 py-3">
+            <CalendarClock size={16} className="text-amber-600 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wide">Currently Scheduled For</p>
+              <p className="text-sm font-semibold text-amber-900 truncate">{formatFullDateTime(interview.scheduledAt)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Confirmation copy */}
+        <div className="px-6 pt-3 pb-1">
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {isApprove ? (
+              <>
+                You're approving <span className="font-semibold text-slate-800">{name}'s</span> request to reschedule
+                because they're unable to attend at the time above. You'll be able to pick a new slot right after
+                confirming.
+              </>
+            ) : (
+              <>
+                You're rejecting <span className="font-semibold text-slate-800">{name}'s</span> reschedule request.
+                The interview will stay exactly as currently scheduled, and the candidate will be notified.
+              </>
+            )}
+          </p>
+        </div>
+
+        {error && (
+          <div className="mx-6 mt-3 flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl p-3 text-red-600">
+            <AlertCircle size={15} className="flex-shrink-0 mt-0.5" />
+            <p className="text-xs font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* Footer actions */}
+        <div className="flex items-center justify-end gap-2 px-6 py-5 mt-2">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-40"
+          >
+            Go Back
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm ${
+              isApprove
+                ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'
+                : 'bg-red-600 hover:bg-red-700 shadow-red-200'
+            }`}
+          >
+            {loading ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : isApprove ? (
+              <CheckCircle2 size={15} />
+            ) : (
+              <XCircle size={15} />
+            )}
+            {loading ? 'Please wait…' : isApprove ? 'Yes, Approve' : 'Yes, Reject'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -507,12 +824,16 @@ function InterviewRow({
   onOpenSchedule,
   onOpenReschedule,
   onOpenCancel,
+  onApproveReschedule,
+  onRejectReschedule,
 }: {
   interview: RecruiterInterviewItem;
   onStatusChange: (id: string, status: InterviewStatus) => void;
   onOpenSchedule: (interview: RecruiterInterviewItem) => void;
   onOpenReschedule: (interview: RecruiterInterviewItem) => void;
   onOpenCancel: (interview: RecruiterInterviewItem) => void;
+  onApproveReschedule: (interview: RecruiterInterviewItem) => void;
+  onRejectReschedule: (interview: RecruiterInterviewItem) => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -521,6 +842,7 @@ function InterviewRow({
   const scheduled = isInterviewScheduled(interview);
   const upcoming = isUpcomingInterview(interview);
   const modifiable = canModifyInterview(interview);
+  const pendingReschedule = hasPendingRescheduleRequest(interview);
   const statusCfg = getStatusConfig(interview);
   const transitions = STATUS_TRANSITIONS[interview.interviewStatus ?? ''] ?? [];
   const todayFlag = isToday(interview.scheduledAt);
@@ -544,7 +866,7 @@ function InterviewRow({
     <tr
       onClick={handleRowClick}
       className={`transition-colors group ${
-        scheduled ? 'hover:bg-blue-50/20' : 'hover:bg-blue-50/40 cursor-pointer'
+        pendingReschedule ? 'bg-rose-50/40 hover:bg-rose-50/60' : scheduled ? 'hover:bg-blue-50/20' : 'hover:bg-blue-50/40 cursor-pointer'
       }`}
       title={!scheduled ? 'Click to schedule this interview' : undefined}
     >
@@ -649,22 +971,46 @@ function InterviewRow({
                   Upcoming
                 </span>
               )}
+              {pendingReschedule && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-600 uppercase tracking-wide">
+                  <History size={10} /> Reschedule Requested
+                </span>
+              )}
             </div>
-            {modifiable && (
+
+            {/* Candidate-initiated reschedule request — approve / reject only */}
+            {pendingReschedule ? (
               <div className="flex items-center gap-1.5">
                 <button
-                  onClick={() => onOpenReschedule(interview)}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-violet-600 hover:text-violet-700 bg-violet-50 hover:bg-violet-100 px-2 py-1 rounded-md transition-colors"
+                  onClick={() => onApproveReschedule(interview)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-2.5 py-1 rounded-md transition-colors shadow-sm shadow-emerald-100"
                 >
-                  <RefreshCw size={10} /> Reschedule
+                  <CheckCircle2 size={11} /> Approve
                 </button>
                 <button
-                  onClick={() => onOpenCancel(interview)}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md transition-colors"
+                  onClick={() => onRejectReschedule(interview)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-white bg-red-600 hover:bg-red-700 px-2.5 py-1 rounded-md transition-colors shadow-sm shadow-red-100"
                 >
-                  <XCircle size={10} /> Cancel
+                  <XCircle size={11} /> Reject
                 </button>
               </div>
+            ) : (
+              modifiable && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => onOpenReschedule(interview)}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-violet-600 hover:text-violet-700 bg-violet-50 hover:bg-violet-100 px-2 py-1 rounded-md transition-colors"
+                  >
+                    <RefreshCw size={10} /> Reschedule
+                  </button>
+                  <button
+                    onClick={() => onOpenCancel(interview)}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md transition-colors"
+                  >
+                    <XCircle size={10} /> Cancel
+                  </button>
+                </div>
+              )
             )}
           </div>
         )}
@@ -782,7 +1128,7 @@ function StatCard({
   label: string;
   value: string;
   sub?: string;
-  accent: 'blue' | 'violet' | 'emerald' | 'amber';
+  accent: 'blue' | 'violet' | 'emerald' | 'amber' | 'rose';
   chart?: boolean;
 }) {
   const accentMap = {
@@ -790,6 +1136,7 @@ function StatCard({
     violet: { bar: 'bg-violet-500', num: 'text-violet-600' },
     emerald: { bar: 'bg-emerald-500', num: 'text-emerald-600' },
     amber: { bar: 'bg-amber-500', num: 'text-amber-600' },
+    rose: { bar: 'bg-rose-500', num: 'text-rose-600' },
   };
   const { bar, num } = accentMap[accent];
 

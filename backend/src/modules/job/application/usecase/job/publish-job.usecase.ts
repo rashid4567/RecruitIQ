@@ -9,10 +9,12 @@ import { RecruiterSubscriptionRepository } from "../../../../subscription/domain
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { PublishJobPostRequestDTO } from "../../dto/publish.job.dto";
-
 import { IdGenerator } from "../../ports/id.generator.prots";
 
-export class PublishJobUseCase implements IUseCase<PublishJobPostRequestDTO,Job> {
+export class PublishJobUseCase implements IUseCase<
+  PublishJobPostRequestDTO,
+  Job
+> {
   constructor(
     private readonly jobRepo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
@@ -21,9 +23,16 @@ export class PublishJobUseCase implements IUseCase<PublishJobPostRequestDTO,Job>
     private readonly userRepo: UserRepository,
   ) {}
 
-  async execute(request : PublishJobPostRequestDTO): Promise<Job> {
-    const job = await this.validateAndGetJob(request.jobId, request.recruiterId);
-    const subscription = await this.validateAndGetSubscription(request.recruiterId);
+  async execute(request: PublishJobPostRequestDTO): Promise<Job> {
+    const job = await this.validateAndGetJob(
+      request.jobId,
+      request.recruiterId,
+    );
+
+    const subscription = await this.validateAndGetSubscription(
+      request.recruiterId,
+    );
+
     this.validateExpiryLimit(job, subscription.jobPostActiveDays);
     await this.consumeCreditsIfNeeded(job, subscription);
     job.publish();
@@ -61,7 +70,9 @@ export class PublishJobUseCase implements IUseCase<PublishJobPostRequestDTO,Job>
     return job;
   }
 
-  private async validateAndGetSubscription(recruiterId: string) {
+  private async validateAndGetSubscription(
+    recruiterId: string,
+  ): Promise<RecruiterSubscription> {
     const subscription =
       await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
 
@@ -73,7 +84,7 @@ export class PublishJobUseCase implements IUseCase<PublishJobPostRequestDTO,Job>
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_EXPIRED);
     }
 
-    if (!subscription.jobPostActiveDays || subscription.jobPostActiveDays < 1) {
+    if (subscription.jobPostActiveDays < 1) {
       throw new ApplicationError(
         ERROR_CODES.INVALID_SUBSCRIPTION_CONFIGURATION,
       );

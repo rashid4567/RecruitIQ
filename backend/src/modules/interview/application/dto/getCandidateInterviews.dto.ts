@@ -1,4 +1,5 @@
 import {
+  CandidateResponseStatus,
   InterviewMode,
   InterviewStatus,
 } from "../../domain/entity/interview.entity";
@@ -15,6 +16,8 @@ export interface CandidateInterviewDTO {
   round: number;
   mode: InterviewMode;
   status: InterviewStatus;
+  candidateResponseStatus: CandidateResponseStatus;
+  rescheduleRequested: boolean;
   scheduledAt: Date;
   durationInMinutes: number;
   meetingLink?: string;
@@ -27,7 +30,6 @@ export interface GetCandidateInterviewsResponseDTO {
   interviews: CandidateInterviewDTO[];
 }
 
-
 export interface CandidateInterviewDetailsRequestDTO {
   interviewId: string;
   candidateId: string;
@@ -35,16 +37,21 @@ export interface CandidateInterviewDetailsRequestDTO {
 
 export interface CandidateInterviewDetailsResponseDTO {
   id: string;
-
   applicationId: string;
   jobId: string;
   recruiterId: string;
-   roomId?: string;
+  roomId?: string;
   title: string;
   description?: string;
   round: number;
   mode: InterviewMode;
   status: InterviewStatus;
+  candidateResponseStatus: CandidateResponseStatus;
+  candidateRespondedAt?: Date;
+  candidateResponseMessage?: string;
+  rescheduleRequested: boolean;
+  requestedReason?: string;
+  rescheduleRequestedAt?: Date;
   scheduledAt: Date;
   durationInMinutes: number;
   meetingLink?: string;

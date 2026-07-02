@@ -24,7 +24,7 @@ export interface ScheduleInterviewResponseDTO {
   candidateId: string;
   recruiterId: string;
   roomId?: string;
-  round: number;
+  round: number, 
   title: string;
   description?: string;
   mode: InterviewMode;

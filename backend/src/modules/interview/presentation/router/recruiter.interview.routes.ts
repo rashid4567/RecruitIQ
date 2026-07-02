@@ -9,6 +9,8 @@ import {
   markRecruiterjoinedController,
   rescheduleInterviewController,
   startInterviewController,
+  acceptReschduleInterviewController,
+  rejectRescheduleInterviewController,
 } from "../di/interview.module";
 
 const router = Router();
@@ -33,5 +35,12 @@ router.patch(INTERVIEW_ROUTES.CANCEL, cancelinterviewcontroller.cancel);
 router.patch(INTERVIEW_ROUTES.START, startInterviewController.start);
 router.patch(INTERVIEW_ROUTES.END, endInterviewcontroller.end);
 router.patch(INTERVIEW_ROUTES.JOIN, markRecruiterjoinedController.join);
-
+router.patch(
+  INTERVIEW_ROUTES.ACCEPT_RESCHEDULE,
+  acceptReschduleInterviewController.acceptRequest,
+);
+router.patch(
+  INTERVIEW_ROUTES.REJECT_RESCHEDULE,
+  rejectRescheduleInterviewController.rejectRequest,
+);
 export default router;

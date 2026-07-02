@@ -14,6 +14,12 @@ export enum InterviewMode {
   OFFLINE = "OFFLINE",
 }
 
+export enum CandidateResponseStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  DECLINED = "DECLINED",
+}
+
 export interface InterviewDocument extends Document {
   applicationId: mongoose.Types.ObjectId;
   jobId: mongoose.Types.ObjectId;
@@ -37,6 +43,12 @@ export interface InterviewDocument extends Document {
   cancelledReason?: string;
   cancelledBy?: mongoose.Types.ObjectId;
   reminderSent: boolean;
+  candidateResponseStatus: CandidateResponseStatus;
+  candidateRespondedAt?: Date;
+  candidateResponseMessage?: string;
+  rescheduleRequested: boolean;
+  requestedReason?: string;
+  rescheduleRequestedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -142,6 +154,34 @@ const InterviewSchema = new Schema<InterviewDocument>(
       type: Boolean,
       default: false,
     },
+
+    candidateResponseStatus: {
+      type: String,
+      enum: Object.values(CandidateResponseStatus),
+      default: CandidateResponseStatus.PENDING,
+      required: true,
+    },
+
+    candidateRespondedAt: Date,
+
+    candidateResponseMessage: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
+
+    rescheduleRequested: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    requestedReason: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
+
+    rescheduleRequestedAt: Date,
   },
   {
     timestamps: true,

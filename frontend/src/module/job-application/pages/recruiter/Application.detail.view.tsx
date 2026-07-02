@@ -14,7 +14,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import {  useParams } from "react-router-dom";
 import { useRecruiterApplicationDetails } from "../../hooks/recruiter/useRecruiterApplicationDetails";
 import { useUpdateApplicationStatus } from "../../hooks/recruiter/useUpdateApplicationStatus";
 import {
@@ -23,6 +23,7 @@ import {
   type ApplicationAIAnalysis,
   type InterviewInfo,
 } from "../../types/jobApplication.types";
+import type { RecruiterInterviewItem } from "@/module/interview/types/recruiterInterview.types";
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
 import Header from "@/pages/landing/sections/Header";
 import {
@@ -52,6 +53,7 @@ import {
 } from "../component/recruiter-application.detail/Sidebarcards";
 import { ConfirmModal } from "../component/recruiter-application.detail/Confirmmodal";
 import { MODAL_CONFIGS } from "../component/recruiter-application.detail/Modalconfigs";
+import ScheduleInterviewModal from "@/module/interview/pages/components/schedule-interview-modal";
 
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
@@ -331,9 +333,8 @@ function RejectionReasonSection({ reason }: { reason: string }) {
 
 export default function CandidateScorecardPage() {
   const { applicationId } = useParams<{ applicationId: string }>();
-  const navigate = useNavigate();
   const [modal, setModal] = useState<ModalAction>(null);
-
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const { loading, error, application, fetchApplicationDetails } =
     useRecruiterApplicationDetails();
   const { loading: statusLoading, updateStatus } = useUpdateApplicationStatus();
@@ -345,6 +346,12 @@ export default function CandidateScorecardPage() {
   const handleConfirm = useCallback(
     async (reason?: string) => {
       if (!modal || !application?.applicationId) return;
+      if (modal === "interview") {
+        setModal(null);
+        setScheduleModalOpen(true);
+        return;
+      }
+
       const ok = await updateStatus({
         applicationId: application.applicationId,
         status: ACTION_TO_STATUS[modal],
@@ -357,35 +364,15 @@ export default function CandidateScorecardPage() {
     },
     [modal, application, applicationId, updateStatus, fetchApplicationDetails],
   );
-
-  const handleAction = async (action: ModalAction) => {
+  const handleAction = (action: ModalAction) => {
     if (!application) return;
-
-   try{
-     if (action === "interview") {
-      const ok = await updateStatus({
-        applicationId: application.applicationId,
-        status: ApplicationStatus.INTERVIEW_SCHEDULED,
-      });
-
-      if (ok) {
-        navigate(
-          `/recruiter/interviews?applicationId=${application.applicationId}`,
-        );
-      }
-
-      return;
-    }
-   }catch(err){
-    console.log("err", err)
-   }
-
     setModal(action);
   };
 
-  useEffect(() => {
-    if (applicationId) fetchApplicationDetails(applicationId);
-  }, [applicationId, fetchApplicationDetails]);
+  async function handleScheduleSuccess() {
+    setScheduleModalOpen(false);
+    if (applicationId) await fetchApplicationDetails(applicationId);
+  }
 
   if (loading) return <LoadingScreen />;
 
@@ -412,6 +399,13 @@ export default function CandidateScorecardPage() {
   const isRejected = application.status === ApplicationStatus.REJECTED;
   const isWithdrawn = application.status === ApplicationStatus.WITHDRAWN;
   const isClosed = isRejected || isWithdrawn;
+
+  const scheduleContext = {
+    applicationId: application.applicationId,
+    candidateName: application.candidateName,
+    candidateEmail: application.candidateEmail,
+    applicationStatus: application.status,
+  } as unknown as RecruiterInterviewItem;
 
   return (
     <PageShell>
@@ -470,6 +464,14 @@ export default function CandidateScorecardPage() {
           loading={statusLoading}
         />
       )}
+
+      <ScheduleInterviewModal
+        isOpen={scheduleModalOpen}
+        onClose={() => setScheduleModalOpen(false)}
+        applicationId={application.applicationId}
+        interview={scheduleContext}
+        onSuccess={handleScheduleSuccess}
+      />
     </PageShell>
   );
 }

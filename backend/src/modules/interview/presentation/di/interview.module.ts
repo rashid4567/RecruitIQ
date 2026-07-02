@@ -24,13 +24,36 @@ import { StartInterviewController } from "../controller/recruiter/start.intervie
 import { GetCandidateInterviewDetailsController } from "../controller/candidate/getCandidate.interview.details.controller";
 import { GetCandidateInterviewsController } from "../controller/candidate/getCandidate.interviews.controller";
 import { JoinInterviewController } from "../controller/candidate/join.Interview.controller";
+import { AcceptInterviewUseCase } from "../../application/usecase/candidate/AcceptInterview.useCase";
+import { RejectInterviewUseCase } from "../../application/usecase/candidate/RejectInterview.useCase";
+import { RequestInterviewRescheduleUseCase } from "../../application/usecase/candidate/RequestInterviewReschedule.useCase";
+import { AcceptInterviewController } from "../controller/candidate/accept.interview.controller";
+import { RejectInterviewController } from "../controller/candidate/reject.interview.controller";
+import { RequestInterviewRescheduleController } from "../controller/candidate/request-reschedule.interview.controller";
+import { ApproveRescheduleRequestUseCase } from "../../application/usecase/recruiter/approve.reschedule-request.usecase";
+import { RejectRescheduleRequestUseCase } from "../../application/usecase/recruiter/reject.reschedule-request.usecase";
+import { AcceptReschduleInterviewRequestController } from "../controller/recruiter/Approve.reschedule.request.controller";
+import { RejectRescheduleReqestController } from "../controller/recruiter/reject.Reschedule.request.controller";
+import { UserRepository } from "../../../auth/domain/repositories/user.repository";
+import { MongooseUserRepository } from "../../../auth/infrastructure/repositories/mongoose-user.repository";
+import { JobRepository } from "../../../job/domain/repositories/job.repository";
+import { MongooseJobRepository } from "../../../job/infrastructure/repositories/mongoose-job.repository";
+import { sendEmailByEventUC } from "../../../email/presentation/container/email-template.container";
+import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
 
 const interviewRepo: InterviewRepository = new MongooseInterviewRepository();
 const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
+const userRepo: UserRepository = new MongooseUserRepository();
+const jobRepo: JobRepository = new MongooseJobRepository();
 
 const getCandidateInterviewUC = new GetCandidateInterviewUseCase(interviewRepo);
 const CandidateinterviewDetailUC = new CandidateInterviewDetailsUseCase(
+  interviewRepo,
+);
+const acceptInterviewUC = new AcceptInterviewUseCase(interviewRepo);
+const rejectInterviewUC = new RejectInterviewUseCase(interviewRepo);
+const requestRescheduleInterviewUC = new RequestInterviewRescheduleUseCase(
   interviewRepo,
 );
 const joinInterviewUC = new JoinInterviewUseCase(interviewRepo);
@@ -38,6 +61,10 @@ const joinInterviewUC = new JoinInterviewUseCase(interviewRepo);
 const scheduleInterviewUC = new ScheduleInterviewUseCase(
   interviewRepo,
   applicationRepo,
+  userRepo,
+  jobRepo,
+  sendEmailByEventUC,
+  createNotificationUC,
 );
 const getRecruiterInterviewUC = new GetRecruiterInterviewsUseCase(
   interviewRepo,
@@ -50,10 +77,26 @@ const cancelInterviewUC = new RecruiterInterviewCancelUseCase(
   interviewRepo,
   applicationRepo,
 );
+const ApproveRescheduleRequestUC = new ApproveRescheduleRequestUseCase(
+  interviewRepo,
+);
+const rejectRescheduleRequestUC = new RejectRescheduleRequestUseCase(
+  interviewRepo,
+  userRepo,
+  jobRepo,
+  sendEmailByEventUC,
+  createNotificationUC,
+);
 const startinterviewUC = new StartInterviewUseCase(interviewRepo);
 const endInterviewUC = new EndInterviewUseCase(interviewRepo, applicationRepo);
 const markRecruiterJoinedUC = new MarkRecruiterJoinedUseCase(interviewRepo);
-const rescheduleInterviewUC = new RescheduleInterviewUseCase(interviewRepo);
+const rescheduleInterviewUC = new RescheduleInterviewUseCase(
+  interviewRepo,
+  userRepo,
+  jobRepo,
+  sendEmailByEventUC,
+  createNotificationUC,
+);
 
 export const getcandidateInterviewsController =
   new GetCandidateInterviewsController(getCandidateInterviewUC);
@@ -66,10 +109,23 @@ export const joinInterviewController = new JoinInterviewController(
 export const scheduleInterviewController = new ScheduleInterviewController(
   scheduleInterviewUC,
 );
+export const acceptReschduleInterviewController =
+  new AcceptReschduleInterviewRequestController(ApproveRescheduleRequestUC);
+export const rejectRescheduleInterviewController =
+  new RejectRescheduleReqestController(rejectRescheduleRequestUC);
+
 export const getRecruiterInterviewsController =
   new GetRecruiterInterviewsController(getRecruiterInterviewUC);
 export const getRecruiterInterviewDetailsController =
   new GetRecruiterInterviewDetailsController(getRecruiterInterviewDetailsUC);
+export const acceptInterviewController = new AcceptInterviewController(
+  acceptInterviewUC,
+);
+export const rejectInterviewControlelr = new RejectInterviewController(
+  rejectInterviewUC,
+);
+export const requestRescheduleController =
+  new RequestInterviewRescheduleController(requestRescheduleInterviewUC);
 export const cancelinterviewcontroller = new CancelInterviewController(
   cancelInterviewUC,
 );

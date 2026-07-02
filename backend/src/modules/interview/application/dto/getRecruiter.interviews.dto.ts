@@ -1,5 +1,6 @@
 import { ApplicationStatus } from "../../../job-application/domain/entity/job-application.entity";
 import {
+  CandidateResponseStatus,
   InterviewStatus,
 } from "../../domain/entity/interview.entity";
 
@@ -22,6 +23,8 @@ export interface GetRecruiterInterviewsResponseDTO {
    roomId?: string;
   applicationStatus: ApplicationStatus;
   interviewStatus?: InterviewStatus;
+  candidateResponseStatus: CandidateResponseStatus;
+rescheduleRequested: boolean;
   title?: string;
   round?: number;
   scheduledAt?: Date;

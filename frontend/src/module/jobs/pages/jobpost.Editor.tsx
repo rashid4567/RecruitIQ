@@ -18,7 +18,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Rocket } from "lucide-react";
-import { useCurrentSubscription } from "@/module/subscription/hooks/subscriptions/useCurrentSubscription"; 
+import { useCurrentSubscription } from "@/module/subscription/hooks/subscriptions/useCurrentSubscription";
 
 function CreateMode() {
   const hook = useCreateJobPost();
@@ -165,7 +165,7 @@ function JobEditorUI({
         return (
           <Step4Compensation
             {...commonProps}
-            jobPostActiveDays={subscription?.subscription?.jobPostActiveDays}
+            jobPostActiveDays={subscription?.jobPostActiveDays}
           />
         );
       case 5:

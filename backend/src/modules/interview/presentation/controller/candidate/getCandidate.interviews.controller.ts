@@ -23,6 +23,8 @@ export class GetCandidateInterviewsController {
     next: NextFunction,
   ) => {
     try {
+
+      console.log("hit get candidate interview controller ")
       const candidateId = req.user?.userId;
 
       if (!candidateId) {
@@ -36,6 +38,8 @@ export class GetCandidateInterviewsController {
       const result = await this.getCandidateInterviewsUC.execute({
         candidateId,
       });
+
+      console.log("result :", result ? result : "no result found"  )
 
       ApiResponse.success(
         res,

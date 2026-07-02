@@ -8,7 +8,7 @@ import {
   EndInterviewResponseDTO,
 } from "../../dto/complete-interview.dto";
 
-export class EndInterviewUseCase  implements IUseCase<
+export class EndInterviewUseCase implements IUseCase<
   EndInterviewRequestDTO,
   EndInterviewResponseDTO
 > {
@@ -26,6 +26,10 @@ export class EndInterviewUseCase  implements IUseCase<
     }
     if (!interview.belongsToRecruiter(input.recruiterId)) {
       throw new ApplicationError(ERROR_CODES.INTERVIEW_ACCESS_DENIED);
+    }
+
+    if (!interview.canComplete()) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_CANNOT_BE_COMPLETED);
     }
     interview.complete();
     const savedInterview = await this.interviewRepo.save(interview);

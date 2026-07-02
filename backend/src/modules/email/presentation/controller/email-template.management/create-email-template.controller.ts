@@ -4,6 +4,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { CreateEmailTemplateInputDto } from "../../../application/dto/email.template/createEmailTemplate.input.dto";
 import { EmailTemplate } from "../../../domain/entities/email-template.entity";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class CreateEmailTemplateController {
   constructor(
@@ -17,12 +18,13 @@ export class CreateEmailTemplateController {
   ) => {
     try {
       const result = await this.createEmailTemplateUC.execute(req.body);
-
-      return res.status(HTTP_STATUS.CREATED).json({
-        success: true,
-        message: SUCCESS_MESSAGES.EMAIL_TEMPLATE_CREATED_SUCCESSFULLY,
-        data: result,
-      });
+      
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.CREATED,
+        SUCCESS_MESSAGES.EMAIL_TEMPLATE_CREATED_SUCCESSFULLY,
+      result,
+      )
     } catch (error) {
       next(error);
     }

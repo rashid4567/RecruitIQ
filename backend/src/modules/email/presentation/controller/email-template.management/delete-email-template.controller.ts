@@ -3,6 +3,8 @@ import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { DeleteEmailTemplateRequestDTO } from "../../../application/dto/email.template/deleteEmailTemplateDTO";
+import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class DeleteEmailTemplateController {
   constructor(
@@ -19,11 +21,19 @@ export class DeleteEmailTemplateController {
   ) => {
     try {
       const id = req.params.id;
+      if (!id) {
+        ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.EMAIL_IS_REQUIRED,
+        );
+      }
       await this.DeleteTemplateUC.execute({ id });
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.TEMPLATE_DELETED_SUCCESSFULLY,
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.TEMPLATE_DELETED_SUCCESSFULLY,
+      );
     } catch (err) {
       return next(err);
     }

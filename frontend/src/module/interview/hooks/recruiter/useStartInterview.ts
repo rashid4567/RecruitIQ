@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { startInterview } from "../../api/interview.api";
+import { startInterview } from "../../api/recruiter-interview.api";
 import type { StartInterviewResponse } from "../../types/recruiterInterview.types";
 
 export function useStartInterview() {

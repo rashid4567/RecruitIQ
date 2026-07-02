@@ -3,7 +3,7 @@ import {
   type RescheduleInterviewRequest,
   type RescheduleInterviewResponse,
 } from '../../types/recruiterInterview.types';
-import { rescheduleInterview } from '../../api/interview.api';
+import { rescheduleInterview } from '../../api/recruiter-interview.api';
 
 export function useRescheduleInterview() {
   const [loading, setLoading] = useState(false);

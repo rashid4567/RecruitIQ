@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cancelInterview } from "../../api/interview.api";
+import { cancelInterview } from "../../api/recruiter-interview.api";
 import type {
   CancelInterviewRequest,
   CancelInterviewResponse,

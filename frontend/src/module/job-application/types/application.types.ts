@@ -8,6 +8,7 @@ import type {
 } from "./jobApplication.types";
 import type { RecruiterApplicationDetails } from "./RecruiterApplicationDetails";
 import type { UpdateApplicationStatusDTO } from "./updateApplicationStatus.dto";
+import type { JobApplicationResponseDTO, RecruiterApplicationResponseDTO } from "./job-application.response.dto";
 
 export interface ApplyJobDTO {
   jobId: string;
@@ -57,4 +58,29 @@ export interface JobApplicationApi {
   ): Promise<RecruiterApplicationDetails>;
   withdraw(applicationId: string): Promise<void>;
   updateStatus(payload: UpdateApplicationStatusDTO): Promise<void>;
+}
+
+
+
+export interface GetMyApplicationsResponse {
+  success: boolean;
+  data: JobApplicationResponseDTO[];
+}
+
+export interface GetApplicationsByJobResponse {
+  success: boolean;
+  data: RecruiterApplicationResponseDTO[];
+}
+
+export interface GetRecruiterApplicationDetailsResponse {
+  success: boolean;
+  data: RecruiterApplicationDetails;
+}
+
+export interface GetApplicationDetailResponse {
+  success: boolean;
+  data: {
+    application: JobApplicationResponseDTO;
+    job: Job;
+  };
 }

@@ -1,5 +1,6 @@
 import api from "@/api/axios";
 
+import { RECRUITER_ROUTES } from "../constant/recruiter.routes";
 import type {
   RecruiterListResponse,
   RecruiterQueryParams,
@@ -9,9 +10,12 @@ import type {
 export const getRecruiters = async (
   params: RecruiterQueryParams,
 ): Promise<RecruiterListResponse> => {
-  const { data } = await api.get("/admin/recruiters", {
-    params,
-  });
+  const { data } = await api.get(
+    RECRUITER_ROUTES.GET_RECRUITERS,
+    {
+      params,
+    },
+  );
 
   return data.data;
 };
@@ -20,7 +24,7 @@ export const getRecruiterProfile = async (
   recruiterId: string,
 ): Promise<RecruiterProfile> => {
   const { data } = await api.get(
-    `/admin/recruiters/${recruiterId}`,
+    RECRUITER_ROUTES.GET_RECRUITER_PROFILE(recruiterId),
   );
 
   return data.data;
@@ -29,13 +33,17 @@ export const getRecruiterProfile = async (
 export const verifyRecruiter = async (
   recruiterId: string,
 ): Promise<void> => {
-  await api.patch(`/admin/recruiters/${recruiterId}/verify`);
+  await api.patch(
+    RECRUITER_ROUTES.VERIFY_RECRUITER(recruiterId),
+  );
 };
 
 export const rejectRecruiter = async (
   recruiterId: string,
 ): Promise<void> => {
-  await api.patch(`/admin/recruiters/${recruiterId}/reject`);
+  await api.patch(
+    RECRUITER_ROUTES.REJECT_RECRUITER(recruiterId),
+  );
 };
 
 export const toggleRecruiterStatus = async (
@@ -43,7 +51,7 @@ export const toggleRecruiterStatus = async (
   isActive: boolean,
 ): Promise<void> => {
   await api.patch(
-    `/admin/recruiters/${recruiterId}/status`,
+    RECRUITER_ROUTES.TOGGLE_RECRUITER_STATUS(recruiterId),
     { isActive },
   );
 };

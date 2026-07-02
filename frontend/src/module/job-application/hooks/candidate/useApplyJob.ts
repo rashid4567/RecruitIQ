@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
-import { applyJob } from "../../api/application.api"; 
-
+import { applyJob } from "../../api/candidate-application.api"; 
 import type { ApplyJobDTO } from "../../types/application.types";
 import type { JobApplication } from "../../types/jobApplication.types"; 
 

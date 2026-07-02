@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getRecruiterApplicationDetails } from "../../api/application.api"; 
+import { getRecruiterApplicationDetails } from "../../api/recruiter-application.api";
 import type { RecruiterApplicationDetails } from "../../types/RecruiterApplicationDetails"; 
 
 interface UseRecruiterApplicationDetailsReturn {

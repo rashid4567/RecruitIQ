@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { joinInterview } from "../../api/interview.api";
+import { joinInterview } from "../../api/candidate-interview.api";
 import type { JoinInterviewResponse } from "../../types/candidateInterview.types";
 
 export function useJoinInterview() {

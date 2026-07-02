@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 
-import { getApplicationById } from "../../api/application.api";
+import { getApplicationById } from "../../api/candidate-application.api";
 
 import type { ApplicationDetailDTO } from "../../types/application.types";
 

@@ -1,8 +1,8 @@
 import { Loader2 } from "lucide-react";
-import type { RecruiterSubscription } from "@/module/subscription/domain/entity/RecruiterSubscription.entity";
-import { useCurrentSubscription } from "@/module/subscription/presentation/hooks/subscriptions/useCurrentSubscription";
-import { usePricingPlans } from "@/module/subscription/presentation/hooks/subscriptions/usePricingPlans";
-import { PlansComparisonCard } from "../Billing.section/PlansComparisonCard"; 
+import type { RecruiterSubscription } from "@/module/subscription/types/RecruiterSubscription.types";
+import { useCurrentSubscription } from "@/module/subscription/hooks/subscriptions/useCurrentSubscription";
+import { usePricingPlans } from "@/module/subscription/hooks/subscriptions/usePricingPlans";
+import { PlansComparisonCard } from "../Billing.section/PlansComparisonCard";
 import { CurrentUsageCard } from "../Billing.section/CurrentUsageCard";
 
 function computeNextBillingDate(endDate: Date | undefined): string {
@@ -31,9 +31,7 @@ export function BillingSection() {
     setSelectedPlanId,
   } = usePricingPlans();
 
-  const subscription = subscriptionData?.subscription as
-    | RecruiterSubscription
-    | undefined;
+  const subscription = subscriptionData as RecruiterSubscription | undefined;
 
   const handleUpgradeClick = async (planId: string) => {
     setSelectedPlanId(planId);
@@ -49,8 +47,13 @@ export function BillingSection() {
     );
   }
 
-  const nextBillingDate = computeNextBillingDate(subscription?.endDate);
-  const daysRemaining = computeDaysRemaining(subscription?.endDate);
+  const nextBillingDate = computeNextBillingDate(
+    subscription?.endDate ? new Date(subscription.endDate) : undefined,
+  );
+
+  const daysRemaining = computeDaysRemaining(
+    subscription?.endDate ? new Date(subscription.endDate) : undefined,
+  );
 
   return (
     <div className="space-y-8">

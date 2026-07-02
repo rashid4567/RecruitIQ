@@ -1,21 +1,18 @@
-"use client"
-
-import { TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {  User, Shield, Bell, CreditCard } from "lucide-react"
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Shield, Bell, CreditCard } from "lucide-react";
 
 interface SettingsTabsProps {
-  activeTab: string
-  onTabChange: (tab: string) => void
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
 export function SettingsTabs({ activeTab, onTabChange }: SettingsTabsProps) {
   const tabs = [
-
     { value: "profile", label: "Profile", icon: User },
     { value: "security", label: "Security", icon: Shield },
     { value: "notifications", label: "Notifications", icon: Bell },
     { value: "billing", label: "Billing", icon: CreditCard },
-  ]
+  ];
 
   return (
     <div className="overflow-x-auto">
@@ -37,5 +34,5 @@ export function SettingsTabs({ activeTab, onTabChange }: SettingsTabsProps) {
         ))}
       </TabsList>
     </div>
-  )
+  );
 }

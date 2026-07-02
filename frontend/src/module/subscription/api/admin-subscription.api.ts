@@ -1,10 +1,9 @@
 import api from "@/api/axios";
+import { SUBSCRIPTION_ROUTES } from "../constant/subscription.routes";
+import { toPlan } from "../mapper/subscription-plan.mapper";
 
 import type {
   SubscriptionPlan,
-  FeatureAccess,
-  PlanFeature,
-  RawSubscriptionPlan,
   CreatePlanPayload,
   UpdatePlanPayload,
 } from "../types/subscription-plan.types";
@@ -13,59 +12,7 @@ import type {
   PaginatedSubscribers,
   RawSubscribersResponse,
 } from "../types/subscriber.types";
-import type {
-  PlanType,
-  BillingCycle,
-  Currency,
-} from "../constant/subscription.constants";
-
-interface WrappedSubscriptionPlan {
-  props: RawSubscriptionPlan;
-}
-type PlanSource = RawSubscriptionPlan | WrappedSubscriptionPlan;
-
-function toPlan(data: PlanSource): SubscriptionPlan {
-  const source = "props" in data ? data.props : data;
-
-  const features: PlanFeature[] = (source.features ?? []).map((feature) => ({
-    name: feature.name,
-    included: feature.included,
-  }));
-
-  const featuresAccess: FeatureAccess = {
-    interviewScheduling: source.featuresAccess?.interviewScheduling ?? false,
-    advancedAnalytics: source.featuresAccess?.advancedAnalytics ?? false,
-    prioritySupport: source.featuresAccess?.prioritySupport ?? false,
-    aiResumeScoring: source.featuresAccess?.aiResumeScoring ?? false,
-    candidateShortlisting:
-      source.featuresAccess?.candidateShortlisting ?? false,
-    exportReports: source.featuresAccess?.exportReports ?? false,
-  };
-
-  return {
-    id: String(source.id ?? source._id ?? ""),
-    name: source.name ?? "",
-    description: source.description,
-    planType: (source.planType ?? "free") as PlanType,
-    price: source.price ?? 0,
-    currency: (source.currency ?? "INR") as Currency,
-    billingCycle: (source.billingCycle ?? "monthly") as BillingCycle,
-    billingInterval: source.billingInterval ?? 1,
-    jobPostsPerMonth: source.jobPostsPerMonth ?? 0,
-    jobPostActiveDays: source.jobPostActiveDays ?? 7,
-    screeningCredits: source.screeningCredits ?? 0,
-    resumeParsesPerMonth: source.resumeParsesPerMonth ?? 0,
-    aiScoreCredits: source.aiScoreCredits ?? 0,
-    razorpayPlanId: source.razorpayPlanId,
-    featuresAccess,
-    features,
-    isPopular: source.isPopular ?? false,
-    sortOrder: source.sortOrder ?? 0,
-    isActive: source.isActive ?? true,
-    createdAt: source.createdAt ?? "",
-    updatedAt: source.updatedAt ?? "",
-  };
-}
+import type { PlanType } from "../constant/subscription.constants";
 
 export async function getPlans(query: {
   page: number;
@@ -73,26 +20,32 @@ export async function getPlans(query: {
   isActive?: boolean;
   planType?: PlanType;
 }): Promise<{ plans: SubscriptionPlan[]; total: number }> {
-  const params = new URLSearchParams();
-  params.set("page", String(query.page));
-  params.set("limit", String(query.limit));
-  if (query.planType) {
-    params.set("planType", query.planType);
-  }
-  if (query.isActive !== undefined) {
-    params.set("isActive", String(query.isActive));
-  }
+  const { data } = await api.get(SUBSCRIPTION_ROUTES.PLANS, {
+    params: {
+      page: query.page,
+      limit: query.limit,
+      isActive: query.isActive,
+      planType: query.planType,
+    },
+  });
 
-  const { data } = await api.get(`/admin/plans?${params.toString()}`);
   const plans = (data.data ?? []).map(toPlan);
-  return { plans, total: plans.length };
+
+  return {
+    plans,
+    total: plans.length,
+  };
 }
 
 export async function getPlanById(
   planId: string,
 ): Promise<SubscriptionPlan | null> {
-  const { data } = await api.get(`/admin/plans/${planId}`);
-  if (!data.data) return null;
+  const { data } = await api.get(SUBSCRIPTION_ROUTES.PLAN(planId));
+
+  if (!data.data) {
+    return null;
+  }
+
   return toPlan(data.data);
 }
 
@@ -105,45 +58,44 @@ export async function getPlanByType(
     planType,
     isActive: true,
   });
+
   return result.plans[0] ?? null;
 }
 
 export async function createPlan(
   payload: CreatePlanPayload,
 ): Promise<SubscriptionPlan> {
-  const { data } = await api.post("/admin/plans", payload);
-
+  const { data } = await api.post(SUBSCRIPTION_ROUTES.PLANS, payload);
   return toPlan(data.data);
 }
-
 export async function updatePlan(
   id: string,
   payload: UpdatePlanPayload,
 ): Promise<SubscriptionPlan> {
-  const { data } = await api.patch(`/admin/plans/${id}`, payload);
-
+  const { data } = await api.patch(SUBSCRIPTION_ROUTES.PLAN(id), payload);
   return toPlan(data.data);
 }
-
 export async function hidePlan(planId: string): Promise<void> {
-  await api.patch(`/admin/plans/${planId}/hide`);
+  await api.patch(SUBSCRIPTION_ROUTES.HIDE_PLAN(planId));
 }
-
 export async function unhidePlan(planId: string): Promise<void> {
-  await api.patch(`/admin/plans/${planId}/unhide`);
+  await api.patch(SUBSCRIPTION_ROUTES.UNHIDE_PLAN(planId));
 }
 
 export async function getSubscribers(
   filters: SubscriberFilters,
 ): Promise<PaginatedSubscribers> {
-  const { data } = await api.get<RawSubscribersResponse>("/admin/subscribers", {
-    params: {
-      page: filters.page,
-      limit: filters.limit,
-      search: filters.search,
-      status: filters.status,
+  const { data } = await api.get<RawSubscribersResponse>(
+    SUBSCRIPTION_ROUTES.SUBSCRIBERS,
+    {
+      params: {
+        page: filters.page,
+        limit: filters.limit,
+        search: filters.search,
+        status: filters.status,
+      },
     },
-  });
+  );
 
   return {
     data: data.data.map((item) => ({

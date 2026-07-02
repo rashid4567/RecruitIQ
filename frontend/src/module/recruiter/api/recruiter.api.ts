@@ -1,5 +1,5 @@
 import api from "@/api/axios";
-
+import { RECRUITER_PROFILE_ROUTES } from "../constants/recruiter-profile.routes";
 import type {
   RecruiterProfile,
   RecruiterProfileResponse,
@@ -11,8 +11,7 @@ import { mapRecruiterProfile } from "../mapper/mapRecruiterProfile";
 export const getRecruiterProfile = async (): Promise<RecruiterProfile> => {
   const { data } = await api.get<{
     data: RecruiterProfileResponse;
-  }>("/recruiter/profile");
-
+  }>(RECRUITER_PROFILE_ROUTES.PROFILE);
   return mapRecruiterProfile(data.data);
 };
 
@@ -21,13 +20,12 @@ export const updateRecruiterProfile = async (
 ): Promise<RecruiterProfile> => {
   const { data } = await api.put<{
     data: RecruiterProfileResponse;
-  }>("/recruiter/profile", payload);
-
+  }>(RECRUITER_PROFILE_ROUTES.PROFILE, payload);
   return mapRecruiterProfile(data.data);
 };
 
 export const completeRecruiterProfile = async (
   payload: CompleteRecruiterProfileDTO,
 ): Promise<void> => {
-  await api.put("/recruiter/complete-profile", payload);
+  await api.put(RECRUITER_PROFILE_ROUTES.COMPLETE_PROFILE, payload);
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ScheduleInterviewRequest, ScheduleInterviewResponse } from "../../types/recruiterInterview.types"
-import { scheduleInterview } from "../../api/interview.api";
+import { scheduleInterview } from "../../api/recruiter-interview.api";
 
 
 export function useScheduleInterview() {

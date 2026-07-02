@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { withdrawApplication } from "../../api/application.api";
+import { withdrawApplication } from "../../api/candidate-application.api";
 
 export function useWithdrawApplication() {
   const [loading, setLoading] = useState(false);

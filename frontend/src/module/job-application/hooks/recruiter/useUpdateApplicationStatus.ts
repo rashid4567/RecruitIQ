@@ -1,6 +1,6 @@
 import type { UpdateApplicationStatusDTO } from "../../types/updateApplicationStatus.dto";
 import { useCallback, useState } from "react";
-import { updateApplicationStatus } from "../../api/application.api";
+import { updateApplicationStatus } from "../../api/recruiter-application.api";
 
 interface UseUpdateApplicationStatusReturn {
   loading: boolean;

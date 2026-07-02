@@ -6,6 +6,7 @@ import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UpdateEmailTemplateRequestDTO } from "../../../application/dto/email.template/updateEmailTemplate.input.dto";
 import { EmailTemplate } from "../../../domain/entities/email-template.entity";
 import { UpdateEmailTemplateSchema } from "../../validation/UpdateEmailTemplateSchema"; 
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class UpdateEmailTemplateController {
   constructor(
@@ -23,11 +24,12 @@ export class UpdateEmailTemplateController {
     try {
       const id = req.params.id;
 
-      if (!id) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.INVALID_ID,
-        });
+            if (!id) {
+       return ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.EMAIL_IS_REQUIRED,
+        )
       }
 
       const body = UpdateEmailTemplateSchema.parse(req.body);
@@ -36,11 +38,12 @@ export class UpdateEmailTemplateController {
         input: body,
       });
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.TEMPLATE_UPDATED_SUCCESSFULLY,
-        data: result,
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.TEMPLATE_UPDATED_SUCCESSFULLY,
+        result,
+      )
     } catch (err) {
       next(err);
     }

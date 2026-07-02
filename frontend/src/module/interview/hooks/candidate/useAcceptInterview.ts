@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { acceptInterview } from "../../api/interview.api";
+import { acceptInterview } from "../../api/candidate-interview.api";
 import type { AcceptInterviewResponse } from "../../types/candidateInterview.types";
 
 export function useAcceptInterview() {

@@ -8,6 +8,8 @@ import {
   UpdateCandidateProfileRequestDTO,
   UpdateCandidateProfileResult,
 } from "../../application/dto/update-candidate-profile.dto";
+import { ApiResponse } from "../../../../shared/utils/api-response";
+import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
 
 export class UpdateCandidateProfileController {
   constructor(
@@ -20,18 +22,31 @@ export class UpdateCandidateProfileController {
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = userIdSchema.parse(req.user?.userId);
+      if (!userId) {
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
+      }
       const input = updateCandidateProfileSchema.parse(req.body);
-      console.log("input :-", input);
+      if (!input) {
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.MISSING_FIELDS,
+        );
+      }
       const result = await this.updateProfileUC.execute({
         userId,
         profile: input,
       });
-      console.log("result :-", result);
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.PROFILE_UPDATED_SUCCESSFULLY,
-        data: result,
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.PROFILE_UPDATED_SUCCESSFULLY,
+        result,
+      );
     } catch (err) {
       console.log("Error :-", err);
       next(err);

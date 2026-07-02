@@ -1,4 +1,5 @@
 import api from "@/api/axios";
+import { PAYMENT_ROUTES } from "../constant/payment.routes";
 
 import type {
   CreateSubscriptionPaymentInput,
@@ -19,17 +20,15 @@ export async function createSubscriptionPayment(
   try {
     const { data } = await api.post<
       ApiResponse<CreateSubscriptionPaymentOutput>
-    >("/recruiter/payment/order", {
+    >(PAYMENT_ROUTES.CREATE_ORDER, {
       planId: input.planId,
       durationMonths: input.durationMonths,
     });
-
     return data.data;
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
     }
-
     throw error;
   }
 }
@@ -39,16 +38,14 @@ export async function verifySubscriptionPayment(
 ): Promise<VerifyPaymentOutput> {
   try {
     const { data } = await api.post<ApiResponse<VerifyPaymentOutput>>(
-      "/recruiter/payment/verify",
+      PAYMENT_ROUTES.VERIFY_PAYMENT,
       input,
     );
-
     return data.data;
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
     }
-
     throw error;
   }
 }

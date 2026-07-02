@@ -25,22 +25,23 @@ export class AdminAuthController {
           res,
           HTTP_STATUS.FORBIDDEN,
           ERROR_MESSAGE.ACCESS_DENIED,
-        )
+        );
       }
 
       setRefreshCookie(res, result.refreshToken);
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.ADMIN_LOGIN_SUCCESFULLY,
-        data: {
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.ADMIN_LOGIN_SUCCESFULLY,
+        {
           accessToken: result.accessToken,
           user: {
             id: result.userId,
             role: result.role,
           },
         },
-      });
+      );
     } catch (err) {
       console.log("error", err);
       next(err);

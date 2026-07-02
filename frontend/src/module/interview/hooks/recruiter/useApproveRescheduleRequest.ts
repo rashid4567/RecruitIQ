@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { approveRescheduleRequest } from "../../api/interview.api";
+import { approveRescheduleRequest } from "../../api/recruiter-interview.api";
 import type { ApproveRescheduleResponse } from "../../types/recruiterInterview.types";
 
 export function useApproveRescheduleRequest() {

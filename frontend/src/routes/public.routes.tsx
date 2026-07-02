@@ -17,6 +17,11 @@ const ForgotPassword = lazy(
 const ResetPassword = lazy(
   () => import("../module/auth/pages/auth/ResetPassword"),
 );
+
+const ServerErrorPage = lazy(
+  () => import("../pages/server.error"),
+);
+
 const AboutPage = lazy(() => import("./../pages/aboutus"));
 
 const PublicRoutes = () => {
@@ -40,6 +45,7 @@ const PublicRoutes = () => {
           element={<NavigateToSignupWithRole role="recruiter" />}
         />
         <Route path="*" element={<NotFoundPage />} />
+        <Route path="/500" element={<ServerErrorPage />} />
       </Routes>
     </Suspense>
   );

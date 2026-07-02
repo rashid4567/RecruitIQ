@@ -35,7 +35,7 @@ function clearAuthAndRedirect(
   localStorage.removeItem("authToken");
   localStorage.removeItem("userRole");
   localStorage.removeItem("userId");
-  window.location.href = path;
+  window.location.replace(path);
 }
 
 api.interceptors.response.use(
@@ -108,11 +108,17 @@ api.interceptors.response.use(
         description: message || "The resource you requested doesn't exist",
       });
     } else if (status >= 500) {
-      toast.error("Server error", {
-        description:
-          message || "Something went wrong on our end — try again shortly",
-      });
-    } else {
+  if (window.location.pathname !== "/500") {
+    sessionStorage.setItem(
+      "last-page",
+      window.location.pathname + window.location.search,
+    );
+
+    window.location.replace("/500");
+  }
+
+  return Promise.reject(error);
+} else {
       toast.error("Something went wrong", {
         description: message || "An unexpected error occurred",
       });

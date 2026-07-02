@@ -32,8 +32,7 @@ import { useNotifications } from "@/module/notification/hook/useNotifications";
 import type {
   Notification,
   NotificationType,
-} from "../../../../notification/types/notification.types"
-
+} from "../../../../notification/types/notification.types";
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -182,8 +181,8 @@ function NotificationRow({
   onDelete,
 }: NotificationRowProps) {
   const cfg = getTypeConfig(notification.type);
-const isUnread = !notification.isRead;
-const actionUrl = notification.actionUrl;
+  const isUnread = !notification.isRead;
+  const actionUrl = notification.actionUrl;
 
   const handleClick = useCallback(() => {
     if (isUnread) onMarkAsRead(notification.id);

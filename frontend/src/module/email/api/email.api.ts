@@ -1,30 +1,24 @@
 import api from "@/api/axios";
-import type {
-  EmailLog,
-  EmailTemplate,
-} from "../types/email.types";
+import { EMAIL_ROUTES } from "../constant/email.routes"; 
+import type { EmailLog, EmailTemplate } from "../types/email.types";
 
 export const getEmailTemplates = async (): Promise<EmailTemplate[]> => {
   const { data } = await api.get<{ data: EmailTemplate[] }>(
-    "/admin/email-templates"
+    EMAIL_ROUTES.EMAIL_TEMPLATES,
   );
-
   return data.data;
 };
 
-export const createEmailTemplate = async (
-  payload: {
-    name: string;
-    event: string;
-    subject: string;
-    body: string;
-  }
-): Promise<EmailTemplate> => {
+export const createEmailTemplate = async (payload: {
+  name: string;
+  event: string;
+  subject: string;
+  body: string;
+}): Promise<EmailTemplate> => {
   const { data } = await api.post<{ data: EmailTemplate }>(
-    "/admin/email-templates",
-    payload
+    EMAIL_ROUTES.EMAIL_TEMPLATES,
+    payload,
   );
-
   return data.data;
 };
 
@@ -33,42 +27,38 @@ export const updateEmailTemplate = async (
   payload: {
     subject?: string;
     body?: string;
-  }
+  },
 ): Promise<EmailTemplate> => {
   const { data } = await api.put<{ data: EmailTemplate }>(
-    `/admin/email-templates/${id}`,
-    payload
+    EMAIL_ROUTES.EMAIL_TEMPLATE(id),
+    payload,
   );
-
   return data.data;
 };
 
-export const deleteEmailTemplate = async (id: string) => {
-  await api.delete(`/admin/email-templates/${id}`);
+export const deleteEmailTemplate = async (id: string): Promise<void> => {
+  await api.delete(EMAIL_ROUTES.EMAIL_TEMPLATE(id));
 };
 
 export const toggleEmailTemplate = async (
   id: string,
-  isActive: boolean
-) => {
-  await api.patch(`/admin/email-templates/${id}/toggle`, {
+  isActive: boolean,
+): Promise<void> => {
+  await api.patch(EMAIL_ROUTES.TOGGLE_EMAIL_TEMPLATE(id), {
     isActive,
   });
 };
 
 export const sendTestEmail = async (
   id: string,
-  email: string
-) => {
-  await api.post(`/admin/email-templates/${id}/test`, {
+  email: string,
+): Promise<void> => {
+  await api.post(EMAIL_ROUTES.TEST_EMAIL_TEMPLATE(id), {
     email,
   });
 };
 
 export const getEmailLogs = async (): Promise<EmailLog[]> => {
-  const { data } = await api.get<{ data: EmailLog[] }>(
-    "/admin/email-logs"
-  );
-
+  const { data } = await api.get<{ data: EmailLog[] }>(EMAIL_ROUTES.EMAIL_LOGS);
   return data.data;
 };

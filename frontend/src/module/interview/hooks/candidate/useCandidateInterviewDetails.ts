@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getCandidateInterviewDetails } from "../../api/interview.api";
+import { getCandidateInterviewDetails } from "../../api/candidate-interview.api";
 import type { GetCandidateInterviewDetailsResponse } from "../../types/candidateInterview.types";
 
 export function useCandidateInterviewDetails() {

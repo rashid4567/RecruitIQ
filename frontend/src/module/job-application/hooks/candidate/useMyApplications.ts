@@ -1,7 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-
-import { getMyApplications } from "../../api/application.api";
-
+import { getMyApplications } from "../../api/candidate-application.api";
 import type { CandidateApplication } from "../../types/application.types";
 
 export const useMyApplications = () => {

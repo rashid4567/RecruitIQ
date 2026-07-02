@@ -44,10 +44,7 @@ export class ScheduleInterviewUseCase implements IUseCase<
         ERROR_CODES.APPLICATION_CANNOT_SCHEDULE_INTERVIEW,
       );
     }
-    const round = await this.interviewRepo.getNextRound(
-  request.applicationId,
-);
-   
+    const round = await this.interviewRepo.getNextRound(request.applicationId);
 
     const interview = Interview.create({
       applicationId: application.id,
@@ -82,7 +79,7 @@ export class ScheduleInterviewUseCase implements IUseCase<
       candidateId: result.candidateId,
       recruiterId: result.recruiterId,
       roomId: result.roomId,
-      round: result.round, 
+      round: result.round,
       title: result.title,
       description: result.description,
       mode: result.mode,

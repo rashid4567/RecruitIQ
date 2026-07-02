@@ -367,87 +367,71 @@ export class Interview {
     this.touch();
   }
 
-start(): void {
-  if (
-    this.props.status !== InterviewStatus.SCHEDULED &&
-    this.props.status !== InterviewStatus.RESCHEDULED
-  ) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_STARTED,
-    );
+  start(): void {
+    if (
+      this.props.status !== InterviewStatus.SCHEDULED &&
+      this.props.status !== InterviewStatus.RESCHEDULED
+    ) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_STARTED);
+    }
+
+    if (
+      this.props.candidateResponseStatus !== CandidateResponseStatus.ACCEPTED
+    ) {
+      throw new DomainError(
+        DOMAIN_ERROR_CODES.CANDIDATE_HAS_NOT_ACCEPTED_INTERVIEW,
+      );
+    }
+
+    this.props.status = InterviewStatus.ONGOING;
+    this.props.startedAt = new Date();
+
+    this.touch();
   }
-
-  if (
-    this.props.candidateResponseStatus !==
-    CandidateResponseStatus.ACCEPTED
-  ) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.CANDIDATE_HAS_NOT_ACCEPTED_INTERVIEW,
-    );
-  }
-
-  this.props.status = InterviewStatus.ONGOING;
-  this.props.startedAt = new Date();
-
-  this.touch();
-}
 
   accept(): void {
-  if (
-    this.props.status !== InterviewStatus.SCHEDULED &&
-    this.props.status !== InterviewStatus.RESCHEDULED
-  ) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_ACCEPTED,
-    );
+    if (
+      this.props.status !== InterviewStatus.SCHEDULED &&
+      this.props.status !== InterviewStatus.RESCHEDULED
+    ) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_ACCEPTED);
+    }
+
+    if (
+      this.props.candidateResponseStatus !== CandidateResponseStatus.PENDING
+    ) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_ALREADY_RESPONDED);
+    }
+
+    this.props.candidateResponseStatus = CandidateResponseStatus.ACCEPTED;
+
+    this.props.candidateRespondedAt = new Date();
+
+    this.touch();
   }
 
-  if (
-    this.props.candidateResponseStatus !==
-    CandidateResponseStatus.PENDING
-  ) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.INTERVIEW_ALREADY_RESPONDED,
-    );
+  reject(reason?: string): void {
+    if (
+      this.props.status !== InterviewStatus.SCHEDULED &&
+      this.props.status !== InterviewStatus.RESCHEDULED
+    ) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_REJECTED);
+    }
+
+    if (
+      this.props.candidateResponseStatus !== CandidateResponseStatus.PENDING
+    ) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_ALREADY_RESPONDED);
+    }
+
+    this.props.candidateResponseStatus = CandidateResponseStatus.DECLINED;
+
+    this.props.candidateRespondedAt = new Date();
+
+    this.props.candidateResponseMessage = reason?.trim();
+
+    this.touch();
   }
-
-  this.props.candidateResponseStatus =
-    CandidateResponseStatus.ACCEPTED;
-
-  this.props.candidateRespondedAt = new Date();
-
-  this.touch();
-}
-
-reject(reason?: string): void {
-  if (
-    this.props.status !== InterviewStatus.SCHEDULED &&
-    this.props.status !== InterviewStatus.RESCHEDULED
-  ) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_REJECTED,
-    );
-  }
-
-  if (
-    this.props.candidateResponseStatus !==
-    CandidateResponseStatus.PENDING
-  ) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.INTERVIEW_ALREADY_RESPONDED,
-    );
-  }
-
-  this.props.candidateResponseStatus =
-    CandidateResponseStatus.DECLINED;
-
-  this.props.candidateRespondedAt = new Date();
-
-  this.props.candidateResponseMessage =
-    reason?.trim();
-
-  this.touch();
-}
 
   requestReschedule(reason: string): void {
     if (
@@ -480,24 +464,23 @@ reject(reason?: string): void {
     this.touch();
   }
   approveReschedule(): void {
-  if (!this.canApproveReschedule()) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.NO_PENDING_RESCHEDULE_REQUEST_AVAILABLE,
-    );
+    if (!this.canApproveReschedule()) {
+      throw new DomainError(
+        DOMAIN_ERROR_CODES.NO_PENDING_RESCHEDULE_REQUEST_AVAILABLE,
+      );
+    }
+
+    this.props.rescheduleRequested = false;
+    this.props.requestedReason = undefined;
+    this.props.rescheduleRequestedAt = undefined;
+
+    this.props.candidateResponseStatus = CandidateResponseStatus.PENDING;
+
+    this.props.candidateRespondedAt = undefined;
+    this.props.candidateResponseMessage = undefined;
+
+    this.touch();
   }
-
-  this.props.rescheduleRequested = false;
-  this.props.requestedReason = undefined;
-  this.props.rescheduleRequestedAt = undefined;
-
-  this.props.candidateResponseStatus =
-    CandidateResponseStatus.PENDING;
-
-  this.props.candidateRespondedAt = undefined;
-  this.props.candidateResponseMessage = undefined;
-
-  this.touch();
-}
 
   rejectRescheduleRequest(): void {
     if (!this.canRejectRescheduleRequest()) {
@@ -581,26 +564,22 @@ reject(reason?: string): void {
     this.touch();
   }
 
-markNoShow(): void {
-  if (
-    this.props.status !== InterviewStatus.SCHEDULED &&
-    this.props.status !== InterviewStatus.RESCHEDULED
-  ) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_MARK_NO_SHOW,
-    );
+  markNoShow(): void {
+    if (
+      this.props.status !== InterviewStatus.SCHEDULED &&
+      this.props.status !== InterviewStatus.RESCHEDULED
+    ) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_MARK_NO_SHOW);
+    }
+
+    if (new Date() < this.props.scheduledAt) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_NOT_STARTED_YET);
+    }
+
+    this.props.status = InterviewStatus.NO_SHOW;
+
+    this.touch();
   }
-
-  if (new Date() < this.props.scheduledAt) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.INTERVIEW_NOT_STARTED_YET,
-    );
-  }
-
-  this.props.status = InterviewStatus.NO_SHOW;
-
-  this.touch();
-}
 
   canStart(): boolean {
     return (
@@ -608,12 +587,12 @@ markNoShow(): void {
       this.props.status === InterviewStatus.RESCHEDULED
     );
   }
-canBeRescheduled(): boolean {
-  return (
-    this.props.status === InterviewStatus.SCHEDULED ||
-    this.props.status === InterviewStatus.RESCHEDULED
-  );
-}
+  canBeRescheduled(): boolean {
+    return (
+      this.props.status === InterviewStatus.SCHEDULED ||
+      this.props.status === InterviewStatus.RESCHEDULED
+    );
+  }
   canComplete(): boolean {
     return this.props.status === InterviewStatus.ONGOING;
   }

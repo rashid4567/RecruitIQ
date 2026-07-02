@@ -1,29 +1,25 @@
 import { Request, Response, NextFunction } from "express";
 import { LoginSchema } from "../validators/login.schema";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
-import {
-  setRefreshCookie,
-  clearRefreshCookie,
-} from "../utils/cookie.util";
+import { setRefreshCookie, clearRefreshCookie } from "../utils/cookie.util";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
-import { LoginRequestDTO, LoginResponseDTO } from "../../application/dto/login.dto";
+import {
+  LoginRequestDTO,
+  LoginResponseDTO,
+} from "../../application/dto/login.dto";
 
 export class AuthController {
   constructor(
-    private readonly loginUC: IUseCase<LoginRequestDTO,LoginResponseDTO>,
+    private readonly loginUC: IUseCase<LoginRequestDTO, LoginResponseDTO>,
   ) {}
 
-  login = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = LoginSchema.parse(req.body);
 
       const result = await this.loginUC.execute({
-             email,
+        email,
         password,
       });
 
@@ -31,7 +27,7 @@ export class AuthController {
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: SUCCESS_MESSAGES.LOGIN_SUCCESSFULLY, 
+        message: SUCCESS_MESSAGES.LOGIN_SUCCESSFULLY,
         data: {
           accessToken: result.accessToken,
           user: {
@@ -51,7 +47,7 @@ export class AuthController {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: SUCCESS_MESSAGES.LOGOUT_SUCCESSFULLY, 
+      message: SUCCESS_MESSAGES.LOGOUT_SUCCESSFULLY,
     });
   };
 }

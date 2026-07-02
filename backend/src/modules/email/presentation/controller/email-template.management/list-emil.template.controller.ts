@@ -3,6 +3,7 @@ import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { EmailTemplate } from "../../../domain/entities/email-template.entity";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class ListEmailTemplateController {
   constructor(
@@ -16,12 +17,13 @@ export class ListEmailTemplateController {
   ) => {
     try {
       const result = await this.getEmailTemplatesUC.execute();
-
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.EMAIL_TEMPLATES_LISTED_SUCCESSFULLY,
-        data: result,
-      });
+    
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.EMAIL_TEMPLATES_LISTED_SUCCESSFULLY,
+        result,
+      )
     } catch (error) {
       next(error);
     }

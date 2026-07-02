@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { markRecruiterJoined } from "../../api/interview.api";
+import { markRecruiterJoined } from "../../api/recruiter-interview.api";
 import type { MarkRecruiterJoinedResponse } from "../../types/recruiterInterview.types";
 
 export function useMarkRecruiterJoined() {

@@ -595,13 +595,13 @@ export default function JobDetailModal({
                         label={`${job.positions} opening${job.positions !== 1 ? "s" : ""}`}
                       />
                     )}
-                    <StatPill
-                      icon={<Eye className="w-3.5 h-3.5" />}
-                      label={`${job.views.toLocaleString()} views`}
-                    />
+                   <StatPill
+  icon={<Eye className="w-3.5 h-3.5" />}
+  label={`${(job.views ?? 0).toLocaleString()} views`}
+/>
                     <StatPill
                       icon={<FileText className="w-3.5 h-3.5" />}
-                      label={`${job.applicationsCount.toLocaleString()} applicants`}
+                      label={`${(job.applicationsCount ?? 0).toLocaleString()} applicants`}
                     />
                   </div>
 
@@ -809,7 +809,7 @@ export default function JobDetailModal({
                       },
                       {
                         label: "Applicants",
-                        value: job.applicationsCount.toLocaleString(),
+                        value: (job.applicationsCount ?? 0).toLocaleString(),
                         icon: <FileText className="w-3 h-3" />,
                       },
                       ...(job.postedOn

@@ -160,8 +160,6 @@ const FALLBACK_EXISTING: ExistingInterviewData = {
   durationInMinutes: 60,
 };
 
-// ─── component ─────────────────────────────────────────────────────────────────
-
 export default function ScheduleInterviewModal({
   isOpen,
   onClose,

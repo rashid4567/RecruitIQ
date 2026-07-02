@@ -82,7 +82,6 @@ export default function RequestRescheduleModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-5 py-4">
           {alreadyRequested ? (
             <p className="text-sm text-slate-500">
@@ -125,7 +124,7 @@ export default function RequestRescheduleModal({
           )}
         </div>
 
-        {/* Footer */}
+   
         <div className="px-5 pb-5 flex items-center gap-2">
           <button
             onClick={handleClose}

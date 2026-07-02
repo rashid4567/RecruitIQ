@@ -100,11 +100,8 @@ export class Interview {
         props.candidateResponseStatus ?? CandidateResponseStatus.PENDING,
       rescheduleRequested: props.rescheduleRequested ?? false,
       candidateRespondedAt: props.candidateRespondedAt,
-
       candidateResponseMessage: props.candidateResponseMessage,
-
       requestedReason: props.requestedReason,
-
       rescheduleRequestedAt: props.rescheduleRequestedAt,
     });
   }

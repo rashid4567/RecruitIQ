@@ -1,6 +1,6 @@
-'use client';
-
 import { ChevronLeft, Download, Lock } from 'lucide-react';
+import type { ReactNode } from "react";
+
 
 export default function RecruiterInterviewDecision() {
   const skills = [
@@ -18,7 +18,7 @@ export default function RecruiterInterviewDecision() {
       <aside className="w-64 bg-white border-r border-gray-200 fixed left-0 top-0 h-screen flex flex-col shadow-lg">
         {/* Logo */}
         <div className="p-6 border-b border-gray-200 flex items-center gap-3">
-          <div className="w-11 h-11 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+          <div className="w-11 h-11 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shrink-0 shadow-md">
             <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
             </svg>
@@ -50,7 +50,7 @@ export default function RecruiterInterviewDecision() {
       </aside>
 
       {/* Main Content */}
-      <main className="ml-64 flex-1 overflow-auto bg-gradient-to-b from-white to-gray-50">
+      <main className="ml-64 flex-1 overflow-auto bg-linear-to-b from-white to-gray-50">
         <div className="max-w-5xl mx-auto p-10">
           {/* Back Button */}
           <button className="flex items-center gap-2 text-gray-600 hover:text-gray-950 mb-8 font-semibold text-sm transition-colors">
@@ -177,7 +177,7 @@ export default function RecruiterInterviewDecision() {
 
           {/* Lock Message */}
           <div className="flex items-center gap-4 bg-blue-50 border-2 border-blue-200 rounded-xl px-5 py-4 mb-10 shadow-sm">
-            <Lock className="w-6 h-6 text-blue-600 flex-shrink-0" />
+            <Lock className="w-6 h-6 text-blue-600 shrink-0" />
             <p className="text-base text-gray-800 font-semibold">
               Decision locked — interview session not completed.
             </p>
@@ -198,23 +198,91 @@ export default function RecruiterInterviewDecision() {
   );
 }
 
-function NavItem({ icon, label, active = false }) {
-  const iconMap = {
-    grid: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>,
-    briefcase: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path></svg>,
-    filetext: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="13" x2="12" y2="17"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>,
-    video: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>,
-    users: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>,
-    credit: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>,
-    user: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
+
+
+type NavIcon =
+  | "grid"
+  | "briefcase"
+  | "filetext"
+  | "video"
+  | "users"
+  | "credit"
+  | "user";
+
+interface NavItemProps {
+  icon: NavIcon;
+  label: string;
+  active?: boolean;
+}
+
+function NavItem({
+  icon,
+  label,
+  active = false,
+}: NavItemProps) {
+  const iconMap: Record<NavIcon, ReactNode> = {
+    grid: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+      </svg>
+    ),
+
+    briefcase: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+      </svg>
+    ),
+
+    filetext: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="12" y1="13" x2="12" y2="17" />
+        <line x1="9" y1="15" x2="15" y2="15" />
+      </svg>
+    ),
+
+    video: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polygon points="23 7 16 12 23 17 23 7" />
+        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+      </svg>
+    ),
+
+    users: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+
+    credit: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+        <line x1="1" y1="10" x2="23" y2="10" />
+      </svg>
+    ),
+
+    user: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    ),
   };
 
   return (
     <button
       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all ${
         active
-          ? 'bg-blue-50 text-blue-700'
-          : 'text-gray-700 hover:text-gray-950 hover:bg-gray-100'
+          ? "bg-blue-50 text-blue-700"
+          : "text-gray-700 hover:text-gray-950 hover:bg-gray-100"
       }`}
     >
       {iconMap[icon]}

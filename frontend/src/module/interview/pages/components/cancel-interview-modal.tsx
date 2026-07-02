@@ -54,7 +54,7 @@ export default function CancelInterviewModal({
       }}
     >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-        {/* Header */}
+    
         <div className="flex items-start gap-3 px-6 pt-6 pb-4">
           <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
             <AlertTriangle size={20} className="text-red-500" />
@@ -76,7 +76,6 @@ export default function CancelInterviewModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-6 pb-2 space-y-3">
           <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
             Reason for cancellation
@@ -111,7 +110,7 @@ export default function CancelInterviewModal({
           {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
         </div>
 
-        {/* Footer */}
+      
         <div className="flex items-center justify-end gap-2 px-6 py-4 bg-slate-50 border-t border-slate-100 mt-4">
           <button
             onClick={handleClose}

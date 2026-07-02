@@ -78,7 +78,7 @@ export default function RequestRescheduleModal({
         className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 w-full max-w-sm overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+       
         <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
@@ -102,7 +102,6 @@ export default function RequestRescheduleModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-5 py-4">
           {alreadyRequested ? (
             <p className="text-sm text-slate-500">
@@ -148,7 +147,7 @@ export default function RequestRescheduleModal({
           )}
         </div>
 
-        {/* Footer */}
+     
         <div className="px-5 pb-5 flex items-center gap-2">
           <button
             onClick={handleClose}

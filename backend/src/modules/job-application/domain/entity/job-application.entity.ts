@@ -53,8 +53,8 @@ export interface ApplicationAIAnalysis {
 
 export interface JobApplicationProps {
   id?: string;
+  applicationNumber: string;
   jobId: string;
-
   candidateId: string;
   recruiterId: string;
   resumeId: string;
@@ -73,35 +73,39 @@ export class JobApplication {
     this.validate();
   }
   static apply(
-    props: Omit<
-      JobApplicationProps,
-      | "id"
-      | "status"
-      | "interview"
-      | "rejectionReason"
-      | "analysisStatus"
-      | "aiAnalysis"
-      | "appliedAt"
-      | "updatedAt"
-    >,
-  ): JobApplication {
-    return new JobApplication({
-      ...props,
-      status: ApplicationStatus.APPLIED,
-      analysisStatus: ApplicationAnalysisStatus.PENDING,
-      interview: undefined,
-      rejectionReason: undefined,
-      aiAnalysis: undefined,
-      appliedAt: new Date(),
-      updatedAt: new Date(),
-    });
-  }
+  props: Omit<
+    JobApplicationProps,
+    | "id"
+    | "status"
+    | "interview"
+    | "rejectionReason"
+    | "analysisStatus"
+    | "aiAnalysis"
+    | "appliedAt"
+    | "updatedAt"
+  >,
+): JobApplication {
+  return new JobApplication({
+    ...props,
+    status: ApplicationStatus.APPLIED,
+    analysisStatus: ApplicationAnalysisStatus.PENDING,
+    interview: undefined,
+    rejectionReason: undefined,
+    aiAnalysis: undefined,
+    appliedAt: new Date(),
+    updatedAt: new Date(),
+  });
+}
 
   static rehydrate(props: JobApplicationProps): JobApplication {
     return new JobApplication(props);
   }
 
   private validate(): void {
+
+    if (!this.props.applicationNumber?.trim()) {
+    throw new DomainError(DOMAIN_ERROR_CODES.APPLICATION_NUMBER_REQUIRED);
+  }
     if (!this.props.jobId?.trim()) {
       throw new DomainError(DOMAIN_ERROR_CODES.JOB_REQUIRED);
     }
@@ -377,6 +381,10 @@ canScheduleInterview(): boolean {
     }
     return this.props.id;
   }
+
+  get applicationNumber(): string {
+  return this.props.applicationNumber;
+}
 
   get jobId() {
     return this.props.jobId;

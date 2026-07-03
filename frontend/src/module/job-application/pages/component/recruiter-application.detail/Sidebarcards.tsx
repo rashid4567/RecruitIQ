@@ -10,6 +10,7 @@ import {
   Calendar,
   Clock,
   Activity,
+  Hash,
 } from "lucide-react";
 import { ApplicationAnalysisStatus } from "@/module/job-application/types/jobApplication.types";
 import { type DS, SM } from "./Index";
@@ -37,33 +38,36 @@ function ResumePreviewModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative w-full max-w-4xl h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center">
-              <FileText className="w-3.5 h-3.5 text-indigo-600" />
+      <div className="relative w-full max-w-4xl h-[92vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-100">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0 bg-white">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-2xl bg-indigo-50 flex items-center justify-center shadow-sm">
+              <FileText className="w-4 h-4 text-indigo-600" />
             </div>
-            <span className="text-sm font-bold text-slate-900">
-              Resume Preview
-            </span>
+            <div>
+              <span className="text-base font-semibold text-slate-900">Resume Preview</span>
+              <p className="text-xs text-slate-400 -mt-0.5">PDF / DOCX viewer</p>
+            </div>
           </div>
+
           <div className="flex items-center gap-2">
             <a
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-2xl transition-all active:scale-[0.985]"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              Open in tab
+              Open in new tab
             </a>
             <button
               onClick={onDownload}
               disabled={downloading}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors disabled:opacity-60"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 rounded-2xl border border-indigo-100 transition-all active:scale-[0.985] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {downloading ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -74,32 +78,32 @@ function ResumePreviewModal({
             </button>
             <button
               onClick={onClose}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="w-9 h-9 rounded-2xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all active:scale-95"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* iframe */}
-        <div className="relative flex-1 bg-slate-100">
+        {/* Preview Area */}
+        <div className="relative flex-1 bg-slate-50 overflow-hidden">
           {!iframeReady && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
-              <div className="relative w-10 h-10">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-white/70">
+              <div className="relative w-12 h-12">
                 <div className="absolute inset-0 rounded-full border-4 border-indigo-100" />
                 <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
               </div>
-              <p className="text-sm text-slate-400 font-medium">
-                Loading resume…
-              </p>
+              <div className="text-center">
+                <p className="text-sm font-medium text-slate-500">Loading resume document...</p>
+                <p className="text-xs text-slate-400 mt-1">This may take a few seconds</p>
+              </div>
             </div>
           )}
+
           <iframe
             src={viewerUrl}
             title="Resume Preview"
-            className={`w-full h-full border-0 transition-opacity duration-300 ${
-              iframeReady ? "opacity-100" : "opacity-0"
-            }`}
+            className={`w-full h-full border-0 transition-opacity duration-500 ${iframeReady ? "opacity-100" : "opacity-0"}`}
             onLoad={onReady}
           />
         </div>
@@ -125,71 +129,75 @@ export function ResumeCard({ resumeId }: { resumeId: string | undefined }) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center">
-            <FileText className="w-3.5 h-3.5 text-indigo-600" />
+      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
+          <div className="w-8 h-8 rounded-2xl bg-indigo-50 flex items-center justify-center">
+            <FileText className="w-4 h-4 text-indigo-600" />
           </div>
-          <h3 className="text-sm font-bold text-slate-900">Resume</h3>
+          <h3 className="font-semibold text-slate-900">Resume</h3>
         </div>
 
-        <div className="p-5 space-y-3">
-          {/* Clickable preview tile */}
+        <div className="p-6 space-y-4">
+          {/* Preview Tile */}
           <button
             onClick={openPreview}
             disabled={loadingPreview}
-            className="w-full relative group h-24 rounded-xl bg-linear-to-br from-slate-50 to-slate-100 border border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 overflow-hidden hover:border-indigo-300 hover:from-indigo-50 hover:to-indigo-50/50 transition-all disabled:cursor-not-allowed"
+            className="w-full group relative h-28 rounded-2xl bg-gradient-to-br from-slate-50 via-white to-slate-50 border border-dashed border-slate-200 hover:border-indigo-300 hover:shadow-inner transition-all duration-200 overflow-hidden disabled:cursor-not-allowed active:scale-[0.985]"
           >
-            <div className="absolute inset-x-6 top-4 space-y-1.5 opacity-20 pointer-events-none">
-              {[80, 60, 70, 50].map((w, i) => (
+            <div className="absolute inset-x-8 top-5 space-y-2 opacity-30 pointer-events-none group-hover:opacity-40 transition-opacity">
+              {[85, 65, 78, 55].map((w, i) => (
                 <div
                   key={i}
-                  className="h-1.5 rounded-full bg-slate-400 group-hover:bg-indigo-400 transition-colors"
+                  className="h-1.5 rounded-full bg-slate-300 group-hover:bg-indigo-300 transition-colors"
                   style={{ width: `${w}%` }}
                 />
               ))}
             </div>
-            {loadingPreview ? (
-              <Loader2 className="w-5 h-5 text-indigo-400 animate-spin relative z-10" />
-            ) : (
-              <>
-                <ZoomIn className="w-5 h-5 text-slate-300 group-hover:text-indigo-400 transition-colors relative z-10" />
-                <span className="text-[11px] text-slate-400 group-hover:text-indigo-500 font-medium transition-colors relative z-10">
-                  Click to preview
-                </span>
-              </>
-            )}
+
+            <div className="relative z-10 flex flex-col items-center justify-center h-full gap-1.5">
+              {loadingPreview ? (
+                <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+              ) : (
+                <>
+                  <ZoomIn className="w-6 h-6 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                  <span className="text-xs font-medium text-slate-400 group-hover:text-indigo-600 transition-colors">
+                    Click to preview resume
+                  </span>
+                </>
+              )}
+            </div>
           </button>
 
           {error && (
-            <p className="text-[11px] text-red-600 font-medium flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 shrink-0" />
+            <p className="text-xs text-red-600 font-medium flex items-center gap-1.5 bg-red-50 px-3 py-2 rounded-2xl border border-red-100">
+              <Info className="w-3.5 h-3.5" />
               {error}
             </p>
           )}
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={openPreview}
               disabled={loadingPreview}
-              className="flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 rounded-xl border border-indigo-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 rounded-2xl border border-indigo-100 transition-all active:scale-[0.985] disabled:opacity-60"
             >
               {loadingPreview ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Eye className="w-3.5 h-3.5" />
+                <Eye className="w-4 h-4" />
               )}
               Preview
             </button>
+
             <button
               onClick={download}
               disabled={loadingDownload}
-              className="flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 rounded-xl border border-slate-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 active:bg-slate-100 rounded-2xl border border-slate-200 transition-all active:scale-[0.985] disabled:opacity-60"
             >
               {loadingDownload ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-4 h-4" />
               )}
               Download
             </button>
@@ -223,7 +231,7 @@ const ANALYSIS_STATUS_CONFIG: Record<
     dot: "bg-slate-400",
   },
   [ApplicationAnalysisStatus.PROCESSING]: {
-    label: "Processing…",
+    label: "Processing",
     color: "text-indigo-700",
     bg: "bg-indigo-50",
     border: "border-indigo-200",
@@ -249,12 +257,13 @@ function AnalysisStatusBadge({ status }: { status: string }) {
   const cfg =
     ANALYSIS_STATUS_CONFIG[status] ??
     ANALYSIS_STATUS_CONFIG[ApplicationAnalysisStatus.PENDING];
+
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${cfg.bg} ${cfg.border} ${cfg.color}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-2xl text-xs font-semibold border ${cfg.bg} ${cfg.border} ${cfg.color}`}
     >
       <span
-        className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${
+        className={`w-2 h-2 rounded-full ${cfg.dot} ${
           status === ApplicationAnalysisStatus.PROCESSING ? "animate-pulse" : ""
         }`}
       />
@@ -276,15 +285,15 @@ function InfoRow({
 }) {
   return (
     <div
-      className={`flex items-center justify-between gap-3 ${
-        divider ? "pt-3 border-t border-slate-100" : ""
+      className={`flex items-center justify-between gap-4 py-3 ${
+        divider ? "border-t border-slate-100" : ""
       }`}
     >
-      <span className="flex items-center gap-1.5 text-xs text-slate-400 font-medium shrink-0">
-        <Icon className="w-3.5 h-3.5" />
+      <span className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+        <Icon className="w-4 h-4 text-slate-400" />
         {label}
       </span>
-      <span className="text-xs font-semibold text-slate-700 text-right">
+      <span className="text-sm font-semibold text-slate-800 text-right max-w-[180px] truncate">
         {children}
       </span>
     </div>
@@ -295,38 +304,51 @@ export function ApplicationInfoCard({
   appliedAt,
   updatedAt,
   analysisStatus,
+  applicationNumber,
   ds,
 }: {
   appliedAt: string | undefined;
   updatedAt: string | undefined;
   analysisStatus: string | undefined;
+  applicationNumber?: string;
   ds: DS;
 }) {
   const sm = SM[ds];
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center">
-          <Info className="w-3.5 h-3.5 text-slate-400" />
+    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+      <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
+        <div className="w-8 h-8 rounded-2xl bg-slate-100 flex items-center justify-center">
+          <Info className="w-4 h-4 text-slate-500" />
         </div>
-        <h3 className="text-sm font-bold text-slate-900">Application Info</h3>
+        <h3 className="font-semibold text-slate-900">Application Info</h3>
       </div>
 
-      <div className="px-5 py-4 space-y-3">
+      <div className="px-6 py-5 space-y-1">
+       {applicationNumber && (
+  <InfoRow icon={Hash} label="Application Number">
+    <span className="font-mono font-bold text-indigo-600 tracking-wide">
+      {applicationNumber}
+    </span>
+  </InfoRow>
+)}
+
         <InfoRow icon={Calendar} label="Applied on">
-          {fmt(appliedAt)}
+          {fmt(appliedAt) || "—"}
         </InfoRow>
-        <InfoRow icon={Clock} label="Last updated">
-          {fmt(updatedAt)}
+
+        <InfoRow icon={Clock} label="Last updated" divider>
+          {fmt(updatedAt) || "—"}
         </InfoRow>
-        <InfoRow icon={Activity} label="Status">
-          <span className={`font-bold ${sm.color}`}>{ds}</span>
+
+        <InfoRow icon={Activity} label="Status" divider>
+          <span className={`font-semibold ${sm.color}`}>{ds}</span>
         </InfoRow>
+
         {analysisStatus && (
-          <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-            <span className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-              <Activity className="w-3.5 h-3.5" />
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+              <Activity className="w-4 h-4" />
               AI Analysis
             </span>
             <AnalysisStatusBadge status={analysisStatus} />

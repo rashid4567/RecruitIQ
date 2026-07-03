@@ -11,6 +11,7 @@ export const unwrapApplication = (
   data: JobApplicationResponseDTO,
 ): JobApplication => ({
   id: data.applicationId,
+  applicationNumber: data.applicationNumber,
   jobId: data.jobId,
   candidateId: data.candidateId,
   recruiterId: data.recruiterId,

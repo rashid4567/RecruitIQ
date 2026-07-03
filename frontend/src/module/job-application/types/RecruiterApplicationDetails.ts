@@ -7,6 +7,7 @@ import type {
 
 export interface RecruiterApplicationDetails {
   applicationId: string;
+  applicationNumber: string;
   jobId: string;
   candidateId: string;
   recruiterId: string;

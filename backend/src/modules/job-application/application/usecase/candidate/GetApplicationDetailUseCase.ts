@@ -44,6 +44,7 @@ export class GetApplicationDetailUseCase implements IUseCase<
     return {
       application: {
         id: application.id,
+        applicationNumber : application.applicationNumber,
         jobId: application.jobId,
         candidateId: application.candidateId,
         recruiterId: application.recruiterId,

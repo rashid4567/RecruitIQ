@@ -18,7 +18,7 @@ import { GetApplicationsByJobUseCase } from "../../application/usecase/recruiter
 import { GetRecruiterApplicationDetailsUseCase } from "../../application/usecase/recruiter/GetRecruiterApplicationDetailsUseCase";
 import { UpdateApplicationStatusUseCase } from "../../application/usecase/recruiter/UpdateApplicationStatusUseCase";
 import { JobApplicationRepository } from "../../domain/repository/job-application.repository";
-import { OpenAIApplicationAnalysisService } from "../../infrastructure/ai/OpenAIApplicationAnalysisService";
+import { OpenAIApplicationAnalysisService } from "../../infrastructure/service/ai/OpenAIApplicationAnalysisService";
 import { MongooseJobApplicationRepository } from "../../infrastructure/repository/MongooseJobApplicationRepository";
 import { ApplyJobController } from "../controller/candidate/ApplyJob.controller";
 import { GetApplicationDetailController } from "../controller/candidate/GetApplicationDetail.controller";
@@ -27,6 +27,7 @@ import { WithdrawApplicationController } from "../controller/candidate/withdrawA
 import { GetApplicationsByJobController } from "../controller/Recruiter/GetApplicationsByJob.controller";
 import { GetRecruiterApplicationDetailsController } from "../controller/Recruiter/GetRecruiterApplicationDetails.controller";
 import { UpdateApplicationStatusController } from "../controller/Recruiter/updateApplication.controller";
+import { MongoApplicationNumberGenerator } from "../../infrastructure/service/mongo-application-number-generator";
 
 export const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
@@ -36,6 +37,7 @@ const userRepo: UserRepository = new MongooseUserRepository();
 const recruiterSubscriptionRepo: RecruiterSubscriptionRepository =
   new MongooseRecruiterSubscriptionRepository();
 const analysisService = new OpenAIApplicationAnalysisService(openai);
+const applicationNumberGenerator = new MongoApplicationNumberGenerator();
 
 export const AnalyzeApplicationUC = new AnalyzeApplicationUseCase(
   applicationRepo,
@@ -47,6 +49,7 @@ export const AnalyzeApplicationUC = new AnalyzeApplicationUseCase(
 
 const ApplyJobUC = new ApplyJobUseCase(
   applicationRepo,
+  applicationNumberGenerator,
   jobpostRepo,
   resumeRepo,
   userRepo,
@@ -54,9 +57,8 @@ const ApplyJobUC = new ApplyJobUseCase(
   createNotificationUC,
   AnalyzeApplicationUC,
 );
-const getMyApplicationUC = new GetMyApplicationUseCase(
-  applicationRepo,
-);
+
+const getMyApplicationUC = new GetMyApplicationUseCase(applicationRepo);
 const withdrawApplicationUC = new WithdrawApplicationUseCase(applicationRepo);
 const getApplicationUC = new GetApplicationDetailUseCase(
   applicationRepo,

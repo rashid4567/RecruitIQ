@@ -11,6 +11,7 @@ import { JobRepository } from "../../../../job/domain/repositories/job.repositor
 import { CreateNotificationRequest } from "../../../../notification/application/dto/createNotification.dto";
 import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
 import { Notification } from "../../../../notification/domain/entities/Notification";
+import { ApplicationNumberGenerator } from "../../../domain/service/application-number-generator";
 import {
   Resume,
   ResumeParseStatus,
@@ -24,6 +25,7 @@ import { ApplyJobDTO } from "../../dto/applyJobDto";
 export class ApplyJobUseCase implements IUseCase<ApplyJobDTO, JobApplication> {
   constructor(
     private readonly applicationRepo: JobApplicationRepository,
+    private readonly applicationNumberGenerator: ApplicationNumberGenerator,
     private readonly jobRepo: JobRepository,
     private readonly resumeRepo: ResumeRepository,
     private readonly userRepo: UserRepository,
@@ -40,6 +42,7 @@ export class ApplyJobUseCase implements IUseCase<ApplyJobDTO, JobApplication> {
 
   async execute(dto: ApplyJobDTO): Promise<JobApplication> {
     const { jobId, candidateId, resumeId, coverLetter } = dto;
+
     const job = await this.validateAndGetJob(jobId);
     await this.validateAndGetResume(resumeId, candidateId);
     await this.validateDailyApplicationLimit(candidateId);
@@ -50,7 +53,9 @@ export class ApplyJobUseCase implements IUseCase<ApplyJobDTO, JobApplication> {
       throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND);
     }
 
+    const applicationNumber = await this.applicationNumberGenerator.generate();
     const application = JobApplication.apply({
+      applicationNumber,
       jobId,
       candidateId,
       recruiterId: job.recruiterId,

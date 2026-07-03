@@ -5,6 +5,7 @@ import {
 
 export interface RecruiterApplicationDetailsOutput {
   applicationId: string;
+  applicationNumber: string;    
   jobId: string;
   candidateId: string;
   recruiterId: string;

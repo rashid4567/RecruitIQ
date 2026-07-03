@@ -8,7 +8,6 @@ import {
 import { ApiResponse } from "../../../../shared/utils/api-response";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
-import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 
 export class TokenController {
   constructor(
@@ -35,12 +34,10 @@ export class TokenController {
         refreshToken: parsed.data.refreshToken,
       });
 
-      return ApiResponse.success(
-        res,
-        HTTP_STATUS.OK,
-        SUCCESS_MESSAGES.ACCESS_TOKEN_REFRESHED_SUCCESSFULLY,
-        result,
-      );
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        data: result,
+      });
     } catch (err) {
       next(err);
     }

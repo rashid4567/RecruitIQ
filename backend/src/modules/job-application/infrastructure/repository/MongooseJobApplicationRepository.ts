@@ -125,6 +125,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
       return {
         applicationId: doc._id.toString(),
+        applicationNumber: doc.applicationNumber,
         jobId: job._id.toString(),
         jobTitle: job.title,
         resumeId: resume._id.toString(),
@@ -190,6 +191,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
         return {
           applicationId: doc._id.toString(),
+          applicationNumber: doc.applicationNumber,
           candidateId: candidate._id.toString(),
           candidateName: candidate.fullName ?? "Unknown Candidate",
           candidateEmail: candidate.email ?? "",
@@ -230,6 +232,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
     return {
       applicationId: doc._id.toString(),
+      applicationNumber: doc.applicationNumber,
       jobId: doc.jobId.toString(),
       candidateId: candidate._id.toString(),
       recruiterId: doc.recruiterId.toString(),
@@ -304,6 +307,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
   private toDomain(doc: JobApplicationDocument): JobApplication {
     return JobApplication.rehydrate({
       id: doc._id.toString(),
+      applicationNumber: doc.applicationNumber,
       jobId: doc.jobId.toString(),
       candidateId: doc.candidateId.toString(),
       recruiterId: doc.recruiterId.toString(),
@@ -322,6 +326,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
     const data = application.toObject();
 
     return {
+      applicationNumber: data.applicationNumber,
       jobId: new mongoose.Types.ObjectId(data.jobId),
       candidateId: new mongoose.Types.ObjectId(data.candidateId),
       recruiterId: new mongoose.Types.ObjectId(data.recruiterId),
@@ -356,15 +361,13 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
     return applications.map((app: any) => ({
       applicationId: app._id.toString(),
-
+      applicationNumber: app.applicationNumber,
       jobId: app.jobId._id.toString(),
       jobTitle: app.jobId.title,
-
       candidateId: app.candidateId._id.toString(),
       candidateName: app.candidateId.fullName,
       candidateEmail: app.candidateId.email,
       candidateProfileImage: app.candidateId.profileImage,
-
       recruiterId: app.recruiterId.toString(),
 
       status: app.status,
@@ -376,7 +379,6 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
   ): Promise<number> {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
 

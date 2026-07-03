@@ -19,6 +19,7 @@ export const getApplicationsByJob = async (
   return res.data.data.map(
     (item: RecruiterApplicationResponseDTO): RecruiterApplication => ({
       applicationId: item.applicationId,
+      applicationNumber : item.applicationNumber,
       candidateId: item.candidateId,
       candidateName: item.candidateName,
       candidateEmail: item.candidateEmail,

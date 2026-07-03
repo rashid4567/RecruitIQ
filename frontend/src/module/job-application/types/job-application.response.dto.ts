@@ -8,6 +8,7 @@ import type {
 
 export interface JobApplicationResponseDTO {
   applicationId: string;
+  applicationNumber: string;
   jobId: string;
   jobTitle?: string;
   candidateId: string;
@@ -26,6 +27,7 @@ export interface JobApplicationResponseDTO {
 
 export interface RecruiterApplicationResponseDTO {
   applicationId: string;
+  applicationNumber: string;
   candidateId: string;
   candidateName: string;
   candidateEmail: string;

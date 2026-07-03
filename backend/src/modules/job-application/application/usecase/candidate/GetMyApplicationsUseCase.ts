@@ -7,16 +7,11 @@ import {
   GetMyApplicationRequestDTO,
 } from "../../dto/getMyApplication.dto";
 
-export class GetMyApplicationUseCase
-  implements
-    IUseCase<
-      GetMyApplicationRequestDTO,
-      CandidateApplicationListItemDTO[]
-    >
-{
-  constructor(
-    private readonly applicationRepo: JobApplicationRepository,
-  ) {}
+export class GetMyApplicationUseCase implements IUseCase<
+  GetMyApplicationRequestDTO,
+  CandidateApplicationListItemDTO[]
+> {
+  constructor(private readonly applicationRepo: JobApplicationRepository) {}
 
   async execute(
     request: GetMyApplicationRequestDTO,
@@ -31,9 +26,7 @@ export class GetMyApplicationUseCase
       );
 
     if (!applications.length) {
-      throw new ApplicationError(
-        ERROR_CODES.APPLICATION_NOT_FOUND,
-      );
+      throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
 
     return applications;

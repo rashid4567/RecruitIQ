@@ -17,7 +17,6 @@ export enum ApplicationAnalysisStatus {
   QUOTA_EXCEEDED = "QUOTA_EXCEEDED",
 }
 
-
 export interface ApplicationAIAnalysis {
   overallScore: number;
   requiredSkillsScore: number;
@@ -38,6 +37,7 @@ export interface ApplicationAIAnalysis {
 }
 
 export interface JobApplicationDocument extends Document {
+  applicationNumber: string;
   jobId: mongoose.Types.ObjectId;
   candidateId: mongoose.Types.ObjectId;
   recruiterId: mongoose.Types.ObjectId;
@@ -124,9 +124,14 @@ const AIAnalysisSchema = new Schema<ApplicationAIAnalysis>(
   },
 );
 
-
 const JobApplicationSchema = new Schema<JobApplicationDocument>(
   {
+    applicationNumber: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
     jobId: {
       type: Schema.Types.ObjectId,
       ref: "JobPost",

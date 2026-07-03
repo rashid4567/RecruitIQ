@@ -22,8 +22,6 @@ export class WithdrawApplicationUseCase implements IUseCase<
     if (!application) {
       throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
-
-    console.log("Application status:", application.status);
     application.withdraw();
     await this.applicationRepo.save(application);
   }

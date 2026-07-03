@@ -5,6 +5,7 @@ import {
   Video,
   FileDown,
   CalendarX,
+  Hash,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -81,8 +82,8 @@ const InterviewCell: React.FC<{ app: CandidateApplication }> = ({ app }) => {
 
   if (!interview) {
     return (
-      <div className="flex items-center gap-1.5 text-[11px] text-slate-300">
-        <CalendarX size={13} />
+      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-100 text-[11px] font-semibold text-slate-400">
+        <CalendarX size={12} className="text-slate-300 shrink-0" />
         Not scheduled
       </div>
     );
@@ -108,18 +109,23 @@ const InterviewCell: React.FC<{ app: CandidateApplication }> = ({ app }) => {
         </p>
       )}
 
-      {interview.meetingLink && (
-        <a
-          href={interview.meetingLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl transition shadow-sm shadow-blue-200"
-        >
-          <Video size={11} />
-          Join Meeting
-        </a>
-      )}
+      {interview.meetingLink ? (
+  <a
+    href={interview.meetingLink}
+    target="_blank"
+    rel="noopener noreferrer"
+    onClick={(e) => e.stopPropagation()}
+    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl transition shadow-sm shadow-blue-200"
+  >
+    <Video size={11} />
+    Join Meeting
+  </a>
+) : (
+  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-500 text-[11px] font-medium rounded-xl border border-slate-200">
+    <Clock size={11} />
+    Meeting Link Not Available
+  </div>
+)}
     </div>
   );
 };
@@ -135,10 +141,8 @@ export const ApplicationRow: React.FC<Props> = ({
   const isWithdrawn = status === ApplicationStatus.WITHDRAWN;
 
   const handleRowClick = () => {
-
-
-  navigate(`/candidate/applications/${app.applicationId}`);
-};
+    navigate(`/candidate/applications/${app.applicationId}`);
+  };
 
   return (
     <tr
@@ -157,9 +161,12 @@ export const ApplicationRow: React.FC<Props> = ({
               {app.jobTitle}
             </p>
 
-            <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
-              #{app.jobId.slice(0, 8)}
-            </p>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-500 text-[10px] font-bold font-mono">
+                <Hash size={9} className="shrink-0" />
+                {app.applicationNumber}
+              </span>
+            </div>
           </div>
         </div>
       </td>

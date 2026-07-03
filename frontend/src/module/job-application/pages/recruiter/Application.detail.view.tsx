@@ -14,7 +14,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
-import {  useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useRecruiterApplicationDetails } from "../../hooks/recruiter/useRecruiterApplicationDetails";
 import { useUpdateApplicationStatus } from "../../hooks/recruiter/useUpdateApplicationStatus";
 import {
@@ -448,6 +448,7 @@ export default function CandidateScorecardPage() {
           {interview && <InterviewCard interview={interview} />}
           <ResumeCard resumeId={application.resumeId} />
           <ApplicationInfoCard
+            applicationNumber={application.applicationNumber}
             appliedAt={application.appliedAt}
             updatedAt={application.updatedAt}
             analysisStatus={application.analysisStatus}

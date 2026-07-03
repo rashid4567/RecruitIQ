@@ -12,6 +12,7 @@ import { BaseRepository } from "../../../../shared/repositories/base.repository"
 
 export interface RecruiterApplicationListItem {
   applicationId: string;
+  applicationNumber: string;
   candidateId: string;
   candidateName: string;
   candidateEmail: string;
@@ -28,6 +29,7 @@ export interface RecruiterApplicationListItem {
 
 export interface RecruiterApplicationDetailsOutput {
   applicationId: string;
+    applicationNumber: string;
   jobId: string;
   candidateId: string;
   recruiterId: string;
@@ -47,6 +49,7 @@ export interface RecruiterApplicationDetailsOutput {
 
 export interface CandidateApplicationListItem {
   applicationId: string;
+    applicationNumber: string;
   jobId: string;
   jobTitle: string;
   resumeId: string;
@@ -56,6 +59,7 @@ export interface CandidateApplicationListItem {
 }
 export interface RecruiterInterviewApplication {
   applicationId: string;
+    applicationNumber: string;
   jobId: string;
   jobTitle: string;
   candidateId: string;

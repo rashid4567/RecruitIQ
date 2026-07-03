@@ -16,17 +16,10 @@ export class VerifyPaymentController {
     >,
   ) {}
 
-  verify = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  verify = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const {
-        razorpay_order_id,
-        razorpay_payment_id,
-        razorpay_signature,
-      } = req.body;
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+        req.body;
 
       const result = await this._verifyPaymentUC.execute({
         razorpayOrderId: razorpay_order_id,

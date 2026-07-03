@@ -60,6 +60,7 @@ export interface ApplicationAIAnalysis {
 
 export interface JobApplication {
   id: string;
+   applicationNumber: string;
   jobId: string;
   jobTitle?: string;
   candidateId: string;

@@ -33,6 +33,7 @@ export const getMyApplications = async (): Promise<CandidateApplication[]> => {
   return res.data.data.map(
     (item: JobApplicationResponseDTO): CandidateApplication => ({
       applicationId: item.applicationId,
+      applicationNumber : item.applicationNumber,
       jobId: item.jobId,
       jobTitle: item.jobTitle ?? "",
       resumeId: item.resumeId,

@@ -8,7 +8,10 @@ import type {
 } from "./jobApplication.types";
 import type { RecruiterApplicationDetails } from "./RecruiterApplicationDetails";
 import type { UpdateApplicationStatusDTO } from "./updateApplicationStatus.dto";
-import type { JobApplicationResponseDTO, RecruiterApplicationResponseDTO } from "./job-application.response.dto";
+import type {
+  JobApplicationResponseDTO,
+  RecruiterApplicationResponseDTO,
+} from "./job-application.response.dto";
 
 export interface ApplyJobDTO {
   jobId: string;
@@ -18,6 +21,7 @@ export interface ApplyJobDTO {
 
 export interface CandidateApplication {
   applicationId: string;
+  applicationNumber: string;
   jobId: string;
   jobTitle: string;
   resumeId: string;
@@ -30,6 +34,7 @@ export interface CandidateApplication {
 
 export interface RecruiterApplication {
   applicationId: string;
+  applicationNumber: string;
   candidateId: string;
   candidateName: string;
   candidateEmail: string;
@@ -59,8 +64,6 @@ export interface JobApplicationApi {
   withdraw(applicationId: string): Promise<void>;
   updateStatus(payload: UpdateApplicationStatusDTO): Promise<void>;
 }
-
-
 
 export interface GetMyApplicationsResponse {
   success: boolean;

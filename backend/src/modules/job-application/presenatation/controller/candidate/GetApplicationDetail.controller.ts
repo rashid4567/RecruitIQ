@@ -11,7 +11,7 @@ import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class GetApplicationDetailController {
   constructor(
-    private readonly getApplicationDetailUC: IUseCase<
+    private readonly _getApplicationDetailUC: IUseCase<
       GetApplicationDetailRequestDTO,
       ApplicationDetailResponseDTO
     >,
@@ -40,7 +40,7 @@ export class GetApplicationDetailController {
           ERROR_MESSAGE.APPLICATION_REQUIRED,
         );
       }
-      const application = await this.getApplicationDetailUC.execute({
+      const application = await this._getApplicationDetailUC.execute({
         candidateId,
         applicationId,
       });

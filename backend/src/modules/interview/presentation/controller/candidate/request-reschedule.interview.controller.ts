@@ -12,17 +12,13 @@ import { RequestInterviewRescheduleSchema } from "../../validation/request-resch
 
 export class RequestInterviewRescheduleController {
   constructor(
-    private readonly requestInterviewRescheduleUC: IUseCase<
+    private readonly _requestInterviewRescheduleUC: IUseCase<
       RequestInterviewRescheduleRequestDTO,
       RequestInterviewRescheduleResponseDTO
     >,
   ) {}
 
-  request = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  request = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const candidateId = req.user?.userId;
 
@@ -44,15 +40,13 @@ export class RequestInterviewRescheduleController {
         );
       }
 
-      const parsedBody =
-        RequestInterviewRescheduleSchema.parse(req.body);
+      const parsedBody = RequestInterviewRescheduleSchema.parse(req.body);
 
-      const result =
-        await this.requestInterviewRescheduleUC.execute({
-          interviewId,
-          candidateId,
-          reason: parsedBody.reason,
-        });
+      const result = await this._requestInterviewRescheduleUC.execute({
+        interviewId,
+        candidateId,
+        reason: parsedBody.reason,
+      });
 
       return ApiResponse.success(
         res,

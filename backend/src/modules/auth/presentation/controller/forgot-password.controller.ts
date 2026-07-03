@@ -5,24 +5,25 @@ import { ResetPasswordDTO, ResetPasswordSchema } from "../validators/reset-passw
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { ForgotPasswordRequestDTO } from "../../application/dto/forgot-password.dto";
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class ForgotPasswordController {
   constructor(
-    private readonly forgotPasswordUC:  IUseCase<ForgotPasswordRequestDTO,void>,
-    private readonly resetPasswordUC: IUseCase<ResetPasswordDTO, void>,
+    private readonly _forgotPasswordUC:  IUseCase<ForgotPasswordRequestDTO,void>,
+    private readonly _resetPasswordUC: IUseCase<ResetPasswordDTO, void>,
   ) {}
 
   forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = ForgotPasswordSchema.parse(req.body);
-      await this.forgotPasswordUC.execute({email});
-
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.PASSWORD_RESET_EMAIL_SENT,
-      });
+      await this._forgotPasswordUC.execute({email});
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.PASSWORD_RESET_EMAIL_SENT,
+      )
     } catch (err) {
-      console.log("error",err)
+   
       next(err);
     }
   };
@@ -30,14 +31,13 @@ export class ForgotPasswordController {
   resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { token, newPassword } = ResetPasswordSchema.parse(req.body);
-      await this.resetPasswordUC.execute({token, newPassword});
-
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.PASSWORD_RESET_SUCCESSFULLY,
-      });
+      await this._resetPasswordUC.execute({token, newPassword});
+        ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.PASSWORD_RESET_SUCCESSFULLY,
+      )
     } catch (err) {
-      console.log("error",err)
       next(err);
     }
   };

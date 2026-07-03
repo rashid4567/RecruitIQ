@@ -30,29 +30,28 @@ export class CreateSubscriptionPlanUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.PLAN_ALREADY_EXISTS);
     }
 
-    const plan = SubscriptionPlan.create({
-      id: randomUUID(),
-      name: input.name,
-      description: input.description,
-      planType,
-      price: input.price,
-      currency,
-      billingCycle,
-      billingInterval: input.billingInterval,
-      jobPostsPerMonth: input.jobPostsPerMonth,
-      ResumeDownload : input.ResumeDownload,
-      jobPostActiveDays: input.jobPostActiveDays,
-      screeningCredits: input.screeningCredits,
-      aiScoreCredits: input.aiScoreCredits,
-      featuresAccess: input.featuresAccess,
-      features: input.features,
-      isPopular: input.isPopular ?? false,
-      sortOrder: input.sortOrder ?? 0,
-      isActive: true,
-      razorpayPlanId: input.razorpayPlanId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+const plan = SubscriptionPlan.create({
+  id: randomUUID(),
+  name: input.name,
+  description: input.description,
+  planType,
+  price: input.price,
+  currency,
+  billingCycle,
+  billingInterval: input.billingInterval,
+  jobPostsPerMonth: input.jobPostsPerMonth,
+  jobPostActiveDays: input.jobPostActiveDays,
+  screeningCredits: input.screeningCredits,
+  aiScoreCredits: input.aiScoreCredits,
+  featuresAccess: input.featuresAccess,
+  features: input.features,
+  isPopular: input.isPopular ?? false,
+  sortOrder: input.sortOrder ?? 0,
+  isActive: true,
+  razorpayPlanId: input.razorpayPlanId,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+});
 
     await this.repo.save(plan);
 

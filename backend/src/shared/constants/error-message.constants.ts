@@ -16,5 +16,7 @@ export const ERROR_MESSAGE = {
   INVALID_ID: "Invalid Id",
   INVALID_INPUT : "Invalid input",
   FILE_NOT_FOUND : "File not found",
-  INTERVIEW_REQUIRED : "interview required"
+  INTERVIEW_REQUIRED : "interview required",
+  NO_REFRESH_TOKEN : "No Refresh Token",
+  PLAN_REQUIRED : "Plan Required",
 };

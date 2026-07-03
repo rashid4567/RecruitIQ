@@ -10,7 +10,7 @@ import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class UpdateEmailTemplateController {
   constructor(
-    private readonly updateTemplateUC: IUseCase<
+    private readonly _updateTemplateUC: IUseCase<
       UpdateEmailTemplateRequestDTO,
       EmailTemplate
     >,
@@ -33,7 +33,7 @@ export class UpdateEmailTemplateController {
       }
 
       const body = UpdateEmailTemplateSchema.parse(req.body);
-      const result = await this.updateTemplateUC.execute({
+      const result = await this._updateTemplateUC.execute({
         id,
         input: body,
       });

@@ -5,35 +5,38 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { PublishJobPostRequestDTO } from "../../../application/dto/publish.job.dto";
 import { Job } from "../../../domain/entities/job.entity";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class PublishJobController {
-  constructor(private readonly publishUc: IUseCase<PublishJobPostRequestDTO,Job>) {}
+  constructor(
+    private readonly _publishUc: IUseCase<PublishJobPostRequestDTO, Job>,
+  ) {}
   publish = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("Hit publish controller");
       const recruiterId = req.user?.userId;
       if (!recruiterId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
       const jobId = req.params.id;
       if (!jobId) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.JOB_ID_REQUIRED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.JOB_POST_IS_REQUIRED,
+        );
       }
-      const job = await this.publishUc.execute({jobId, recruiterId});
-      console.log("job :", job);
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.JOB_PUBLISH_SUCCESSFULLY,
-        data: job,
-      });
+      const job = await this._publishUc.execute({ jobId, recruiterId });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.JOB_PUBLISH_SUCCESSFULLY,
+        job,
+      );
     } catch (err) {
-      console.log("err :", err);
       next(err);
     }
   };

@@ -12,7 +12,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 
 export class RescheduleInterviewController {
   constructor(
-    private readonly rescheduleInterviewUC: IUseCase<
+    private readonly _rescheduleInterviewUC: IUseCase<
       RescheduleInterviewRequestDTO,
       RescheduleInterviewResponseDTO
     >,
@@ -40,7 +40,7 @@ export class RescheduleInterviewController {
 
       const validateData = RescheduleInterviewSchema.parse(req.body);
 
-      const result = await this.rescheduleInterviewUC.execute({
+      const result = await this._rescheduleInterviewUC.execute({
         interviewId,
         recruiterId,
         scheduledAt: validateData.scheduledAt,

@@ -5,10 +5,14 @@ import {
   RefershTokenResponseDTO,
   RefreshTokenRequestDTO,
 } from "../../application/dto/refresh.TokenDTO";
+import { ApiResponse } from "../../../../shared/utils/api-response";
+import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
+import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.constants";
+import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 
 export class TokenController {
   constructor(
-    private readonly refreshUC: IUseCase<
+    private readonly _refreshUC: IUseCase<
       RefreshTokenRequestDTO,
       RefershTokenResponseDTO
     >,
@@ -16,32 +20,28 @@ export class TokenController {
 
   refresh = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("REFRESH HIT");
-      console.log("COOKIES:", req.cookies);
-      console.log("REFRESH TOKEN:", req.cookies?.refreshToken);
-
       const parsed = RefreshSchema.safeParse({
         refreshToken: req.cookies?.refreshToken,
       });
 
       if (!parsed.success) {
-        console.log("NO REFRESH TOKEN FOUND");
-
-        return res.status(401).json({
-          success: false,
-          message: "No refresh token",
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.NO_REFRESH_TOKEN,
+        );
       }
-      const result = await this.refreshUC.execute({
+      const result = await this._refreshUC.execute({
         refreshToken: parsed.data.refreshToken,
       });
 
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.ACCESS_TOKEN_REFRESHED_SUCCESSFULLY,
+        result,
+      );
     } catch (err) {
-      console.error("REFRESH ERROR:", err);
       next(err);
     }
   };

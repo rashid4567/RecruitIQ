@@ -9,33 +9,31 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class UploadResumeController {
   constructor(
-    private readonly uploadResumeUC: IUseCase<UploadResumeDTO, Resume>,
+    private readonly _uploadResumeUC: IUseCase<UploadResumeDTO, Resume>,
   ) {}
 
   handle = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const candidateId = req.user?.userId;
       if (!candidateId) {
-
         return ApiResponse.error(
           res,
           HTTP_STATUS.UNAUTHORIZED,
           ERROR_MESSAGE.UNAUTHORIZED,
-        )
+        );
       }
 
       const file = req.file;
 
       if (!file) {
-
         return ApiResponse.error(
           res,
           HTTP_STATUS.BAD_REQUEST,
           ERROR_MESSAGE.RESUME_ID_REQUIRED,
-        )
+        );
       }
 
-      const resume = await this.uploadResumeUC.execute({
+      const resume = await this._uploadResumeUC.execute({
         candidateId,
         fileName: file.originalname,
         fileBuffer: file.buffer,
@@ -46,9 +44,8 @@ export class UploadResumeController {
         res,
         HTTP_STATUS.OK,
         SUCCESS_MESSAGES.RESUME_UPLOADED_SUCCESSFULLY,
-        resume.toJSON()
-      )
-
+        resume.toJSON(),
+      );
     } catch (err) {
       next(err);
     }

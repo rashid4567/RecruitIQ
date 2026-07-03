@@ -11,7 +11,7 @@ import {
 
 export class GetRecruiterInterviewDetailsController {
   constructor(
-    private readonly getRecruiterInterviewDetailsUseCase: IUseCase<
+    private readonly _getRecruiterInterviewDetailsUseCase: IUseCase<
       GetRecruiterInterviewDetailsRequestDTO,
       GetRecruiterInterviewDetailsResponseDTO
     >,
@@ -43,7 +43,7 @@ export class GetRecruiterInterviewDetailsController {
         return;
       }
 
-      const interview = await this.getRecruiterInterviewDetailsUseCase.execute({
+      const interview = await this._getRecruiterInterviewDetailsUseCase.execute({
         recruiterId,
         interviewId,
       });

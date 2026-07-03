@@ -11,10 +11,10 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 
 export class StartInterviewController {
   constructor(
-    private readonly startInterviewUC: IUseCase<
+    private readonly _startInterviewUC: IUseCase<
       StartInterviewRequestDTO,
       StartInterviewResponseDTO
-    >
+    >,
   ) {}
 
   start = async (req: Request, res: Response, next: NextFunction) => {
@@ -37,7 +37,7 @@ export class StartInterviewController {
         );
       }
 
-      const result = await this.startInterviewUC.execute({
+      const result = await this._startInterviewUC.execute({
         interviewId,
         recruiterId,
       });

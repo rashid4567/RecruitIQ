@@ -12,7 +12,7 @@ import { RejectInterviewSchema } from "../../validation/reject-interview.schema"
 
 export class RejectInterviewController {
   constructor(
-    private readonly rejectInterviewUC: IUseCase<
+    private readonly _rejectInterviewUC: IUseCase<
       RejectInterviewRequestDTO,
       RejectInterviewResponseDTO
     >,
@@ -39,7 +39,7 @@ export class RejectInterviewController {
       }
 
       const parsedBody = RejectInterviewSchema.parse(req.body);
-      const result = await this.rejectInterviewUC.execute({
+      const result = await this._rejectInterviewUC.execute({
         interviewId,
         candidateId,
         reason: parsedBody.reason,

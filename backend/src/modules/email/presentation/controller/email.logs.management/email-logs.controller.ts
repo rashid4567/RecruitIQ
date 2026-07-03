@@ -6,11 +6,11 @@ import { EmailLog } from "../../../domain/entities/email-log.entity";
 import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class EmailLogsController {
-  constructor(private readonly listLoginUC: IUseCase<void, EmailLog[]>) {}
+  constructor(private readonly _listLoginUC: IUseCase<void, EmailLog[]>) {}
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const logs = await this.listLoginUC.execute();
+      const logs = await this._listLoginUC.execute();
    
 
       return ApiResponse.success(

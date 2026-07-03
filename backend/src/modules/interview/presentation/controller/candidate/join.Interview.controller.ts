@@ -11,7 +11,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 
 export class JoinInterviewController {
   constructor(
-    private readonly joinInterviewUC: IUseCase<
+    private readonly _joinInterviewUC: IUseCase<
       JoinInterviewRequestDTO,
       JoinInterviewResponseDTO
     >,
@@ -29,7 +29,6 @@ export class JoinInterviewController {
       }
 
       const { interviewId } = req.params;
-
       if (!interviewId) {
         return ApiResponse.error(
           res,
@@ -37,7 +36,7 @@ export class JoinInterviewController {
           ERROR_MESSAGE.INTERVIEW_REQUIRED,
         );
       }
-      const result = await this.joinInterviewUC.execute({
+      const result = await this._joinInterviewUC.execute({
         interviewId,
         candidateId,
       });

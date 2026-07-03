@@ -9,7 +9,7 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class DeleteResumeController {
   constructor(
-    private readonly deleteResumeUC: IUseCase<DeleteResumeDTO, void>,
+    private readonly _deleteResumeUC: IUseCase<DeleteResumeDTO, void>,
   ) {}
 
   handle = async (req: Request, res: Response, next: NextFunction) => {
@@ -26,7 +26,7 @@ export class DeleteResumeController {
         );
       }
 
-      await this.deleteResumeUC.execute({
+      await this._deleteResumeUC.execute({
         resumeId,
       });
 

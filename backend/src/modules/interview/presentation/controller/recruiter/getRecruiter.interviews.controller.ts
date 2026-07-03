@@ -11,7 +11,7 @@ import {
 
 export class GetRecruiterInterviewsController {
   constructor(
-    private readonly getRecruiterInterviewsUseCase: IUseCase<
+    private readonly _getRecruiterInterviewsUseCase: IUseCase<
       GetRecruiterInterviewsRequestDTO,
       GetRecruiterInterviewsResponseDTO[]
     >,
@@ -36,7 +36,7 @@ export class GetRecruiterInterviewsController {
 
       const page = req.query.page ? Number(req.query.page) : undefined;
       const limit = req.query.limit ? Number(req.query.limit) : undefined;
-      const interviews = await this.getRecruiterInterviewsUseCase.execute({
+      const interviews = await this._getRecruiterInterviewsUseCase.execute({
         recruiterId,
         page,
         limit,

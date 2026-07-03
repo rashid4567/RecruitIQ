@@ -8,36 +8,36 @@ import {
   LoginRequestDTO,
   LoginResponseDTO,
 } from "../../application/dto/login.dto";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class AuthController {
   constructor(
-    private readonly loginUC: IUseCase<LoginRequestDTO, LoginResponseDTO>,
+    private readonly _loginUC: IUseCase<LoginRequestDTO, LoginResponseDTO>,
   ) {}
 
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = LoginSchema.parse(req.body);
 
-      const result = await this.loginUC.execute({
+      const result = await this._loginUC.execute({
         email,
         password,
       });
 
       setRefreshCookie(res, result.refreshToken);
-
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.LOGIN_SUCCESSFULLY,
-        data: {
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.LOGIN_SUCCESSFULLY,
+        {
           accessToken: result.accessToken,
           user: {
             id: result.userId,
             role: result.role,
           },
         },
-      });
+      );
     } catch (err) {
-      console.log("error", err);
       next(err);
     }
   };
@@ -45,9 +45,10 @@ export class AuthController {
   logout = (_req: Request, res: Response) => {
     clearRefreshCookie(res);
 
-    return res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: SUCCESS_MESSAGES.LOGOUT_SUCCESSFULLY,
-    });
+    return ApiResponse.success(
+      res,
+      HTTP_STATUS.OK,
+      SUCCESS_MESSAGES.LOGOUT_SUCCESSFULLY,
+    );
   };
 }

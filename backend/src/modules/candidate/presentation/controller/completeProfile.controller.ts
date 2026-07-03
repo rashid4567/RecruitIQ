@@ -10,7 +10,7 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class CandidateController {
   constructor(
-    private readonly completeProfileUC: IUseCase<
+    private readonly _completeProfileUC: IUseCase<
       CompleteCandidateProfileRequestDTO,
       void
     >,
@@ -35,7 +35,7 @@ export class CandidateController {
           ERROR_MESSAGE.MISSING_FIELDS,
         );
       }
-      const profile = await this.completeProfileUC.execute({
+      const profile = await this._completeProfileUC.execute({
         userId,
         profile: body,
       });

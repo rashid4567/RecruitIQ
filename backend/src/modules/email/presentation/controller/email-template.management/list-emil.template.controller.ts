@@ -7,7 +7,7 @@ import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class ListEmailTemplateController {
   constructor(
-    private readonly getEmailTemplatesUC: IUseCase<void, EmailTemplate[]>,
+    private readonly _getEmailTemplatesUC: IUseCase<void, EmailTemplate[]>,
   ) {}
 
   listEmailTemplates = async (
@@ -16,7 +16,7 @@ export class ListEmailTemplateController {
     next: NextFunction,
   ) => {
     try {
-      const result = await this.getEmailTemplatesUC.execute();
+      const result = await this._getEmailTemplatesUC.execute();
     
       return ApiResponse.success(
         res,

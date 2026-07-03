@@ -8,7 +8,7 @@ import { RecruiterApplicationDetailsOutput } from "../../../domain/repository/jo
 
 export class GetRecruiterApplicationDetailsController {
   constructor(
-    private readonly getRecruiterApplicationUC: IUseCase<
+    private readonly _getRecruiterApplicationUC: IUseCase<
       GetRecruiterApplicationDetailsRequestDTO,
       RecruiterApplicationDetailsOutput
     >,
@@ -36,7 +36,7 @@ export class GetRecruiterApplicationDetailsController {
         });
       }
 
-      const application = await this.getRecruiterApplicationUC.execute({
+      const application = await this._getRecruiterApplicationUC.execute({
         applicationId,
         recruiterId,
       });

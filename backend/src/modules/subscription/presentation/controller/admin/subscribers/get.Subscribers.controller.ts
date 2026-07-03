@@ -10,7 +10,7 @@ import { ApiResponse } from "../../../../../../shared/utils/api-response";
 
 export class GetSubscribersController {
   constructor(
-    private readonly getSubscribersUC: IUseCase<
+    private readonly _getSubscribersUC: IUseCase<
       GetSubscribersRequestDTO,
       GetSubscribersResponseDTO
     >,
@@ -27,7 +27,7 @@ export class GetSubscribersController {
       const search = req.query.search ? String(req.query.search) : undefined;
       const status = req.query.status ? String(req.query.status) : undefined;
 
-      const result = await this.getSubscribersUC.execute({
+      const result = await this._getSubscribersUC.execute({
         page,
         limit,
         search,

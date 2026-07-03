@@ -1,4 +1,3 @@
-import { ApplicationStatus } from "../../../job-application/domain/entity/job-application.entity";
 import { Interview } from "../entity/interview.entity";
 
 export interface InterviewRepository {

@@ -7,10 +7,11 @@ import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.c
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UpdateRecruiterProfileRequestDTO } from "../../application/dto/update-recruiter-profile.dto";
 import { RecruiterProfileReponse } from "../../application/dto/recruiter-profile.dto";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class UpdateRecruiterProfileController {
   constructor(
-    private readonly updateProfileUC: IUseCase<
+    private readonly _updateProfileUC: IUseCase<
       UpdateRecruiterProfileRequestDTO,
       RecruiterProfileReponse
     >,
@@ -21,29 +22,31 @@ export class UpdateRecruiterProfileController {
       const userId = userIdSchema.parse(req.user?.userId);
 
       if (!userId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
 
       const body = UpdateRecruiterProfileSchema.parse(req.body);
 
       if (!body) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.MISSING_FILEDS,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.MISSING_FIELDS,
+        );
       }
-      const profile = await this.updateProfileUC.execute({
+      const profile = await this._updateProfileUC.execute({
         userId,
         input: body,
       });
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.PROFILE_UPDATED_SUCCESSFULLY,
-        data: profile,
-      });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.PROFILE_UPDATED_SUCCESSFULLY,
+      );
     } catch (err) {
       next(err);
     }

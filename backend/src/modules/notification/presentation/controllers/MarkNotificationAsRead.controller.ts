@@ -4,10 +4,11 @@ import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.consta
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { MarkNotificationAsReadRequestDTO } from "../../application/dto/markNotificationAs.read";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class MarkNotificationAsReadController {
   constructor(
-    private readonly markNotificationAsReadUC: IUseCase<
+    private readonly _markNotificationAsReadUC: IUseCase<
       MarkNotificationAsReadRequestDTO,
       void
     >,
@@ -17,20 +18,22 @@ export class MarkNotificationAsReadController {
     try {
       const { notificationId } = req.params;
       if (!notificationId) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: ERROR_MESSAGE.NOTIFICATION_REQUIRED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.NOTIFICATION_REQUIRED,
+        );
       }
 
-      const markasRead = await this.markNotificationAsReadUC.execute({
+      const markasRead = await this._markNotificationAsReadUC.execute({
         notificationId,
       });
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.NOTIFICATION_MARKED_AS_READ,
-        data: markasRead,
-      });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.NOTIFICATION_MARKED_AS_READ,
+        markasRead,
+      );
     } catch (err) {
       next(err);
     }

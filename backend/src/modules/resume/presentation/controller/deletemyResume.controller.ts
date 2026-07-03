@@ -10,8 +10,8 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class DeleteMyResumeController {
   constructor(
-    private readonly deleteResumeUC: IUseCase<DeleteResumeDTO, void>,
-    private readonly getResumeByCandidateUC: IUseCase<
+    private readonly _deleteResumeUC: IUseCase<DeleteResumeDTO, void>,
+    private readonly _getResumeByCandidateUC: IUseCase<
       GetResumeByCandidateDTO,
       Resume
     >,
@@ -29,12 +29,12 @@ export class DeleteMyResumeController {
         )
       }
 
-      const resume = await this.getResumeByCandidateUC.execute({
+      const resume = await this._getResumeByCandidateUC.execute({
         candidateId,
       });
 
-      await this.deleteResumeUC.execute({
-        resumeId: resume.getId()!,
+      await this._deleteResumeUC.execute({
+        resumeId:resume.getId()!,
       });
 
       return ApiResponse.success(

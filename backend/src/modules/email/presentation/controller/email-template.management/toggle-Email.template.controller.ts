@@ -9,7 +9,7 @@ import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.con
 
 export class ToggleEmailTemplateController {
   constructor(
-    private readonly toggleTemplateUC: IUseCase<
+    private readonly _toggleTemplateUC: IUseCase<
       ToggleEmailTemplateRequestDTO,
       EmailTemplate
     >,
@@ -29,7 +29,7 @@ export class ToggleEmailTemplateController {
           ERROR_MESSAGE.EMAIL_IS_REQUIRED,
         );
       }
-      const result = await this.toggleTemplateUC.execute({ id });
+      const result = await this._toggleTemplateUC.execute({ id });
 
       return ApiResponse.success(
         res,

@@ -11,7 +11,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 
 export class RejectRescheduleReqestController {
   constructor(
-    private readonly rejectRescheduleRequestUC: IUseCase<
+    private readonly _rejectRescheduleRequestUC: IUseCase<
       RejectRescheduleRequestDTO,
       RejectRescheduleResponseDTO
     >,
@@ -36,7 +36,7 @@ export class RejectRescheduleReqestController {
           ERROR_MESSAGE.INTERVIEW_REQUIRED,
         );
       }
-      const response = await this.rejectRescheduleRequestUC.execute({
+      const response = await this._rejectRescheduleRequestUC.execute({
         interviewId,
         recruiterId,
       });

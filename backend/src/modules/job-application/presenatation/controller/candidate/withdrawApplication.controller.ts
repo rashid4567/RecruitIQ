@@ -7,7 +7,7 @@ import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class WithdrawApplicationController {
   constructor(
-    private readonly withdrawApplicationUC: IUseCase<
+    private readonly _withdrawApplicationUC: IUseCase<
       WithdrawApplicationRequestDTO,
       void
     >,
@@ -33,7 +33,7 @@ export class WithdrawApplicationController {
         )
       }
 
-      await this.withdrawApplicationUC.execute({ applicationId, candidateId });
+      await this._withdrawApplicationUC.execute({ applicationId, candidateId });
     } catch (err) {
       next(err);
     }

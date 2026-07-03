@@ -14,12 +14,12 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class AdminAuthController {
   constructor(
-    private readonly adminLoginUC: IUseCase<LoginRequestDTO, LoginResponseDTO>,
+    private readonly _adminLoginUC: IUseCase<LoginRequestDTO, LoginResponseDTO>,
   ) {}
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = LoginSchema.parse(req.body);
-      const result = await this.adminLoginUC.execute({ email, password });
+      const result = await this._adminLoginUC.execute({ email, password });
       if (result.role !== USER_ROLES.ADMIN) {
         return ApiResponse.error(
           res,

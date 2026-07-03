@@ -13,7 +13,7 @@ import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.consta
 
 export class UpdateCandidateProfileController {
   constructor(
-    private readonly updateProfileUC: IUseCase<
+    private readonly _updateProfileUC: IUseCase<
       UpdateCandidateProfileRequestDTO,
       UpdateCandidateProfileResult
     >,
@@ -37,7 +37,7 @@ export class UpdateCandidateProfileController {
           ERROR_MESSAGE.MISSING_FIELDS,
         );
       }
-      const result = await this.updateProfileUC.execute({
+      const result = await this._updateProfileUC.execute({
         userId,
         profile: input,
       });

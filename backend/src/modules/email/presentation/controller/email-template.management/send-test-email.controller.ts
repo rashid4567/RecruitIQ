@@ -8,7 +8,7 @@ import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class SendTestEmailController {
   constructor(
-    private readonly sendTestEmailUC: IUseCase<SendTestEmailInputDto, void>,
+    private readonly _sendTestEmailUC: IUseCase<SendTestEmailInputDto, void>,
   ) {}
   sendTestEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -20,7 +20,7 @@ export class SendTestEmailController {
           ERROR_MESSAGE.EMAIL_IS_REQUIRED,
         )
       }
-      await this.sendTestEmailUC.execute({
+      await this._sendTestEmailUC.execute({
         templateId: req.params.id,
         to: email,
       });

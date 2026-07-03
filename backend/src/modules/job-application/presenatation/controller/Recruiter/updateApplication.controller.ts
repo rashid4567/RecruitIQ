@@ -9,7 +9,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 
 export class UpdateApplicationStatusController {
   constructor(
-    private readonly updateApplicationStatusUseCase: IUseCase<
+    private readonly _updateApplicationStatusUseCase: IUseCase<
       UpdateApplicationStatusDTO,
       void
     >,
@@ -60,7 +60,7 @@ export class UpdateApplicationStatusController {
         return;
       }
 
-      await this.updateApplicationStatusUseCase.execute({
+      await this._updateApplicationStatusUseCase.execute({
         applicationId,
         recruiterId,
         status,

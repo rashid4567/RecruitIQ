@@ -5,10 +5,11 @@ import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.c
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { GetNotificationsRequest } from "../../application/dto/getNotification.dto";
 import { Notification } from "../../domain/entities/Notification";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class GetNotificationsController {
   constructor(
-    private readonly getNotificationUC: IUseCase<
+    private readonly _getNotificationUC: IUseCase<
       GetNotificationsRequest,
       Notification[]
     >,
@@ -18,24 +19,26 @@ export class GetNotificationsController {
     try {
       const recipientId = req.user?.userId;
       if (!recipientId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
-      const notifications = await this.getNotificationUC.execute({
+      const notifications = await this._getNotificationUC.execute({
         recipientId,
         page,
         limit,
       });
 
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.NOTIFICATIONS_FETCHED_SUCCESSFULLY,
-        data: notifications.map((notification) => notification.getProps()),
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.NOTIFICATIONS_FETCHED_SUCCESSFULLY,
+        notifications.map((notification) => notification.getProps()),
+      );
     } catch (err) {
       next(err);
     }

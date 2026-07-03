@@ -12,7 +12,7 @@ import { ScheduleInterviewSchema } from "../../validation/schedule.interview.sch
 
 export class ScheduleInterviewController {
   constructor(
-    private readonly scheduleInterviewUC: IUseCase<
+    private readonly _scheduleInterviewUC: IUseCase<
       ScheduleInterviewRequestDTO,
       ScheduleInterviewResponseDTO
     >,
@@ -41,7 +41,7 @@ export class ScheduleInterviewController {
       };
 
 
-      const result = await this.scheduleInterviewUC.execute(input);
+      const result = await this._scheduleInterviewUC.execute(input);
       return ApiResponse.success(
         res,
         HTTP_STATUS.CREATED,

@@ -7,10 +7,11 @@ import {
   CandidateProfileRequestDTO,
   CandidateProfileResponseDTO,
 } from "../../../Application/dto/candidate.dto/candidate-profile-response.dto";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class GetCandidateProfileController {
   constructor(
-    private readonly getCandidteProfileUC: IUseCase<
+    private readonly _getCandidteProfileUC: IUseCase<
       CandidateProfileRequestDTO,
       CandidateProfileResponseDTO
     >,
@@ -24,18 +25,19 @@ export class GetCandidateProfileController {
     try {
       const { candidateId } = req.params;
       if (!candidateId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        )
       }
-      const profile = await this.getCandidteProfileUC.execute({ candidateId });
-
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.CANDIDATE_PROFILE_LOADED_SUCCESSFULLY,
-        data: profile,
-      });
+      const profile = await this._getCandidteProfileUC.execute({ candidateId });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.CANDIDATE_PROFILE_LOADED_SUCCESSFULLY,
+        profile,
+      )
     } catch (err) {
       console.log("err", err);
       return next(err);

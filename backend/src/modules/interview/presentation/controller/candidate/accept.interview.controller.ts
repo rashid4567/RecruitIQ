@@ -11,7 +11,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 
 export class AcceptInterviewController {
   constructor(
-    private readonly acceptInterviewUC: IUseCase<
+    private readonly _acceptInterviewUC: IUseCase<
       AcceptInterviewRequestDTO,
       AcceptInterviewResponseDTO
     >,
@@ -29,7 +29,6 @@ export class AcceptInterviewController {
       }
 
       const { interviewId } = req.params;
-
       if (!interviewId) {
         return ApiResponse.error(
           res,
@@ -38,11 +37,10 @@ export class AcceptInterviewController {
         );
       }
 
-      const result = await this.acceptInterviewUC.execute({
+      const result = await this._acceptInterviewUC.execute({
         interviewId,
         candidateId,
       });
-
       ApiResponse.success(
         res,
         HTTP_STATUS.OK,

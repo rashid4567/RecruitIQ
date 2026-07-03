@@ -10,7 +10,7 @@ import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class ApplyJobController {
   constructor(
-    private readonly applyJobUC: IUseCase<ApplyJobDTO, JobApplication>,
+    private readonly _applyJobUC: IUseCase<ApplyJobDTO, JobApplication>,
   ) {}
 
   apply = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,7 +28,7 @@ export class ApplyJobController {
         ...req.body,
         jobId: req.params.jobId,
       });
-      const application = await this.applyJobUC.execute({
+      const application = await this._applyJobUC.execute({
         ...validatedData,
         candidateId,
       });

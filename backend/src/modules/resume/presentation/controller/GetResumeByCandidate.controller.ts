@@ -9,7 +9,7 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class GetResumeByCandidateController {
   constructor(
-    private readonly getResumeByCandidateUC: IUseCase<
+    private readonly _getResumeByCandidateUC: IUseCase<
       GetResumeByCandidateDTO,
       Resume
     >,
@@ -20,15 +20,14 @@ export class GetResumeByCandidateController {
       const candidateId = req.user?.userId;
 
       if (!candidateId) {
-
         return ApiResponse.error(
           res,
           HTTP_STATUS.UNAUTHORIZED,
           ERROR_MESSAGE.UNAUTHORIZED,
-        )
+        );
       }
 
-      const resume = await this.getResumeByCandidateUC.execute({
+      const resume = await this._getResumeByCandidateUC.execute({
         candidateId,
       });
 
@@ -36,8 +35,8 @@ export class GetResumeByCandidateController {
         res,
         HTTP_STATUS.OK,
         SUCCESS_MESSAGES.RESUME_LOADED_SUCCESSFULLY,
-        resume.toJSON()
-      )
+        resume.toJSON(),
+      );
     } catch (err) {
       next(err);
     }

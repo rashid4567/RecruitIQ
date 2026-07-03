@@ -8,29 +8,32 @@ import {
   UnHideJobPostRequestDTO,
 } from "../../../application/dto/job.status.dto";
 import { Job } from "../../../domain/entities/job.entity";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class ToggleJobVisibilityController {
   constructor(
-    private readonly hideUC: IUseCase<HideJobPostRequestDTO, Job>,
-    private readonly unhideUC: IUseCase<UnHideJobPostRequestDTO, Job>,
+    private readonly _hideUC: IUseCase<HideJobPostRequestDTO, Job>,
+    private readonly _unhideUC: IUseCase<UnHideJobPostRequestDTO, Job>,
   ) {}
 
   hide = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const recruiterId = req.user?.userId;
       if (!recruiterId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+              return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
       const jobId = req.params.id;
-      const job = await this.hideUC.execute({ jobId, recruiterId });
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.JOB_HIDE_SUCCESSFULLY,
-        data: job,
-      });
+      const job = await this._hideUC.execute({ jobId, recruiterId });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.JOB_HIDE_SUCCESSFULLY,
+        job
+      )
     } catch (err) {
       next(err);
     }
@@ -40,22 +43,22 @@ export class ToggleJobVisibilityController {
     try {
       const recruiterId = req.user?.userId;
       if (!recruiterId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+              return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
       const jobId = req.params.id;
 
-      const job = await this.unhideUC.execute({ jobId, recruiterId });
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.JOB_UNHIDE_SUCCESSFULLY,
-        data: job,
-      });
+      const job = await this._unhideUC.execute({ jobId, recruiterId });
+        ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.JOB_UNHIDE_SUCCESSFULLY,
+        job
+      )
     } catch (err) {
-      console.log("error :", err);
-
       next(err);
     }
   };

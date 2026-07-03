@@ -4,10 +4,11 @@ import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.con
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { rejectRecruiterRequestDTO } from "../../../Application/dto/recruiter.dto/recruiter.status.dto";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class RejectRecruiterController {
   constructor(
-    private readonly rejectRecruiterUC: IUseCase<
+    private readonly _rejectRecruiterUC: IUseCase<
       rejectRecruiterRequestDTO,
       void
     >,
@@ -18,16 +19,18 @@ export class RejectRecruiterController {
       const { recruiterId } = req.params;
 
       if (!recruiterId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
-      await this.rejectRecruiterUC.execute({ recruiterId });
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.CANDIDATE_REJECTED_SUCCESSFULLY,
-      });
+      await this._rejectRecruiterUC.execute({ recruiterId });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.CANDIDATE_REJECTED_SUCCESSFULLY,
+      );
     } catch (err) {
       return next(err);
     }

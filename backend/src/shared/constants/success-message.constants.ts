@@ -98,4 +98,9 @@ export const SUCCESS_MESSAGES = {
   INTERVIEW_RESCHEDULE_REQUESTED_SUCCESSFULLY : "Interview Reschedule request successfully",
   RESCHEDULED_REQUEST_ACCEPTED_SUCCESSFULLY : "Rescheduled request accepted successfully",
   RESCHEDULED_REQUEST_REJECTED_SUCCESSFULLY :  "Rescheduled request rejected successfully",
+  OTP_SENT_TO_NEW_EMAIL : "Otp sent to new Email",
+  EMAIL_UPDATED_SUCCESSFULLY : "Email updated successfully",
+  ACCESS_TOKEN_REFRESHED_SUCCESSFULLY : "Access token refreshed successfully",
+  JOB_DETAILS_LOADED_SUCCESSFULLY : "Job details loaded successfully",
+  PLAN_ACTIVATED_SUCCESSFULLY : "Plan activated successfully",
 } as const;

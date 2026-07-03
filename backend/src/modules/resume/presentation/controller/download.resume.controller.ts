@@ -9,7 +9,7 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class DownloadResumeController {
   constructor(
-    private readonly downloadResumeUC: IUseCase<DownloadResumeDTO, string>,
+    private readonly _downloadResumeUC: IUseCase<DownloadResumeDTO, string>,
   ) {}
 
   downloadResume = async (req: Request, res: Response, next: NextFunction) => {
@@ -22,18 +22,18 @@ export class DownloadResumeController {
         return ApiResponse.error(
           res,
           HTTP_STATUS.BAD_REQUEST,
-          ERROR_MESSAGE.RESUME_ID_REQUIRED
-        )
+          ERROR_MESSAGE.RESUME_ID_REQUIRED,
+        );
       }
 
-      const downloadUrl = await this.downloadResumeUC.execute({ resumeId });
+      const downloadUrl = await this._downloadResumeUC.execute({ resumeId });
 
       return ApiResponse.success(
         res,
         HTTP_STATUS.OK,
         SUCCESS_MESSAGES.RESUME_DOWNLOADED_SUCCESSFULLY,
         downloadUrl,
-      )
+      );
     } catch (err) {
       next(err);
     }

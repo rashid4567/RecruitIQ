@@ -10,7 +10,7 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class GetResumeByIdController {
   constructor(
-    private readonly getResumeByIdUC: IUseCase<GetResumeByIdDTO, Resume>,
+    private readonly _getResumeByIdUC: IUseCase<GetResumeByIdDTO, Resume>,
   ) {}
 
   handle = async (req: Request, res: Response, next: NextFunction) => {
@@ -27,7 +27,7 @@ export class GetResumeByIdController {
         );
       }
 
-      const resume = await this.getResumeByIdUC.execute({
+      const resume = await this._getResumeByIdUC.execute({
         resumeId,
       });
 

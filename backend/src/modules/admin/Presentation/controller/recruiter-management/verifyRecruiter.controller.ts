@@ -7,7 +7,7 @@ import { VerifyRecruiterRequestDTO } from "../../../Application/dto/recruiter.dt
 
 export class VerifyRecruiterController {
   constructor(
-    private readonly verifyRecruiterUC: IUseCase<
+    private readonly _verifyRecruiterUC: IUseCase<
       VerifyRecruiterRequestDTO,
       void
     >,
@@ -24,7 +24,7 @@ export class VerifyRecruiterController {
         });
       }
 
-      await this.verifyRecruiterUC.execute({recruiterId});
+      await this._verifyRecruiterUC.execute({ recruiterId });
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,

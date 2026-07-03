@@ -6,10 +6,11 @@ import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.consta
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { CompleteRecruiterProfileRequestDTO } from "../../application/dto/complete-recruiter-profile.dto";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class CompleteRecruiterProfileController {
   constructor(
-    private readonly completeProfileUC: IUseCase<
+    private readonly _completeProfileUC: IUseCase<
       CompleteRecruiterProfileRequestDTO,
       void
     >,
@@ -21,21 +22,24 @@ export class CompleteRecruiterProfileController {
       const body = CompleteRecruiterProfileSchema.parse(req.body);
 
       if (!userId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
 
-      const profile = await this.completeProfileUC.execute({
+      const profile = await this._completeProfileUC.execute({
         userId,
         data: body,
       });
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.PROFILE_COMPLETED_SUCCESSFULLY,
-        data: profile,
-      });
+
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.PROFILE_COMPLETED_SUCCESSFULLY,
+        profile,
+      )
     } catch (err) {
       next(err);
     }

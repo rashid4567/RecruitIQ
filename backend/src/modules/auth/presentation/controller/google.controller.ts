@@ -6,22 +6,27 @@ import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.c
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { GoogleLoginRequestDTO } from "../../application/dto/google-login.dto";
 import { AuthResult } from "../../application/types/auth-result.type";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class GoogleController {
   constructor(
-    private readonly googleLoginUC: IUseCase<GoogleLoginRequestDTO, AuthResult>,
+    private readonly _googleLoginUC: IUseCase<
+      GoogleLoginRequestDTO,
+      AuthResult
+    >,
   ) {}
 
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { credential, role } = GoogleLoginSchema.parse(req.body);
-      const result = await this.googleLoginUC.execute({ credential, role });
+      const result = await this._googleLoginUC.execute({ credential, role });
 
       setRefreshCookie(res, result.refreshToken);
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.GOOGLE_LOGIN_SUCCESSFULLY,
-        data: {
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.GOOGLE_LOGIN_SUCCESSFULLY,
+        {
           accessToken: result.accessToken,
           user: {
             id: result.userId,
@@ -29,7 +34,7 @@ export class GoogleController {
             fullName: result.fullName,
           },
         },
-      });
+      );
     } catch (err) {
       return next(err);
     }

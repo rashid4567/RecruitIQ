@@ -12,7 +12,7 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class GetCandidateProfileController {
   constructor(
-    private readonly getProfileUC: IUseCase<
+    private readonly _getProfileUC: IUseCase<
       GetCandidateProfileRequestDTO,
       GetCandidateProfileResponseDTO
     >,
@@ -28,7 +28,7 @@ export class GetCandidateProfileController {
           ERROR_MESSAGE.UNAUTHORIZED,
         );
       }
-      const profile = await this.getProfileUC.execute({ userId });
+      const profile = await this._getProfileUC.execute({ userId });
       return ApiResponse.success(
         res,
         HTTP_STATUS.OK,

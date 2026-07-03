@@ -4,10 +4,11 @@ import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.consta
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { MarkAllNotificationsAsReadRequestDTO } from "../../application/dto/markAllAsNeedNotification.dto";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class MarkAllNotificationsAsReadController {
   constructor(
-    private readonly markAllNotificationAsReadUC: IUseCase<
+    private readonly _markAllNotificationAsReadUC: IUseCase<
       MarkAllNotificationsAsReadRequestDTO,
       void
     >,
@@ -16,20 +17,22 @@ export class MarkAllNotificationsAsReadController {
     try {
       const recipientId = req.user?.userId;
       if (!recipientId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
 
-      const markAsRead = await this.markAllNotificationAsReadUC.execute({
+      const markAsRead = await this._markAllNotificationAsReadUC.execute({
         recipientId,
       });
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.ALL_NOTIFICATIONS_MARKED_AS_READ,
-        data: markAsRead,
-      });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.ALL_NOTIFICATIONS_MARKED_AS_READ,
+        markAsRead,
+      );
     } catch (err) {
       next(err);
     }

@@ -6,26 +6,27 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { GetJobsRequestDTO } from "../../../application/dto/getJobPostRequest.dto";
 import { PaginatedResult } from "../../../domain/types/job-filter.type";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class RecruiterJobController {
-  constructor(private readonly jobsUc: IUseCase<
-    GetJobsRequestDTO,
-    PaginatedResult<Job>
-  >) {}
+  constructor(
+    private readonly jobsUc: IUseCase<GetJobsRequestDTO, PaginatedResult<Job>>,
+  ) {}
 
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const recruiterId = req.user?.userId;
       if (!recruiterId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const result = await this.jobsUc.execute({
-       filters : {
+        filters: {
           recruiterId,
           search: req.query.search as string,
           status: req.query.status as JobStatus,
@@ -38,12 +39,13 @@ export class RecruiterJobController {
         },
         page,
         limit,
-    });
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message : SUCCESS_MESSAGES.JOB_LISTED_SUCCESSFULLY,
-        data: result,
       });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.JOB_LISTED_SUCCESSFULLY,
+        result,
+      )
     } catch (err) {
       next(err);
     }

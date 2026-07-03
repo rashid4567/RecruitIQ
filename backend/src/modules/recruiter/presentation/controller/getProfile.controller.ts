@@ -8,10 +8,11 @@ import {
   GetRecruiterProfileRequestDTO,
   RecruiterProfileReponse,
 } from "../../application/dto/recruiter-profile.dto";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class GetRecruiterProfileController {
   constructor(
-    private readonly getProfileUC: IUseCase<
+    private readonly _getProfileUC: IUseCase<
       GetRecruiterProfileRequestDTO,
       RecruiterProfileReponse
     >,
@@ -21,18 +22,19 @@ export class GetRecruiterProfileController {
     try {
       const userId = userIdSchema.parse(req.user?.userId);
       if (!userId) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGE.UNAUTHORIZED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        );
       }
-      const profile = await this.getProfileUC.execute({ userId });
-
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.RECRUITER_PROFILE_LOADED_SUCCESSFULLY,
-        data: profile,
-      });
+      const profile = await this._getProfileUC.execute({ userId });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.RECRUITER_PROFILE_LOADED_SUCCESSFULLY,
+        profile,
+      );
     } catch (err) {
       next(err);
     }

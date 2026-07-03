@@ -7,10 +7,11 @@ import {
   CandidateListRequestDTO,
   CandidateListResponseDTO,
 } from "../../../Application/dto/candidate.dto/candidate-list-response.dto";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class GetCandidateAdminController {
   constructor(
-    private readonly getCandidatesUC: IUseCase<
+    private readonly _getCandidatesUC: IUseCase<
       CandidateListRequestDTO,
       CandidateListResponseDTO
     >,
@@ -28,18 +29,19 @@ export class GetCandidateAdminController {
             ? false
             : undefined;
 
-      const result = await this.getCandidatesUC.execute({
+      const result = await this._getCandidatesUC.execute({
         page,
         limit,
         search: req.query.search as string | undefined,
         status,
       });
 
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.CANDIDATES_LISTED_SUCCESSFULLY,
-        data: result,
-      });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.CANDIDATES_LISTED_SUCCESSFULLY,
+        result,
+      );
     } catch (err) {
       next(err);
     }

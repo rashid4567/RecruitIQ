@@ -12,7 +12,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 
 export class EndInterviewController {
   constructor(
-    private readonly endInterviewUC: IUseCase<
+    private readonly _endInterviewUC: IUseCase<
       EndInterviewRequestDTO,
       EndInterviewResponseDTO
     >,
@@ -40,7 +40,7 @@ export class EndInterviewController {
       }
 
       const validateData = CompleteInterviewSchema.parse(req.body);
-      const result = await this.endInterviewUC.execute({
+      const result = await this._endInterviewUC.execute({
         interviewId,
         recruiterId,
         notes: validateData.notes,

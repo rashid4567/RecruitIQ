@@ -12,7 +12,7 @@ import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class GetMyApplicationController {
   constructor(
-    private readonly getMyApplicationUC: IUseCase<
+    private readonly _getMyApplicationUC: IUseCase<
       GetMyApplicationRequestDTO,
       CandidateApplicationListItemDTO[]
     >,
@@ -33,7 +33,7 @@ export class GetMyApplicationController {
         );
       }
 
-      const application = await this.getMyApplicationUC.execute({
+      const application = await this._getMyApplicationUC.execute({
         candidateId,
       });
 

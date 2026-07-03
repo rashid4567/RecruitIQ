@@ -8,7 +8,7 @@ import { RecruiterApplicationListItem } from "../../../domain/repository/job-app
 
 export class GetApplicationsByJobController {
   constructor(
-    private readonly getApplicationByJobPostUC: IUseCase<
+    private readonly _getApplicationByJobPostUC: IUseCase<
       GetApplicationByJobRequestDTO,
       RecruiterApplicationListItem[]
     >,
@@ -36,7 +36,7 @@ export class GetApplicationsByJobController {
         });
       }
 
-      const applications = await this.getApplicationByJobPostUC.execute({
+      const applications = await this._getApplicationByJobPostUC.execute({
         jobId,
       });
       console.log("applications : ", applications)

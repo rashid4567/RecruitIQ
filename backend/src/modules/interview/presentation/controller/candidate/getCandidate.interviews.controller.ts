@@ -11,7 +11,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 
 export class GetCandidateInterviewsController {
   constructor(
-    private readonly getCandidateInterviewsUC: IUseCase<
+    private readonly _getCandidateInterviewsUC: IUseCase<
       GetCandidateInterviewsRequestDTO,
       GetCandidateInterviewsResponseDTO
     >,
@@ -24,9 +24,7 @@ export class GetCandidateInterviewsController {
   ) => {
     try {
 
-      console.log("hit get candidate interview controller ")
       const candidateId = req.user?.userId;
-
       if (!candidateId) {
         return ApiResponse.error(
           res,
@@ -35,12 +33,9 @@ export class GetCandidateInterviewsController {
         );
       }
 
-      const result = await this.getCandidateInterviewsUC.execute({
+      const result = await this._getCandidateInterviewsUC.execute({
         candidateId,
       });
-
-      console.log("result :", result ? result : "no result found"  )
-
       ApiResponse.success(
         res,
         HTTP_STATUS.OK,

@@ -8,7 +8,7 @@ import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class CreateEmailTemplateController {
   constructor(
-    private readonly createEmailTemplateUC: IUseCase<CreateEmailTemplateInputDto,EmailTemplate>,
+    private readonly _createEmailTemplateUC: IUseCase<CreateEmailTemplateInputDto,EmailTemplate>,
   ) {}
 
   createEmailTemplate = async (
@@ -17,7 +17,7 @@ export class CreateEmailTemplateController {
     next: NextFunction,
   ) => {
     try {
-      const result = await this.createEmailTemplateUC.execute(req.body);
+      const result = await this._createEmailTemplateUC.execute(req.body);
       
       return ApiResponse.success(
         res,

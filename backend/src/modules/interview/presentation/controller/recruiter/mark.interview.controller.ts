@@ -11,7 +11,7 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 
 export class MarkRecruiterJoinedController {
   constructor(
-    private readonly markRecruiterJoinedUC: IUseCase<
+    private readonly _markRecruiterJoinedUC: IUseCase<
       MarkRecruiterJoinedRequestDTO,
       MarkRecruiterJoinedResponseDTO
     >,
@@ -44,7 +44,7 @@ export class MarkRecruiterJoinedController {
         )
     }
 
-      const result = await this.markRecruiterJoinedUC.execute({
+      const result = await this._markRecruiterJoinedUC.execute({
         interviewId,
         recruiterId : recruiterId!,
       });

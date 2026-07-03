@@ -5,27 +5,30 @@ import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-messag
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { UnblockJobPostRequestDTO } from "../../../application/dto/job.status.dto";
 import { Job } from "../../../domain/entities/job.entity";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class UnblockJobController {
   constructor(
-    private readonly unBlockUc: IUseCase<UnblockJobPostRequestDTO, Job>,
+    private readonly _unBlockUc: IUseCase<UnblockJobPostRequestDTO, Job>,
   ) {}
 
   unblock = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const jobId = req.params.jobPostId;
       if (!jobId) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          success: false,
-          message: ERROR_MESSAGE.JOB_ID_REQUIRED,
-        });
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.NOT_FOUND,
+          ERROR_MESSAGE.JOB_ID_REQUIRED,
+        );
       }
-      const job = await this.unBlockUc.execute({ jobId });
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.JOB_UNBLOCKED_SUCCESSFULLY,
-        data: job,
-      });
+      const job = await this._unBlockUc.execute({ jobId });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.JOB_UNBLOCKED_SUCCESSFULLY,
+        job,
+      );
     } catch (err) {
       next(err);
     }

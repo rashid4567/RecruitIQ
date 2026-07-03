@@ -8,10 +8,11 @@ import {
   GetRecruitersQuery,
   GetRecruitersResponseDTO,
 } from "../../../Application/dto/recruiter.dto/get-recruiters.query";
+import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class GetRecruitersController {
   constructor(
-    private readonly getRecruitersUC: IUseCase<
+    private readonly _getRecruitersUC: IUseCase<
       GetRecruitersQuery,
       GetRecruitersResponseDTO
     >,
@@ -25,7 +26,7 @@ export class GetRecruitersController {
       if (req.query.isActive === "true") isActive = true;
       else if (req.query.isActive === "false") isActive = false;
 
-      const result = await this.getRecruitersUC.execute({
+      const result = await this._getRecruitersUC.execute({
         page,
         limit,
         search: req.query.search as string | undefined,
@@ -36,12 +37,12 @@ export class GetRecruitersController {
         isActive,
         sort: req.query.sort as "latest" | "oldest" | undefined,
       });
-
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.RECRUITERS_LOADED_SUCCESSFULLY,
-        data: result,
-      });
+      return ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.RECRUITERS_LOADED_SUCCESSFULLY,
+        result,
+      )
     } catch (err) {
       next(err);
     }

@@ -8,7 +8,7 @@ import { ApiResponse } from "../../../../../shared/utils/api-response";
 
 export class DeleteEmailTemplateController {
   constructor(
-    private readonly DeleteTemplateUC: IUseCase<
+    private readonly _DeleteTemplateUC: IUseCase<
       DeleteEmailTemplateRequestDTO,
       void
     >,
@@ -28,7 +28,7 @@ export class DeleteEmailTemplateController {
           ERROR_MESSAGE.EMAIL_IS_REQUIRED,
         );
       }
-      await this.DeleteTemplateUC.execute({ id });
+      await this._DeleteTemplateUC.execute({ id });
       return ApiResponse.success(
         res,
         HTTP_STATUS.OK,

@@ -5,10 +5,11 @@ import { ERROR_MESSAGE } from "../../../../shared/constants/error-message.consta
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { UpdateProfileImageRequest } from "../../application/dto/update.profileDTO";
+import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class ProfileImageController {
   constructor(
-    private readonly updateProfileImageUC: IUseCase<
+    private readonly _updateProfileImageUC: IUseCase<
       UpdateProfileImageRequest,
       void
     >,
@@ -31,12 +32,12 @@ export class ProfileImageController {
       }
 
       const file = req.file;
-      console.log(req.file);
       if (!file) {
-        res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: SUCCESS_MESSAGES.FILE_IS_REQUIRED,
-        });
+        ApiResponse.error(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGE.MISSING_FIELDS,
+        );
         return;
       }
 
@@ -45,15 +46,16 @@ export class ProfileImageController {
         size: file.size,
       });
 
-      await this.updateProfileImageUC.execute({
+      await this._updateProfileImageUC.execute({
         userId,
         file,
       });
 
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: SUCCESS_MESSAGES.PROFILE_IMAGE_UPDATED_SUCCESSFULLY,
-      });
+      ApiResponse.success(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.PROFILE_IMAGE_UPDATED_SUCCESSFULLY,
+      );
     } catch (error) {
       next(error);
     }

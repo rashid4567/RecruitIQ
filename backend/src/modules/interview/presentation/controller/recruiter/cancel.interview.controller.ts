@@ -12,7 +12,7 @@ import { CancelInterviewSchema } from "../../validation/cancel.inerview.schema";
 
 export class CancelInterviewController {
   constructor(
-    private readonly cancelInterviewUC: IUseCase<
+    private readonly _cancelInterviewUC: IUseCase<
       CancelInterviewRequestDTO,
       CancelInterviewResponseDTO
     >,
@@ -48,7 +48,7 @@ export class CancelInterviewController {
         );
       }
 
-      const result = await this.cancelInterviewUC.execute({
+      const result = await this._cancelInterviewUC.execute({
         interviewId,
         recruiterId,
         reason,

@@ -10,7 +10,7 @@ import { ApiResponse } from "../../../../shared/utils/api-response";
 
 export class ParseResumeController {
   constructor(
-    private readonly parseResumeUC: IUseCase<ParseResumeDTO, ParsedResumeData>,
+    private readonly _parseResumeUC: IUseCase<ParseResumeDTO, ParsedResumeData>,
   ) {}
 
   parseResume = async (req: Request, res: Response, next: NextFunction) => {
@@ -39,7 +39,7 @@ export class ParseResumeController {
         );
       }
 
-      const parsedData = await this.parseResumeUC.execute({
+      const parsedData = await this._parseResumeUC.execute({
         resumeId,
         fileBuffer: file.buffer,
         mimeType: file.mimetype,

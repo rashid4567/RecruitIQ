@@ -14,7 +14,10 @@ interface TemplateSettingsProps {
   form: EmailTemplateForm;
   setForm: React.Dispatch<React.SetStateAction<EmailTemplateForm>>;
   isEdit: boolean;
-  events: Array<{ value: string; label: string }>;
+  events: ReadonlyArray<{
+    value: string;
+    label: string;
+  }>;
 }
 
 interface FieldWrapperProps {

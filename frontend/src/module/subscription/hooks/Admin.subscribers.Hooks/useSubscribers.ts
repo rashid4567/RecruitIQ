@@ -17,9 +17,6 @@ interface UseSubscribersResult {
   refetch: () => void;
 }
 
-// Normalizes whatever shape the API/axios layer hands back into
-// a guaranteed PaginatedSubscribers object, so the UI never breaks
-// silently if the api wrapper unwraps `.data` differently.
 function normalize(
   raw: unknown,
   fallback: { page: number; limit: number },

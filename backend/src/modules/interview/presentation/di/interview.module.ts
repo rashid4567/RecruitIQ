@@ -40,6 +40,7 @@ import { JobRepository } from "../../../job/domain/repositories/job.repository";
 import { MongooseJobRepository } from "../../../job/infrastructure/repositories/mongoose-job.repository";
 import { sendEmailByEventUC } from "../../../email/presentation/container/email-template.container";
 import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
+import { ValidateInterviewRoomAccessUseCase } from "../../application/usecase/common/ValidateInterviewRoomAccessUseCase";
 
 const interviewRepo: InterviewRepository = new MongooseInterviewRepository();
 const applicationRepo: JobApplicationRepository =
@@ -57,7 +58,7 @@ const requestRescheduleInterviewUC = new RequestInterviewRescheduleUseCase(
   interviewRepo,
 );
 const joinInterviewUC = new JoinInterviewUseCase(interviewRepo);
-
+export const validateInterviewUC = new ValidateInterviewRoomAccessUseCase(interviewRepo);
 const scheduleInterviewUC = new ScheduleInterviewUseCase(
   interviewRepo,
   applicationRepo,

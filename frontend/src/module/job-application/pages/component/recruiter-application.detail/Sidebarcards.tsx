@@ -42,15 +42,18 @@ function ResumePreviewModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="relative w-full max-w-4xl h-[92vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-100">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0 bg-white">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-2xl bg-indigo-50 flex items-center justify-center shadow-sm">
               <FileText className="w-4 h-4 text-indigo-600" />
             </div>
             <div>
-              <span className="text-base font-semibold text-slate-900">Resume Preview</span>
-              <p className="text-xs text-slate-400 -mt-0.5">PDF / DOCX viewer</p>
+              <span className="text-base font-semibold text-slate-900">
+                Resume Preview
+              </span>
+              <p className="text-xs text-slate-400 -mt-0.5">
+                PDF / DOCX viewer
+              </p>
             </div>
           </div>
 
@@ -85,7 +88,6 @@ function ResumePreviewModal({
           </div>
         </div>
 
-        {/* Preview Area */}
         <div className="relative flex-1 bg-slate-50 overflow-hidden">
           {!iframeReady && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-white/70">
@@ -94,8 +96,12 @@ function ResumePreviewModal({
                 <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
               </div>
               <div className="text-center">
-                <p className="text-sm font-medium text-slate-500">Loading resume document...</p>
-                <p className="text-xs text-slate-400 mt-1">This may take a few seconds</p>
+                <p className="text-sm font-medium text-slate-500">
+                  Loading resume document...
+                </p>
+                <p className="text-xs text-slate-400 mt-1">
+                  This may take a few seconds
+                </p>
               </div>
             </div>
           )}
@@ -138,11 +144,10 @@ export function ResumeCard({ resumeId }: { resumeId: string | undefined }) {
         </div>
 
         <div className="p-6 space-y-4">
-          {/* Preview Tile */}
           <button
             onClick={openPreview}
             disabled={loadingPreview}
-            className="w-full group relative h-28 rounded-2xl bg-gradient-to-br from-slate-50 via-white to-slate-50 border border-dashed border-slate-200 hover:border-indigo-300 hover:shadow-inner transition-all duration-200 overflow-hidden disabled:cursor-not-allowed active:scale-[0.985]"
+            className="w-full group relative h-28 rounded-2xl bg-linear-to-br from-slate-50 via-white to-slate-50 border border-dashed border-slate-200 hover:border-indigo-300 hover:shadow-inner transition-all duration-200 overflow-hidden disabled:cursor-not-allowed active:scale-[0.985]"
           >
             <div className="absolute inset-x-8 top-5 space-y-2 opacity-30 pointer-events-none group-hover:opacity-40 transition-opacity">
               {[85, 65, 78, 55].map((w, i) => (
@@ -293,7 +298,7 @@ function InfoRow({
         <Icon className="w-4 h-4 text-slate-400" />
         {label}
       </span>
-      <span className="text-sm font-semibold text-slate-800 text-right max-w-[180px] truncate">
+      <span className="text-sm font-semibold text-slate-800 text-right max-w-45 truncate">
         {children}
       </span>
     </div>
@@ -325,13 +330,13 @@ export function ApplicationInfoCard({
       </div>
 
       <div className="px-6 py-5 space-y-1">
-       {applicationNumber && (
-  <InfoRow icon={Hash} label="Application Number">
-    <span className="font-mono font-bold text-indigo-600 tracking-wide">
-      {applicationNumber}
-    </span>
-  </InfoRow>
-)}
+        {applicationNumber && (
+          <InfoRow icon={Hash} label="Application Number">
+            <span className="font-mono font-bold text-indigo-600 tracking-wide">
+              {applicationNumber}
+            </span>
+          </InfoRow>
+        )}
 
         <InfoRow icon={Calendar} label="Applied on">
           {fmt(appliedAt) || "—"}

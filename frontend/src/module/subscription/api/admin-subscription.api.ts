@@ -29,11 +29,11 @@ export async function getPlans(query: {
     },
   });
 
-  const plans = (data.data ?? []).map(toPlan);
+  const plans = (data.data.data ?? []).map(toPlan);
 
   return {
     plans,
-    total: plans.length,
+    total: data.data.total,
   };
 }
 

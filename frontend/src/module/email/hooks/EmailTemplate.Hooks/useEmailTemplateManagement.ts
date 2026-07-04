@@ -15,6 +15,32 @@ import {
   toggleTemplateSchema,
 } from "../../validaton/emailTemplateManagement.schema";
 
+const EVENT_CATEGORY_MAP: Record<string, string> = {
+  // Account
+  ACCOUNT_CREATED: "account_related",
+  PASSWORD_RESET: "account_related",
+  PASSWORD_CHANGED: "account_related",
+  EMAIL_VERIFICATION: "account_related",
+
+  // Applications
+  JOB_APPLIED: "application_status",
+  APPLICATION_REJECTED: "application_status",
+  APPLICATION_SELECTED: "application_status",
+  APPLICATION_SHORTLISTED: "application_status",
+
+  // Interviews
+  INTERVIEW_SCHEDULED: "interview_related",
+  INTERVIEW_RESCHEDULED: "interview_related",
+  INTERVIEW_CANCELLED: "interview_related",
+  INTERVIEW_REMINDER: "interview_related",
+
+  // Subscription
+  SUBSCRIPTION_CREATED: "subscription_related",
+  SUBSCRIPTION_RENEWED: "subscription_related",
+  SUBSCRIPTION_EXPIRED: "subscription_related",
+  SUBSCRIPTION_CANCELLED: "subscription_related",
+};
+
 export function useEmailTemplateManagement() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,9 +55,8 @@ export function useEmailTemplateManagement() {
   });
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [toggleTemplate, setToggleTemplate] = useState<EmailTemplate | null>(
-    null,
-  );
+  const [toggleTemplate, setToggleTemplate] =
+    useState<EmailTemplate | null>(null);
 
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
@@ -57,11 +82,15 @@ export function useEmailTemplateManagement() {
 
   const filteredTemplates = useMemo(() => {
     return templates.filter((t) => {
-      const nameMatch = t.name.toLowerCase().includes(search.toLowerCase());
+      const nameMatch = t.name
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      const category =
+        EVENT_CATEGORY_MAP[t.event.toUpperCase()] ?? "other";
 
       const categoryMatch =
-        activeCategory === "all" ||
-        t.event.toLowerCase().includes(activeCategory.toLowerCase());
+        activeCategory === "all" || category === activeCategory;
 
       return nameMatch && categoryMatch;
     });
@@ -123,7 +152,10 @@ export function useEmailTemplateManagement() {
     }
 
     try {
-      await toggleEmailTemplate(result.data.templateId, result.data.active);
+      await toggleEmailTemplate(
+        result.data.templateId,
+        result.data.active,
+      );
 
       toast.success("Template updated");
 
@@ -135,7 +167,10 @@ export function useEmailTemplateManagement() {
     }
   };
 
-  const handleSendTestEmail = async (templateId: string, email: string) => {
+  const handleSendTestEmail = async (
+    templateId: string,
+    email: string,
+  ) => {
     const result = testEmailSchema.safeParse({
       templateId,
       email,
@@ -146,11 +181,14 @@ export function useEmailTemplateManagement() {
       return;
     }
 
-    toast.promise(sendTestEmail(result.data.templateId, result.data.email), {
-      loading: "Sending test email...",
-      success: "Test email sent!",
-      error: "Failed to send test email",
-    });
+    toast.promise(
+      sendTestEmail(result.data.templateId, result.data.email),
+      {
+        loading: "Sending test email...",
+        success: "Test email sent!",
+        error: "Failed to send test email",
+      },
+    );
   };
 
   return {

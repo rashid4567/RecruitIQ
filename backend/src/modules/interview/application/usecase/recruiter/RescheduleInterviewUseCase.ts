@@ -30,74 +30,67 @@ export class RescheduleInterviewUseCase implements IUseCase<
   ) {}
 
   async execute(
-  request: RescheduleInterviewRequestDTO,
-): Promise<RescheduleInterviewResponseDTO> {
-  const interview = await this.interviewRepository.findById(
-    request.interviewId,
-  );
-
-  if (!interview) {
-    throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_FOUND);
-  }
-
-  if (!interview.belongsToRecruiter(request.recruiterId)) {
-    throw new ApplicationError(ERROR_CODES.INTERVIEW_ACCESS_DENIED);
-  }
-
-  if (!interview.canBeRescheduled()) {
-    throw new ApplicationError(
-      ERROR_CODES.INTERVIEW_CANNOT_BE_RESCHEDULED,
-    );
-  }
-
-  const existingInterview =
-    await this.interviewRepository.findActiveByApplicationAndRound(
-      interview.applicationId,
-      interview.round,
+    request: RescheduleInterviewRequestDTO,
+  ): Promise<RescheduleInterviewResponseDTO> {
+    const interview = await this.interviewRepository.findById(
+      request.interviewId,
     );
 
-  if (
-    existingInterview &&
-    existingInterview.id !== interview.id
-  ) {
-    throw new ApplicationError(
-      ERROR_CODES.INTERVIEW_ROUND_ALREADY_EXISTS,
+    if (!interview) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_FOUND);
+    }
+
+    if (!interview.belongsToRecruiter(request.recruiterId)) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_ACCESS_DENIED);
+    }
+
+    if (!interview.canBeRescheduled()) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_CANNOT_BE_RESCHEDULED);
+    }
+
+    const existingInterview =
+      await this.interviewRepository.findActiveByApplicationAndRound(
+        interview.applicationId,
+        interview.round,
+      );
+
+    if (existingInterview && existingInterview.id !== interview.id) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_ROUND_ALREADY_EXISTS);
+    }
+
+    interview.reschedule(
+      request.scheduledAt,
+      request.durationInMinutes,
+      request.meetingLink,
+      request.roomId,
+      request.location,
     );
+
+    const savedInterview = await this.interviewRepository.save(interview);
+    await this.notifyCandidate(savedInterview);
+    const interviewData = savedInterview.toObject();
+
+    return {
+      id: interviewData.id!,
+      applicationId: interviewData.applicationId,
+      jobId: interviewData.jobId,
+      candidateId: interviewData.candidateId,
+      recruiterId: interviewData.recruiterId,
+      roomId: interviewData.roomId,
+      round: interviewData.round,
+      title: interviewData.title,
+      description: interviewData.description,
+      mode: interviewData.mode,
+      status: interviewData.status,
+      scheduledAt: interviewData.scheduledAt,
+      durationInMinutes: interviewData.durationInMinutes,
+      location: interviewData.location,
+      meetingLink: interviewData.meetingLink,
+      reminderSent: interviewData.reminderSent,
+      createdAt: interviewData.createdAt,
+      updatedAt: interviewData.updatedAt,
+    };
   }
-
-  interview.reschedule(
-    request.scheduledAt,
-    request.durationInMinutes,
-    request.meetingLink,
-    request.roomId,
-    request.location,
-  );
-
-  const savedInterview = await this.interviewRepository.save(interview);
-  await this.notifyCandidate(savedInterview);
-  const interviewData = savedInterview.toObject();
-
-  return {
-    id: interviewData.id!,
-    applicationId: interviewData.applicationId,
-    jobId: interviewData.jobId,
-    candidateId: interviewData.candidateId,
-    recruiterId: interviewData.recruiterId,
-    roomId: interviewData.roomId,
-    round: interviewData.round,
-    title: interviewData.title,
-    description: interviewData.description,
-    mode: interviewData.mode,
-    status: interviewData.status,
-    scheduledAt: interviewData.scheduledAt,
-    durationInMinutes: interviewData.durationInMinutes,
-    location: interviewData.location,
-    meetingLink: interviewData.meetingLink,
-    reminderSent: interviewData.reminderSent,
-    createdAt: interviewData.createdAt,
-    updatedAt: interviewData.updatedAt,
-  };
-}
 
   private async notifyCandidate(interview: Interview): Promise<void> {
     try {

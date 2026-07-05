@@ -387,8 +387,10 @@ export class Interview {
 
     this.props.status = InterviewStatus.ONGOING;
     this.props.startedAt = new Date();
-    this.props.recruiterJoinedAt = new Date();
 
+    if (!this.props.recruiterJoinedAt) {
+      this.props.recruiterJoinedAt = new Date();
+    }
     this.touch();
   }
 

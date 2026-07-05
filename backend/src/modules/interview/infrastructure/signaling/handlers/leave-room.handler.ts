@@ -7,14 +7,20 @@ export class LeaveRoomHandler {
   constructor(private readonly roomRepository: RoomRepository) {}
 
   register(io: Server, socket: Socket): void {
-    socket.on(SocketEvents.LEAVE_ROOM, ({ roomId }: LeaveRoomPayload) => {
+    socket.on(SocketEvents.USER_LEFT, ({ roomId }: LeaveRoomPayload) => {
       this.roomRepository.leave(roomId, socket.id);
 
       socket.leave(roomId);
       socket.to(roomId).emit(SocketEvents.USER_LEFT, {
         socketId: socket.id,
       });
-      console.log(`[LEAVE ROOM] Socket : ${socket.id} left room ${roomId}`);
+     console.log("================================");
+console.log("[LEAVE ROOM]");
+console.log({
+    socketId: socket.id,
+    roomId,
+});
+console.log("================================");
     });
   }
 }

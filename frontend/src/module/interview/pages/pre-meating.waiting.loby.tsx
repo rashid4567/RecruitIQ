@@ -24,6 +24,8 @@ import { useCountdown } from "../hooks/common/Usecountdown";
 import { useMicLevel } from "../hooks/common/Usemiclevel";
 import { useSpeakerTest } from "./components/preInterivew-Lobby/useSpeakerTest";
 import { useMediaPreview } from "../hooks/common/Usemediapreview";
+import { useStartInterview } from "../hooks/recruiter/useStartInterview";
+import { useJoinInterview } from "../hooks/candidate/useJoinInterview";
 
 const isBrowserSupported =
   typeof navigator !== "undefined" &&
@@ -81,6 +83,13 @@ export default function PreMeetingLobby() {
 
   const preview = useMediaPreview();
 
+  useEffect(() => {
+    console.log("[lifecycle] PreMeetingLobby Mounted");
+    return () => {
+      console.log("[lifecycle] PreMeetingLobby Unmounted");
+    };
+  }, []);
+
   const {
     cameras,
     microphones,
@@ -97,6 +106,10 @@ export default function PreMeetingLobby() {
   );
   const micLevel = useMicLevel(preview.localStream, preview.isMuted);
   const { testing: testingSpeaker, playTestTone } = useSpeakerTest();
+
+  const { submit: startInterview, error: startError } = useStartInterview();
+  const { submit: joinInterview, error: joinError } = useJoinInterview();
+  const actionError = role === "recruiter" ? startError : joinError;
 
   const [selectedCameraId, setSelectedCameraId] = useState("");
   const [selectedMicrophoneId, setSelectedMicrophoneId] = useState("");
@@ -134,14 +147,86 @@ export default function PreMeetingLobby() {
     preview.switchMicrophone(selectedMicrophoneId);
   }, [selectedMicrophoneId, preview.switchMicrophone]);
 
+  // Candidates can only join once the recruiter has actually started the
+  // interview (details.canJoin flips server-side). Since useInterviewDetails
+  // only fetches once, poll while waiting so the Join button enables itself
+  // the moment the recruiter starts — no manual refresh needed. Stops once
+  // the interview is already ongoing (nothing left to wait for).
+  const interviewAlreadyOngoing = details?.status === "ONGOING";
+  useEffect(() => {
+    if (role !== "candidate") return;
+    if (!details) return;
+    if (interviewAlreadyOngoing) {
+      console.log("[poll] skipped — interview already ONGOING");
+      return;
+    }
+    if (details.canJoin) {
+      console.log("[poll] skipped — canJoin already true");
+      return;
+    }
+    console.log("[poll] starting 5s interval");
+    const id = setInterval(() => {
+      console.log("[poll] refetching interview details...");
+      refetch();
+    }, 5000);
+    return () => {
+      console.log("[poll] clearing interval");
+      clearInterval(id);
+    };
+  }, [role, refetch, details, interviewAlreadyOngoing]);
+
   const basePath = role === "candidate" ? "/candidate" : "/recruiter";
 
-  function handlePrimaryAction() {
-    if (!interviewId || !details?.roomId) return;
+  async function handlePrimaryAction() {
+    console.log("[join] 1. Button clicked", { role, interviewId, roomId: details?.roomId });
+
+    if (!interviewId || !details?.roomId) {
+      console.log("[join] 2. Bailing out — missing interviewId or details.roomId", {
+        interviewId,
+        roomId: details?.roomId,
+      });
+      return;
+    }
+
     setEnteringRoom(true);
-    navigate(`${basePath}/interviews/${interviewId}/room`, {
-      state: { roomId: details.roomId },
-    });
+    console.log("[join] 3. enteringRoom set to true");
+
+    try {
+      console.log("[join] 4. Calling API", {
+        api: role === "recruiter" ? "startInterview" : "joinInterview",
+        interviewId,
+      });
+
+      const result =
+        role === "recruiter"
+          ? await startInterview(interviewId)
+          : await joinInterview(interviewId);
+
+      console.log("[join] 5. API result:", result);
+
+      if (!result) {
+        console.log("[join] 6. API returned null — see hook's error state:", actionError);
+        return;
+      }
+
+      const targetRoomId = result.roomId ?? details.roomId;
+      console.log("[join] 7. Navigating to room", {
+        path: `${basePath}/interviews/${interviewId}/room`,
+        roomId: targetRoomId,
+      });
+
+      navigate(`${basePath}/interviews/${interviewId}/room`, {
+        state: { roomId: targetRoomId },
+      });
+
+      console.log("[join] 8. navigate() called");
+      console.log("Navigation called successfully");
+    } catch (err) {
+      console.error("[join] ERROR — API call threw:", err);
+    } finally {
+      console.log("[join] 9. finally — enteringRoom set to false");
+      setEnteringRoom(false);
+    }
   }
 
   function handleCancel() {
@@ -205,24 +290,54 @@ export default function PreMeetingLobby() {
   }
 
   const { date, time } = formatScheduledAt(details.scheduledAt);
-  const interviewAlreadyOngoing = details.status === "ONGOING";
   const hasStarted = countdown.hasStarted || interviewAlreadyOngoing;
-  const waitingMessage =
-    role === "candidate"
-      ? "Waiting for the recruiter to start the interview."
-      : "You're ready to start the interview.";
+
+  let waitingMessage: string;
+  if (role === "candidate") {
+    if (interviewAlreadyOngoing || details.canJoin) {
+      waitingMessage = "The recruiter has started the interview. You can join now.";
+    } else if (hasStarted) {
+      waitingMessage = "The interview hasn't started yet. Please wait a moment.";
+    } else {
+      waitingMessage = "Waiting for the recruiter to start the interview.";
+    }
+  } else {
+    waitingMessage = "You're ready to start the interview.";
+  }
   const permissionsDenied =
     cameraPermission === "denied" || microphonePermission === "denied";
 
+  // Recruiters always start the meeting themselves — `canJoin` is a
+  // candidate-only gate that reflects whether the recruiter has started yet.
+  const roleCanProceed = role === "recruiter" ? true : details.canJoin;
+
   const primaryDisabled =
-    !details.canJoin ||
+    !roleCanProceed ||
     !preview.localStream ||
     preview.loading ||
     !!preview.error ||
     permissionsDenied ||
     enteringRoom;
 
-  const primaryLabel = enteringRoom ? "Joining..." : "Join Meeting";
+  console.log("[button-state]", {
+    role,
+    roleCanProceed,
+    detailsCanJoin: details.canJoin,
+    hasLocalStream: !!preview.localStream,
+    previewLoading: preview.loading,
+    previewError: preview.error,
+    permissionsDenied,
+    enteringRoom,
+    primaryDisabled,
+  });
+
+  const primaryLabel = enteringRoom
+    ? role === "recruiter"
+      ? "Starting..."
+      : "Joining..."
+    : role === "recruiter"
+      ? "Start Meeting"
+      : "Join Meeting";
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
@@ -593,6 +708,32 @@ export default function PreMeetingLobby() {
             <li>• Make sure your internet connection is stable.</li>
             <li>• Keep your ID ready if required.</li>
           </ul>
+        </div>
+
+        {/* Action error */}
+        {actionError && (
+          <p className="text-sm text-red-600 font-medium text-center">
+            {actionError}
+          </p>
+        )}
+
+        {/* TEMP DEBUG PANEL — remove once the click issue is confirmed fixed */}
+        <div className="bg-slate-900 text-slate-100 text-xs font-mono rounded-lg p-3 overflow-x-auto">
+          {JSON.stringify(
+            {
+              role,
+              roleCanProceed,
+              detailsCanJoin: details.canJoin,
+              hasLocalStream: !!preview.localStream,
+              previewLoading: preview.loading,
+              previewError: preview.error,
+              permissionsDenied,
+              enteringRoom,
+              primaryDisabled,
+            },
+            null,
+            2,
+          )}
         </div>
 
         {/* Actions */}

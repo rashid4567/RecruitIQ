@@ -22,6 +22,12 @@ export class SocketConnectionHandler {
   register(): void {
 
     this.io.on(SocketEvents.CONNECTION, (socket) => {
+      console.log("================================");
+console.log("[SOCKET CONNECTED]");
+console.log({
+  socketId: socket.id,
+});
+console.log("================================");
       console.log(`Socket Connected : ${socket.id}`);
       this.joinRoomHandler.register(this.io, socket);
       this.leaveRoomHandler.register(this.io, socket);

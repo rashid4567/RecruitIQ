@@ -19,6 +19,7 @@ export class JoinInterviewController {
 
   join = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      console.log("HIT cadidate join interview controller")
       const candidateId = req.user?.userId;
       if (!candidateId) {
         return ApiResponse.error(
@@ -29,6 +30,7 @@ export class JoinInterviewController {
       }
 
       const { interviewId } = req.params;
+      console.log("interview id ", interviewId)
       if (!interviewId) {
         return ApiResponse.error(
           res,
@@ -41,6 +43,7 @@ export class JoinInterviewController {
         candidateId,
       });
 
+      console.log("result :", result);
       ApiResponse.success(
         res,
         HTTP_STATUS.OK,

@@ -11,12 +11,16 @@ import { SendEmailByEventUseCase } from "../../../../email/application/usecase/e
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/infrastructure/mongoose/notification.model";
-import { Interview } from "../../../domain/entity/interview.entity";
+import {
+  Interview,
+  InterviewMode,
+} from "../../../domain/entity/interview.entity";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
   RescheduleInterviewRequestDTO,
   RescheduleInterviewResponseDTO,
 } from "../../dto/rescheduleInterview.dto";
+import { IdGenerator } from "../../ports/id-generator";
 export class RescheduleInterviewUseCase implements IUseCase<
   RescheduleInterviewRequestDTO,
   RescheduleInterviewResponseDTO
@@ -27,6 +31,7 @@ export class RescheduleInterviewUseCase implements IUseCase<
     private readonly jobRepo: JobRepository,
     private readonly sendEmailByEventUC: SendEmailByEventUseCase,
     private readonly createNotificationUC: CreateNotificationUseCase,
+    private readonly idGenerator: IdGenerator,
   ) {}
 
   async execute(
@@ -58,16 +63,20 @@ export class RescheduleInterviewUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.INTERVIEW_ROUND_ALREADY_EXISTS);
     }
 
+    const roomId =
+      interview.mode === InterviewMode.ONLINE
+        ? (interview.roomId ?? this.idGenerator.generate())
+        : undefined;
+
     interview.reschedule(
       request.scheduledAt,
       request.durationInMinutes,
-      request.meetingLink,
-      request.roomId,
+      roomId,
       request.location,
     );
 
     const savedInterview = await this.interviewRepository.save(interview);
-    await this.notifyCandidate(savedInterview);
+    // await this.notifyCandidate(savedInterview);
     const interviewData = savedInterview.toObject();
 
     return {
@@ -85,7 +94,6 @@ export class RescheduleInterviewUseCase implements IUseCase<
       scheduledAt: interviewData.scheduledAt,
       durationInMinutes: interviewData.durationInMinutes,
       location: interviewData.location,
-      meetingLink: interviewData.meetingLink,
       reminderSent: interviewData.reminderSent,
       createdAt: interviewData.createdAt,
       updatedAt: interviewData.updatedAt,
@@ -121,7 +129,6 @@ export class RescheduleInterviewUseCase implements IUseCase<
           interviewDate,
           interviewTime,
           interviewDuration: `${interview.durationInMinutes} minutes`,
-          meetingLink: interview.meetingLink ?? "",
           interviewLocation: interview.location ?? "N/A",
           interviewDescription: interview.description ?? "",
         },
@@ -142,7 +149,6 @@ export class RescheduleInterviewUseCase implements IUseCase<
           scheduledAt: interview.scheduledAt,
           durationInMinutes: interview.durationInMinutes,
           mode: interview.mode,
-          meetingLink: interview.meetingLink,
           location: interview.location,
         },
       });

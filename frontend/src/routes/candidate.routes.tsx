@@ -28,8 +28,19 @@ const JobApplicationDetail = lazy(
 const NotificationCenter = lazy(
   () => import("../module/notification/page/notification.center"),
 );
-const MyInterviews = lazy(()=> import("../module/interview/pages/candidate.all.interview"))
-const MyInterviewDeatails = lazy(()=> import("../module/interview/pages/candidate.interview.detail"));
+
+const PreMeetingLobby = lazy(
+  () => import("../module/interview/pages/pre-meating.waiting.loby"),
+);
+const LiveMeetingPage = lazy(
+  () => import("../module/interview/pages/live.meeting"),
+);
+const MyInterviews = lazy(
+  () => import("../module/interview/pages/candidate.all.interview"),
+);
+const MyInterviewDeatails = lazy(
+  () => import("../module/interview/pages/candidate.interview.detail"),
+);
 const CandidateRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -46,8 +57,19 @@ const CandidateRoutes = () => {
               element={<JobApplicationDetail />}
             />
             <Route path="jobs" element={<CareerPage />} />
-            <Route path="interviews" element={<MyInterviews/>}/>
-            <Route path="interview/:interviewId" element={<MyInterviewDeatails/>}/>
+            <Route path="interviews" element={<MyInterviews />} />
+            <Route
+              path="interview/:interviewId"
+              element={<MyInterviewDeatails />}
+            />
+            <Route
+              path="interviews/:interviewId/lobby"
+              element={<PreMeetingLobby />}
+            />
+            <Route
+              path="interviews/:interviewId/room"
+              element={<LiveMeetingPage />}
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

@@ -45,7 +45,6 @@ export class RescheduleInterviewController {
         recruiterId,
         scheduledAt: validateData.scheduledAt,
         durationInMinutes: validateData.durationInMinutes,
-        meetingLink: validateData.meetingLink,
         roomId: validateData.roomId,
         location: validateData.location,
       });

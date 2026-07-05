@@ -29,6 +29,12 @@ export class StartInterviewUseCase implements IUseCase<
     if (!interview.canStart()) {
       throw new ApplicationError(ERROR_CODES.INVALID_INTERVIEW_STATUS_TO_START);
     }
+
+    if (!interview.hasRoom()) {
+  throw new ApplicationError(
+    ERROR_CODES.INTERVIEW_ROOM_NOT_FOUND,
+  );
+}
     interview.start();
 
     const savedInterview = await this.interviewRepo.save(interview);

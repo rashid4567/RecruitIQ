@@ -1,7 +1,11 @@
-import type { GetCandidateInterviewsResponse } from "@/module/interview/types/candidateInterview.types"; 
+import type { GetCandidateInterviewsResponse } from "@/module/interview/types/candidateInterview.types";
 
 import type { ModeFilter, StatusFilter } from "./Types";
-import { CandidateResponseStatus, InterviewMode, InterviewStatus } from "@/module/interview/types/interview.types";
+import {
+  CandidateResponseStatus,
+  InterviewMode,
+  InterviewStatus,
+} from "@/module/interview/types/interview.types";
 
 export const ITEMS_PER_PAGE = 6;
 export const PAGE_WINDOW = 1;
@@ -41,7 +45,6 @@ export function normalizeToArray(
 export function inferMode(
   interview: GetCandidateInterviewsResponse,
 ): InterviewMode {
-  if (interview.meetingLink) return InterviewMode.ONLINE;
   if (interview.location) return InterviewMode.OFFLINE;
   return InterviewMode.ONLINE;
 }
@@ -132,7 +135,6 @@ export function needsResponse(
 }
 
 export function canJoinNow(interview: GetCandidateInterviewsResponse): boolean {
-  if (!interview.scheduledAt || !interview.meetingLink) return false;
   if (inferMode(interview) !== InterviewMode.ONLINE) return false;
   if (interview.status === InterviewStatus.ONGOING) return true;
   if (!ACTIVE_STATUSES.includes(interview.status ?? "")) return false;

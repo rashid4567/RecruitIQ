@@ -36,7 +36,6 @@ export interface InterviewProps {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
-  meetingLink?: string;
   candidateResponseStatus: CandidateResponseStatus;
   candidateRespondedAt?: Date;
   candidateResponseMessage?: string;
@@ -132,9 +131,9 @@ export class Interview {
 
     if (
       this.props.mode === InterviewMode.ONLINE &&
-      !this.props.meetingLink?.trim()
+      !this.props.roomId?.trim()
     ) {
-      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_MEETING_LINK_REQUIRED);
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_ROOM_REQUIRED);
     }
 
     if (
@@ -218,10 +217,6 @@ export class Interview {
     return this.props.location;
   }
 
-  get meetingLink(): string | undefined {
-    return this.props.meetingLink;
-  }
-
   get candidateResponseStatus(): CandidateResponseStatus {
     return this.props.candidateResponseStatus;
   }
@@ -289,7 +284,6 @@ export class Interview {
   schedule(
     scheduledAt: Date,
     durationInMinutes: number,
-    meetingLink?: string,
     roomId?: string,
     location?: string,
   ): void {
@@ -303,17 +297,21 @@ export class Interview {
       throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_DURATION_INVALID);
     }
 
-    if (this.props.mode === InterviewMode.ONLINE && !meetingLink?.trim()) {
-      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_MEETING_LINK_REQUIRED);
-    }
-
     if (this.props.mode === InterviewMode.OFFLINE && !location?.trim()) {
       throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_LOCATION_REQUIRED);
     }
 
+    if (this.props.mode === InterviewMode.ONLINE) {
+      this.props.roomId = roomId?.trim();
+      this.props.location = undefined;
+    }
+
+    if (this.props.mode === InterviewMode.OFFLINE) {
+      this.props.location = location?.trim();
+      this.props.roomId = undefined;
+    }
     this.props.scheduledAt = scheduledAt;
     this.props.durationInMinutes = durationInMinutes;
-    this.props.meetingLink = meetingLink?.trim();
     this.props.roomId = roomId?.trim();
     this.props.location = location?.trim();
 
@@ -325,7 +323,6 @@ export class Interview {
   reschedule(
     scheduledAt: Date,
     durationInMinutes: number,
-    meetingLink?: string,
     roomId?: string,
     location?: string,
   ): void {
@@ -346,17 +343,21 @@ export class Interview {
       throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_DURATION_INVALID);
     }
 
-    if (this.props.mode === InterviewMode.ONLINE && !meetingLink?.trim()) {
-      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_MEETING_LINK_REQUIRED);
-    }
-
     if (this.props.mode === InterviewMode.OFFLINE && !location?.trim()) {
       throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_LOCATION_REQUIRED);
+    }
+    if (this.props.mode === InterviewMode.ONLINE) {
+      this.props.roomId = roomId?.trim();
+      this.props.location = undefined;
+    }
+
+    if (this.props.mode === InterviewMode.OFFLINE) {
+      this.props.location = location?.trim();
+      this.props.roomId = undefined;
     }
 
     this.props.scheduledAt = scheduledAt;
     this.props.durationInMinutes = durationInMinutes;
-    this.props.meetingLink = meetingLink?.trim();
     this.props.roomId = roomId?.trim();
     this.props.location = location?.trim();
     this.props.status = InterviewStatus.RESCHEDULED;
@@ -380,8 +381,13 @@ export class Interview {
       );
     }
 
+    if (this.props.mode === InterviewMode.ONLINE && !this.props.roomId) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_ROOM_REQUIRED);
+    }
+
     this.props.status = InterviewStatus.ONGOING;
     this.props.startedAt = new Date();
+    this.props.recruiterJoinedAt = new Date();
 
     this.touch();
   }
@@ -623,6 +629,10 @@ export class Interview {
 
   hasPendingRescheduleRequest(): boolean {
     return this.props.rescheduleRequested;
+  }
+
+  hasRoom(): boolean {
+    return !!this.props.roomId;
   }
 
   hasCandidateResponded(): boolean {

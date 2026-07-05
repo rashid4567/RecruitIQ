@@ -8,8 +8,6 @@ export const RescheduleInterviewSchema = z.object({
     .int()
     .min(15, "Interview duration must be at least 15 minutes"),
 
-  meetingLink: z.string().trim().optional(),
-
   roomId: z.string().trim().optional(),
 
   location: z.string().trim().optional(),

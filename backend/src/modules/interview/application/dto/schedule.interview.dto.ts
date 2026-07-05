@@ -14,7 +14,6 @@ export interface ScheduleInterviewRequestDTO {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
-  meetingLink?: string;
 }
 
 export interface ScheduleInterviewResponseDTO {
@@ -32,7 +31,6 @@ export interface ScheduleInterviewResponseDTO {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
-  meetingLink?: string;
   reminderSent: boolean;
   createdAt?: Date;
   updatedAt?: Date;

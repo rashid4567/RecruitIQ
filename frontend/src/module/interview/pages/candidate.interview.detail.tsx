@@ -19,7 +19,6 @@ import {
   XCircle,
   CheckCircle2,
   UserCheck,
-  Copy,
   BellRing,
   Hourglass,
   RefreshCw,
@@ -73,7 +72,6 @@ export default function MyInterviewDetails({
   const [details, setDetails] =
     useState<GetCandidateInterviewDetailsResponse | null>(null);
   const [joining, setJoining] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const [decisionModalOpen, setDecisionModalOpen] = useState(false);
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
@@ -121,17 +119,9 @@ export default function MyInterviewDetails({
             }
           : prev,
       );
-      if (details.meetingLink)
-        window.open(details.meetingLink, "_blank", "noopener,noreferrer");
+
       loadDetails();
     }
-  }
-
-  function handleCopyLink() {
-    if (!details?.meetingLink) return;
-    navigator.clipboard.writeText(details.meetingLink);
-    setLinkCopied(true);
-    setTimeout(() => setLinkCopied(false), 2000);
   }
 
   function handleAddToCalendar() {
@@ -183,7 +173,6 @@ export default function MyInterviewDetails({
   const joinable = details ? canJoinNow(details, now) : false;
   const isCancelled = details?.status === InterviewStatus.CANCELLED;
   const isNoShow = details?.status === InterviewStatus.NO_SHOW;
-  const isCompleted = details?.status === InterviewStatus.COMPLETED;
   const isOngoing = details?.status === InterviewStatus.ONGOING;
   const isUpcoming = details ? ACTIVE_STATUSES.includes(details.status) : false;
   const countdown = details ? getCountdownLabel(details, now) : null;
@@ -371,7 +360,6 @@ export default function MyInterviewDetails({
                           </button>
                         ) : (
                           isOnline &&
-                          details.meetingLink &&
                           !isCancelled && (
                             <button
                               onClick={handleJoin}
@@ -566,39 +554,6 @@ export default function MyInterviewDetails({
                           />
                         )}
                       </div>
-
-                      {isOnline && details.meetingLink && (
-                        <div className="mt-5 bg-slate-50 rounded-xl border border-slate-200 p-4">
-                          <p className="text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
-                            Meeting link
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <a
-                              href={details.meetingLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-blue-600 hover:text-blue-700 hover:underline break-all flex-1 min-w-0"
-                            >
-                              {details.meetingLink}
-                            </a>
-                            <button
-                              onClick={handleCopyLink}
-                              className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                                linkCopied
-                                  ? "bg-emerald-100 text-emerald-700"
-                                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-                              }`}
-                            >
-                              {linkCopied ? (
-                                <CheckCircle2 size={11} />
-                              ) : (
-                                <Copy size={11} />
-                              )}
-                              {linkCopied ? "Copied" : "Copy"}
-                            </button>
-                          </div>
-                        </div>
-                      )}
                     </div>
 
                     {(details.description || details.notes) && (
@@ -655,42 +610,22 @@ export default function MyInterviewDetails({
                           </button>
                         )}
 
-                        {isOnline &&
-                          details.meetingLink &&
-                          !isCancelled &&
-                          !pendingResponse && (
-                            <button
-                              onClick={handleJoin}
-                              disabled={!joinable || joining}
-                              className={`w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all ${
-                                joinable
-                                  ? "text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-sm shadow-blue-200"
-                                  : "text-slate-400 bg-slate-100 cursor-not-allowed"
-                              }`}
-                            >
-                              {joining ? (
-                                <Loader2 size={14} className="animate-spin" />
-                              ) : (
-                                <ExternalLink size={14} />
-                              )}
-                              {isOngoing ? "Join now" : "Join interview"}
-                            </button>
-                          )}
-
-                        {isOnline && details.meetingLink && (
+                        {isOnline && !isCancelled && !pendingResponse && (
                           <button
-                            onClick={handleCopyLink}
-                            className="w-full inline-flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                            onClick={handleJoin}
+                            disabled={!joinable || joining}
+                            className={`w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all ${
+                              joinable
+                                ? "text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-sm shadow-blue-200"
+                                : "text-slate-400 bg-slate-100 cursor-not-allowed"
+                            }`}
                           >
-                            {linkCopied ? (
-                              <CheckCircle2
-                                size={14}
-                                className="text-emerald-600"
-                              />
+                            {joining ? (
+                              <Loader2 size={14} className="animate-spin" />
                             ) : (
-                              <Copy size={14} />
+                              <ExternalLink size={14} />
                             )}
-                            {linkCopied ? "Link copied" : "Copy meeting link"}
+                            {isOngoing ? "Join now" : "Join interview"}
                           </button>
                         )}
 
@@ -732,7 +667,7 @@ export default function MyInterviewDetails({
                         )}
 
                         {!isUpcoming &&
-                          !(isOnline && details.meetingLink) &&
+                          !isOnline &&
                           !details.applicationId &&
                           !reschedulable && (
                             <p className="text-xs text-slate-400 text-center py-1">

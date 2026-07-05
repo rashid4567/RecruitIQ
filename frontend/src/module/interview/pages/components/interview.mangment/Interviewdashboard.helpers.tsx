@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { Play, UserX, CheckCircle2 } from "lucide-react";
 import type { RecruiterInterviewItem } from "@/module/interview/types/recruiterInterview.types";
-import { InterviewStatus } from "@/module/interview/types/interview.types";
+import { InterviewMode, InterviewStatus } from "@/module/interview/types/interview.types";
 import type {
   Tab,
   StatusFilter,
@@ -282,9 +282,12 @@ export function filterByMode(
   mode: ModeFilter,
 ): RecruiterInterviewItem[] {
   if (mode === "all") return interviews;
-  if (mode === "online")
-    return interviews.filter((i) => Boolean(i.meetingLink));
-  return interviews.filter((i) => !i.meetingLink && Boolean(i.location));
+
+  if (mode === "online") {
+    return interviews.filter((i) => i.mode === InterviewMode.ONLINE);
+  }
+
+  return interviews.filter((i) => i.mode === InterviewMode.OFFLINE);
 }
 
 export function filterBySearch(

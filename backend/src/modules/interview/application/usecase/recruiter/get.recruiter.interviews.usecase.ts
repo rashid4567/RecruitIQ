@@ -77,7 +77,6 @@ export class GetRecruiterInterviewsUseCase implements IUseCase<
         scheduledAt: result.scheduledAt,
         durationInMinutes: result.durationInMinutes,
         location: result.location,
-        meetingLink: result.meetingLink,
       };
     });
   }

@@ -30,7 +30,6 @@ export interface GetRecruiterInterviewDetailsResponseDTO {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
-  meetingLink?: string;
   startedAt?: Date;
   endedAt?: Date;
   recruiterJoinedAt?: Date;

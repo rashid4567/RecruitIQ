@@ -4,7 +4,6 @@ import { toPlan } from "../mapper/subscription-plan.mapper";
 import type { SubscriptionPlan } from "../types/subscription-plan.types";
 import type { PlanType } from "../constant/subscription.constants";
 
-
 export async function findAllPlans(filters?: {
   isActive?: boolean;
   planType?: PlanType;
@@ -15,12 +14,13 @@ export async function findAllPlans(filters?: {
       planType: filters?.planType,
     },
   });
-  return (data.data ?? []).map(toPlan);
-}
 
+  return (data.data.data ?? []).map(toPlan);
+}
 export async function findActivePlans(): Promise<SubscriptionPlan[]> {
   const { data } = await api.get(RECRUITER_PLAN_ROUTES.PLANS);
-  return (data.data ?? []).map(toPlan);
+
+  return (data.data.data ?? []).map(toPlan);
 }
 
 export async function findPlanById(

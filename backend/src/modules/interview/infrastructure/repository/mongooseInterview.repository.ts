@@ -32,7 +32,6 @@ export class MongooseInterviewRepository implements InterviewRepository {
           durationInMinutes: data.durationInMinutes,
           location: data.location,
           roomId: data.roomId,
-          meetingLink: data.meetingLink,
           startedAt: data.startedAt,
           endedAt: data.endedAt,
           recruiterJoinedAt: data.recruiterJoinedAt,
@@ -160,28 +159,28 @@ export class MongooseInterviewRepository implements InterviewRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
-async findActiveByApplicationAndRound(
-  applicationId: string,
-  round: number,
-): Promise<Interview | null> {
-  if (!this.isValidObjectId(applicationId)) {
-    return null;
+  async findActiveByApplicationAndRound(
+    applicationId: string,
+    round: number,
+  ): Promise<Interview | null> {
+    if (!this.isValidObjectId(applicationId)) {
+      return null;
+    }
+
+    const doc = await InterviewModel.findOne({
+      applicationId: new mongoose.Types.ObjectId(applicationId),
+      round,
+      status: {
+        $in: [
+          InterviewStatus.SCHEDULED,
+          InterviewStatus.RESCHEDULED,
+          InterviewStatus.ONGOING,
+        ],
+      },
+    });
+
+    return doc ? this.toDomain(doc) : null;
   }
-
-  const doc = await InterviewModel.findOne({
-    applicationId: new mongoose.Types.ObjectId(applicationId),
-    round,
-    status: {
-      $in: [
-        InterviewStatus.SCHEDULED,
-        InterviewStatus.RESCHEDULED,
-        InterviewStatus.ONGOING,
-      ],
-    },
-  });
-
-  return doc ? this.toDomain(doc) : null;
-}
   async findUpcomingByCandidate(candidateId: string): Promise<Interview[]> {
     if (!this.isValidObjectId(candidateId)) {
       return [];
@@ -229,13 +228,15 @@ async findActiveByApplicationAndRound(
   }
 
   async getNextRound(applicationId: string): Promise<number> {
-    if(!this.isValidObjectId(applicationId)){
+    if (!this.isValidObjectId(applicationId)) {
       return 1;
     }
 
     const lastInterview = await InterviewModel.findOne({
-      applicationId : new mongoose.Types.ObjectId(applicationId),
-    }).sort({round : -1}).select("round");
+      applicationId: new mongoose.Types.ObjectId(applicationId),
+    })
+      .sort({ round: -1 })
+      .select("round");
 
     return lastInterview ? lastInterview.round + 1 : 1;
   }
@@ -278,7 +279,6 @@ async findActiveByApplicationAndRound(
       durationInMinutes: doc.durationInMinutes,
       location: doc.location,
       roomId: doc.roomId,
-      meetingLink: doc.meetingLink,
       startedAt: doc.startedAt,
       endedAt: doc.endedAt,
       recruiterJoinedAt: doc.recruiterJoinedAt,
@@ -319,7 +319,6 @@ async findActiveByApplicationAndRound(
       durationInMinutes: data.durationInMinutes,
       location: data.location,
       roomId: data.roomId,
-      meetingLink: data.meetingLink,
       startedAt: data.startedAt,
       endedAt: data.endedAt,
       recruiterJoinedAt: data.recruiterJoinedAt,

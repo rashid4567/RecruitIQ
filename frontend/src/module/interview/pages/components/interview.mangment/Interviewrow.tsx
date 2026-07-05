@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Clock, MapPin, MoreVertical, Video } from "lucide-react";
+import { Clock, MapPin, MoreVertical, Video, PlayCircle } from "lucide-react";
 import type { RecruiterInterviewItem } from "@/module/interview/types/recruiterInterview.types";
-import { InterviewStatus } from "@/module/interview/types/interview.types"; 
+import { InterviewStatus } from "@/module/interview/types/interview.types";
 import {
   toInitials,
   candidateGradient,
@@ -15,6 +15,19 @@ import {
   STATUS_TRANSITIONS,
 } from "./Interviewdashboard.helpers";
 
+// How long before the scheduled time the "Start Interview" / "Join" button
+// becomes visible. Purely a UI reveal window — it never triggers an API
+// call on its own. The interview stays SCHEDULED until someone clicks.
+const START_WINDOW_MINUTES = 15;
+
+// Fallback duration if the backend didn't send one, so the "still live"
+// window has some sane upper bound instead of being infinite.
+const DEFAULT_DURATION_MINUTES = 60;
+
+// How often we re-check timing while the row is mounted, so button/label
+// state updates live without a refetch.
+const TICK_INTERVAL_MS = 15_000;
+
 export default function InterviewRow({
   interview,
   onStatusChange,
@@ -23,6 +36,9 @@ export default function InterviewRow({
   onOpenCancel,
   onApproveReschedule,
   onRejectReschedule,
+  onJoinInterview,
+  onStartInterview,
+  onOpenDetail,
 }: {
   interview: RecruiterInterviewItem;
   onStatusChange: (id: string, status: InterviewStatus) => void;
@@ -31,6 +47,9 @@ export default function InterviewRow({
   onOpenCancel: (interview: RecruiterInterviewItem) => void;
   onApproveReschedule: (interview: RecruiterInterviewItem) => void;
   onRejectReschedule: (interview: RecruiterInterviewItem) => void;
+  onJoinInterview: (interview: RecruiterInterviewItem) => void;
+  onStartInterview: (interview: RecruiterInterviewItem) => void;
+  onOpenDetail: (interview: RecruiterInterviewItem) => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -38,11 +57,77 @@ export default function InterviewRow({
   const linear = candidateGradient(interview.candidateId);
   const scheduled = isInterviewScheduled(interview);
   const upcoming = isUpcomingInterview(interview);
-  const modifiable = canModifyInterview(interview);
   const pendingReschedule = hasPendingRescheduleRequest(interview);
   const statusCfg = getStatusConfig(interview);
   const transitions = STATUS_TRANSITIONS[interview.interviewStatus ?? ""] ?? [];
   const todayFlag = isToday(interview.scheduledAt);
+
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), TICK_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  const minutesUntilStart = interview.scheduledAt
+    ? (new Date(interview.scheduledAt).getTime() - now) / 60_000
+    : Infinity;
+
+  const durationMinutes = interview.durationInMinutes ?? DEFAULT_DURATION_MINUTES;
+  // Positive while we're still inside [scheduledAt, scheduledAt + duration].
+  const minutesUntilEnd = minutesUntilStart + durationMinutes;
+
+  // Reveal window for the Start/Join button: from 15 minutes before the
+  // scheduled time, up until the interview's scheduled end.
+  const withinStartWindow =
+    minutesUntilStart <= START_WINDOW_MINUTES && minutesUntilEnd > 0;
+
+  const isOverdue = minutesUntilEnd <= 0;
+
+  // Purely a UI decision — becomes true once we're inside the window, for
+  // an interview that's still SCHEDULED/RESCHEDULED. Nothing fires
+  // automatically because of this; it just reveals the button below.
+  const canStart =
+    scheduled &&
+    interview.mode === "ONLINE" &&
+    (interview.interviewStatus === InterviewStatus.SCHEDULED ||
+      interview.interviewStatus === InterviewStatus.RESCHEDULED) &&
+    !!interview.interviewId &&
+    withinStartWindow &&
+    !isOverdue;
+
+  const joinable =
+    scheduled &&
+    interview.mode === "ONLINE" &&
+    interview.interviewStatus === InterviewStatus.ONGOING &&
+    !!interview.interviewId;
+
+  // Reschedule / cancel are locked once we enter the start window — and
+  // stay locked for the life of that window / while it's live.
+  const modifiable =
+    canModifyInterview(interview) && !withinStartWindow && !isOverdue;
+
+  // Small human-readable hint shown next to the date/time explaining
+  // *why* things are in the state they're in.
+  let countdownLabel: string | null = null;
+  let countdownTone = "text-slate-400";
+  if (scheduled && interview.mode === "ONLINE") {
+    if (interview.interviewStatus === InterviewStatus.ONGOING) {
+      countdownLabel = "Live now";
+      countdownTone = "text-emerald-600";
+    } else if (canStart) {
+      countdownLabel = "Ready to start";
+      countdownTone = "text-indigo-600";
+    } else if (isOverdue) {
+      countdownLabel = "Window passed";
+      countdownTone = "text-slate-400";
+    } else if (minutesUntilStart > START_WINDOW_MINUTES) {
+      const mins = Math.round(minutesUntilStart - START_WINDOW_MINUTES);
+      countdownLabel =
+        mins >= 60
+          ? `Starts in ${Math.round(mins / 60)}h`
+          : `Starts in ${mins}m`;
+    }
+  }
 
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
@@ -58,18 +143,26 @@ export default function InterviewRow({
   const jobTitle = interview.jobTitle || interview.jobId;
 
   function handleRowClick() {
-    if (!scheduled) onOpenSchedule(interview);
+    if (!scheduled) {
+      onOpenSchedule(interview);
+    } else {
+      onOpenDetail(interview);
+    }
   }
 
   return (
     <tr
       onClick={handleRowClick}
-      className={`transition-colors ${
+      className={`transition-colors cursor-pointer ${
         pendingReschedule
           ? "bg-rose-50/40 hover:bg-rose-50/60"
-          : scheduled
-            ? "hover:bg-blue-50/20"
-            : "hover:bg-blue-50/40 cursor-pointer"
+          : joinable
+            ? "hover:bg-emerald-50/40"
+            : canStart
+              ? "hover:bg-indigo-50/30"
+              : scheduled
+                ? "hover:bg-blue-50/30"
+                : "hover:bg-blue-50/40"
       }`}
     >
       {/* Date & Time */}
@@ -85,11 +178,19 @@ export default function InterviewRow({
                 <Clock size={11} />
                 {time}
               </div>
-              {todayFlag && (
-                <span className="text-[10px] font-bold text-blue-600 mt-1 block">
-                  TODAY
-                </span>
-              )}
+              <div className="flex items-center gap-1.5 mt-1">
+                {todayFlag && (
+                  <span className="text-[10px] font-bold text-blue-600">TODAY</span>
+                )}
+                {countdownLabel && (
+                  <span
+                    className={`text-[10px] font-bold flex items-center gap-1 ${countdownTone}`}
+                  >
+                    {todayFlag && "· "}
+                    {countdownLabel}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -97,22 +198,14 @@ export default function InterviewRow({
         )}
       </td>
 
-      {/* Candidate */}
+      {/* Candidate — initials avatar only, no profile image */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2">
-          {interview.candidateProfileImage ? (
-            <img
-              src={interview.candidateProfileImage}
-              alt={name}
-              className="w-8 h-8 rounded-lg object-cover shadow-sm shrink-0"
-            />
-          ) : (
-            <div
-              className={`w-8 h-8 bg-linear-to-br ${linear} rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm shrink-0`}
-            >
-              {initials}
-            </div>
-          )}
+          <div
+            className={`w-8 h-8 bg-linear-to-br ${linear} rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm shrink-0`}
+          >
+            {initials}
+          </div>
           <div className="min-w-0">
             <div className="text-sm font-semibold text-slate-800">{name}</div>
             <div className="text-xs text-slate-400">
@@ -143,25 +236,22 @@ export default function InterviewRow({
 
       {/* Mode */}
       <td className="px-5 py-4">
-        <div className="flex items-center gap-1.5">
-          {interview.meetingLink ? (
-            <>
-              <Video size={14} className="text-emerald-600" />
-              <span className="text-xs font-medium text-emerald-700">
-                Online
-              </span>
-            </>
-          ) : interview.location ? (
-            <>
-              <MapPin size={14} className="text-blue-600" />
-              <span className="text-xs font-medium text-blue-700">
-                {interview.location}
-              </span>
-            </>
-          ) : (
-            <span className="text-xs text-slate-400">—</span>
-          )}
-        </div>
+        {interview.mode === "ONLINE" ? (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-semibold whitespace-nowrap">
+            <Video size={12} />
+            Online
+          </span>
+        ) : interview.mode === "OFFLINE" ? (
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold whitespace-nowrap max-w-[160px] truncate"
+            title={interview.location || "In Person"}
+          >
+            <MapPin size={12} className="shrink-0" />
+            <span className="truncate">{interview.location || "In Person"}</span>
+          </span>
+        ) : (
+          <span className="text-xs text-slate-400">—</span>
+        )}
       </td>
 
       {/* Status */}
@@ -179,10 +269,41 @@ export default function InterviewRow({
         )}
       </td>
 
-      {/* Actions */}
+      {/* Actions — only one primary action shows at a time */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2 relative">
-          {modifiable && (
+          {joinable && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onJoinInterview(interview);
+              }}
+              className="px-2.5 py-1 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold transition-colors whitespace-nowrap flex items-center gap-1.5 shadow-sm"
+              title="Join interview"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+              </span>
+              Join
+            </button>
+          )}
+
+          {!joinable && canStart && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onStartInterview(interview);
+              }}
+              className="px-2.5 py-1 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 text-xs font-semibold transition-colors whitespace-nowrap flex items-center gap-1.5 shadow-sm"
+              title="Start interview"
+            >
+              <PlayCircle size={12} />
+              Start Interview
+            </button>
+          )}
+
+          {!joinable && !canStart && modifiable && (
             <>
               <button
                 onClick={(e) => {
@@ -207,7 +328,7 @@ export default function InterviewRow({
             </>
           )}
 
-          {pendingReschedule && (
+          {!joinable && !canStart && pendingReschedule && (
             <>
               <button
                 onClick={(e) => {
@@ -245,7 +366,7 @@ export default function InterviewRow({
             </button>
           )}
 
-          {transitions.length > 0 && (
+          {!canStart && transitions.length > 0 && (
             <div className="relative" ref={menuRef}>
               <button
                 onClick={(e) => {

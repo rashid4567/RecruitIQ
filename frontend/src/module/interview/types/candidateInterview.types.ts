@@ -18,7 +18,6 @@ export interface CandidateInterviewItem {
   durationInMinutes: number;
   location?: string;
   roomId?: string;
-  meetingLink?: string;
   canJoin: boolean;
   createdAt?: string;
 }
@@ -46,7 +45,6 @@ export interface GetCandidateInterviewDetailsResponse {
   durationInMinutes: number;
   location?: string;
   roomId?: string;
-  meetingLink?: string;
   startedAt?: string;
   endedAt?: string;
   recruiterJoinedAt?: string;
@@ -63,6 +61,7 @@ export interface GetCandidateInterviewDetailsResponse {
 }
 
 export interface JoinInterviewResponse {
+  roomId: string;
   id: string;
   candidateJoinedAt: string;
   status: InterviewStatus;

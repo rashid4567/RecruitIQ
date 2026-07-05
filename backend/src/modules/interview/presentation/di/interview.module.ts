@@ -13,12 +13,10 @@ import { CandidateInterviewDetailsUseCase } from "../../application/usecase/cand
 import { JoinInterviewUseCase } from "../../application/usecase/candidate/JoinInterviewUseCase";
 import { RecruiterInterviewCancelUseCase } from "../../application/usecase/recruiter/CancelInterviewUseCase";
 import { EndInterviewUseCase } from "../../application/usecase/recruiter/End.InterviewUseCase";
-import { MarkRecruiterJoinedUseCase } from "../../application/usecase/recruiter/MarkRecruiterJoinedUseCase";
 import { RescheduleInterviewUseCase } from "../../application/usecase/recruiter/RescheduleInterviewUseCase";
 import { StartInterviewUseCase } from "../../application/usecase/recruiter/StartInterviewUseCase";
 import { CancelInterviewController } from "../controller/recruiter/cancel.interview.controller";
 import { EndInterviewController } from "../controller/recruiter/end.interview.controller";
-import { MarkRecruiterJoinedController } from "../controller/recruiter/mark.interview.controller";
 import { RescheduleInterviewController } from "../controller/recruiter/reschedule.interview.controller";
 import { StartInterviewController } from "../controller/recruiter/start.interview.controller";
 import { GetCandidateInterviewDetailsController } from "../controller/candidate/getCandidate.interview.details.controller";
@@ -41,13 +39,15 @@ import { MongooseJobRepository } from "../../../job/infrastructure/repositories/
 import { sendEmailByEventUC } from "../../../email/presentation/container/email-template.container";
 import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
 import { ValidateInterviewRoomAccessUseCase } from "../../application/usecase/common/ValidateInterviewRoomAccessUseCase";
+import { IdGenerator } from "../../application/ports/id-generator";
+import { CryptoIdGenerator } from "../../infrastructure/service/crypto-id-generator";
 
 const interviewRepo: InterviewRepository = new MongooseInterviewRepository();
 const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
 const userRepo: UserRepository = new MongooseUserRepository();
 const jobRepo: JobRepository = new MongooseJobRepository();
-
+const idgenerator : IdGenerator =new CryptoIdGenerator()
 const getCandidateInterviewUC = new GetCandidateInterviewUseCase(interviewRepo);
 const CandidateinterviewDetailUC = new CandidateInterviewDetailsUseCase(
   interviewRepo,
@@ -66,6 +66,7 @@ const scheduleInterviewUC = new ScheduleInterviewUseCase(
   jobRepo,
   sendEmailByEventUC,
   createNotificationUC,
+  idgenerator,
 );
 const getRecruiterInterviewUC = new GetRecruiterInterviewsUseCase(
   interviewRepo,
@@ -90,13 +91,13 @@ const rejectRescheduleRequestUC = new RejectRescheduleRequestUseCase(
 );
 const startinterviewUC = new StartInterviewUseCase(interviewRepo);
 const endInterviewUC = new EndInterviewUseCase(interviewRepo, applicationRepo);
-const markRecruiterJoinedUC = new MarkRecruiterJoinedUseCase(interviewRepo);
 const rescheduleInterviewUC = new RescheduleInterviewUseCase(
   interviewRepo,
   userRepo,
   jobRepo,
   sendEmailByEventUC,
   createNotificationUC,
+  idgenerator,
 );
 
 export const getcandidateInterviewsController =
@@ -132,9 +133,6 @@ export const cancelinterviewcontroller = new CancelInterviewController(
 );
 export const endInterviewcontroller = new EndInterviewController(
   endInterviewUC,
-);
-export const markRecruiterjoinedController = new MarkRecruiterJoinedController(
-  markRecruiterJoinedUC,
 );
 export const rescheduleInterviewController = new RescheduleInterviewController(
   rescheduleInterviewUC,

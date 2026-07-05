@@ -37,7 +37,15 @@ const CandidateScorecardPage = lazy(
   () =>
     import("../module/job-application/pages/recruiter/Application.detail.view"),
 );
-const InterviewDashboard = lazy(()=> import("../module/interview/pages/interview-mangment"))
+const PreMeetingLobby = lazy(
+  () => import("../module/interview/pages/pre-meating.waiting.loby"),
+);
+const LiveMeetingPage = lazy(
+  () => import("../module/interview/pages/live.meeting"),
+);
+const InterviewDashboard = lazy(
+  () => import("../module/interview/pages/interview-mangment"),
+);
 const RecruiterRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -73,7 +81,12 @@ const RecruiterRoutes = () => {
               path="application-detail/:applicationId"
               element={<CandidateScorecardPage />}
             />
-            <Route path="interviews" element={<InterviewDashboard/>}/>
+            <Route path="interviews" element={<InterviewDashboard />} />
+            <Route
+              path="interviews/:interviewId/lobby"
+              element={<PreMeetingLobby />}
+            />
+            <Route path="interviews/:interviewId/room" element={<LiveMeetingPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

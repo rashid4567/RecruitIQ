@@ -11,7 +11,6 @@ export const ScheduleInterviewSchema = z
       .min(1, "Application ID is required")
       .regex(objectIdRegex, "Invalid application ID"),
 
-
     title: z
       .string()
       .trim()
@@ -40,12 +39,6 @@ export const ScheduleInterviewSchema = z
       .max(500, "Location cannot exceed 500 characters")
       .optional(),
 
-    meetingLink: z
-      .string()
-      .trim()
-      .url("Invalid meeting link")
-      .optional(),
-
     roomId: z
       .string()
       .trim()
@@ -60,17 +53,6 @@ export const ScheduleInterviewSchema = z
         code: z.ZodIssueCode.custom,
         path: ["scheduledAt"],
         message: "Interview must be scheduled at least 5 minutes in the future",
-      });
-    }
-
-    if (
-      data.mode === InterviewMode.ONLINE &&
-      (!data.meetingLink || data.meetingLink.trim() === "")
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["meetingLink"],
-        message: "Meeting link is required for online interviews",
       });
     }
 

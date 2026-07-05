@@ -6,7 +6,6 @@ import {
   getRecruiterInterviewDetailsController,
   cancelinterviewcontroller,
   endInterviewcontroller,
-  markRecruiterjoinedController,
   rescheduleInterviewController,
   startInterviewController,
   acceptReschduleInterviewController,
@@ -34,7 +33,6 @@ router.patch(
 router.patch(INTERVIEW_ROUTES.CANCEL, cancelinterviewcontroller.cancel);
 router.patch(INTERVIEW_ROUTES.START, startInterviewController.start);
 router.patch(INTERVIEW_ROUTES.END, endInterviewcontroller.end);
-router.patch(INTERVIEW_ROUTES.JOIN, markRecruiterjoinedController.join);
 router.patch(
   INTERVIEW_ROUTES.ACCEPT_RESCHEDULE,
   acceptReschduleInterviewController.acceptRequest,

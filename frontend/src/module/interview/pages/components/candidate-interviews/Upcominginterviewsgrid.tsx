@@ -10,8 +10,8 @@ import {
   Hourglass,
   Loader2,
 } from "lucide-react";
-import type { GetCandidateInterviewsResponse } from "@/module/interview/types/candidateInterview.types"; 
-import { InterviewMode } from "@/module/interview/types/interview.types"; 
+import type { GetCandidateInterviewsResponse } from "@/module/interview/types/candidateInterview.types";
+import { InterviewMode } from "@/module/interview/types/interview.types";
 import { getStatusConfig, getResponseConfig } from "./Constants";
 import {
   formatDateLabel,
@@ -85,7 +85,9 @@ export default function UpcomingInterviewsGrid({
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${statusCfg.pill}`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`}
+                  />
                   {statusCfg.label}
                 </span>
               </div>
@@ -95,7 +97,9 @@ export default function UpcomingInterviewsGrid({
                   <span
                     className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${responseCfg.pill}`}
                   >
-                    <span className={`w-1 h-1 rounded-full ${responseCfg.dot}`} />
+                    <span
+                      className={`w-1 h-1 rounded-full ${responseCfg.dot}`}
+                    />
                     {responseCfg.label}
                   </span>
                 )}
@@ -108,7 +112,8 @@ export default function UpcomingInterviewsGrid({
 
               <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
                 <span className="flex items-center gap-1">
-                  <Calendar size={12} /> {formatDateLabel(interview.scheduledAt!)}
+                  <Calendar size={12} />{" "}
+                  {formatDateLabel(interview.scheduledAt!)}
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock size={12} /> {formatTime(interview.scheduledAt!)}
@@ -135,7 +140,7 @@ export default function UpcomingInterviewsGrid({
                     <CheckCircle2 size={12} />
                     Respond
                   </button>
-                ) : mode === InterviewMode.ONLINE && interview.meetingLink ? (
+                ) : mode === InterviewMode.ONLINE ? (
                   <button
                     onClick={(e) => onJoin(e, interview)}
                     disabled={!joinable || joiningId === interview.id}
@@ -147,7 +152,7 @@ export default function UpcomingInterviewsGrid({
                     title={
                       joinable
                         ? "Join the interview"
-                        : "Join link opens 15 minutes before start"
+                        : "Interview can be joined 15 minutes before the scheduled time"
                     }
                   >
                     {joiningId === interview.id ? (

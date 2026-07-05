@@ -49,7 +49,6 @@ export class GetRecruiterInterviewDetailsUseCase implements IUseCase<
       scheduledAt: result.scheduledAt,
       durationInMinutes: result.durationInMinutes,
       location: result.location,
-      meetingLink: result.meetingLink,
       startedAt: result.startedAt,
       endedAt: result.endedAt,
       recruiterJoinedAt: result.recruiterJoinedAt,

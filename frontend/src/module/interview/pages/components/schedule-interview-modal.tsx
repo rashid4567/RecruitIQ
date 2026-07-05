@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   X,
-  Copy,
   Mail,
   Video,
   MapPin,
@@ -75,9 +74,7 @@ export interface ScheduleInterviewModalProps {
 }
 
 function inferMode(interview: RecruiterInterviewItem): InterviewMode {
-  if (interview.meetingLink) return "ONLINE";
-  if (interview.location) return "OFFLINE";
-  return "ONLINE";
+  return interview.location ? "OFFLINE" : "ONLINE";
 }
 
 function toExistingInterviewData(
@@ -95,7 +92,6 @@ function toExistingInterviewData(
     durationInMinutes: interview.durationInMinutes ?? 60,
     location: interview.location,
     roomId: interview.roomId,
-    meetingLink: interview.meetingLink,
   };
 }
 
@@ -110,7 +106,6 @@ function toExistingInterviewDataFromDetails(
     durationInMinutes: details.durationInMinutes,
     location: details.location,
     roomId: details.roomId,
-    meetingLink: details.meetingLink,
   };
 }
 
@@ -129,7 +124,6 @@ function buildInitialScheduleForm(
     durationInMinutes: 60,
     location: "",
     roomId: "",
-    meetingLinkOption: "later",
     meetingLink: "",
     sendEmail: true,
   };
@@ -198,7 +192,6 @@ export default function ScheduleInterviewModal({
     () => buildInitialRescheduleForm(FALLBACK_EXISTING),
   );
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
-  const [copied, setCopied] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [fetchedDetails, setFetchedDetails] =
     useState<GetRecruiterInterviewDetailsResponse | null>(null);
@@ -245,14 +238,14 @@ export default function ScheduleInterviewModal({
     };
   }, [isOpen, isReschedule, interview?.interviewId]);
 
-useEffect(() => {
-  if (isReschedule || !jobTitle) return;
+  useEffect(() => {
+    if (isReschedule || !jobTitle) return;
 
-  setScheduleForm((prev) => ({
-    ...prev,
-    title: jobTitle,
-  }));
-}, [jobTitle, isReschedule]);
+    setScheduleForm((prev) => ({
+      ...prev,
+      title: jobTitle,
+    }));
+  }, [jobTitle, isReschedule]);
 
   const handleClose = () => onClose();
 
@@ -381,16 +374,6 @@ useEffect(() => {
     }
   }
 
-  function handleCopyLink() {
-    const link = isReschedule
-      ? rescheduleForm.meetingLink
-      : scheduleForm.meetingLink;
-    if (!link) return;
-    navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
   const activeMode: InterviewMode = isReschedule
     ? rescheduleForm.mode
     : scheduleForm.mode;
@@ -402,12 +385,6 @@ useEffect(() => {
   const activeDuration = isReschedule
     ? rescheduleForm.durationInMinutes
     : scheduleForm.durationInMinutes;
-  const activeMeetingLink = isReschedule
-    ? rescheduleForm.meetingLink
-    : scheduleForm.meetingLink;
-  const activeMeetingLinkOption = isReschedule
-    ? rescheduleForm.meetingLinkOption
-    : scheduleForm.meetingLinkOption;
   const activeLocation = isReschedule
     ? rescheduleForm.location
     : scheduleForm.location;
@@ -433,11 +410,11 @@ useEffect(() => {
   const hasErrors = Object.values(errors).some(Boolean);
   const todayStr = new Date().toISOString().split("T")[0];
 
-const displayTitle = isReschedule
-  ? (existingInterview?.title ?? "—")
-  : scheduleForm.title;
+  const displayTitle = isReschedule
+    ? (existingInterview?.title ?? "—")
+    : scheduleForm.title;
 
-const displayRound = existingInterview?.round ?? "—";
+  const displayRound = existingInterview?.round ?? "—";
   if (!isOpen) return null;
 
   return (
@@ -550,7 +527,6 @@ const displayRound = existingInterview?.round ?? "—";
                   <StatusBadge status={applicationStatus as string} />
                 )}
               </div>
-
             </StepPanel>
           )}
           {!isReschedule && step === 1 && (
@@ -636,18 +612,6 @@ const displayRound = existingInterview?.round ?? "—";
                   })}
                 </div>
               </div>
-
-              {scheduleForm.mode === "ONLINE" && (
-                <MeetingLinkPicker
-                  value={scheduleForm.meetingLinkOption}
-                  meetingLink={scheduleForm.meetingLink ?? ""}
-                  error={errors.meetingLink}
-                  onOptionChange={(v) =>
-                    setScheduleField("meetingLinkOption", v)
-                  }
-                  onLinkChange={(v) => setScheduleField("meetingLink", v)}
-                />
-              )}
 
               {scheduleForm.mode === "OFFLINE" && (
                 <div className="mt-4 grid grid-cols-2 gap-4">
@@ -768,22 +732,24 @@ const displayRound = existingInterview?.round ?? "—";
                     <span className="text-slate-400 font-semibold text-sm select-none">
                       :
                     </span>
-                    <Select
-                      name="minute"
-                      value={activeMinute}
-                      onChange={
-                        isReschedule
-                          ? handleRescheduleInput
-                          : handleScheduleInput
-                      }
-                      className="flex-1"
-                    >
-                      {["00", "15", "30", "45"].map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </Select>
+                   <Select
+  name="minute"
+  value={activeMinute}
+  onChange={
+    isReschedule
+      ? handleRescheduleInput
+      : handleScheduleInput
+  }
+  className="flex-1"
+>
+  {Array.from({ length: 12 }, (_, index) =>
+    String(index * 5).padStart(2, "0"),
+  ).map((minute) => (
+    <option key={minute} value={minute}>
+      {minute}
+    </option>
+  ))}
+</Select>
                   </div>
                 </Field>
               </div>
@@ -952,33 +918,6 @@ const displayRound = existingInterview?.round ?? "—";
                   </div>
                 ))}
               </div>
-
-              {activeMode === "ONLINE" &&
-                activeMeetingLinkOption === "paste" &&
-                activeMeetingLink && (
-                  <div className="mt-4 bg-slate-50 rounded-xl border border-slate-200 p-4">
-                    <p className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">
-                      Meeting link
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-slate-600 truncate flex-1">
-                        {activeMeetingLink}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={handleCopyLink}
-                        className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          copied
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-                        }`}
-                      >
-                        <Copy size={11} />
-                        {copied ? "Copied!" : "Copy"}
-                      </button>
-                    </div>
-                  </div>
-                )}
 
               {!isReschedule && (
                 <div className="mt-4 flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">

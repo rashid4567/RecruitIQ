@@ -20,7 +20,6 @@ export interface CandidateInterviewDTO {
   rescheduleRequested: boolean;
   scheduledAt: Date;
   durationInMinutes: number;
-  meetingLink?: string;
   location?: string;
   canJoin: boolean;
   createdAt?: Date;
@@ -54,7 +53,6 @@ export interface CandidateInterviewDetailsResponseDTO {
   rescheduleRequestedAt?: Date;
   scheduledAt: Date;
   durationInMinutes: number;
-  meetingLink?: string;
   location?: string;
   recruiterJoinedAt?: Date;
   candidateJoinedAt?: Date;

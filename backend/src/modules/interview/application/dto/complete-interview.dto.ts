@@ -25,7 +25,6 @@ export interface EndInterviewResponseDTO {
   startedAt?: Date;
   endedAt?: Date;
   durationInMinutes: number;
-  meetingLink?: string;
   location?: string;
   notes?: string;
   reminderSent: boolean;

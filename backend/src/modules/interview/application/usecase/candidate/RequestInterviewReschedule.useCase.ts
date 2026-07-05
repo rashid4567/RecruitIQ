@@ -7,16 +7,11 @@ import {
   RequestInterviewRescheduleResponseDTO,
 } from "../../dto/request-reschedule.dto";
 
-export class RequestInterviewRescheduleUseCase
-  implements
-    IUseCase<
-      RequestInterviewRescheduleRequestDTO,
-      RequestInterviewRescheduleResponseDTO
-    >
-{
-  constructor(
-    private readonly interviewRepo: InterviewRepository,
-  ) {}
+export class RequestInterviewRescheduleUseCase implements IUseCase<
+  RequestInterviewRescheduleRequestDTO,
+  RequestInterviewRescheduleResponseDTO
+> {
+  constructor(private readonly interviewRepo: InterviewRepository) {}
 
   async execute(
     input: RequestInterviewRescheduleRequestDTO,

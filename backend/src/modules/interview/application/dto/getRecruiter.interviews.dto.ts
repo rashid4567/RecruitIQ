@@ -30,5 +30,4 @@ rescheduleRequested: boolean;
   scheduledAt?: Date;
   durationInMinutes?: number;
   location?: string;
-  meetingLink?: string;
 }

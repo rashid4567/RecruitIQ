@@ -8,7 +8,6 @@ export interface JoinInterviewRequestDTO {
 export interface JoinInterviewResponseDTO {
   id: string;
   roomId?: string;
-  meetingLink?: string;
   status: InterviewStatus;
   candidateJoinedAt?: Date;
   updatedAt?: Date;

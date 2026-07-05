@@ -9,7 +9,6 @@ export interface RescheduleInterviewRequestDTO {
   roomId ?: string;
   scheduledAt: Date;
   durationInMinutes: number;
-  meetingLink?: string;
   location?: string;
 }
 
@@ -28,7 +27,6 @@ export interface RescheduleInterviewResponseDTO {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
-  meetingLink?: string;
   reminderSent: boolean;
   createdAt?: Date;
   updatedAt?: Date;

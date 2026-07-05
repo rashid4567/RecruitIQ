@@ -7,7 +7,6 @@ import type {
   EndInterviewResponse,
   GetRecruiterInterviewDetailsResponse,
   GetRecruiterInterviewsResponse,
-  MarkRecruiterJoinedResponse,
   RejectRescheduleResponse,
   RescheduleInterviewRequest,
   RescheduleInterviewResponse,
@@ -79,15 +78,6 @@ export const startInterview = async (
   return response.data.data;
 };
 
-export const markRecruiterJoined = async (
-  interviewId: string,
-): Promise<MarkRecruiterJoinedResponse> => {
-  const response = await api.patch(
-    RECRUITER_INTERVIEW_ROUTES.JOIN(interviewId),
-  );
-
-  return response.data.data;
-};
 
 export const endInterview = async (
   interviewId: string,

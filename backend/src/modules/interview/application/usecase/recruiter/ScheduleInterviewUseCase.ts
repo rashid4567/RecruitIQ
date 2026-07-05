@@ -8,12 +8,16 @@ import { JobApplicationRepository } from "../../../../job-application/domain/rep
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/infrastructure/mongoose/notification.model";
-import { Interview } from "../../../domain/entity/interview.entity";
+import {
+  Interview,
+  InterviewMode,
+} from "../../../domain/entity/interview.entity";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
   ScheduleInterviewRequestDTO,
   ScheduleInterviewResponseDTO,
 } from "../../dto/schedule.interview.dto";
+import { IdGenerator } from "../../ports/id-generator";
 
 export class ScheduleInterviewUseCase implements IUseCase<
   ScheduleInterviewRequestDTO,
@@ -26,6 +30,7 @@ export class ScheduleInterviewUseCase implements IUseCase<
     private readonly jobRepo: JobRepository,
     private readonly sendEmailByEventUC: SendEmailByEventUseCase,
     private readonly createNotificationUC: CreateNotificationUseCase,
+    private readonly idGenerator: IdGenerator,
   ) {}
 
   async execute(
@@ -44,6 +49,11 @@ export class ScheduleInterviewUseCase implements IUseCase<
         ERROR_CODES.APPLICATION_CANNOT_SCHEDULE_INTERVIEW,
       );
     }
+
+    const roomId =
+      request.mode === InterviewMode.ONLINE
+        ? this.idGenerator.generate()
+        : undefined;
     const round = await this.interviewRepo.getNextRound(request.applicationId);
 
     const interview = Interview.create({
@@ -51,7 +61,7 @@ export class ScheduleInterviewUseCase implements IUseCase<
       jobId: application.jobId,
       candidateId: application.candidateId,
       recruiterId: application.recruiterId,
-      roomId: request.roomId,
+      roomId,
       round,
       title: request.title,
       description: request.description,
@@ -59,7 +69,6 @@ export class ScheduleInterviewUseCase implements IUseCase<
       scheduledAt: request.scheduledAt,
       durationInMinutes: request.durationInMinutes,
       location: request.location,
-      meetingLink: request.meetingLink,
     });
 
     const savedInterview = await this.interviewRepo.create(interview);
@@ -87,7 +96,6 @@ export class ScheduleInterviewUseCase implements IUseCase<
       scheduledAt: result.scheduledAt,
       durationInMinutes: result.durationInMinutes,
       location: result.location,
-      meetingLink: result.meetingLink,
       reminderSent: result.reminderSent,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
@@ -119,7 +127,6 @@ export class ScheduleInterviewUseCase implements IUseCase<
           interviewMode: interview.mode,
           interviewDate: interview.scheduledAt.toLocaleString(),
           interviewDuration: `${interview.durationInMinutes} minutes`,
-          meetingLink: interview.meetingLink ?? "",
           interviewLocation: interview.location ?? "N/A",
           interviewDescription: interview.description ?? "",
         },
@@ -143,7 +150,6 @@ export class ScheduleInterviewUseCase implements IUseCase<
           mode: interview.mode,
           scheduledAt: interview.scheduledAt,
           durationInMinutes: interview.durationInMinutes,
-          meetingLink: interview.meetingLink,
           location: interview.location,
         },
       });

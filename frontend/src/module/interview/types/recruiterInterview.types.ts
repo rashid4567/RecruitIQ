@@ -1,5 +1,9 @@
 import type { ApplicationStatus } from "@/module/job-application/types/jobApplication.types";
-import type { CandidateResponseStatus, InterviewMode, InterviewStatus } from "./interview.types";
+import type {
+  CandidateResponseStatus,
+  InterviewMode,
+  InterviewStatus,
+} from "./interview.types";
 
 export interface ScheduleInterviewRequest {
   applicationId: string;
@@ -11,7 +15,6 @@ export interface ScheduleInterviewRequest {
   durationInMinutes: number;
   location?: string;
   roomId?: string;
-  meetingLink?: string;
 }
 
 export interface ScheduleInterviewResponse {
@@ -29,7 +32,6 @@ export interface ScheduleInterviewResponse {
   durationInMinutes: number;
   location?: string;
   roomId?: string;
-  meetingLink?: string;
   reminderSent: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -49,13 +51,13 @@ export interface RecruiterInterviewItem {
   interviewStatus?: InterviewStatus;
   candidateResponseStatus: CandidateResponseStatus;
   rescheduleRequested: boolean;
+  mode: InterviewMode;
   title?: string;
   round?: number;
   scheduledAt?: string;
   durationInMinutes?: number;
   location?: string;
   roomId?: string;
-  meetingLink?: string;
 }
 export type GetRecruiterInterviewsResponse = RecruiterInterviewItem;
 export interface GetRecruiterInterviewDetailsResponse {
@@ -80,7 +82,6 @@ export interface GetRecruiterInterviewDetailsResponse {
   durationInMinutes: number;
   location?: string;
   roomId?: string;
-  meetingLink?: string;
   startedAt?: string;
   endedAt?: string;
   recruiterJoinedAt?: string;
@@ -98,7 +99,6 @@ export interface RescheduleInterviewRequest {
   durationInMinutes: number;
   location?: string;
   roomId?: string;
-  meetingLink?: string;
 }
 
 export interface RescheduleInterviewResponse {
@@ -116,7 +116,6 @@ export interface RescheduleInterviewResponse {
   durationInMinutes: number;
   location?: string;
   roomId?: string;
-  meetingLink?: string;
   reminderSent: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -135,6 +134,7 @@ export interface CancelInterviewResponse {
 }
 
 export interface StartInterviewResponse {
+  roomId: string;
   id: string;
   status: InterviewStatus;
   startedAt: string;
@@ -143,6 +143,7 @@ export interface StartInterviewResponse {
 
 export interface MarkRecruiterJoinedResponse {
   id: string;
+  roomId: string;
   recruiterJoinedAt: string;
   status: InterviewStatus;
   updatedAt?: string;
@@ -165,7 +166,6 @@ export interface EndInterviewResponse {
   durationInMinutes: number;
   location?: string;
   roomId?: string;
-  meetingLink?: string;
   notes?: string;
   reminderSent: boolean;
   createdAt?: string;

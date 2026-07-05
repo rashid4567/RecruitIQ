@@ -34,7 +34,6 @@ export interface InterviewDocument extends Document {
   scheduledAt: Date;
   durationInMinutes: number;
   location?: string;
-  meetingLink?: string;
   startedAt?: Date;
   endedAt?: Date;
   recruiterJoinedAt?: Date;
@@ -121,10 +120,6 @@ const InterviewSchema = new Schema<InterviewDocument>(
       trim: true,
     },
     roomId: {
-      type: String,
-      trim: true,
-    },
-    meetingLink: {
       type: String,
       trim: true,
     },

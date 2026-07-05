@@ -81,7 +81,6 @@ export class RejectRescheduleRequestUseCase implements IUseCase<
           interviewDate,
           interviewTime,
           interviewDuration: `${interview.durationInMinutes} minutes`,
-          meetingLink: interview.meetingLink ?? "",
           interviewLocation: interview.location ?? "N/A",
         },
       });
@@ -99,7 +98,6 @@ export class RejectRescheduleRequestUseCase implements IUseCase<
           applicationId: interview.applicationId,
           jobId: interview.jobId,
           scheduledAt: interview.scheduledAt,
-          meetingLink: interview.meetingLink,
           location: interview.location,
         },
       });

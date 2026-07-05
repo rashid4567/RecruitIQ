@@ -13,6 +13,7 @@ import {
   X,
   SlidersHorizontal,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import ScheduleInterviewModal from "./components/schedule-interview-modal";
 import CancelInterviewModal from "./components/cancel-interview-modal";
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
@@ -20,6 +21,7 @@ import { useRecruiterInterviews } from "../hooks/recruiter/useRecruiterInterview
 import { useCancelInterview } from "../hooks/recruiter/useCancelInterview";
 import { useApproveRescheduleRequest } from "../hooks/recruiter/useApproveRescheduleRequest";
 import { useRejectRescheduleRequest } from "../hooks/recruiter/useRejectRescheduleRequest";
+import { useStartInterview } from "../hooks/recruiter/useStartInterview";
 import type { RecruiterInterviewItem } from "../types/recruiterInterview.types";
 import { InterviewStatus } from "../types/interview.types";
 
@@ -28,6 +30,7 @@ import TabButton from "./components/interview.mangment/Tabbutton";
 import PageBtn from "./components/interview.mangment/Pagebtn";
 import InterviewRow from "./components/interview.mangment/Interviewrow";
 import RescheduleDecisionModal from "./components/interview.mangment/Rescheduledecisionmodal";
+import RecruiterInterviewDetailModal from "./components/interview.mangment/RecruiterInterviewDetailModal";
 
 import type {
   Tab,
@@ -60,7 +63,6 @@ export default function InterviewDashboard() {
   const [rescheduleClearedIds, setRescheduleClearedIds] = useState<
     Record<string, boolean>
   >({});
-
   const [scheduleModal, setScheduleModal] = useState<ScheduleModalState>({
     open: false,
   });
@@ -72,6 +74,8 @@ export default function InterviewDashboard() {
       open: false,
       decision: "approve",
     });
+  const [detailModalInterview, setDetailModalInterview] =
+    useState<RecruiterInterviewItem | null>(null);
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -86,6 +90,7 @@ export default function InterviewDashboard() {
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const filterPanelRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const { interviews, loading, error, refetch } = useRecruiterInterviews();
   const {
@@ -103,6 +108,41 @@ export default function InterviewDashboard() {
     loading: rejectLoading,
     error: rejectError,
   } = useRejectRescheduleRequest();
+  const {
+    submit: submitStart,
+    loading: startLoading,
+    error: startError,
+  } = useStartInterview();
+
+  function handleJoinInterview(interview: RecruiterInterviewItem) {
+    if (!interview.interviewId) return;
+    navigate(`/recruiter/interviews/${interview.interviewId}/lobby`, {
+      state: { roomId: interview.roomId },
+    });
+  }
+
+  async function handleStartInterview(interview: RecruiterInterviewItem) {
+    if (!interview.interviewId) return;
+
+    const result = await submitStart(interview.interviewId);
+    if (!result) return;
+
+    setStatusOverrides((prev) => ({
+      ...prev,
+      [interview.interviewId!]: result.status,
+    }));
+    setDetailModalInterview(null);
+    refetch();
+    handleJoinInterview({ ...interview, interviewStatus: result.status });
+  }
+
+  function openDetailModal(interview: RecruiterInterviewItem) {
+    setDetailModalInterview(interview);
+  }
+
+  function closeDetailModal() {
+    setDetailModalInterview(null);
+  }
 
   const enriched = useMemo(
     () =>
@@ -184,6 +224,7 @@ export default function InterviewDashboard() {
   }
 
   function openScheduleForApplication(interview: RecruiterInterviewItem) {
+    setDetailModalInterview(null);
     setScheduleModal({
       open: true,
       applicationId: interview.applicationId,
@@ -192,6 +233,7 @@ export default function InterviewDashboard() {
   }
 
   function openReschedule(interview: RecruiterInterviewItem) {
+    setDetailModalInterview(null);
     setScheduleModal({
       open: true,
       applicationId: interview.applicationId,
@@ -204,6 +246,7 @@ export default function InterviewDashboard() {
   }
 
   function openCancel(interview: RecruiterInterviewItem) {
+    setDetailModalInterview(null);
     setCancelModal({ open: true, interview });
   }
 
@@ -228,10 +271,12 @@ export default function InterviewDashboard() {
   }
 
   function openApproveReschedule(interview: RecruiterInterviewItem) {
+    setDetailModalInterview(null);
     setRescheduleDecisionModal({ open: true, decision: "approve", interview });
   }
 
   function openRejectReschedule(interview: RecruiterInterviewItem) {
+    setDetailModalInterview(null);
     setRescheduleDecisionModal({ open: true, decision: "reject", interview });
   }
 
@@ -622,6 +667,9 @@ export default function InterviewDashboard() {
                           onOpenCancel={openCancel}
                           onApproveReschedule={openApproveReschedule}
                           onRejectReschedule={openRejectReschedule}
+                          onJoinInterview={handleJoinInterview}
+                          onStartInterview={handleStartInterview}
+                          onOpenDetail={openDetailModal}
                         />
                       ))}
                     </tbody>
@@ -707,6 +755,19 @@ export default function InterviewDashboard() {
         error={rescheduleActionError}
         onClose={closeRescheduleDecisionModal}
         onConfirm={handleConfirmRescheduleDecision}
+      />
+
+      <RecruiterInterviewDetailModal
+        interview={detailModalInterview}
+        onClose={closeDetailModal}
+        onReschedule={openReschedule}
+        onCancel={openCancel}
+        onApproveReschedule={openApproveReschedule}
+        onRejectReschedule={openRejectReschedule}
+        onStartInterview={handleStartInterview}
+        onJoinInterview={handleJoinInterview}
+        startLoading={startLoading}
+        startError={startError}
       />
     </div>
   );

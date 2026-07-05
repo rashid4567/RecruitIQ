@@ -33,13 +33,12 @@ export class ScheduleInterviewController {
         );
       }
       console.log("req :", req.body);
-     const parsedBody = ScheduleInterviewSchema.parse(req.body);
-     console.log("After parse :", parsedBody);
+      const parsedBody = ScheduleInterviewSchema.parse(req.body);
+      console.log("After parse :", parsedBody);
       const input: ScheduleInterviewRequestDTO = {
         ...parsedBody,
         recruiterId,
       };
-
 
       const result = await this._scheduleInterviewUC.execute(input);
       return ApiResponse.success(

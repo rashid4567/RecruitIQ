@@ -26,6 +26,12 @@ export class JoinInterviewUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.INTERVIEW_ACCESS_DENIED);
     }
 
+    if (!interview.hasRoom()) {
+  throw new ApplicationError(
+    ERROR_CODES.INTERVIEW_ROOM_NOT_FOUND,
+  );
+}
+
     if (!interview.canJoin()) {
       throw new ApplicationError(ERROR_CODES.INTERVIEW_CANNOT_JOINED);
     }
@@ -39,7 +45,6 @@ export class JoinInterviewUseCase implements IUseCase<
     return {
       id: result.id!,
       roomId: result.roomId,
-      meetingLink: result.meetingLink,
       status: result.status,
       candidateJoinedAt: result.candidateJoinedAt,
       updatedAt: result.updatedAt,

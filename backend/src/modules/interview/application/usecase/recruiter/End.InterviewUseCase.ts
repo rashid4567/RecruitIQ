@@ -59,7 +59,6 @@ export class EndInterviewUseCase implements IUseCase<
       startedAt: result.startedAt,
       endedAt: result.endedAt,
       durationInMinutes: result.durationInMinutes,
-      meetingLink: result.meetingLink,
       location: result.location,
       notes: result.notes,
       reminderSent: result.reminderSent,

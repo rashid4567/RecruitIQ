@@ -94,8 +94,6 @@ export default function MyInterviews() {
     navigate(`/candidate/interview/${interview.id}`);
   };
 
-  // ── reschedule / accept / decline actions ──────────────────────────────
-
   function openDecision(
     e: React.MouseEvent,
     interview: GetCandidateInterviewsResponse,
@@ -258,13 +256,20 @@ export default function MyInterviews() {
     interview: GetCandidateInterviewsResponse,
   ) {
     e.stopPropagation();
+
     if (!interview.id) return;
+
     setJoinError(null);
     setJoiningId(interview.id);
-    const result = await submitJoin(interview.id);
-    setJoiningId(null);
-    if (result && interview.meetingLink) {
-      window.open(interview.meetingLink, "_blank", "noopener,noreferrer");
+
+    try {
+      const result = await submitJoin(interview.id);
+
+      if (!result) return;
+
+      navigate(`/candidate/interviews/${interview.id}/lobby`);
+    } finally {
+      setJoiningId(null);
     }
   }
 
@@ -303,12 +308,26 @@ export default function MyInterviews() {
           {(!loading || interviews.length > 0) && !error && (
             <>
               {joinError && (
-                <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start gap-2.5">
+                <div
+                  role="alert"
+                  className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start gap-2.5"
+                >
                   <AlertCircle
                     size={14}
                     className="text-red-500 shrink-0 mt-0.5"
                   />
-                  <p className="text-xs text-red-600">{joinError}</p>
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold text-red-700">
+                      Couldn't join the interview
+                    </p>
+                    <p className="text-xs text-red-600 mt-0.5">{joinError}</p>
+                  </div>
+                  <button
+                    onClick={() => setJoinError(null)}
+                    className="text-[11px] font-semibold text-red-500 hover:text-red-700 shrink-0"
+                  >
+                    Dismiss
+                  </button>
                 </div>
               )}
 

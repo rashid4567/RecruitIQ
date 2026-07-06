@@ -46,6 +46,13 @@ const LiveMeetingPage = lazy(
 const InterviewDashboard = lazy(
   () => import("../module/interview/pages/interview-mangment"),
 );
+const ScreeningComplete = lazy(
+  () => import("../module/interview/pages/screening-completed"),
+);
+const RecruiterInterviewDecision = lazy(
+  () => import("../module/interview/pages/recruiter.decision"),
+);
+
 const RecruiterRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -86,7 +93,18 @@ const RecruiterRoutes = () => {
               path="interviews/:interviewId/lobby"
               element={<PreMeetingLobby />}
             />
-            <Route path="interviews/:interviewId/room" element={<LiveMeetingPage />} />
+            <Route
+              path="interviews/:interviewId/room"
+              element={<LiveMeetingPage />}
+            />
+            <Route
+              path="interviews/:interviewId/screening-complete"
+              element={<ScreeningComplete />}
+            />
+            <Route
+              path="interviews/:interviewId/decision"
+              element={<RecruiterInterviewDecision />}
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

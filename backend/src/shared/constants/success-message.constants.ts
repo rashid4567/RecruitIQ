@@ -103,4 +103,5 @@ export const SUCCESS_MESSAGES = {
   ACCESS_TOKEN_REFRESHED_SUCCESSFULLY : "Access token refreshed successfully",
   JOB_DETAILS_LOADED_SUCCESSFULLY : "Job details loaded successfully",
   PLAN_ACTIVATED_SUCCESSFULLY : "Plan activated successfully",
+  INTERVIEW_NOTES_UPDATED : "INTERVIEW_NOTES_UPDATED",
 } as const;

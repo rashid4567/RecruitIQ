@@ -3,26 +3,21 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   Calendar,
   CalendarPlus,
-  Clock,
   ChevronLeft,
   ChevronRight,
   AlertCircle,
   Loader2,
-  Video,
   MapPin,
-  Building2,
   ExternalLink,
   ArrowUpRight,
   FileText,
   Hash,
   StickyNote,
-  XCircle,
   CheckCircle2,
-  UserCheck,
   BellRing,
-  Hourglass,
   RefreshCw,
-  MessageSquare,
+  Clock,
+  Video,
 } from "lucide-react";
 import { useCandidateInterviewDetails } from "../hooks/candidate/useCandidateInterviewDetails";
 import { useJoinInterview } from "../hooks/candidate/useJoinInterview";
@@ -37,26 +32,21 @@ import Header from "@/pages/landing/sections/Header";
 import InterviewDecisionModal from "./components/interview-decision-modal";
 import RequestRescheduleModal from "./components/request-reschedule-modal";
 
-import PulseDot from "./components/candidate.interview.details/Pulsedot";
-import DetailRow from "./components/candidate.interview.details/Detailrow";
 import StatTile from "./components/candidate.interview.details/Stattile";
 import ActivityTimeline from "./components/candidate.interview.details/Activitytimeline";
 import DetailsSkeleton from "./components/candidate.interview.details/Detailsskeleton";
+import InterviewHero from "./components/candidate.interview.details/Interviewhero";
+import PreparationChecklist from "./components/candidate.interview.details/Preparationchecklist";
+import ScheduleSummaryCards from "./components/candidate.interview.details/Schedulesummarycards";
+import StatusBanner from "./components/candidate.interview.details/Statusbanner";
 
 import type { MyInterviewDetailsProps } from "./components/candidate.interview.details/Interviewdetails.types";
 
 import {
-  formatDateLabel,
-  formatShortDate,
-  formatTime,
   formatDateTime,
   formatDuration,
   buildIcsContent,
-  getStatusConfig,
-  getResponseConfig,
   ACTIVE_STATUSES,
-  canJoinNow,
-  getCountdownLabel,
   needsResponse,
   canRequestReschedule,
 } from "./components/candidate.interview.details/Interviewdetails.helpers";
@@ -72,7 +62,6 @@ export default function MyInterviewDetails({
   const [details, setDetails] =
     useState<GetCandidateInterviewDetailsResponse | null>(null);
   const [joining, setJoining] = useState(false);
-  const [now, setNow] = useState(() => Date.now());
   const [decisionModalOpen, setDecisionModalOpen] = useState(false);
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
 
@@ -94,9 +83,9 @@ export default function MyInterviewDetails({
   }, [id]);
 
   useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 30_000);
+    const interval = setInterval(loadDetails, 60_000);
     return () => clearInterval(interval);
-  }, []);
+  }, [id]);
 
   function handleBack() {
     if (onBack) onBack();
@@ -119,7 +108,6 @@ export default function MyInterviewDetails({
             }
           : prev,
       );
-
       loadDetails();
     }
   }
@@ -166,16 +154,9 @@ export default function MyInterviewDetails({
     loadDetails();
   }
 
-  const statusCfg = getStatusConfig(details?.status);
-  const responseCfg = details
-    ? getResponseConfig(details.candidateResponseStatus)
-    : null;
-  const joinable = details ? canJoinNow(details, now) : false;
   const isCancelled = details?.status === InterviewStatus.CANCELLED;
   const isNoShow = details?.status === InterviewStatus.NO_SHOW;
-  const isOngoing = details?.status === InterviewStatus.ONGOING;
   const isUpcoming = details ? ACTIVE_STATUSES.includes(details.status) : false;
-  const countdown = details ? getCountdownLabel(details, now) : null;
   const isOnline = details?.mode === InterviewMode.ONLINE;
   const pendingResponse = details ? needsResponse(details) : false;
   const reschedulable = details ? canRequestReschedule(details) : false;
@@ -212,7 +193,7 @@ export default function MyInterviewDetails({
             </nav>
           </div>
 
-          <div className="px-4 sm:px-8 pt-12 pb-6 max-w-5xl w-full mx-auto flex-1">
+          <div className="px-4 sm:px-8 pt-8 pb-6 max-w-5xl w-full mx-auto flex-1">
             {loading && !details && <DetailsSkeleton />}
 
             {!loading && error && (
@@ -254,7 +235,7 @@ export default function MyInterviewDetails({
             )}
 
             {details && (
-              <div className="space-y-6">
+              <div className="space-y-5">
                 {joinError && (
                   <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start gap-2.5">
                     <AlertCircle
@@ -265,166 +246,24 @@ export default function MyInterviewDetails({
                   </div>
                 )}
 
-                <div className="mt-8 relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  {isOngoing && (
-                    <span className="absolute inset-x-0 top-0 h-1 bg-emerald-500" />
-                  )}
-                  <div className="p-6 sm:p-7">
-                    <div className="flex items-start gap-4 flex-wrap sm:flex-nowrap justify-between">
-                      <div className="flex items-start gap-4 min-w-0">
-                        <div
-                          className={`hidden sm:flex w-12 h-12 rounded-xl items-center justify-center shrink-0 ${
-                            isOnline
-                              ? "bg-blue-50 text-blue-600"
-                              : "bg-slate-100 text-slate-500"
-                          }`}
-                        >
-                          {isOnline ? (
-                            <Video size={20} />
-                          ) : (
-                            <MapPin size={20} />
-                          )}
-                        </div>
+                <InterviewHero
+                  details={details}
+                  isOnline={isOnline}
+                  joining={joining}
+                  onJoin={handleJoin}
+                />
 
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap mb-2">
-                            <span
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusCfg.pill}`}
-                            >
-                              {isOngoing ? <PulseDot /> : statusCfg.icon}
-                              {statusCfg.label}
-                            </span>
-                            {countdown && !isOngoing && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-100">
-                                <Clock size={11} /> {countdown}
-                              </span>
-                            )}
-                            {responseCfg && (
-                              <span
-                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${responseCfg.pill}`}
-                              >
-                                <span
-                                  className={`w-1.5 h-1.5 rounded-full ${responseCfg.dot}`}
-                                />
-                                {responseCfg.label}
-                              </span>
-                            )}
-                            {details.rescheduleRequested && (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200">
-                                <Hourglass size={11} /> Reschedule requested
-                              </span>
-                            )}
-                          </div>
-
-                          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
-                            {details.title}
-                          </h1>
-                          <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
-                            <Hash size={13} /> Round {details.round}
-                          </p>
-
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-3 text-xs text-slate-500">
-                            <span className="inline-flex items-center gap-1">
-                              <Calendar size={12} />{" "}
-                              {formatShortDate(details.scheduledAt)}
-                            </span>
-                            <span className="text-slate-300">•</span>
-                            <span className="inline-flex items-center gap-1">
-                              <Clock size={12} />{" "}
-                              {formatTime(details.scheduledAt)} ·{" "}
-                              {formatDuration(details.durationInMinutes)}
-                            </span>
-                            <span className="text-slate-300">•</span>
-                            <span className="inline-flex items-center gap-1">
-                              {isOnline ? (
-                                <Video size={12} />
-                              ) : (
-                                <MapPin size={12} />
-                              )}
-                              {isOnline
-                                ? "Online"
-                                : details.location || "In-person"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                        {pendingResponse ? (
-                          <button
-                            onClick={() => setDecisionModalOpen(true)}
-                            className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg text-white bg-amber-500 hover:bg-amber-600 active:scale-[0.98] transition-all w-full sm:w-auto justify-center"
-                          >
-                            <CheckCircle2 size={15} />
-                            Respond to invite
-                          </button>
-                        ) : (
-                          isOnline &&
-                          !isCancelled && (
-                            <button
-                              onClick={handleJoin}
-                              disabled={!joinable || joining}
-                              className={`inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg transition-all shrink-0 w-full sm:w-auto justify-center ${
-                                joinable
-                                  ? "text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-sm shadow-blue-200"
-                                  : "text-slate-400 bg-slate-100 cursor-not-allowed"
-                              }`}
-                              title={
-                                joinable
-                                  ? "Join the interview"
-                                  : "Join link opens 15 minutes before start"
-                              }
-                            >
-                              {joining ? (
-                                <Loader2 size={15} className="animate-spin" />
-                              ) : (
-                                <ExternalLink size={15} />
-                              )}
-                              {isOngoing ? "Join now" : "Join interview"}
-                            </button>
-                          )
-                        )}
-                      </div>
-                    </div>
-
-                    {details.candidateJoinedAt && (
-                      <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
-                        <UserCheck size={12} /> You joined at{" "}
-                        {formatDateTime(details.candidateJoinedAt)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {pendingResponse && (
-                  <div className="bg-amber-50 rounded-2xl border border-amber-200 p-5 sm:p-6 flex gap-3 items-start">
-                    <AlertCircle
-                      size={18}
-                      className="text-amber-500 shrink-0 mt-0.5"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold text-amber-700 mb-1">
-                        This interview needs your response
-                      </h3>
-                      <p className="text-sm text-amber-700">
-                        Let the recruiter know whether you can make it — they're
-                        waiting to hear back before finalizing plans.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setDecisionModalOpen(true)}
-                      className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-lg text-white bg-amber-500 hover:bg-amber-600 transition-colors"
-                    >
-                      Respond
-                    </button>
-                  </div>
-                )}
+                <StatusBanner
+                  details={details}
+                  pendingResponse={pendingResponse}
+                  onRespond={() => setDecisionModalOpen(true)}
+                />
 
                 {details.candidateResponseStatus ===
                   CandidateResponseStatus.DECLINED &&
                   details.candidateResponseMessage && (
-                    <div className="bg-red-50 rounded-2xl border border-red-200 p-5 sm:p-6 flex gap-3">
-                      <MessageSquare
+                    <div className="bg-red-50 rounded-2xl border border-red-200 p-5 flex gap-3">
+                      <AlertCircle
                         size={18}
                         className="text-red-500 shrink-0 mt-0.5"
                       />
@@ -439,57 +278,8 @@ export default function MyInterviewDetails({
                     </div>
                   )}
 
-                {details.rescheduleRequested && (
-                  <div className="bg-violet-50 rounded-2xl border border-violet-200 p-5 sm:p-6 flex gap-3">
-                    <Hourglass
-                      size={18}
-                      className="text-violet-500 shrink-0 mt-0.5"
-                    />
-                    <div>
-                      <h3 className="text-sm font-bold text-violet-700 mb-1">
-                        Reschedule request sent
-                      </h3>
-                      <p className="text-sm text-violet-700">
-                        {details.requestedReason ??
-                          "You've asked the recruiter to move this interview."}
-                      </p>
-                      {details.rescheduleRequestedAt && (
-                        <p className="text-xs text-violet-500 mt-1">
-                          Requested{" "}
-                          {formatDateTime(details.rescheduleRequestedAt)} ·
-                          waiting on the recruiter to review
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {isCancelled && (
-                  <div className="bg-red-50 rounded-2xl border border-red-200 p-5 sm:p-6 flex gap-3">
-                    <XCircle
-                      size={18}
-                      className="text-red-500 shrink-0 mt-0.5"
-                    />
-                    <div>
-                      <h3 className="text-sm font-bold text-red-700 mb-1">
-                        Interview cancelled
-                      </h3>
-                      {details.cancelledReason && (
-                        <p className="text-sm text-red-700">
-                          {details.cancelledReason}
-                        </p>
-                      )}
-                      {details.cancelledBy && (
-                        <p className="text-xs text-red-500 mt-1">
-                          Cancelled by {details.cancelledBy}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
                 {isNoShow && (
-                  <div className="bg-amber-50 rounded-2xl border border-amber-200 p-5 sm:p-6 flex gap-3">
+                  <div className="bg-amber-50 rounded-2xl border border-amber-200 p-5 flex gap-3">
                     <AlertCircle
                       size={18}
                       className="text-amber-500 shrink-0 mt-0.5"
@@ -499,69 +289,27 @@ export default function MyInterviewDetails({
                         Marked as no-show
                       </h3>
                       <p className="text-sm text-amber-700">
-                        This interview was marked as a no-show. If this doesn't
-                        look right, reach out to your recruiter.
+                        If this doesn't look right, reach out to your recruiter.
                       </p>
                     </div>
                   </div>
                 )}
 
+                {isOnline && !isCancelled && <PreparationChecklist />}
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
                   <div className="lg:col-span-2 space-y-5">
-                    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                      <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">
-                        Schedule
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <DetailRow
-                          icon={<Calendar size={14} />}
-                          label="Date"
-                          value={formatDateLabel(details.scheduledAt)}
-                        />
-                        <DetailRow
-                          icon={<Clock size={14} />}
-                          label="Time"
-                          value={formatTime(details.scheduledAt)}
-                        />
-                        <DetailRow
-                          icon={<Clock size={14} />}
-                          label="Duration"
-                          value={formatDuration(details.durationInMinutes)}
-                        />
-                        <DetailRow
-                          icon={
-                            isOnline ? (
-                              <Video size={14} />
-                            ) : (
-                              <MapPin size={14} />
-                            )
-                          }
-                          label="Format"
-                          value={isOnline ? "Online" : "In-person"}
-                        />
-                        {!isOnline && details.location && (
-                          <DetailRow
-                            icon={<MapPin size={14} />}
-                            label="Location"
-                            value={details.location}
-                          />
-                        )}
-                        {!isOnline && details.roomId && (
-                          <DetailRow
-                            icon={<Building2 size={14} />}
-                            label="Room"
-                            value={details.roomId}
-                          />
-                        )}
-                      </div>
-                    </div>
+                    <ScheduleSummaryCards
+                      details={details}
+                      isOnline={isOnline}
+                    />
 
                     {(details.description || details.notes) && (
                       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
                         {details.description && (
                           <div>
                             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                              <FileText size={13} /> Description
+                              <FileText size={13} /> What to expect
                             </h3>
                             <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
                               {details.description}
@@ -577,7 +325,7 @@ export default function MyInterviewDetails({
                             }
                           >
                             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                              <StickyNote size={13} /> Notes
+                              <StickyNote size={13} /> Recruiter notes
                             </h3>
                             <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
                               {details.notes}
@@ -613,19 +361,17 @@ export default function MyInterviewDetails({
                         {isOnline && !isCancelled && !pendingResponse && (
                           <button
                             onClick={handleJoin}
-                            disabled={!joinable || joining}
-                            className={`w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all ${
-                              joinable
-                                ? "text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-sm shadow-blue-200"
-                                : "text-slate-400 bg-slate-100 cursor-not-allowed"
-                            }`}
+                            disabled={joining || !!details.candidateJoinedAt}
+                            className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] shadow-sm shadow-indigo-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {joining ? (
                               <Loader2 size={14} className="animate-spin" />
                             ) : (
                               <ExternalLink size={14} />
                             )}
-                            {isOngoing ? "Join now" : "Join interview"}
+                            {details.candidateJoinedAt
+                              ? "Already joined"
+                              : "Join interview"}
                           </button>
                         )}
 
@@ -642,7 +388,7 @@ export default function MyInterviewDetails({
                         {reschedulable && !pendingResponse && (
                           <button
                             onClick={() => setRescheduleModalOpen(true)}
-                            className="w-full inline-flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-lg border border-violet-200 text-violet-600 hover:bg-violet-50 transition-colors"
+                            className="w-full inline-flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-lg border border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors"
                           >
                             <RefreshCw size={14} />
                             Request reschedule
@@ -651,7 +397,7 @@ export default function MyInterviewDetails({
 
                         {details.rescheduleRequested && (
                           <div className="w-full inline-flex items-center justify-center gap-2 text-xs font-medium px-4 py-2.5 rounded-lg bg-violet-50 text-violet-600 border border-violet-100">
-                            <Hourglass size={13} />
+                            <Clock size={13} />
                             Reschedule request pending
                           </div>
                         )}

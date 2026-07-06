@@ -12,6 +12,8 @@ export const RECRUITER_INTERVIEW_ROUTES = {
     `/recruiter/interviews/${interviewId}/join`,
   END: (interviewId: string) =>
     `/recruiter/interviews/${interviewId}/end`,
+  UPDATE_NOTES: (interviewId: string) =>
+  `/recruiter/interviews/${interviewId}/notes`,
   APPROVE_RESCHEDULE: (interviewId: string) =>
     `/recruiter/interviews/${interviewId}/approve-reschedule`,
   REJECT_RESCHEDULE: (interviewId: string) =>

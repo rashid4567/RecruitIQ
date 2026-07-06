@@ -18,9 +18,7 @@ export function useEndInterview() {
       return response;
     } catch (err: unknown) {
       const message =
-        err instanceof Error
-          ? err.message
-          : "Failed to end interview";
+        err instanceof Error ? err.message : "Failed to end interview";
 
       setError(message);
 

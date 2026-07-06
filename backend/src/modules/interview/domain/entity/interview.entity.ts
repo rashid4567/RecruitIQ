@@ -1,4 +1,6 @@
 import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code";
+import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
+import { ApplicationError } from "../../../../shared/errors/application.error";
 import { DomainError } from "../../../../shared/errors/domain.error";
 
 export enum InterviewStatus {
@@ -518,6 +520,14 @@ export class Interview {
     this.touch();
   }
 
+  updateNotes(notes : string):void{
+    if(this.props.status === InterviewStatus.COMPLETED){
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_COMPLETED);
+    }
+
+    this.props.notes = notes?.trim();
+    this.touch();
+  }
   cancel(reason: string, cancelledBy: string): void {
     this.ensureMutable();
 

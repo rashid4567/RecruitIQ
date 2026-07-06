@@ -17,37 +17,86 @@ export function useMediaPreview() {
     isMutedRef.current = isMuted;
   }, [isMuted]);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function start() {
-      setLoading(true);
-      setError(null);
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-        if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
+useEffect(() => {
+  let cancelled = false;
+
+  async function start() {
+    setLoading(true);
+    setError(null);
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      if (!cancelled) {
+        setError(
+          "Camera and microphone are not supported in this browser.",
+        );
+        setLoading(false);
+      }
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+
+      if (cancelled) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      streamRef.current = stream;
+      setLocalStream(stream);
+    } catch (err) {
+      if (!cancelled) {
+        if (err instanceof DOMException) {
+          switch (err.name) {
+            case "NotAllowedError":
+              setError("Camera and microphone permission was denied.");
+              break;
+
+            case "NotFoundError":
+              setError("No camera or microphone was found.");
+              break;
+
+            case "NotReadableError":
+              setError(
+                "Camera or microphone is currently being used by another application.",
+              );
+              break;
+
+            case "OverconstrainedError":
+              setError(
+                "The selected camera or microphone is unavailable.",
+              );
+              break;
+
+            default:
+              setError("Unable to access camera and microphone.");
+          }
+        } else {
+          setError("Unable to access camera and microphone.");
         }
-        streamRef.current = stream;
-        setLocalStream(stream);
-      } catch {
-        if (!cancelled) {
-          setError("Please allow camera and microphone permission.");
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
+      }
+    } finally {
+      if (!cancelled) {
+        setLoading(false);
       }
     }
-    start();
-    return () => {
-      cancelled = true;
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    };
-  }, []);
+  }
+
+  start();
+
+  return () => {
+    cancelled = true;
+
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+
+    streamRef.current = null;
+
+    setLocalStream(null);
+  };
+}, []);
 
   const toggleMicrophone = useCallback(() => {
     const stream = streamRef.current;
@@ -64,64 +113,133 @@ export function useMediaPreview() {
     stream.getVideoTracks().forEach((t) => (t.enabled = nextEnabled));
     setIsCameraEnabled(nextEnabled);
   }, []);
+const switchCamera = useCallback(async (deviceId: string) => {
+  const stream = streamRef.current;
 
-  const switchCamera = useCallback(async (deviceId: string) => {
-    const stream = streamRef.current;
-    if (!stream) return;
-    let newTrack: MediaStreamTrack | undefined;
-    try {
-      const newStream = await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: { exact: deviceId } },
-        audio: false,
-      });
-      newTrack = newStream.getVideoTracks()[0];
-      if (!newTrack) return;
+  if (!stream) return;
 
-      newTrack.enabled = isCameraEnabledRef.current;
-      stream.addTrack(newTrack);
+  setLoading(true);
+  setError(null);
 
-      const oldTrack = stream.getVideoTracks().find((t) => t !== newTrack);
-      if (oldTrack) {
-        stream.removeTrack(oldTrack);
-        oldTrack.stop();
+  let newTrack: MediaStreamTrack | undefined;
+
+  try {
+    const newStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        deviceId: {
+          exact: deviceId,
+        },
+      },
+      audio: false,
+    });
+
+    newTrack = newStream.getVideoTracks()[0];
+
+    if (!newTrack) {
+      throw new Error("No video track found.");
+    }
+
+    newTrack.enabled = isCameraEnabledRef.current;
+
+    const oldTrack = stream.getVideoTracks()[0];
+
+    if (oldTrack) {
+      oldTrack.stop();
+      stream.removeTrack(oldTrack);
+    }
+
+    stream.addTrack(newTrack);
+
+    streamRef.current = stream;
+
+    setLocalStream(stream);
+  } catch (err) {
+    newTrack?.stop();
+
+    if (err instanceof DOMException) {
+      switch (err.name) {
+        case "NotAllowedError":
+          setError("Camera permission was denied.");
+          break;
+
+        case "NotFoundError":
+          setError("Selected camera was not found.");
+          break;
+
+        default:
+          setError("Could not switch camera.");
       }
-
-      streamRef.current = stream;
-      setLocalStream(stream);
-    } catch {
-      newTrack?.stop();
+    } else {
       setError("Could not switch camera.");
     }
-  }, []);
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
-  const switchMicrophone = useCallback(async (deviceId: string) => {
-    const stream = streamRef.current;
-    if (!stream) return;
-    let newTrack: MediaStreamTrack | undefined;
-    try {
-      const newStream = await navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: { exact: deviceId } },
-        video: false,
-      });
-      newTrack = newStream.getAudioTracks()[0];
-      if (!newTrack) return;
+const switchMicrophone = useCallback(async (deviceId: string) => {
+  const stream = streamRef.current;
 
-      newTrack.enabled = !isMutedRef.current;
-      stream.addTrack(newTrack);
+  if (!stream) return;
 
-      const oldTrack = stream.getAudioTracks().find((t) => t !== newTrack);
-      if (oldTrack) {
-        stream.removeTrack(oldTrack);
-        oldTrack.stop();
+  setLoading(true);
+  setError(null);
+
+  let newTrack: MediaStreamTrack | undefined;
+
+  try {
+    const newStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        deviceId: {
+          exact: deviceId,
+        },
+      },
+      video: false,
+    });
+
+    newTrack = newStream.getAudioTracks()[0];
+
+    if (!newTrack) {
+      throw new Error("No audio track found.");
+    }
+
+    newTrack.enabled = !isMutedRef.current;
+
+    const oldTrack = stream.getAudioTracks()[0];
+
+    if (oldTrack) {
+      oldTrack.stop();
+      stream.removeTrack(oldTrack);
+    }
+
+    stream.addTrack(newTrack);
+
+    streamRef.current = stream;
+
+    setLocalStream(stream);
+  } catch (err) {
+    newTrack?.stop();
+
+    if (err instanceof DOMException) {
+      switch (err.name) {
+        case "NotAllowedError":
+          setError("Microphone permission was denied.");
+          break;
+
+        case "NotFoundError":
+          setError("Selected microphone was not found.");
+          break;
+
+        default:
+          setError("Could not switch microphone.");
       }
-
-      streamRef.current = stream;
-      setLocalStream(stream);
-    } catch {
-      newTrack?.stop();
+    } else {
       setError("Could not switch microphone.");
     }
-  }, []);
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   return useMemo(
     () => ({

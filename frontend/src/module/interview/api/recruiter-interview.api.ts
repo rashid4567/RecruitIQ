@@ -13,6 +13,8 @@ import type {
   ScheduleInterviewRequest,
   ScheduleInterviewResponse,
   StartInterviewResponse,
+  UpdateInterviewNotesRequest,
+  UpdateInterviewNotesResponse,
 } from "../types/recruiterInterview.types";
 
 export const scheduleInterview = async (
@@ -90,6 +92,17 @@ export const endInterview = async (
   return response.data.data;
 };
 
+export const updateInterviewNotes = async (
+  interviewId: string,
+  data: UpdateInterviewNotesRequest,
+): Promise<UpdateInterviewNotesResponse> => {
+  const response = await api.patch(
+    RECRUITER_INTERVIEW_ROUTES.UPDATE_NOTES(interviewId),
+    data,
+  );
+
+  return response.data.data;
+};
 export const approveRescheduleRequest = async (
   interviewId: string,
 ): Promise<ApproveRescheduleResponse> => {

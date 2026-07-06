@@ -19,7 +19,6 @@ import {
   PhoneOff,
   Loader2,
   AlertTriangle,
-  Wifi,
   WifiOff,
   X,
   RefreshCw,
@@ -28,7 +27,6 @@ import {
   CheckCircle2,
   User,
   Lock,
-  Mail,
   Copy,
   ChevronDown,
 } from "lucide-react";
@@ -40,11 +38,6 @@ import {
 import { useInterviewDetails } from "../hooks/common/useInterview.details";
 import { useEndInterview } from "../hooks/recruiter/useEndInterview";
 
-// ---------------------------------------------------------------------------
-// Google Meet-inspired palette (dark theme). Kept as plain constants rather
-// than Tailwind's default palette since none of the default slate/indigo
-// stops line up with Meet's actual colors.
-// ---------------------------------------------------------------------------
 const COLOR = {
   bg: "#202124",
   panel: "#2D2E30",
@@ -61,10 +54,8 @@ const COLOR = {
 
 const CHAT_CHAR_LIMIT = 500;
 const CHAT_SEND_COOLDOWN_MS = 100;
-const CHAT_TEXTAREA_MAX_HEIGHT_PX = 96; // ~4 lines
+const CHAT_TEXTAREA_MAX_HEIGHT_PX = 96;
 
-// TODO: replace with the app's auth context/store (e.g. useAuth().user.id)
-// once it's available here, instead of reading straight from localStorage.
 function useCurrentUserId(): string {
   return typeof window !== "undefined"
     ? (localStorage.getItem("userId") ?? "")
@@ -128,7 +119,6 @@ type TimelineEntry = TimelineMessageEntry | TimelineSystemEntry;
 type SidebarTab = "participants" | "notes" | "info" | "chat";
 type Recommendation = "hire" | "hold" | "reject" | null;
 
-/** Small labeled avatar used in participants + chat rows. */
 function Avatar({ label, self = false }: { label: string; self?: boolean }) {
   return (
     <div
@@ -172,9 +162,7 @@ export default function InterviewRoomPage() {
     userId,
     role,
     onCallEnded: () => setCompletionCountdown(3),
-    onError: () => {
-      /* surfaced below via call.error */
-    },
+    onError: () => {},
   });
 
   const {
@@ -201,7 +189,6 @@ export default function InterviewRoomPage() {
     number | null
   >(null);
 
-  // ---- Chat state -----------------------------------------------------
   const [draft, setDraft] = useState("");
   const [unreadChat, setUnreadChat] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -240,7 +227,6 @@ export default function InterviewRoomPage() {
     ]);
   }, []);
 
-  // ---- Tiny WebAudio-based notification sounds (no external assets) ---
   const getAudioCtx = useCallback(() => {
     if (typeof window === "undefined") return null;
     if (!audioCtxRef.current) {
@@ -318,7 +304,6 @@ export default function InterviewRoomPage() {
     } finally {
       callInFlightRef.current = false;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     roomId,
     userId,
@@ -333,16 +318,13 @@ export default function InterviewRoomPage() {
     void startCall();
   }, [roomId, userId, interviewId]);
 
-  // Request browser-notification permission once, up front.
   useEffect(() => {
     if (
       typeof window !== "undefined" &&
       "Notification" in window &&
       Notification.permission === "default"
     ) {
-      Notification.requestPermission().catch(() => {
-        /* ignore */
-      });
+      Notification.requestPermission().catch(() => {});
     }
   }, []);
 
@@ -361,7 +343,6 @@ export default function InterviewRoomPage() {
       setConnectedAt(null);
       setElapsedSeconds(0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [call.callState]);
 
   useEffect(() => {
@@ -390,9 +371,6 @@ export default function InterviewRoomPage() {
     };
   }, [call.remoteStream]);
 
-  // Distinguish "waiting for first join" from "reconnecting", track the
-  // reconnect clock, fire a toast + sound + system message whenever
-  // presence changes.
   useEffect(() => {
     const had = prevRemoteStreamRef.current;
     const has = call.remoteStream;
@@ -424,7 +402,6 @@ export default function InterviewRoomPage() {
     }
 
     prevRemoteStreamRef.current = has;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     call.remoteStream,
     call.callState,
@@ -446,7 +423,6 @@ export default function InterviewRoomPage() {
     return () => clearInterval(id);
   }, [call.remoteStream]);
 
-  // ---- Chat: merge real socket messages + local system events ---------
   const timeline = useMemo<TimelineEntry[]>(() => {
     const msgEntries: TimelineEntry[] = call.messages.map((m, idx) => ({
       kind: "message",
@@ -467,9 +443,6 @@ export default function InterviewRoomPage() {
     );
   }, [call.messages, systemEvents, userId]);
 
-  // Watch for new chat messages: sending → sent status for our own
-  // messages, and unread badge / toast / sound / browser notification for
-  // the other participant's messages.
   useEffect(() => {
     const msgs = call.messages;
     if (msgs.length <= prevMessageCountRef.current) {
@@ -516,8 +489,6 @@ export default function InterviewRoomPage() {
     showBrowserNotification,
   ]);
 
-  // Clear unread badge when the chat tab is opened, and also when the
-  // person comes back to a hidden tab while chat is already open.
   useEffect(() => {
     if (activeTab === "chat") setUnreadChat(0);
   }, [activeTab]);
@@ -533,9 +504,6 @@ export default function InterviewRoomPage() {
       document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
-  // Slack-style auto-scroll: stick to bottom only if the user was already
-  // there; otherwise leave scroll position alone and show a "new
-  // messages" affordance instead.
   const scrollToBottom = useCallback((smooth = true) => {
     const el = chatScrollRef.current;
     if (!el) return;
@@ -553,7 +521,6 @@ export default function InterviewRoomPage() {
   useEffect(() => {
     if (activeTab !== "chat") return;
     if (chatAtBottom) scrollToBottom(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeline.length, activeTab]);
 
   useEffect(() => {
@@ -562,13 +529,17 @@ export default function InterviewRoomPage() {
       const t = setTimeout(() => chatInputRef.current?.focus(), 160);
       return () => clearTimeout(t);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   useEffect(() => {
     if (completionCountdown === null) return;
     if (completionCountdown <= 0) {
-      navigate(`${basePath}/interviews`);
+      if (role === "recruiter") {
+        navigate(`${basePath}/interviews/${interviewId}/screening-complete`);
+      } else {
+        navigate(`${basePath}/interviews`);
+      }
+
       return;
     }
     const t = setTimeout(() => {
@@ -576,9 +547,6 @@ export default function InterviewRoomPage() {
     }, 1000);
     return () => clearTimeout(t);
   }, [completionCountdown, navigate, basePath]);
-
-  const participantCount =
-    (call.localStream ? 1 : 0) + (call.remoteStream ? 1 : 0);
 
   const connectionInfo = useMemo(() => {
     switch (call.iceConnectionState) {
@@ -641,7 +609,6 @@ export default function InterviewRoomPage() {
     call.toggleScreenShare();
   }, [call, addToast]);
 
-  // Keyboard shortcuts: Ctrl+D mute, Ctrl+E camera, Ctrl+Shift+S share.
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const key = e.key.toLowerCase();
@@ -695,7 +662,6 @@ export default function InterviewRoomPage() {
     setNotesSavedAt(Date.now());
   }
 
-  // ---- Chat input handlers --------------------------------------------
   function handleDraftChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const value = e.target.value.slice(0, CHAT_CHAR_LIMIT);
     setDraft(value);
@@ -796,7 +762,6 @@ export default function InterviewRoomPage() {
     return <Navigate to={`${basePath}/interviews`} replace />;
   }
 
-  // Call ended because of an error: distinct recovery screen.
   if (call.callState === "ENDED" && call.error) {
     return (
       <div
@@ -841,7 +806,6 @@ export default function InterviewRoomPage() {
     );
   }
 
-  // Redesigned completion / summary screen.
   if (call.callState === "ENDED") {
     const shownDuration = finalDurationSeconds ?? 0;
     const countdown = completionCountdown ?? 0;
@@ -964,7 +928,7 @@ export default function InterviewRoomPage() {
       style={{ backgroundColor: COLOR.bg }}
     >
       {/* Toasts */}
-      <div className="fixed top-4 right-4 z-[60] flex flex-col gap-2 items-end pointer-events-none">
+      <div className="fixed top-4 right-4 z-60 flex flex-col gap-2 items-end pointer-events-none">
         {toasts.map((t) => (
           <div
             key={t.id}
@@ -989,7 +953,6 @@ export default function InterviewRoomPage() {
         ))}
       </div>
 
-      {/* Header — title, timer, connection dot only */}
       <div
         className="px-4 sm:px-6 py-3 flex items-center justify-between gap-3 z-10 shrink-0"
         style={{ backgroundColor: COLOR.bg }}
@@ -1106,7 +1069,6 @@ export default function InterviewRoomPage() {
         </div>
       )}
 
-      {/* Video stage — fills essentially the whole viewport */}
       <div className="flex-1 relative min-h-0 px-3 sm:px-4 pb-3 sm:pb-4">
         <div
           className="w-full h-full rounded-3xl overflow-hidden relative"
@@ -1266,7 +1228,6 @@ export default function InterviewRoomPage() {
             </span>
           )}
 
-          {/* Floating icon rail — Meet-style, icons only */}
           <div
             className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full flex flex-col gap-1 p-1.5 shadow-lg backdrop-blur-sm"
             style={{ backgroundColor: `${COLOR.panel}E6` }}
@@ -1298,7 +1259,6 @@ export default function InterviewRoomPage() {
             ))}
           </div>
 
-          {/* Floating centered toolbar */}
           <div
             className="absolute left-1/2 -translate-x-1/2 bottom-5 rounded-full flex items-center gap-2 px-3 py-2.5 shadow-xl backdrop-blur-sm"
             style={{ backgroundColor: `${COLOR.panel}F2` }}
@@ -1393,7 +1353,6 @@ export default function InterviewRoomPage() {
             </button>
           </div>
 
-          {/* Sliding panel — participants / chat / notes / info */}
           {activeTab && (
             <div
               className="absolute right-4 top-4 bottom-4 w-72 sm:w-80 rounded-2xl flex flex-col shadow-2xl z-20 animate-[panelIn_150ms_ease-out]"
@@ -1778,7 +1737,7 @@ export default function InterviewRoomPage() {
                             Chat privately during the interview.
                           </p>
                           <p
-                            className="text-[12px] max-w-[220px]"
+                            className="text-[12px] max-w-55"
                             style={{ color: COLOR.textMuted }}
                           >
                             Messages disappear when everyone leaves.
@@ -1864,7 +1823,7 @@ export default function InterviewRoomPage() {
 
                               <div className="relative">
                                 <div
-                                  className="px-3 py-2 text-[14px] whitespace-pre-wrap break-words leading-snug"
+                                  className="px-3 py-2 text-[14px] whitespace-pre-wrap wrap-break-word leading-snug"
                                   style={{
                                     backgroundColor: entry.self
                                       ? COLOR.blueStrong
@@ -1985,7 +1944,6 @@ export default function InterviewRoomPage() {
         </div>
       </div>
 
-      {/* End-call confirmation */}
       {showEndConfirm && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4 animate-[fadeIn_150ms_ease-out]"
@@ -2004,7 +1962,7 @@ export default function InterviewRoomPage() {
                   style={{ backgroundColor: `${COLOR.red}1A` }}
                 >
                   <PhoneOff
-                    className="w-[18px] h-[18px]"
+                    className="w-4.5 h-4.5"
                     style={{ color: COLOR.red }}
                   />
                 </div>
@@ -2027,7 +1985,7 @@ export default function InterviewRoomPage() {
               </button>
             </div>
             <p
-              className="text-[14px] mb-5 pl-[52px]"
+              className="text-[14px] mb-5 pl-13"
               style={{ color: COLOR.textMuted }}
             >
               {role === "recruiter"

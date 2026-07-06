@@ -6,6 +6,7 @@ export const INTERVIEW_ROUTES = {
   CANCEL: "/:interviewId/cancel",
   START: "/:interviewId/start",
   END: "/:interviewId/end",
+   UPDATE_NOTES: "/:interviewId/notes",
   JOIN: "/:interviewId/join",
   ACCEPT: "/:interviewId/accept",
   REJECT: "/:interviewId/reject",

@@ -39,7 +39,7 @@ export class EndInterviewController {
         );
       }
 
-      const validateData = CompleteInterviewSchema.parse(req.body ?? {});
+      const validateData = CompleteInterviewSchema .parse(req.body ?? {});
       const result = await this._endInterviewUC.execute({
         interviewId,
         recruiterId,

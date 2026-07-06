@@ -10,7 +10,9 @@ import {
   startInterviewController,
   acceptReschduleInterviewController,
   rejectRescheduleInterviewController,
+  updateInterviewNoteController,
 } from "../di/interview.module";
+import { UpdateInterviewNotesController } from "../controller/recruiter/updateInterview.notes.controller";
 
 const router = Router();
 
@@ -33,6 +35,10 @@ router.patch(
 router.patch(INTERVIEW_ROUTES.CANCEL, cancelinterviewcontroller.cancel);
 router.patch(INTERVIEW_ROUTES.START, startInterviewController.start);
 router.patch(INTERVIEW_ROUTES.END, endInterviewcontroller.end);
+router.patch(
+  INTERVIEW_ROUTES.UPDATE_NOTES,
+  updateInterviewNoteController.updateInterviewNotes,
+);
 router.patch(
   INTERVIEW_ROUTES.ACCEPT_RESCHEDULE,
   acceptReschduleInterviewController.acceptRequest,

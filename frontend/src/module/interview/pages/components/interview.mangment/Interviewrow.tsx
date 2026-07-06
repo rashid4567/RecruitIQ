@@ -15,17 +15,9 @@ import {
   STATUS_TRANSITIONS,
 } from "./Interviewdashboard.helpers";
 
-// How long before the scheduled time the "Start Interview" / "Join" button
-// becomes visible. Purely a UI reveal window — it never triggers an API
-// call on its own. The interview stays SCHEDULED until someone clicks.
 const START_WINDOW_MINUTES = 15;
 
-// Fallback duration if the backend didn't send one, so the "still live"
-// window has some sane upper bound instead of being infinite.
 const DEFAULT_DURATION_MINUTES = 60;
-
-// How often we re-check timing while the row is mounted, so button/label
-// state updates live without a refetch.
 const TICK_INTERVAL_MS = 15_000;
 
 export default function InterviewRow({
@@ -72,20 +64,12 @@ export default function InterviewRow({
     ? (new Date(interview.scheduledAt).getTime() - now) / 60_000
     : Infinity;
 
-  const durationMinutes = interview.durationInMinutes ?? DEFAULT_DURATION_MINUTES;
-  // Positive while we're still inside [scheduledAt, scheduledAt + duration].
+  const durationMinutes =
+    interview.durationInMinutes ?? DEFAULT_DURATION_MINUTES;
   const minutesUntilEnd = minutesUntilStart + durationMinutes;
-
-  // Reveal window for the Start/Join button: from 15 minutes before the
-  // scheduled time, up until the interview's scheduled end.
   const withinStartWindow =
     minutesUntilStart <= START_WINDOW_MINUTES && minutesUntilEnd > 0;
-
   const isOverdue = minutesUntilEnd <= 0;
-
-  // Purely a UI decision — becomes true once we're inside the window, for
-  // an interview that's still SCHEDULED/RESCHEDULED. Nothing fires
-  // automatically because of this; it just reveals the button below.
   const canStart =
     scheduled &&
     interview.mode === "ONLINE" &&
@@ -100,14 +84,9 @@ export default function InterviewRow({
     interview.mode === "ONLINE" &&
     interview.interviewStatus === InterviewStatus.ONGOING &&
     !!interview.interviewId;
-
-  // Reschedule / cancel are locked once we enter the start window — and
-  // stay locked for the life of that window / while it's live.
   const modifiable =
     canModifyInterview(interview) && !withinStartWindow && !isOverdue;
 
-  // Small human-readable hint shown next to the date/time explaining
-  // *why* things are in the state they're in.
   let countdownLabel: string | null = null;
   let countdownTone = "text-slate-400";
   if (scheduled && interview.mode === "ONLINE") {
@@ -165,7 +144,6 @@ export default function InterviewRow({
                 : "hover:bg-blue-50/40"
       }`}
     >
-      {/* Date & Time */}
       <td className="px-5 py-4">
         {scheduled ? (
           <div className="flex items-start gap-2">
@@ -180,7 +158,9 @@ export default function InterviewRow({
               </div>
               <div className="flex items-center gap-1.5 mt-1">
                 {todayFlag && (
-                  <span className="text-[10px] font-bold text-blue-600">TODAY</span>
+                  <span className="text-[10px] font-bold text-blue-600">
+                    TODAY
+                  </span>
                 )}
                 {countdownLabel && (
                   <span
@@ -198,7 +178,6 @@ export default function InterviewRow({
         )}
       </td>
 
-      {/* Candidate — initials avatar only, no profile image */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2">
           <div
@@ -215,7 +194,6 @@ export default function InterviewRow({
         </div>
       </td>
 
-      {/* Position */}
       <td className="px-5 py-4">
         <div className="text-sm font-medium text-slate-700">{jobTitle}</div>
         {interview.title && (
@@ -223,7 +201,6 @@ export default function InterviewRow({
         )}
       </td>
 
-      {/* Round */}
       <td className="px-5 py-4">
         {interview.round != null ? (
           <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
@@ -234,7 +211,6 @@ export default function InterviewRow({
         )}
       </td>
 
-      {/* Mode */}
       <td className="px-5 py-4">
         {interview.mode === "ONLINE" ? (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-semibold whitespace-nowrap">
@@ -243,18 +219,19 @@ export default function InterviewRow({
           </span>
         ) : interview.mode === "OFFLINE" ? (
           <span
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold whitespace-nowrap max-w-[160px] truncate"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold whitespace-nowrap max-w-40 truncate"
             title={interview.location || "In Person"}
           >
             <MapPin size={12} className="shrink-0" />
-            <span className="truncate">{interview.location || "In Person"}</span>
+            <span className="truncate">
+              {interview.location || "In Person"}
+            </span>
           </span>
         ) : (
           <span className="text-xs text-slate-400">—</span>
         )}
       </td>
 
-      {/* Status */}
       <td className="px-5 py-4">
         <span
           className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap ${statusCfg.pill}`}
@@ -268,8 +245,6 @@ export default function InterviewRow({
           </div>
         )}
       </td>
-
-      {/* Actions — only one primary action shows at a time */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2 relative">
           {joinable && (

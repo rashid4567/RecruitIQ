@@ -41,13 +41,15 @@ import { createNotificationUC } from "../../../notification/presentation/contain
 import { ValidateInterviewRoomAccessUseCase } from "../../application/usecase/common/ValidateInterviewRoomAccessUseCase";
 import { IdGenerator } from "../../application/ports/id-generator";
 import { CryptoIdGenerator } from "../../infrastructure/service/crypto-id-generator";
+import { UpdateInterviewNotesUseCase } from "../../application/usecase/recruiter/UpdateInterviewNotesUseCase";
+import { UpdateInterviewNotesController } from "../controller/recruiter/updateInterview.notes.controller";
 
 const interviewRepo: InterviewRepository = new MongooseInterviewRepository();
 const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
 const userRepo: UserRepository = new MongooseUserRepository();
 const jobRepo: JobRepository = new MongooseJobRepository();
-const idgenerator : IdGenerator =new CryptoIdGenerator()
+const idgenerator: IdGenerator = new CryptoIdGenerator();
 const getCandidateInterviewUC = new GetCandidateInterviewUseCase(interviewRepo);
 const CandidateinterviewDetailUC = new CandidateInterviewDetailsUseCase(
   interviewRepo,
@@ -58,7 +60,9 @@ const requestRescheduleInterviewUC = new RequestInterviewRescheduleUseCase(
   interviewRepo,
 );
 const joinInterviewUC = new JoinInterviewUseCase(interviewRepo);
-export const validateInterviewUC = new ValidateInterviewRoomAccessUseCase(interviewRepo);
+export const validateInterviewUC = new ValidateInterviewRoomAccessUseCase(
+  interviewRepo,
+);
 const scheduleInterviewUC = new ScheduleInterviewUseCase(
   interviewRepo,
   applicationRepo,
@@ -99,6 +103,7 @@ const rescheduleInterviewUC = new RescheduleInterviewUseCase(
   createNotificationUC,
   idgenerator,
 );
+const updateInterviewNotesUC = new UpdateInterviewNotesUseCase(interviewRepo);
 
 export const getcandidateInterviewsController =
   new GetCandidateInterviewsController(getCandidateInterviewUC);
@@ -140,3 +145,6 @@ export const rescheduleInterviewController = new RescheduleInterviewController(
 export const startInterviewController = new StartInterviewController(
   startinterviewUC,
 );
+
+export const updateInterviewNoteController =
+  new UpdateInterviewNotesController(updateInterviewNotesUC);

@@ -6,18 +6,26 @@ export const WEBRTC_CONFIGURATION: RTCConfiguration = {
       urls: [
         "stun:stun.l.google.com:19302",
         "stun:stun1.l.google.com:19302",
+        "stun:stun2.l.google.com:19302",
+        "stun:stun3.l.google.com:19302",
       ],
     },
   ],
 };
 
 export const DEFAULT_MEDIA_CONSTRAINTS: MediaConstraints = {
-  audio: true,
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  },
   video: {
-    width: 1280,
-    height: 720,
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
     frameRate: {
       ideal: 30,
+      max: 30,
     },
+    facingMode: "user",
   },
 };

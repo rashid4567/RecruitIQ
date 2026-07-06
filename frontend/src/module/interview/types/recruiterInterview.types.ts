@@ -183,3 +183,13 @@ export interface RejectRescheduleResponse {
   rescheduleRequested: boolean;
   updatedAt?: string;
 }
+
+export interface UpdateInterviewNotesRequest {
+  notes: string;
+}
+
+export interface UpdateInterviewNotesResponse {
+  id: string;
+  notes: string;
+  updatedAt?: string;
+}

@@ -4,6 +4,6 @@ export const CompleteInterviewSchema = z.object({
   notes: z
     .string()
     .trim()
-    .max(1000, "Notes cannot exceed 1000 characters")
+    .max(500, "Notes cannot exceed 500 characters")
     .optional(),
 });

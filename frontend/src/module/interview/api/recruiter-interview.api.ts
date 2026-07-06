@@ -82,7 +82,10 @@ export const startInterview = async (
 export const endInterview = async (
   interviewId: string,
 ): Promise<EndInterviewResponse> => {
-  const response = await api.patch(RECRUITER_INTERVIEW_ROUTES.END(interviewId));
+  const response = await api.patch(
+    RECRUITER_INTERVIEW_ROUTES.END(interviewId),
+    {},
+  );
 
   return response.data.data;
 };

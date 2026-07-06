@@ -36,17 +36,17 @@ export class WebRTCService {
 
   private async createLocalStream(): Promise<void> {
     try {
-        console.log("[WEBRTC] Requesting Camera + Mic...");
+      console.log("[WEBRTC] Requesting Camera + Mic...");
       this.localStream = await navigator.mediaDevices.getUserMedia(
         DEFAULT_MEDIA_CONSTRAINTS,
       );
 
       console.log("[WEBRTC] Local Stream Ready");
 
-console.log({
-    videoTracks: this.localStream.getVideoTracks().length,
-    audioTracks: this.localStream.getAudioTracks().length,
-});
+      console.log({
+        videoTracks: this.localStream.getVideoTracks().length,
+        audioTracks: this.localStream.getAudioTracks().length,
+      });
     } catch (error) {
       console.error("Unable to access camera/microphone.", error);
       throw error;
@@ -54,11 +54,11 @@ console.log({
   }
 
   private createPeerConnection(): void {
-     console.log("[WEBRTC] Creating PeerConnection...");
+    console.log("[WEBRTC] Creating PeerConnection...");
 
-  this.peerConnection = new RTCPeerConnection(WEBRTC_CONFIGURATION);
+    this.peerConnection = new RTCPeerConnection(WEBRTC_CONFIGURATION);
 
-  console.log("[WEBRTC] PeerConnection Created.");
+    console.log("[WEBRTC] PeerConnection Created.");
     this.remoteStream = new MediaStream();
     if (!this.localStream) {
       throw new Error("Local stream is not initialized.");
@@ -224,35 +224,35 @@ console.log({
     }
   }
 
-async initialize(): Promise<void> {
-  if (this.peerConnection) {
-    console.log("[WEBRTC] Already initialized.");
-    return;
+  async initialize(): Promise<void> {
+    if (this.peerConnection) {
+      console.log("[WEBRTC] Already initialized.");
+      return;
+    }
+
+    console.log("================================");
+    console.log("[WEBRTC] Initialization Started");
+    console.log("================================");
+
+    await this.createLocalStream();
+
+    console.log("[WEBRTC] Local stream created.");
+
+    this.createPeerConnection();
+
+    console.log("[WEBRTC] PeerConnection created.");
+
+    console.log("================================");
+    console.log("[WEBRTC] Initialization Completed");
+    console.log("================================");
   }
-
-  console.log("================================");
-  console.log("[WEBRTC] Initialization Started");
-  console.log("================================");
-
-  await this.createLocalStream();
-
-  console.log("[WEBRTC] Local stream created.");
-
-  this.createPeerConnection();
-
-  console.log("[WEBRTC] PeerConnection created.");
-
-  console.log("================================");
-  console.log("[WEBRTC] Initialization Completed");
-  console.log("================================");
-}
   async createOffer(): Promise<RTCSessionDescriptionInit> {
     try {
       const peerConnection = this.getPeerConnection();
       console.log("[OFFER] Creating SDP offer...");
       if (peerConnection.signalingState !== "stable") {
-        console.warn(
-          `[OFFER] PeerConnection is not in stable state. Current state: ${peerConnection.signalingState}`,
+        throw new Error(
+          `Cannot create offer while signaling state is ${peerConnection.signalingState}`,
         );
       }
       const offer = await peerConnection.createOffer();
@@ -284,48 +284,44 @@ async initialize(): Promise<void> {
     }
   }
 
-  async handleOffer(
-  offer: RTCSessionDescriptionInit,
-): Promise<void> {
-  console.log("================================");
-  console.log("[WEBRTC] Handling Offer");
-  console.log("================================");
+  async handleOffer(offer: RTCSessionDescriptionInit): Promise<void> {
+    console.log("================================");
+    console.log("[WEBRTC] Handling Offer");
+    console.log("================================");
 
-  await this.setRemoteDescription(offer);
+    await this.setRemoteDescription(offer);
 
-  console.log("[WEBRTC] Offer Applied");
-}
+    console.log("[WEBRTC] Offer Applied");
+  }
 
-async handleAnswer(
-  answer: RTCSessionDescriptionInit,
-): Promise<void> {
-  console.log("================================");
-  console.log("[WEBRTC] Handling Answer");
-  console.log("================================");
+  async handleAnswer(answer: RTCSessionDescriptionInit): Promise<void> {
+    console.log("================================");
+    console.log("[WEBRTC] Handling Answer");
+    console.log("================================");
 
-  await this.setRemoteDescription(answer);
+    await this.setRemoteDescription(answer);
 
-  console.log("[WEBRTC] Answer Applied");
-}
+    console.log("[WEBRTC] Answer Applied");
+  }
 
- async setRemoteDescription(
-  description: RTCSessionDescriptionInit,
-): Promise<void> {
-  const peerConnection = this.getPeerConnection();
+  async setRemoteDescription(
+    description: RTCSessionDescriptionInit,
+  ): Promise<void> {
+    const peerConnection = this.getPeerConnection();
 
-  console.log("[WEBRTC] Setting Remote Description...");
-  console.log({
-    type: description.type,
-    signalingState: peerConnection.signalingState,
-  });
+    console.log("[WEBRTC] Setting Remote Description...");
+    console.log({
+      type: description.type,
+      signalingState: peerConnection.signalingState,
+    });
 
-  await peerConnection.setRemoteDescription(description);
+    await peerConnection.setRemoteDescription(description);
 
-  console.log("[WEBRTC] Remote Description Applied");
-  console.log({
-    signalingState: peerConnection.signalingState,
-  });
-}
+    console.log("[WEBRTC] Remote Description Applied");
+    console.log({
+      signalingState: peerConnection.signalingState,
+    });
+  }
 
   async addIceCandidate(candidate: RTCIceCandidateInit): Promise<void> {
     const peerConnection = this.getPeerConnection();

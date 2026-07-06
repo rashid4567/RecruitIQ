@@ -11,13 +11,13 @@ export class OfferHandler {
       const target = this.roomRepository.getOtherParticipant(roomId, socket.id);
 
       if (!target) {
-      console.warn("================================");
-console.warn("[OFFER] No participant found");
-console.warn({
-  roomId,
-  from: socket.id,
-});
-console.warn("================================");
+        console.warn("================================");
+        console.warn("[OFFER] No participant found");
+        console.warn({
+          roomId,
+          from: socket.id,
+        });
+        console.warn("================================");
         return;
       }
 
@@ -26,13 +26,13 @@ console.warn("================================");
         from: socket.id,
       });
       console.log("================================");
-console.log("[OFFER] Received");
-console.log({
-  roomId,
-  from: socket.id,
-  to: target.socketId,
-});
-console.log("================================");
+      console.log("[OFFER] Received");
+      console.log({
+        roomId,
+        from: socket.id,
+        to: target.socketId,
+      });
+      console.log("================================");
     });
   }
 }

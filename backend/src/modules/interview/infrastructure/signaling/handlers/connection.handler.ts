@@ -6,6 +6,7 @@ import { OfferHandler } from "./offer.handler";
 import { AnswerHandler } from "./answer.handler";
 import { IceCandidateHandler } from "./ice-candidate.handler";
 import { DisconnectHandler } from "./disconnect.handler";
+import { ChatMessageHandler } from "./chat-message.handler";
 
 export class SocketConnectionHandler {
 
@@ -16,6 +17,7 @@ export class SocketConnectionHandler {
     private readonly offerHandler: OfferHandler,
     private readonly answerHandler: AnswerHandler,
     private readonly iceCandidateHandler: IceCandidateHandler,
+    private readonly chatMessageHandler : ChatMessageHandler,
     private readonly disconnectHandler: DisconnectHandler,
   ) {}
 
@@ -34,6 +36,7 @@ console.log("================================");
       this.offerHandler.register(this.io, socket);
       this.answerHandler.register(this.io, socket);
       this.iceCandidateHandler.register(this.io, socket);
+      this.chatMessageHandler.register(this.io,socket);
       this.disconnectHandler.register(socket);
 
     });

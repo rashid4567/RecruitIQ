@@ -4,6 +4,7 @@ import { socketService } from "../../services/SocketService";
 
 import type {
   AnswerPayload,
+  ChatMessageReceivedPayload,
   IceCandidatePayload,
   JoinRoomFailedPayload,
   OfferPayload,
@@ -45,6 +46,8 @@ interface UseInterviewCallReturn {
   toggleMicrophone: () => void;
   toggleCamera: () => void;
   toggleScreenShare: () => Promise<void>;
+  messages: ChatMessageReceivedPayload[];
+  sendMessage: (message: string) => void;
   endCall: () => Promise<void>;
 }
 
@@ -78,6 +81,7 @@ export function useInterviewCall({
   const [isCameraEnabled, setIsCameraEnabled] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const callbacksRegisteredRef = useRef(false);
+  const [messages, setMessages] = useState<ChatMessageReceivedPayload[]>([]);
 
   const clearJoinTimeout = useCallback(() => {
     if (joinTimeoutRef.current) {
@@ -96,6 +100,20 @@ export function useInterviewCall({
     [onError],
   );
 
+  const handleChatMessage = useCallback(
+    (payload: ChatMessageReceivedPayload) => {
+      console.log("[CHAT] Message received");
+      console.log(payload);
+
+      setMessages((prev) => {
+        const next = [...prev, payload];
+
+        return next.slice(-100);
+      });
+    },
+    [],
+  );
+
   const flushPendingIceCandidates = useCallback(async () => {
     const queued = pendingIceCandidatesRef.current;
     pendingIceCandidatesRef.current = [];
@@ -108,67 +126,71 @@ export function useInterviewCall({
       }
     }
   }, [webRTC]);
-
   const createAndSendOffer = useCallback(async () => {
     try {
       console.log("[OFFER] Creating and sending offer.", { roomId, role });
+
       const offer = await webRTC.createOffer();
-      socketService.sendOffer({ roomId, offer });
+
+      socketService.sendOffer({
+        roomId,
+        offer,
+      });
     } catch (err) {
       handleError("Failed to create offer.", err);
     }
   }, [webRTC, roomId, role, handleError]);
 
-const handleOffer = useCallback(
-  async (payload: OfferPayload) => {
-    console.log("======================================");
-    console.log("[SIGNALING] OFFER RECEIVED");
-    console.log("======================================");
-    console.log(payload);
+  const handleOffer = useCallback(
+    async (payload: OfferPayload) => {
+      console.log("======================================");
+      console.log("[SIGNALING] OFFER RECEIVED");
+      console.log("======================================");
+      console.log(payload);
 
-    try {
-      await webRTC.handleOffer(payload.offer);
+      try {
+        await webRTC.handleOffer(payload.offer);
 
-      await flushPendingIceCandidates();
+        await flushPendingIceCandidates();
 
-      console.log("[SIGNALING] Remote description set.");
+        console.log("[SIGNALING] Remote description set.");
 
-      const answer = await webRTC.createAnswer();
+        const answer = await webRTC.createAnswer();
 
-      console.log("[SIGNALING] SDP Answer created.");
+        console.log("[SIGNALING] SDP Answer created.");
 
-      socketService.sendAnswer({
-        roomId,
-        answer,
-      });
+        socketService.sendAnswer({
+          roomId,
+          answer,
+        });
 
-      console.log("[SIGNALING] Answer sent.");
-    } catch (err) {
-      console.error("[SIGNALING] Failed handling offer.", err);
-    }
-  },
-  [roomId, webRTC, flushPendingIceCandidates],
-);
+        console.log("[SIGNALING] Answer sent.");
+      } catch (err) {
+        console.error("[SIGNALING] Failed handling offer.", err);
+      }
+    },
+    [roomId, webRTC, flushPendingIceCandidates],
+  );
 
-const handleAnswer = useCallback(
-  async (payload: AnswerPayload) => {
-    console.log("======================================");
-    console.log("[SIGNALING] ANSWER RECEIVED");
-    console.log("======================================");
-    console.log(payload);
+  const handleAnswer = useCallback(
+    async (payload: AnswerPayload) => {
+      console.log("======================================");
+      console.log("[SIGNALING] ANSWER RECEIVED");
+      console.log("======================================");
+      console.log(payload);
 
-    try {
-      await webRTC.handleAnswer(payload.answer);
+      try {
+        await webRTC.handleAnswer(payload.answer);
 
-      await flushPendingIceCandidates();
+        await flushPendingIceCandidates();
 
-      console.log("[SIGNALING] Remote description applied.");
-    } catch (err) {
-      console.error("[SIGNALING] Failed handling answer.", err);
-    }
-  },
-  [webRTC, flushPendingIceCandidates],
-);
+        console.log("[SIGNALING] Remote description applied.");
+      } catch (err) {
+        console.error("[SIGNALING] Failed handling answer.", err);
+      }
+    },
+    [webRTC, flushPendingIceCandidates],
+  );
 
   const handleRemoteIceCandidate = useCallback(
     async ({ candidate }: IceCandidatePayload) => {
@@ -186,43 +208,55 @@ const handleAnswer = useCallback(
     [webRTC, roomId, role],
   );
 
-const handleUserJoined = useCallback(
-  async (payload: UserJoinedPayload) => {
-    console.log("======================================");
-    console.log("[ROOM] USER_JOINED");
-    console.log("======================================");
-    console.log(payload);
+  const handleUserJoined = useCallback(
+    async (payload: UserJoinedPayload) => {
+      console.log("[ROOM] User joined.", {
+        payload,
+        role,
+      });
 
-    if (role !== "recruiter") {
-      console.log("[ROOM] Candidate joined. Waiting for offer...");
-      return;
-    }
+      if (role !== "recruiter") {
+        return;
+      }
 
-    console.log("[ROOM] Recruiter detected candidate.");
-    console.log("[ROOM] Creating SDP Offer...");
+      try {
+        if (webRTC.getSignalingState() !== "stable") {
+          console.log(
+            "[ROOM] Skipping offer because PeerConnection is negotiating.",
+          );
+          return;
+        }
 
-    try {
-      await createAndSendOffer();
-
-      console.log("[ROOM] Offer sent successfully.");
-    } catch (err) {
-      console.error("[ROOM] Failed to create offer.", err);
-    }
-  },
-  [role, createAndSendOffer],
-);
+        await createAndSendOffer();
+      } catch (err) {
+        console.warn(
+          "[ROOM] Unable to create offer because PeerConnection is unavailable.",
+          err,
+        );
+      }
+    },
+    [role, webRTC, createAndSendOffer],
+  );
   const handleUserLeft = useCallback(
-    (_payload: UserLeftPayload) => {
-      console.log("[ROOM] User left.", { roomId, role });
+    (payload: UserLeftPayload) => {
+      console.log("======================================");
+      console.log("[ROOM] USER_LEFT");
+      console.log("======================================");
+      console.log(payload);
+
       setRemoteStream(null);
       setConnectionState("disconnected");
-      setCallState("ENDED");
+
+      console.log(
+        role === "recruiter"
+          ? "[ROOM] Candidate disconnected. Waiting for candidate to rejoin..."
+          : "[ROOM] Recruiter disconnected. Waiting for recruiter to rejoin...",
+      );
     },
-    [roomId, role],
+    [role],
   );
 
- const handleRoomJoined = useCallback(
-  (payload: RoomJoinedPayload) => {
+  const handleRoomJoined = useCallback((payload: RoomJoinedPayload) => {
     console.log("======================================");
     console.log("[ROOM] ROOM_JOINED");
     console.log("======================================");
@@ -236,9 +270,7 @@ const handleUserJoined = useCallback(
     setLoading(false);
 
     console.log("[ROOM] Successfully joined room");
-  },
-  [],
-);
+  }, []);
 
   const handleJoinRoomFailed = useCallback(
     (payload: JoinRoomFailedPayload) => {
@@ -280,27 +312,28 @@ const handleUserJoined = useCallback(
     webRTC.onConnectionStateChanged((state) => {
       setConnectionState(state);
 
-      if (state === "connected") {
-        setCallState("CONNECTED");
-        console.log("[CONNECTION] Connected.", {
-          roomId,
-          role,
-        });
-        setLoading(false);
-      }
-
-      if (state === "disconnected") {
-        console.warn("[CONNECTION] disconnected — may recover.", {
-          roomId,
-          role,
-        });
-      }
-      if (state === "failed" || state === "closed") {
-        console.error(`[CONNECTION] ${state}`, { roomId, role });
-        setCallState("ENDED");
+      switch (state) {
+        case "connected":
+          setCallState("CONNECTED");
+          break;
+        case "connecting":
+          setCallState("CONNECTING");
+          break;
+        case "disconnected":
+          console.log("[WEBRTC] Waiting for peer to reconnect...");
+          break;
+        case "failed":
+          console.warn("[WEBRTC] PeerConnection failed.");
+          webRTC.dispose();
+          isInitializedRef.current = false;
+          setRemoteStream(null);
+          setCallState("ENDED");
+          break;
+        case "closed":
+          console.log("[WEBRTC] PeerConnection closed.");
+          break;
       }
     });
-
     webRTC.onIceConnectionStateChanged((state) => {
       console.log("[ICE]", state);
 
@@ -315,6 +348,7 @@ const handleUserJoined = useCallback(
     socketService.onUserLeft(handleUserLeft);
     socketService.onOffer(handleOffer);
     socketService.onAnswer(handleAnswer);
+    socketService.onChatMessage(handleChatMessage);
     socketService.onIceCandidate(handleRemoteIceCandidate);
   }, [
     handleRoomJoined,
@@ -323,168 +357,196 @@ const handleUserJoined = useCallback(
     handleUserLeft,
     handleOffer,
     handleAnswer,
+    handleChatMessage,
     handleRemoteIceCandidate,
   ]);
 
   const initialize = useCallback(async () => {
-  if (isInitializedRef.current) {
-    console.log("======================================");
-    console.log("[CALL] Already initialized");
-    console.log("======================================");
-    return;
-  }
+    if (isInitializedRef.current) {
+      console.log("======================================");
+      console.log("[CALL] Already initialized");
+      console.log("======================================");
+      return;
+    }
 
-  isInitializedRef.current = true;
+    isInitializedRef.current = true;
 
-  console.log("=================================================");
-  console.log("[CALL] Initialization Started");
-  console.log("=================================================");
-  console.log({
-    interviewId,
-    roomId,
-    userId,
-    role,
-  });
-
-  setError(null);
-  setLoading(true);
-  setCallState("CONNECTING");
-
-  try {
-    // ==================================================
-    // STEP 1 - Initialize WebRTC
-    // ==================================================
-
-    console.log("======================================");
-    console.log("[STEP 1] Initializing WebRTC");
-    console.log("======================================");
-
-    await webRTC.initialize();
-
-    console.log("[STEP 1] WebRTC Initialized");
-
-    setLocalStream(webRTC.getLocalStream());
-    setIsMuted(!webRTC.isMicrophoneEnabled());
-    setIsCameraEnabled(webRTC.isCameraEnabled());
-
-    // ==================================================
-    // STEP 2 - Connect Socket FIRST
-    // ==================================================
-
-    console.log("======================================");
-    console.log("[STEP 2] Connecting Socket");
-    console.log("======================================");
-
-    const socket = socketService.connect();
-
-    console.log("[STEP 2] Socket Instance");
+    console.log("=================================================");
+    console.log("[CALL] Initialization Started");
+    console.log("=================================================");
     console.log({
-      connected: socket.connected,
-      socketId: socket.id,
+      interviewId,
+      roomId,
+      userId,
+      role,
     });
 
-    if (!socket.connected) {
-      console.log("[STEP 2] Waiting for socket connection...");
+    setError(null);
+    setMessages([]);
+    setLoading(true);
+    setCallState("CONNECTING");
 
-      await new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error("Socket connection timeout"));
-        }, 10000);
+    try {
+      // ==================================================
+      // STEP 1 - Initialize WebRTC
+      // ==================================================
 
-        socket.once("connect", () => {
-          clearTimeout(timeout);
+      console.log("======================================");
+      console.log("[STEP 1] Initializing WebRTC");
+      console.log("======================================");
 
-          console.log("======================================");
-          console.log("[SOCKET] Connected Successfully");
-          console.log({
-            socketId: socket.id,
-          });
-          console.log("======================================");
+      await webRTC.initialize();
 
-          resolve();
-        });
+      console.log("[STEP 1] WebRTC Initialized");
 
-        socket.once("connect_error", (err) => {
-          clearTimeout(timeout);
+      setLocalStream(webRTC.getLocalStream());
+      setIsMuted(!webRTC.isMicrophoneEnabled());
+      setIsCameraEnabled(webRTC.isCameraEnabled());
 
-          console.error("[SOCKET] Connection Failed");
-          console.error(err);
+      // ==================================================
+      // STEP 2 - Connect Socket FIRST
+      // ==================================================
 
-          reject(err);
-        });
+      console.log("======================================");
+      console.log("[STEP 2] Connecting Socket");
+      console.log("======================================");
+
+      const socket = socketService.connect();
+
+      console.log("[STEP 2] Socket Instance");
+      console.log({
+        connected: socket.connected,
+        socketId: socket.id,
       });
-    }
 
-    console.log("[STEP 2] Socket Ready");
+      if (!socket.connected) {
+        console.log("[STEP 2] Waiting for socket connection...");
 
-    // ==================================================
-    // STEP 3 - Register Callbacks
-    // ==================================================
+        await new Promise<void>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error("Socket connection timeout"));
+          }, 10000);
 
-    if (!callbacksRegisteredRef.current) {
-      console.log("======================================");
-      console.log("[STEP 3] Registering Callbacks");
-      console.log("======================================");
+          socket.once("connect", () => {
+            clearTimeout(timeout);
 
-      registerWebRTCCallbacks();
-      registerSocketEvents();
+            console.log("======================================");
+            console.log("[SOCKET] Connected Successfully");
+            console.log({
+              socketId: socket.id,
+            });
+            console.log("======================================");
 
-      callbacksRegisteredRef.current = true;
+            resolve();
+          });
 
-      console.log("[STEP 3] All callbacks registered");
-    } else {
-      console.log("[STEP 3] Callbacks already registered");
-    }
+          socket.once("connect_error", (err) => {
+            clearTimeout(timeout);
 
-    // ==================================================
-    // STEP 4 - Join Room
-    // ==================================================
+            console.error("[SOCKET] Connection Failed");
+            console.error(err);
 
-    console.log("======================================");
-    console.log("[STEP 4] Joining Room");
-    console.log("======================================");
-
-    console.log({
-      interviewId,
-      roomId,
-      userId,
-      role,
-    });
-
-    socketService.joinRoom({
-      interviewId,
-      roomId,
-      userId,
-      role,
-    });
-
-    console.log("[STEP 4] JOIN_ROOM emitted");
-    console.log("[STEP 4] Waiting for ROOM_JOINED event...");
-
-    // ==================================================
-    // STEP 5 - Timeout
-    // ==================================================
-
-    clearJoinTimeout();
-
-    joinTimeoutRef.current = setTimeout(() => {
-      if (hasJoinedRoomRef.current) {
-        console.log("[TIMEOUT] Already joined room");
-        return;
+            reject(err);
+          });
+        });
       }
 
-      console.error("======================================");
-      console.error("[TIMEOUT] ROOM_JOINED was never received");
-      console.error("======================================");
+      console.log("[STEP 2] Socket Ready");
 
-      console.error({
+      // ==================================================
+      // STEP 3 - Register Callbacks
+      // ==================================================
+
+      if (!callbacksRegisteredRef.current) {
+        console.log("======================================");
+        console.log("[STEP 3] Registering Callbacks");
+        console.log("======================================");
+
+        registerWebRTCCallbacks();
+        registerSocketEvents();
+
+        callbacksRegisteredRef.current = true;
+
+        console.log("[STEP 3] All callbacks registered");
+      } else {
+        console.log("[STEP 3] Callbacks already registered");
+      }
+
+      // ==================================================
+      // STEP 4 - Join Room
+      // ==================================================
+
+      console.log("======================================");
+      console.log("[STEP 4] Joining Room");
+      console.log("======================================");
+
+      console.log({
         interviewId,
         roomId,
         userId,
         role,
       });
 
-      handleError("Timed out while joining the interview room.");
+      socketService.joinRoom({
+        interviewId,
+        roomId,
+        userId,
+        role,
+      });
+
+      console.log("[STEP 4] JOIN_ROOM emitted");
+      console.log("[STEP 4] Waiting for ROOM_JOINED event...");
+
+      // ==================================================
+      // STEP 5 - Timeout
+      // ==================================================
+
+      clearJoinTimeout();
+
+      joinTimeoutRef.current = setTimeout(() => {
+        if (hasJoinedRoomRef.current) {
+          console.log("[TIMEOUT] Already joined room");
+          return;
+        }
+
+        console.error("======================================");
+        console.error("[TIMEOUT] ROOM_JOINED was never received");
+        console.error("======================================");
+
+        console.error({
+          interviewId,
+          roomId,
+          userId,
+          role,
+        });
+
+        handleError("Timed out while joining the interview room.");
+
+        socketService.removeAllListeners();
+        socketService.disconnect();
+
+        webRTC.dispose();
+
+        pendingIceCandidatesRef.current = [];
+
+        isInitializedRef.current = false;
+        hasJoinedRoomRef.current = false;
+        callbacksRegisteredRef.current = false;
+
+        setLoading(false);
+        setCallState("ENDED");
+      }, JOIN_ROOM_TIMEOUT_MS);
+
+      console.log("=================================================");
+      console.log("[CALL] Initialization Completed");
+      console.log("=================================================");
+    } catch (err) {
+      console.error("======================================");
+      console.error("[CALL] Initialization Failed");
+      console.error("======================================");
+      console.error(err);
+
+      clearJoinTimeout();
 
       socketService.removeAllListeners();
       socketService.disconnect();
@@ -498,46 +560,20 @@ const handleUserJoined = useCallback(
       callbacksRegisteredRef.current = false;
 
       setLoading(false);
-      setCallState("ENDED");
-    }, JOIN_ROOM_TIMEOUT_MS);
 
-    console.log("=================================================");
-    console.log("[CALL] Initialization Completed");
-    console.log("=================================================");
-  } catch (err) {
-    console.error("======================================");
-    console.error("[CALL] Initialization Failed");
-    console.error("======================================");
-    console.error(err);
-
-    clearJoinTimeout();
-
-    socketService.removeAllListeners();
-    socketService.disconnect();
-
-    webRTC.dispose();
-
-    pendingIceCandidatesRef.current = [];
-
-    isInitializedRef.current = false;
-    hasJoinedRoomRef.current = false;
-    callbacksRegisteredRef.current = false;
-
-    setLoading(false);
-
-    handleError("Failed to initialize the interview call.", err);
-  }
-}, [
-  webRTC,
-  interviewId,
-  roomId,
-  userId,
-  role,
-  registerWebRTCCallbacks,
-  registerSocketEvents,
-  clearJoinTimeout,
-  handleError,
-]);
+      handleError("Failed to initialize the interview call.", err);
+    }
+  }, [
+    webRTC,
+    interviewId,
+    roomId,
+    userId,
+    role,
+    registerWebRTCCallbacks,
+    registerSocketEvents,
+    clearJoinTimeout,
+    handleError,
+  ]);
 
   const toggleMicrophone = useCallback(() => {
     const enabled = webRTC.toggleMicrophone();
@@ -564,9 +600,43 @@ const handleUserJoined = useCallback(
     }
   }, [webRTC, isScreenSharing, handleError]);
 
+  const sendMessage = useCallback(
+    (message: string) => {
+      const text = message.trim();
+
+      if (!text) {
+        return;
+      }
+
+      const sentAt = new Date().toISOString();
+
+      socketService.sendChatMessage({
+        roomId,
+        message: text,
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          roomId,
+          senderId: userId,
+          senderRole: role,
+          message: text,
+          sentAt,
+        },
+      ]);
+    },
+    [roomId, role, userId],
+  );
+
   const endCall = useCallback(async () => {
     try {
-      console.log("[CALL] Ending...", { roomId, interviewId, role });
+      console.log("[CALL] Ending...", {
+        roomId,
+        interviewId,
+        role,
+      });
+
       clearJoinTimeout();
 
       if (hasJoinedRoomRef.current) {
@@ -576,19 +646,34 @@ const handleUserJoined = useCallback(
 
       socketService.removeAllListeners();
       socketService.disconnect();
+
       webRTC.dispose();
+
       isInitializedRef.current = false;
-      pendingIceCandidatesRef.current = [];
       callbacksRegisteredRef.current = false;
+      pendingIceCandidatesRef.current = [];
+
       setLocalStream(null);
       setRemoteStream(null);
+      setMessages([]);
+      setIsMuted(false);
+      setIsCameraEnabled(true);
+      setIsScreenSharing(false);
+
       setCallState("ENDED");
       setConnectionState("closed");
       setIceConnectionState("closed");
+
       setLoading(false);
       setError(null);
+
       onCallEnded?.();
-      console.log("[CALL] Ended.", { roomId, interviewId, role });
+
+      console.log("[CALL] Ended.", {
+        roomId,
+        interviewId,
+        role,
+      });
     } catch (err) {
       console.error("[CALL] Failed to end call.", err);
       handleError("Failed to end the interview call.", err);
@@ -596,7 +681,15 @@ const handleUserJoined = useCallback(
       clearJoinTimeout();
       pendingIceCandidatesRef.current = [];
     }
-  }, [webRTC, roomId, interviewId, role, onCallEnded, clearJoinTimeout]);
+  }, [
+    webRTC,
+    roomId,
+    interviewId,
+    role,
+    onCallEnded,
+    clearJoinTimeout,
+    handleError,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -604,6 +697,7 @@ const handleUserJoined = useCallback(
       pendingIceCandidatesRef.current = [];
       if (isInitializedRef.current) {
         socketService.removeAllListeners();
+        setMessages([]);
         socketService.disconnect();
         webRTC.dispose();
         isInitializedRef.current = false;
@@ -624,6 +718,8 @@ const handleUserJoined = useCallback(
     isMuted,
     isCameraEnabled,
     isScreenSharing,
+    messages,
+    sendMessage,
     initialize,
     toggleMicrophone,
     toggleCamera,

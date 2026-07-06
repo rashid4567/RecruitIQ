@@ -10,4 +10,5 @@ export const SocketEvents = {
   ANSWER: "answer",
   ICE_CANDIDATE: "ice-candidate",
   LEAVE_ROOM : "leave-room",
+  CHAT_MESSAGE: "chat-message"
 } as const;

@@ -12,6 +12,8 @@ import type {
   UserLeftPayload,
   RoomJoinedPayload,
   JoinRoomFailedPayload,
+  ChatMessagePayload,
+  ChatMessageReceivedPayload,
 } from "../types/socket.types";
 
 class SocketService {
@@ -106,24 +108,31 @@ class SocketService {
     this.socket?.emit(SocketEvents.ICE_CANDIDATE, payload);
   }
 
-onRoomJoined(callback: (payload: RoomJoinedPayload) => void): void {
-  console.log("======================================");
-  console.log("[Socket] Register ROOM_JOINED listener");
-  console.log({
-    socketExists: !!this.socket,
-    socketId: this.socket?.id,
-  });
-  console.log("======================================");
-
-  this.socket?.on(SocketEvents.ROOM_JOINED, (payload) => {
-    console.log("======================================");
-    console.log("[Socket] ROOM_JOINED RECEIVED");
+  sendChatMessage(payload: ChatMessagePayload): void {
+    console.log("[Socket] CHAT_MESSAGE");
     console.log(payload);
+
+    this.socket?.emit(SocketEvents.CHAT_MESSAGE, payload);
+  }
+
+  onRoomJoined(callback: (payload: RoomJoinedPayload) => void): void {
+    console.log("======================================");
+    console.log("[Socket] Register ROOM_JOINED listener");
+    console.log({
+      socketExists: !!this.socket,
+      socketId: this.socket?.id,
+    });
     console.log("======================================");
 
-    callback(payload);
-  });
-}
+    this.socket?.on(SocketEvents.ROOM_JOINED, (payload) => {
+      console.log("======================================");
+      console.log("[Socket] ROOM_JOINED RECEIVED");
+      console.log(payload);
+      console.log("======================================");
+
+      callback(payload);
+    });
+  }
 
   onJoinRoomFailed(callback: (payload: JoinRoomFailedPayload) => void): void {
     this.socket?.on(SocketEvents.JOIN_ROOM_ERROR, (payload) => {
@@ -135,6 +144,8 @@ onRoomJoined(callback: (payload: RoomJoinedPayload) => void): void {
   }
 
   onUserJoined(callback: (payload: UserJoinedPayload) => void): void {
+    this.socket?.off(SocketEvents.USER_JOINED);
+
     this.socket?.on(SocketEvents.USER_JOINED, (payload) => {
       console.log("[Socket] USER_JOINED");
       console.log(payload);
@@ -173,6 +184,17 @@ onRoomJoined(callback: (payload: RoomJoinedPayload) => void): void {
   onIceCandidate(callback: (payload: IceCandidatePayload) => void): void {
     this.socket?.on(SocketEvents.ICE_CANDIDATE, (payload) => {
       console.log("[Socket] ICE_CANDIDATE RECEIVED");
+      console.log(payload);
+
+      callback(payload);
+    });
+  }
+
+  onChatMessage(callback: (payload: ChatMessageReceivedPayload) => void): void {
+    this.socket?.off(SocketEvents.CHAT_MESSAGE);
+
+    this.socket?.on(SocketEvents.CHAT_MESSAGE, (payload) => {
+      console.log("[SOCKET] CHAT_MESSAGE RECEIVED");
       console.log(payload);
 
       callback(payload);

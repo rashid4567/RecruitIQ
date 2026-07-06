@@ -40,3 +40,17 @@ export interface RoomJoinedPayload {
 export interface JoinRoomFailedPayload {
   message: string;
 }
+
+
+export interface ChatMessagePayload {
+  roomId: string;
+  message: string;
+}
+
+export interface ChatMessageReceivedPayload {
+  roomId: string;
+  message: string;
+  senderId: string;
+  senderRole: "candidate" | "recruiter";
+  sentAt: string;
+}

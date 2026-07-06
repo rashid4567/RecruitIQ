@@ -8,22 +8,23 @@ import { IceCandidateHandler } from "./handlers/ice-candidate.handler";
 import { DisconnectHandler } from "./handlers/disconnect.handler";
 import { SocketConnectionHandler } from "./handlers/connection.handler";
 import { validateInterviewUC } from "../../presentation/di/interview.module";
+import { ChatMessageHandler } from "./handlers/chat-message.handler";
 
 export const roomRepository = new InMemoryRoomRepository();
-
 
 export function createSocketConnectionHandler(
   io: Server,
 ): SocketConnectionHandler {
-
-  const joinRoomHandler = new JoinRoomHandler(roomRepository,validateInterviewUC);
+  const joinRoomHandler = new JoinRoomHandler(
+    roomRepository,
+    validateInterviewUC,
+  );
   const leaveRoomHandler = new LeaveRoomHandler(roomRepository);
   const offerHandler = new OfferHandler(roomRepository);
   const answerHandler = new AnswerHandler(roomRepository);
-  const iceCandidateHandler =
-    new IceCandidateHandler(roomRepository);
-  const disconnectHandler =
-    new DisconnectHandler(roomRepository);
+  const iceCandidateHandler = new IceCandidateHandler(roomRepository);
+  const chatMessageHandler = new ChatMessageHandler(roomRepository);
+  const disconnectHandler = new DisconnectHandler(roomRepository);
   return new SocketConnectionHandler(
     io,
     joinRoomHandler,
@@ -31,6 +32,7 @@ export function createSocketConnectionHandler(
     offerHandler,
     answerHandler,
     iceCandidateHandler,
+    chatMessageHandler,
     disconnectHandler,
   );
 }

@@ -10,4 +10,5 @@ export const SocketEvents = {
   OFFER: "offer",
   ANSWER: "answer",
   ICE_CANDIDATE: "ice-candidate",
+  CHAT_MESSAGE: "chat-message",
 } as const;

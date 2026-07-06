@@ -368,7 +368,8 @@ export class Interview {
   start(): void {
     if (
       this.props.status !== InterviewStatus.SCHEDULED &&
-      this.props.status !== InterviewStatus.RESCHEDULED
+      this.props.status !== InterviewStatus.RESCHEDULED &&
+      this.props.status !== InterviewStatus.ONGOING
     ) {
       throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_STARTED);
     }
@@ -385,12 +386,13 @@ export class Interview {
       throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_ROOM_REQUIRED);
     }
 
+    if (this.props.status === InterviewStatus.ONGOING) {
+      return;
+    }
+
     this.props.status = InterviewStatus.ONGOING;
     this.props.startedAt = new Date();
 
-    if (!this.props.recruiterJoinedAt) {
-      this.props.recruiterJoinedAt = new Date();
-    }
     this.touch();
   }
 
@@ -544,9 +546,8 @@ export class Interview {
 
     if (!this.props.candidateJoinedAt) {
       this.props.candidateJoinedAt = new Date();
+      this.touch();
     }
-
-    this.touch();
   }
   markRecruiterJoined(): void {
     if (!this.canJoin()) {
@@ -555,8 +556,8 @@ export class Interview {
 
     if (!this.props.recruiterJoinedAt) {
       this.props.recruiterJoinedAt = new Date();
+      this.touch();
     }
-    this.touch();
   }
 
   markReminderSent(): void {
@@ -589,7 +590,8 @@ export class Interview {
   canStart(): boolean {
     return (
       this.props.status === InterviewStatus.SCHEDULED ||
-      this.props.status === InterviewStatus.RESCHEDULED
+      this.props.status === InterviewStatus.RESCHEDULED ||
+      this.props.status === InterviewStatus.ONGOING
     );
   }
   canBeRescheduled(): boolean {

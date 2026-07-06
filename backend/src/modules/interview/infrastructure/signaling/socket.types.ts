@@ -46,3 +46,8 @@ export interface IceCandidatePayload {
   roomId: string;
   candidate: unknown;
 }
+
+export interface ChatMessagePayload {
+  roomId: string;
+  message: string;
+}

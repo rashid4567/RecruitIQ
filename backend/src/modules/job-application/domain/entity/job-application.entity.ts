@@ -73,39 +73,38 @@ export class JobApplication {
     this.validate();
   }
   static apply(
-  props: Omit<
-    JobApplicationProps,
-    | "id"
-    | "status"
-    | "interview"
-    | "rejectionReason"
-    | "analysisStatus"
-    | "aiAnalysis"
-    | "appliedAt"
-    | "updatedAt"
-  >,
-): JobApplication {
-  return new JobApplication({
-    ...props,
-    status: ApplicationStatus.APPLIED,
-    analysisStatus: ApplicationAnalysisStatus.PENDING,
-    interview: undefined,
-    rejectionReason: undefined,
-    aiAnalysis: undefined,
-    appliedAt: new Date(),
-    updatedAt: new Date(),
-  });
-}
+    props: Omit<
+      JobApplicationProps,
+      | "id"
+      | "status"
+      | "interview"
+      | "rejectionReason"
+      | "analysisStatus"
+      | "aiAnalysis"
+      | "appliedAt"
+      | "updatedAt"
+    >,
+  ): JobApplication {
+    return new JobApplication({
+      ...props,
+      status: ApplicationStatus.APPLIED,
+      analysisStatus: ApplicationAnalysisStatus.PENDING,
+      interview: undefined,
+      rejectionReason: undefined,
+      aiAnalysis: undefined,
+      appliedAt: new Date(),
+      updatedAt: new Date(),
+    });
+  }
 
   static rehydrate(props: JobApplicationProps): JobApplication {
     return new JobApplication(props);
   }
 
   private validate(): void {
-
     if (!this.props.applicationNumber?.trim()) {
-    throw new DomainError(DOMAIN_ERROR_CODES.APPLICATION_NUMBER_REQUIRED);
-  }
+      throw new DomainError(DOMAIN_ERROR_CODES.APPLICATION_NUMBER_REQUIRED);
+    }
     if (!this.props.jobId?.trim()) {
       throw new DomainError(DOMAIN_ERROR_CODES.JOB_REQUIRED);
     }
@@ -137,7 +136,11 @@ export class JobApplication {
   }
 
   shortlist(): void {
-    if (this.props.status !== ApplicationStatus.APPLIED) {
+    if (
+      this.props.status === ApplicationStatus.REJECTED ||
+      this.props.status === ApplicationStatus.WITHDRAWN ||
+      this.props.status === ApplicationStatus.SELECTED
+    ) {
       throw new DomainError(DOMAIN_ERROR_CODES.INVALID_APPLICATION_STATUS);
     }
     this.props.status = ApplicationStatus.SHORTLISTED;
@@ -219,23 +222,21 @@ export class JobApplication {
     this.touch();
   }
 
+  selectInterview(): void {
+    this.ensureMutable();
 
+    if (
+      this.props.status !== ApplicationStatus.APPLIED &&
+      this.props.status !== ApplicationStatus.SHORTLISTED
+    ) {
+      throw new DomainError(
+        DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_SCHEDULED_FOR_CURRENT_APPLICATION_STATUS,
+      );
+    }
 
- selectInterview(): void {
-  this.ensureMutable();
-
-  if (
-    this.props.status !== ApplicationStatus.APPLIED &&
-    this.props.status !== ApplicationStatus.SHORTLISTED
-  ) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.INTERVIEW_CANNOT_BE_SCHEDULED_FOR_CURRENT_APPLICATION_STATUS,
-    );
+    this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
+    this.touch();
   }
-
-  this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
-  this.touch();
-}
 
   select(): void {
     if (this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED) {
@@ -267,43 +268,38 @@ export class JobApplication {
     );
   }
 
-
-
-  
   markInterviewScheduled(): void {
-  if (!this.canScheduleInterview()) {
-    throw new DomainError(
-      ERROR_CODES.INTERVIEW_CANNOT_BE_SCHEDULED_FOR_CURRENT_APPLICATION_STATUS,
-    );
-  }
+    if (!this.canScheduleInterview()) {
+      throw new DomainError(
+        ERROR_CODES.INTERVIEW_CANNOT_BE_SCHEDULED_FOR_CURRENT_APPLICATION_STATUS,
+      );
+    }
 
-  this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
-  this.touch();
-}
+    this.props.status = ApplicationStatus.INTERVIEW_SCHEDULED;
+    this.touch();
+  }
 
   markInterviewCancelled(): void {
-  if (this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED) {
-    throw new DomainError(
-      DOMAIN_ERROR_CODES.INTERVIEW_NOT_SCHEDULED,
-    );
+    if (this.props.status !== ApplicationStatus.INTERVIEW_SCHEDULED) {
+      throw new DomainError(DOMAIN_ERROR_CODES.INTERVIEW_NOT_SCHEDULED);
+    }
+
+    this.props.status = ApplicationStatus.SHORTLISTED;
+
+    this.touch();
   }
-
-  this.props.status = ApplicationStatus.SHORTLISTED;
-
-  this.touch();
-}
 
   canRecruiterShortlist(): boolean {
     return this.props.status === ApplicationStatus.APPLIED;
   }
 
-canScheduleInterview(): boolean {
-  return (
-    this.props.status === ApplicationStatus.APPLIED ||
-    this.props.status === ApplicationStatus.SHORTLISTED ||
-    this.props.status === ApplicationStatus.SELECTED
-  );
-}
+  canScheduleInterview(): boolean {
+    return (
+      this.props.status === ApplicationStatus.APPLIED ||
+      this.props.status === ApplicationStatus.SHORTLISTED ||
+      this.props.status === ApplicationStatus.SELECTED
+    );
+  }
 
   canSelect(): boolean {
     return this.props.status === ApplicationStatus.INTERVIEW_SCHEDULED;
@@ -383,8 +379,8 @@ canScheduleInterview(): boolean {
   }
 
   get applicationNumber(): string {
-  return this.props.applicationNumber;
-}
+    return this.props.applicationNumber;
+  }
 
   get jobId() {
     return this.props.jobId;

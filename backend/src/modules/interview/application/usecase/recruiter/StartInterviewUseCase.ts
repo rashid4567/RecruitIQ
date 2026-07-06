@@ -31,16 +31,13 @@ export class StartInterviewUseCase implements IUseCase<
     }
 
     if (!interview.hasRoom()) {
-  throw new ApplicationError(
-    ERROR_CODES.INTERVIEW_ROOM_NOT_FOUND,
-  );
-}
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_ROOM_NOT_FOUND);
+    }
+
     interview.start();
-
+    interview.markRecruiterJoined();
     const savedInterview = await this.interviewRepo.save(interview);
-
     const result = savedInterview.toObject();
-
     return {
       id: result.id!,
       status: result.status,

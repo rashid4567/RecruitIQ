@@ -1,5 +1,6 @@
 export const ADMIN_ROUTES = {
   CANDIDATES: "/candidates",
+  DASHBOARD : "/dashboard",
   RECRUITERS: "/recruiters",
   EMAIL_TEMPLATES: "/email-templates",
   EMAIL_LOGS: "/email-logs",

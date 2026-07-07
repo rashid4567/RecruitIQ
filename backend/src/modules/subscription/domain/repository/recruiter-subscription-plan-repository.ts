@@ -15,6 +15,7 @@ export interface SubscribersListItem {
   profileImage?: string;
   companyName: string;
   planName: string;
+  planPrice: number; 
   status: string;
   startDate: Date;
   endDate: Date;

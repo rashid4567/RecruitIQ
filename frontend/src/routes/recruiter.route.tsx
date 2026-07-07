@@ -53,6 +53,7 @@ const RecruiterInterviewDecision = lazy(
   () => import("../module/interview/pages/recruiter.decision"),
 );
 
+const RecruiterDashboard = lazy(()=> import("../module/dashboard/pages/recruiter.dashboard"))
 const RecruiterRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -105,7 +106,9 @@ const RecruiterRoutes = () => {
               path="interviews/:interviewId/hiring-decision"
               element={<RecruiterInterviewDecision />}
             />
+             <Route path="dashboard" element={<RecruiterDashboard/>}/>
             <Route path="*" element={<NotFoundPage />} />
+           
           </Route>
         </Route>
       </Routes>

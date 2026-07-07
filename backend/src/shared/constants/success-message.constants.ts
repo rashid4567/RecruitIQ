@@ -85,24 +85,35 @@ export const SUCCESS_MESSAGES = {
     "Application status updated successfully",
   INTERVIEWS_FETCHED_SUCCESSFULLY: "INTERVIEWS_FETCHED_SUCCESSFULLY",
   INTERVIEW_FETCHED_SUCCESSFULLY: "Interview Fetched successfully",
-  INTERVIEW_CANCELLED_SUCCESSFULLY : "Interview cancelled succesfully",
-  INTERVIEW_COMPLETED_SUCCESSFULLY : "Interview completed succesfully",
-  INTERVIEW_STARTED_SUCCESSFULLY : "Interview started succesfully",
-  INTERVIEW_RESCHEDULED_SUCCESSFULLY : "Interview Rescheduled successfully",
-  RECRUITER_JOINED_INTERVIEW_SUCCESSFULLY : "Recruiter joined interview successfully",
-  CANDIDATE_JOINED_INTERVIEW_SUCCESSFULLY : "Candidate joined interview successfully",
-  CANDIDATE_INTERVIEWS_LOADED_SUCCESSFULLY : "Candidate interview loaded successfully",
-  CANDIDATE_INTERVIEW_DETAIL_FETCHED_SUCCESSFULLY : "Candidate interview detail fetched successfully",
-  INTERVIEW_ACCEPTED_SUCCESSFULLY : "Interview accepted successfully",
-  INTERVIEW_REJECTED_SUCCESSFULLY : "Interview rejected successfully",
-  INTERVIEW_RESCHEDULE_REQUESTED_SUCCESSFULLY : "Interview Reschedule request successfully",
-  RESCHEDULED_REQUEST_ACCEPTED_SUCCESSFULLY : "Rescheduled request accepted successfully",
-  RESCHEDULED_REQUEST_REJECTED_SUCCESSFULLY :  "Rescheduled request rejected successfully",
-  OTP_SENT_TO_NEW_EMAIL : "Otp sent to new Email",
-  EMAIL_UPDATED_SUCCESSFULLY : "Email updated successfully",
-  ACCESS_TOKEN_REFRESHED_SUCCESSFULLY : "Access token refreshed successfully",
-  JOB_DETAILS_LOADED_SUCCESSFULLY : "Job details loaded successfully",
-  PLAN_ACTIVATED_SUCCESSFULLY : "Plan activated successfully",
-  INTERVIEW_NOTES_UPDATED : "Interview noted updated",
-  HIRING_DECISION_DATA_FETCHED_SUCCESSFULLY : "Hiring decision data fetched successfully",
+  INTERVIEW_CANCELLED_SUCCESSFULLY: "Interview cancelled succesfully",
+  INTERVIEW_COMPLETED_SUCCESSFULLY: "Interview completed succesfully",
+  INTERVIEW_STARTED_SUCCESSFULLY: "Interview started succesfully",
+  INTERVIEW_RESCHEDULED_SUCCESSFULLY: "Interview Rescheduled successfully",
+  RECRUITER_JOINED_INTERVIEW_SUCCESSFULLY:
+    "Recruiter joined interview successfully",
+  CANDIDATE_JOINED_INTERVIEW_SUCCESSFULLY:
+    "Candidate joined interview successfully",
+  CANDIDATE_INTERVIEWS_LOADED_SUCCESSFULLY:
+    "Candidate interview loaded successfully",
+  CANDIDATE_INTERVIEW_DETAIL_FETCHED_SUCCESSFULLY:
+    "Candidate interview detail fetched successfully",
+  INTERVIEW_ACCEPTED_SUCCESSFULLY: "Interview accepted successfully",
+  INTERVIEW_REJECTED_SUCCESSFULLY: "Interview rejected successfully",
+  INTERVIEW_RESCHEDULE_REQUESTED_SUCCESSFULLY:
+    "Interview Reschedule request successfully",
+  RESCHEDULED_REQUEST_ACCEPTED_SUCCESSFULLY:
+    "Rescheduled request accepted successfully",
+  RESCHEDULED_REQUEST_REJECTED_SUCCESSFULLY:
+    "Rescheduled request rejected successfully",
+  OTP_SENT_TO_NEW_EMAIL: "Otp sent to new Email",
+  EMAIL_UPDATED_SUCCESSFULLY: "Email updated successfully",
+  ACCESS_TOKEN_REFRESHED_SUCCESSFULLY: "Access token refreshed successfully",
+  JOB_DETAILS_LOADED_SUCCESSFULLY: "Job details loaded successfully",
+  PLAN_ACTIVATED_SUCCESSFULLY: "Plan activated successfully",
+  INTERVIEW_NOTES_UPDATED: "Interview noted updated",
+  HIRING_DECISION_DATA_FETCHED_SUCCESSFULLY:
+    "Hiring decision data fetched successfully",
+  RECRUITER_DASHBOARD_FETCHED_SUCCESSFULLY:
+    "Recruiter dashboard fetched successfully.",
+    ADMIN_DASHBOARD_FETCHED_SUCCESSFULLY : "Admin dashboard fetched successfully.",
 } as const;

@@ -9,6 +9,7 @@ import { checkUserActive } from "../../../../shared/middlewares/checkUserActive.
 import jobPostRouter from "../../../job/presentation/router/Recruiter.jobPost.routes";
 import plansRouter from "../../../subscription/presentation/routes/recruiter.subscription.routes"
 import InterviewRouter from "../../../interview/presentation/router/recruiter.interview.routes"
+import DashboardRouter from "../../../dashboard/presentation/router/recruiter.routes";
 import { RECRUITER_ROUTES } from "../constants/recruiter-routes.constants";
 const router = Router();
 
@@ -21,5 +22,6 @@ router.put(RECRUITER_ROUTES.COMPLETE_PROFILE, completeProfileController.complete
 router.use(RECRUITER_ROUTES.JOBS, jobPostRouter);
 router.use(RECRUITER_ROUTES.ROOT, plansRouter)
 router.use(RECRUITER_ROUTES.INTERVIEW, InterviewRouter)
+router.use(RECRUITER_ROUTES.DASHBOARD, DashboardRouter);
  
 export default router;

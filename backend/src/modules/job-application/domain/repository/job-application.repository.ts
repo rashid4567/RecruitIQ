@@ -74,6 +74,7 @@ export interface JobApplicationRepository extends BaseRepository<JobApplication>
   create(application: JobApplication): Promise<JobApplication>;
   save(application: JobApplication): Promise<JobApplication>;
   findByJob(jobId: string): Promise<JobApplication[]>;
+  findAll():Promise<JobApplication[]>;
   findApplicationsWithCandidateDetails(
     jobId: string,
   ): Promise<RecruiterApplicationListItem[]>;

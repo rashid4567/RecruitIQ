@@ -100,6 +100,14 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
     return docs.map((doc) => this.toDomain(doc));
   }
+
+async findAll(): Promise<JobApplication[]> {
+  const docs = await JobApplicationModel.find({
+    isDeleted: false,
+  });
+
+  return docs.map((doc) => this.toDomain(doc));
+}
   async findApplicationsForCandidate(
     candidateId: string,
   ): Promise<CandidateApplicationListItem[]> {

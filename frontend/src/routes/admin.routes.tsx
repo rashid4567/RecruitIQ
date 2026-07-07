@@ -8,7 +8,7 @@ import NotFoundPage from "../pages/landing/pageNotFount";
 
 const AdminLogin = lazy(() => import("../module/admin/pages/login.tsx"));
 const AdminDashboard = lazy(
-  () => import("../module/admin/pages/dashboard.tsx"),
+  () => import("../module/dashboard/pages/admin.dashboard.tsx"),
 );
 const RecruitersPage = lazy(
   () => import("../module/admin/pages/getRecruiterList.tsx"),

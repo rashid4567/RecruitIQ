@@ -99,6 +99,7 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
           recruiterName: user?.fullName ?? "Unknown",
           companyName: recruiterProfile?.companyName ?? "",
           planName: sub.planName,
+           planPrice: sub.planPrice,
           status: sub.status,
           startDate: sub.startDate,
           endDate: sub.endDate,

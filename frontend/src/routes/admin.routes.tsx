@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
+
 import AdminProtectedRoute from "./protector/adminProtectedRoutes";
 import AdminLayout from "../layout/adminLayout";
 import RouteLoader from "../components/RouterLoader";
@@ -21,34 +22,40 @@ const CandidateManagement = lazy(
 const CandidateProfile = lazy(
   () => import("../module/admin/pages/candidateProfile.tsx"),
 );
+
 const PlanController = lazy(
   () => import("../module/subscription/pages/plan-controller.tsx"),
 );
 const PlanEditor = lazy(
   () => import("../module/subscription/pages/subscription.plan.tsx"),
 );
+
 const EmailTemplateManagement = lazy(
   () => import("../module/email/pages/emailTemplate.mangment.tsx"),
 );
 const EmailTemplateEditor = lazy(
   () => import("../module/email/pages/emailTemplate.editor.tsx"),
 );
+
 const EmailLogs = lazy(() => import("../module/email/pages/email.logs.tsx"));
+
 const ActivityLogs = lazy(
   () => import("../module/activity.logger/pages/activity-log.tsx"),
 );
+
 const JobPostManagement = lazy(
   () => import("../module/jobs/pages/jobPost.managment.tsx"),
 );
+
 const SubscribersPage = lazy(
   () => import("../module/subscription/pages/subscribers.list.tsx"),
 );
+
 const AdminRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
       <Routes>
         <Route path="login" element={<AdminLogin />} />
-
         <Route element={<AdminProtectedRoute />}>
           <Route element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
@@ -82,6 +89,7 @@ const AdminRoutes = () => {
             <Route path="plans/create" element={<PlanEditor />} />
             <Route path="plans/edit/:id" element={<PlanEditor />} />
             <Route path="subscribers" element={<SubscribersPage />} />
+
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

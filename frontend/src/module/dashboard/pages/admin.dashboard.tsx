@@ -103,8 +103,6 @@ const PLAN_COLORS: Record<string, string> = {
 };
 const FALLBACK_COLORS = ["#4f46e5", "#7c3aed", "#ec4899", "#0ea5e9", "#f59e0b"];
 
-
-
 const EXPORT_FORMATS = [
   { label: "Download as PDF", ext: "pdf" },
   { label: "Export as CSV", ext: "csv" },
@@ -757,7 +755,6 @@ function NotificationsMenu({
   );
 }
 
-/* ---------- profile menu ---------- */
 function ProfileMenu({ navigate }: { navigate: (path: string) => void }) {
   const [open, setOpen] = useState(false);
   return (
@@ -946,8 +943,6 @@ export default function AdminDashboard() {
               </span>
             </div>
           )}
-
-      
         </div>
 
         <div className="flex-1 overflow-auto px-8 py-6">

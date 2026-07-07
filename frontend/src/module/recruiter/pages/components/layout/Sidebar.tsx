@@ -3,7 +3,6 @@ import {
   Briefcase,
   
   Calendar,
-  MessageSquare,
   CreditCard,
   User,
   LogOut,
@@ -31,12 +30,7 @@ const navItems = [
     id: "interviews",
     path: "/recruiter/interviews",
   },
-  {
-    icon: MessageSquare,
-    label: "Interview Chats",
-    id: "interview-chats",
-    path: "/recruiter/chats",
-  },
+ 
 
   {
     icon: CreditCard,

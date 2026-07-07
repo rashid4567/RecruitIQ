@@ -940,8 +940,6 @@ export default function RecruiterDashboard() {
     return items.sort((a, b) => b.at - a.at).slice(0, 6);
   }, [applications, interviews]);
 
-
-
   const quickActions = [
     {
       label: "Post Job",
@@ -1009,8 +1007,7 @@ export default function RecruiterDashboard() {
       <Sidebar />
 
       <div className="flex-1 overflow-auto relative">
-        {/* Header */}
-       <Header/>
+        <Header />
 
         <div className="p-8 space-y-6">
           <div className="fade-up relative overflow-hidden bg-linear-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-8 text-white">
@@ -1786,7 +1783,6 @@ export default function RecruiterDashboard() {
                   </SectionCard>
                 )}
 
-                {/* Subscription Usage */}
                 {!loading && subscription && (
                   <SectionCard
                     tint="blue"

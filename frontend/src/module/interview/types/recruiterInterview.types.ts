@@ -1,4 +1,4 @@
-import type { ApplicationStatus } from "@/module/job-application/types/jobApplication.types";
+import type { ApplicationRecommendation, ApplicationStatus } from "@/module/job-application/types/jobApplication.types";
 import type {
   CandidateResponseStatus,
   InterviewMode,
@@ -192,4 +192,98 @@ export interface UpdateInterviewNotesResponse {
   id: string;
   notes: string;
   updatedAt?: string;
+}
+
+
+export interface GetRecruiterHiringDecisionDetailsResponse {
+  application: HiringDecisionApplication;
+  interview: HiringDecisionInterview;
+  job: HiringDecisionJob;
+  resume: HiringDecisionResume;
+}
+
+export interface HiringDecisionApplication {
+  applicationId: string;
+  applicationNumber: string;
+  jobId: string;
+  recruiterId: string;
+  candidateId: string;
+  resumeId: string;
+  candidateName: string;
+  candidateEmail: string;
+  candidateProfileImage?: string;
+  status: string;
+  analysisStatus: string;
+  coverLetter?: string;
+  rejectionReason?: string;
+  aiAnalysis?: HiringDecisionAIAnalysis;
+  appliedAt: string;
+  updatedAt: string;
+}
+
+export interface HiringDecisionAIAnalysis {
+  overallScore: number;
+  requiredSkillsScore: number;
+  preferredSkillsScore: number;
+  experienceScore: number;
+  requirementsScore: number;
+  educationScore: number;
+  strengths: string[];
+  gaps: string[];
+  missingCriticalSkills: string[];
+  recommendation: ApplicationRecommendation,
+  summary: string;
+  analyzedAt: string;
+}
+
+export interface HiringDecisionInterview {
+  interviewId: string;
+  title: string;
+  description?: string;
+  round: number;
+  mode: string;
+  status: string;
+  candidateResponseStatus?: string;
+  scheduledAt: string;
+  durationInMinutes: number;
+  location?: string;
+  startedAt?: string;
+  endedAt?: string;
+  recruiterJoinedAt?: string;
+  candidateJoinedAt?: string;
+  notes?: string;
+  completed: boolean;
+}
+
+export interface HiringDecisionJob {
+  jobId: string;
+  title: string;
+}
+
+export interface HiringDecisionParsedResume {
+  fullName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  skills: string[];
+  education: string[];
+  experience: string[];
+  totalExperienceYears?: number | null;
+  linkedin?: string | null;
+  github?: string | null;
+  portfolio?: string | null;
+  currentCompany?: string | null;
+  currentRole?: string | null;
+}
+
+export interface HiringDecisionResume {
+  resumeId: string;
+  fileName: string;
+  previewUrl: string;
+  uploadedAt: string;
+  parseStatus:
+    | "PENDING"
+    | "PROCESSING"
+    | "COMPLETED"
+    | "FAILED";
+  parsedData?: HiringDecisionParsedResume;
 }

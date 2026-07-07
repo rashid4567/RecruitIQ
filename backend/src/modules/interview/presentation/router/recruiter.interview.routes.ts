@@ -11,8 +11,8 @@ import {
   acceptReschduleInterviewController,
   rejectRescheduleInterviewController,
   updateInterviewNoteController,
+  getRecruiterHiringDecisionDetailsController,
 } from "../di/interview.module";
-import { UpdateInterviewNotesController } from "../controller/recruiter/updateInterview.notes.controller";
 
 const router = Router();
 
@@ -23,6 +23,10 @@ router.post(
 router.get(
   INTERVIEW_ROUTES.GET_INTERVIEWS,
   getRecruiterInterviewsController.getRecruiterInterviews,
+);
+router.get(
+  INTERVIEW_ROUTES.HIRING_DECISION_DETAILS,
+  getRecruiterHiringDecisionDetailsController.getHiringDecisionDetails,
 );
 router.get(
   INTERVIEW_ROUTES.GET_INTERVIEW_DETAILS,
@@ -43,6 +47,7 @@ router.patch(
   INTERVIEW_ROUTES.ACCEPT_RESCHEDULE,
   acceptReschduleInterviewController.acceptRequest,
 );
+
 router.patch(
   INTERVIEW_ROUTES.REJECT_RESCHEDULE,
   rejectRescheduleInterviewController.rejectRequest,

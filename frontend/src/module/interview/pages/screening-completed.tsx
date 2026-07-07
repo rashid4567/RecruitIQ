@@ -6,6 +6,9 @@ import { useNavigate, useParams } from "react-router-dom";
 
 interface InterviewSummary {
   interviewId: string;
+  applicationId: string;
+  jobId: string;
+  candidateId: string;
   candidateName: string;
   position: string;
   round: string;
@@ -30,7 +33,7 @@ const AUTOSAVE_DELAY_MS = 1500;
 
 const DASHBOARD_ROUTE = "/recruiter/dashboard";
 const decisionRoute = (interviewId: string) =>
-  `/recruiter/interviews/${interviewId}/decision`;
+  `/recruiter/interviews/${interviewId}/hiring-decision`;
 
 function mapToSummary(
   interviewId: string,
@@ -40,6 +43,9 @@ function mapToSummary(
 
   const summary: InterviewSummary = {
     interviewId,
+    applicationId: r.applicationId,
+    candidateId: r.candidateId,
+    jobId: r.jobId,
     candidateName: r.candidateName ?? r.candidate?.name ?? "Unknown candidate",
     position: r.position ?? r.role ?? r.jobTitle ?? "—",
     round: r.round ?? r.interviewRound ?? "Interview",
@@ -617,8 +623,8 @@ export default function InterviewNotesPage() {
                     const ok = await persist(notes);
                     if (!ok) return;
                   }
-
-                  navigate(decisionRoute(interviewId));
+                  if (!summary?.interviewId) return;
+                  navigate(decisionRoute(summary.interviewId));
                 }}
                 className="px-6 py-3 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >

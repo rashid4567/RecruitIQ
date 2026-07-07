@@ -43,12 +43,20 @@ import { IdGenerator } from "../../application/ports/id-generator";
 import { CryptoIdGenerator } from "../../infrastructure/service/crypto-id-generator";
 import { UpdateInterviewNotesUseCase } from "../../application/usecase/recruiter/UpdateInterviewNotesUseCase";
 import { UpdateInterviewNotesController } from "../controller/recruiter/updateInterview.notes.controller";
+import { ResumeRepository } from "../../../resume/domain/repository/resume.repository";
+import { MongooseResumeRepository } from "../../../resume/infrastructure/repository/mongoose.resume.repository";
+import { FileStorageRepository } from "../../../resume/domain/repository/fileStorage.repository";
+import { S3FileStorageRepository } from "../../../resume/infrastructure/storage/s3-file-storage.repository";
+import { GetRecruiterHiringDecisionDetailsUseCase } from "../../application/usecase/recruiter/GetRecruiterHiringDecisionDetailsUseCase";
+import { GetRecruiterHiringDecisionDetailsController } from "../controller/recruiter/GetRecruiterHiringDecisionDetails.controller";
 
 const interviewRepo: InterviewRepository = new MongooseInterviewRepository();
 const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
 const userRepo: UserRepository = new MongooseUserRepository();
 const jobRepo: JobRepository = new MongooseJobRepository();
+const resumeRepo: ResumeRepository = new MongooseResumeRepository();
+const storageRepo: FileStorageRepository = new S3FileStorageRepository();
 const idgenerator: IdGenerator = new CryptoIdGenerator();
 const getCandidateInterviewUC = new GetCandidateInterviewUseCase(interviewRepo);
 const CandidateinterviewDetailUC = new CandidateInterviewDetailsUseCase(
@@ -79,6 +87,16 @@ const getRecruiterInterviewUC = new GetRecruiterInterviewsUseCase(
 const getRecruiterInterviewDetailsUC = new GetRecruiterInterviewDetailsUseCase(
   interviewRepo,
 );
+const getRecruiterHiringDecisionDetailsUC =
+  new GetRecruiterHiringDecisionDetailsUseCase(
+    interviewRepo,
+    applicationRepo,
+    userRepo,
+    jobRepo,
+    resumeRepo,
+    storageRepo,
+  );
+
 const cancelInterviewUC = new RecruiterInterviewCancelUseCase(
   interviewRepo,
   applicationRepo,
@@ -128,6 +146,11 @@ export const getRecruiterInterviewDetailsController =
 export const acceptInterviewController = new AcceptInterviewController(
   acceptInterviewUC,
 );
+
+export const getRecruiterHiringDecisionDetailsController =
+  new GetRecruiterHiringDecisionDetailsController(
+    getRecruiterHiringDecisionDetailsUC,
+  );
 export const rejectInterviewControlelr = new RejectInterviewController(
   rejectInterviewUC,
 );
@@ -146,5 +169,6 @@ export const startInterviewController = new StartInterviewController(
   startinterviewUC,
 );
 
-export const updateInterviewNoteController =
-  new UpdateInterviewNotesController(updateInterviewNotesUC);
+export const updateInterviewNoteController = new UpdateInterviewNotesController(
+  updateInterviewNotesUC,
+);

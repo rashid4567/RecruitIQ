@@ -6,11 +6,12 @@ export const INTERVIEW_ROUTES = {
   CANCEL: "/:interviewId/cancel",
   START: "/:interviewId/start",
   END: "/:interviewId/end",
-   UPDATE_NOTES: "/:interviewId/notes",
+  UPDATE_NOTES: "/:interviewId/notes",
   JOIN: "/:interviewId/join",
   ACCEPT: "/:interviewId/accept",
   REJECT: "/:interviewId/reject",
   REQUEST_RESCHEDULE: "/:interviewId/request-reschedule",
   ACCEPT_RESCHEDULE: "/:interviewId/approve-reschedule",
   REJECT_RESCHEDULE: "/:interviewId/reject-reschedule",
+  HIRING_DECISION_DETAILS: "/:interviewId/hiring-decision",
 } as const;

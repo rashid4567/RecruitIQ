@@ -32,6 +32,12 @@ export class UpdateApplicationStatusUseCase implements IUseCase<
     try {
       const application = await this.validateAndGetApplication(dto);
       const job = await this.validateAndGetJob(application.jobId);
+if (job.isBlocked) {
+  throw new ApplicationError(
+    ERROR_CODES.JOB_POST_IS_BLOCKED_BY_ADMIN,
+  );
+}
+
       this.updateApplicationStatus(
         application,
         dto.status,

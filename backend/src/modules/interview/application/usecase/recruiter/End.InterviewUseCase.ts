@@ -17,53 +17,50 @@ export class EndInterviewUseCase implements IUseCase<
     private readonly applicationRepo: JobApplicationRepository,
   ) {}
 
-  async execute(
-    input: EndInterviewRequestDTO,
-  ): Promise<EndInterviewResponseDTO> {
-    const interview = await this.interviewRepo.findById(input.interviewId);
-    if (!interview) {
-      throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_FOUND);
-    }
-    if (!interview.belongsToRecruiter(input.recruiterId)) {
-      throw new ApplicationError(ERROR_CODES.INTERVIEW_ACCESS_DENIED);
-    }
+ async execute(
+  input: EndInterviewRequestDTO,
+): Promise<EndInterviewResponseDTO> {
+  const interview = await this.interviewRepo.findById(input.interviewId);
 
-    if (!interview.canComplete()) {
-      throw new ApplicationError(ERROR_CODES.INTERVIEW_CANNOT_BE_COMPLETED);
-    }
-    interview.complete();
-    const savedInterview = await this.interviewRepo.save(interview);
-    const application = await this.applicationRepo.findById(
-      interview.applicationId,
-    );
-    if (!application) {
-      throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
-    }
-    application.shortlist();
-    await this.applicationRepo.save(application);
-    const result = savedInterview.toObject();
-
-    return {
-      id: result.id!,
-      applicationId: result.applicationId,
-      jobId: result.jobId,
-      candidateId: result.candidateId,
-      recruiterId: result.recruiterId,
-      roomId: result.roomId,
-      round: result.round,
-      title: result.title,
-      description: result.description,
-      mode: result.mode,
-      status: result.status,
-      scheduledAt: result.scheduledAt,
-      startedAt: result.startedAt,
-      endedAt: result.endedAt,
-      durationInMinutes: result.durationInMinutes,
-      location: result.location,
-      notes: result.notes,
-      reminderSent: result.reminderSent,
-      createdAt: result.createdAt,
-      updatedAt: result.updatedAt,
-    };
+  if (!interview) {
+    throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_FOUND);
   }
+
+  if (!interview.belongsToRecruiter(input.recruiterId)) {
+    throw new ApplicationError(ERROR_CODES.INTERVIEW_ACCESS_DENIED);
+  }
+
+  if (!interview.canComplete()) {
+    throw new ApplicationError(
+      ERROR_CODES.INTERVIEW_CANNOT_BE_COMPLETED,
+    );
+  }
+
+  interview.complete();
+  const savedInterview = await this.interviewRepo.save(interview);
+  const result = savedInterview.toObject();
+
+  return {
+    id: result.id!,
+    applicationId: result.applicationId,
+    jobId: result.jobId,
+    candidateId: result.candidateId,
+    recruiterId: result.recruiterId,
+    roomId: result.roomId,
+    round: result.round,
+    title: result.title,
+    description: result.description,
+    mode: result.mode,
+    status: result.status,
+    scheduledAt: result.scheduledAt,
+    startedAt: result.startedAt,
+    endedAt: result.endedAt,
+    durationInMinutes: result.durationInMinutes,
+    location: result.location,
+    notes: result.notes,
+    reminderSent: result.reminderSent,
+    createdAt: result.createdAt,
+    updatedAt: result.updatedAt,
+  };
+}
 }

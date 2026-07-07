@@ -5,6 +5,7 @@ import type {
   CancelInterviewRequest,
   CancelInterviewResponse,
   EndInterviewResponse,
+  GetRecruiterHiringDecisionDetailsResponse,
   GetRecruiterInterviewDetailsResponse,
   GetRecruiterInterviewsResponse,
   RejectRescheduleResponse,
@@ -42,14 +43,27 @@ export const getRecruiterInterviewDetails = async (
   const response = await api.get(
     RECRUITER_INTERVIEW_ROUTES.INTERVIEW(interviewId),
   );
-
   return response.data.data;
 };
 
+export const getRecruiterHiringDecisionDetails = async (
+  interviewId: string,
+): Promise<GetRecruiterHiringDecisionDetailsResponse> => {
+  
+  const response = await api.get(
+    RECRUITER_INTERVIEW_ROUTES.HIRING_DECISION(interviewId),
+  );
+
+  return response.data.data;
+};
 export const rescheduleInterview = async (
   interviewId: string,
   data: RescheduleInterviewRequest,
 ): Promise<RescheduleInterviewResponse> => {
+   console.log(
+    RECRUITER_INTERVIEW_ROUTES.HIRING_DECISION(interviewId),
+  );
+
   const response = await api.patch(
     RECRUITER_INTERVIEW_ROUTES.RESCHEDULE(interviewId),
     data,
@@ -79,7 +93,6 @@ export const startInterview = async (
 
   return response.data.data;
 };
-
 
 export const endInterview = async (
   interviewId: string,

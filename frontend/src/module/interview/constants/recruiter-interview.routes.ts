@@ -18,4 +18,6 @@ export const RECRUITER_INTERVIEW_ROUTES = {
     `/recruiter/interviews/${interviewId}/approve-reschedule`,
   REJECT_RESCHEDULE: (interviewId: string) =>
     `/recruiter/interviews/${interviewId}/reject-reschedule`,
+  HIRING_DECISION: (interviewId: string) =>
+  `/recruiter/interviews/${interviewId}/hiring-decision`,
 } as const;

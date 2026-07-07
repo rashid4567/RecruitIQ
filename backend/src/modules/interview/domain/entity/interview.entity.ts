@@ -521,7 +521,7 @@ export class Interview {
   }
 
   updateNotes(notes : string):void{
-    if(this.props.status === InterviewStatus.COMPLETED){
+    if(this.props.status !== InterviewStatus.COMPLETED){
       throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_COMPLETED);
     }
 
@@ -612,6 +612,10 @@ export class Interview {
   }
   canComplete(): boolean {
     return this.props.status === InterviewStatus.ONGOING;
+  }
+
+  canUpdateNotes():boolean{
+    return this.props.status === InterviewStatus.COMPLETED;
   }
 
   canCancel(): boolean {

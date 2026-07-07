@@ -102,7 +102,7 @@ const RecruiterRoutes = () => {
               element={<ScreeningComplete />}
             />
             <Route
-              path="interviews/:interviewId/decision"
+              path="interviews/:interviewId/hiring-decision"
               element={<RecruiterInterviewDecision />}
             />
             <Route path="*" element={<NotFoundPage />} />

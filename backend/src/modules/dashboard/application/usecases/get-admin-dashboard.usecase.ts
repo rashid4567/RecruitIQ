@@ -1,10 +1,8 @@
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
-
 import {
   AdminDashboardDTO,
   AdminDashboardRequestDTO,
 } from "../dto/admin-dashboard.dto";
-
 import { JobRepository } from "../../../job/domain/repositories/job.repository";
 import { JobApplicationRepository } from "../../../job-application/domain/repository/job-application.repository";
 import { RecruiterSubscriptionRepository } from "../../../subscription/domain/repository/recruiter-subscription-plan-repository";
@@ -44,16 +42,8 @@ export class GetAdminDashboardUseCase implements IUseCase<
         limit: 1000,
       }),
 
-      this.jobRepository.findAll(
-        {},
-        {
-          page: 1,
-          limit: 1000,
-        },
-      ),
-
+      this.jobRepository.findAll({}, { page: 1, limit: 1000 }),
       this.applicationRepository.findAll(),
-
       this.subscriptionRepository.findAll({
         page: 1,
         limit: 1000,
@@ -64,7 +54,6 @@ export class GetAdminDashboardUseCase implements IUseCase<
 
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-
     const monthlyRevenue = subscriptions.items
       .filter(
         (subscription) =>
@@ -75,15 +64,11 @@ export class GetAdminDashboardUseCase implements IUseCase<
 
     const revenueMap = new Map<
       string,
-      {
-        subscribers: number;
-        revenue: number;
-      }
+      { subscribers: number; revenue: number }
     >();
 
     subscriptions.items.forEach((subscription) => {
       const existing = revenueMap.get(subscription.planName);
-
       if (existing) {
         existing.subscribers += 1;
         existing.revenue += subscription.planPrice;
@@ -105,10 +90,7 @@ export class GetAdminDashboardUseCase implements IUseCase<
 
     const monthMap = new Map<
       string,
-      {
-        subscriptions: number;
-        revenue: number;
-      }
+      { subscriptions: number; revenue: number }
     >();
 
     subscriptions.items.forEach((subscription) => {
@@ -117,7 +99,6 @@ export class GetAdminDashboardUseCase implements IUseCase<
       });
 
       const existing = monthMap.get(month);
-
       if (existing) {
         existing.subscriptions += 1;
         existing.revenue += subscription.planPrice;

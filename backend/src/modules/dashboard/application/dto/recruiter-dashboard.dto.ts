@@ -4,15 +4,10 @@ export interface RecruiterDashboardRequestDTO {
 
 export interface RecruiterDashboardDTO {
   recruiter: RecruiterSummaryDTO;
-
   jobs: RecruiterDashboardJobDTO[];
-
   applications: RecruiterDashboardApplicationDTO[];
-
   interviews: RecruiterDashboardInterviewDTO[];
-
   subscription: RecruiterDashboardSubscriptionDTO | null;
-
   notifications: RecruiterDashboardNotificationDTO[];
 }
 

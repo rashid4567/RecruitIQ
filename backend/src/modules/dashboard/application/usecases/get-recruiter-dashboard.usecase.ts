@@ -1,12 +1,10 @@
 import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { ApplicationError } from "../../../../shared/errors/application.error";
 import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
-
 import {
   RecruiterDashboardDTO,
   RecruiterDashboardRequestDTO,
 } from "../dto/recruiter-dashboard.dto";
-
 import { UserRepository } from "../../../auth/domain/repositories/user.repository";
 import { RecruiterProfileRepository } from "../../../recruiter/domain/repositories/recruiter.repository";
 import { JobRepository } from "../../../job/domain/repositories/job.repository";
@@ -14,7 +12,6 @@ import { JobApplicationRepository } from "../../../job-application/domain/reposi
 import { InterviewRepository } from "../../../interview/domain/repository/interview.repository";
 import { RecruiterSubscriptionRepository } from "../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { NotificationRepository } from "../../../notification/domain/repositories/notification.repository";
-
 import { UserId } from "../../../../shared/value-objects/userId.vo";
 
 export class GetRecruiterDashboardUseCase implements IUseCase<
@@ -35,7 +32,6 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
     request: RecruiterDashboardRequestDTO,
   ): Promise<RecruiterDashboardDTO> {
     const { recruiterId } = request;
-
     const recruiter = await this.userRepository.findById(recruiterId);
 
     if (!recruiter) {
@@ -54,7 +50,6 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
         this.subscriptionRepository.findActiveByRecruiter(recruiterId),
         this.notificationRepository.findByRecipientId(recruiterId),
       ]);
-
     return {
       recruiter: {
         recruiterId: recruiter.id!,
@@ -62,7 +57,6 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
         companyName: recruiterProfile?.getCompanyName(),
         profileImage: recruiter.profileImage,
       },
-
       jobs: jobs.map((job) => ({
         id: job.id,
         title: job.title,
@@ -72,7 +66,6 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
         publicationCount: job.publicationCount,
         createdAt: job.createdAt,
       })),
-
       applications: applications.map((application) => ({
         applicationId: application.id,
         applicationNumber: application.applicationNumber,
@@ -90,7 +83,6 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
         recommendation: application.aiAnalysis?.recommendation,
         appliedAt: application.appliedAt,
       })),
-
       interviews: interviews.map((interview) => ({
         interviewId: interview.id,
         applicationId: interview.applicationId,
@@ -104,7 +96,6 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
         scheduledAt: interview.scheduledAt,
         roomId: interview.roomId,
       })),
-
       subscription: subscription
         ? {
             planName: subscription.planName,
@@ -121,7 +112,6 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
             resumeDownloadLimit: subscription.resumeDownloadLimit,
           }
         : null,
-
       notifications: notifications.map((notification) => ({
         id: notification.getId()!,
         title: notification.getTitle(),

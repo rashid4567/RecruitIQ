@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { GetAdminDashboardUseCase } from "../../application/usecases/get-admin-dashboard.usecase";
 import { HTTP_STATUS } from "../../../../shared/constants/httpStatus";
 import { ApiResponse } from "../../../../shared/utils/api-response";
 import { SUCCESS_MESSAGES } from "../../../../shared/constants/success-message.constants";
@@ -21,7 +20,6 @@ export class AdminDashboardController {
   ): Promise<void> => {
     try {
       const dashboard = await this._getAdminDashboardUseCase.execute({});
-
       ApiResponse.success(
         res,
         HTTP_STATUS.OK,

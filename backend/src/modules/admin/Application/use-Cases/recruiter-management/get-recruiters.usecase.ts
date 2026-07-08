@@ -28,8 +28,21 @@ export class GetRecruitersUseCase implements IUseCase<
     });
 
     return {
-      recruiters: result.recruiters,
-      pagination: { page, limit, total: result.total },
+      recruiters: result.recruiters.map((recruiter) => ({
+        id: recruiter.id,
+        name: recruiter.name,
+        email: recruiter.email,
+        profileImage: recruiter.profileImage,
+        isActive: recruiter.isActive,
+        verificationStatus: recruiter.verificationStatus,
+        subscriptionStatus: recruiter.subscriptionStatus,
+        joinedDate: recruiter.joinedDate,
+      })),
+      pagination: {
+        page,
+        limit,
+        total: result.total,
+      },
     };
   }
 }

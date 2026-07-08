@@ -4,19 +4,15 @@ export interface CandidateListItem {
   id: string;
   name: string;
   email: string;
-isActive : boolean;
+  isActive: boolean;
   profileImage?: string;
-
   status: CandidateStatus;
-  registeredDate: string;
-
+  joinedDate: string;
   currentJob?: string;
   experienceYears?: number;
   educationLevel?: string;
-
   skills: string[];
   preferredJobLocations: string[];
-
   bio?: string;
   currentJobLocation?: string;
   gender?: string;

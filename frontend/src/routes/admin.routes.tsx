@@ -51,6 +51,8 @@ const SubscribersPage = lazy(
   () => import("../module/subscription/pages/subscribers.list.tsx"),
 );
 
+const ChangeAdminPassword = lazy(()=> import("../module/admin/pages/adminpassword.tsx"))
+
 const AdminRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -89,7 +91,7 @@ const AdminRoutes = () => {
             <Route path="plans/create" element={<PlanEditor />} />
             <Route path="plans/edit/:id" element={<PlanEditor />} />
             <Route path="subscribers" element={<SubscribersPage />} />
-
+            <Route path="/settings" element={<ChangeAdminPassword/>}/>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

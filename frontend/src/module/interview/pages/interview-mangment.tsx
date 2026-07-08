@@ -39,7 +39,7 @@ import type {
   ScheduleModalState,
   CancelModalState,
   RescheduleDecisionModalState,
-} from "../types/Interviewdashboard.types";
+} from "./components/interview.mangment/Interviewdashboard.types";
 
 import {
   ITEMS_PER_PAGE,

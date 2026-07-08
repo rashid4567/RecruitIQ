@@ -122,7 +122,6 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
       UserModel.aggregate<RecruiterAggregate>(dataPipeline),
       UserModel.aggregate<{ total: number }>(countPipeline),
     ]);
-
     const recruiters = data.map((doc) =>
       Recruiter.fromPersistence({
         id: doc._id.toString(),
@@ -130,6 +129,7 @@ export class MongooseRecruiterRepository implements RecruiterRepository {
         email: doc.email,
         isActive: doc.isActive,
         profileImage: doc.profileImage,
+        joinedDate: doc.createdAt,
         verificationStatus: doc.verificationStatus,
         subscriptionStatus: doc.subscriptionStatus,
       }),

@@ -36,11 +36,30 @@ export class GetRecruiterInterviewsUseCase implements IUseCase<
       interviews.map((interview) => [interview.applicationId, interview]),
     );
 
-    return applications.map((application) => {
-      const interview = interviewMap.get(application.applicationId);
+    return applications
+      .map((application) => {
+        const interview = interviewMap.get(application.applicationId);
 
-      if (!interview) {
+        if (!interview) {
+          return {
+            applicationId: application.applicationId,
+            jobId: application.jobId,
+            jobTitle: application.jobTitle,
+            candidateId: application.candidateId,
+            candidateName: application.candidateName,
+            candidateEmail: application.candidateEmail,
+            candidateProfileImage: application.candidateProfileImage,
+            recruiterId: application.recruiterId,
+            applicationStatus: application.status,
+            candidateResponseStatus: CandidateResponseStatus.PENDING,
+            rescheduleRequested: false,
+          };
+        }
+
+        const result = interview.toObject();
+
         return {
+          interviewId: result.id,
           applicationId: application.applicationId,
           jobId: application.jobId,
           jobTitle: application.jobTitle,
@@ -49,36 +68,29 @@ export class GetRecruiterInterviewsUseCase implements IUseCase<
           candidateEmail: application.candidateEmail,
           candidateProfileImage: application.candidateProfileImage,
           recruiterId: application.recruiterId,
+          roomId: result.roomId,
+          mode: result.mode,
           applicationStatus: application.status,
-          candidateResponseStatus: CandidateResponseStatus.PENDING,
-          rescheduleRequested: false,
+          interviewStatus: result.status,
+          candidateResponseStatus: result.candidateResponseStatus,
+          rescheduleRequested: result.rescheduleRequested,
+          title: result.title,
+          round: result.round,
+          scheduledAt: result.scheduledAt,
+          durationInMinutes: result.durationInMinutes,
+          location: result.location,
         };
-      }
+      })
+      .sort((a, b) => {
+        const dateA = a.scheduledAt
+          ? new Date(a.scheduledAt).getTime()
+          : Number.MAX_SAFE_INTEGER;
 
-      const result = interview.toObject();
+        const dateB = b.scheduledAt
+          ? new Date(b.scheduledAt).getTime()
+          : Number.MAX_SAFE_INTEGER;
 
-      return {
-        interviewId: result.id,
-        applicationId: application.applicationId,
-        jobId: application.jobId,
-        jobTitle: application.jobTitle,
-        candidateId: application.candidateId,
-        candidateName: application.candidateName,
-        candidateEmail: application.candidateEmail,
-        candidateProfileImage: application.candidateProfileImage,
-        recruiterId: application.recruiterId,
-        roomId: result.roomId,
-         mode: result.mode, 
-        applicationStatus: application.status,
-        interviewStatus: result.status,
-        candidateResponseStatus: result.candidateResponseStatus,
-        rescheduleRequested: result.rescheduleRequested,
-        title: result.title,
-        round: result.round,
-        scheduledAt: result.scheduledAt,
-        durationInMinutes: result.durationInMinutes,
-        location: result.location,
-      };
-    });
+        return dateA - dateB;
+      });
   }
 }

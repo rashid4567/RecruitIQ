@@ -58,7 +58,6 @@ export class AssignFreeSubscriptionUseCase {
       screeningUsed: 0,
       aiScoreUsed: 0,
       jobPostsLimit: freePlan.jobPostsPerMonth,
-      resumeDownloadLimit: freePlan.ResumeDownload,
       screeningLimit: freePlan.screeningCredits,
       aiScoreLimit: freePlan.aiScoreCredits,
       jobPostActiveDays: freePlan.jobPostActiveDays,

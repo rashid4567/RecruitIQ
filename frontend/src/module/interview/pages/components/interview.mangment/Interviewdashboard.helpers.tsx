@@ -8,7 +8,7 @@ import type {
   StatusFilter,
   ModeFilter,
   StatusConfig,
-} from "../../../types/Interviewdashboard.types";
+} from "./Interviewdashboard.types";
 
 export const ITEMS_PER_PAGE = 8;
 export const SEARCH_DEBOUNCE_MS = 300;

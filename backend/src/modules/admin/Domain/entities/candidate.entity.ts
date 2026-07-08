@@ -8,6 +8,7 @@ export class Candidate {
     private readonly email: Email,
     private readonly isActive: boolean,
     private readonly profileImage?: string,
+    private readonly joinedDate?: Date,
     private readonly currentJob?: string,
     private readonly experienceYears?: number,
     private readonly educationLevel?: string,
@@ -27,6 +28,7 @@ export class Candidate {
     email: Email;
     isActive: boolean;
     profileImage?: string;
+    joinedDate?: Date;
     skills?: string[];
     preferredJobLocations?: string[];
   }): Candidate {
@@ -36,6 +38,7 @@ export class Candidate {
       props.email,
       props.isActive,
       props.profileImage,
+      props.joinedDate,
       undefined,
       undefined,
       undefined,
@@ -56,6 +59,7 @@ export class Candidate {
     email: Email;
     isActive: boolean;
     profileImage?: string;
+    joinedDate?: Date;
     currentJob?: string;
     experienceYears?: number;
     educationLevel?: string;
@@ -74,6 +78,7 @@ export class Candidate {
       props.email,
       props.isActive,
       props.profileImage,
+      props.joinedDate,
       props.currentJob,
       props.experienceYears,
       props.educationLevel,
@@ -146,6 +151,9 @@ export class Candidate {
 
   getPortfolioUrl() {
     return this.portfolioUrl;
+  }
+  getJoinedDate() {
+    return this.joinedDate;
   }
 
   isProfileCompleted() {

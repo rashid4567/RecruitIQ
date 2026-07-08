@@ -75,9 +75,13 @@ export function useSpeakerTest(): UseSpeakerTestReturn {
       if (speakerDeviceId && typeof audioWithSink.setSinkId === "function") {
         try {
           await audioWithSink.setSinkId(speakerDeviceId);
-        } catch(err : unknown) {
-          const message = err instanceof Error ? err : "audio speaker test"
-        
+        } catch (err: unknown) {
+          const message =
+            err instanceof Error
+              ? err.message
+              : "Failed to set audio output device";
+
+          console.error(message);
         }
       }
 

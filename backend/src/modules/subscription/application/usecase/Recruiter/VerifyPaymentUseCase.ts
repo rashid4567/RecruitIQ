@@ -150,7 +150,6 @@ export class VerifyPaymentUseCase implements IUseCase<
         plan.jobPostsPerMonth === -1
           ? -1
           : plan.jobPostsPerMonth * payment.durationMonths,
-      resumeDownloadLimit : plan.ResumeDownload === -1 ? -1 : plan.ResumeDownload * payment.durationMonths,
       screeningLimit:
         plan.screeningCredits === -1
           ? -1

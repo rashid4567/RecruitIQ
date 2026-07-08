@@ -65,8 +65,6 @@ export class SubscribePlanUseCase implements IUseCase<
         plan.jobPostsPerMonth === -1
           ? -1
           : plan.jobPostsPerMonth * durationMonths,
-      resumeDownloadLimit:
-        plan.ResumeDownload === -1 ? -1 : plan.ResumeDownload * durationMonths,
       screeningLimit:
         plan.screeningCredits === -1
           ? -1

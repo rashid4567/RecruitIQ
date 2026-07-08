@@ -1,6 +1,15 @@
-import { RecruiterProfileDTO } from "../../../../recruiter/application/dto/recruiter-profile.dto";
 import { verificationStatus } from "../../../../recruiter/domain/constatns/verificationStatus.constants"; 
 
+export interface RecruiterListItemDTO {
+  id: string;
+  name: string;
+  email: string;
+  profileImage?: string;
+  isActive: boolean;
+  verificationStatus: string;
+  subscriptionStatus?: string;
+  joinedDate?: Date;
+}
 export interface GetRecruitersQuery {
   page?: number;
   limit?: number;
@@ -13,7 +22,7 @@ export interface GetRecruitersQuery {
 
 
 export interface GetRecruitersResponseDTO {
-  recruiters: RecruiterProfileDTO[];
+  recruiters: RecruiterListItemDTO[];
   pagination: {
     page: number;
     limit: number;

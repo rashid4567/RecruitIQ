@@ -3,9 +3,9 @@ export interface CandidateListItemDTO {
   name: string;
   email: string;
   isActive: boolean;
+  joinedDate?: Date;
   skills: string[];
   preferredJobLocations: string[];
-
 }
 
 export interface CandidateListRequestDTO {

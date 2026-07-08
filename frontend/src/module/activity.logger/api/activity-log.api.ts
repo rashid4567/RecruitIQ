@@ -9,7 +9,7 @@ interface ActivityLogResponse {
   entityType?: string;
   entityId?: string;
   metadata?: Record<string, MetadataValue>;
-  timestamp?: string;
+  createdAt?: string;
 }
 
 export const getActivityLogs = async (): Promise<ActivityLog[]> => {
@@ -17,12 +17,12 @@ export const getActivityLogs = async (): Promise<ActivityLog[]> => {
     data: ActivityLogResponse[];
   }>(ACTIVITY_LOG_ROUTES.GET_ALL);
 
-  return (data.data ?? []).map((item) => ({
-    userId: item.userId ?? "",
-    action: item.action ?? "",
-    entityType: item.entityType,
-    entityId: item.entityId,
-    metadata: item.metadata ?? {},
-    timestamp: item.timestamp ?? "",
-  }));
+return (data.data ?? []).map((item) => ({
+  userId: item.userId ?? "",
+  action: item.action ?? "",
+  entityType: item.entityType,
+  entityId: item.entityId,
+  metadata: item.metadata ?? {},
+  timestamp: item.createdAt ?? "",
+}));
 };

@@ -51,24 +51,17 @@ export class GetCurrentSubscriptionUseCase
         planPrice: freePlan.price,
         status: SubscriptionStatus.Active,
         isActive: true,
-
         startDate: null,
         endDate: null,
         nextBillingDate: null,
-
         jobPostsUsed: 0,
         resumeDownloadedCount: 0,
-
         jobPostsLimit: freePlan.jobPostsPerMonth,
-        resumeDownloadLimit: freePlan.ResumeDownload ?? 0,
         jobPostActiveDays: freePlan.jobPostActiveDays,
-
         screeningUsed: 0,
         screeningLimit: freePlan.screeningCredits,
-
         aiScoreUsed: 0,
         aiScoreLimit: freePlan.aiScoreCredits,
-
         autoRenew: false,
       };
     }
@@ -94,27 +87,18 @@ export class GetCurrentSubscriptionUseCase
       status: currentSubscription.status,
       isActive:
         currentSubscription.status === SubscriptionStatus.Active,
-
       startDate: currentSubscription.startDate,
       endDate: currentSubscription.endDate,
       nextBillingDate: currentSubscription.endDate,
-
       jobPostsUsed: currentSubscription.jobPostsUsed,
       resumeDownloadedCount:
         currentSubscription.resumeDownloadedCount,
-
       jobPostsLimit: currentSubscription.jobPostsLimit,
-      resumeDownloadLimit:
-        currentSubscription.resumeDownloadLimit,
-
       jobPostActiveDays: currentSubscription.jobPostActiveDays,
-
       screeningUsed: currentSubscription.screeningUsed,
       screeningLimit: currentSubscription.screeningLimit,
-
       aiScoreUsed: currentSubscription.aiScoreUsed,
       aiScoreLimit: currentSubscription.aiScoreLimit,
-
       autoRenew: currentSubscription.autoRenew,
     };
   }

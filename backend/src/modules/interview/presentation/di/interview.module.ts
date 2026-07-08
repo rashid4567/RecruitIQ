@@ -49,6 +49,8 @@ import { FileStorageRepository } from "../../../resume/domain/repository/fileSto
 import { S3FileStorageRepository } from "../../../resume/infrastructure/storage/s3-file-storage.repository";
 import { GetRecruiterHiringDecisionDetailsUseCase } from "../../application/usecase/recruiter/GetRecruiterHiringDecisionDetailsUseCase";
 import { GetRecruiterHiringDecisionDetailsController } from "../controller/recruiter/GetRecruiterHiringDecisionDetails.controller";
+import { RecruiterSubscriptionRepository } from "../../../subscription/domain/repository/recruiter-subscription-plan-repository";
+import { MongooseRecruiterSubscriptionRepository } from "../../../subscription/infrastructure/repositories/mongoose-recruiter-subscription.repository";
 
 const interviewRepo: InterviewRepository = new MongooseInterviewRepository();
 const applicationRepo: JobApplicationRepository =
@@ -57,6 +59,8 @@ const userRepo: UserRepository = new MongooseUserRepository();
 const jobRepo: JobRepository = new MongooseJobRepository();
 const resumeRepo: ResumeRepository = new MongooseResumeRepository();
 const storageRepo: FileStorageRepository = new S3FileStorageRepository();
+const recruiterRepo: RecruiterSubscriptionRepository =
+  new MongooseRecruiterSubscriptionRepository();
 const idgenerator: IdGenerator = new CryptoIdGenerator();
 const getCandidateInterviewUC = new GetCandidateInterviewUseCase(interviewRepo);
 const CandidateinterviewDetailUC = new CandidateInterviewDetailsUseCase(
@@ -96,7 +100,6 @@ const getRecruiterHiringDecisionDetailsUC =
     resumeRepo,
     storageRepo,
   );
-
 const cancelInterviewUC = new RecruiterInterviewCancelUseCase(
   interviewRepo,
   applicationRepo,
@@ -111,7 +114,10 @@ const rejectRescheduleRequestUC = new RejectRescheduleRequestUseCase(
   sendEmailByEventUC,
   createNotificationUC,
 );
-const startinterviewUC = new StartInterviewUseCase(interviewRepo);
+const startinterviewUC = new StartInterviewUseCase(
+  interviewRepo,
+  recruiterRepo,
+);
 const endInterviewUC = new EndInterviewUseCase(interviewRepo, applicationRepo);
 const rescheduleInterviewUC = new RescheduleInterviewUseCase(
   interviewRepo,
@@ -168,7 +174,6 @@ export const rescheduleInterviewController = new RescheduleInterviewController(
 export const startInterviewController = new StartInterviewController(
   startinterviewUC,
 );
-
 export const updateInterviewNoteController = new UpdateInterviewNotesController(
   updateInterviewNotesUC,
 );

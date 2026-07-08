@@ -15,7 +15,6 @@ export interface CurrentSubscriptionResponse {
   jobPostsUsed: number;
   resumeDownloadedCount : number;
   jobPostsLimit: number;
-  resumeDownloadLimit : number;
   jobPostActiveDays: number;
   screeningUsed: number;
   screeningLimit: number;

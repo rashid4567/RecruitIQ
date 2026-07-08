@@ -182,7 +182,6 @@ export class MongooseRecruiterSubscriptionRepository implements RecruiterSubscri
       screeningUsed: doc.screeningUsed,
       aiScoreUsed: doc.aiScoreUsed,
       jobPostsLimit: doc.jobPostsLimit,
-      resumeDownloadLimit : doc.resumeDownloadLimit,
       screeningLimit: doc.screeningLimit,
       aiScoreLimit: doc.aiScoreLimit,
       createdAt: doc.createdAt,

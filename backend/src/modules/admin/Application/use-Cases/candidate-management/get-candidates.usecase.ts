@@ -30,6 +30,7 @@ export class GetCandidateUseCase implements IUseCase<
         name: candidate.getName(),
         email: candidate.getEmail().getValue(),
         isActive: candidate.isActiveAccount(),
+        joinedDate: candidate.getJoinedDate(),
         skills: candidate.getSkills(),
         preferredJobLocations: candidate.getPreferredJobLocations(),
       })),

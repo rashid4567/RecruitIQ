@@ -60,5 +60,13 @@ export const sendTestEmail = async (
 
 export const getEmailLogs = async (): Promise<EmailLog[]> => {
   const { data } = await api.get<{ data: EmailLog[] }>(EMAIL_ROUTES.EMAIL_LOGS);
-  return data.data;
+  return (data.data ?? []).map((item) => ({
+    id: item.id ?? "",
+    to: item.to ?? "",
+    subject: item.subject ?? "",
+    type: item.type ?? "REAL",
+    status: item.status ?? "SENT",
+    createdAt: item.createdAt ?? "",
+    error: item.error,
+  }));
 };

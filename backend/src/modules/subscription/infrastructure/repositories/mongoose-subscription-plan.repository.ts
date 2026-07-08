@@ -94,7 +94,6 @@ export class MongooseSubscriptionPlanRepository implements SubscriptionPlanRepos
       jobPostActiveDays: doc.jobPostActiveDays,
       billingInterval: doc.billingInterval,
       jobPostsPerMonth: doc.jobPostsPerMonth,
-      ResumeDownload: doc.ResumeDownload,
       screeningCredits: doc.screeningCredits,
       aiScoreCredits: doc.aiScoreCredits,
       featuresAccess: {

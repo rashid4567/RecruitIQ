@@ -1,6 +1,7 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
   StartInterviewRequestDTO,
@@ -11,7 +12,10 @@ export class StartInterviewUseCase implements IUseCase<
   StartInterviewRequestDTO,
   StartInterviewResponseDTO
 > {
-  constructor(private readonly interviewRepo: InterviewRepository) {}
+  constructor(
+    private readonly interviewRepo: InterviewRepository,
+    private readonly recruiterSubscriptionRepo: RecruiterSubscriptionRepository,
+  ) {}
 
   async execute(
     input: StartInterviewRequestDTO,
@@ -34,10 +38,26 @@ export class StartInterviewUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.INTERVIEW_ROOM_NOT_FOUND);
     }
 
+    const subscription =
+      await this.recruiterSubscriptionRepo.findActiveByRecruiter(
+        input.recruiterId,
+      );
+
+    if (!subscription) {
+      throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_REQUIRED);
+    }
+
+    if (!subscription.hasScreeningAccess()) {
+      throw new ApplicationError(ERROR_CODES.SCREENING_LIMIT_EXCEEDED);
+    }
+
+    const updatedSubscription = subscription.consumeScreening();
+    await this.recruiterSubscriptionRepo.update(updatedSubscription);
     interview.start();
     interview.markRecruiterJoined();
     const savedInterview = await this.interviewRepo.save(interview);
     const result = savedInterview.toObject();
+
     return {
       id: result.id!,
       status: result.status,

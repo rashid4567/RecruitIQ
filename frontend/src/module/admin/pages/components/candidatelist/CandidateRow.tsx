@@ -198,7 +198,7 @@ export function CandidateRow({
       <td className="px-5 py-5 text-slate-600 text-sm">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-slate-400" />
-          {formatDate(candidate.registeredDate)}
+          {formatDate(candidate.joinedDate)}
         </div>
       </td>
 

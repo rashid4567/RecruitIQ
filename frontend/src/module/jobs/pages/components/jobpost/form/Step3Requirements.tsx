@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { Code2, Star, TrendingUp } from "lucide-react";
+import { Code2, Star, TrendingUp, AlertCircle } from "lucide-react";
 import TagInput from "./TagInput";
 import type { JobFormData } from "@/module/recruiter/types/jobForm.types";
 import { skillSuggestions } from "@/module/jobs/constant/jobFormConstants";
@@ -10,11 +10,13 @@ interface Props {
   errors: Record<string, string>;
 }
 
+const MAX_EXPERIENCE_YEARS = 50;
+
 function ErrorMsg({ msg }: { msg?: string }) {
   if (!msg) return null;
   return (
-    <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1.5 font-medium">
-      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-500 shrink-0 text-[10px] font-bold">
+    <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1.5 font-medium">
+      <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0 text-[10px] font-bold">
         !
       </span>
       {msg}
@@ -23,10 +25,10 @@ function ErrorMsg({ msg }: { msg?: string }) {
 }
 
 const experienceLevels = [
-  { label: "Entry", range: "0–2", min: 0, max: 2, color: "bg-emerald-500" },
-  { label: "Mid", range: "2–5", min: 2, max: 5, color: "bg-blue-500" },
-  { label: "Senior", range: "5–8", min: 5, max: 8, color: "bg-violet-500" },
-  { label: "Lead", range: "8+", min: 8, max: 15, color: "bg-amber-500" },
+  { label: "Entry", range: "0–2", min: 0, max: 2 },
+  { label: "Mid", range: "2–5", min: 2, max: 5 },
+  { label: "Senior", range: "5–8", min: 5, max: 8 },
+  { label: "Lead", range: "8+", min: 8, max: 15 },
 ];
 
 export default function Step3Requirements({
@@ -37,8 +39,51 @@ export default function Step3Requirements({
   const expMin = formData.experienceMin;
   const expMax = formData.experienceMax;
 
+  // ---- Validation helpers -------------------------------------------------
+
+  const clamp = (value: number) =>
+    Math.min(MAX_EXPERIENCE_YEARS, Math.max(0, value));
+
+  const getMinError = (min: number, max: number) => {
+    if (min < 0) return "Minimum can't be negative";
+    if (min > MAX_EXPERIENCE_YEARS)
+      return `Minimum can't exceed ${MAX_EXPERIENCE_YEARS} years`;
+    if (min >= max) return "Minimum must be less than maximum";
+    return "";
+  };
+
+  const getMaxError = (min: number, max: number) => {
+    if (max < 0) return "Maximum can't be negative";
+    if (max > MAX_EXPERIENCE_YEARS)
+      return `Maximum can't exceed ${MAX_EXPERIENCE_YEARS} years`;
+    if (max <= min) return "Maximum must be greater than minimum";
+    return "";
+  };
+
+  const localMinError = getMinError(expMin, expMax);
+  const localMaxError = getMaxError(expMin, expMax);
+
+  // Prefer a locally-computed error, but still respect anything passed
+  // in from the parent (e.g. "required" validation on submit).
+  const minError = localMinError || errors.experienceMin;
+  const maxError = localMaxError || errors.experienceMax;
+
+  const hasExpError = Boolean(minError || maxError);
+
+  // ---- Handlers -------------------------------------------------------------
+
   const setExp = (min: number, max: number) => {
     setFormData((p) => ({ ...p, experienceMin: min, experienceMax: max }));
+  };
+
+  const handleMinChange = (raw: string) => {
+    const parsed = clamp(parseInt(raw) || 0);
+    setFormData((p) => ({ ...p, experienceMin: parsed }));
+  };
+
+  const handleMaxChange = (raw: string) => {
+    const parsed = clamp(parseInt(raw) || 0);
+    setFormData((p) => ({ ...p, experienceMax: parsed }));
   };
 
   const activeLevel = experienceLevels.find(
@@ -49,8 +94,8 @@ export default function Step3Requirements({
     <div className="space-y-8">
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center">
-            <Code2 className="w-4 h-4 text-blue-600" />
+          <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center">
+            <Code2 className="w-4 h-4 text-red-600" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
             Skills & Experience
@@ -62,12 +107,23 @@ export default function Step3Requirements({
       </div>
 
       <div className="space-y-7">
-        <div className="p-5 bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100/80">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-4 h-4 text-blue-600" />
-            <label className="text-sm font-bold text-gray-800">
-              Years of Experience <span className="text-red-400">*</span>
-            </label>
+        <div
+          className={`p-5 bg-linear-to-br from-red-50 to-rose-50 rounded-2xl border transition-colors ${
+            hasExpError ? "border-red-300" : "border-red-100/80"
+          }`}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-red-600" />
+              <label className="text-sm font-bold text-gray-800">
+                Years of Experience <span className="text-red-500">*</span>
+              </label>
+            </div>
+            {!hasExpError && expMin < expMax && (
+              <span className="text-xs font-semibold text-red-600 bg-white px-2.5 py-1 rounded-full border border-red-100">
+                {expMin}–{expMax} yrs
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-4 gap-2 mb-4">
@@ -80,13 +136,11 @@ export default function Step3Requirements({
                   onClick={() => setExp(level.min, level.max)}
                   className={`flex flex-col items-center py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "border-indigo-400 bg-white shadow-md shadow-indigo-100/60 text-indigo-700"
-                      : "border-transparent bg-white/60 text-gray-500 hover:bg-white hover:border-gray-200"
+                      ? "border-red-400 bg-white shadow-md shadow-red-100/60 text-red-700"
+                      : "border-transparent bg-white/60 text-gray-500 hover:bg-white hover:border-red-200"
                   }`}
                 >
-                  <span
-                    className={`w-2 h-2 rounded-full ${level.color} mb-1.5`}
-                  />
+                  <span className="w-2 h-2 rounded-full bg-red-400 mb-1.5" />
                   <span className="font-bold text-xs">{level.label}</span>
                   <span className="text-[11px] text-gray-400">
                     {level.range} yrs
@@ -98,25 +152,21 @@ export default function Step3Requirements({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-blue-700/80 uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-semibold text-red-700/80 uppercase tracking-wider block mb-1.5">
                 Minimum Years
               </label>
               <div className="relative">
                 <Input
                   type="number"
                   min={0}
-                  max={50}
+                  max={MAX_EXPERIENCE_YEARS}
                   value={expMin}
-                  onChange={(e) =>
-                    setFormData((p) => ({
-                      ...p,
-                      experienceMin: parseInt(e.target.value) || 0,
-                    }))
-                  }
-                  className={`h-11 rounded-xl border-2 bg-white text-sm font-medium pr-14 transition-all focus:ring-4 focus:ring-blue-100 ${
-                    errors.experienceMin
-                      ? "border-red-400"
-                      : "border-blue-200 focus:border-blue-400"
+                  onChange={(e) => handleMinChange(e.target.value)}
+                  aria-invalid={Boolean(minError)}
+                  className={`h-11 rounded-xl border-2 bg-white text-sm font-medium pr-14 transition-all focus:ring-4 ${
+                    minError
+                      ? "border-red-400 focus:ring-red-100"
+                      : "border-red-200 focus:border-red-400 focus:ring-red-100"
                   }`}
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
@@ -125,25 +175,21 @@ export default function Step3Requirements({
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-blue-700/80 uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-semibold text-red-700/80 uppercase tracking-wider block mb-1.5">
                 Maximum Years
               </label>
               <div className="relative">
                 <Input
                   type="number"
                   min={0}
-                  max={50}
+                  max={MAX_EXPERIENCE_YEARS}
                   value={expMax}
-                  onChange={(e) =>
-                    setFormData((p) => ({
-                      ...p,
-                      experienceMax: parseInt(e.target.value) || 0,
-                    }))
-                  }
-                  className={`h-11 rounded-xl border-2 bg-white text-sm font-medium pr-14 transition-all focus:ring-4 focus:ring-blue-100 ${
-                    errors.experienceMax
-                      ? "border-red-400"
-                      : "border-blue-200 focus:border-blue-400"
+                  onChange={(e) => handleMaxChange(e.target.value)}
+                  aria-invalid={Boolean(maxError)}
+                  className={`h-11 rounded-xl border-2 bg-white text-sm font-medium pr-14 transition-all focus:ring-4 ${
+                    maxError
+                      ? "border-red-400 focus:ring-red-100"
+                      : "border-red-200 focus:border-red-400 focus:ring-red-100"
                   }`}
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
@@ -152,7 +198,20 @@ export default function Step3Requirements({
               </div>
             </div>
           </div>
-          <ErrorMsg msg={errors.experienceMax || errors.experienceMin} />
+
+          {(minError || maxError) && (
+            <div className="mt-2 flex items-start gap-1.5 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 text-red-500 mt-0.5 shrink-0" />
+              <div className="text-xs text-red-600 font-medium space-y-0.5">
+                {minError && <p>{minError}</p>}
+                {maxError && maxError !== minError && <p>{maxError}</p>}
+              </div>
+            </div>
+          )}
+
+          <p className="mt-2 text-[11px] text-gray-400">
+            Max {MAX_EXPERIENCE_YEARS} years. Minimum must always be less than maximum.
+          </p>
         </div>
 
         <div>
@@ -162,7 +221,7 @@ export default function Step3Requirements({
                 <Code2 className="w-3 h-3 text-white" />
               </div>
               <label className="text-sm font-bold text-gray-800">
-                Required Skills <span className="text-red-400">*</span>
+                Required Skills <span className="text-red-500">*</span>
               </label>
             </div>
             {formData.requiredSkills.length > 0 && (

@@ -335,7 +335,12 @@ function RecommendationBadge({
 }) {
   const map: Record<
     Recommendation,
-    { label: string; sub: string; className: string; dot: string }
+    {
+      label: string;
+      sub: string;
+      className: string;
+      dot: string;
+    }
   > = {
     STRONG_MATCH: {
       label: "Strong match",
@@ -356,7 +361,14 @@ function RecommendationBadge({
       dot: "bg-red-500",
     },
   };
-  const m = map[recommendation];
+
+  const m = map[recommendation] ?? {
+    label: "Unknown",
+    sub: "No recommendation available.",
+    className: "bg-slate-50 border-slate-200 text-slate-700",
+    dot: "bg-slate-400",
+  };
+
   return (
     <div className={`rounded-xl border px-4 py-3 ${m.className}`}>
       <div className="flex items-center gap-2">

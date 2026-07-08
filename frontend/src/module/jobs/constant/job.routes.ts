@@ -9,4 +9,5 @@ export const JOB_ROUTES = {
   UNHIDE: (role: Role, id: string) => `/${role}/jobs/${id}/unhide`,
   BLOCK: (id: string) => `/admin/jobs/${id}/block`,
   UNBLOCK: (id: string) => `/admin/jobs/${id}/unblock`,
+  CLOSE: (role: Role, id: string) => `/${role}/jobs/${id}/close`,
 } as const;

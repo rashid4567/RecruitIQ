@@ -18,18 +18,11 @@ export function getScoreTier(score: number): ScoreTier {
   return "poor";
 }
 
-const TIER_ROW_BG: Record<ScoreTier, string> = {
-  excellent: "bg-emerald-50/60",
-  good: "bg-sky-50/50",
-  average: "bg-amber-50/50",
-  poor: "bg-red-50/50",
-};
-
 const TIER_ROW_HOVER: Record<ScoreTier, string> = {
-  excellent: "hover:bg-emerald-50",
-  good: "hover:bg-sky-50",
-  average: "hover:bg-amber-50",
-  poor: "hover:bg-red-50",
+  excellent: "hover:bg-emerald-50/70",
+  good: "hover:bg-sky-50/70",
+  average: "hover:bg-amber-50/70",
+  poor: "hover:bg-red-50/60",
 };
 
 const TIER_ACCENT: Record<ScoreTier, string> = {
@@ -40,10 +33,10 @@ const TIER_ACCENT: Record<ScoreTier, string> = {
 };
 
 const TIER_BAR: Record<ScoreTier, string> = {
-  excellent: "bg-linearr-to-r from-emerald-400 to-emerald-500",
-  good: "bg-linearr-to-r from-sky-400 to-sky-500",
-  average: "bg-linearr-to-r from-amber-400 to-amber-500",
-  poor: "bg-linearr-to-r from-red-400 to-red-500",
+  excellent: "bg-gradient-to-r from-emerald-400 to-emerald-500",
+  good: "bg-gradient-to-r from-sky-400 to-sky-500",
+  average: "bg-gradient-to-r from-amber-400 to-amber-500",
+  poor: "bg-gradient-to-r from-red-400 to-red-500",
 };
 
 const TIER_TEXT: Record<ScoreTier, string> = {
@@ -72,12 +65,12 @@ function ScoreBar({
   const clamped = Math.min(100, Math.max(0, value));
   return (
     <div
-      className="flex items-center gap-2.5 min-w-25"
+      className="flex items-center gap-2.5 min-w-27"
       aria-label={`${label}: ${value}`}
     >
-      <div className="relative w-16 h-2 rounded-full bg-slate-100 overflow-hidden shrink-0">
+      <div className="relative w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden shrink-0">
         <div
-          className={`absolute inset-y-0 left-0 rounded-full ${TIER_BAR[tier]} transition-all duration-300`}
+          className={`absolute inset-y-0 left-0 rounded-full ${TIER_BAR[tier]} transition-all duration-500 ease-out`}
           style={{ width: `${clamped}%` }}
         />
       </div>
@@ -100,14 +93,14 @@ export function ApplicationTableRow({
   const tier = getScoreTier(row.aiScore);
   const matchTier = getScoreTier(row.matchPercent);
 
-  const rowBg = isSelected ? "bg-blue-50/80" : TIER_ROW_BG[tier];
+  const rowBg = isSelected ? "bg-blue-50/80" : "bg-white";
   const rowHover = isSelected ? "hover:bg-blue-50" : TIER_ROW_HOVER[tier];
   const accent = isSelected ? "border-l-blue-500" : TIER_ACCENT[tier];
 
   return (
     <tr
       onClick={() => navigate(`/recruiter/application-detail/${row.id}`)}
-      className={`cursor-pointer transition-colors duration-150 ${rowBg} ${rowHover}`}
+      className={`group cursor-pointer transition-colors duration-150 ${rowBg} ${rowHover}`}
     >
       <td
         className={`px-5 py-4 border-l-4 ${accent}`}
@@ -122,7 +115,7 @@ export function ApplicationTableRow({
         />
       </td>
 
-      <td className="px-5 py-4">
+      <td className="px-5 py-3.5">
         <div className="flex items-center gap-3">
           {row.profileImage ? (
             <img
@@ -132,7 +125,7 @@ export function ApplicationTableRow({
             />
           ) : (
             <div
-              className={`w-9 h-9 rounded-full bg-linearr-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0 ring-2 ${TIER_RING[tier]} shadow-sm`}
+              className={`w-9 h-9 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0 ring-2 ${TIER_RING[tier]} shadow-sm`}
             >
               {row.initials}
             </div>
@@ -146,15 +139,15 @@ export function ApplicationTableRow({
         </div>
       </td>
 
-      <td className="px-5 py-4 text-xs text-slate-500 whitespace-nowrap">
+      <td className="px-5 py-3.5 text-xs text-slate-500 whitespace-nowrap">
         {row.applicationDate}
       </td>
 
-      <td className="px-5 py-4">
+      <td className="px-5 py-3.5">
         <ScoreBar value={row.aiScore} tier={tier} label="AI score" />
       </td>
 
-      <td className="px-5 py-4">
+      <td className="px-5 py-3.5">
         <ScoreBar
           value={row.matchPercent}
           tier={matchTier}
@@ -162,14 +155,17 @@ export function ApplicationTableRow({
         />
       </td>
 
-      <td className="px-5 py-4">
+      <td className="px-5 py-3.5">
         <StatusBadge status={row.status} />
       </td>
 
-      <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+      <td
+        className="px-5 py-3.5 text-right"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           aria-label={`More actions for ${row.name}`}
-          className="p-1.5 rounded-md text-slate-300 hover:text-slate-600 hover:bg-slate-100/80 transition-colors"
+          className="p-1.5 rounded-md text-slate-300 opacity-0 group-hover:opacity-100 hover:text-slate-600 hover:bg-slate-100 focus:opacity-100 transition-all"
         >
           <MoreVertical size={15} />
         </button>

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, AlertTriangle, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { X, AlertTriangle, Loader2 } from "lucide-react";
 
 interface CancelInterviewModalProps {
   isOpen: boolean;
@@ -11,11 +11,11 @@ interface CancelInterviewModalProps {
 }
 
 const CANCEL_REASONS = [
-  'Candidate requested cancellation',
-  'Position no longer available',
-  'Scheduling conflict',
-  'Candidate withdrew application',
-  'Other',
+  "Candidate requested cancellation",
+  "Position no longer available",
+  "Scheduling conflict",
+  "Candidate withdrew application",
+  "Other",
 ];
 
 export default function CancelInterviewModal({
@@ -26,18 +26,19 @@ export default function CancelInterviewModal({
   error = null,
   candidateName,
 }: CancelInterviewModalProps) {
-  const [selectedReason, setSelectedReason] = useState('');
-  const [customReason, setCustomReason] = useState('');
+  const [selectedReason, setSelectedReason] = useState("");
+  const [customReason, setCustomReason] = useState("");
 
   if (!isOpen) return null;
 
-  const finalReason = selectedReason === 'Other' ? customReason.trim() : selectedReason;
+  const finalReason =
+    selectedReason === "Other" ? customReason.trim() : selectedReason;
   const canSubmit = finalReason.length > 0 && !loading;
 
   function handleClose() {
     if (loading) return;
-    setSelectedReason('');
-    setCustomReason('');
+    setSelectedReason("");
+    setCustomReason("");
     onClose();
   }
 
@@ -54,17 +55,18 @@ export default function CancelInterviewModal({
       }}
     >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-    
         <div className="flex items-start gap-3 px-6 pt-6 pb-4">
           <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
             <AlertTriangle size={20} className="text-red-500" />
           </div>
           <div className="flex-1">
-            <h2 className="text-base font-bold text-slate-900">Cancel Interview</h2>
+            <h2 className="text-base font-bold text-slate-900">
+              Cancel Interview
+            </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               {candidateName
                 ? `This will cancel the interview with ${candidateName}.`
-                : 'This will cancel the scheduled interview.'}
+                : "This will cancel the scheduled interview."}
             </p>
           </div>
           <button
@@ -88,8 +90,8 @@ export default function CancelInterviewModal({
                 onClick={() => setSelectedReason(reason)}
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm border transition-colors ${
                   selectedReason === reason
-                    ? 'border-red-300 bg-red-50 text-red-700 font-medium'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? "border-red-300 bg-red-50 text-red-700 font-medium"
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 {reason}
@@ -97,7 +99,7 @@ export default function CancelInterviewModal({
             ))}
           </div>
 
-          {selectedReason === 'Other' && (
+          {selectedReason === "Other" && (
             <textarea
               value={customReason}
               onChange={(e) => setCustomReason(e.target.value)}
@@ -110,7 +112,6 @@ export default function CancelInterviewModal({
           {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
         </div>
 
-      
         <div className="flex items-center justify-end gap-2 px-6 py-4 bg-slate-50 border-t border-slate-100 mt-4">
           <button
             onClick={handleClose}

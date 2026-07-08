@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { encodeWavMono } from "./wavEncoder";
+import { encodeWavMono } from "../../pages/components/preInterivew-Lobby/wavEncoder";
 
 interface UseSpeakerTestReturn {
   testing: boolean;
@@ -12,19 +12,11 @@ const supportsSetSinkId =
   typeof HTMLMediaElement !== "undefined" &&
   "setSinkId" in HTMLMediaElement.prototype;
 
-/**
- * Generates a short real tone (no bundled audio asset needed) and plays
- * it through the selected output device via setSinkId when supported.
- */
 export function useSpeakerTest(): UseSpeakerTestReturn {
   const [testing, setTesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const urlRef = useRef<string | null>(null);
   const testingRef = useRef(false);
-
-  // Revoke whatever object URL is still outstanding when the component
-  // using this hook unmounts — otherwise the last test tone's blob URL
-  // (and the memory backing it) stays allocated for the life of the tab.
   useEffect(() => {
     return () => {
       if (urlRef.current) {
@@ -57,12 +49,8 @@ export function useSpeakerTest(): UseSpeakerTestReturn {
       const oscillator = offlineCtx.createOscillator();
       const gain = offlineCtx.createGain();
 
-      // Two notes (440Hz -> 660Hz) reads more like a real device test
-      // tone than a single flat pitch.
       oscillator.frequency.setValueAtTime(440, 0);
       oscillator.frequency.setValueAtTime(660, duration / 2);
-
-      // Smoother envelope: quick fade in, brief hold, gentle fade out.
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(0.35, 0.1);
       gain.gain.linearRampToValueAtTime(0.2, 0.5);
@@ -87,9 +75,9 @@ export function useSpeakerTest(): UseSpeakerTestReturn {
       if (speakerDeviceId && typeof audioWithSink.setSinkId === "function") {
         try {
           await audioWithSink.setSinkId(speakerDeviceId);
-        } catch {
-          // Some browsers reject setSinkId without a user gesture in
-          // certain contexts — fall back to default output silently.
+        } catch(err : unknown) {
+          const message = err instanceof Error ? err : "audio speaker test"
+        
         }
       }
 

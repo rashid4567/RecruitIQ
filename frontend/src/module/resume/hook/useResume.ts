@@ -5,8 +5,8 @@ import {
   getResumeDownloadUrl as getResumeDownloadUrlApi,
   uploadResume as uploadResumeApi,
   getMyResume,
+  deleteResume as deleteResumeApi,
 } from "../api/resume.api";
-
 import { type Resume, ResumeParseStatus } from "../types/resume.types";
 
 const ACCEPTED_TYPES = [
@@ -207,13 +207,15 @@ export const useResume = () => {
   }, [resume]);
 
   const deleteResume = useCallback(async () => {
+    if (isDeleting) return;
+
     try {
       setIsDeleting(true);
-
-      await deleteResume();
       stopPolling();
+      await deleteResumeApi();
       setResume(null);
       setError(null);
+
       toast.success("Resume deleted successfully");
     } catch (error) {
       console.error(error);
@@ -221,7 +223,7 @@ export const useResume = () => {
     } finally {
       setIsDeleting(false);
     }
-  }, [stopPolling]);
+  }, [isDeleting, stopPolling]);
   const clearError = useCallback(() => {
     setError(null);
   }, []);

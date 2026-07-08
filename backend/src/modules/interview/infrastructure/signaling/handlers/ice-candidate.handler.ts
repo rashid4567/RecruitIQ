@@ -15,15 +15,7 @@ export class IceCandidateHandler {
           socket.id,
         );
 
-        console.log("================================");
-console.log("[ICE] Candidate Received");
-console.log({
-    roomId,
-    from: socket.id,
-});
-
         if (!target) {
-          console.warn(`[ICE] No participant found in room ${roomId}`);
           return;
         }
 
@@ -31,15 +23,6 @@ console.log({
           candidate,
           from: socket.id,
         });
-
-        console.log("================================");
-console.log("[ICE] Candidate Received");
-console.log({
-    roomId,
-    from: socket.id,
-});
-
-        console.log(`[ICE] ${socket.id} -> ${target.socketId}`);
       },
     );
   }

@@ -32,11 +32,19 @@ interface InterviewDecisionModalProps {
 
 type Step = "choose" | "decline-reason";
 
-function formatScheduledAt(scheduledAt?: string): { date: string; time: string } {
+function formatScheduledAt(scheduledAt?: string): {
+  date: string;
+  time: string;
+} {
   if (!scheduledAt) return { date: "—", time: "—" };
   const d = new Date(scheduledAt);
   return {
-    date: d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }),
+    date: d.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }),
     time: d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
   };
 }
@@ -48,8 +56,16 @@ export default function InterviewDecisionModal({
   onAccepted,
   onRejected,
 }: InterviewDecisionModalProps) {
-  const { submit: accept, loading: accepting, error: acceptError } = useAcceptInterview();
-  const { submit: reject, loading: rejecting, error: rejectError } = useRejectInterview();
+  const {
+    submit: accept,
+    loading: accepting,
+    error: acceptError,
+  } = useAcceptInterview();
+  const {
+    submit: reject,
+    loading: rejecting,
+    error: rejectError,
+  } = useRejectInterview();
   const [step, setStep] = useState<Step>("choose");
   const [reason, setReason] = useState("");
 
@@ -57,7 +73,8 @@ export default function InterviewDecisionModal({
 
   const busy = accepting || rejecting;
   const { date, time } = formatScheduledAt(interview.scheduledAt);
-  const alreadyResponded = interview.candidateResponseStatus !== CandidateResponseStatus.PENDING;
+  const alreadyResponded =
+    interview.candidateResponseStatus !== CandidateResponseStatus.PENDING;
 
   function reset() {
     setStep("choose");
@@ -98,7 +115,6 @@ export default function InterviewDecisionModal({
         className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 w-full max-w-sm overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-
         <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
@@ -106,10 +122,14 @@ export default function InterviewDecisionModal({
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">
-                {step === "choose" ? "Confirm Your Interview" : "Share a reason"}
+                {step === "choose"
+                  ? "Confirm Your Interview"
+                  : "Share a reason"}
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                {step === "choose" ? "Let the recruiter know you're in" : "Helps the recruiter understand why"}
+                {step === "choose"
+                  ? "Let the recruiter know you're in"
+                  : "Helps the recruiter understand why"}
               </p>
             </div>
           </div>
@@ -124,12 +144,16 @@ export default function InterviewDecisionModal({
 
         <div className="px-5 py-4">
           {alreadyResponded ? (
-            <p className="text-sm text-slate-500">You&apos;ve already responded to this interview invite.</p>
+            <p className="text-sm text-slate-500">
+              You&apos;ve already responded to this interview invite.
+            </p>
           ) : (
             <>
               <p className="text-sm text-slate-600 mb-3">
-                <span className="font-semibold text-slate-800">{interview.title || "Interview"}</span> — please
-                confirm whether you can make it.
+                <span className="font-semibold text-slate-800">
+                  {interview.title || "Interview"}
+                </span>{" "}
+                — please confirm whether you can make it.
               </p>
 
               <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-2.5 mb-1">
@@ -148,7 +172,8 @@ export default function InterviewDecisionModal({
               {step === "decline-reason" && (
                 <div className="mt-3">
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">
-                    Why can&apos;t you make it? <span className="text-red-500">*</span>
+                    Why can&apos;t you make it?{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={reason}
@@ -170,7 +195,6 @@ export default function InterviewDecisionModal({
           )}
         </div>
 
-      
         {!alreadyResponded && (
           <div className="px-5 pb-5 flex items-center gap-2">
             {step === "choose" ? (
@@ -188,7 +212,11 @@ export default function InterviewDecisionModal({
                   disabled={busy}
                   className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {accepting ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                  {accepting ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <CheckCircle2 size={14} />
+                  )}
                   Accept
                 </button>
               </>
@@ -206,7 +234,11 @@ export default function InterviewDecisionModal({
                   disabled={busy || !reason.trim()}
                   className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {rejecting ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />}
+                  {rejecting ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <XCircle size={14} />
+                  )}
                   Confirm Decline
                 </button>
               </>

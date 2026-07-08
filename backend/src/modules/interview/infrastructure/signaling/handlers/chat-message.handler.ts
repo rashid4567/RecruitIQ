@@ -13,13 +13,6 @@ export class ChatMessageHandler {
         const sender = this.roomRepository.getParticipant(roomId, socket.id);
 
         if (!sender) {
-          console.warn("================================");
-          console.warn("[CHAT] Sender not found");
-          console.warn({
-            roomId,
-            socketId: socket.id,
-          });
-          console.warn("================================");
           return;
         }
 
@@ -29,13 +22,6 @@ export class ChatMessageHandler {
         );
 
         if (!target) {
-          console.warn("================================");
-          console.warn("[CHAT] No participant found");
-          console.warn({
-            roomId,
-            from: socket.id,
-          });
-          console.warn("================================");
           return;
         }
 
@@ -46,16 +32,6 @@ export class ChatMessageHandler {
           senderRole: sender.role,
           sentAt: new Date().toISOString(),
         });
-        console.log("================================");
-        console.log("[CHAT] Message Sent");
-        console.log({
-          roomId,
-          from: sender.userId,
-          to: target.userId,
-          role: sender.role,
-          message,
-        });
-        console.log("================================");
       },
     );
   }

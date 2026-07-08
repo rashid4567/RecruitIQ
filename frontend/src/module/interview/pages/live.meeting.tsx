@@ -29,6 +29,9 @@ import {
   Lock,
   Copy,
   ChevronDown,
+  UserPlus,
+  UserMinus,
+  Wifi,
 } from "lucide-react";
 
 import {
@@ -52,9 +55,9 @@ const COLOR = {
   red: "#EA4335",
 };
 
-const CHAT_CHAR_LIMIT = 500;
+const CHAT_CHAR_LIMIT = 1000;
 const CHAT_SEND_COOLDOWN_MS = 100;
-const CHAT_TEXTAREA_MAX_HEIGHT_PX = 96;
+const CHAT_TEXTAREA_MAX_HEIGHT_PX = 144;
 
 function useCurrentUserId(): string {
   return typeof window !== "undefined"
@@ -82,6 +85,71 @@ function formatClock(ts: number): string {
   });
 }
 
+function formatDateLabel(ts: number): string {
+  const d = new Date(ts);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const isSameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+  if (isSameDay(d, today)) return "Today";
+  if (isSameDay(d, yesterday)) return "Yesterday";
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+const LINK_PATTERN =
+  /(https?:\/\/[^\s]+)|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(\+?\d[\d\s-]{8,}\d)/g;
+
+function renderMessageContent(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  LINK_PATTERN.lastIndex = 0;
+
+  while ((match = LINK_PATTERN.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    const [full, url, email, phone] = match;
+    if (url) {
+      parts.push(
+        <a
+          key={key++}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline decoration-1 underline-offset-2 hover:opacity-80"
+        >
+          🔗 {url.replace(/^https?:\/\//, "")}
+        </a>,
+      );
+    } else if (email) {
+      parts.push(
+        <a
+          key={key++}
+          href={`mailto:${email}`}
+          className="underline decoration-1 underline-offset-2 hover:opacity-80"
+        >
+          {email}
+        </a>,
+      );
+    } else if (phone) {
+      parts.push(
+        <a
+          key={key++}
+          href={`tel:${phone.replace(/\s|-/g, "")}`}
+          className="underline decoration-1 underline-offset-2 hover:opacity-80"
+        >
+          {phone}
+        </a>,
+      );
+    }
+    lastIndex = match.index + full.length;
+  }
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  return parts;
+}
+
 interface RoomNavState {
   roomId?: string;
 }
@@ -92,9 +160,12 @@ interface Toast {
   tone: "info" | "success" | "warning";
 }
 
+type SystemEventVariant = "join" | "leave" | "reconnect" | "info";
+
 interface SystemEventEntry {
   id: string;
   text: string;
+  variant: SystemEventVariant;
   timestamp: number;
 }
 
@@ -111,10 +182,28 @@ interface TimelineSystemEntry {
   kind: "system";
   id: string;
   text: string;
+  variant: SystemEventVariant;
   timestamp: number;
 }
 
-type TimelineEntry = TimelineMessageEntry | TimelineSystemEntry;
+interface TimelineDateEntry {
+  kind: "date";
+  id: string;
+  label: string;
+  timestamp: number;
+}
+
+interface TimelineDividerEntry {
+  kind: "divider";
+  id: string;
+  timestamp: number;
+}
+
+type TimelineEntry =
+  | TimelineMessageEntry
+  | TimelineSystemEntry
+  | TimelineDateEntry
+  | TimelineDividerEntry;
 
 type SidebarTab = "participants" | "notes" | "info" | "chat";
 type Recommendation = "hire" | "hold" | "reject" | null;
@@ -131,6 +220,19 @@ function Avatar({ label, self = false }: { label: string; self?: boolean }) {
       {label}
     </div>
   );
+}
+
+function SystemEventIcon({ variant }: { variant: SystemEventVariant }) {
+  switch (variant) {
+    case "join":
+      return <UserPlus className="w-3 h-3" style={{ color: COLOR.green }} />;
+    case "leave":
+      return <UserMinus className="w-3 h-3" style={{ color: COLOR.red }} />;
+    case "reconnect":
+      return <Wifi className="w-3 h-3" style={{ color: COLOR.blue }} />;
+    default:
+      return <Info className="w-3 h-3" style={{ color: COLOR.textMuted }} />;
+  }
 }
 
 export default function InterviewRoomPage() {
@@ -198,6 +300,8 @@ export default function InterviewRoomPage() {
     Record<string, "sending" | "sent">
   >({});
   const [chatAtBottom, setChatAtBottom] = useState(true);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [dividerBoundary, setDividerBoundary] = useState(0);
 
   const callInFlightRef = useRef(false);
   const remoteEverConnectedRef = useRef(false);
@@ -207,6 +311,7 @@ export default function InterviewRoomPage() {
   const prevMessageCountRef = useRef(0);
   const lastSentAtRef = useRef(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const lastSeenTimestampRef = useRef<number>(Date.now());
 
   const addToast = useCallback((text: string, tone: Toast["tone"] = "info") => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -216,16 +321,20 @@ export default function InterviewRoomPage() {
     }, 3500);
   }, []);
 
-  const pushSystemEvent = useCallback((text: string) => {
-    setSystemEvents((prev) => [
-      ...prev,
-      {
-        id: `sys-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        text,
-        timestamp: Date.now(),
-      },
-    ]);
-  }, []);
+  const pushSystemEvent = useCallback(
+    (text: string, variant: SystemEventVariant = "info") => {
+      setSystemEvents((prev) => [
+        ...prev,
+        {
+          id: `sys-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          text,
+          variant,
+          timestamp: Date.now(),
+        },
+      ]);
+    },
+    [],
+  );
 
   const getAudioCtx = useCallback(() => {
     if (typeof window === "undefined") return null;
@@ -333,6 +442,14 @@ export default function InterviewRoomPage() {
   }, [activeTab]);
 
   useEffect(() => {
+    if (activeTab === "chat") {
+      setDividerBoundary(lastSeenTimestampRef.current);
+    } else {
+      lastSeenTimestampRef.current = Date.now();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
     if (call.callState === "CONNECTED" && connectedAt === null) {
       setConnectedAt(Date.now());
     }
@@ -388,6 +505,7 @@ export default function InterviewRoomPage() {
         alreadyJoinedBefore
           ? `${otherRoleLabel} joined again.`
           : `${otherRoleLabel} joined.`,
+        alreadyJoinedBefore ? "reconnect" : "join",
       );
       remoteEverConnectedRef.current = true;
       reconnectStartRef.current = null;
@@ -397,6 +515,7 @@ export default function InterviewRoomPage() {
       playLeaveSound();
       pushSystemEvent(
         `${otherRoleLabel} disconnected. Waiting for them to reconnect…`,
+        "leave",
       );
       reconnectStartRef.current = Date.now();
     }
@@ -424,7 +543,7 @@ export default function InterviewRoomPage() {
   }, [call.remoteStream]);
 
   const timeline = useMemo<TimelineEntry[]>(() => {
-    const msgEntries: TimelineEntry[] = call.messages.map((m, idx) => ({
+    const msgEntries: TimelineMessageEntry[] = call.messages.map((m, idx) => ({
       kind: "message",
       id: `msg-${idx}-${m.sentAt}`,
       key: `${m.senderId}-${m.sentAt}`,
@@ -432,16 +551,53 @@ export default function InterviewRoomPage() {
       timestamp: new Date(m.sentAt).getTime(),
       self: m.senderId === userId,
     }));
-    const sysEntries: TimelineEntry[] = systemEvents.map((s) => ({
+    const sysEntries: TimelineSystemEntry[] = systemEvents.map((s) => ({
       kind: "system",
       id: s.id,
       text: s.text,
+      variant: s.variant,
       timestamp: s.timestamp,
     }));
-    return [...msgEntries, ...sysEntries].sort(
+
+    const merged = [...msgEntries, ...sysEntries].sort(
       (a, b) => a.timestamp - b.timestamp,
     );
-  }, [call.messages, systemEvents, userId]);
+
+    const result: TimelineEntry[] = [];
+    let lastDay = "";
+    let dividerInserted = false;
+
+    for (const entry of merged) {
+      const day = new Date(entry.timestamp).toDateString();
+      if (day !== lastDay) {
+        result.push({
+          kind: "date",
+          id: `date-${day}`,
+          label: formatDateLabel(entry.timestamp),
+          timestamp: entry.timestamp,
+        });
+        lastDay = day;
+      }
+
+      if (
+        !dividerInserted &&
+        entry.kind === "message" &&
+        !entry.self &&
+        entry.timestamp > dividerBoundary
+      ) {
+        result.push({
+          kind: "divider",
+          id: `divider-${entry.timestamp}`,
+          timestamp: entry.timestamp,
+        });
+        dividerInserted = true;
+      }
+
+      result.push(entry);
+    }
+
+    return result;
+  }, [call.messages, systemEvents, userId, dividerBoundary]);
 
   useEffect(() => {
     const msgs = call.messages;
@@ -643,7 +799,7 @@ export default function InterviewRoomPage() {
     if (role === "recruiter") {
       if (!interviewId) return;
       const response = await submitEndInterview(interviewId);
-      if (!response) return; // error is surfaced inline in the modal
+      if (!response) return;
     }
     setShowEndConfirm(false);
     await call.endCall();
@@ -695,10 +851,13 @@ export default function InterviewRoomPage() {
     }
   }
 
-  async function handleCopyMessage(text: string) {
+  async function handleCopyMessage(id: string, text: string) {
     try {
       await navigator.clipboard.writeText(text);
-      addToast("Message copied", "info");
+      setCopiedMessageId(id);
+      setTimeout(() => {
+        setCopiedMessageId((cur) => (cur === id ? null : cur));
+      }, 1500);
     } catch (err) {
       console.warn("[CHAT] Failed to copy message.", err);
     }
@@ -927,7 +1086,6 @@ export default function InterviewRoomPage() {
       className="flex flex-col h-screen overflow-hidden"
       style={{ backgroundColor: COLOR.bg }}
     >
-      {/* Toasts */}
       <div className="fixed top-4 right-4 z-60 flex flex-col gap-2 items-end pointer-events-none">
         {toasts.map((t) => (
           <div
@@ -1168,7 +1326,7 @@ export default function InterviewRoomPage() {
             </div>
           )}
 
-          {/* Local Picture-in-Picture */}
+    
           <div
             className="absolute top-4 right-4 w-32 h-20 sm:w-52 sm:h-32 rounded-2xl overflow-hidden"
             style={{ backgroundColor: COLOR.panel }}
@@ -1721,51 +1879,101 @@ export default function InterviewRoomPage() {
                     <div
                       ref={chatScrollRef}
                       onScroll={handleChatScroll}
-                      className="flex-1 overflow-y-auto px-4 py-3 space-y-3 relative"
+                      className="flex-1 overflow-y-auto px-4 py-3 space-y-2 relative"
                       aria-live="polite"
                     >
                       {timeline.length === 0 && (
-                        <div className="h-full flex flex-col items-center justify-center gap-2 py-6 text-center">
-                          <MessageSquare
-                            className="w-8 h-8"
-                            style={{ color: COLOR.textMuted }}
-                          />
-                          <p
-                            className="text-[13px] font-medium"
-                            style={{ color: COLOR.text }}
+                        <div className="h-full flex flex-col items-center justify-center gap-3 py-6 text-center px-4">
+                          <div
+                            className="w-12 h-12 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: `${COLOR.blue}1A` }}
                           >
-                            Chat privately during the interview.
-                          </p>
-                          <p
-                            className="text-[12px] max-w-55"
-                            style={{ color: COLOR.textMuted }}
-                          >
-                            Messages disappear when everyone leaves.
-                          </p>
+                            <MessageSquare
+                              className="w-5 h-5"
+                              style={{ color: COLOR.blue }}
+                            />
+                          </div>
+                          <div>
+                            <p
+                              className="text-[14px] font-semibold"
+                              style={{ color: COLOR.text }}
+                            >
+                              Private interview chat
+                            </p>
+                            <p
+                              className="text-[12px] mt-1 max-w-55"
+                              style={{ color: COLOR.textMuted }}
+                            >
+                              Only you and the {otherRoleLabel.toLowerCase()}{" "}
+                              can read these messages. They're cleared once the
+                              interview ends.
+                            </p>
+                          </div>
                         </div>
                       )}
 
                       {timeline.map((entry, idx) => {
-                        if (entry.kind === "system") {
+                        if (entry.kind === "date") {
                           return (
                             <div
                               key={entry.id}
-                              className="flex items-center gap-2 py-1"
+                              className="flex items-center gap-2 py-2"
                             >
                               <div
                                 className="flex-1 h-px"
                                 style={{ backgroundColor: COLOR.border }}
                               />
                               <span
-                                className="text-[11px] px-2 text-center shrink-0 max-w-[70%]"
+                                className="text-[11px] font-medium px-2 shrink-0"
                                 style={{ color: COLOR.textMuted }}
                               >
-                                {entry.text}
+                                {entry.label}
                               </span>
                               <div
                                 className="flex-1 h-px"
                                 style={{ backgroundColor: COLOR.border }}
                               />
+                            </div>
+                          );
+                        }
+
+                        if (entry.kind === "divider") {
+                          return (
+                            <div
+                              key={entry.id}
+                              className="flex items-center gap-2 py-2"
+                            >
+                              <div
+                                className="flex-1 h-px"
+                                style={{ backgroundColor: COLOR.blue }}
+                              />
+                              <span
+                                className="text-[11px] font-semibold px-2 shrink-0"
+                                style={{ color: COLOR.blue }}
+                              >
+                                New messages
+                              </span>
+                              <div
+                                className="flex-1 h-px"
+                                style={{ backgroundColor: COLOR.blue }}
+                              />
+                            </div>
+                          );
+                        }
+
+                        if (entry.kind === "system") {
+                          return (
+                            <div
+                              key={entry.id}
+                              className="flex items-center justify-center gap-1.5 py-1"
+                            >
+                              <SystemEventIcon variant={entry.variant} />
+                              <span
+                                className="text-[11px]"
+                                style={{ color: COLOR.textMuted }}
+                              >
+                                {entry.text}
+                              </span>
                             </div>
                           );
                         }
@@ -1777,14 +1985,15 @@ export default function InterviewRoomPage() {
                           prevEntry.self !== entry.self ||
                           entry.timestamp - prevEntry.timestamp > 5 * 60 * 1000;
                         const status = sendingStatus[entry.key] ?? "sent";
+                        const isCopied = copiedMessageId === entry.id;
 
                         return (
                           <div
                             key={entry.id}
-                            className={`flex ${entry.self ? "justify-end" : "justify-start"} group animate-[msgIn_150ms_ease-out]`}
+                            className={`flex ${entry.self ? "justify-end" : "justify-start"} group animate-[msgIn_180ms_ease-out]`}
                           >
                             <div
-                              className="max-w-[80%] flex flex-col"
+                              className="max-w-[85%] sm:max-w-[75%] lg:max-w-[68%] flex flex-col"
                               style={{
                                 alignItems: entry.self
                                   ? "flex-end"
@@ -1812,55 +2021,78 @@ export default function InterviewRoomPage() {
                                   >
                                     {entry.self ? "You" : otherRoleLabel}
                                   </span>
-                                  <span
-                                    className="text-[11px]"
-                                    style={{ color: COLOR.textMuted }}
-                                  >
-                                    {formatClock(entry.timestamp)}
-                                  </span>
                                 </div>
                               )}
 
                               <div className="relative">
                                 <div
-                                  className="px-3 py-2 text-[14px] whitespace-pre-wrap wrap-break-word leading-snug"
+                                  className="px-3.5 py-2.5 text-[14px] leading-7 tracking-[0.01em] whitespace-pre-wrap wrap-break-word shadow-sm"
                                   style={{
+                                    overflowWrap: "anywhere",
                                     backgroundColor: entry.self
                                       ? COLOR.blueStrong
                                       : COLOR.panelAlt,
                                     color: entry.self ? "#fff" : COLOR.text,
-                                    borderRadius: 16,
+                                    borderRadius: 18,
                                     borderBottomRightRadius: entry.self
                                       ? 4
-                                      : 16,
-                                    borderBottomLeftRadius: entry.self ? 16 : 4,
+                                      : 18,
+                                    borderBottomLeftRadius: entry.self ? 18 : 4,
                                   }}
                                 >
-                                  {entry.text}
+                                  <div>{renderMessageContent(entry.text)}</div>
+                                  <div
+                                    className="flex items-center gap-1 mt-1 select-none"
+                                    style={{
+                                      justifyContent: "flex-end",
+                                      opacity: 0.75,
+                                      fontSize: 11,
+                                    }}
+                                  >
+                                    <span>{formatClock(entry.timestamp)}</span>
+                                    {entry.self && (
+                                      <span>
+                                        {status === "sending" ? "🕒" : "✓✓"}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
-                                <button
-                                  onClick={() => handleCopyMessage(entry.text)}
-                                  aria-label="Copy message"
-                                  title="Copy"
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-2 p-1 rounded-full shadow"
-                                  style={{
-                                    backgroundColor: COLOR.panel,
-                                    color: COLOR.textMuted,
-                                    [entry.self ? "left" : "right"]: -8,
-                                  }}
-                                >
-                                  <Copy className="w-3 h-3" />
-                                </button>
-                              </div>
 
-                              {entry.self && (
-                                <span
-                                  className="text-[10px] mt-0.5 px-1"
-                                  style={{ color: COLOR.textMuted }}
+                                <div
+                                  className="absolute -top-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+                                  style={
+                                    {
+                                      [entry.self ? "left" : "right"]: -4,
+                                    } as React.CSSProperties
+                                  }
                                 >
-                                  {status === "sending" ? "Sending…" : "✓ Sent"}
-                                </span>
-                              )}
+                                  {isCopied && (
+                                    <span
+                                      className="text-[10px] font-medium px-1.5 py-0.5 rounded-full shadow"
+                                      style={{
+                                        backgroundColor: COLOR.panel,
+                                        color: COLOR.green,
+                                      }}
+                                    >
+                                      Copied
+                                    </span>
+                                  )}
+                                  <button
+                                    onClick={() =>
+                                      handleCopyMessage(entry.id, entry.text)
+                                    }
+                                    aria-label="Copy message"
+                                    title="Copy"
+                                    className="p-1 rounded-full shadow"
+                                    style={{
+                                      backgroundColor: COLOR.panel,
+                                      color: COLOR.textMuted,
+                                    }}
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         );
@@ -1877,6 +2109,7 @@ export default function InterviewRoomPage() {
                         >
                           <ChevronDown className="w-3.5 h-3.5" />
                           New messages
+                          {unreadChat > 0 ? ` · ${unreadChat}` : ""}
                         </button>
                       )}
                     </div>
@@ -1886,7 +2119,7 @@ export default function InterviewRoomPage() {
                       style={{ borderTop: `1px solid ${COLOR.border}` }}
                     >
                       <div
-                        className="flex items-end gap-2 rounded-2xl px-3 py-2"
+                        className="flex items-end gap-2 rounded-3xl px-3.5 py-2.5"
                         style={{ backgroundColor: COLOR.panelAlt }}
                       >
                         <textarea
@@ -1898,7 +2131,7 @@ export default function InterviewRoomPage() {
                           maxLength={CHAT_CHAR_LIMIT}
                           disabled={chatInputDisabled}
                           placeholder={chatPlaceholder}
-                          className="flex-1 bg-transparent text-[14px] resize-none focus:outline-none py-1 disabled:opacity-50"
+                          className="flex-1 bg-transparent text-[14px] leading-6 resize-none focus:outline-none py-1 disabled:opacity-50"
                           style={{
                             color: COLOR.text,
                             maxHeight: CHAT_TEXTAREA_MAX_HEIGHT_PX,
@@ -1908,7 +2141,7 @@ export default function InterviewRoomPage() {
                           onClick={handleSendMessage}
                           disabled={!draft.trim() || chatInputDisabled}
                           aria-label="Send message"
-                          className="p-2 rounded-full transition-opacity disabled:opacity-40"
+                          className="p-2 rounded-full transition-opacity disabled:opacity-40 shrink-0"
                           style={{ backgroundColor: COLOR.blueStrong }}
                         >
                           <Send className="w-4 h-4 text-white" />
@@ -1921,19 +2154,18 @@ export default function InterviewRoomPage() {
                         >
                           Enter to send · Shift + Enter for a new line
                         </p>
-                        {draft.length > 450 && (
-                          <span
-                            className="text-[11px]"
-                            style={{
-                              color:
-                                draft.length >= CHAT_CHAR_LIMIT
-                                  ? COLOR.red
-                                  : COLOR.textMuted,
-                            }}
-                          >
-                            {draft.length}/{CHAT_CHAR_LIMIT}
-                          </span>
-                        )}
+                        <span
+                          className="text-[11px] tabular-nums"
+                          style={{
+                            color:
+                              draft.length >= CHAT_CHAR_LIMIT
+                                ? COLOR.red
+                                : COLOR.textMuted,
+                            opacity: draft.length > 0 ? 1 : 0,
+                          }}
+                        >
+                          {draft.length}/{CHAT_CHAR_LIMIT}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -2055,8 +2287,8 @@ export default function InterviewRoomPage() {
           to { opacity: 1; transform: translateX(0); }
         }
         @keyframes msgIn {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(10px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes badgeBump {
           0% { transform: scale(1); }

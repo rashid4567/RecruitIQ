@@ -15,7 +15,6 @@ export class DisconnectHandler {
       socket.to(room.roomId).emit(SocketEvents.USER_LEFT, {
         socketId: socket.id,
       });
-      console.log(`[DISCONNECT] ${socket.id} left ${room.roomId}`);
     });
   }
 }

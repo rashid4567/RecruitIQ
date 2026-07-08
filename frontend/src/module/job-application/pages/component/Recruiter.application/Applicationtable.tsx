@@ -1,4 +1,4 @@
-import { Search, AlertCircle, RefreshCw } from "lucide-react";
+import { Search, AlertCircle, RefreshCw, Users } from "lucide-react";
 import { ApplicationTableRow } from "./Applicationtablerow";
 import type { ApplicationRow } from "./Application.types";
 
@@ -32,6 +32,38 @@ const SCORE_LEGEND = [
   { label: "0–39", dot: "bg-red-400" },
 ];
 
+function SkeletonRow() {
+  return (
+    <tr className="border-b border-slate-100 last:border-0">
+      <td className="px-5 py-4">
+        <div className="w-4 h-4 rounded bg-slate-100 animate-pulse" />
+      </td>
+      <td className="px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-slate-100 animate-pulse shrink-0" />
+          <div className="space-y-1.5">
+            <div className="h-3 w-32 rounded bg-slate-100 animate-pulse" />
+            <div className="h-2.5 w-40 rounded bg-slate-100 animate-pulse" />
+          </div>
+        </div>
+      </td>
+      <td className="px-5 py-4">
+        <div className="h-2.5 w-16 rounded bg-slate-100 animate-pulse" />
+      </td>
+      <td className="px-5 py-4">
+        <div className="h-1.5 w-16 rounded-full bg-slate-100 animate-pulse" />
+      </td>
+      <td className="px-5 py-4">
+        <div className="h-1.5 w-16 rounded-full bg-slate-100 animate-pulse" />
+      </td>
+      <td className="px-5 py-4">
+        <div className="h-5 w-20 rounded-full bg-slate-100 animate-pulse" />
+      </td>
+      <td className="px-5 py-4" />
+    </tr>
+  );
+}
+
 export function ApplicationTable({
   rows,
   selectedRows,
@@ -49,19 +81,6 @@ export function ApplicationTable({
     if (el) el.indeterminate = isIndeterminate;
   };
 
-  if (loading) {
-    return (
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <div className="w-7 h-7 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-slate-400 font-medium">
-            Loading applications…
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="bg-white rounded-xl border border-red-100 overflow-hidden shadow-sm">
@@ -71,12 +90,12 @@ export function ApplicationTable({
               <AlertCircle size={20} className="text-red-500" />
             </div>
             <p className="text-sm font-semibold text-slate-700 mb-1">
-              Something went wrong
+              Couldn't load applications
             </p>
             <p className="text-xs text-slate-400 mb-4">{error}</p>
             <button
               onClick={onRetry}
-              className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
             >
               <RefreshCw size={13} />
               Try again
@@ -115,7 +134,7 @@ export function ApplicationTable({
         </div>
       )}
 
-      {selectedRows.size === 0 && rows.length > 0 && (
+      {selectedRows.size === 0 && !loading && rows.length > 0 && (
         <div className="flex items-center gap-4 px-5 py-2 border-b border-slate-100 bg-slate-50/60">
           <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">
             AI Score
@@ -137,14 +156,15 @@ export function ApplicationTable({
       <div className="overflow-x-auto">
         <table className="w-full text-sm min-w-175">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50">
+            <tr className="border-b border-slate-200 bg-slate-50/80 sticky top-0 z-10 backdrop-blur">
               <th className="px-5 py-3.5 w-10">
                 <input
                   ref={checkboxRef}
                   type="checkbox"
                   checked={isAllSelected}
                   onChange={(e) => onToggleSelectAll(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600"
+                  disabled={loading || rows.length === 0}
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer accent-blue-600 disabled:opacity-40 disabled:cursor-not-allowed"
                   aria-label="Select all rows"
                 />
               </th>
@@ -160,7 +180,9 @@ export function ApplicationTable({
           </thead>
 
           <tbody className="divide-y divide-slate-100">
-            {rows.length === 0 ? (
+            {loading ? (
+              Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} />)
+            ) : rows.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-5 py-20 text-center">
                   <div className="flex flex-col items-center gap-3">
@@ -198,9 +220,10 @@ export function ApplicationTable({
         </table>
       </div>
 
-      {rows.length > 0 && (
+      {!loading && rows.length > 0 && (
         <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100 bg-slate-50/60">
-          <span className="text-xs text-slate-400">
+          <span className="flex items-center gap-1.5 text-xs text-slate-400">
+            <Users size={12} className="text-slate-300" />
             {rows.length} application{rows.length !== 1 ? "s" : ""}
           </span>
           {selectedRows.size > 0 && (

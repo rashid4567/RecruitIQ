@@ -23,5 +23,6 @@ export const JOB_ROUTES = {
     PUBLISH: "/:id/publish",
     HIDE: "/:id/hide",
     UNHIDE: "/:id/unhide",
+    CLOSE : "/:id/close"
   },
 } as const;

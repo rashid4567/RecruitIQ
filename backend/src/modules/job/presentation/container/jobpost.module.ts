@@ -32,6 +32,10 @@ import { MongooseRecruiterProfileRepository } from "../../../recruiter/infrastru
 import { UUIDGenerator } from "../../infrastructure/service/uuid.generator.service";
 import { SubscriptionPlanRepository } from "../../../subscription/domain/repository/subscription-plan.repository";
 import { MongooseSubscriptionPlanRepository } from "../../../subscription/infrastructure/repositories/mongoose-subscription-plan.repository";
+import { CloseJobsUseCase } from "../../application/usecase/job/close-jobs.usecase";
+import { CloseJobController } from "../controller/recruiter/close.job.controller";
+import { JobApplicationRepository } from "../../../job-application/domain/repository/job-application.repository";
+import { MongooseJobApplicationRepository } from "../../../job-application/infrastructure/repository/MongooseJobApplicationRepository";
 const jobRepo: JobRepository = new MongooseJobRepository();
 const activityTracker = new ActivityTrackerService();
 
@@ -41,7 +45,7 @@ const recruiterRepo: RecruiterProfileRepository =
   new MongooseRecruiterProfileRepository();
 const subscriptionPlanRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
-
+const applicationRepo : JobApplicationRepository = new MongooseJobApplicationRepository();
 const createJobUC = new CreateJobUseCase(
   jobRepo,
   recruiterSubscriptionRepo,
@@ -69,6 +73,7 @@ const hideJobUC = new HideJobUseCase(jobRepo);
 const unhideJobUC = new UnhideJobUseCase(jobRepo);
 const blockJobUC = new BlockJobUseCase(jobRepo);
 const unblockJobUC = new UnblockJobUseCase(jobRepo);
+const closeJobUC = new CloseJobsUseCase(jobRepo,applicationRepo);
 export const createJobController = new CreateJobController(createJobUC);
 export const recruiterJobsController = new RecruiterJobController(jobsUC);
 export const getJobByIdController = new RecruiterJobByIdController(
@@ -81,6 +86,7 @@ export const toggleJobVisibilityController = new ToggleJobVisibilityController(
   hideJobUC,
   unhideJobUC,
 );
+export const closeJobcontroller = new CloseJobController(closeJobUC);
 export const candidateJobsController = new CandidateJobController(jobsUC);
 export const candidateJobIdController = new CandidateJobByIdController(
   getJobByIdUC,

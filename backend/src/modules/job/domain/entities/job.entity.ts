@@ -226,6 +226,7 @@ export class Job {
     }
     this.touch();
   }
+
   softDelete() {
     this.props.isDeleted = true;
     this.props.visibility = "hidden";

@@ -1,14 +1,70 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+const GET_USER_MEDIA_TIMEOUT_MS = 10000;
+
+function mapGetUserMediaError(err: unknown, fallback: string): string {
+  if (err instanceof DOMException) {
+    switch (err.name) {
+      case "NotAllowedError":
+        return "Camera and microphone permission was denied.";
+      case "NotFoundError":
+        return "No camera or microphone was found.";
+      case "NotReadableError":
+        return "Camera or microphone is currently being used by another application.";
+      case "OverconstrainedError":
+        return "The selected camera or microphone is unavailable.";
+      case "AbortError":
+        return "Camera access was interrupted.";
+      case "SecurityError":
+        return "Camera access is blocked by your browser's security settings.";
+      default:
+        return err.message || fallback;
+    }
+  }
+  console.error(err);
+  return fallback;
+}
+
+function getUserMediaWithTimeout(
+  constraints: MediaStreamConstraints,
+  timeoutMs = GET_USER_MEDIA_TIMEOUT_MS,
+): Promise<MediaStream> {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      reject(new Error("Timed out waiting for camera/microphone access."));
+    }, timeoutMs);
+
+    navigator.mediaDevices
+      .getUserMedia(constraints)
+      .then((stream) => {
+        clearTimeout(timer);
+        resolve(stream);
+      })
+      .catch((err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+  });
+}
+function labelForKind(kind: string): string {
+  return kind === "video" ? "Camera" : "Microphone";
+}
+
 export function useMediaPreview() {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraEnabled, setIsCameraEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const streamRef = useRef<MediaStream | null>(null);
   const isCameraEnabledRef = useRef(isCameraEnabled);
   const isMutedRef = useRef(isMuted);
+  const isInitializingRef = useRef(false);
+  const mountedRef = useRef(true);
+  const currentVideoDeviceIdRef = useRef<string | null>(null);
+  const currentAudioDeviceIdRef = useRef<string | null>(null);
+  const deviceMissingRef = useRef(false);
 
   useEffect(() => {
     isCameraEnabledRef.current = isCameraEnabled;
@@ -17,92 +73,107 @@ export function useMediaPreview() {
     isMutedRef.current = isMuted;
   }, [isMuted]);
 
-useEffect(() => {
-  let cancelled = false;
+  const wireTrack = useCallback((track: MediaStreamTrack) => {
+    track.onended = () => {
+      if (!mountedRef.current) return;
+      deviceMissingRef.current = true;
+      setError(`${labelForKind(track.kind)} disconnected.`);
+    };
+  }, []);
 
-  async function start() {
+  const wireTrackListeners = useCallback(
+    (stream: MediaStream) => {
+      stream.getTracks().forEach(wireTrack);
+    },
+    [wireTrack],
+  );
+
+  const unwireTrack = useCallback((track: MediaStreamTrack) => {
+    track.onended = null;
+  }, []);
+
+  const start = useCallback(async () => {
+    if (isInitializingRef.current) return;
+    isInitializingRef.current = true;
+
     setLoading(true);
     setError(null);
 
-    if (!navigator.mediaDevices?.getUserMedia) {
-      if (!cancelled) {
-        setError(
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error(
           "Camera and microphone are not supported in this browser.",
         );
-        setLoading(false);
       }
-      return;
-    }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      streamRef.current?.getTracks().forEach((track) => {
+        unwireTrack(track);
+        track.stop();
+      });
+      streamRef.current = null;
+
+      const stream = await getUserMediaWithTimeout({
         video: true,
         audio: true,
       });
 
-      if (cancelled) {
+      if (!mountedRef.current) {
         stream.getTracks().forEach((track) => track.stop());
         return;
       }
 
+      stream
+        .getVideoTracks()
+        .forEach((t) => (t.enabled = isCameraEnabledRef.current));
+      stream.getAudioTracks().forEach((t) => (t.enabled = !isMutedRef.current));
+
+      wireTrackListeners(stream);
+
+      currentVideoDeviceIdRef.current =
+        stream.getVideoTracks()[0]?.getSettings().deviceId ?? null;
+      currentAudioDeviceIdRef.current =
+        stream.getAudioTracks()[0]?.getSettings().deviceId ?? null;
+      deviceMissingRef.current = false;
+
       streamRef.current = stream;
       setLocalStream(stream);
     } catch (err) {
-      if (!cancelled) {
-        if (err instanceof DOMException) {
-          switch (err.name) {
-            case "NotAllowedError":
-              setError("Camera and microphone permission was denied.");
-              break;
-
-            case "NotFoundError":
-              setError("No camera or microphone was found.");
-              break;
-
-            case "NotReadableError":
-              setError(
-                "Camera or microphone is currently being used by another application.",
-              );
-              break;
-
-            case "OverconstrainedError":
-              setError(
-                "The selected camera or microphone is unavailable.",
-              );
-              break;
-
-            default:
-              setError("Unable to access camera and microphone.");
-          }
-        } else {
-          setError("Unable to access camera and microphone.");
-        }
+      if (mountedRef.current) {
+        setError(
+          mapGetUserMediaError(err, "Unable to access camera and microphone."),
+        );
       }
     } finally {
-      if (!cancelled) {
+      if (mountedRef.current) {
         setLoading(false);
       }
+      isInitializingRef.current = false;
     }
-  }
+  }, [wireTrackListeners, unwireTrack]);
 
-  start();
+  useEffect(() => {
+    mountedRef.current = true;
 
-  return () => {
-    cancelled = true;
+    start();
 
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-
-    streamRef.current = null;
-
-    setLocalStream(null);
-  };
-}, []);
+    return () => {
+      mountedRef.current = false;
+      streamRef.current?.getTracks().forEach((track) => {
+        unwireTrack(track);
+        track.stop();
+      });
+      streamRef.current = null;
+      currentVideoDeviceIdRef.current = null;
+      currentAudioDeviceIdRef.current = null;
+    };
+  }, [start, unwireTrack]);
 
   const toggleMicrophone = useCallback(() => {
     const stream = streamRef.current;
     if (!stream) return;
     const nextMuted = !isMutedRef.current;
     stream.getAudioTracks().forEach((t) => (t.enabled = !nextMuted));
+    isMutedRef.current = nextMuted;
     setIsMuted(nextMuted);
   }, []);
 
@@ -111,135 +182,187 @@ useEffect(() => {
     if (!stream) return;
     const nextEnabled = !isCameraEnabledRef.current;
     stream.getVideoTracks().forEach((t) => (t.enabled = nextEnabled));
+    isCameraEnabledRef.current = nextEnabled;
     setIsCameraEnabled(nextEnabled);
   }, []);
-const switchCamera = useCallback(async (deviceId: string) => {
-  const stream = streamRef.current;
 
-  if (!stream) return;
+  const switchCamera = useCallback(
+    async (deviceId: string) => {
+      const stream = streamRef.current;
+      if (!stream) return;
+      if (currentVideoDeviceIdRef.current === deviceId) return;
 
-  setLoading(true);
-  setError(null);
+      setLoading(true);
+      setError(null);
 
-  let newTrack: MediaStreamTrack | undefined;
+      let tempStream: MediaStream | null = null;
 
-  try {
-    const newStream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        deviceId: {
-          exact: deviceId,
-        },
-      },
-      audio: false,
-    });
+      try {
+        tempStream = await getUserMediaWithTimeout({
+          video: { deviceId: { exact: deviceId } },
+          audio: false,
+        });
 
-    newTrack = newStream.getVideoTracks()[0];
+        if (!mountedRef.current) {
+          tempStream.getTracks().forEach((track) => track.stop());
+          return;
+        }
 
-    if (!newTrack) {
-      throw new Error("No video track found.");
-    }
+        const newTrack = tempStream.getVideoTracks()[0];
+        if (!newTrack) {
+          throw new Error("No video track found.");
+        }
 
-    newTrack.enabled = isCameraEnabledRef.current;
+        newTrack.enabled = isCameraEnabledRef.current;
 
-    const oldTrack = stream.getVideoTracks()[0];
+        const oldTrack = stream.getVideoTracks()[0];
 
-    if (oldTrack) {
-      oldTrack.stop();
-      stream.removeTrack(oldTrack);
-    }
+        stream.addTrack(newTrack);
 
-    stream.addTrack(newTrack);
+        if (oldTrack) {
+          stream.removeTrack(oldTrack);
+          unwireTrack(oldTrack);
+          oldTrack.stop();
+        }
+        wireTrack(newTrack);
 
-    streamRef.current = stream;
+        currentVideoDeviceIdRef.current =
+          newTrack.getSettings().deviceId ?? deviceId;
+        streamRef.current = stream;
+        setLocalStream(stream);
+      } catch (err) {
+        if (mountedRef.current) {
+          setError(mapGetUserMediaError(err, "Could not switch camera."));
+        }
+      } finally {
+        const activeVideoTrack = streamRef.current?.getVideoTracks()[0];
+        tempStream?.getTracks().forEach((track) => {
+          if (track.readyState === "live" && track !== activeVideoTrack) {
+            track.stop();
+          }
+        });
 
-    setLocalStream(stream);
-  } catch (err) {
-    newTrack?.stop();
-
-    if (err instanceof DOMException) {
-      switch (err.name) {
-        case "NotAllowedError":
-          setError("Camera permission was denied.");
-          break;
-
-        case "NotFoundError":
-          setError("Selected camera was not found.");
-          break;
-
-        default:
-          setError("Could not switch camera.");
+        if (mountedRef.current) setLoading(false);
       }
-    } else {
-      setError("Could not switch camera.");
-    }
-  } finally {
-    setLoading(false);
-  }
-}, []);
+    },
+    [wireTrack, unwireTrack],
+  );
 
-const switchMicrophone = useCallback(async (deviceId: string) => {
-  const stream = streamRef.current;
+  const switchMicrophone = useCallback(
+    async (deviceId: string) => {
+      const stream = streamRef.current;
+      if (!stream) return;
 
-  if (!stream) return;
+      if (currentAudioDeviceIdRef.current === deviceId) return;
 
-  setLoading(true);
-  setError(null);
+      setLoading(true);
+      setError(null);
 
-  let newTrack: MediaStreamTrack | undefined;
+      let tempStream: MediaStream | null = null;
 
-  try {
-    const newStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        deviceId: {
-          exact: deviceId,
-        },
-      },
-      video: false,
-    });
+      try {
+        tempStream = await getUserMediaWithTimeout({
+          audio: { deviceId: { exact: deviceId } },
+          video: false,
+        });
 
-    newTrack = newStream.getAudioTracks()[0];
+        if (!mountedRef.current) {
+          tempStream.getTracks().forEach((track) => track.stop());
+          return;
+        }
 
-    if (!newTrack) {
-      throw new Error("No audio track found.");
-    }
+        const newTrack = tempStream.getAudioTracks()[0];
+        if (!newTrack) {
+          throw new Error("No audio track found.");
+        }
 
-    newTrack.enabled = !isMutedRef.current;
+        newTrack.enabled = !isMutedRef.current;
 
-    const oldTrack = stream.getAudioTracks()[0];
+        const oldTrack = stream.getAudioTracks()[0];
 
-    if (oldTrack) {
-      oldTrack.stop();
-      stream.removeTrack(oldTrack);
-    }
+        stream.addTrack(newTrack);
 
-    stream.addTrack(newTrack);
+        if (oldTrack) {
+          stream.removeTrack(oldTrack);
+          unwireTrack(oldTrack);
+          oldTrack.stop();
+        }
 
-    streamRef.current = stream;
+        wireTrack(newTrack);
 
-    setLocalStream(stream);
-  } catch (err) {
-    newTrack?.stop();
+        currentAudioDeviceIdRef.current =
+          newTrack.getSettings().deviceId ?? deviceId;
 
-    if (err instanceof DOMException) {
-      switch (err.name) {
-        case "NotAllowedError":
-          setError("Microphone permission was denied.");
-          break;
+        streamRef.current = stream;
+        setLocalStream(stream);
+      } catch (err) {
+        if (mountedRef.current) {
+          setError(mapGetUserMediaError(err, "Could not switch microphone."));
+        }
+      } finally {
+        const activeAudioTrack = streamRef.current?.getAudioTracks()[0];
+        tempStream?.getTracks().forEach((track) => {
+          if (track.readyState === "live" && track !== activeAudioTrack) {
+            track.stop();
+          }
+        });
 
-        case "NotFoundError":
-          setError("Selected microphone was not found.");
-          break;
-
-        default:
-          setError("Could not switch microphone.");
+        if (mountedRef.current) setLoading(false);
       }
-    } else {
-      setError("Could not switch microphone.");
-    }
-  } finally {
-    setLoading(false);
-  }
-}, []);
+    },
+    [wireTrack, unwireTrack],
+  );
+
+  useEffect(() => {
+    if (!navigator.mediaDevices?.addEventListener) return;
+
+    const handleDeviceChange = async () => {
+      if (!navigator.mediaDevices?.enumerateDevices) return;
+
+      try {
+        const list = await navigator.mediaDevices.enumerateDevices();
+        if (!mountedRef.current) return;
+        if (!streamRef.current) return;
+
+        const videoStillPresent =
+          !currentVideoDeviceIdRef.current ||
+          list.some(
+            (d) =>
+              d.kind === "videoinput" &&
+              d.deviceId === currentVideoDeviceIdRef.current,
+          );
+        const audioStillPresent =
+          !currentAudioDeviceIdRef.current ||
+          list.some(
+            (d) =>
+              d.kind === "audioinput" &&
+              d.deviceId === currentAudioDeviceIdRef.current,
+          );
+
+        if (!videoStillPresent) {
+          deviceMissingRef.current = true;
+          setError("Camera disconnected.");
+        } else if (!audioStillPresent) {
+          deviceMissingRef.current = true;
+          setError("Microphone disconnected.");
+        } else if (deviceMissingRef.current) {
+          deviceMissingRef.current = false;
+          setError(null);
+          start();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    navigator.mediaDevices.addEventListener("devicechange", handleDeviceChange);
+    return () => {
+      navigator.mediaDevices.removeEventListener(
+        "devicechange",
+        handleDeviceChange,
+      );
+    };
+  }, [start]);
 
   return useMemo(
     () => ({

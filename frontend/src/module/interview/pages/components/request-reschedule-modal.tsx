@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { RefreshCw, X, AlertCircle, Calendar, Clock, Loader2, Send } from "lucide-react";
+import {
+  RefreshCw,
+  X,
+  AlertCircle,
+  Calendar,
+  Clock,
+  Loader2,
+  Send,
+} from "lucide-react";
 import { useRequestInterviewReschedule } from "../../hooks/candidate/useRequestInterviewReschedule";
-
 
 export interface RescheduleRequestTarget {
   id: string;
@@ -16,11 +23,19 @@ interface RequestRescheduleModalProps {
   onRequested?: (interviewId: string) => void;
 }
 
-function formatScheduledAt(scheduledAt?: string): { date: string; time: string } {
+function formatScheduledAt(scheduledAt?: string): {
+  date: string;
+  time: string;
+} {
   if (!scheduledAt) return { date: "—", time: "—" };
   const d = new Date(scheduledAt);
   return {
-    date: d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }),
+    date: d.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }),
     time: d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
   };
 }
@@ -69,8 +84,12 @@ export default function RequestRescheduleModal({
               <RefreshCw size={16} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Request Reschedule</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Ask the recruiter for a new time</p>
+              <h2 className="text-sm font-bold text-slate-900">
+                Request Reschedule
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Ask the recruiter for a new time
+              </p>
             </div>
           </div>
           <button
@@ -85,15 +104,17 @@ export default function RequestRescheduleModal({
         <div className="px-5 py-4">
           {alreadyRequested ? (
             <p className="text-sm text-slate-500">
-              You&apos;ve already asked to reschedule this interview. The recruiter will follow up once they&apos;ve
-              reviewed it.
+              You&apos;ve already asked to reschedule this interview. The
+              recruiter will follow up once they&apos;ve reviewed it.
             </p>
           ) : (
             <>
               <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-2.5 mb-3">
                 <Calendar size={14} className="text-slate-400 shrink-0" />
                 <div>
-                  <p className="text-xs text-slate-400">Currently scheduled for</p>
+                  <p className="text-xs text-slate-400">
+                    Currently scheduled for
+                  </p>
                   <p className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
                     {date}
                     <span className="text-slate-300">·</span>
@@ -104,7 +125,8 @@ export default function RequestRescheduleModal({
               </div>
 
               <label className="text-xs font-semibold text-slate-500 mb-1.5 block">
-                Why do you need to reschedule? <span className="text-red-500">*</span>
+                Why do you need to reschedule?{" "}
+                <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={reason}
@@ -124,7 +146,6 @@ export default function RequestRescheduleModal({
           )}
         </div>
 
-   
         <div className="px-5 pb-5 flex items-center gap-2">
           <button
             onClick={handleClose}
@@ -139,7 +160,11 @@ export default function RequestRescheduleModal({
               disabled={loading || !reason.trim()}
               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+              {loading ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Send size={14} />
+              )}
               Send Request
             </button>
           )}

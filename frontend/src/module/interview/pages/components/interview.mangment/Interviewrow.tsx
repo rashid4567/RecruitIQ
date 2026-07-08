@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Clock, MapPin, MoreVertical, Video, PlayCircle } from "lucide-react";
+import { Clock, MapPin, MoreVertical, Video } from "lucide-react";
 import type { RecruiterInterviewItem } from "@/module/interview/types/recruiterInterview.types";
 import { InterviewStatus } from "@/module/interview/types/interview.types";
 import {
@@ -7,17 +7,19 @@ import {
   candidateGradient,
   formatScheduledAt,
   isInterviewScheduled,
-  isUpcomingInterview,
-  canModifyInterview,
+  canModifyInterview as canModifyInterviewStatus,
   hasPendingRescheduleRequest,
   getStatusConfig,
   isToday,
   STATUS_TRANSITIONS,
 } from "./Interviewdashboard.helpers";
+import {
+  canJoinNow,
+  getJoinCountdown,
+  isJoinWindowClosed,
+  isWithinModifiableWindow,
+} from "./utils";
 
-const START_WINDOW_MINUTES = 15;
-
-const DEFAULT_DURATION_MINUTES = 60;
 const TICK_INTERVAL_MS = 15_000;
 
 export default function InterviewRow({
@@ -29,7 +31,6 @@ export default function InterviewRow({
   onApproveReschedule,
   onRejectReschedule,
   onJoinInterview,
-  onStartInterview,
   onOpenDetail,
 }: {
   interview: RecruiterInterviewItem;
@@ -40,7 +41,6 @@ export default function InterviewRow({
   onApproveReschedule: (interview: RecruiterInterviewItem) => void;
   onRejectReschedule: (interview: RecruiterInterviewItem) => void;
   onJoinInterview: (interview: RecruiterInterviewItem) => void;
-  onStartInterview: (interview: RecruiterInterviewItem) => void;
   onOpenDetail: (interview: RecruiterInterviewItem) => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -48,63 +48,35 @@ export default function InterviewRow({
   const { date, time } = formatScheduledAt(interview.scheduledAt);
   const linear = candidateGradient(interview.candidateId);
   const scheduled = isInterviewScheduled(interview);
-  const upcoming = isUpcomingInterview(interview);
   const pendingReschedule = hasPendingRescheduleRequest(interview);
   const statusCfg = getStatusConfig(interview);
   const transitions = STATUS_TRANSITIONS[interview.interviewStatus ?? ""] ?? [];
   const todayFlag = isToday(interview.scheduledAt);
-
-  const [now, setNow] = useState(() => Date.now());
+  const isOnline = interview.mode === "ONLINE";
+  const [, setTick] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), TICK_INTERVAL_MS);
+    const id = setInterval(() => setTick((t) => t + 1), TICK_INTERVAL_MS);
     return () => clearInterval(id);
   }, []);
 
-  const minutesUntilStart = interview.scheduledAt
-    ? (new Date(interview.scheduledAt).getTime() - now) / 60_000
-    : Infinity;
-
-  const durationMinutes =
-    interview.durationInMinutes ?? DEFAULT_DURATION_MINUTES;
-  const minutesUntilEnd = minutesUntilStart + durationMinutes;
-  const withinStartWindow =
-    minutesUntilStart <= START_WINDOW_MINUTES && minutesUntilEnd > 0;
-  const isOverdue = minutesUntilEnd <= 0;
-  const canStart =
-    scheduled &&
-    interview.mode === "ONLINE" &&
-    (interview.interviewStatus === InterviewStatus.SCHEDULED ||
-      interview.interviewStatus === InterviewStatus.RESCHEDULED) &&
-    !!interview.interviewId &&
-    withinStartWindow &&
-    !isOverdue;
-
-  const joinable =
-    scheduled &&
-    interview.mode === "ONLINE" &&
-    interview.interviewStatus === InterviewStatus.ONGOING &&
-    !!interview.interviewId;
+  const canJoin = canJoinNow(interview);
+  const countdown = getJoinCountdown(interview);
+  const windowClosed = isJoinWindowClosed(interview);
   const modifiable =
-    canModifyInterview(interview) && !withinStartWindow && !isOverdue;
+    canModifyInterviewStatus(interview) && isWithinModifiableWindow(interview);
 
-  let countdownLabel: string | null = null;
-  let countdownTone = "text-slate-400";
-  if (scheduled && interview.mode === "ONLINE") {
-    if (interview.interviewStatus === InterviewStatus.ONGOING) {
-      countdownLabel = "Live now";
-      countdownTone = "text-emerald-600";
-    } else if (canStart) {
-      countdownLabel = "Ready to start";
-      countdownTone = "text-indigo-600";
-    } else if (isOverdue) {
-      countdownLabel = "Window passed";
-      countdownTone = "text-slate-400";
-    } else if (minutesUntilStart > START_WINDOW_MINUTES) {
-      const mins = Math.round(minutesUntilStart - START_WINDOW_MINUTES);
-      countdownLabel =
-        mins >= 60
-          ? `Starts in ${Math.round(mins / 60)}h`
-          : `Starts in ${mins}m`;
+  let joinStatusLabel: string | null = null;
+  let joinStatusTone = "text-slate-400";
+  if (scheduled && isOnline) {
+    if (canJoin) {
+      joinStatusLabel = "Live · join now";
+      joinStatusTone = "text-emerald-600";
+    } else if (countdown) {
+      joinStatusLabel = `Join opens in ${countdown}`;
+      joinStatusTone = "text-indigo-500";
+    } else if (windowClosed) {
+      joinStatusLabel = "Window closed";
+      joinStatusTone = "text-slate-400";
     }
   }
 
@@ -135,13 +107,11 @@ export default function InterviewRow({
       className={`transition-colors cursor-pointer ${
         pendingReschedule
           ? "bg-rose-50/40 hover:bg-rose-50/60"
-          : joinable
+          : canJoin
             ? "hover:bg-emerald-50/40"
-            : canStart
-              ? "hover:bg-indigo-50/30"
-              : scheduled
-                ? "hover:bg-blue-50/30"
-                : "hover:bg-blue-50/40"
+            : scheduled
+              ? "hover:bg-blue-50/30"
+              : "hover:bg-blue-50/40"
       }`}
     >
       <td className="px-5 py-4">
@@ -162,12 +132,18 @@ export default function InterviewRow({
                     TODAY
                   </span>
                 )}
-                {countdownLabel && (
+                {joinStatusLabel && (
                   <span
-                    className={`text-[10px] font-bold flex items-center gap-1 ${countdownTone}`}
+                    className={`text-[10px] font-bold flex items-center gap-1 ${joinStatusTone}`}
                   >
                     {todayFlag && "· "}
-                    {countdownLabel}
+                    {canJoin && (
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                      </span>
+                    )}
+                    {joinStatusLabel}
                   </span>
                 )}
               </div>
@@ -245,9 +221,10 @@ export default function InterviewRow({
           </div>
         )}
       </td>
+
       <td className="px-5 py-4">
         <div className="flex items-center gap-2 relative">
-          {joinable && (
+          {scheduled && isOnline && canJoin && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -260,25 +237,22 @@ export default function InterviewRow({
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
               </span>
-              Join
+              Join Interview
             </button>
           )}
 
-          {!joinable && canStart && (
+          {scheduled && isOnline && !canJoin && countdown && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onStartInterview(interview);
-              }}
-              className="px-2.5 py-1 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 text-xs font-semibold transition-colors whitespace-nowrap flex items-center gap-1.5 shadow-sm"
-              title="Start interview"
+              disabled
+              title="Join opens 15 minutes before the interview starts"
+              className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-400 text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 cursor-not-allowed"
             >
-              <PlayCircle size={12} />
-              Start Interview
+              <Clock size={12} />
+              Join in {countdown}
             </button>
           )}
 
-          {!joinable && !canStart && modifiable && (
+          {modifiable && (
             <>
               <button
                 onClick={(e) => {
@@ -303,7 +277,7 @@ export default function InterviewRow({
             </>
           )}
 
-          {!joinable && !canStart && pendingReschedule && (
+          {pendingReschedule && (
             <>
               <button
                 onClick={(e) => {
@@ -341,7 +315,7 @@ export default function InterviewRow({
             </button>
           )}
 
-          {!canStart && transitions.length > 0 && (
+          {transitions.length > 0 && (
             <div className="relative" ref={menuRef}>
               <button
                 onClick={(e) => {

@@ -39,7 +39,7 @@ import type {
   ScheduleModalState,
   CancelModalState,
   RescheduleDecisionModalState,
-} from "./components/interview.mangment/Interviewdashboard.types";
+} from "../types/Interviewdashboard.types";
 
 import {
   ITEMS_PER_PAGE,
@@ -668,7 +668,6 @@ export default function InterviewDashboard() {
                           onApproveReschedule={openApproveReschedule}
                           onRejectReschedule={openRejectReschedule}
                           onJoinInterview={handleJoinInterview}
-                          onStartInterview={handleStartInterview}
                           onOpenDetail={openDetailModal}
                         />
                       ))}

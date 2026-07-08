@@ -16,6 +16,7 @@ export interface JobRepository extends BaseRepository<Job> {
     pagination: PaginationOptions,
     sort?: SortOptions,
   ): Promise<PaginatedResult<Job>>;
+  close(jobId : string):Promise<void>;
   expireJobs(): Promise<void>;
   findByRecruiter(recruiterId: string): Promise<Job[]>;
   incrementViews(jobId: string): Promise<void>;

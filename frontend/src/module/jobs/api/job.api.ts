@@ -105,3 +105,7 @@ export const unblockJob = async (id: string): Promise<Job> => {
   const res = await api.patch(JOB_ROUTES.UNBLOCK(id));
   return unwrapJob(res.data.data);
 };
+
+export const closeJob = async (role: Role, id: string): Promise<void> => {
+  await api.patch(JOB_ROUTES.CLOSE(role, id));
+};

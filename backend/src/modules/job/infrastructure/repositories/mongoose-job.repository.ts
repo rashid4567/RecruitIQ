@@ -138,7 +138,26 @@ export class MongooseJobRepository implements JobRepository {
     );
   }
 
+  async close(jobId: string): Promise<void> {
+    const result = await JobPostModel.updateOne(
+      {
+        _id: jobId,
+        isDeleted: false,
+        isBlocked: false,
+      },
+      {
+        $set: {
+          status: "expired",
+          visibility: "hidden",
+          updatedAt: new Date(),
+        },
+      },
+    );
 
+    if (result.matchedCount === 0) {
+      throw new Error("Job not found");
+    }
+  }
 
   async findAll(
     filters: JobFilters,

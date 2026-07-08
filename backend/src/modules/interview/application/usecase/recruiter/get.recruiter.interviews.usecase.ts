@@ -68,6 +68,7 @@ export class GetRecruiterInterviewsUseCase implements IUseCase<
         candidateProfileImage: application.candidateProfileImage,
         recruiterId: application.recruiterId,
         roomId: result.roomId,
+         mode: result.mode, 
         applicationStatus: application.status,
         interviewStatus: result.status,
         candidateResponseStatus: result.candidateResponseStatus,

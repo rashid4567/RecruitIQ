@@ -16,12 +16,6 @@ const CounterSchema = new Schema<CounterDocument>(
       default: 0,
     },
   },
-  {
-    versionKey: false,
-  },
+  { versionKey: false },
 );
-
-export const CounterModel = model<CounterDocument>(
-  "Counter",
-  CounterSchema,
-);
+export const CounterModel = model<CounterDocument>("Counter", CounterSchema);

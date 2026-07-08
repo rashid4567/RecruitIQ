@@ -70,7 +70,6 @@ export default function RecruiterInterviewDetailModal({
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interview?.interviewId]);
 
   if (!interview) return null;
@@ -98,7 +97,6 @@ export default function RecruiterInterviewDetailModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
       <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl border border-slate-200">
-        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-5 flex items-start justify-between z-10 rounded-t-2xl">
           <div className="flex items-center gap-3">
             {interview.candidateProfileImage ? (
@@ -131,7 +129,6 @@ export default function RecruiterInterviewDetailModal({
         </div>
 
         <div className="p-6 space-y-5">
-          {/* Title + status */}
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 className="text-lg font-bold text-slate-900">
@@ -146,8 +143,6 @@ export default function RecruiterInterviewDetailModal({
               {statusCfg.label}
             </span>
           </div>
-
-          {/* Pending reschedule banner */}
           {pendingReschedule && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
               <div>
@@ -177,7 +172,6 @@ export default function RecruiterInterviewDetailModal({
             </div>
           )}
 
-          {/* Core info grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm bg-slate-50 rounded-xl p-4 border border-slate-100">
             <InfoField icon={<Calendar className="w-3.5 h-3.5" />} label="Date" value={date} />
             <InfoField
@@ -288,7 +282,7 @@ export default function RecruiterInterviewDetailModal({
           )}
         </div>
 
-        {/* Footer actions */}
+    
         <div className="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-4 flex flex-wrap gap-2 justify-end rounded-b-2xl">
           {modifiable && (
             <>

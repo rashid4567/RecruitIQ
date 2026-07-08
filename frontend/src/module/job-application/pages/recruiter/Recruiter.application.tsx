@@ -3,7 +3,11 @@ import { useParams } from "react-router-dom";
 
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
 import { useJobApplications } from "../../hooks/recruiter/useJobApplications";
-import type { ApplicationRow, JobMeta, SortOption } from "../component/Recruiter.application/Application.types";
+import type {
+  ApplicationRow,
+  JobMeta,
+  SortOption,
+} from "../component/Recruiter.application/Application.types";
 import type { ApplicationStatus } from "../../types/jobApplication.types";
 import { getInitials } from "../component/recruiter-application.detail/Indexs";
 import { formatDate } from "../component/candidate-details/Formatters";
@@ -14,14 +18,14 @@ import { JobHeader } from "../component/Recruiter.application/Jobheader";
 import { FilterToolbar } from "../component/Recruiter.application/Filtertoolbar";
 import { ApplicationTable } from "../component/Recruiter.application/Applicationtable";
 import { Pagination } from "../component/Recruiter.application/Pagination";
-
+import { useCloseJob } from "@/module/jobs/hooks/Recruiter-jobPost/useCloseJob";
 const ITEMS_PER_PAGE = 8;
 
 export default function RecruiterApplication() {
   const { jobId } = useParams<{ jobId: string }>();
   const { loading, error, applications, fetchApplications } =
     useJobApplications();
-
+  const { handleCloseJob, loading: closingJob } = useCloseJob();
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortOption>("Application Date");
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "All">(
@@ -108,6 +112,15 @@ export default function RecruiterApplication() {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
+  const handleJobClose = async () => {
+    if (!jobId) return;
+
+    const success = await handleCloseJob(jobId);
+
+    if (success) {
+      fetchApplications(jobId);
+    }
+  };
 
   const toggleSelectAll = (checked: boolean) =>
     setSelectedRows(
@@ -182,7 +195,7 @@ export default function RecruiterApplication() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans">
+    <div className="flex h-screen bg-slate-50 font-sans antialiased">
       <Sidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
@@ -198,6 +211,8 @@ export default function RecruiterApplication() {
           loading={loading}
           error={error}
           onStatusChange={handleStatusChange}
+          onCloseJob={handleJobClose}
+          closingJob={closingJob}
         />
 
         <FilterToolbar
@@ -217,18 +232,20 @@ export default function RecruiterApplication() {
         />
 
         <div className="flex-1 overflow-auto px-6 py-5">
-          <ApplicationTable
-            rows={paginatedRows}
-            selectedRows={selectedRows}
-            isAllSelected={isAllSelected}
-            isIndeterminate={isIndeterminate}
-            loading={loading}
-            error={error}
-            onToggleSelectAll={toggleSelectAll}
-            onToggleSelectRow={toggleSelectRow}
-            onRetry={() => jobId && fetchApplications(jobId)}
-            onClearFilters={clearFilters}
-          />
+          <div className="max-w-350 mx-auto">
+            <ApplicationTable
+              rows={paginatedRows}
+              selectedRows={selectedRows}
+              isAllSelected={isAllSelected}
+              isIndeterminate={isIndeterminate}
+              loading={loading}
+              error={error}
+              onToggleSelectAll={toggleSelectAll}
+              onToggleSelectRow={toggleSelectRow}
+              onRetry={() => jobId && fetchApplications(jobId)}
+              onClearFilters={clearFilters}
+            />
+          </div>
         </div>
 
         <Pagination

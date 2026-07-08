@@ -11,28 +11,12 @@ export class AnswerHandler {
       const target = this.roomRepository.getOtherParticipant(roomId, socket.id);
 
       if (!target) {
-        console.log(`[ANSWER] No participant found in room ${roomId}`);
         return;
       }
-console.log("================================");
-console.log("[ANSWER] Received");
-console.log({
-  roomId,
-  from: socket.id,
-});
       io.to(target.socketId).emit(SocketEvents.ANSWER, {
         answer,
         from: socket.id,
       });
-
-      console.log("================================");
-console.log("[ANSWER] Received");
-console.log({
-  roomId,
-  from: socket.id,
-});
-      
-      console.log(`[ANSWER] : ${socket.id} -> ${target.socketId}`);
     });
   }
 }

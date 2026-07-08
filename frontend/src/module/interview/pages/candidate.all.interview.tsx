@@ -12,6 +12,9 @@ import Sidebar from "../../candidate/pages/components/personalInfo/shared/candid
 import Header from "@/pages/landing/sections/Header";
 import InterviewDecisionModal from "./components/interview-decision-modal";
 import RequestRescheduleModal from "./components/request-reschedule-modal";
+import InterviewStatusModal from "./components/candidate-interviews/InterviewStatusModal";
+import { resolveInterviewError } from "./components/candidate-interviews/interviewStatusMessages";
+import type { InterviewStatusMessage } from "./components/candidate-interviews/interviewStatusMessages";
 
 import type {
   DecisionModalState,
@@ -44,6 +47,12 @@ import {
   NoResultsEmptyState,
 } from "./components/candidate-interviews/Emptystates";
 
+interface StatusModalState {
+  open: boolean;
+  interviewId: string | null;
+  content: InterviewStatusMessage;
+}
+
 export default function MyInterviews() {
   const navigate = useNavigate();
 
@@ -64,6 +73,12 @@ export default function MyInterviews() {
   });
   const [rescheduleModal, setRescheduleModal] = useState<RescheduleModalState>({
     open: false,
+  });
+
+  const [statusModal, setStatusModal] = useState<StatusModalState>({
+    open: false,
+    interviewId: null,
+    content: resolveInterviewError(null),
   });
 
   const { getInterviews, loading, error } = useCandidateInterviews();
@@ -150,6 +165,10 @@ export default function MyInterviews() {
     );
     setRescheduleModal({ open: false });
     loadInterviews();
+  }
+
+  function closeStatusModal() {
+    setStatusModal((s) => ({ ...s, open: false }));
   }
 
   const scheduledInterviews = useMemo(
@@ -265,9 +284,41 @@ export default function MyInterviews() {
     try {
       const result = await submitJoin(interview.id);
 
-      if (!result) return;
+      if (!result) {
+        setStatusModal({
+          open: true,
+          interviewId: interview.id,
+          content: resolveInterviewError(joinError),
+        });
+        return;
+      }
 
       navigate(`/candidate/interviews/${interview.id}/lobby`);
+    } finally {
+      setJoiningId(null);
+    }
+  }
+
+  async function handleRetryJoin() {
+    const interviewId = statusModal.interviewId;
+    if (!interviewId) return;
+
+    setJoinError(null);
+    setJoiningId(interviewId);
+
+    try {
+      const result = await submitJoin(interviewId);
+
+      if (!result) {
+        setStatusModal((s) => ({
+          ...s,
+          content: resolveInterviewError(joinError),
+        }));
+        return;
+      }
+
+      closeStatusModal();
+      navigate(`/candidate/interviews/${interviewId}/lobby`);
     } finally {
       setJoiningId(null);
     }
@@ -307,30 +358,6 @@ export default function MyInterviews() {
 
           {(!loading || interviews.length > 0) && !error && (
             <>
-              {joinError && (
-                <div
-                  role="alert"
-                  className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start gap-2.5"
-                >
-                  <AlertCircle
-                    size={14}
-                    className="text-red-500 shrink-0 mt-0.5"
-                  />
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-red-700">
-                      Couldn't join the interview
-                    </p>
-                    <p className="text-xs text-red-600 mt-0.5">{joinError}</p>
-                  </div>
-                  <button
-                    onClick={() => setJoinError(null)}
-                    className="text-[11px] font-semibold text-red-500 hover:text-red-700 shrink-0"
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              )}
-
               <div className="grid grid-cols-3 gap-3 mb-6">
                 <StatCard
                   icon={Clock}
@@ -467,6 +494,17 @@ export default function MyInterviews() {
         onClose={closeRescheduleModal}
         interview={rescheduleModal.interview}
         onRequested={handleRescheduleRequested}
+      />
+
+      <InterviewStatusModal
+        open={statusModal.open}
+        title={statusModal.content.title}
+        message={statusModal.content.message}
+        type={statusModal.content.type}
+        retryable={statusModal.content.retryable}
+        retryLoading={joiningId === statusModal.interviewId}
+        onRetry={statusModal.content.retryable ? handleRetryJoin : undefined}
+        onClose={closeStatusModal}
       />
     </div>
   );

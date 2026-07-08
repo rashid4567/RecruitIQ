@@ -1,8 +1,3 @@
-/**
- * Encodes a mono AudioBuffer into a real 16-bit PCM WAV Blob. Used by
- * useSpeakerTest to generate an actual audible tone rather than relying
- * on a stock sound file.
- */
 export function encodeWavMono(buffer: AudioBuffer): Blob {
   const samples = buffer.getChannelData(0);
   const sampleRate = buffer.sampleRate;
@@ -26,8 +21,8 @@ export function encodeWavMono(buffer: AudioBuffer): Blob {
   writeString(8, "WAVE");
   writeString(12, "fmt ");
   view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true); // PCM
-  view.setUint16(22, 1, true); // mono
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
   view.setUint32(24, sampleRate, true);
   view.setUint32(28, byteRate, true);
   view.setUint16(32, blockAlign, true);

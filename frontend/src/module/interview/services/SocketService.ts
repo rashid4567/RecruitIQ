@@ -21,14 +21,8 @@ class SocketService {
 
   connect(): Socket {
     if (this.socket?.connected) {
-      console.log("[Socket] Already connected:", this.socket.id);
       return this.socket;
     }
-
-    console.log("====================================");
-    console.log("[Socket] Connecting...");
-    console.log("URL:", import.meta.env.VITE_SOCKET_URL);
-    console.log("====================================");
 
     this.socket = io(import.meta.env.VITE_SOCKET_URL, {
       withCredentials: true,

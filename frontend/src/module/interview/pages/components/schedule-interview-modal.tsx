@@ -732,24 +732,24 @@ export default function ScheduleInterviewModal({
                     <span className="text-slate-400 font-semibold text-sm select-none">
                       :
                     </span>
-                   <Select
-  name="minute"
-  value={activeMinute}
-  onChange={
-    isReschedule
-      ? handleRescheduleInput
-      : handleScheduleInput
-  }
-  className="flex-1"
->
-  {Array.from({ length: 12 }, (_, index) =>
-    String(index * 5).padStart(2, "0"),
-  ).map((minute) => (
-    <option key={minute} value={minute}>
-      {minute}
-    </option>
-  ))}
-</Select>
+                    <Select
+                      name="minute"
+                      value={activeMinute}
+                      onChange={
+                        isReschedule
+                          ? handleRescheduleInput
+                          : handleScheduleInput
+                      }
+                      className="flex-1"
+                    >
+                      {Array.from({ length: 12 }, (_, index) =>
+                        String(index * 5).padStart(2, "0"),
+                      ).map((minute) => (
+                        <option key={minute} value={minute}>
+                          {minute}
+                        </option>
+                      ))}
+                    </Select>
                   </div>
                 </Field>
               </div>

@@ -36,17 +36,11 @@ export class WebRTCService {
 
   private async createLocalStream(): Promise<void> {
     try {
-      console.log("[WEBRTC] Requesting Camera + Mic...");
       this.localStream = await navigator.mediaDevices.getUserMedia(
         DEFAULT_MEDIA_CONSTRAINTS,
       );
 
-      console.log("[WEBRTC] Local Stream Ready");
-
-      console.log({
-        videoTracks: this.localStream.getVideoTracks().length,
-        audioTracks: this.localStream.getAudioTracks().length,
-      });
+    
     } catch (error) {
       console.error("Unable to access camera/microphone.", error);
       throw error;
@@ -54,11 +48,7 @@ export class WebRTCService {
   }
 
   private createPeerConnection(): void {
-    console.log("[WEBRTC] Creating PeerConnection...");
-
     this.peerConnection = new RTCPeerConnection(WEBRTC_CONFIGURATION);
-
-    console.log("[WEBRTC] PeerConnection Created.");
     this.remoteStream = new MediaStream();
     if (!this.localStream) {
       throw new Error("Local stream is not initialized.");
@@ -79,12 +69,10 @@ export class WebRTCService {
       if (!event.candidate) {
         return;
       }
-      console.log("[ICE CANDIDATE]", event.candidate);
       this.onIceCandidateCallback?.(event.candidate);
     };
 
     this.peerConnection.ontrack = (event) => {
-      console.log("[REMOTE TRACK RECEIVED]");
       if (!this.remoteStream) {
         this.remoteStream = new MediaStream();
       }
@@ -101,37 +89,29 @@ export class WebRTCService {
 
     this.peerConnection.onconnectionstatechange = () => {
       const state = this.peerConnection!.connectionState;
-      console.log("[CONNECTION STATE]", state);
       this.onConnectionStateChangedCallback?.(state);
 
       switch (state) {
         case "connected":
-          console.log("✅ Peer Connected");
           break;
         case "connecting":
-          console.log("🟡 Connecting...");
           break;
         case "disconnected":
-          console.log("🟠 Peer Disconnected");
           break;
         case "failed":
-          console.log("🔴 Peer Connection Failed");
           break;
         case "closed":
-          console.log("⚫ Peer Connection Closed");
           break;
       }
     };
 
     this.peerConnection.oniceconnectionstatechange = () => {
       const state = this.peerConnection!.iceConnectionState;
-      console.log("[ICE CONNECTION]", state);
       this.onIceConnectionStateChangedCallback?.(state);
     };
 
     this.peerConnection.onsignalingstatechange = () => {
       const state = this.peerConnection!.signalingState;
-      console.log("[SIGNALING STATE]", state);
       this.onSignalingStateChangedCallback?.(state);
     };
 
@@ -149,7 +129,6 @@ export class WebRTCService {
     newTrack: MediaStreamTrack,
   ): Promise<void> {
     const peerConnection = this.getPeerConnection();
-
     const sender = peerConnection
       .getSenders()
       .find((sender) => sender.track?.kind === kind);
@@ -157,34 +136,25 @@ export class WebRTCService {
     if (!sender) {
       return;
     }
-
     await sender.replaceTrack(newTrack);
   }
-
   async startScreenShare(): Promise<void> {
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
       });
-
       const screenTrack = stream.getVideoTracks()[0];
-
       if (!screenTrack) {
         return;
       }
-
       await this.replaceTrack("video", screenTrack);
-
       if (this.localStream) {
         const oldTrack = this.getVideoTrack();
-
         if (oldTrack) {
           this.localStream.removeTrack(oldTrack);
           oldTrack.stop();
         }
-
         this.localStream.addTrack(screenTrack);
-
         screenTrack.onended = async () => {
           await this.stopScreenShare();
         };
@@ -199,24 +169,19 @@ export class WebRTCService {
       const cameraStream = await navigator.mediaDevices.getUserMedia({
         video: true,
       });
-
       const cameraTrack = cameraStream.getVideoTracks()[0];
-
       if (!cameraTrack) {
         return;
       }
 
       await this.replaceTrack("video", cameraTrack);
-
       if (this.localStream) {
         const oldTrack = this.getVideoTrack();
-
         if (oldTrack) {
           this.localStream.removeTrack(oldTrack);
 
           oldTrack.stop();
         }
-
         this.localStream.addTrack(cameraTrack);
       }
     } catch (error) {
@@ -226,30 +191,15 @@ export class WebRTCService {
 
   async initialize(): Promise<void> {
     if (this.peerConnection) {
-      console.log("[WEBRTC] Already initialized.");
       return;
     }
 
-    console.log("================================");
-    console.log("[WEBRTC] Initialization Started");
-    console.log("================================");
-
     await this.createLocalStream();
-
-    console.log("[WEBRTC] Local stream created.");
-
     this.createPeerConnection();
-
-    console.log("[WEBRTC] PeerConnection created.");
-
-    console.log("================================");
-    console.log("[WEBRTC] Initialization Completed");
-    console.log("================================");
   }
   async createOffer(): Promise<RTCSessionDescriptionInit> {
     try {
       const peerConnection = this.getPeerConnection();
-      console.log("[OFFER] Creating SDP offer...");
       if (peerConnection.signalingState !== "stable") {
         throw new Error(
           `Cannot create offer while signaling state is ${peerConnection.signalingState}`,
@@ -257,7 +207,6 @@ export class WebRTCService {
       }
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
-      console.log("[OFFER] Local description successfully set.");
       return offer;
     } catch (error) {
       console.error("[OFFER] Failed to create SDP offer.", error);
@@ -268,7 +217,6 @@ export class WebRTCService {
   async createAnswer(): Promise<RTCSessionDescriptionInit> {
     try {
       const peerConnection = this.getPeerConnection();
-      console.log("[ANSWER] Creating SDP answer...");
       if (peerConnection.signalingState !== "have-remote-offer") {
         console.warn(
           `[ANSWER] Unexpected signaling state: ${peerConnection.signalingState}`,
@@ -276,7 +224,6 @@ export class WebRTCService {
       }
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
-      console.log("[ANSWER] Local description successfully set.");
       return answer;
     } catch (error) {
       console.error("[ANSWER] Failed to create SDP answer.", error);
@@ -285,49 +232,24 @@ export class WebRTCService {
   }
 
   async handleOffer(offer: RTCSessionDescriptionInit): Promise<void> {
-    console.log("================================");
-    console.log("[WEBRTC] Handling Offer");
-    console.log("================================");
-
     await this.setRemoteDescription(offer);
-
-    console.log("[WEBRTC] Offer Applied");
   }
 
   async handleAnswer(answer: RTCSessionDescriptionInit): Promise<void> {
-    console.log("================================");
-    console.log("[WEBRTC] Handling Answer");
-    console.log("================================");
-
     await this.setRemoteDescription(answer);
-
-    console.log("[WEBRTC] Answer Applied");
   }
 
   async setRemoteDescription(
     description: RTCSessionDescriptionInit,
   ): Promise<void> {
     const peerConnection = this.getPeerConnection();
-
-    console.log("[WEBRTC] Setting Remote Description...");
-    console.log({
-      type: description.type,
-      signalingState: peerConnection.signalingState,
-    });
-
     await peerConnection.setRemoteDescription(description);
-
-    console.log("[WEBRTC] Remote Description Applied");
-    console.log({
-      signalingState: peerConnection.signalingState,
-    });
   }
 
   async addIceCandidate(candidate: RTCIceCandidateInit): Promise<void> {
     const peerConnection = this.getPeerConnection();
 
     await peerConnection.addIceCandidate(candidate);
-    console.log("[WEBRTC] ICE Candidate Added");
   }
   onSignalingStateChanged(callback: (state: RTCSignalingState) => void): void {
     this.onSignalingStateChangedCallback = callback;

@@ -8,7 +8,7 @@ import {
   XCircle,
 } from "lucide-react";
 import type { RecruiterInterviewItem } from "@/module/interview/types/recruiterInterview.types";
-import type { RescheduleDecision } from "./Interviewdashboard.types";
+import type { RescheduleDecision } from "../../../types/Interviewdashboard.types";
 import {
   toInitials,
   candidateGradient,

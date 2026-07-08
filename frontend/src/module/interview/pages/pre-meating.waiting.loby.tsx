@@ -22,7 +22,7 @@ import { useMediaDevices } from "../hooks/common/Usemediadevices";
 import { useConnectionQuality } from "../hooks/common/Useconnectionquality";
 import { useCountdown } from "../hooks/common/Usecountdown";
 import { useMicLevel } from "../hooks/common/Usemiclevel";
-import { useSpeakerTest } from "./components/preInterivew-Lobby/useSpeakerTest";
+import { useSpeakerTest } from "../hooks/common/useSpeakerTest";
 import { useMediaPreview } from "../hooks/common/Usemediapreview";
 import { useStartInterview } from "../hooks/recruiter/useStartInterview";
 import { useJoinInterview } from "../hooks/candidate/useJoinInterview";
@@ -269,11 +269,7 @@ export default function PreMeetingLobby() {
   }
   const permissionsDenied =
     cameraPermission === "denied" || microphonePermission === "denied";
-
-  // Recruiters always start the meeting themselves — `canJoin` is a
-  // candidate-only gate that reflects whether the recruiter has started yet.
   const roleCanProceed = role === "recruiter" ? true : details.canJoin;
-
   const primaryDisabled =
     !roleCanProceed ||
     !preview.localStream ||
@@ -312,7 +308,6 @@ export default function PreMeetingLobby() {
           </p>
         </div>
 
-        {/* Interview Info */}
         <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
           <div className="flex items-start justify-between gap-3 mb-1">
             <h2 className="text-lg font-bold text-slate-900">
@@ -369,7 +364,6 @@ export default function PreMeetingLobby() {
           </div>
         </div>
 
-        {/* Camera Preview */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
           <div className="relative bg-slate-900 aspect-video flex items-center justify-center">
             <video
@@ -455,7 +449,6 @@ export default function PreMeetingLobby() {
           </div>
         </div>
 
-        {/* Device Selection */}
         <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             {
@@ -519,7 +512,6 @@ export default function PreMeetingLobby() {
           })}
         </div>
 
-        {/* Mic Level + Speaker Test */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
             <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-3">
@@ -572,7 +564,6 @@ export default function PreMeetingLobby() {
           </div>
         </div>
 
-        {/* System Status */}
         <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 space-y-3">
           <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">
             System check
@@ -638,7 +629,6 @@ export default function PreMeetingLobby() {
           )}
         </div>
 
-        {/* Countdown / Waiting */}
         {details.mode === "ONLINE" && (
           <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 text-center">
             {!hasStarted ? (
@@ -660,7 +650,6 @@ export default function PreMeetingLobby() {
           </div>
         )}
 
-        {/* Guidelines */}
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5">
           <h4 className="font-bold text-slate-900 mb-2 text-sm">
             Before you join
@@ -673,14 +662,12 @@ export default function PreMeetingLobby() {
           </ul>
         </div>
 
-        {/* Action error */}
         {actionError && (
           <p className="text-sm text-red-600 font-medium text-center">
             {actionError}
           </p>
         )}
 
-        {/* TEMP DEBUG PANEL — remove once the click issue is confirmed fixed */}
         <div className="bg-slate-900 text-slate-100 text-xs font-mono rounded-lg p-3 overflow-x-auto">
           {JSON.stringify(
             {
@@ -699,7 +686,6 @@ export default function PreMeetingLobby() {
           )}
         </div>
 
-        {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={handlePrimaryAction}

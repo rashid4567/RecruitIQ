@@ -32,17 +32,14 @@ export class InMemoryRoomRepository implements RoomRepository {
     if (!room) {
       throw new Error("Room not found");
     }
-
     room.participants.set(participant.socketId, participant);
   }
 
   leave(roomId: string, socketId: string): void {
     const room = this.rooms.get(roomId);
-
     if (!room) {
       return;
     }
-
     room.participants.delete(socketId);
     if (room.participants.size === 0) {
       this.rooms.delete(roomId);
@@ -61,7 +58,6 @@ export class InMemoryRoomRepository implements RoomRepository {
     socketId: string,
   ): RoomParticipant | undefined {
     const room = this.rooms.get(roomId);
-
     if (!room) {
       return undefined;
     }
@@ -71,7 +67,6 @@ export class InMemoryRoomRepository implements RoomRepository {
         return participant;
       }
     }
-
     return undefined;
   }
 

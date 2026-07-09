@@ -7,7 +7,6 @@ export class WebRTCService {
   private peerConnection: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
   private remoteStream: MediaStream | null = null;
-
   private onIceCandidateCallback?: (candidate: RTCIceCandidate) => void;
   private onRemoteStreamCallback?: (stream: MediaStream) => void;
   private onConnectionStateChangedCallback?: (
@@ -39,8 +38,6 @@ export class WebRTCService {
       this.localStream = await navigator.mediaDevices.getUserMedia(
         DEFAULT_MEDIA_CONSTRAINTS,
       );
-
-    
     } catch (error) {
       console.error("Unable to access camera/microphone.", error);
       throw error;
@@ -226,7 +223,6 @@ export class WebRTCService {
       await peerConnection.setLocalDescription(answer);
       return answer;
     } catch (error) {
-      console.error("[ANSWER] Failed to create SDP answer.", error);
       throw error;
     }
   }
@@ -382,7 +378,6 @@ export class WebRTCService {
     this.peerConnection.onsignalingstatechange = null;
     this.peerConnection.onicegatheringstatechange = null;
     this.peerConnection.onnegotiationneeded = null;
-
     this.peerConnection.close();
     this.peerConnection = null;
   }
@@ -403,7 +398,6 @@ export class WebRTCService {
     this.stopLocalStream();
     this.clearRemoteStream();
     this.closePeerConnection();
-
     this.onIceCandidateCallback = undefined;
     this.onRemoteStreamCallback = undefined;
     this.onConnectionStateChangedCallback = undefined;

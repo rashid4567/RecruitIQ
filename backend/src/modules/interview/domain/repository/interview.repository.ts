@@ -23,8 +23,16 @@ export interface InterviewRepository {
     page?: number,
     limit?: number,
   ): Promise<Interview[]>;
-  getNextRound(applicationId : string):Promise<number>;
+findRecruiterInterviewConflict(
+  recruiterId: string,
+  scheduledAt: Date,
+  durationInMinutes: number,
+  excludeInterviewId?: string,
+): Promise<Interview | null>;
+
+  getNextRound(applicationId: string): Promise<number>;
   findPendingRescheduleRequests(recruiterId: string): Promise<Interview[]>;
+  
   findUpcomingByCandidate(candidateId: string): Promise<Interview[]>;
   findUpcomingByRecruiter(recruiterId: string): Promise<Interview[]>;
   findScheduledInterviewsBefore(scheduledBefore: Date): Promise<Interview[]>;

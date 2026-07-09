@@ -49,6 +49,11 @@ export class ScheduleInterviewUseCase implements IUseCase<
         ERROR_CODES.APPLICATION_CANNOT_SCHEDULE_INTERVIEW,
       );
     }
+    await this.validateRecruiterAvailability(
+      application.recruiterId,
+      request.scheduledAt,
+      request.durationInMinutes,
+    );
 
     const roomId =
       request.mode === InterviewMode.ONLINE
@@ -100,6 +105,22 @@ export class ScheduleInterviewUseCase implements IUseCase<
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
     };
+  }
+
+  private async validateRecruiterAvailability(
+    recruiterId: string,
+    scheduledAt: Date,
+    durationInMinutes: number,
+  ): Promise<void> {
+    const conflict = await this.interviewRepo.findRecruiterInterviewConflict(
+      recruiterId,
+      scheduledAt,
+      durationInMinutes,
+    );
+
+    if (conflict) {
+      throw new ApplicationError(ERROR_CODES.RECRUITER_INTERVIEW_TIME_CONFLICT);
+    }
   }
 
   private async notifyCandidate(interview: Interview): Promise<void> {

@@ -63,6 +63,18 @@ export class RescheduleInterviewUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.INTERVIEW_ROUND_ALREADY_EXISTS);
     }
 
+    const conflict =
+      await this.interviewRepository.findRecruiterInterviewConflict(
+        interview.recruiterId,
+        request.scheduledAt,
+        request.durationInMinutes,
+        interview.id!,
+      );
+
+    if (conflict) {
+      throw new ApplicationError(ERROR_CODES.RECRUITER_INTERVIEW_TIME_CONFLICT);
+    }
+
     const roomId =
       interview.mode === InterviewMode.ONLINE
         ? (interview.roomId ?? this.idGenerator.generate())
@@ -76,7 +88,7 @@ export class RescheduleInterviewUseCase implements IUseCase<
     );
 
     const savedInterview = await this.interviewRepository.save(interview);
-    // await this.notifyCandidate(savedInterview);
+    await this.notifyCandidate(savedInterview);
     const interviewData = savedInterview.toObject();
 
     return {

@@ -73,6 +73,49 @@ export class MongooseInterviewRepository implements InterviewRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
+    async findRecruiterInterviewConflict(
+    recruiterId: string,
+    scheduledAt: Date,
+    durationInMinutes: number,
+    excludeInterviewId?: string,
+  ): Promise<Interview | null> {
+    if (!this.isValidObjectId(recruiterId)) {
+      return null;
+    }
+
+    const newInterviewEnd = new Date(
+      scheduledAt.getTime() + durationInMinutes * 60 * 1000,
+    );
+
+    const interviews = await InterviewModel.find({
+      recruiterId: new mongoose.Types.ObjectId(recruiterId),
+      status: {
+        $in: [
+          InterviewStatus.SCHEDULED,
+          InterviewStatus.RESCHEDULED,
+          InterviewStatus.ONGOING,
+        ],
+      },
+      ...(excludeInterviewId && {
+        _id: { $ne: new mongoose.Types.ObjectId(excludeInterviewId) },
+      }),
+    });
+
+    const conflict = interviews.find((interview) => {
+      const existingStart = interview.scheduledAt;
+      const existingEnd = new Date(
+        existingStart.getTime() + interview.durationInMinutes * 60 * 1000,
+      );
+
+      return scheduledAt < existingEnd && newInterviewEnd > existingStart;
+    });
+
+    return conflict ? this.toDomain(conflict) : null;
+  }
+
+
+
+
   async findByApplicationId(applicationId: string): Promise<Interview | null> {
     if (!this.isValidObjectId(applicationId)) {
       return null;

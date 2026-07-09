@@ -276,9 +276,7 @@ export default function ChangeAdminPasswordPage() {
       confirmPassword: values.confirmPassword,
       forceLogoutOtherSessions: values.forceLogoutOtherSessions,
     };
-
     const ok = await handleUpdatePassword(payload);
-
     if (ok) {
       setSuccessMessage("Your password has been updated successfully.");
       setValues({
@@ -295,7 +293,6 @@ export default function ChangeAdminPasswordPage() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-
       <div className="flex-1">
         <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 px-8 py-4 backdrop-blur-sm">
           <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -306,7 +303,6 @@ export default function ChangeAdminPasswordPage() {
             </span>
           </div>
         </header>
-
         <main className="px-8 py-10">
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
             <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
@@ -323,7 +319,6 @@ export default function ChangeAdminPasswordPage() {
                   </p>
                 </div>
               </div>
-
               {error && (
                 <div
                   role="alert"

@@ -137,9 +137,7 @@ export function useInterviewCall({
     async (payload: OfferPayload) => {
       try {
         await webRTC.handleOffer(payload.offer);
-
         await flushPendingIceCandidates();
-
         const answer = await webRTC.createAnswer();
         socketService.sendAnswer({
           roomId,

@@ -10,8 +10,9 @@ import { cn } from "@/lib/utils";
 import { useCandidates } from "../hooks/Candidate-Hooks/useCandidate";
 import { useUserStatus } from "../hooks/Candidate-Hooks/useUserStatus";
 import { CandidateTable } from "./components/candidatelist/CandidateTable";
-import { CandidateStatusDialog } from "./components/candidatelist/CandidateStatusDialog";
-
+import { CommonConfirmDialog } from "@/shared/Commonconfirmdialog";
+import { ImpactList } from "@/shared/ImpactList";
+import { ShieldAlert, ShieldCheck } from "lucide-react";
 export default function CandidateManagement() {
   const navigate = useNavigate();
 
@@ -41,7 +42,7 @@ export default function CandidateManagement() {
     candidateName: string;
     action: "block" | "unblock";
   }>({ open: false, candidateId: "", candidateName: "", action: "block" });
-
+  const isBlock = confirmationDialog.action === "block";
   const handleToggleStatus = (
     candidateId: string,
     candidateName: string,
@@ -76,7 +77,8 @@ export default function CandidateManagement() {
         action: "block",
       });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : `Failed to ${action} candidate`;
+      const message =
+        err instanceof Error ? err.message : `Failed to ${action} candidate`;
       toast.error(message);
     }
   };
@@ -86,7 +88,6 @@ export default function CandidateManagement() {
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
-
         <header className="bg-white border-b border-slate-200/70 sticky top-0 z-40 px-6 py-4 shadow-sm">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -208,18 +209,54 @@ export default function CandidateManagement() {
           </div>
         </main>
 
-
-        <CandidateStatusDialog
+        <CommonConfirmDialog
           open={confirmationDialog.open}
-          candidateName={confirmationDialog.candidateName}
-          action={confirmationDialog.action}
-          loading={Object.values(loadingMap).some(Boolean)}
-          onOpenChange={(open) =>
-            !open &&
-            setConfirmationDialog({ ...confirmationDialog, open: false })
+          onOpenChange={(open) => {
+            if (!open) {
+              setConfirmationDialog({
+                open: false,
+                candidateId: "",
+                candidateName: "",
+                action: "block",
+              });
+            }
+          }}
+          icon={isBlock ? <ShieldAlert /> : <ShieldCheck />}
+          title={isBlock ? "Block this candidate?" : "Unblock this candidate?"}
+          description={
+            <>
+              <span className="font-medium text-gray-700">
+                {confirmationDialog.candidateName}
+              </span>{" "}
+              {isBlock
+                ? "will be restricted from accessing the platform."
+                : "will regain full platform access."}
+            </>
           }
+          variant={isBlock ? "danger" : "success"}
+          confirmText={isBlock ? "Block" : "Unblock"}
+          loading={Object.values(loadingMap).some(Boolean)}
+          loadingText={isBlock ? "Blocking..." : "Unblocking..."}
           onConfirm={confirmStatusToggle}
-        />
+        >
+          <ImpactList
+            tone={isBlock ? "danger" : "success"}
+            label={isBlock ? "Impact" : "Benefit"}
+            items={
+              isBlock
+                ? [
+                    "Notifications will be suspended",
+                    "Job feed access restricted",
+                    "Applications blocked",
+                  ]
+                : [
+                    "Notifications restored",
+                    "Job opportunities visible",
+                    "Applications enabled",
+                  ]
+            }
+          />
+        </CommonConfirmDialog>
       </div>
     </div>
   );

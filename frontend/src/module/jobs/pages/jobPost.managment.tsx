@@ -9,7 +9,9 @@ import { JobPostFilters } from "./components/admin.job.management/Jobpostfilters
 import { EmptyState } from "./components/admin.job.management/Emptystate";
 import { JobPostTable } from "./components/admin.job.management/Jobposttable";
 import { JobPostDetailModal } from "./components/admin.job.management/Jobpostdetailmodal";
-import { BlockConfirmDialog } from "./components/admin.job.management/Blockconfirmdialog";
+import { CommonConfirmDialog } from "@/shared/Commonconfirmdialog";
+import { ImpactList } from "@/shared/ImpactList";
+import { Ban, ShieldCheck } from "lucide-react";
 
 const LIMIT = 10;
 
@@ -45,7 +47,7 @@ export default function JobPostManagement() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [jobToBlock, setJobToBlock] = useState<Job | null>(null);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
-
+const isBlocking = jobToBlock?.isBlocked === false;
   const handleViewJob = (job: Job) => {
     setSelectedJob(job);
     setIsDetailOpen(true);
@@ -67,6 +69,45 @@ export default function JobPostManagement() {
     setIsBlockDialogOpen(false);
     setJobToBlock(null);
   };
+
+  const dialogConfig = {
+  block: {
+    title: "Block Job Post",
+    description: `Block "${jobToBlock?.title}"? This job will no longer be visible to candidates.`,
+    icon: <Ban />,
+    variant: "danger" as const,
+    confirmText: "Block",
+    loadingText: "Blocking...",
+    label: "Impact",
+    items: [
+      "Job becomes hidden",
+      "Candidates cannot apply",
+      "Recruiter can restore later",
+    ],
+  },
+
+  unblock: {
+    title: "Unblock Job Post",
+    description: `Restore "${jobToBlock?.title}" and make it visible again.`,
+    icon: <ShieldCheck />,
+    variant: "success" as const,
+    confirmText: "Restore",
+    loadingText: "Restoring...",
+    label: "Benefit",
+    items: [
+      "Job becomes visible",
+      "Applications accepted again",
+      "Recruiter regains visibility",
+    ],
+  },
+};
+
+const current =
+  jobToBlock == null
+    ? null
+    : isBlocking
+      ? dialogConfig.block
+      : dialogConfig.unblock;
 
   if (error) toast.error(error);
 
@@ -116,13 +157,30 @@ export default function JobPostManagement() {
         onToggleBlock={handleToggleBlock}
       />
 
-      <BlockConfirmDialog
-        job={jobToBlock}
-        isOpen={isBlockDialogOpen}
-        onClose={handleCloseBlockDialog}
-        onConfirm={handleConfirmToggleBlock}
-        loading={blockLoading}
-      />
+     {current && (
+  <CommonConfirmDialog
+    open={isBlockDialogOpen}
+    onOpenChange={(open) => {
+      if (!open) handleCloseBlockDialog();
+    }}
+    icon={current.icon}
+    title={current.title}
+    description={current.description}
+    variant={current.variant}
+    confirmText={current.confirmText}
+    loading={blockLoading}
+    loadingText={current.loadingText}
+    onConfirm={async () => {
+      await handleConfirmToggleBlock();
+    }}
+  >
+    <ImpactList
+      tone={current.variant}
+      label={current.label}
+      items={current.items}
+    />
+  </CommonConfirmDialog>
+)}
     </div>
   );
 }

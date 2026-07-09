@@ -1,5 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { AlertCircle, Loader2 } from "lucide-react";
+import {
+  AlertCircle,
+  Loader2,
+  ShieldCheck,
+  ShieldOff,
+  Ban,
+  XCircle,
+} from "lucide-react";
 import { useState } from "react";
 import Sidebar from "@/components/admin/sideBar";
 
@@ -10,28 +17,12 @@ import { RecruiterProfileHeader } from "./components/recruiter-profile/Recruiter
 import { RecruiterContactInfo } from "./components/recruiter-profile/RecruiterContactInfo";
 import { RecruiterCompanyCard } from "./components/recruiter-profile/RecruiterCompanyCard";
 import { RecruiterBioCard } from "./components/recruiter-profile/RecruiterBioCard";
-import { RecruiterConfirmModal } from "./components/recruiter-profile/RecruiterConfirmModal";
 import { Button } from "@/components/ui/button";
 
-type ConfirmVariant = "default" | "destructive";
+import { CommonConfirmDialog } from "@/shared/Commonconfirmdialog";
+import { ImpactList } from "@/shared/ImpactList";
 
-interface ConfirmState {
-  open: boolean;
-  title: string;
-  description: string;
-  confirmText: string;
-  variant: ConfirmVariant;
-  onConfirm: () => void;
-}
-
-const CONFIRM_CLOSED: ConfirmState = {
-  open: false,
-  title: "",
-  description: "",
-  confirmText: "",
-  variant: "default",
-  onConfirm: () => {},
-};
+type RecruiterProfileAction = "verify" | "reject" | "block" | "unblock" | null;
 
 export default function RecruiterProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -42,59 +33,91 @@ export default function RecruiterProfilePage() {
 
   const { toggleUserStatus } = useUserStatus({ onSuccess: refresh });
 
-  const [confirm, setConfirm] = useState<ConfirmState>(CONFIRM_CLOSED);
+  const [confirmAction, setConfirmAction] =
+    useState<RecruiterProfileAction>(null);
 
-  const openConfirm = (
-    title: string,
-    description: string,
-    confirmText: string,
-    variant: ConfirmVariant,
-    callback: () => void,
-  ) =>
-    setConfirm({
-      open: true,
-      title,
-      description,
-      confirmText,
-      variant,
-      onConfirm: callback,
-    });
+  const closeDialog = () => setConfirmAction(null);
 
-  const closeConfirm = () => setConfirm(CONFIRM_CLOSED);
-
-  const handleVerify = () =>
-    openConfirm(
-      "Approve Verification",
-      "This will mark the recruiter as verified and unlock full platform features.",
-      "Approve",
-      "default",
-      verify,
-    );
-
-  const handleReject = () =>
-    openConfirm(
-      "Reject Verification",
-      "This action cannot be undone. The recruiter will be notified.",
-      "Reject",
-      "destructive",
-      reject,
-    );
-
+  const handleVerify = () => setConfirmAction("verify");
+  const handleReject = () => setConfirmAction("reject");
   const handleToggleActive = () => {
     if (!recruiter) return;
-    const isActive = recruiter.isActive;
-    openConfirm(
-      isActive ? "Suspend Recruiter" : "Restore Recruiter",
-      isActive
-        ? "This will immediately suspend the account and revoke access."
-        : "This will restore full access to the platform.",
-      isActive ? "Suspend" : "Restore",
-      isActive ? "destructive" : "default",
-      () => toggleUserStatus(recruiter.id, isActive),
-    );
+    setConfirmAction(recruiter.isActive ? "block" : "unblock");
   };
 
-  // ── Loading ──────────────────────────────────────────────────────────────
+  const dialogConfig = {
+    verify: {
+      title: "Approve Verification",
+      description:
+        "This will mark the recruiter as verified and unlock full platform features.",
+      icon: <ShieldCheck />,
+      variant: "success" as const,
+      confirmText: "Approve",
+      loadingText: "Approving...",
+      label: "Benefit",
+      items: [
+        "Recruiter becomes verified",
+        "Platform access unlocked",
+        "Can publish jobs",
+      ],
+      onConfirm: verify,
+    },
+
+    reject: {
+      title: "Reject Verification",
+      description:
+        "This action cannot be undone. The recruiter will be notified.",
+      icon: <XCircle />,
+      variant: "danger" as const,
+      confirmText: "Reject",
+      loadingText: "Rejecting...",
+      label: "Impact",
+      items: ["Verification request rejected", "Recruiter remains unverified"],
+      onConfirm: reject,
+    },
+
+    block: {
+      title: "Suspend Recruiter",
+      description:
+        "This will immediately suspend the account and revoke access.",
+      icon: <Ban />,
+      variant: "danger" as const,
+      confirmText: "Suspend",
+      loadingText: "Suspending...",
+      label: "Impact",
+      items: [
+        "Platform access revoked",
+        "Cannot manage jobs",
+        "Cannot access dashboard",
+      ],
+      onConfirm: () => {
+        if (!recruiter) return;
+        return toggleUserStatus(recruiter.id, true);
+      },
+    },
+
+    unblock: {
+      title: "Restore Recruiter",
+      description: "This will restore full access to the platform.",
+      icon: <ShieldOff />,
+      variant: "success" as const,
+      confirmText: "Restore",
+      loadingText: "Restoring...",
+      label: "Benefit",
+      items: [
+        "Platform access restored",
+        "Dashboard enabled",
+        "Job management restored",
+      ],
+      onConfirm: () => {
+        if (!recruiter) return;
+        return toggleUserStatus(recruiter.id, false);
+      },
+    },
+  } as const;
+
+  const current = confirmAction != null ? dialogConfig[confirmAction] : null;
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F8FA]">
@@ -106,7 +129,6 @@ export default function RecruiterProfilePage() {
     );
   }
 
-  // ── Error ────────────────────────────────────────────────────────────────
   if (error || !recruiter) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F8FA]">
@@ -135,13 +157,11 @@ export default function RecruiterProfilePage() {
     );
   }
 
-  // ── Main ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex">
       <Sidebar />
 
       <main className="flex-1 overflow-y-auto">
-        {/* ── Top Navbar ─────────────────────────────────────────────── */}
         <div className="bg-white border-b border-gray-100 px-8 py-4 sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gray-900 rounded-xl flex items-center justify-center">
@@ -159,13 +179,11 @@ export default function RecruiterProfilePage() {
         </div>
 
         <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-          {/* ── Profile Header ─────────────────────────────────────────── */}
           <RecruiterProfileHeader
             recruiter={recruiter}
             onBack={() => navigate("/admin/recruiters")}
           />
 
-          {/* ── Contact / Action Bar ───────────────────────────────────── */}
           <RecruiterContactInfo
             recruiter={recruiter}
             onVerify={handleVerify}
@@ -174,7 +192,6 @@ export default function RecruiterProfilePage() {
             actionLoading={actionLoading}
           />
 
-          {/* ── Company + Bio ──────────────────────────────────────────── */}
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
               <RecruiterCompanyCard recruiter={recruiter} />
@@ -186,16 +203,31 @@ export default function RecruiterProfilePage() {
         </div>
       </main>
 
-      <RecruiterConfirmModal
-        open={confirm.open}
-        onClose={closeConfirm}
-        title={confirm.title}
-        description={confirm.description}
-        confirmText={confirm.confirmText}
-        variant={confirm.variant}
-        onConfirm={confirm.onConfirm}
-        loading={actionLoading}
-      />
+      {current && (
+        <CommonConfirmDialog
+          open={confirmAction !== null}
+          onOpenChange={(open) => {
+            if (!open) closeDialog();
+          }}
+          icon={current.icon}
+          title={current.title}
+          description={current.description}
+          variant={current.variant}
+          confirmText={current.confirmText}
+          loading={actionLoading}
+          loadingText={current.loadingText}
+          onConfirm={async () => {
+            await current.onConfirm();
+            closeDialog();
+          }}
+        >
+          <ImpactList
+            tone={current.variant}
+            label={current.label}
+            items={current.items}
+          />
+        </CommonConfirmDialog>
+      )}
     </div>
   );
 }

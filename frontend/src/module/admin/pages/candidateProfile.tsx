@@ -8,8 +8,9 @@ import { useCandidateProfile } from "../hooks/Candidate-Hooks/useCandidateProfil
 import { toast } from "sonner";
 import { CandidateProfileHeader } from "./components/candidate-profile/CandidateProfileHeader";
 import { CandidateProfileContent } from "./components/candidate-profile/CandidateProfileContent";
-import { CandidateProfileDialogs } from "./components/candidate-profile/CandidateProfileDialogs";
 import { ShieldAlert, ShieldCheck } from "lucide-react";
+import { CommonConfirmDialog } from "@/shared/Commonconfirmdialog"; 
+import { ImpactList } from "@/shared/ImpactList";
 
 const CandidateProfileView: React.FC = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
@@ -128,16 +129,63 @@ const CandidateProfileView: React.FC = () => {
         </main>
       </div>
 
-      <CandidateProfileDialogs
-        profile={profile}
-        blockDialogOpen={blockDialogOpen}
-        unblockDialogOpen={unblockDialogOpen}
-        actionLoading={actionLoading}
-        onBlockDialogChange={setBlockDialogOpen}
-        onUnblockDialogChange={setUnblockDialogOpen}
-        onBlockConfirm={handleBlockCandidate}
-        onUnblockConfirm={handleUnblockCandidate}
-      />
+     <>
+  <CommonConfirmDialog
+    open={blockDialogOpen}
+    onOpenChange={setBlockDialogOpen}
+    icon={<ShieldAlert />}
+    title="Block this candidate?"
+    description={
+      <>
+        <span className="font-medium text-gray-700">{profile.name}</span> will
+        be restricted from accessing the platform.
+      </>
+    }
+    variant="danger"
+    confirmText="Block"
+    loading={actionLoading}
+    loadingText="Blocking..."
+    onConfirm={handleBlockCandidate}
+  >
+    <ImpactList
+      tone="danger"
+      label="Impact"
+      items={[
+        "Notifications will be suspended",
+        "Job feed access restricted",
+        "Applications blocked",
+      ]}
+    />
+  </CommonConfirmDialog>
+
+  <CommonConfirmDialog
+    open={unblockDialogOpen}
+    onOpenChange={setUnblockDialogOpen}
+    icon={<ShieldCheck />}
+    title="Unblock this candidate?"
+    description={
+      <>
+        <span className="font-medium text-gray-700">{profile.name}</span> will
+        regain full platform access.
+      </>
+    }
+    variant="success"
+    confirmText="Unblock"
+    loading={actionLoading}
+    loadingText="Unblocking..."
+    onConfirm={handleUnblockCandidate}
+  >
+    <ImpactList
+      tone="success"
+      label="Benefit"
+      items={[
+        "Notifications restored",
+        "Job opportunities visible",
+        "Applications enabled",
+      ]}
+    />
+  </CommonConfirmDialog>
+</>
     </div>
   );
 };

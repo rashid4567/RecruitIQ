@@ -1,7 +1,12 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
+import { JobRepository } from "../../../../job/domain/repositories/job.repository";
+import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
+import { NotificationType } from "../../../../notification/infrastructure/mongoose/notification.model";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
+import { Interview } from "../../../domain/entity/interview.entity";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
   StartInterviewRequestDTO,
@@ -15,6 +20,9 @@ export class StartInterviewUseCase implements IUseCase<
   constructor(
     private readonly interviewRepo: InterviewRepository,
     private readonly recruiterSubscriptionRepo: RecruiterSubscriptionRepository,
+    private readonly createNotificationUC: CreateNotificationUseCase,
+    private readonly userRepo: UserRepository,
+    private readonly jobRepo: JobRepository,
   ) {}
 
   async execute(
@@ -56,6 +64,7 @@ export class StartInterviewUseCase implements IUseCase<
     interview.start();
     interview.markRecruiterJoined();
     const savedInterview = await this.interviewRepo.save(interview);
+    await this.notifyCandidate(savedInterview);
     const result = savedInterview.toObject();
 
     return {
@@ -64,5 +73,35 @@ export class StartInterviewUseCase implements IUseCase<
       startedAt: result.startedAt,
       updatedAt: result.updatedAt,
     };
+  }
+
+  private async notifyCandidate(interview: Interview): Promise<void> {
+    try {
+      const job = await this.jobRepo.findById(interview.jobId);
+
+      if (!job) {
+        return;
+      }
+
+      await this.createNotificationUC.execute({
+        recipientId: interview.candidateId,
+        recipientRole: "candidate",
+        title: "Interview Started",
+        message: `Your recruiter has started the interview for "${job.title}". You can join now.`,
+        type: NotificationType.INTERVIEW_STARTED,
+        actionUrl: "/candidate/interviews",
+        referenceId: interview.id,
+        metadata: {
+          interviewId: interview.id,
+          applicationId: interview.applicationId,
+          recruiterId: interview.recruiterId,
+          candidateId: interview.candidateId,
+          jobId: interview.jobId,
+          startedAt: interview.startedAt,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to create interview started notification:", error);
+    }
   }
 }

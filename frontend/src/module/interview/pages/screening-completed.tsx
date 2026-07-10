@@ -3,6 +3,7 @@ import { useRecruiterInterviewDetails } from "../hooks/recruiter/useRecruiterInt
 import { useUpdateInterviewNotes } from "../hooks/recruiter/useUpdateInterviewNotes";
 import type { GetRecruiterInterviewDetailsResponse } from "../types/recruiterInterview.types";
 import { useNavigate, useParams } from "react-router-dom";
+import Header from "@/pages/landing/sections/Header";
 
 interface InterviewSummary {
   interviewId: string;
@@ -175,47 +176,6 @@ function ExitWarningModal({
   );
 }
 
-function HeaderBar() {
-  return (
-    <header className="border-b border-gray-200 bg-white shadow-sm sticky top-0 z-30">
-      <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md">
-            <svg
-              className="w-6 h-6 text-white"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-            </svg>
-          </div>
-          <span className="text-2xl font-bold text-gray-950">RecruitQ</span>
-        </div>
-        <nav className="flex items-center gap-10">
-          <a
-            href="#"
-            className="text-gray-700 hover:text-gray-950 font-medium text-sm transition-colors"
-          >
-            Home
-          </a>
-          <a
-            href="#"
-            className="text-gray-700 hover:text-gray-950 font-medium text-sm transition-colors"
-          >
-            Applications
-          </a>
-          <a
-            href="#"
-            className="text-gray-700 hover:text-gray-950 font-medium text-sm transition-colors"
-          >
-            Settings
-          </a>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
 function SkeletonBlock({ className = "" }: { className?: string }) {
   return (
     <div className={"animate-pulse bg-gray-200/80 rounded-md " + className} />
@@ -225,7 +185,7 @@ function SkeletonBlock({ className = "" }: { className?: string }) {
 function LoadingState() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <HeaderBar />
+      <Header />
       <div className="max-w-7xl mx-auto px-8 pt-6">
         <SkeletonBlock className="h-6 w-64" />
       </div>
@@ -275,7 +235,7 @@ function ErrorState({
 }) {
   return (
     <div className="min-h-screen bg-gray-50">
-      <HeaderBar />
+      <Header />
       <div className="max-w-2xl mx-auto px-8 py-24 text-center">
         <div className="w-14 h-14 mx-auto rounded-full bg-red-50 border border-red-200 flex items-center justify-center text-red-600 mb-5">
           <AlertIcon className="w-6 h-6" />
@@ -461,7 +421,7 @@ export default function InterviewNotesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <HeaderBar />
+      <Header />
 
       <div className="max-w-7xl mx-auto px-8 pt-6">
         <ProgressStepper />

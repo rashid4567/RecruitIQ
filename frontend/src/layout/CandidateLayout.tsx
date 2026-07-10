@@ -1,5 +1,6 @@
 import { Outlet, Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import NotificationListener from "../module/notification/page/NotificationListener"
 import api from "../api/axios";
 
 const CandidateLayout = () => {
@@ -61,11 +62,12 @@ const CandidateLayout = () => {
     );
   }
 
-  return (
-    <div>
-      <Outlet />
-    </div>
-  );
+return (
+  <div>
+    <NotificationListener />
+    <Outlet />
+  </div>
+);
 };
 
 export default CandidateLayout;

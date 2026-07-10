@@ -1,4 +1,13 @@
-import { Search, X, RotateCw, CheckCircle2, AlertTriangle, FlaskConical, Mail, SlidersHorizontal } from "lucide-react";
+import {
+  Search,
+  X,
+  RotateCw,
+  CheckCircle2,
+  AlertTriangle,
+  FlaskConical,
+  Mail,
+  SlidersHorizontal,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -30,9 +39,9 @@ function ActiveChip({
 }) {
   const colors = {
     indigo: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    rose:   "bg-rose-50   text-rose-700   border-rose-200",
-    emerald:"bg-emerald-50 text-emerald-700 border-emerald-200",
-    amber:  "bg-amber-50  text-amber-700  border-amber-200",
+    rose: "bg-rose-50   text-rose-700   border-rose-200",
+    emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    amber: "bg-amber-50  text-amber-700  border-amber-200",
   };
 
   return (
@@ -53,8 +62,6 @@ function ActiveChip({
   );
 }
 
-
-
 export function EmailLogsFilters({
   search,
   onSearchChange,
@@ -70,10 +77,7 @@ export function EmailLogsFilters({
   return (
     <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200/80 shadow-sm">
       <div className="max-w-screen-2xl mx-auto px-6 py-4">
-
-       
         <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
-
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <Input
@@ -93,13 +97,11 @@ export function EmailLogsFilters({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1 hidden sm:flex">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1 sm:flex">
               <SlidersHorizontal className="h-3.5 w-3.5" />
               Filter
             </div>
 
-       
             <Select value={statusFilter} onValueChange={onStatusFilterChange}>
               <SelectTrigger
                 className={cn(
@@ -184,7 +186,6 @@ export function EmailLogsFilters({
           </div>
         </div>
 
-     
         {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100">
             <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mr-0.5">

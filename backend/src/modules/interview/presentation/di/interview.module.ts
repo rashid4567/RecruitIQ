@@ -117,6 +117,9 @@ const rejectRescheduleRequestUC = new RejectRescheduleRequestUseCase(
 const startinterviewUC = new StartInterviewUseCase(
   interviewRepo,
   recruiterRepo,
+  createNotificationUC,
+  userRepo,
+  jobRepo,
 );
 const endInterviewUC = new EndInterviewUseCase(interviewRepo, applicationRepo);
 const rescheduleInterviewUC = new RescheduleInterviewUseCase(

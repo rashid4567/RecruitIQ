@@ -278,17 +278,7 @@ export default function PreMeetingLobby() {
     permissionsDenied ||
     enteringRoom;
 
-  console.log("[button-state]", {
-    role,
-    roleCanProceed,
-    detailsCanJoin: details.canJoin,
-    hasLocalStream: !!preview.localStream,
-    previewLoading: preview.loading,
-    previewError: preview.error,
-    permissionsDenied,
-    enteringRoom,
-    primaryDisabled,
-  });
+
 
   const primaryLabel = enteringRoom
     ? role === "recruiter"
@@ -667,7 +657,7 @@ export default function PreMeetingLobby() {
             {actionError}
           </p>
         )}
-
+{/* 
         <div className="bg-slate-900 text-slate-100 text-xs font-mono rounded-lg p-3 overflow-x-auto">
           {JSON.stringify(
             {
@@ -684,7 +674,7 @@ export default function PreMeetingLobby() {
             null,
             2,
           )}
-        </div>
+        </div> */}
 
         <div className="flex flex-col sm:flex-row gap-3">
           <button

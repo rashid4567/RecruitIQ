@@ -1,24 +1,30 @@
 import { useState } from "react";
 import Sidebar from "@/components/admin/sideBar";
-import { useRecruiters } from "../hooks/Recruiter-Hooks/useRecruiters";
-import { RecruiterManagementHeader } from "./components/recruiterlist/RecruiterManagementHeader";
-import { RecruiterFilters } from "./components/recruiterlist/RecruiterFilters";
-import { RecruiterTable } from "./components/recruiterlist/RecruiterTable";
-import type {
-  RecruiterListItem,
-  RecruiterProfile,
-} from "../types/recruiter.types";
 import { useNavigate } from "react-router-dom";
+import { useRecruiters } from "../hooks/Recruiter-Hooks/useRecruiters";
+import { RecruiterTable } from "./components/recruiterlist/RecruiterTable";
+import type { RecruiterListItem, RecruiterProfile } from "../types/recruiter.types";
 import { CommonConfirmDialog } from "@/shared/Commonconfirmdialog";
 import { ImpactList } from "@/shared/ImpactList";
+import { ManagementHeader } from "@/shared/table/ManagementHeader";
+import { SearchFilterBar } from "@/shared/table/SearchFilterBar";
 import { ShieldCheck, ShieldOff, Ban, XCircle } from "lucide-react";
 
 type RecruiterAction = "verify" | "reject" | "block" | "unblock";
+type FilterTab = "all" | "pending" | "verified" | "blocked";
+
 interface ConfirmState {
   open: boolean;
   recruiter: RecruiterProfile | null;
   action: RecruiterAction | null;
 }
+
+const TAB_FILTERS: { label: string; value: FilterTab; activeClassName: string }[] = [
+  { label: "All", value: "all", activeClassName: "bg-slate-800 hover:bg-slate-900" },
+  { label: "Pending", value: "pending", activeClassName: "bg-amber-600 hover:bg-amber-700" },
+  { label: "Verified", value: "verified", activeClassName: "bg-emerald-600 hover:bg-emerald-700" },
+  { label: "Blocked", value: "blocked", activeClassName: "bg-rose-600 hover:bg-rose-700" },
+];
 
 export default function RecruiterManagement() {
   const recruitersData = useRecruiters();
@@ -37,28 +43,19 @@ export default function RecruiterManagement() {
     verify: {
       title: "Verify Recruiter",
       description: `Grant verified status and full platform access to ${
-        confirm.recruiter?.companyName ??
-        confirm.recruiter?.name ??
-        "this recruiter"
+        confirm.recruiter?.companyName ?? confirm.recruiter?.name ?? "this recruiter"
       }.`,
       icon: <ShieldCheck />,
       variant: "success" as const,
       confirmText: "Verify",
       loadingText: "Verifying...",
       label: "Benefit",
-      items: [
-        "Recruiter becomes verified",
-        "Platform access granted",
-        "Can publish and manage jobs",
-      ],
+      items: ["Recruiter becomes verified", "Platform access granted", "Can publish and manage jobs"],
     },
-
     reject: {
       title: "Reject Application",
       description: `Reject the verification request from ${
-        confirm.recruiter?.companyName ??
-        confirm.recruiter?.name ??
-        "this recruiter"
+        confirm.recruiter?.companyName ?? confirm.recruiter?.name ?? "this recruiter"
       }.`,
       icon: <XCircle />,
       variant: "danger" as const,
@@ -67,57 +64,36 @@ export default function RecruiterManagement() {
       label: "Impact",
       items: ["Verification request rejected", "Recruiter remains unverified"],
     },
-
     block: {
       title: "Block Recruiter",
       description: `Immediately revoke platform access for ${
-        confirm.recruiter?.companyName ??
-        confirm.recruiter?.name ??
-        "this recruiter"
+        confirm.recruiter?.companyName ?? confirm.recruiter?.name ?? "this recruiter"
       }.`,
       icon: <Ban />,
       variant: "danger" as const,
       confirmText: "Block",
       loadingText: "Blocking...",
       label: "Impact",
-      items: [
-        "Platform access revoked",
-        "Cannot manage jobs",
-        "Cannot access candidates",
-      ],
+      items: ["Platform access revoked", "Cannot manage jobs", "Cannot access candidates"],
     },
-
     unblock: {
       title: "Unblock Recruiter",
       description: `Restore platform access for ${
-        confirm.recruiter?.companyName ??
-        confirm.recruiter?.name ??
-        "this recruiter"
+        confirm.recruiter?.companyName ?? confirm.recruiter?.name ?? "this recruiter"
       }.`,
       icon: <ShieldOff />,
       variant: "success" as const,
       confirmText: "Unblock",
       loadingText: "Restoring...",
       label: "Benefit",
-      items: [
-        "Platform access restored",
-        "Job management enabled",
-        "Candidate access restored",
-      ],
+      items: ["Platform access restored", "Job management enabled", "Candidate access restored"],
     },
   };
 
   const current = confirm.action != null ? dialogConfig[confirm.action] : null;
 
-  const handleAction = (
-    recruiter: RecruiterListItem,
-    action: RecruiterAction,
-  ) => {
-    setConfirm({
-      open: true,
-      recruiter,
-      action,
-    });
+  const handleAction = (recruiter: RecruiterListItem, action: RecruiterAction) => {
+    setConfirm({ open: true, recruiter, action });
   };
 
   const handleConfirmAction = async () => {
@@ -131,13 +107,20 @@ export default function RecruiterManagement() {
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
-        <RecruiterManagementHeader onRefresh={recruitersData.fetchRecruiters} />
+        <ManagementHeader
+          title="Recruiter Management"
+          description="Review, verify and manage all recruiters"
+          onRefresh={recruitersData.fetchRecruiters}
+          loading={recruitersData.loading}
+        />
 
-        <RecruiterFilters
-          search={recruitersData.search}
-          setSearch={recruitersData.setSearch}
-          tab={recruitersData.tab}
-          setTab={recruitersData.setTab}
+        <SearchFilterBar
+          searchTerm={recruitersData.search}
+          onSearchChange={recruitersData.setSearch}
+          searchPlaceholder="Search by name, email or company..."
+          filters={TAB_FILTERS}
+          activeFilter={recruitersData.tab}
+          onFilterChange={recruitersData.setTab}
         />
 
         <main className="flex-1 p-6">
@@ -157,11 +140,7 @@ export default function RecruiterManagement() {
             open={confirm.open}
             onOpenChange={(open) => {
               if (!open) {
-                setConfirm({
-                  open: false,
-                  recruiter: null,
-                  action: null,
-                });
+                setConfirm({ open: false, recruiter: null, action: null });
               }
             }}
             icon={current.icon}
@@ -169,19 +148,11 @@ export default function RecruiterManagement() {
             description={current.description}
             variant={current.variant}
             confirmText={current.confirmText}
-            loading={
-              confirm.recruiter
-                ? (recruitersData.actionLoading[confirm.recruiter.id] ?? false)
-                : false
-            }
+            loading={confirm.recruiter ? (recruitersData.actionLoading[confirm.recruiter.id] ?? false) : false}
             loadingText={current.loadingText}
             onConfirm={handleConfirmAction}
           >
-            <ImpactList
-              tone={current.variant}
-              label={current.label}
-              items={current.items}
-            />
+            <ImpactList tone={current.variant} label={current.label} items={current.items} />
           </CommonConfirmDialog>
         )}
       </div>

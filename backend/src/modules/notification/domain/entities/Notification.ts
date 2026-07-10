@@ -5,6 +5,7 @@ import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.co
 
 export type NotificationRecipientRole = "recruiter" | "candidate";
 
+
 export interface NotificationProps {
   id?: string;
 

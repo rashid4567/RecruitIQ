@@ -7,8 +7,6 @@ import "./index.css";
 
 const googleid = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-console.log("google id : ", googleid);
-console.log(import.meta.env.VITE_API_URL);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

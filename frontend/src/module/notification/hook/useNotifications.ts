@@ -69,11 +69,8 @@ export function useNotifications() {
   const deleteNotification = useCallback(
     async (notificationId: string) => {
       const notification = notifications.find((n) => n.id === notificationId);
-
       await deleteNotificationApi(notificationId);
-
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-
       if (notification && !notification.isRead) {
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }

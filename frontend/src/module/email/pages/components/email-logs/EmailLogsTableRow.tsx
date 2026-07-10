@@ -1,10 +1,4 @@
-import {
-  CheckCircle2,
-  AlertTriangle,
-  Eye,
-  RotateCw,
-  Mail,
-} from "lucide-react";
+import { CheckCircle2, AlertTriangle, Eye, RotateCw, Mail } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +16,6 @@ interface EmailLogsTableRowProps {
   isSelected: boolean;
   onSelect: (id: string) => void;
 }
-
-/* ─── Helpers ───────────────────────────────────────────────── */
 
 function formatDate(ts: string | number) {
   return new Date(ts).toLocaleDateString("en-IN", {
@@ -62,13 +54,16 @@ const AVATAR_COLORS = [
 
 function getAvatarColor(str: string) {
   let hash = 0;
-  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < str.length; i++)
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-/* ─── Component ─────────────────────────────────────────────── */
-
-export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableRowProps) {
+export function EmailLogsTableRow({
+  log,
+  isSelected,
+  onSelect,
+}: EmailLogsTableRowProps) {
   const id = log.id ?? "";
   const failed = log.status === "FAILED";
   const isTest = log.type === "TEST";
@@ -84,11 +79,10 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
           isSelected
             ? "bg-indigo-50/40 hover:bg-indigo-50/60"
             : failed
-            ? "bg-rose-50/20 hover:bg-rose-50/40"
-            : "hover:bg-slate-50/70",
+              ? "bg-rose-50/20 hover:bg-rose-50/40"
+              : "hover:bg-slate-50/70",
         )}
       >
-        {/* Checkbox */}
         <TableCell className="pl-6 w-12">
           <Checkbox
             checked={isSelected}
@@ -98,7 +92,6 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
           />
         </TableCell>
 
-        {/* Sent At */}
         <TableCell className="w-44">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -120,10 +113,8 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
           </Tooltip>
         </TableCell>
 
-        {/* Recipient */}
         <TableCell className="w-56">
           <div className="flex items-center gap-2.5">
-            {/* Avatar */}
             <div
               className={cn(
                 "h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0",
@@ -143,13 +134,15 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
           </div>
         </TableCell>
 
-        {/* Subject */}
         <TableCell className="max-w-xs">
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-start gap-2 cursor-default">
-                <Mail className="h-3.5 w-3.5 text-slate-300 mt-0.5 shrink-0" strokeWidth={1.5} />
-                <p className="text-[13px] text-slate-700 truncate max-w-[260px]">
+                <Mail
+                  className="h-3.5 w-3.5 text-slate-300 mt-0.5 shrink-0"
+                  strokeWidth={1.5}
+                />
+                <p className="text-[13px] text-slate-700 truncate max-w-65">
                   {log.subject}
                 </p>
               </div>
@@ -160,7 +153,6 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
           </Tooltip>
         </TableCell>
 
-        {/* Type */}
         <TableCell className="w-28">
           <span
             className={cn(
@@ -218,7 +210,9 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
                   <Eye className="h-3.5 w-3.5" strokeWidth={1.8} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top" className="text-xs">View details</TooltipContent>
+              <TooltipContent side="top" className="text-xs">
+                View details
+              </TooltipContent>
             </Tooltip>
 
             {failed && (
@@ -232,7 +226,9 @@ export function EmailLogsTableRow({ log, isSelected, onSelect }: EmailLogsTableR
                     <RotateCw className="h-3.5 w-3.5" strokeWidth={1.8} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top" className="text-xs">Retry send</TooltipContent>
+                <TooltipContent side="top" className="text-xs">
+                  Retry send
+                </TooltipContent>
               </Tooltip>
             )}
           </div>

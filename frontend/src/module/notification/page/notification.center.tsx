@@ -14,7 +14,6 @@ import {
   Clock,
   RefreshCw,
   Lock,
-  ArrowLeft,
   ExternalLink,
   X,
   CheckCheck,
@@ -33,20 +32,119 @@ interface TypeMeta {
 }
 
 const TYPE_META: Record<string, TypeMeta> = {
-  JOB_APPLIED:              { icon: <FileText className="w-4 h-4" />,  tile: "bg-blue-50 text-blue-700",   accent: "border-l-blue-500" },
-  APPLICATION_SHORTLISTED:  { icon: <Star className="w-4 h-4" />,      tile: "bg-amber-50 text-amber-700", accent: "border-l-amber-500" },
-  APPLICATION_REJECTED:     { icon: <X className="w-4 h-4" />,         tile: "bg-red-50 text-red-700",     accent: "border-l-red-400" },
-  APPLICATION_WITHDRAWN:    { icon: <ArrowLeft className="w-4 h-4" />, tile: "bg-slate-100 text-slate-500", accent: "border-l-slate-300" },
-  INTERVIEW_SCHEDULED:      { icon: <Calendar className="w-4 h-4" />,  tile: "bg-green-50 text-green-700", accent: "border-l-green-500" },
-  INTERVIEW_RESCHEDULED:    { icon: <Calendar className="w-4 h-4" />,  tile: "bg-amber-50 text-amber-700", accent: "border-l-amber-500" },
-  INTERVIEW_CANCELLED:      { icon: <Calendar className="w-4 h-4" />,  tile: "bg-red-50 text-red-700",     accent: "border-l-red-400" },
-  SUBSCRIPTION_PURCHASED:   { icon: <Building2 className="w-4 h-4" />, tile: "bg-purple-50 text-purple-700", accent: "border-l-purple-500" },
-  SUBSCRIPTION_RENEWED:     { icon: <RefreshCw className="w-4 h-4" />, tile: "bg-purple-50 text-purple-700", accent: "border-l-purple-500" },
-  SUBSCRIPTION_EXPIRING:    { icon: <Clock className="w-4 h-4" />,     tile: "bg-amber-50 text-amber-700", accent: "border-l-amber-500" },
-  SUBSCRIPTION_EXPIRED:     { icon: <Lock className="w-4 h-4" />,      tile: "bg-red-50 text-red-700",     accent: "border-l-red-400" },
-  VERIFICATION_APPROVED:    { icon: <Shield className="w-4 h-4" />,    tile: "bg-green-50 text-green-700", accent: "border-l-green-500" },
-  VERIFICATION_REJECTED:    { icon: <Shield className="w-4 h-4" />,    tile: "bg-red-50 text-red-700",     accent: "border-l-red-400" },
-  SYSTEM_NOTIFICATION:      { icon: <Settings className="w-4 h-4" />,  tile: "bg-slate-100 text-slate-500", accent: "border-l-slate-300" },
+  JOB_APPLIED: {
+    icon: <FileText className="w-4 h-4" />,
+    tile: "bg-blue-50 text-blue-700",
+    accent: "border-l-blue-500",
+  },
+
+  APPLICATION_SHORTLISTED: {
+    icon: <Star className="w-4 h-4" />,
+    tile: "bg-amber-50 text-amber-700",
+    accent: "border-l-amber-500",
+  },
+
+  APPLICATION_REJECTED: {
+    icon: <X className="w-4 h-4" />,
+    tile: "bg-red-50 text-red-700",
+    accent: "border-l-red-400",
+  },
+
+  APPLICATION_SELECTED: {
+    icon: <Star className="w-4 h-4" />,
+    tile: "bg-green-50 text-green-700",
+    accent: "border-l-green-500",
+  },
+
+  INTERVIEW_SCHEDULED: {
+    icon: <Calendar className="w-4 h-4" />,
+    tile: "bg-green-50 text-green-700",
+    accent: "border-l-green-500",
+  },
+
+  INTERVIEW_STARTED: {
+    icon: <Calendar className="w-4 h-4" />,
+    tile: "bg-green-50 text-green-700",
+    accent: "border-l-green-500",
+  },
+
+  INTERVIEW_RESCHEDULED: {
+    icon: <Calendar className="w-4 h-4" />,
+    tile: "bg-amber-50 text-amber-700",
+    accent: "border-l-amber-500",
+  },
+
+  INTERVIEW_CANCELLED: {
+    icon: <Calendar className="w-4 h-4" />,
+    tile: "bg-red-50 text-red-700",
+    accent: "border-l-red-400",
+  },
+
+  INTERVIEW_RESCHEDULE_REQUEST_APPROVED: {
+    icon: <Calendar className="w-4 h-4" />,
+    tile: "bg-green-50 text-green-700",
+    accent: "border-l-green-500",
+  },
+
+  INTERVIEW_RESCHEDULE_REQUEST_REJECTED: {
+    icon: <Calendar className="w-4 h-4" />,
+    tile: "bg-red-50 text-red-700",
+    accent: "border-l-red-400",
+  },
+
+  SUBSCRIPTION_CREATED: {
+    icon: <Building2 className="w-4 h-4" />,
+    tile: "bg-purple-50 text-purple-700",
+    accent: "border-l-purple-500",
+  },
+
+  SUBSCRIPTION_RENEWED: {
+    icon: <RefreshCw className="w-4 h-4" />,
+    tile: "bg-purple-50 text-purple-700",
+    accent: "border-l-purple-500",
+  },
+
+  SUBSCRIPTION_UPGRADED: {
+    icon: <RefreshCw className="w-4 h-4" />,
+    tile: "bg-purple-50 text-purple-700",
+    accent: "border-l-purple-500",
+  },
+
+  SUBSCRIPTION_EXPIRING: {
+    icon: <Clock className="w-4 h-4" />,
+    tile: "bg-amber-50 text-amber-700",
+    accent: "border-l-amber-500",
+  },
+
+  SUBSCRIPTION_EXPIRED: {
+    icon: <Lock className="w-4 h-4" />,
+    tile: "bg-red-50 text-red-700",
+    accent: "border-l-red-400",
+  },
+
+  RECRUITER_VERIFIED: {
+    icon: <Shield className="w-4 h-4" />,
+    tile: "bg-green-50 text-green-700",
+    accent: "border-l-green-500",
+  },
+
+  RECRUITER_REJECTED: {
+    icon: <Shield className="w-4 h-4" />,
+    tile: "bg-red-50 text-red-700",
+    accent: "border-l-red-400",
+  },
+
+  JOB_APPROVED: {
+    icon: <FileText className="w-4 h-4" />,
+    tile: "bg-green-50 text-green-700",
+    accent: "border-l-green-500",
+  },
+
+  JOB_REJECTED: {
+    icon: <FileText className="w-4 h-4" />,
+    tile: "bg-red-50 text-red-700",
+    accent: "border-l-red-400",
+  },
 };
 
 const FALLBACK_META: TypeMeta = {
@@ -59,27 +157,43 @@ type TabId = "all" | "application" | "shortlist" | "interview" | "system";
 
 const TYPE_TAB: Record<string, TabId> = {
   JOB_APPLIED: "application",
-  APPLICATION_REJECTED: "application",
-  APPLICATION_WITHDRAWN: "application",
   APPLICATION_SHORTLISTED: "shortlist",
+  APPLICATION_REJECTED: "application",
+  APPLICATION_SELECTED: "application",
   INTERVIEW_SCHEDULED: "interview",
+  INTERVIEW_STARTED: "interview",
   INTERVIEW_RESCHEDULED: "interview",
   INTERVIEW_CANCELLED: "interview",
-  SUBSCRIPTION_PURCHASED: "system",
+  INTERVIEW_RESCHEDULE_REQUEST_APPROVED: "interview",
+  INTERVIEW_RESCHEDULE_REQUEST_REJECTED: "interview",
+  SUBSCRIPTION_CREATED: "system",
   SUBSCRIPTION_RENEWED: "system",
+  SUBSCRIPTION_UPGRADED: "system",
   SUBSCRIPTION_EXPIRING: "system",
   SUBSCRIPTION_EXPIRED: "system",
-  VERIFICATION_APPROVED: "system",
-  VERIFICATION_REJECTED: "system",
-  SYSTEM_NOTIFICATION: "system",
+  RECRUITER_VERIFIED: "system",
+  RECRUITER_REJECTED: "system",
+  JOB_APPROVED: "system",
+  JOB_REJECTED: "system",
 };
-
 const TABS: Array<{ id: TabId; label: string; icon: React.ReactNode }> = [
-  { id: "all",         label: "All",          icon: <Inbox className="w-3.5 h-3.5" /> },
-  { id: "application", label: "Applications", icon: <FileText className="w-3.5 h-3.5" /> },
-  { id: "shortlist",   label: "Shortlisted",  icon: <Star className="w-3.5 h-3.5" /> },
-  { id: "interview",   label: "Interviews",   icon: <Calendar className="w-3.5 h-3.5" /> },
-  { id: "system",      label: "System",       icon: <Settings className="w-3.5 h-3.5" /> },
+  { id: "all", label: "All", icon: <Inbox className="w-3.5 h-3.5" /> },
+  {
+    id: "application",
+    label: "Applications",
+    icon: <FileText className="w-3.5 h-3.5" />,
+  },
+  {
+    id: "shortlist",
+    label: "Shortlisted",
+    icon: <Star className="w-3.5 h-3.5" />,
+  },
+  {
+    id: "interview",
+    label: "Interviews",
+    icon: <Calendar className="w-3.5 h-3.5" />,
+  },
+  { id: "system", label: "System", icon: <Settings className="w-3.5 h-3.5" /> },
 ];
 
 function formatTimestamp(iso: string): string {
@@ -95,8 +209,13 @@ function formatTimestamp(iso: string): string {
 const ITEMS_PER_PAGE = 6;
 
 export default function NotificationCenter() {
-  const { notifications, loading, markAsRead, markAllAsRead, deleteNotification } =
-    useNotifications();
+  const {
+    notifications,
+    loading,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications();
 
   const [selectedTab, setSelectedTab] = useState<TabId>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -118,11 +237,14 @@ export default function NotificationCenter() {
     });
   }, [notifications, selectedTab, searchQuery]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredNotifications.length / ITEMS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredNotifications.length / ITEMS_PER_PAGE),
+  );
 
   const paginatedNotifications = filteredNotifications.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const handleTabChange = (tab: TabId) => {
@@ -148,7 +270,7 @@ export default function NotificationCenter() {
 
   const getTabBadge = (tab: TabId): number =>
     notifications.filter(
-      (n) => !n.isRead && (tab === "all" || TYPE_TAB[n.type] === tab)
+      (n) => !n.isRead && (tab === "all" || TYPE_TAB[n.type] === tab),
     ).length;
 
   const totalUnread = notifications.filter((n) => !n.isRead).length;
@@ -180,7 +302,9 @@ export default function NotificationCenter() {
                 </span>
               )}
             </div>
-            <p className="text-[13px] text-slate-400">Alerts and updates from RecruitIQ</p>
+            <p className="text-[13px] text-slate-400">
+              Alerts and updates from RecruitIQ
+            </p>
           </div>
           <button
             onClick={markAllAsRead}
@@ -203,7 +327,10 @@ export default function NotificationCenter() {
           />
           {searchQuery && (
             <button
-              onClick={() => { setSearchQuery(""); setCurrentPage(1); }}
+              onClick={() => {
+                setSearchQuery("");
+                setCurrentPage(1);
+              }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
             >
               <X className="w-4 h-4" />
@@ -224,7 +351,7 @@ export default function NotificationCenter() {
                   "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all",
                   isActive
                     ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-white border border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300"
+                    : "bg-white border border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300",
                 )}
               >
                 {tab.icon}
@@ -233,7 +360,9 @@ export default function NotificationCenter() {
                   <span
                     className={cn(
                       "inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full text-[10px] font-bold leading-none",
-                      isActive ? "bg-white/25 text-white" : "bg-red-500 text-white"
+                      isActive
+                        ? "bg-white/25 text-white"
+                        : "bg-red-500 text-white",
                     )}
                   >
                     {badge}
@@ -250,7 +379,9 @@ export default function NotificationCenter() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/80">
             <span className="text-[12px] font-medium text-slate-500">
               Inbox · {filteredNotifications.length}{" "}
-              {filteredNotifications.length === 1 ? "notification" : "notifications"}
+              {filteredNotifications.length === 1
+                ? "notification"
+                : "notifications"}
             </span>
             {totalUnread > 0 && (
               <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
@@ -280,9 +411,11 @@ export default function NotificationCenter() {
                         meta.accent,
                         !isRead
                           ? "bg-blue-50/30 hover:bg-blue-50/60"
-                          : "hover:bg-slate-50/70"
+                          : "hover:bg-slate-50/70",
                       )}
-                      onClick={() => handleToggleExpand(notification.id, isRead)}
+                      onClick={() =>
+                        handleToggleExpand(notification.id, isRead)
+                      }
                     >
                       {/* Unread dot */}
                       <div className="w-2 flex justify-center shrink-0 mt-3.5">
@@ -291,24 +424,22 @@ export default function NotificationCenter() {
                         )}
                       </div>
 
-                
                       <div
                         className={cn(
                           "w-8 h-8 rounded-[9px] flex items-center justify-center shrink-0 mt-0.5",
-                          meta.tile
+                          meta.tile,
                         )}
                       >
                         {meta.icon}
                       </div>
 
-          
                       <div className="flex-1 min-w-0">
                         <p
                           className={cn(
                             "text-[13px] leading-snug",
                             !isRead
                               ? "font-semibold text-slate-900"
-                              : "font-medium text-slate-600"
+                              : "font-medium text-slate-600",
                           )}
                         >
                           {notification.title}
@@ -318,7 +449,6 @@ export default function NotificationCenter() {
                         </p>
                       </div>
 
-               
                       <div className="flex flex-col items-end gap-1.5 shrink-0">
                         <span className="text-[11px] text-slate-400 whitespace-nowrap">
                           {formatTimestamp(notification.createdAt)}
@@ -334,14 +464,13 @@ export default function NotificationCenter() {
                           <ChevronDown
                             className={cn(
                               "w-3.5 h-3.5 transition-transform duration-200",
-                              isExpanded && "rotate-180"
+                              isExpanded && "rotate-180",
                             )}
                           />
                         </button>
                       </div>
                     </div>
 
-               
                     {isExpanded && (
                       <div className="mx-4 mb-3 ml-13 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
                         <p className="text-[12px] text-slate-600 leading-relaxed">
@@ -402,24 +531,28 @@ export default function NotificationCenter() {
               </button>
 
               <div className="flex gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={cn(
-                      "w-7 h-7 rounded-lg text-xs font-semibold transition",
-                      currentPage === page
-                        ? "bg-blue-600 text-white"
-                        : "border border-slate-200 bg-white text-slate-500 hover:bg-slate-100"
-                    )}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={cn(
+                        "w-7 h-7 rounded-lg text-xs font-semibold transition",
+                        currentPage === page
+                          ? "bg-blue-600 text-white"
+                          : "border border-slate-200 bg-white text-slate-500 hover:bg-slate-100",
+                      )}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
               </div>
 
               <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-500 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm"
               >

@@ -3,12 +3,14 @@ import { IUseCase } from "../../../../shared/interfaces/usecase.interface";
 import { Notification } from "../../domain/entities/Notification";
 import { NotificationRepository } from "../../domain/repositories/notification.repository";
 import { CreateNotificationRequest } from "../dto/createNotification.dto";
+import { notificationGateway } from "../../infrastructure/socket/notification.gateway";
 
 export class CreateNotificationUseCase implements IUseCase<
   CreateNotificationRequest,
   Notification
 > {
   constructor(private readonly notificationRepo: NotificationRepository) {}
+
   async execute(request: CreateNotificationRequest): Promise<Notification> {
     const notification = Notification.create(
       request.recipientId,
@@ -20,6 +22,18 @@ export class CreateNotificationUseCase implements IUseCase<
       request.referenceId,
       request.metadata,
     );
-    return await this.notificationRepo.create(notification);
+
+    const savedNotification = await this.notificationRepo.create(notification);
+
+    try {
+      notificationGateway.emitNotification(
+        savedNotification.getRecipientId(),
+        savedNotification.getProps(),
+      );
+    } catch (error) {
+      console.error("Failed to emit notification:", error);
+    }
+
+    return savedNotification;
   }
 }

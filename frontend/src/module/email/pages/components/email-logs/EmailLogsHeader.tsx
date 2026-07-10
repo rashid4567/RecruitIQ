@@ -6,7 +6,10 @@ interface EmailLogsHeaderProps {
   isRefreshing: boolean;
 }
 
-export function EmailLogsHeader({ onRefresh, isRefreshing }: EmailLogsHeaderProps) {
+export function EmailLogsHeader({
+  onRefresh,
+  isRefreshing,
+}: EmailLogsHeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 px-6 py-6 shadow-sm">
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between">
@@ -15,8 +18,12 @@ export function EmailLogsHeader({ onRefresh, isRefreshing }: EmailLogsHeaderProp
             <Mail className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Email Logs</h1>
-            <p className="text-sm text-slate-500 mt-1">Track and monitor all outgoing system emails</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              Email Logs
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Track and monitor all outgoing system emails
+            </p>
           </div>
         </div>
 
@@ -34,8 +41,6 @@ export function EmailLogsHeader({ onRefresh, isRefreshing }: EmailLogsHeaderProp
             )}
             Refresh
           </Button>
-
-          
         </div>
       </div>
     </header>

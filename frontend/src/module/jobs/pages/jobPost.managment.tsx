@@ -6,7 +6,6 @@ import { useAllJobPosts } from "../hooks/jobPost-Hooks/useAllJobpost";
 import { useUpdateJobPostStatus } from "../hooks/jobPost-Hooks/Useupdatejobpoststatus";
 import { JobPostHeader } from "./components/admin.job.management/Jobpostheader";
 import { JobPostFilters } from "./components/admin.job.management/Jobpostfilters";
-import { EmptyState } from "./components/admin.job.management/Emptystate";
 import { JobPostTable } from "./components/admin.job.management/Jobposttable";
 import { JobPostDetailModal } from "./components/admin.job.management/Jobpostdetailmodal";
 import { CommonConfirmDialog } from "@/shared/Commonconfirmdialog";
@@ -47,7 +46,8 @@ export default function JobPostManagement() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [jobToBlock, setJobToBlock] = useState<Job | null>(null);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
-const isBlocking = jobToBlock?.isBlocked === false;
+  const isBlocking = jobToBlock?.isBlocked === false;
+
   const handleViewJob = (job: Job) => {
     setSelectedJob(job);
     setIsDetailOpen(true);
@@ -71,43 +71,42 @@ const isBlocking = jobToBlock?.isBlocked === false;
   };
 
   const dialogConfig = {
-  block: {
-    title: "Block Job Post",
-    description: `Block "${jobToBlock?.title}"? This job will no longer be visible to candidates.`,
-    icon: <Ban />,
-    variant: "danger" as const,
-    confirmText: "Block",
-    loadingText: "Blocking...",
-    label: "Impact",
-    items: [
-      "Job becomes hidden",
-      "Candidates cannot apply",
-      "Recruiter can restore later",
-    ],
-  },
+    block: {
+      title: "Block Job Post",
+      description: `Block "${jobToBlock?.title}"? This job will no longer be visible to candidates.`,
+      icon: <Ban />,
+      variant: "danger" as const,
+      confirmText: "Block",
+      loadingText: "Blocking...",
+      label: "Impact",
+      items: [
+        "Job becomes hidden",
+        "Candidates cannot apply",
+        "Recruiter can restore later",
+      ],
+    },
+    unblock: {
+      title: "Unblock Job Post",
+      description: `Restore "${jobToBlock?.title}" and make it visible again.`,
+      icon: <ShieldCheck />,
+      variant: "success" as const,
+      confirmText: "Restore",
+      loadingText: "Restoring...",
+      label: "Benefit",
+      items: [
+        "Job becomes visible",
+        "Applications accepted again",
+        "Recruiter regains visibility",
+      ],
+    },
+  };
 
-  unblock: {
-    title: "Unblock Job Post",
-    description: `Restore "${jobToBlock?.title}" and make it visible again.`,
-    icon: <ShieldCheck />,
-    variant: "success" as const,
-    confirmText: "Restore",
-    loadingText: "Restoring...",
-    label: "Benefit",
-    items: [
-      "Job becomes visible",
-      "Applications accepted again",
-      "Recruiter regains visibility",
-    ],
-  },
-};
-
-const current =
-  jobToBlock == null
-    ? null
-    : isBlocking
-      ? dialogConfig.block
-      : dialogConfig.unblock;
+  const current =
+    jobToBlock == null
+      ? null
+      : isBlocking
+        ? dialogConfig.block
+        : dialogConfig.unblock;
 
   if (error) toast.error(error);
 
@@ -130,22 +129,19 @@ const current =
               onRefresh={refresh}
             />
 
-            {!loading && jobPosts.length === 0 ? (
-              <EmptyState onRefresh={refresh} />
-            ) : (
-              <JobPostTable
-                jobs={jobPosts}
-                total={total}
-                page={page}
-                limit={LIMIT}
-                totalPages={totalPages}
-                loading={loading}
-                pendingId={pendingId}
-                onPageChange={setPage}
-                onToggleBlock={handleToggleBlock}
-                onViewJob={handleViewJob}
-              />
-            )}
+            <JobPostTable
+              jobs={jobPosts}
+              total={total}
+              page={page}
+              limit={LIMIT}
+              totalPages={totalPages}
+              loading={loading}
+              pendingId={pendingId}
+              onPageChange={setPage}
+              onToggleBlock={handleToggleBlock}
+              onViewJob={handleViewJob}
+              onRefresh={refresh}
+            />
           </div>
         </main>
       </div>
@@ -157,30 +153,30 @@ const current =
         onToggleBlock={handleToggleBlock}
       />
 
-     {current && (
-  <CommonConfirmDialog
-    open={isBlockDialogOpen}
-    onOpenChange={(open) => {
-      if (!open) handleCloseBlockDialog();
-    }}
-    icon={current.icon}
-    title={current.title}
-    description={current.description}
-    variant={current.variant}
-    confirmText={current.confirmText}
-    loading={blockLoading}
-    loadingText={current.loadingText}
-    onConfirm={async () => {
-      await handleConfirmToggleBlock();
-    }}
-  >
-    <ImpactList
-      tone={current.variant}
-      label={current.label}
-      items={current.items}
-    />
-  </CommonConfirmDialog>
-)}
+      {current && (
+        <CommonConfirmDialog
+          open={isBlockDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) handleCloseBlockDialog();
+          }}
+          icon={current.icon}
+          title={current.title}
+          description={current.description}
+          variant={current.variant}
+          confirmText={current.confirmText}
+          loading={blockLoading}
+          loadingText={current.loadingText}
+          onConfirm={async () => {
+            await handleConfirmToggleBlock();
+          }}
+        >
+          <ImpactList
+            tone={current.variant}
+            label={current.label}
+            items={current.items}
+          />
+        </CommonConfirmDialog>
+      )}
     </div>
   );
 }

@@ -9,6 +9,8 @@ import type {
   HiringDecisionInterview,
 } from "@/module/interview/types/recruiterInterview.types";
 
+import EmploymentOfferModal from "../../offer-letter/page/create-letter.modal";
+
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
 type Recommendation = "STRONG_MATCH" | "PARTIAL_MATCH" | "NO_MATCH";
 
@@ -1038,13 +1040,11 @@ function ActivityTimelineCard({ timeline }: { timeline: TimelineEvent[] }) {
 function SelectConfirmModal({
   candidateName,
   applicationNumber,
-  submitting,
   onCancel,
   onConfirm,
 }: {
   candidateName: string;
   applicationNumber: string;
-  submitting: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -1061,13 +1061,14 @@ function SelectConfirmModal({
           {candidateName} · {applicationNumber}
         </p>
         <p className="text-sm text-slate-600 mb-4">
-          You're about to mark this candidate as selected. This will:
+          To complete the selection, you'll prepare and send an employment
+          offer next — there's no way to select a candidate without one.
         </p>
         <ul className="space-y-2 mb-6">
           {[
-            "Update the application status",
-            "Notify the candidate by email",
-            "Record this decision in the activity timeline",
+            "Prepare an employment offer",
+            "Candidate status will change to Selected",
+            "Candidate will be notified by email with the offer",
           ].map((item) => (
             <li
               key={item}
@@ -1081,18 +1082,15 @@ function SelectConfirmModal({
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
-            disabled={submitting}
-            className="px-4 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            disabled={submitting}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors"
           >
-            {submitting && <SpinnerIcon className="w-3.5 h-3.5" />}
-            {submitting ? "Selecting…" : "Confirm selection"}
+            Continue
           </button>
         </div>
       </div>
@@ -1327,6 +1325,14 @@ function ErrorState({
 
 const DASHBOARD_ROUTE = "/recruiter/interviews";
 
+// modal is a small state machine:
+// null -> nothing open
+// "select" -> confirmation dialog ("do you want to select this candidate?")
+// "offer" -> mandatory Employment Offer modal (the only thing that can actually
+//            move the application into SELECTED, via useCreateOffer inside it)
+// "reject" -> reject dialog, still uses updateStatus directly
+type ModalState = "select" | "offer" | "reject" | null;
+
 export default function RecruiterHiringDecisionPage() {
   const { interviewId } = useParams<{ interviewId: string }>();
   const navigate = useNavigate();
@@ -1335,7 +1341,7 @@ export default function RecruiterHiringDecisionPage() {
     useRecruiterHiringDecisionDetails(interviewId);
   const { loading: submitting, updateStatus } = useUpdateApplicationStatus();
 
-  const [modal, setModal] = useState<"select" | "reject" | null>(null);
+  const [modal, setModal] = useState<ModalState>(null);
   const [resumePreviewOpen, setResumePreviewOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -1358,18 +1364,8 @@ export default function RecruiterHiringDecisionPage() {
     setToast("Email copied to clipboard");
   }, [decision]);
 
-  const handleSelect = useCallback(async () => {
-    if (!decision) return;
-    const ok = await updateStatus({
-      applicationId: decision.application.applicationId,
-      status: ApplicationStatus.SELECTED,
-    });
-    if (ok) {
-      setModal(null);
-      navigate(DASHBOARD_ROUTE);
-    }
-  }, [decision, updateStatus, navigate]);
-
+  // Reject still goes straight through updateStatus — only Select requires
+  // the mandatory offer flow.
   const handleReject = useCallback(
     async (payload: { reason: RejectReason; notes: string }) => {
       if (!decision) return;
@@ -1392,6 +1388,16 @@ export default function RecruiterHiringDecisionPage() {
     },
     [decision, updateStatus, navigate],
   );
+
+  // The offer modal only tells us it succeeded — everything that happens
+  // next (toast, refresh, navigation) is this page's call, not the modal's.
+  // The modal also calls its own onClose() right after onSent, which sets
+  // modal back to null; we don't duplicate that here.
+  const handleOfferSent = useCallback(async () => {
+    setToast("Candidate selected — offer sent");
+    await refetch();
+    navigate(DASHBOARD_ROUTE);
+  }, [refetch, navigate]);
 
   const retry = useCallback(() => void refetch(), [refetch]);
 
@@ -1524,15 +1530,42 @@ export default function RecruiterHiringDecisionPage() {
         )}
       </div>
 
+      {/* Step 1: "are you sure you want to select this candidate?" */}
       {modal === "select" && decision && (
         <SelectConfirmModal
           candidateName={decision.application.candidateName}
           applicationNumber={decision.application.applicationNumber}
-          submitting={submitting}
           onCancel={() => setModal(null)}
-          onConfirm={handleSelect}
+          onConfirm={() => setModal("offer")}
         />
       )}
+
+      {/* Step 2: mandatory offer modal — this is the only path that actually
+          creates the offer, marks the application SELECTED, and sends the
+          selection email. There is no skip/draft/save-for-later. */}
+      {modal === "offer" && decision && (
+        <EmploymentOfferModal
+          candidate={{
+            id: decision.application.applicationId,
+            name: decision.application.candidateName,
+            role: decision.job.title,
+            appId: decision.application.applicationNumber,
+            applicationId: decision.application.applicationId,
+            aiScore: decision.application.aiAnalysis?.overallScore ?? 0,
+          }}
+          job={{
+            id: decision.job.jobId,
+            company: decision.job.companyName,
+            title: decision.job.title,
+            department: decision.job.department ?? "",
+            location: decision.job.location,
+            employmentType: decision.job.employmentType,
+          }}
+          onClose={() => setModal(null)}
+          onSent={handleOfferSent}
+        />
+      )}
+
       {modal === "reject" && decision && (
         <RejectModal
           candidateName={decision.application.candidateName}

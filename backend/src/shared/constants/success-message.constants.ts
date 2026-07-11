@@ -117,4 +117,10 @@ export const SUCCESS_MESSAGES = {
     "Recruiter dashboard fetched successfully.",
   ADMIN_DASHBOARD_FETCHED_SUCCESSFULLY: "Admin dashboard fetched successfully.",
   JOB_CLOSED_SUCCESSFULLY: "Job closed successfully",
+  OFFER_CREATED_SUCCESSFULLY: "Offer created successfully.",
+  RECRUITER_OFFERS_FETCHED_SUCCESSFULLY:
+    "Recruiter offers fetched successfully.",
+  OFFER_DETAILS_FETCHED_SUCCESSFULLY: "Offer details fetched successfully.",
+  OFFER_ACCEPTED_SUCCESSFULLY: "Offer accepted successfully.",
+  OFFER_REJECTED_SUCCESSFULLY: "Offer rejected successfully.",
 } as const;

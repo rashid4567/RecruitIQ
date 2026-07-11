@@ -10,6 +10,7 @@ import jobPostRouter from "../../../job/presentation/router/candidate.jobPost.ro
 import resumeRouter from "../../../resume/presentation/routes/resume.routes";
 import candidateApplicationRouter from "../../../job-application/presenatation/routes/candidate.Application.routes";
 import CandidateInterviewRouter from "../../../interview/presentation/router/candidate.interview.routes"
+import OfferLetterRouter from "../../../offer-letter/presentation/router/candidate.offer.routes"
 import { CANDIDATE_ROUTES } from "../constants/candidate-routes.constants";
 
 const router = Router();
@@ -26,5 +27,6 @@ router.use(CANDIDATE_ROUTES.RESUME, resumeRouter);
 router.use(CANDIDATE_ROUTES.JOBS, jobPostRouter);
 router.use(CANDIDATE_ROUTES.APPLICATIONS, candidateApplicationRouter);
 router.use(CANDIDATE_ROUTES.INTERVIEWS,CandidateInterviewRouter)
+router.use(CANDIDATE_ROUTES.OFFER, OfferLetterRouter);
 
 export default router;

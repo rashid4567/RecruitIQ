@@ -5,4 +5,5 @@ export const CANDIDATE_ROUTES = {
   JOBS: "/jobs",
   APPLICATIONS: "/application",
   INTERVIEWS: "/interviews",
+  OFFER : "/offers",
 } as const;

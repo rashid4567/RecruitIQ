@@ -4,5 +4,6 @@ export const RECRUITER_ROUTES = {
   COMPLETE_PROFILE: "/complete-profile",
   JOBS: "/jobs",
   INTERVIEW: "/interviews",
+  OFFER : "/offers",
   ROOT: "/",
 } as const;

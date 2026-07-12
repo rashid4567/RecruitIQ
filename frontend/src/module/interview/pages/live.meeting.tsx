@@ -23,7 +23,6 @@ import {
   X,
   RefreshCw,
   Send,
-  Star,
   CheckCircle2,
   User,
   Lock,
@@ -32,6 +31,8 @@ import {
   UserPlus,
   UserMinus,
   Wifi,
+  HelpCircle,
+  Plus,
 } from "lucide-react";
 
 import {
@@ -58,6 +59,38 @@ const COLOR = {
 const CHAT_CHAR_LIMIT = 1000;
 const CHAT_SEND_COOLDOWN_MS = 100;
 const CHAT_TEXTAREA_MAX_HEIGHT_PX = 144;
+
+const FEEDBACK_CHAR_LIMIT = 3000;
+const FEEDBACK_AUTOSAVE_DELAY_MS = 2000;
+
+const QUICK_FEEDBACK_CHIPS: { label: string; text: string }[] = [
+  { label: "Strong Communication", text: "Strong communication skills." },
+  { label: "Problem Solving", text: "Good problem-solving approach." },
+  { label: "Leadership", text: "Demonstrated leadership qualities." },
+  { label: "React", text: "Solid understanding of React." },
+  { label: "Node.js", text: "Good grasp of Node.js." },
+  { label: "MongoDB", text: "Comfortable working with MongoDB." },
+  {
+    label: "Good Attitude",
+    text: "Positive attitude throughout the interview.",
+  },
+  { label: "Team Player", text: "Comes across as a strong team player." },
+  { label: "Fast Learner", text: "Picks up new concepts quickly." },
+];
+
+const KEYBOARD_SHORTCUTS: { keys: string; action: string }[] = [
+  { keys: "Ctrl + D", action: "Toggle mute" },
+  { keys: "Ctrl + E", action: "Toggle camera" },
+  { keys: "Ctrl + Shift + S", action: "Toggle screen share" },
+  { keys: "Enter", action: "Send chat message" },
+  { keys: "Shift + Enter", action: "New line in chat" },
+  { keys: "Esc", action: "Close panel" },
+  { keys: "?", action: "Toggle this help" },
+];
+
+function feedbackDraftKey(interviewId: string): string {
+  return `interview-feedback-draft-${interviewId}`;
+}
 
 function useCurrentUserId(): string {
   return typeof window !== "undefined"
@@ -94,6 +127,11 @@ function formatDateLabel(ts: number): string {
   if (isSameDay(d, today)) return "Today";
   if (isSameDay(d, yesterday)) return "Yesterday";
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function countWords(text: string): number {
+  const trimmed = text.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
 }
 
 const LINK_PATTERN =
@@ -206,7 +244,6 @@ type TimelineEntry =
   | TimelineDividerEntry;
 
 type SidebarTab = "participants" | "notes" | "info" | "chat";
-type Recommendation = "hire" | "hold" | "reject" | null;
 
 function Avatar({ label, self = false }: { label: string; self?: boolean }) {
   return (
@@ -233,6 +270,36 @@ function SystemEventIcon({ variant }: { variant: SystemEventVariant }) {
     default:
       return <Info className="w-3 h-3" style={{ color: COLOR.textMuted }} />;
   }
+}
+
+function StatusPill({
+  connected,
+  reconnecting,
+}: {
+  connected: boolean;
+  reconnecting?: boolean;
+}) {
+  const color = connected
+    ? COLOR.green
+    : reconnecting
+      ? COLOR.yellow
+      : COLOR.textMuted;
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 text-[12px] font-medium"
+      style={{ color }}
+    >
+      <span
+        className="w-1.5 h-1.5 rounded-full"
+        style={{ backgroundColor: color }}
+      />
+      {connected
+        ? "Connected"
+        : reconnecting
+          ? "Reconnecting…"
+          : "Not connected"}
+    </span>
+  );
 }
 
 export default function InterviewRoomPage() {
@@ -277,14 +344,24 @@ export default function InterviewRoomPage() {
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
   const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const feedbackTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [activeTab, setActiveTab] = useState<SidebarTab | null>(null);
-  const [notesStrengths, setNotesStrengths] = useState("");
-  const [notesWeaknesses, setNotesWeaknesses] = useState("");
-  const [communicationRating, setCommunicationRating] = useState(0);
-  const [recommendation, setRecommendation] = useState<Recommendation>(null);
-  const [notesSavedAt, setNotesSavedAt] = useState<number | null>(null);
+
+  // --- Interview feedback (single free-form field, autosaved) ---
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackSavedText, setFeedbackSavedText] = useState("");
+  const [feedbackSaving, setFeedbackSaving] = useState(false);
+  const [feedbackSavedAt, setFeedbackSavedAt] = useState<number | null>(null);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const feedbackSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const feedbackDirty = feedbackText !== feedbackSavedText;
+
   const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [connectedAt, setConnectedAt] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [finalDurationSeconds, setFinalDurationSeconds] = useState<
@@ -302,6 +379,8 @@ export default function InterviewRoomPage() {
   const [chatAtBottom, setChatAtBottom] = useState(true);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [dividerBoundary, setDividerBoundary] = useState(0);
+  const [cameraLoading, setCameraLoading] = useState(false);
+  const [screenShareElapsed, setScreenShareElapsed] = useState(0);
 
   const callInFlightRef = useRef(false);
   const remoteEverConnectedRef = useRef(false);
@@ -312,6 +391,8 @@ export default function InterviewRoomPage() {
   const lastSentAtRef = useRef(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const lastSeenTimestampRef = useRef<number>(Date.now());
+  const screenShareStartRef = useRef<number | null>(null);
+  const lastConnectionQualityRef = useRef<string>("Good connection");
 
   const addToast = useCallback((text: string, tone: Toast["tone"] = "info") => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -470,6 +551,10 @@ export default function InterviewRoomPage() {
     return () => clearInterval(id);
   }, [connectedAt]);
 
+  // Keyed on the stream's id so the <video> element remounts whenever the
+  // local stream is replaced (e.g. after toggling the camera off/on). This
+  // avoids the classic WebRTC "frozen preview" bug where srcObject stops
+  // updating because the element never re-attaches to the new track.
   useEffect(() => {
     const video = localVideoRef.current;
     if (!video) return;
@@ -541,6 +626,89 @@ export default function InterviewRoomPage() {
     }, 1000);
     return () => clearInterval(id);
   }, [call.remoteStream]);
+
+  // --- Feedback: restore any locally-saved draft (recruiter only) ---
+  useEffect(() => {
+    if (role !== "recruiter" || !interviewId) return;
+    try {
+      const stored = window.localStorage.getItem(feedbackDraftKey(interviewId));
+      if (stored) {
+        setFeedbackText(stored);
+        setFeedbackSavedText(stored);
+        setDraftRestored(true);
+      }
+    } catch (err) {
+      console.warn("[FEEDBACK] Failed to read saved draft.", err);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role, interviewId]);
+
+  const saveFeedbackNow = useCallback(() => {
+    if (feedbackSaveTimeoutRef.current) {
+      clearTimeout(feedbackSaveTimeoutRef.current);
+      feedbackSaveTimeoutRef.current = null;
+    }
+    try {
+      if (interviewId) {
+        window.localStorage.setItem(
+          feedbackDraftKey(interviewId),
+          feedbackText,
+        );
+      }
+    } catch (err) {
+      console.warn("[FEEDBACK] Failed to persist draft.", err);
+    }
+    setFeedbackSavedText(feedbackText);
+    setFeedbackSavedAt(Date.now());
+    setFeedbackSaving(false);
+  }, [feedbackText, interviewId]);
+
+  // --- Feedback: debounce-autosave 2s after typing stops ---
+  useEffect(() => {
+    if (role !== "recruiter") return;
+    if (feedbackText === feedbackSavedText) return;
+
+    setFeedbackSaving(true);
+    if (feedbackSaveTimeoutRef.current)
+      clearTimeout(feedbackSaveTimeoutRef.current);
+    feedbackSaveTimeoutRef.current = setTimeout(() => {
+      saveFeedbackNow();
+    }, FEEDBACK_AUTOSAVE_DELAY_MS);
+
+    return () => {
+      if (feedbackSaveTimeoutRef.current) {
+        clearTimeout(feedbackSaveTimeoutRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbackText, role]);
+
+  // --- Feedback: warn on tab close/refresh if there's unsaved work ---
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (role === "recruiter" && feedbackText !== feedbackSavedText) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [role, feedbackText, feedbackSavedText]);
+
+  const feedbackWordCount = useMemo(
+    () => countWords(feedbackText),
+    [feedbackText],
+  );
+
+  function handleInsertChip(text: string) {
+    setFeedbackText((prev) => {
+      const trimmed = prev.replace(/\s+$/, "");
+      const bullet = `• ${text}`;
+      const next = trimmed ? `${trimmed}\n${bullet}` : bullet;
+      return next.slice(0, FEEDBACK_CHAR_LIMIT);
+    });
+    feedbackTextareaRef.current?.focus();
+  }
 
   const timeline = useMemo<TimelineEntry[]>(() => {
     const msgEntries: TimelineMessageEntry[] = call.messages.map((m, idx) => ({
@@ -722,6 +890,14 @@ export default function InterviewRoomPage() {
     }
   }, [call.iceConnectionState]);
 
+  // Remember the last good connection quality reading so the completion
+  // screen can show something meaningful instead of a reset/closed state.
+  useEffect(() => {
+    if (call.callState !== "ENDED") {
+      lastConnectionQualityRef.current = connectionInfo.text;
+    }
+  }, [connectionInfo.text, call.callState]);
+
   const iceFailed =
     call.iceConnectionState === "failed" && call.callState !== "ENDED";
 
@@ -745,25 +921,79 @@ export default function InterviewRoomPage() {
     }
   }, [call]);
 
-  const handleToggleMic = useCallback(() => {
-    addToast(call.isMuted ? "Microphone unmuted" : "Microphone muted");
-    call.toggleMicrophone();
+  const handleToggleMic = useCallback(async () => {
+    const wasMuted = call.isMuted;
+    try {
+      await Promise.resolve(call.toggleMicrophone());
+      addToast(
+        wasMuted
+          ? "🎤 You're unmuted — others can hear you"
+          : "🎤 You're muted",
+        "info",
+      );
+    } catch (err) {
+      console.error("Failed to toggle microphone.", err);
+      addToast(
+        "Microphone blocked. Grant microphone permission and try again.",
+        "warning",
+      );
+    }
   }, [call, addToast]);
 
-  const handleToggleCamera = useCallback(() => {
-    addToast(call.isCameraEnabled ? "Camera disabled" : "Camera enabled");
-    call.toggleCamera();
+  const handleToggleCamera = useCallback(async () => {
+    const wasEnabled = call.isCameraEnabled;
+    setCameraLoading(true);
+    try {
+      await Promise.resolve(call.toggleCamera());
+      addToast(
+        wasEnabled ? "📷 Camera is now off" : "📷 Camera is now on",
+        "success",
+      );
+    } catch (err) {
+      console.error("Failed to toggle camera.", err);
+      addToast(
+        "Camera unavailable. Check permissions or close other apps using it, then retry.",
+        "warning",
+      );
+    } finally {
+      setCameraLoading(false);
+    }
   }, [call, addToast]);
 
-  const handleToggleScreenShare = useCallback(() => {
-    addToast(
-      call.isScreenSharing
-        ? "Screen sharing stopped"
-        : "Screen sharing started",
-      "info",
-    );
-    call.toggleScreenShare();
+  const handleToggleScreenShare = useCallback(async () => {
+    const wasSharing = call.isScreenSharing;
+    try {
+      await Promise.resolve(call.toggleScreenShare());
+      addToast(
+        wasSharing
+          ? "Screen sharing stopped"
+          : "🖥️ You're presenting your screen",
+        "info",
+      );
+    } catch (err) {
+      console.error("Failed to toggle screen share.", err);
+      addToast("Screen sharing cancelled.", "warning");
+    }
   }, [call, addToast]);
+
+  // Track how long the current screen-share session has been running.
+  useEffect(() => {
+    if (!call.isScreenSharing) {
+      screenShareStartRef.current = null;
+      setScreenShareElapsed(0);
+      return;
+    }
+    screenShareStartRef.current = Date.now();
+    setScreenShareElapsed(0);
+    const id = setInterval(() => {
+      if (screenShareStartRef.current !== null) {
+        setScreenShareElapsed(
+          Math.floor((Date.now() - screenShareStartRef.current) / 1000),
+        );
+      }
+    }, 1000);
+    return () => clearInterval(id);
+  }, [call.isScreenSharing]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -774,22 +1004,43 @@ export default function InterviewRoomPage() {
         (target.tagName === "TEXTAREA" ||
           target.tagName === "INPUT" ||
           target.isContentEditable);
+
+      if (e.key === "Escape") {
+        if (showShortcuts) {
+          setShowShortcuts(false);
+          return;
+        }
+        if (!typing && activeTab) {
+          setActiveTab(null);
+        }
+        return;
+      }
+
       if (typing) return;
 
       if (e.ctrlKey && e.shiftKey && key === "s") {
         e.preventDefault();
-        handleToggleScreenShare();
+        void handleToggleScreenShare();
       } else if (e.ctrlKey && key === "d") {
         e.preventDefault();
-        handleToggleMic();
+        void handleToggleMic();
       } else if (e.ctrlKey && key === "e") {
         e.preventDefault();
-        handleToggleCamera();
+        void handleToggleCamera();
+      } else if (key === "?") {
+        e.preventDefault();
+        setShowShortcuts((s) => !s);
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [handleToggleMic, handleToggleCamera, handleToggleScreenShare]);
+  }, [
+    handleToggleMic,
+    handleToggleCamera,
+    handleToggleScreenShare,
+    showShortcuts,
+    activeTab,
+  ]);
 
   function toggleTab(tab: SidebarTab) {
     setActiveTab((prev) => (prev === tab ? null : tab));
@@ -806,16 +1057,45 @@ export default function InterviewRoomPage() {
   }
 
   function handleLeaveClick() {
+    if (role === "recruiter") {
+      if (!feedbackText.trim()) {
+        setActiveTab("notes");
+        addToast(
+          "Interview feedback is required before ending the interview.",
+          "warning",
+        );
+        feedbackTextareaRef.current?.focus();
+        return;
+      }
+
+      if (feedbackDirty) {
+        setShowUnsavedWarning(true);
+        return;
+      }
+    }
+
     setShowEndConfirm(true);
+  }
+
+  function handleSaveAndProceed() {
+    saveFeedbackNow();
+    setShowUnsavedWarning(false);
+    setShowEndConfirm(true);
+  }
+
+  function handleDiscardAndProceed() {
+    setFeedbackSavedText(feedbackText);
+    setShowUnsavedWarning(false);
+    setShowEndConfirm(true);
+  }
+
+  function handleCancelUnsavedWarning() {
+    setShowUnsavedWarning(false);
   }
 
   function handleCancelEndCall() {
     if (endingInterview) return;
     setShowEndConfirm(false);
-  }
-
-  function handleSaveNotes() {
-    setNotesSavedAt(Date.now());
   }
 
   function handleDraftChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -996,48 +1276,92 @@ export default function InterviewRoomPage() {
           </p>
 
           <div
-            className="rounded-xl px-4 py-3 mb-3 flex items-center justify-between"
-            style={{ backgroundColor: COLOR.panelAlt }}
+            className="rounded-xl overflow-hidden mb-6 divide-y"
+            style={{
+              backgroundColor: COLOR.panelAlt,
+              borderColor: COLOR.border,
+            }}
           >
-            <span
-              className="text-[12px] font-semibold uppercase tracking-wide"
-              style={{ color: COLOR.textMuted }}
-            >
-              Duration
-            </span>
-            <span
-              className="text-[15px] font-mono font-semibold tabular-nums"
-              style={{ color: COLOR.text }}
-            >
-              {formatElapsed(shownDuration)}
-            </span>
-          </div>
+            <div className="px-4 py-3 flex items-center justify-between">
+              <span
+                className="text-[12px] font-semibold uppercase tracking-wide"
+                style={{ color: COLOR.textMuted }}
+              >
+                Duration
+              </span>
+              <span
+                className="text-[14px] font-mono font-semibold tabular-nums"
+                style={{ color: COLOR.text }}
+              >
+                {formatElapsed(shownDuration)}
+              </span>
+            </div>
 
-          {role === "recruiter" && (
+            {role === "recruiter" && (
+              <div
+                className="px-4 py-3 flex items-center justify-between"
+                style={{ borderTop: `1px solid ${COLOR.border}` }}
+              >
+                <span
+                  className="text-[12px] font-semibold uppercase tracking-wide"
+                  style={{ color: COLOR.textMuted }}
+                >
+                  Feedback
+                </span>
+                <span
+                  className="text-[13px] font-medium flex items-center gap-1.5"
+                  style={{
+                    color: feedbackSavedAt ? COLOR.green : COLOR.textMuted,
+                  }}
+                >
+                  {feedbackSavedAt ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Saved
+                    </>
+                  ) : (
+                    "Not saved"
+                  )}
+                </span>
+              </div>
+            )}
+
             <div
-              className="rounded-xl px-4 py-3 mb-6 flex items-center justify-between"
-              style={{ backgroundColor: COLOR.panelAlt }}
+              className="px-4 py-3 flex items-center justify-between"
+              style={{ borderTop: `1px solid ${COLOR.border}` }}
             >
               <span
                 className="text-[12px] font-semibold uppercase tracking-wide"
                 style={{ color: COLOR.textMuted }}
               >
-                Notes
+                Chat
               </span>
               <span
-                className="text-[14px] font-medium flex items-center gap-1.5"
-                style={{ color: notesSavedAt ? COLOR.green : COLOR.textMuted }}
+                className="text-[13px] font-medium"
+                style={{ color: COLOR.text }}
               >
-                {notesSavedAt ? (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Saved
-                  </>
-                ) : (
-                  "Not saved"
-                )}
+                {call.messages.length} message
+                {call.messages.length === 1 ? "" : "s"}
               </span>
             </div>
-          )}
+
+            <div
+              className="px-4 py-3 flex items-center justify-between"
+              style={{ borderTop: `1px solid ${COLOR.border}` }}
+            >
+              <span
+                className="text-[12px] font-semibold uppercase tracking-wide"
+                style={{ color: COLOR.textMuted }}
+              >
+                Connection
+              </span>
+              <span
+                className="text-[13px] font-medium"
+                style={{ color: COLOR.text }}
+              >
+                {lastConnectionQualityRef.current}
+              </span>
+            </div>
+          </div>
 
           <p className="text-[13px] mb-4" style={{ color: COLOR.textMuted }}>
             Redirecting in {countdown}…
@@ -1075,7 +1399,12 @@ export default function InterviewRoomPage() {
     { id: "chat", label: "Chat", icon: MessageSquare },
     ...(role === "recruiter"
       ? ([
-          { id: "notes", label: "Notes", icon: FileText, mobileHidden: true },
+          {
+            id: "notes",
+            label: "Feedback",
+            icon: FileText,
+            mobileHidden: true,
+          },
         ] as const)
       : []),
     { id: "info", label: "Details", icon: Info, mobileHidden: true },
@@ -1129,6 +1458,15 @@ export default function InterviewRoomPage() {
           >
             {formatElapsed(elapsedSeconds)}
           </span>
+          <button
+            onClick={() => setShowShortcuts(true)}
+            title="Keyboard shortcuts (?)"
+            aria-label="Keyboard shortcuts"
+            className="p-1 rounded-md hover:opacity-80 transition-opacity"
+            style={{ color: COLOR.textMuted }}
+          >
+            <HelpCircle className="w-4 h-4" />
+          </button>
           <span
             title={connectionInfo.text}
             className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -1280,8 +1618,24 @@ export default function InterviewRoomPage() {
               >
                 Elapsed {formatElapsed(reconnectElapsed)}
               </p>
+              <div className="flex items-center gap-2 mt-1">
+                <button
+                  onClick={() => setActiveTab("chat")}
+                  className="px-3 py-1.5 rounded-full text-[12px] font-semibold"
+                  style={{ backgroundColor: COLOR.panelAlt, color: COLOR.text }}
+                >
+                  Message {otherRoleLabel}
+                </button>
+                <button
+                  onClick={retryCall}
+                  className="px-3 py-1.5 rounded-full text-[12px] font-semibold"
+                  style={{ backgroundColor: COLOR.blueStrong, color: "#fff" }}
+                >
+                  Reconnect
+                </button>
+              </div>
               <p
-                className="text-[12px] text-center max-w-xs"
+                className="text-[12px] text-center max-w-xs mt-1"
                 style={{ color: COLOR.textMuted }}
               >
                 Keep this page open.
@@ -1326,13 +1680,13 @@ export default function InterviewRoomPage() {
             </div>
           )}
 
-    
           <div
-            className="absolute top-4 right-4 w-32 h-20 sm:w-52 sm:h-32 rounded-2xl overflow-hidden"
+            className="absolute top-4 right-4 w-32 h-20 sm:w-52 sm:h-32 rounded-2xl overflow-hidden shadow-lg"
             style={{ backgroundColor: COLOR.panel }}
           >
             {cameraOn ? (
               <video
+                key={call.localStream ? call.localStream.id : "local-stream"}
                 ref={localVideoRef}
                 autoPlay
                 playsInline
@@ -1340,7 +1694,7 @@ export default function InterviewRoomPage() {
                 className="w-full h-full object-cover scale-x-[-1]"
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-1.5">
+              <div className="w-full h-full flex flex-col items-center justify-center gap-1 px-2 text-center">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: COLOR.panelAlt }}
@@ -1354,10 +1708,29 @@ export default function InterviewRoomPage() {
                   className="text-[10px] font-medium"
                   style={{ color: COLOR.textMuted }}
                 >
-                  Camera off
+                  Your camera is off
+                </span>
+                <span
+                  className="text-[9px] hidden sm:block"
+                  style={{ color: COLOR.textMuted }}
+                >
+                  Others can still hear you
                 </span>
               </div>
             )}
+
+            {cameraLoading && (
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center gap-1.5"
+                style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
+              >
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span className="text-[9px] font-medium text-white/90">
+                  {call.isCameraEnabled ? "Turning off…" : "Turning on…"}
+                </span>
+              </div>
+            )}
+
             <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-1.5 py-1">
               <span
                 className="text-[10px] font-medium text-white/80 px-1.5 py-0.5 rounded backdrop-blur-sm"
@@ -1377,13 +1750,15 @@ export default function InterviewRoomPage() {
           </div>
 
           {call.isScreenSharing && (
-            <span
-              className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-white text-[13px] font-semibold px-2.5 py-1 rounded-full shadow-sm"
+            <button
+              onClick={() => void handleToggleScreenShare()}
+              className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-white text-[13px] font-semibold px-2.5 py-1 rounded-full shadow-sm transition-opacity hover:opacity-90"
               style={{ backgroundColor: COLOR.blueStrong }}
+              title="Click to stop sharing"
             >
               <MonitorUp className="w-3.5 h-3.5" />
-              You're sharing your screen
-            </span>
+              You're presenting · {formatElapsed(screenShareElapsed)}
+            </button>
           )}
 
           <div
@@ -1413,6 +1788,12 @@ export default function InterviewRoomPage() {
                     {unreadChat}
                   </span>
                 )}
+                {id === "notes" && feedbackDirty && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
+                    style={{ backgroundColor: COLOR.yellow }}
+                  />
+                )}
               </button>
             ))}
           </div>
@@ -1422,7 +1803,7 @@ export default function InterviewRoomPage() {
             style={{ backgroundColor: `${COLOR.panel}F2` }}
           >
             <button
-              onClick={handleToggleMic}
+              onClick={() => void handleToggleMic()}
               title={call.isMuted ? "Unmute (Ctrl+D)" : "Mute (Ctrl+D)"}
               aria-label={
                 call.isMuted ? "Unmute microphone" : "Mute microphone"
@@ -1440,7 +1821,8 @@ export default function InterviewRoomPage() {
               )}
             </button>
             <button
-              onClick={handleToggleCamera}
+              onClick={() => void handleToggleCamera()}
+              disabled={cameraLoading}
               title={
                 call.isCameraEnabled
                   ? "Turn camera off (Ctrl+E)"
@@ -1449,7 +1831,7 @@ export default function InterviewRoomPage() {
               aria-label={
                 call.isCameraEnabled ? "Turn camera off" : "Turn camera on"
               }
-              className="p-3 rounded-full transition-colors"
+              className="p-3 rounded-full transition-colors disabled:opacity-60"
               style={{
                 backgroundColor: !call.isCameraEnabled
                   ? COLOR.red
@@ -1457,14 +1839,16 @@ export default function InterviewRoomPage() {
                 color: "#fff",
               }}
             >
-              {call.isCameraEnabled ? (
+              {cameraLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : call.isCameraEnabled ? (
                 <Video className="w-5 h-5" />
               ) : (
                 <VideoOff className="w-5 h-5" />
               )}
             </button>
             <button
-              onClick={handleToggleScreenShare}
+              onClick={() => void handleToggleScreenShare()}
               title={
                 call.isScreenSharing
                   ? "Stop sharing (Ctrl+Shift+S)"
@@ -1538,235 +1922,238 @@ export default function InterviewRoomPage() {
 
               <div className="flex-1 min-h-0 flex flex-col">
                 {activeTab === "notes" && role === "recruiter" && (
-                  <div className="flex-1 overflow-y-auto p-4 space-y-5">
-                    <div>
-                      <label
-                        className="block text-[12px] font-semibold uppercase tracking-wide mb-2"
-                        style={{ color: COLOR.textMuted }}
-                      >
-                        Strengths
-                      </label>
-                      <textarea
-                        value={notesStrengths}
-                        onChange={(e) => setNotesStrengths(e.target.value)}
-                        className="w-full h-20 px-3 py-2 rounded-lg text-[14px] resize-none focus:outline-none focus:ring-2"
+                  <div className="flex-1 min-h-0 flex flex-col">
+                    <div
+                      className="flex items-center justify-between px-4 py-2.5 shrink-0"
+                      style={{ borderBottom: `1px solid ${COLOR.border}` }}
+                    >
+                      <span
+                        className="text-[12px] font-medium flex items-center gap-1.5"
                         style={{
-                          backgroundColor: COLOR.panelAlt,
-                          color: COLOR.text,
-                          // @ts-expect-error – custom focus ring color via CSS var
-                          "--tw-ring-color": COLOR.blue,
+                          color: feedbackSaving
+                            ? COLOR.yellow
+                            : feedbackSavedAt
+                              ? COLOR.green
+                              : COLOR.textMuted,
                         }}
-                        placeholder="What stood out positively…"
-                      />
+                      >
+                        {feedbackSaving ? (
+                          <>
+                            <Loader2 className="w-3 h-3 animate-spin" /> Saving…
+                          </>
+                        ) : feedbackSavedAt ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3" /> Saved
+                          </>
+                        ) : (
+                          "Not saved yet"
+                        )}
+                      </span>
+                      {feedbackSavedAt && !feedbackSaving && (
+                        <span
+                          className="text-[11px]"
+                          style={{ color: COLOR.textMuted }}
+                        >
+                          Last saved {formatClock(feedbackSavedAt)}
+                        </span>
+                      )}
                     </div>
 
-                    <div>
-                      <label
-                        className="block text-[12px] font-semibold uppercase tracking-wide mb-2"
-                        style={{ color: COLOR.textMuted }}
+                    {draftRestored && (
+                      <div
+                        className="mx-4 mt-3 rounded-lg px-3 py-2.5 flex items-center justify-between gap-2 shrink-0"
+                        style={{ backgroundColor: `${COLOR.blue}1A` }}
                       >
-                        Weaknesses
-                      </label>
-                      <textarea
-                        value={notesWeaknesses}
-                        onChange={(e) => setNotesWeaknesses(e.target.value)}
-                        className="w-full h-20 px-3 py-2 rounded-lg text-[14px] resize-none focus:outline-none focus:ring-2"
-                        style={{
-                          backgroundColor: COLOR.panelAlt,
-                          color: COLOR.text,
-                        }}
-                        placeholder="Areas of concern…"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        className="block text-[12px] font-semibold uppercase tracking-wide mb-2"
-                        style={{ color: COLOR.textMuted }}
-                      >
-                        Communication
-                      </label>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((n) => (
-                          <button
-                            key={n}
-                            onClick={() => setCommunicationRating(n)}
-                            aria-label={`Rate ${n} out of 5`}
-                            className="p-0.5"
-                          >
-                            <Star
-                              className="w-5 h-5"
-                              style={{
-                                fill:
-                                  n <= communicationRating
-                                    ? COLOR.yellow
-                                    : "transparent",
-                                color:
-                                  n <= communicationRating
-                                    ? COLOR.yellow
-                                    : COLOR.border,
-                              }}
-                            />
-                          </button>
-                        ))}
+                        <span
+                          className="text-[12px] font-medium"
+                          style={{ color: COLOR.blue }}
+                        >
+                          Draft recovered — continue writing?
+                        </span>
+                        <button
+                          onClick={() => setDraftRestored(false)}
+                          className="text-[12px] font-semibold shrink-0"
+                          style={{ color: COLOR.blue }}
+                        >
+                          Dismiss
+                        </button>
                       </div>
-                    </div>
+                    )}
 
-                    <div>
-                      <label
-                        className="block text-[12px] font-semibold uppercase tracking-wide mb-2"
-                        style={{ color: COLOR.textMuted }}
-                      >
-                        Recommendation
-                      </label>
-                      <div className="space-y-1.5">
-                        {(
-                          [
-                            {
-                              value: "hire",
-                              label: "Hire",
-                              color: COLOR.green,
-                            },
-                            {
-                              value: "hold",
-                              label: "Hold",
-                              color: COLOR.yellow,
-                            },
-                            {
-                              value: "reject",
-                              label: "Reject",
-                              color: COLOR.red,
-                            },
-                          ] as const
-                        ).map((opt) => (
-                          <button
-                            key={opt.value}
-                            onClick={() => setRecommendation(opt.value)}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors text-left"
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                      <div>
+                        <label
+                          className="block text-[12px] font-semibold uppercase tracking-wide mb-2"
+                          style={{ color: COLOR.textMuted }}
+                        >
+                          Interview Feedback
+                        </label>
+                        <textarea
+                          ref={feedbackTextareaRef}
+                          value={feedbackText}
+                          onChange={(e) =>
+                            setFeedbackText(
+                              e.target.value.slice(0, FEEDBACK_CHAR_LIMIT),
+                            )
+                          }
+                          className="w-full h-56 px-3 py-2.5 rounded-lg text-[14px] leading-6 resize-none focus:outline-none focus:ring-2"
+                          style={{
+                            backgroundColor: COLOR.panelAlt,
+                            color: COLOR.text,
+                          }}
+                          placeholder={
+                            "Write your complete interview feedback…\n\ne.g.\n• Candidate introduced themselves confidently.\n• Strong understanding of React hooks.\n• Faced difficulty with async JavaScript.\n• Solved 3/4 coding questions.\n• Recommended for Technical Round 2."
+                          }
+                        />
+                        <div className="flex items-center justify-between mt-1.5 px-0.5">
+                          <span
+                            className="text-[11px]"
+                            style={{ color: COLOR.textMuted }}
+                          >
+                            {feedbackWordCount} word
+                            {feedbackWordCount === 1 ? "" : "s"}
+                          </span>
+                          <span
+                            className="text-[11px] tabular-nums"
                             style={{
-                              backgroundColor:
-                                recommendation === opt.value
-                                  ? `${opt.color}1F`
-                                  : COLOR.panelAlt,
                               color:
-                                recommendation === opt.value
-                                  ? opt.color
-                                  : COLOR.text,
+                                feedbackText.length >= FEEDBACK_CHAR_LIMIT
+                                  ? COLOR.red
+                                  : COLOR.textMuted,
                             }}
                           >
-                            <span
-                              className="w-3.5 h-3.5 rounded-full shrink-0"
-                              style={{
-                                border: `2px solid ${recommendation === opt.value ? opt.color : COLOR.border}`,
-                                backgroundColor:
-                                  recommendation === opt.value
-                                    ? opt.color
-                                    : "transparent",
-                              }}
-                            />
-                            {opt.label}
-                          </button>
-                        ))}
+                            {feedbackText.length}/{FEEDBACK_CHAR_LIMIT}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center justify-between pt-1">
+                      <div>
+                        <label
+                          className="block text-[12px] font-semibold uppercase tracking-wide mb-2"
+                          style={{ color: COLOR.textMuted }}
+                        >
+                          Quick add
+                        </label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {QUICK_FEEDBACK_CHIPS.map((chip) => (
+                            <button
+                              key={chip.label}
+                              onClick={() => handleInsertChip(chip.text)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[12px] font-medium transition-colors hover:opacity-80"
+                              style={{
+                                backgroundColor: COLOR.panelAlt,
+                                color: COLOR.text,
+                              }}
+                            >
+                              <Plus className="w-3 h-3" />
+                              {chip.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
                       <button
-                        onClick={handleSaveNotes}
+                        onClick={saveFeedbackNow}
                         className="px-4 py-2 rounded-full font-semibold text-[13px] text-white transition-opacity hover:opacity-90"
                         style={{ backgroundColor: COLOR.blueStrong }}
                       >
-                        Save notes
+                        Save now
                       </button>
-                      <span
-                        className="text-[12px]"
-                        style={{ color: COLOR.textMuted }}
-                      >
-                        {notesSavedAt
-                          ? `Saved ${formatClock(notesSavedAt)}`
-                          : "Not saved yet"}
-                      </span>
                     </div>
                   </div>
                 )}
 
                 {activeTab === "participants" && (
-                  <div className="flex-1 overflow-y-auto p-4 space-y-1">
-                    <div className="flex items-center gap-3 px-2 py-2.5 rounded-lg">
-                      <span
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: COLOR.green }}
-                      />
-                      <span
-                        className="text-[14px] font-medium flex-1"
-                        style={{ color: COLOR.text }}
-                      >
-                        You
-                      </span>
-                      {call.isMuted ? (
-                        <MicOff
-                          className="w-4 h-4"
-                          style={{ color: COLOR.red }}
-                        />
-                      ) : (
-                        <Mic
-                          className="w-4 h-4"
-                          style={{ color: COLOR.textMuted }}
-                        />
-                      )}
-                      {call.isCameraEnabled ? (
-                        <Video
-                          className="w-4 h-4"
-                          style={{ color: COLOR.textMuted }}
-                        />
-                      ) : (
-                        <VideoOff
-                          className="w-4 h-4"
-                          style={{ color: COLOR.red }}
-                        />
-                      )}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                    <div
+                      className="rounded-xl px-3 py-3"
+                      style={{ backgroundColor: COLOR.panelAlt }}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span
+                          className="text-[13px] font-semibold"
+                          style={{ color: COLOR.text }}
+                        >
+                          {role === "recruiter"
+                            ? "Recruiter (you)"
+                            : "Candidate (you)"}
+                        </span>
+                        <StatusPill connected />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="inline-flex items-center gap-1 text-[12px]"
+                          style={{
+                            color: call.isMuted ? COLOR.red : COLOR.textMuted,
+                          }}
+                        >
+                          {call.isMuted ? (
+                            <MicOff className="w-3.5 h-3.5" />
+                          ) : (
+                            <Mic className="w-3.5 h-3.5" />
+                          )}
+                          {call.isMuted ? "Mic off" : "Mic on"}
+                        </span>
+                        <span
+                          className="inline-flex items-center gap-1 text-[12px]"
+                          style={{
+                            color: call.isCameraEnabled
+                              ? COLOR.textMuted
+                              : COLOR.red,
+                          }}
+                        >
+                          {call.isCameraEnabled ? (
+                            <Video className="w-3.5 h-3.5" />
+                          ) : (
+                            <VideoOff className="w-3.5 h-3.5" />
+                          )}
+                          {call.isCameraEnabled ? "Cam on" : "Cam off"}
+                        </span>
+                      </div>
                     </div>
 
-                    {call.remoteStream ? (
-                      <div className="flex items-center gap-3 px-2 py-2.5 rounded-lg">
+                    <div
+                      className="rounded-xl px-3 py-3"
+                      style={{ backgroundColor: COLOR.panelAlt }}
+                    >
+                      <div className="flex items-center justify-between mb-1">
                         <span
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: COLOR.green }}
-                        />
-                        <span
-                          className="text-[14px] font-medium"
+                          className="text-[13px] font-semibold"
                           style={{ color: COLOR.text }}
                         >
                           {otherRoleLabel}
                         </span>
-                      </div>
-                    ) : isReconnectingRemote ? (
-                      <div className="flex items-center gap-3 px-2 py-2.5 rounded-lg">
-                        <span
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: COLOR.yellow }}
+                        <StatusPill
+                          connected={!!call.remoteStream}
+                          reconnecting={isReconnectingRemote}
                         />
-                        <span
-                          className="text-[14px] font-medium"
-                          style={{ color: COLOR.text }}
-                        >
-                          {otherRoleLabel}
-                        </span>
-                        <span
-                          className="text-[12px]"
-                          style={{ color: COLOR.yellow }}
-                        >
-                          Reconnecting…
-                        </span>
                       </div>
-                    ) : (
-                      <p
-                        className="text-[13px] px-2 py-3"
-                        style={{ color: COLOR.textMuted }}
-                      >
-                        No one else has joined yet.
-                      </p>
-                    )}
+                      {isReconnectingRemote && (
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <span
+                            className="text-[11px] font-mono tabular-nums"
+                            style={{ color: COLOR.textMuted }}
+                          >
+                            {formatElapsed(reconnectElapsed)} elapsed
+                          </span>
+                          <button
+                            onClick={() => setActiveTab("chat")}
+                            className="text-[11px] font-semibold"
+                            style={{ color: COLOR.blue }}
+                          >
+                            Message
+                          </button>
+                        </div>
+                      )}
+                      {!call.remoteStream && !isReconnectingRemote && (
+                        <p
+                          className="text-[12px] mt-1"
+                          style={{ color: COLOR.textMuted }}
+                        >
+                          No one else has joined yet.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -2176,6 +2563,122 @@ export default function InterviewRoomPage() {
         </div>
       </div>
 
+      {showUnsavedWarning && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 p-4 animate-[fadeIn_150ms_ease-out]"
+          style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+          onClick={handleCancelUnsavedWarning}
+        >
+          <div
+            className="rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-[popIn_150ms_ease-out]"
+            style={{ backgroundColor: COLOR.panel }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                style={{ backgroundColor: `${COLOR.yellow}1A` }}
+              >
+                <AlertTriangle
+                  className="w-4.5 h-4.5"
+                  style={{ color: COLOR.yellow }}
+                />
+              </div>
+              <h3
+                className="text-[15px] font-semibold"
+                style={{ color: COLOR.text }}
+              >
+                Interview feedback hasn't been saved
+              </h3>
+            </div>
+            <p
+              className="text-[14px] mb-5 pl-13"
+              style={{ color: COLOR.textMuted }}
+            >
+              Save before ending the interview?
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleCancelUnsavedWarning}
+                className="flex-1 px-4 py-2.5 font-medium rounded-full text-[13px] transition-colors"
+                style={{ color: COLOR.text, backgroundColor: COLOR.panelAlt }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDiscardAndProceed}
+                className="flex-1 px-4 py-2.5 font-medium rounded-full text-[13px] transition-colors"
+                style={{ color: COLOR.text, backgroundColor: COLOR.panelAlt }}
+              >
+                Discard
+              </button>
+              <button
+                onClick={handleSaveAndProceed}
+                className="flex-1 px-4 py-2.5 text-white font-semibold rounded-full text-[13px] transition-opacity hover:opacity-90"
+                style={{ backgroundColor: COLOR.blueStrong }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showShortcuts && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 p-4 animate-[fadeIn_150ms_ease-out]"
+          style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+          onClick={() => setShowShortcuts(false)}
+        >
+          <div
+            className="rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-[popIn_150ms_ease-out]"
+            style={{ backgroundColor: COLOR.panel }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3
+                className="text-[15px] font-semibold"
+                style={{ color: COLOR.text }}
+              >
+                Keyboard shortcuts
+              </h3>
+              <button
+                onClick={() => setShowShortcuts(false)}
+                className="p-1 rounded-md"
+                style={{ color: COLOR.textMuted }}
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-2">
+              {KEYBOARD_SHORTCUTS.map((s) => (
+                <div
+                  key={s.action}
+                  className="flex items-center justify-between"
+                >
+                  <span
+                    className="text-[13px]"
+                    style={{ color: COLOR.textMuted }}
+                  >
+                    {s.action}
+                  </span>
+                  <kbd
+                    className="text-[11px] font-mono font-semibold px-2 py-1 rounded-md"
+                    style={{
+                      backgroundColor: COLOR.panelAlt,
+                      color: COLOR.text,
+                    }}
+                  >
+                    {s.keys}
+                  </kbd>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showEndConfirm && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4 animate-[fadeIn_150ms_ease-out]"
@@ -2203,7 +2706,7 @@ export default function InterviewRoomPage() {
                   style={{ color: COLOR.text }}
                 >
                   {role === "recruiter"
-                    ? "End this interview?"
+                    ? "Finish this interview?"
                     : "Leave the interview?"}
                 </h3>
               </div>
@@ -2217,13 +2720,75 @@ export default function InterviewRoomPage() {
               </button>
             </div>
             <p
-              className="text-[14px] mb-5 pl-13"
+              className="text-[14px] mb-4 pl-13"
               style={{ color: COLOR.textMuted }}
             >
               {role === "recruiter"
                 ? "This will end the call for both you and the candidate, and mark the interview as completed. This can't be undone."
                 : "You'll be disconnected from the call. The recruiter can continue without you."}
             </p>
+
+            <div
+              className="rounded-xl overflow-hidden mb-4 divide-y"
+              style={{
+                backgroundColor: COLOR.panelAlt,
+                borderColor: COLOR.border,
+              }}
+            >
+              <div className="px-3.5 py-2.5 flex items-center justify-between">
+                <span
+                  className="text-[12px]"
+                  style={{ color: COLOR.textMuted }}
+                >
+                  Duration
+                </span>
+                <span
+                  className="text-[13px] font-mono font-semibold"
+                  style={{ color: COLOR.text }}
+                >
+                  {formatElapsed(elapsedSeconds)}
+                </span>
+              </div>
+              {role === "recruiter" && (
+                <div
+                  className="px-3.5 py-2.5 flex items-center justify-between"
+                  style={{ borderTop: `1px solid ${COLOR.border}` }}
+                >
+                  <span
+                    className="text-[12px]"
+                    style={{ color: COLOR.textMuted }}
+                  >
+                    Feedback
+                  </span>
+                  <span
+                    className="text-[13px] font-medium"
+                    style={{
+                      color: feedbackSavedAt ? COLOR.green : COLOR.textMuted,
+                    }}
+                  >
+                    {feedbackSavedAt ? "Saved" : "Not saved"}
+                  </span>
+                </div>
+              )}
+              <div
+                className="px-3.5 py-2.5 flex items-center justify-between"
+                style={{ borderTop: `1px solid ${COLOR.border}` }}
+              >
+                <span
+                  className="text-[12px]"
+                  style={{ color: COLOR.textMuted }}
+                >
+                  Chat
+                </span>
+                <span
+                  className="text-[13px] font-medium"
+                  style={{ color: COLOR.text }}
+                >
+                  {call.messages.length} message
+                  {call.messages.length === 1 ? "" : "s"}
+                </span>
+              </div>
+            </div>
 
             {endInterviewError && (
               <div
@@ -2261,7 +2826,7 @@ export default function InterviewRoomPage() {
                 {endInterviewError
                   ? "Try again"
                   : role === "recruiter"
-                    ? "End interview"
+                    ? "Finish interview"
                     : "Leave"}
               </button>
             </div>

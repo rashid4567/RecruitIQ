@@ -45,7 +45,7 @@ export function Timeline({ timelineSteps, getStep }: TimelineProps) {
                     isDone && nextIsDone
                       ? "bg-emerald-200"
                       : isDone
-                        ? "bg-gradient-to-b from-emerald-200 to-slate-100"
+                        ? "bg-linear-to-b from-emerald-200 to-slate-100"
                         : "bg-slate-100"
                   }`}
                   style={{ minHeight: "2rem" }}

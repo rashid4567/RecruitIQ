@@ -115,8 +115,7 @@ export function OfferLetterSection({ offer }: OfferLetterSectionProps) {
 
   return (
     <SectionCard title="Offer letter" icon={<FileText className="w-4 h-4" />}>
-      <div className={`-mx-6 px-6 pt-4 pb-5 mt-4 bg-gradient-to-b ${cfg.tint}`}>
-        {/* Status header */}
+      <div className={`-mx-6 px-6 pt-4 pb-5 mt-4 bg-linear-to-b ${cfg.tint}`}>
         <div className="flex items-start justify-between gap-3 pb-4">
           <div className="flex items-center gap-3 min-w-0">
             <div
@@ -139,8 +138,6 @@ export function OfferLetterSection({ offer }: OfferLetterSectionProps) {
             </span>
           )}
         </div>
-
-        {/* Info rows */}
         <div className="rounded-2xl bg-white/70 border border-slate-100 divide-y divide-slate-100">
           {!isClosed && (
             <div className="flex items-center justify-between px-4 py-3">

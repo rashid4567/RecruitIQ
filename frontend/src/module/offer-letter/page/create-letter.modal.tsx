@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useMemo, useCallback, type JSX } from "react";
 import {
   X,
@@ -83,7 +81,6 @@ const DEFAULT_BENEFITS: Benefit[] = [
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
 
-// Utility functions
 function todayISO(): string {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -112,7 +109,6 @@ function daysUntil(iso: string): number | null {
 const DATE_ICON_CLASSES =
   "[&::-webkit-calendar-picker-indicator]:opacity-[0.55] [&::-webkit-calendar-picker-indicator]:cursor-pointer";
 
-// Component: Field Label
 interface FieldLabelProps {
   children: React.ReactNode;
   required?: boolean;
@@ -127,7 +123,6 @@ function FieldLabel({ children, required }: FieldLabelProps): JSX.Element {
   );
 }
 
-// Component: Field Error
 interface FieldErrorProps {
   children?: React.ReactNode;
 }
@@ -142,13 +137,15 @@ function FieldError({ children }: FieldErrorProps): JSX.Element | null {
   );
 }
 
-// Component: Field Ok
 interface FieldOkProps {
   show: boolean;
   label?: string;
 }
 
-function FieldOk({ show, label = "Looks good" }: FieldOkProps): JSX.Element | null {
+function FieldOk({
+  show,
+  label = "Looks good",
+}: FieldOkProps): JSX.Element | null {
   if (!show) return null;
   return (
     <p className="mt-1.5 flex items-center gap-1 text-xs text-emerald-600">
@@ -158,7 +155,6 @@ function FieldOk({ show, label = "Looks good" }: FieldOkProps): JSX.Element | nu
   );
 }
 
-// Component: Info Row
 interface InfoRowProps {
   label: string;
   value: string | number;
@@ -180,7 +176,6 @@ interface EmploymentOfferModalProps {
   onClose: () => void;
 }
 
-// Main Component
 export default function EmploymentOfferModal({
   candidate,
   job,
@@ -212,13 +207,15 @@ export default function EmploymentOfferModal({
     () => benefits.filter((b) => b.checked),
     [benefits],
   );
-  const coreBenefits = useMemo(() => benefits.filter((b) => b.core), [benefits]);
+  const coreBenefits = useMemo(
+    () => benefits.filter((b) => b.core),
+    [benefits],
+  );
   const additionalBenefits = useMemo(
     () => benefits.filter((b) => !b.core),
     [benefits],
   );
 
-  // Validation logic
   const errors: FormErrors = useMemo(() => {
     const e: FormErrors = {};
     const ctcNum = Number(formState.ctc);
@@ -270,11 +267,13 @@ export default function EmploymentOfferModal({
   }, [formState, activeBenefits]);
 
   const isValid = Object.keys(errors).length === 0;
-
-  // Step-based checklist, replaces the plain percentage bar
   const steps = useMemo(
     () => [
-      { key: "compensation", label: "Compensation", done: !!formState.ctc && !errors.ctc },
+      {
+        key: "compensation",
+        label: "Compensation",
+        done: !!formState.ctc && !errors.ctc,
+      },
       {
         key: "employment",
         label: "Employment",
@@ -284,7 +283,8 @@ export default function EmploymentOfferModal({
         key: "contact",
         label: "Contact",
         done:
-          (!!formState.contactEmail.trim() || !!formState.contactPhone.trim()) &&
+          (!!formState.contactEmail.trim() ||
+            !!formState.contactPhone.trim()) &&
           !errors.contactEmail &&
           !errors.contactPhone &&
           !errors.contactGeneral,
@@ -295,7 +295,6 @@ export default function EmploymentOfferModal({
     [formState, errors, activeBenefits, isValid],
   );
 
-  // Handlers
   const mark = (field: string): void => {
     setTouched((t) => ({ ...t, [field]: true }));
   };
@@ -388,7 +387,11 @@ export default function EmploymentOfferModal({
   ]);
 
   const expiryDays = daysUntil(formState.expiryDate);
-  const locationStr = [job.location?.city, job.location?.state, job.location?.country]
+  const locationStr = [
+    job.location?.city,
+    job.location?.state,
+    job.location?.country,
+  ]
     .filter(Boolean)
     .join(", ");
 
@@ -400,7 +403,6 @@ export default function EmploymentOfferModal({
       />
 
       <div className="relative flex max-h-[88vh] w-full max-w-6xl animate-modalIn flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_20px_70px_rgba(15,23,42,0.15)] motion-reduce:animate-none">
-        {/* Header */}
         <div className="flex items-start justify-between border-b border-slate-200 px-7 pb-5 pt-6">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50">
@@ -432,16 +434,19 @@ export default function EmploymentOfferModal({
           </button>
         </div>
 
-        {/* Step checklist */}
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 border-b border-slate-200 bg-slate-50 px-7 py-3">
           {steps.map((s) => (
             <div key={s.key} className="flex items-center gap-1.5">
               <span
                 className={`flex h-4 w-4 items-center justify-center rounded-full ${
-                  s.done ? "bg-emerald-600" : "border-2 border-slate-300 bg-white"
+                  s.done
+                    ? "bg-emerald-600"
+                    : "border-2 border-slate-300 bg-white"
                 }`}
               >
-                {s.done && <Check size={10} className="text-white" strokeWidth={3} />}
+                {s.done && (
+                  <Check size={10} className="text-white" strokeWidth={3} />
+                )}
               </span>
               <span
                 className={`text-xs font-medium ${
@@ -454,11 +459,8 @@ export default function EmploymentOfferModal({
           ))}
         </div>
 
-        {/* Body - Form and Preview */}
         <div className="flex flex-1 overflow-hidden">
-          {/* Left — form */}
           <div className="flex-1 overflow-y-auto px-7 py-6">
-            {/* Candidate hero card */}
             <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(37,99,235,0.06)]">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500 text-base font-semibold text-white">
@@ -485,7 +487,6 @@ export default function EmploymentOfferModal({
                 </div>
               </div>
 
-              {/* Timeline */}
               <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
                 {["Applied", "Interview", "Selected"].map((step, i) => (
                   <React.Fragment key={step}>
@@ -519,7 +520,6 @@ export default function EmploymentOfferModal({
               </div>
             </div>
 
-            {/* Job info */}
             <section className="mb-6">
               <div className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold text-slate-400">
                 <Info size={13} className="text-blue-500" />
@@ -537,7 +537,6 @@ export default function EmploymentOfferModal({
               </div>
             </section>
 
-            {/* Compensation card */}
             <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="mb-5 flex items-center gap-1.5 text-sm font-semibold text-slate-900">
                 <span>💰</span> Compensation
@@ -566,12 +565,15 @@ export default function EmploymentOfferModal({
                   </div>
                   {touched.ctc && <FieldError>{errors.ctc}</FieldError>}
                   <FieldOk show={touched.ctc && !errors.ctc} />
-                  {formState.ctc && !errors.ctc && formState.currency === "INR" && (
-                    <p className="mt-1.5 text-xs text-slate-400">
-                      {formatINR(Number(formState.ctc) / 100000)} LPA &middot; ≈ ₹
-                      {formatINR(Math.round(Number(formState.ctc) / 12))}/month
-                    </p>
-                  )}
+                  {formState.ctc &&
+                    !errors.ctc &&
+                    formState.currency === "INR" && (
+                      <p className="mt-1.5 text-xs text-slate-400">
+                        {formatINR(Number(formState.ctc) / 100000)} LPA &middot;
+                        ≈ ₹{formatINR(Math.round(Number(formState.ctc) / 12))}
+                        /month
+                      </p>
+                    )}
                 </div>
 
                 <div>
@@ -646,7 +648,6 @@ export default function EmploymentOfferModal({
               </div>
             </section>
 
-            {/* HR Contact */}
             <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-900">
                 <span>📞</span> HR Contact Information
@@ -789,7 +790,11 @@ export default function EmploymentOfferModal({
                           }`}
                         >
                           {b.checked && (
-                            <Check size={10} className="text-white" strokeWidth={3} />
+                            <Check
+                              size={10}
+                              className="text-white"
+                              strokeWidth={3}
+                            />
                           )}
                         </span>
                         {b.label}
@@ -819,7 +824,11 @@ export default function EmploymentOfferModal({
                           }`}
                         >
                           {b.checked && (
-                            <Check size={10} className="text-white" strokeWidth={3} />
+                            <Check
+                              size={10}
+                              className="text-white"
+                              strokeWidth={3}
+                            />
                           )}
                         </span>
                         {b.label}
@@ -854,7 +863,6 @@ export default function EmploymentOfferModal({
               {touched.benefits && <FieldError>{errors.benefits}</FieldError>}
             </section>
 
-            {/* Offer Expiry */}
             <section className="mb-6">
               <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
                 Offer Expiry
@@ -913,7 +921,6 @@ export default function EmploymentOfferModal({
               </p>
             </section>
 
-            {/* Notes */}
             <section className="mb-2">
               <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
                 Personal Message{" "}
@@ -934,7 +941,6 @@ export default function EmploymentOfferModal({
             </section>
           </div>
 
-          {/* Right — mini offer letter preview */}
           <div className="hidden w-80 shrink-0 border-l border-slate-200 bg-slate-50 p-6 lg:block">
             <div className="sticky top-0">
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_28px_rgba(37,99,235,0.08)] transition-all duration-150 ease-linear">
@@ -1017,7 +1023,6 @@ export default function EmploymentOfferModal({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-between gap-4 border-t border-slate-200 bg-white px-7 py-4">
           <p className="flex items-center gap-1.5 text-xs text-slate-500">
             <AlertTriangle size={13} className="shrink-0 text-amber-600" />
@@ -1042,7 +1047,6 @@ export default function EmploymentOfferModal({
         </div>
       </div>
 
-      {/* Confirmation dialog */}
       {confirmOpen && (
         <div className="fixed inset-0 z-10 flex animate-overlayIn items-center justify-center bg-slate-900/55 p-4 backdrop-blur-sm motion-reduce:animate-none">
           <div className="w-full max-w-sm animate-modalIn rounded-2xl bg-white p-6 shadow-[0_20px_70px_rgba(15,23,42,0.2)] motion-reduce:animate-none">

@@ -2,7 +2,6 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import {
   Calendar,
   ChevronLeft,
-  Plus,
   ChevronRight,
   BarChart3,
   Search,
@@ -24,7 +23,6 @@ import { useRejectRescheduleRequest } from "../hooks/recruiter/useRejectReschedu
 import { useStartInterview } from "../hooks/recruiter/useStartInterview";
 import type { RecruiterInterviewItem } from "../types/recruiterInterview.types";
 import { InterviewStatus } from "../types/interview.types";
-
 import StatCard from "./components/interview.mangment/StatCard";
 import TabButton from "./components/interview.mangment/Tabbutton";
 import PageBtn from "./components/interview.mangment/Pagebtn";
@@ -120,6 +118,8 @@ export default function InterviewDashboard() {
       state: { roomId: interview.roomId },
     });
   }
+
+  
 
   async function handleStartInterview(interview: RecruiterInterviewItem) {
     if (!interview.interviewId) return;
@@ -336,6 +336,8 @@ export default function InterviewDashboard() {
   const hasActiveSearchOrFilter =
     Boolean(debouncedSearch.trim()) || activeFilterCount > 0;
 
+    
+
   return (
     <div className="flex h-screen bg-linear-to-br from-slate-50 to-slate-100">
       <Sidebar />
@@ -396,7 +398,10 @@ export default function InterviewDashboard() {
                   )}
                 </div>
 
-                <button className="p-2.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors relative">
+                <button
+                  onClick={() => navigate("/recruiter/notification")}
+                  className="p-2.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors relative"
+                >
                   <Bell size={17} />
                   <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full ring-1 ring-white" />
                 </button>
@@ -527,14 +532,6 @@ export default function InterviewDashboard() {
                     month: "short",
                     day: "2-digit",
                   })}
-                </button>
-
-                <button
-                  onClick={() => setScheduleModal({ open: true })}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 font-semibold text-sm transition-colors shadow-sm"
-                >
-                  <Plus size={16} />
-                  Schedule
                 </button>
               </div>
             </div>

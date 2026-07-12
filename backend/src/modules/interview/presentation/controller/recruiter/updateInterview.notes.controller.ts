@@ -14,7 +14,7 @@ import { UpdateInterviewNotesSchema } from "../../validation/complente.interview
 
 export class UpdateInterviewNotesController {
   constructor(
-    private readonly updateInterviewNotesUseCase: IUseCase<
+    private readonly _updateInterviewNotesUseCase: IUseCase<
       UpdateInterviewNotesRequestDTO,
       UpdateInterviewNotesResponseDTO
     >,
@@ -26,6 +26,7 @@ export class UpdateInterviewNotesController {
     next: NextFunction,
   ) => {
     try {
+      console.log("hit controller");
       const recruiterId = req.user?.userId;
 
       if (!recruiterId) {
@@ -45,15 +46,15 @@ export class UpdateInterviewNotesController {
           ERROR_CODES.INTERVIEW_NOT_FOUND,
         );
       }
-
+      console.log("body :", req.body);
       const validatedData = UpdateInterviewNotesSchema.parse(req.body ?? {});
 
-      const result = await this.updateInterviewNotesUseCase.execute({
+      const result = await this._updateInterviewNotesUseCase.execute({
         interviewId,
         recruiterId,
         notes: validatedData.notes,
       });
-
+      console.log("result :", result);
       return ApiResponse.success(
         res,
         HTTP_STATUS.OK,

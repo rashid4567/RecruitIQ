@@ -289,6 +289,11 @@ function ApplicationsHeader({
   refreshing: boolean;
 }) {
   const navigate = useNavigate();
+
+  const handleCreateJob = () => {
+    navigate("/recruiter/job-editor");
+  };
+
   return (
     <div className="bg-linear-to-br from-indigo-600 via-indigo-600 to-violet-600 px-6 sm:px-8 py-7 rounded-b-3xl shadow-lg shadow-indigo-200/60">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -311,12 +316,9 @@ function ApplicationsHeader({
             />
             Refresh
           </button>
-          <button className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm">
-            <Download className="w-4 h-4" />
-            Export CSV
-          </button>
+
           <button
-            onClick={() => navigate("/recruiter/jobs/new")}
+            onClick={handleCreateJob}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white text-indigo-700 hover:bg-indigo-50 transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
@@ -376,19 +378,8 @@ function ApplicationCard({ app }: { app: RecruiterApplication }) {
   const goToDetail = () =>
     navigate(`/recruiter/application-detail/${app.applicationId}`);
   const quickActions = [
-    {
-      label: "Resume",
-      icon: Download,
-      onClick: (e: React.MouseEvent) => e.stopPropagation(),
-    },
-    {
-      label: "Email",
-      icon: Mail,
-      onClick: (e: React.MouseEvent) => {
-        e.stopPropagation();
-        window.location.href = `mailto:${app.candidateEmail}`;
-      },
-    },
+   
+   
     {
       label: "Interview",
       icon: CalendarClock,
@@ -409,17 +400,11 @@ function ApplicationCard({ app }: { app: RecruiterApplication }) {
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0 flex-1">
-          {app.candidateProfileImage ? (
-            <img
-              src={app.candidateProfileImage}
-              alt={app.candidateName}
-              className="w-12 h-12 rounded-full object-cover shrink-0 border border-slate-100"
-            />
-          ) : (
+          {
             <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold shrink-0">
               {initials(app.candidateName)}
             </div>
-          )}
+          }
           <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-800 truncate">
               {app.candidateName}

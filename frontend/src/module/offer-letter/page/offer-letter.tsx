@@ -1,7 +1,5 @@
-"use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   CheckCircle2,
   Circle,
@@ -9,7 +7,6 @@ import {
   AlertTriangle,
   Info,
   Mail,
-  Download,
   Home,
   XCircle,
   PartyPopper,
@@ -29,10 +26,6 @@ interface CountdownTime {
   hours: number;
   minutes: number;
 }
-
-// ─────────────────────────────────────────────────────────────
-// Static config / helpers
-// ─────────────────────────────────────────────────────────────
 
 function formatCurrency(amount: number, currency: string) {
   try {
@@ -69,7 +62,6 @@ function getCountdown(expiryDate: string): CountdownTime {
   return { days, hours, minutes };
 }
 
-// Fraction of the offer window (offerDate → expiryDate) that remains, 0–1.
 function getExpiryProgress(offerDate?: string, expiryDate?: string): number {
   if (!offerDate || !expiryDate) return 1;
   const start = new Date(offerDate).getTime();
@@ -184,7 +176,6 @@ function SidebarCard({
   );
 }
 
-// Label/value row with no icon — reads like an enterprise form (feedback #3, #4, #9)
 function DetailRow({
   label,
   value,
@@ -206,7 +197,6 @@ function DetailRow({
   );
 }
 
-// Compact vertical status tracker (feedback #1 / renamed "Timeline" per final layout)
 function CompactTracker({ accepted }: { accepted: boolean }) {
   const steps = accepted
     ? [
@@ -253,7 +243,6 @@ function CompactTracker({ accepted }: { accepted: boolean }) {
   );
 }
 
-// Accessible modal: Escape to close (when not busy), focus moved to close button on open (feedback #25)
 function Modal({
   open,
   onClose,
@@ -336,10 +325,6 @@ function Footer({ companyName }: { companyName: string }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Main page
-// ─────────────────────────────────────────────────────────────
-
 export default function EmploymentOfferPage() {
   const { offerId } = useParams<{ offerId: string }>();
   const { offer, loading, error, refetch } = useCandidateOffer(offerId ?? "");
@@ -364,7 +349,7 @@ export default function EmploymentOfferPage() {
   const [rejectTouched, setRejectTouched] = useState(false);
 
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (!offer?.expiryDate) return;
 
@@ -379,7 +364,6 @@ export default function EmploymentOfferPage() {
     return () => clearInterval(timer);
   }, [offer?.expiryDate]);
 
-  // Sticky bottom action bar appears once the hero scrolls out of view
   useEffect(() => {
     const onScroll = () => setShowStickyBar(window.scrollY > 220);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -390,6 +374,10 @@ export default function EmploymentOfferPage() {
     () => getExpiryProgress(offer?.offerDate, offer?.expiryDate),
     [offer?.offerDate, offer?.expiryDate],
   );
+
+  const handleReturnHome = () => {
+    navigate("/candidate/home", { replace: true });
+  };
 
   const resetRejectForm = () => {
     setShowRejectModal(false);
@@ -443,7 +431,6 @@ export default function EmploymentOfferPage() {
     }
   };
 
-  // ---- Loading skeleton ----
   if (loading) {
     return (
       <div className="min-h-screen" style={{ background: "#F4F7FB" }}>
@@ -464,7 +451,6 @@ export default function EmploymentOfferPage() {
     );
   }
 
-  // ---- Error state ----
   if (error || !offer) {
     return (
       <div
@@ -490,7 +476,6 @@ export default function EmploymentOfferPage() {
     );
   }
 
-  // ---- Success screen (feedback #16) ----
   if (offer.status?.toUpperCase() === "ACCEPTED") {
     return (
       <div
@@ -531,11 +516,10 @@ export default function EmploymentOfferPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-[#22C55E] text-white font-medium hover:bg-[#16A34A] active:scale-95 transition-all">
-              <Download className="w-4 h-4" />
-              Download Joining Guide
-            </button>
-            <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] active:scale-95 transition-all">
+            <button
+              onClick={handleReturnHome}
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] active:scale-95 transition-all"
+            >
               <Home className="w-4 h-4" />
               Return Home
             </button>
@@ -545,7 +529,6 @@ export default function EmploymentOfferPage() {
     );
   }
 
-  // ---- Rejected screen (feedback #17) ----
   if (offer.status?.toUpperCase() === "REJECTED") {
     return (
       <div
@@ -561,7 +544,10 @@ export default function EmploymentOfferPage() {
           <p className="text-[#475569] mb-8">
             We appreciate your time. We wish you success.
           </p>
-          <button className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] active:scale-95 transition-all">
+          <button
+            onClick={handleReturnHome}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] active:scale-95 transition-all"
+          >
             <Home className="w-4 h-4" />
             Return Home
           </button>
@@ -573,7 +559,7 @@ export default function EmploymentOfferPage() {
   const monthlyCTC = Math.round(offer.annualCTC / 12);
   const statusStyle = getStatusStyle(offer.status);
   const urgencyStyle = URGENCY_STYLES[urgency];
-  const meta = offer as any; // optional fields your API may not send yet
+  const meta = offer as any;
   const employmentType: string = meta.employmentType ?? "Full Time";
   const logoUrl: string | undefined = meta.companyLogoUrl;
 
@@ -582,7 +568,6 @@ export default function EmploymentOfferPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "#F8FAFC" }}>
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-white/90 border-b border-[#E8EEF7] backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -608,7 +593,6 @@ export default function EmploymentOfferPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-6 pb-24 lg:pb-6">
-        {/* Compact Hero — target ~150px (feedback #1) */}
         <div
           className="mb-4 border border-[#E8EEF7] rounded-2xl px-6 py-4 sm:px-7 sm:py-5 animate-in fade-in slide-in-from-bottom-2 duration-500"
           style={{
@@ -650,7 +634,6 @@ export default function EmploymentOfferPage() {
           </div>
         </div>
 
-        {/* Offer letter preview (feedback #23) */}
         <button
           onClick={() => setShowPreviewModal(true)}
           className="mb-6 flex items-center gap-1.5 text-sm text-[#2563EB] font-medium hover:underline"
@@ -665,16 +648,12 @@ export default function EmploymentOfferPage() {
           </div>
         )}
 
-        {/* Two column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
-          {/* Left column (70%) */}
           <div className="space-y-6 min-w-0">
-            {/* Merged: Offer Summary + Compensation + Benefits, divided by hairlines (feedback #2) */}
             <div
               className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 animate-in fade-in slide-in-from-bottom-2 fill-mode-both"
               style={{ animationDuration: "500ms", animationDelay: "80ms" }}
             >
-              {/* Offer Summary — plain rows, no icons (feedback #3, #4) */}
               <div className="p-6">
                 <h3 className="text-base font-semibold text-[#0F172A] mb-1">
                   Offer Summary
@@ -698,7 +677,6 @@ export default function EmploymentOfferPage() {
                 </div>
               </div>
 
-              {/* Compensation */}
               <div className="px-6 py-5 border-t border-[#F1F5F9]">
                 <h3 className="text-base font-semibold text-[#0F172A] mb-4">
                   Compensation
@@ -733,7 +711,6 @@ export default function EmploymentOfferPage() {
                 </div>
               </div>
 
-              {/* Benefits — flat checklist, no grouping/icons (feedback #6) */}
               {offer.benefits && offer.benefits.length > 0 && (
                 <div className="px-6 py-5 border-t border-[#F1F5F9]">
                   <h3 className="text-base font-semibold text-[#0F172A] mb-3">
@@ -753,8 +730,6 @@ export default function EmploymentOfferPage() {
                 </div>
               )}
             </div>
-
-            {/* Important Information — always visible, no accordion (feedback #7) */}
             <div
               className="rounded-2xl p-6 animate-in fade-in slide-in-from-bottom-2 fill-mode-both"
               style={{
@@ -812,9 +787,7 @@ export default function EmploymentOfferPage() {
             </div>
           </div>
 
-          {/* Right column (30%) — reordered: Status, Offer Details, Timeline, HR (feedback #8) */}
           <div className="lg:sticky lg:top-20 space-y-4">
-            {/* Status + Countdown — progress first, date second (feedback #10) */}
             <SidebarCard delay={0}>
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs text-[#64748B] font-medium">
@@ -869,7 +842,6 @@ export default function EmploymentOfferPage() {
               </div>
             </SidebarCard>
 
-            {/* Offer Details — with dividers (feedback #9) */}
             <SidebarCard title="Offer Details" delay={80}>
               <DetailRow label="Company" value={offer.companyName} />
               <DetailRow label="Offer Number" value={offer.offerNumber} />
@@ -899,15 +871,12 @@ export default function EmploymentOfferPage() {
               />
             </SidebarCard>
 
-            {/* Timeline (compact tracker) */}
             <SidebarCard title="Timeline" delay={160}>
               <CompactTracker accepted={false} />
             </SidebarCard>
 
-            {/* HR Contact — redesigned, no big blue button, simple "Email HR" (feedback #11) */}
             <SidebarCard title="Need Help?" delay={240}>
               <div className="space-y-5">
-                {/* Header */}
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-[#2563EB] to-[#1D4ED8] text-white shadow-lg shadow-blue-200">
                     <ShieldCheck className="h-5 w-5" />
@@ -924,7 +893,6 @@ export default function EmploymentOfferPage() {
                   </div>
                 </div>
 
-                {/* Contact Email */}
                 {offer.contactEmail && (
                   <a
                     href={`mailto:${offer.contactEmail}`}
@@ -948,7 +916,6 @@ export default function EmploymentOfferPage() {
                   </a>
                 )}
 
-                {/* Contact Phone */}
                 {offer.contactPhone && (
                   <a
                     href={`tel:${offer.contactPhone}`}
@@ -972,7 +939,6 @@ export default function EmploymentOfferPage() {
                   </a>
                 )}
 
-                {/* Empty State */}
                 {!offer.contactEmail && !offer.contactPhone && (
                   <div className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-4 py-5 text-center">
                     <Mail className="mx-auto mb-2 h-5 w-5 text-[#94A3B8]" />
@@ -988,7 +954,6 @@ export default function EmploymentOfferPage() {
                   </div>
                 )}
 
-                {/* Information */}
                 <div className="rounded-xl border border-[#DBEAFE] bg-[#EFF6FF] p-4">
                   <div className="flex gap-2">
                     <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#2563EB]" />
@@ -1008,7 +973,6 @@ export default function EmploymentOfferPage() {
 
       <Footer companyName={offer.companyName} />
 
-      {/* Sticky mobile/global action bar — shorter now (feedback #18) */}
       <div
         className={`fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E8EEF7] shadow-[0_-4px_16px_rgba(15,23,42,0.08)] transition-transform duration-300 ${
           showStickyBar ? "translate-y-0" : "translate-y-full"
@@ -1039,7 +1003,6 @@ export default function EmploymentOfferPage() {
         </div>
       </div>
 
-      {/* Accept Confirmation Modal — checklist style (feedback #14) */}
       <Modal
         open={showAcceptModal}
         busy={accepting}
@@ -1119,7 +1082,6 @@ export default function EmploymentOfferPage() {
         </div>
       </Modal>
 
-      {/* Reject Confirmation Modal (feedback #15) */}
       <Modal
         open={showRejectModal}
         busy={rejecting}
@@ -1149,7 +1111,7 @@ export default function EmploymentOfferPage() {
           {REJECT_REASONS.map((reason) => (
             <label
               key={reason}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-[#E2E8F0] cursor-pointer hover:bg-[#F8FAFC] has-[:checked]:border-[#EF4444] has-[:checked]:bg-[#FEF2F2] transition-colors"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-[#E2E8F0] cursor-pointer hover:bg-[#F8FAFC] has-checked:border-[#EF4444] has-checked:bg-[#FEF2F2] transition-colors"
             >
               <input
                 type="radio"
@@ -1214,7 +1176,6 @@ export default function EmploymentOfferPage() {
         </div>
       </Modal>
 
-      {/* Offer Letter Preview Modal (feedback #23) */}
       <Modal
         open={showPreviewModal}
         labelledBy="preview-modal-title"

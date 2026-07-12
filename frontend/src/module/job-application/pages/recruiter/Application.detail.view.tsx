@@ -14,7 +14,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useRecruiterApplicationDetails } from "../../hooks/recruiter/useRecruiterApplicationDetails";
 import { useUpdateApplicationStatus } from "../../hooks/recruiter/useUpdateApplicationStatus";
 import {
@@ -24,6 +24,7 @@ import {
   type InterviewInfo,
 } from "../../types/jobApplication.types";
 import type { RecruiterInterviewItem } from "@/module/interview/types/recruiterInterview.types";
+import type { InterviewStatus } from "@/module/interview/types/interview.types";
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
 import Header from "@/pages/landing/sections/Header";
 import {
@@ -333,6 +334,7 @@ function RejectionReasonSection({ reason }: { reason: string }) {
 
 export default function CandidateScorecardPage() {
   const { applicationId } = useParams<{ applicationId: string }>();
+  const navigate = useNavigate();
   const [modal, setModal] = useState<ModalAction>(null);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const { loading, error, application, fetchApplicationDetails } =
@@ -368,6 +370,18 @@ export default function CandidateScorecardPage() {
     if (!application) return;
     setModal(action);
   };
+
+  // Navigates to the hiring-decision screen for a given interview. The
+  // RecruiterActionsPanel never mutates status directly for "Selected" —
+  // it only routes here; the actual transition to SELECTED happens inside
+  // CreateOfferUseCase once the recruiter completes that flow.
+  // NOTE: confirm this route matches your actual router config.
+  const handleNavigateToHiringDecision = useCallback(
+    (interviewId: string) => {
+      navigate(`/recruiter/interviews/${interviewId}/hiring-decision`);
+    },
+    [navigate],
+  );
 
   async function handleScheduleSuccess() {
     setScheduleModalOpen(false);
@@ -447,7 +461,10 @@ export default function CandidateScorecardPage() {
             isClosed={isClosed}
             isRejected={isRejected}
             isWithdrawn={isWithdrawn}
+            interviewId={interview?.id}
+            interviewStatus={interview?.status as InterviewStatus | undefined}
             onAction={handleAction}
+            onNavigateToHiringDecision={handleNavigateToHiringDecision}
           />
           {interview && <InterviewCard interview={interview} />}
           <OfferLetterCard

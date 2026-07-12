@@ -37,7 +37,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // clipboard unavailable — silently ignore, Join button still works
+ 
     }
   };
 

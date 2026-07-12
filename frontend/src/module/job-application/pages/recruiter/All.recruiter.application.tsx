@@ -16,7 +16,6 @@ import {
   XCircle,
   Ban,
   Sparkles,
-  Download,
   ArrowRight,
   Mail,
   RefreshCw,

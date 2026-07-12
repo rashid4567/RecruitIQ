@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   CheckCircle2,
   Circle,
   Loader2,
   AlertTriangle,
+  AlertCircle,
   Info,
   Mail,
   Home,
@@ -107,6 +108,7 @@ function getStatusStyle(status?: string) {
   return STATUS_STYLES[(status ?? "SENT").toUpperCase()] ?? STATUS_STYLES.SENT;
 }
 
+
 const REJECT_REASONS = [
   "Accepted another offer",
   "Compensation expectations",
@@ -114,7 +116,9 @@ const REJECT_REASONS = [
   "Personal reasons",
   "Relocation",
   "Other",
-];
+] as const;
+
+const MAX_COMMENT_LENGTH = 500;
 
 function CompanyMark({
   name,
@@ -295,6 +299,345 @@ function Modal({
   );
 }
 
+
+const AcceptOfferModal = React.memo(function AcceptOfferModal({
+  open,
+  busy,
+  jobTitle,
+  companyName,
+  joiningDate,
+  onClose,
+  onSubmit,
+}: {
+  open: boolean;
+  busy: boolean;
+  jobTitle: string;
+  companyName: string;
+  joiningDate: string;
+  onClose: () => void;
+  onSubmit: () => Promise<void> | void;
+}) {
+  const [agreeTerms, setAgreeTerms] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setAgreeTerms(false);
+    onClose();
+  }, [onClose]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!agreeTerms) return;
+    await onSubmit();
+    setAgreeTerms(false);
+  }, [agreeTerms, onSubmit]);
+
+  return (
+    <Modal open={open} busy={busy} labelledBy="accept-modal-title" onClose={handleClose}>
+      <div className="text-center mb-6">
+        <div className="w-14 h-14 rounded-full bg-[#DCFCE7] flex items-center justify-center mx-auto mb-4">
+          <PartyPopper className="w-7 h-7 text-[#22C55E]" />
+        </div>
+        <h3 id="accept-modal-title" className="text-xl font-bold text-[#0F172A] mb-1">
+          Accept Employment Offer
+        </h3>
+        <p className="text-sm text-[#64748B]">Congratulations!</p>
+        <p className="text-sm font-medium text-[#0F172A] mt-1">
+          {jobTitle} · {companyName}
+        </p>
+      </div>
+
+      <div className="mb-5">
+        <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-3">
+          Before continuing
+        </p>
+        <div className="space-y-2 text-sm text-[#334155]">
+          <p className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+            Offer reviewed
+          </p>
+          <p className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+            Joining date understood ({joiningDate})
+          </p>
+          <p className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+            Terms accepted
+          </p>
+        </div>
+      </div>
+
+      <label className="flex items-start gap-2.5 mb-6 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={agreeTerms}
+          onChange={(e) => setAgreeTerms(e.target.checked)}
+          className="mt-0.5 w-4 h-4 rounded border-[#CBD5E1] text-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40"
+        />
+        <span className="text-sm text-[#475569]">I have reviewed this offer.</span>
+      </label>
+
+      <div className="flex gap-3">
+        <button
+          onClick={handleClose}
+          disabled={busy}
+          className="flex-1 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] transition-colors disabled:opacity-60"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={busy || !agreeTerms}
+          className="flex-1 px-6 py-3 rounded-lg bg-[#22C55E] text-white font-medium hover:bg-[#16A34A] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {busy && <Loader2 className="w-4 h-4 animate-spin" />}
+          {busy ? "Processing…" : "Accept"}
+        </button>
+      </div>
+    </Modal>
+  );
+});
+
+
+const RejectOfferModal = React.memo(function RejectOfferModal({
+  open,
+  busy,
+  onClose,
+  onSubmit,
+}: {
+  open: boolean;
+  busy: boolean;
+  onClose: () => void;
+  onSubmit: (remarks: string) => Promise<void> | void;
+}) {
+  const [reason, setReason] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const commentRequired = reason === "Other";
+  const commentIsEmpty = comment.trim().length === 0;
+
+  const showReasonError = submitAttempted && !reason;
+  const showCommentError = submitAttempted && commentRequired && commentIsEmpty;
+
+  const resetForm = useCallback(() => {
+    setReason(null);
+    setComment("");
+    setSubmitAttempted(false);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    resetForm();
+    onClose();
+  }, [onClose, resetForm]);
+
+  const handleCommentChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const value = e.target.value.slice(0, MAX_COMMENT_LENGTH);
+      setComment(value);
+      const el = textareaRef.current;
+      if (el) {
+        el.style.height = "auto";
+        el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+      }
+    },
+    []
+  );
+
+  const handleSubmit = useCallback(async () => {
+    setSubmitAttempted(true);
+    if (!reason || (commentRequired && commentIsEmpty)) return;
+
+    const trimmed = comment.trim();
+    const remarks =
+      reason === "Other"
+        ? trimmed
+        : trimmed
+        ? `${reason}: ${trimmed}`
+        : reason;
+
+    try {
+      await onSubmit(remarks);
+      resetForm();
+    } catch {
+    
+    }
+  }, [reason, comment, commentRequired, commentIsEmpty, onSubmit, resetForm]);
+
+  return (
+    <Modal open={open} busy={busy} labelledBy="reject-modal-title" onClose={handleClose}>
+      <div className="text-center mb-6">
+        <div className="w-14 h-14 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto mb-4">
+          <XCircle className="w-7 h-7 text-[#EF4444]" />
+        </div>
+        <h3 id="reject-modal-title" className="text-xl font-bold text-[#0F172A] mb-1">
+          Decline Employment Offer
+        </h3>
+        <p className="text-sm text-[#64748B]">
+          Are you sure you want to decline this opportunity? This will notify the recruiter.
+        </p>
+      </div>
+
+      <div className="mb-5">
+        <div className="flex items-center justify-between mb-2.5">
+          <p className="text-sm font-medium text-[#0F172A]">Why are you declining?</p>
+          {showReasonError && (
+            <span className="text-xs text-[#EF4444] flex items-center gap-1">
+              <AlertCircle className="w-3.5 h-3.5" />
+              Required
+            </span>
+          )}
+        </div>
+
+        <div role="radiogroup" aria-labelledby="reject-modal-title" className="flex flex-wrap gap-2">
+          {REJECT_REASONS.map((r) => {
+            const selected = reason === r;
+            return (
+              <button
+                key={r}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => setReason(r)}
+                className={[
+                  "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors",
+                  selected
+                    ? "bg-[#FEF2F2] border-[#EF4444] text-[#EF4444]"
+                    : "bg-white border-[#E2E8F0] text-[#334155] hover:bg-[#F8FAFC]",
+                ].join(" ")}
+              >
+                {r}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mb-1">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-[#0F172A]">
+            {commentRequired ? "Please specify" : "Comment (optional)"}
+          </p>
+          <span className="text-xs text-[#94A3B8]">
+            {comment.length}/{MAX_COMMENT_LENGTH}
+          </span>
+        </div>
+        <textarea
+          ref={textareaRef}
+          value={comment}
+          onChange={handleCommentChange}
+          placeholder="Let us know more…"
+          rows={3}
+          className={[
+            "w-full rounded-lg border px-4 py-3 text-sm text-[#0F172A] placeholder:text-[#94A3B8]",
+            "focus:outline-none focus:ring-2 focus:ring-[#EF4444]/30 resize-none transition-colors",
+            showCommentError ? "border-[#EF4444]" : "border-[#E2E8F0]",
+          ].join(" ")}
+        />
+      </div>
+      <div className="min-h-5 mb-4">
+        {showCommentError && (
+          <p className="text-xs text-[#EF4444]">Please tell us a bit more.</p>
+        )}
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={handleClose}
+          disabled={busy}
+          className="flex-1 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] transition-colors disabled:opacity-60"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={busy}
+          className="flex-1 px-6 py-3 rounded-lg bg-[#EF4444] text-white font-medium hover:bg-[#DC2626] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {busy && <Loader2 className="w-4 h-4 animate-spin" />}
+          {busy ? "Processing…" : "Decline Offer"}
+        </button>
+      </div>
+    </Modal>
+  );
+});
+
+const PreviewOfferModal = React.memo(function PreviewOfferModal({
+  open,
+  onClose,
+  offerNumber,
+  jobTitle,
+  companyName,
+  department,
+  workLocation,
+  joiningDate,
+  annualCTC,
+  monthlyCTC,
+  currency,
+  employmentType,
+  benefits,
+  expiryDate,
+}: {
+  open: boolean;
+  onClose: () => void;
+  offerNumber: string;
+  jobTitle: string;
+  companyName: string;
+  department?: string;
+  workLocation: string;
+  joiningDate: string;
+  annualCTC: number;
+  monthlyCTC: number;
+  currency: string;
+  employmentType: string;
+  benefits?: string[];
+  expiryDate: string;
+}) {
+  return (
+    <Modal open={open} labelledBy="preview-modal-title" onClose={onClose}>
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <FileText className="w-5 h-5 text-[#2563EB]" />
+          <h3 id="preview-modal-title" className="text-lg font-bold text-[#0F172A]">
+            Offer Letter Preview
+          </h3>
+        </div>
+        <p className="text-xs text-[#94A3B8]">Offer #{offerNumber}</p>
+      </div>
+
+      <div className="border border-[#E2E8F0] rounded-xl p-6 bg-[#F8FAFC] text-sm text-[#334155] leading-relaxed space-y-4">
+        <p>
+          Dear Candidate, we are pleased to offer you the position of{" "}
+          <strong>{jobTitle}</strong> at <strong>{companyName}</strong>
+          {department ? `, ${department} department` : ""}.
+        </p>
+        <p>
+          Your work location will be <strong>{workLocation}</strong> and your
+          anticipated joining date is <strong>{joiningDate}</strong>.
+        </p>
+        <p>
+          Your annual compensation will be{" "}
+          <strong>{formatCurrency(annualCTC, currency)}</strong> (approximately{" "}
+          {formatCurrency(monthlyCTC, currency)} per month), employment type{" "}
+          <strong>{employmentType}</strong>.
+        </p>
+        {benefits && benefits.length > 0 && (
+          <p>Benefits included: {benefits.join(", ")}.</p>
+        )}
+        <p>
+          This offer is valid until <strong>{expiryDate}</strong>.
+        </p>
+      </div>
+
+      <button
+        onClick={onClose}
+        className="w-full mt-6 px-6 py-3 rounded-lg bg-[#2563EB] text-white font-medium hover:bg-[#1D4ED8] active:scale-95 transition-all"
+      >
+        Close Preview
+      </button>
+    </Modal>
+  );
+});
+
 function Footer({ companyName }: { companyName: string }) {
   return (
     <footer className="border-t border-[#E8EEF7] mt-10">
@@ -341,15 +684,11 @@ export default function EmploymentOfferPage() {
   const [showStickyBar, setShowStickyBar] = useState(false);
 
   const [showAcceptModal, setShowAcceptModal] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(false);
-
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectCategory, setRejectCategory] = useState<string | null>(null);
-  const [rejectComment, setRejectComment] = useState("");
-  const [rejectTouched, setRejectTouched] = useState(false);
-
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+
   const navigate = useNavigate();
+
   useEffect(() => {
     if (!offer?.expiryDate) return;
 
@@ -379,57 +718,39 @@ export default function EmploymentOfferPage() {
     navigate("/candidate/home", { replace: true });
   };
 
-  const resetRejectForm = () => {
-    setShowRejectModal(false);
-    setRejectCategory(null);
-    setRejectComment("");
-    setRejectTouched(false);
-  };
-
   const busy = accepting || rejecting;
 
-  const handleAccept = async () => {
-    if (!offerId || !agreeTerms) return;
+  const handleAcceptSubmit = useCallback(async () => {
+    if (!offerId) return;
     setActionError(null);
     try {
       await acceptOffer(offerId, {});
       await refetch();
       setShowAcceptModal(false);
-      setAgreeTerms(false);
     } catch (err: any) {
       setActionError(
         err?.message ?? "Something went wrong while accepting the offer.",
       );
     }
-  };
+  }, [offerId, acceptOffer, refetch]);
 
-  const handleReject = async () => {
-    if (!offerId) return;
-    if (!rejectCategory) {
-      setRejectTouched(true);
-      return;
-    }
-    if (rejectCategory === "Other" && !rejectComment.trim()) {
-      setRejectTouched(true);
-      return;
-    }
-    setActionError(null);
-    const remarks =
-      rejectCategory === "Other"
-        ? rejectComment.trim()
-        : rejectComment.trim()
-          ? `${rejectCategory}: ${rejectComment.trim()}`
-          : rejectCategory;
-    try {
-      await rejectOffer(offerId, { remarks });
-      await refetch();
-      resetRejectForm();
-    } catch (err: any) {
-      setActionError(
-        err?.message ?? "Something went wrong while declining the offer.",
-      );
-    }
-  };
+  const handleRejectSubmit = useCallback(
+    async (remarks: string) => {
+      if (!offerId) return;
+      setActionError(null);
+      try {
+        await rejectOffer(offerId, { remarks });
+        await refetch();
+        setShowRejectModal(false);
+      } catch (err: any) {
+        setActionError(
+          err?.message ?? "Something went wrong while declining the offer.",
+        );
+        throw err; // let the modal know it failed so it keeps the user's input
+      }
+    },
+    [offerId, rejectOffer, refetch],
+  );
 
   if (loading) {
     return (
@@ -562,9 +883,6 @@ export default function EmploymentOfferPage() {
   const meta = offer as any;
   const employmentType: string = meta.employmentType ?? "Full Time";
   const logoUrl: string | undefined = meta.companyLogoUrl;
-
-  const isRejectValid =
-    rejectCategory && (rejectCategory !== "Other" || rejectComment.trim());
 
   return (
     <div className="min-h-screen" style={{ background: "#F8FAFC" }}>
@@ -1003,231 +1321,39 @@ export default function EmploymentOfferPage() {
         </div>
       </div>
 
-      <Modal
+      <AcceptOfferModal
         open={showAcceptModal}
         busy={accepting}
-        labelledBy="accept-modal-title"
-        onClose={() => {
-          setShowAcceptModal(false);
-          setAgreeTerms(false);
-        }}
-      >
-        <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-full bg-[#DCFCE7] flex items-center justify-center mx-auto mb-4">
-            <PartyPopper className="w-7 h-7 text-[#22C55E]" />
-          </div>
-          <h3
-            id="accept-modal-title"
-            className="text-xl font-bold text-[#0F172A] mb-1"
-          >
-            Accept Employment Offer
-          </h3>
-          <p className="text-sm text-[#64748B]">Congratulations!</p>
-          <p className="text-sm font-medium text-[#0F172A] mt-1">
-            {offer.jobTitle} · {offer.companyName}
-          </p>
-        </div>
+        jobTitle={offer.jobTitle}
+        companyName={offer.companyName}
+        joiningDate={formatDate(offer.joiningDate)}
+        onClose={() => setShowAcceptModal(false)}
+        onSubmit={handleAcceptSubmit}
+      />
 
-        <div className="mb-5">
-          <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-3">
-            Before continuing
-          </p>
-          <div className="space-y-2 text-sm text-[#334155]">
-            <p className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
-              Offer reviewed
-            </p>
-            <p className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
-              Joining date understood ({formatDate(offer.joiningDate)})
-            </p>
-            <p className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
-              Terms accepted
-            </p>
-          </div>
-        </div>
-
-        <label className="flex items-start gap-2.5 mb-6 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={agreeTerms}
-            onChange={(e) => setAgreeTerms(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded border-[#CBD5E1] text-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40"
-          />
-          <span className="text-sm text-[#475569]">
-            I have reviewed this offer.
-          </span>
-        </label>
-
-        <div className="flex gap-3">
-          <button
-            onClick={() => {
-              setShowAcceptModal(false);
-              setAgreeTerms(false);
-            }}
-            disabled={accepting}
-            className="flex-1 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] transition-colors disabled:opacity-60"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleAccept}
-            disabled={accepting || !agreeTerms}
-            className="flex-1 px-6 py-3 rounded-lg bg-[#22C55E] text-white font-medium hover:bg-[#16A34A] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {accepting && <Loader2 className="w-4 h-4 animate-spin" />}
-            {accepting ? "Processing…" : "Accept"}
-          </button>
-        </div>
-      </Modal>
-
-      <Modal
+      <RejectOfferModal
         open={showRejectModal}
         busy={rejecting}
-        labelledBy="reject-modal-title"
-        onClose={resetRejectForm}
-      >
-        <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto mb-4">
-            <XCircle className="w-7 h-7 text-[#EF4444]" />
-          </div>
-          <h3
-            id="reject-modal-title"
-            className="text-xl font-bold text-[#0F172A] mb-1"
-          >
-            Decline Employment Offer
-          </h3>
-          <p className="text-sm text-[#64748B]">
-            Are you sure you want to decline this opportunity? This will notify
-            the recruiter.
-          </p>
-        </div>
+        onClose={() => setShowRejectModal(false)}
+        onSubmit={handleRejectSubmit}
+      />
 
-        <p className="text-sm font-medium text-[#0F172A] mb-2.5">
-          Why are you declining?
-        </p>
-        <div className="space-y-2 mb-4">
-          {REJECT_REASONS.map((reason) => (
-            <label
-              key={reason}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-[#E2E8F0] cursor-pointer hover:bg-[#F8FAFC] has-checked:border-[#EF4444] has-checked:bg-[#FEF2F2] transition-colors"
-            >
-              <input
-                type="radio"
-                name="rejectReason"
-                checked={rejectCategory === reason}
-                onChange={() => setRejectCategory(reason)}
-                className="w-4 h-4 text-[#EF4444] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/40"
-              />
-              <span className="text-sm text-[#334155]">{reason}</span>
-            </label>
-          ))}
-        </div>
-        {rejectTouched && !rejectCategory && (
-          <p className="text-xs text-[#EF4444] mb-4 -mt-2">
-            Please select a reason.
-          </p>
-        )}
-
-        <p className="text-sm font-medium text-[#0F172A] mb-2">
-          {rejectCategory === "Other" ? "Please specify" : "Comment (optional)"}
-        </p>
-        <textarea
-          value={rejectComment}
-          onChange={(e) => setRejectComment(e.target.value)}
-          onBlur={() => setRejectTouched(true)}
-          placeholder="Let us know more…"
-          rows={3}
-          className={[
-            "w-full rounded-lg border px-4 py-3 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/30 mb-1 resize-none",
-            rejectTouched && rejectCategory === "Other" && !rejectComment.trim()
-              ? "border-[#EF4444]"
-              : "border-[#E2E8F0]",
-          ].join(" ")}
-        />
-        <p className="text-xs text-[#94A3B8] mb-4">
-          You can also provide feedback.
-        </p>
-        {rejectTouched &&
-          rejectCategory === "Other" &&
-          !rejectComment.trim() && (
-            <p className="text-xs text-[#EF4444] -mt-3 mb-4">
-              Please tell us a bit more.
-            </p>
-          )}
-
-        <div className="flex gap-3">
-          <button
-            onClick={resetRejectForm}
-            disabled={rejecting}
-            className="flex-1 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] transition-colors disabled:opacity-60"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleReject}
-            disabled={rejecting || !isRejectValid}
-            className="flex-1 px-6 py-3 rounded-lg bg-[#EF4444] text-white font-medium hover:bg-[#DC2626] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {rejecting && <Loader2 className="w-4 h-4 animate-spin" />}
-            {rejecting ? "Processing…" : "Decline Offer"}
-          </button>
-        </div>
-      </Modal>
-
-      <Modal
+      <PreviewOfferModal
         open={showPreviewModal}
-        labelledBy="preview-modal-title"
         onClose={() => setShowPreviewModal(false)}
-      >
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <FileText className="w-5 h-5 text-[#2563EB]" />
-            <h3
-              id="preview-modal-title"
-              className="text-lg font-bold text-[#0F172A]"
-            >
-              Offer Letter Preview
-            </h3>
-          </div>
-          <p className="text-xs text-[#94A3B8]">Offer #{offer.offerNumber}</p>
-        </div>
-
-        <div className="border border-[#E2E8F0] rounded-xl p-6 bg-[#F8FAFC] text-sm text-[#334155] leading-relaxed space-y-4">
-          <p>
-            Dear Candidate, we are pleased to offer you the position of{" "}
-            <strong>{offer.jobTitle}</strong> at{" "}
-            <strong>{offer.companyName}</strong>
-            {offer.department ? `, ${offer.department} department` : ""}.
-          </p>
-          <p>
-            Your work location will be <strong>{offer.workLocation}</strong> and
-            your anticipated joining date is{" "}
-            <strong>{formatDate(offer.joiningDate)}</strong>.
-          </p>
-          <p>
-            Your annual compensation will be{" "}
-            <strong>{formatCurrency(offer.annualCTC, offer.currency)}</strong>{" "}
-            (approximately {formatCurrency(monthlyCTC, offer.currency)} per
-            month), employment type <strong>{employmentType}</strong>.
-          </p>
-          {offer.benefits && offer.benefits.length > 0 && (
-            <p>Benefits included: {offer.benefits.join(", ")}.</p>
-          )}
-          <p>
-            This offer is valid until{" "}
-            <strong>{formatDate(offer.expiryDate)}</strong>.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowPreviewModal(false)}
-          className="w-full mt-6 px-6 py-3 rounded-lg bg-[#2563EB] text-white font-medium hover:bg-[#1D4ED8] active:scale-95 transition-all"
-        >
-          Close Preview
-        </button>
-      </Modal>
+        offerNumber={offer.offerNumber}
+        jobTitle={offer.jobTitle}
+        companyName={offer.companyName}
+        department={offer.department}
+        workLocation={offer.workLocation}
+        joiningDate={formatDate(offer.joiningDate)}
+        annualCTC={offer.annualCTC}
+        monthlyCTC={monthlyCTC}
+        currency={offer.currency}
+        employmentType={employmentType}
+        benefits={offer.benefits}
+        expiryDate={formatDate(offer.expiryDate)}
+      />
     </div>
   );
 }

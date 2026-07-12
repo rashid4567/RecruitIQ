@@ -1,6 +1,8 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { InterviewStatus } from "../../../../interview/domain/entity/interview.entity";
+import { InterviewRepository } from "../../../../interview/domain/repository/interview.repository";
 
 import { OfferRepository } from "../../../../offer-letter/domain/repository/offer-letter.repository";
 import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
@@ -17,6 +19,7 @@ export class GetRecruiterApplicationDetailsUseCase implements IUseCase<
   constructor(
     private readonly applicationRepository: JobApplicationRepository,
     private readonly offerRepo: OfferRepository,
+    private readonly interviewRepo : InterviewRepository
   ) {}
 
   async execute(
@@ -39,8 +42,19 @@ export class GetRecruiterApplicationDetailsUseCase implements IUseCase<
       application.applicationId,
     );
 
+    const interview = await this.interviewRepo.findByApplicationId(application.applicationId)
+
     return {
       ...application,
+      interview: interview
+        ? {
+              id: interview.id!,
+              scheduledAt : interview.scheduledAt,
+              status: interview.status,
+              completed:
+                  interview.status === InterviewStatus.COMPLETED,
+          }
+        : undefined,
       offer: offer
         ? {
             id: offer.id,
@@ -66,6 +80,7 @@ export class GetRecruiterApplicationDetailsUseCase implements IUseCase<
             candidateRemarks: offer.candidateRemarks,
           }
         : undefined,
+        
     };
   }
 }

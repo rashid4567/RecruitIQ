@@ -25,10 +25,7 @@ export class UpdateInterviewNotesUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.INTERVIEW_ACCESS_DENIED);
     }
 
-    if (!interview.isCompleted()) {
-      throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_COMPLETED);
-    }
-
+  
     interview.updateNotes(input.notes);
 
     const savedInterview = await this.interviewRepo.save(interview);

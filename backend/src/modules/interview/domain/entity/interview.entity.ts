@@ -521,10 +521,7 @@ export class Interview {
   }
 
   updateNotes(notes : string):void{
-    if(this.props.status !== InterviewStatus.COMPLETED){
-      throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_COMPLETED);
-    }
-
+    
     this.props.notes = notes?.trim();
     this.touch();
   }

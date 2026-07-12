@@ -1,10 +1,13 @@
+
 import type {
   ApplicationAIAnalysis,
   ApplicationAnalysisStatus,
   ApplicationRecommendation,
   ApplicationStatus,
-  InterviewInfo,
+  InterviewSummary,
 } from "./jobApplication.types";
+
+
 
 export interface JobApplicationResponseDTO {
   applicationId: string;
@@ -18,7 +21,7 @@ export interface JobApplicationResponseDTO {
   coverLetter?: string;
   status: ApplicationStatus;
   analysisStatus: ApplicationAnalysisStatus;
-  interview?: InterviewInfo;
+  interview?: InterviewSummary;
   rejectionReason?: string;
   aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: string;

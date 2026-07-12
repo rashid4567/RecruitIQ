@@ -5,10 +5,7 @@ import {
 } from "../../../domain/entity/offer-letter.entity";
 import { OfferRepository } from "../../../domain/repository/offer-letter.repository";
 import { JobApplicationRepository } from "../../../../job-application/domain/repository/job-application.repository";
-import {
-  ApplicationStatus,
-  JobApplication,
-} from "../../../../job-application/domain/entity/job-application.entity";
+import { JobApplication } from "../../../../job-application/domain/entity/job-application.entity";
 import {
   CreateOfferRequestDTO,
   CreateOfferResponseDTO,
@@ -22,7 +19,7 @@ import { NotificationType } from "../../../../notification/domain/constant/notif
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
-import { RecruiterRepository } from "../../../../admin/Domain/repositories/recruiter.repository";
+import { InterviewRepository } from "../../../../interview/domain/repository/interview.repository";
 type Candidate = NonNullable<Awaited<ReturnType<UserRepository["findById"]>>>;
 type JobEntity = NonNullable<Awaited<ReturnType<JobRepository["findById"]>>>;
 
@@ -35,6 +32,7 @@ export class CreateOfferUseCase implements IUseCase<
     private readonly applicationRepo: JobApplicationRepository,
     private readonly jobRepo: JobRepository,
     private readonly userRepo: UserRepository,
+    private readonly interviewRepo: InterviewRepository,
     private readonly sendEmailByEventUC: SendEmailByEventUseCase,
     private readonly createNotificationUC: CreateNotificationUseCase,
   ) {}
@@ -54,30 +52,52 @@ export class CreateOfferUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
 
-    if (application.status === ApplicationStatus.REJECTED) {
+    if (application.isRejected()) {
       throw new ApplicationError(ERROR_CODES.APPLICATION_ALREADY_REJECTED);
     }
 
-    if (application.status === ApplicationStatus.SELECTED) {
+    if (application.isSelected()) {
       throw new ApplicationError(ERROR_CODES.APPLICATION_ALREADY_SELECTED);
+    }
+
+    const interview = await this.interviewRepo.findByApplicationId(
+      application.id,
+    );
+
+    if (!interview) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_FOUND);
+    }
+
+    if (!interview.isCompleted()) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_COMPLETED);
+    }
+
+    if (!application.canSelect()) {
+      throw new ApplicationError(
+        ERROR_CODES.INTERVIEW_REQUIRED_BEFORE_SELECTION,
+      );
     }
 
     const offerExists = await this.offerRepo.existsByApplicationId(
       application.id,
     );
+
     if (offerExists) {
       throw new ApplicationError(ERROR_CODES.OFFER_ALREADY_EXISTS);
     }
 
     const job = await this.jobRepo.findById(application.jobId);
+
     if (!job) {
       throw new ApplicationError(ERROR_CODES.JOB_NOT_FOUND);
     }
+
     if (job.isBlocked) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_IS_BLOCKED_BY_ADMIN);
     }
 
     const candidate = await this.userRepo.findById(application.candidateId);
+
     if (!candidate) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }

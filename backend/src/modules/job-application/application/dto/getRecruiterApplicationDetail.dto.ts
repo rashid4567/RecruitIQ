@@ -6,6 +6,7 @@ import {
 } from "../../domain/entity/job-application.entity";
 
 import { OfferStatus } from "../../../offer-letter/domain/entity/offer-letter.entity";
+import { InterviewStatus } from "../../../interview/domain/entity/interview.entity";
 
 export interface GetRecruiterApplicationDetailsRequestDTO {
   applicationId: string;
@@ -25,11 +26,16 @@ export interface RecruiterApplicationDetailsResponseDTO {
   coverLetter?: string;
   status: ApplicationStatus;
   analysisStatus: ApplicationAnalysisStatus;
-  interview?: InterviewInfo;
   rejectionReason?: string;
   aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: Date;
   updatedAt: Date;
+   interview?: {
+    id: string;
+    scheduledAt : Date,
+    status: InterviewStatus;
+    completed: boolean;
+  };
   offer?: {
     id: string;
     offerNumber: string;

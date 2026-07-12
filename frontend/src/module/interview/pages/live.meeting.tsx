@@ -41,6 +41,7 @@ import {
 } from "../hooks/common/useInterviewCall";
 import { useInterviewDetails } from "../hooks/common/useInterview.details";
 import { useEndInterview } from "../hooks/recruiter/useEndInterview";
+import { useUpdateInterviewNotes } from "../hooks/recruiter/useUpdateInterviewNotes";
 
 const COLOR = {
   bg: "#202124",
@@ -340,6 +341,8 @@ export default function InterviewRoomPage() {
     error: endInterviewError,
   } = useEndInterview();
 
+  const { submit: submitInterviewNotes } = useUpdateInterviewNotes();
+
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
@@ -348,15 +351,25 @@ export default function InterviewRoomPage() {
 
   const [activeTab, setActiveTab] = useState<SidebarTab | null>(null);
 
-  // --- Interview feedback (single free-form field, autosaved) ---
+  // --- Interview feedback (single free-form field, autosaved to the backend) ---
   const [feedbackText, setFeedbackText] = useState("");
+  // feedbackSavedText tracks the text that is confirmed persisted in MongoDB
+  // (not just localStorage), so feedbackDirty reflects real unsaved work.
   const [feedbackSavedText, setFeedbackSavedText] = useState("");
-  const [feedbackSaving, setFeedbackSaving] = useState(false);
+  const [feedbackSaveStatus, setFeedbackSaveStatus] = useState<
+    "idle" | "pending" | "saving" | "saved" | "error"
+  >("idle");
+  const [feedbackSaveError, setFeedbackSaveError] = useState<string | null>(
+    null,
+  );
   const [feedbackSavedAt, setFeedbackSavedAt] = useState<number | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
   const feedbackSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+  // Guards against an in-flight save response landing after a newer save
+  // has already started (e.g. rapid edits triggering back-to-back saves).
+  const feedbackSaveRequestIdRef = useRef(0);
   const feedbackDirty = feedbackText !== feedbackSavedText;
 
   const [showEndConfirm, setShowEndConfirm] = useState(false);
@@ -628,13 +641,16 @@ export default function InterviewRoomPage() {
   }, [call.remoteStream]);
 
   // --- Feedback: restore any locally-saved draft (recruiter only) ---
+  // This is a crash-recovery layer only — it does NOT mean the text is
+  // saved on the server. feedbackSavedText stays empty so the unsaved
+  // indicator and the "must save before ending" gate both fire correctly
+  // until this draft actually reaches the backend.
   useEffect(() => {
     if (role !== "recruiter" || !interviewId) return;
     try {
       const stored = window.localStorage.getItem(feedbackDraftKey(interviewId));
       if (stored) {
         setFeedbackText(stored);
-        setFeedbackSavedText(stored);
         setDraftRestored(true);
       }
     } catch (err) {
@@ -643,36 +659,71 @@ export default function InterviewRoomPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, interviewId]);
 
-  const saveFeedbackNow = useCallback(() => {
+  // Persists the current feedback text to the backend (PATCH
+  // /interview/:id/notes via useUpdateInterviewNotes) and keeps a
+  // localStorage mirror purely as an offline/crash-recovery fallback.
+  // Returns true only once the backend has confirmed the save.
+  const saveFeedbackNow = useCallback(async (): Promise<boolean> => {
     if (feedbackSaveTimeoutRef.current) {
       clearTimeout(feedbackSaveTimeoutRef.current);
       feedbackSaveTimeoutRef.current = null;
     }
-    try {
-      if (interviewId) {
-        window.localStorage.setItem(
-          feedbackDraftKey(interviewId),
-          feedbackText,
-        );
-      }
-    } catch (err) {
-      console.warn("[FEEDBACK] Failed to persist draft.", err);
+    if (!interviewId) return false;
+
+    const textToSave = feedbackText;
+    if (textToSave === feedbackSavedText && feedbackSaveStatus === "saved") {
+      return true;
     }
-    setFeedbackSavedText(feedbackText);
+
+    try {
+      window.localStorage.setItem(feedbackDraftKey(interviewId), textToSave);
+    } catch (err) {
+      console.warn("[FEEDBACK] Failed to persist local draft.", err);
+    }
+
+    const requestId = ++feedbackSaveRequestIdRef.current;
+    setFeedbackSaveStatus("saving");
+    setFeedbackSaveError(null);
+
+    const response = await submitInterviewNotes(interviewId, {
+      notes: textToSave,
+    });
+
+    // A newer save started while this one was in flight — let the newer
+    // one own the status instead of clobbering it with a stale result.
+    if (requestId !== feedbackSaveRequestIdRef.current) {
+      return response !== null;
+    }
+
+    if (response === null) {
+      setFeedbackSaveStatus("error");
+      setFeedbackSaveError(
+        "Couldn't save feedback to the server. It's kept locally — try again.",
+      );
+      return false;
+    }
+
+    try {
+      window.localStorage.removeItem(feedbackDraftKey(interviewId));
+    } catch (err) {
+      console.warn("[FEEDBACK] Failed to clear local draft.", err);
+    }
+    setFeedbackSavedText(textToSave);
     setFeedbackSavedAt(Date.now());
-    setFeedbackSaving(false);
-  }, [feedbackText, interviewId]);
+    setFeedbackSaveStatus("saved");
+    return true;
+  }, [feedbackText, feedbackSavedText, feedbackSaveStatus, interviewId, submitInterviewNotes]);
 
   // --- Feedback: debounce-autosave 2s after typing stops ---
   useEffect(() => {
     if (role !== "recruiter") return;
     if (feedbackText === feedbackSavedText) return;
 
-    setFeedbackSaving(true);
+    setFeedbackSaveStatus("pending");
     if (feedbackSaveTimeoutRef.current)
       clearTimeout(feedbackSaveTimeoutRef.current);
     feedbackSaveTimeoutRef.current = setTimeout(() => {
-      saveFeedbackNow();
+      void saveFeedbackNow();
     }, FEEDBACK_AUTOSAVE_DELAY_MS);
 
     return () => {
@@ -1049,6 +1100,13 @@ export default function InterviewRoomPage() {
   async function handleConfirmEndCall() {
     if (role === "recruiter") {
       if (!interviewId) return;
+      // Safety net: if feedback drifted since the pre-confirm gate (e.g. an
+      // autosave was still in flight), make one last attempt to persist it
+      // before marking the interview complete.
+      if (feedbackDirty) {
+        const saved = await saveFeedbackNow();
+        if (!saved) return;
+      }
       const response = await submitEndInterview(interviewId);
       if (!response) return;
     }
@@ -1068,7 +1126,7 @@ export default function InterviewRoomPage() {
         return;
       }
 
-      if (feedbackDirty) {
+      if (feedbackDirty || feedbackSaveStatus === "error") {
         setShowUnsavedWarning(true);
         return;
       }
@@ -1077,14 +1135,20 @@ export default function InterviewRoomPage() {
     setShowEndConfirm(true);
   }
 
-  function handleSaveAndProceed() {
-    saveFeedbackNow();
+  async function handleSaveAndProceed() {
+    const saved = await saveFeedbackNow();
+    if (!saved) return;
     setShowUnsavedWarning(false);
     setShowEndConfirm(true);
   }
 
   function handleDiscardAndProceed() {
-    setFeedbackSavedText(feedbackText);
+    // "Discard" reverts to the last text actually confirmed saved on the
+    // server — it never fakes a save, since the backend is the source of
+    // truth for feedback now.
+    setFeedbackText(feedbackSavedText);
+    setFeedbackSaveStatus(feedbackSavedAt !== null ? "saved" : "idle");
+    setFeedbackSaveError(null);
     setShowUnsavedWarning(false);
     setShowEndConfirm(true);
   }
@@ -1788,12 +1852,18 @@ export default function InterviewRoomPage() {
                     {unreadChat}
                   </span>
                 )}
-                {id === "notes" && feedbackDirty && (
-                  <span
-                    className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
-                    style={{ backgroundColor: COLOR.yellow }}
-                  />
-                )}
+                {id === "notes" &&
+                  (feedbackSaveStatus === "error" || feedbackDirty) && (
+                    <span
+                      className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
+                      style={{
+                        backgroundColor:
+                          feedbackSaveStatus === "error"
+                            ? COLOR.red
+                            : COLOR.yellow,
+                      }}
+                    />
+                  )}
               </button>
             ))}
           </div>
@@ -1930,18 +2000,28 @@ export default function InterviewRoomPage() {
                       <span
                         className="text-[12px] font-medium flex items-center gap-1.5"
                         style={{
-                          color: feedbackSaving
-                            ? COLOR.yellow
-                            : feedbackSavedAt
-                              ? COLOR.green
-                              : COLOR.textMuted,
+                          color:
+                            feedbackSaveStatus === "saving" ||
+                            feedbackSaveStatus === "pending"
+                              ? COLOR.yellow
+                              : feedbackSaveStatus === "error"
+                                ? COLOR.red
+                                : feedbackSaveStatus === "saved"
+                                  ? COLOR.green
+                                  : COLOR.textMuted,
                         }}
                       >
-                        {feedbackSaving ? (
+                        {feedbackSaveStatus === "saving" ? (
                           <>
                             <Loader2 className="w-3 h-3 animate-spin" /> Saving…
                           </>
-                        ) : feedbackSavedAt ? (
+                        ) : feedbackSaveStatus === "pending" ? (
+                          "Unsaved changes…"
+                        ) : feedbackSaveStatus === "error" ? (
+                          <>
+                            <AlertTriangle className="w-3 h-3" /> Couldn't save
+                          </>
+                        ) : feedbackSaveStatus === "saved" ? (
                           <>
                             <CheckCircle2 className="w-3 h-3" /> Saved
                           </>
@@ -1949,15 +2029,37 @@ export default function InterviewRoomPage() {
                           "Not saved yet"
                         )}
                       </span>
-                      {feedbackSavedAt && !feedbackSaving && (
-                        <span
-                          className="text-[11px]"
-                          style={{ color: COLOR.textMuted }}
+                      {feedbackSaveStatus === "error" ? (
+                        <button
+                          onClick={() => void saveFeedbackNow()}
+                          className="text-[11px] font-semibold"
+                          style={{ color: COLOR.red }}
                         >
-                          Last saved {formatClock(feedbackSavedAt)}
-                        </span>
+                          Retry
+                        </button>
+                      ) : (
+                        feedbackSavedAt &&
+                        feedbackSaveStatus === "saved" && (
+                          <span
+                            className="text-[11px]"
+                            style={{ color: COLOR.textMuted }}
+                          >
+                            Last saved {formatClock(feedbackSavedAt)}
+                          </span>
+                        )
                       )}
                     </div>
+
+                    {feedbackSaveStatus === "error" && feedbackSaveError && (
+                      <div
+                        className="mx-4 mt-3 rounded-lg px-3 py-2.5 shrink-0"
+                        style={{ backgroundColor: `${COLOR.red}1A` }}
+                      >
+                        <p className="text-[12px]" style={{ color: COLOR.red }}>
+                          {feedbackSaveError}
+                        </p>
+                      </div>
+                    )}
 
                     {draftRestored && (
                       <div
@@ -2053,10 +2155,14 @@ export default function InterviewRoomPage() {
                       </div>
 
                       <button
-                        onClick={saveFeedbackNow}
-                        className="px-4 py-2 rounded-full font-semibold text-[13px] text-white transition-opacity hover:opacity-90"
+                        onClick={() => void saveFeedbackNow()}
+                        disabled={feedbackSaveStatus === "saving"}
+                        className="px-4 py-2 rounded-full font-semibold text-[13px] text-white transition-opacity hover:opacity-90 disabled:opacity-60 inline-flex items-center gap-2"
                         style={{ backgroundColor: COLOR.blueStrong }}
                       >
+                        {feedbackSaveStatus === "saving" && (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        )}
                         Save now
                       </button>
                     </div>
@@ -2592,32 +2698,48 @@ export default function InterviewRoomPage() {
               </h3>
             </div>
             <p
-              className="text-[14px] mb-5 pl-13"
+              className="text-[14px] mb-2 pl-13"
               style={{ color: COLOR.textMuted }}
             >
-              Save before ending the interview?
+              {feedbackSaveStatus === "error"
+                ? "The last save attempt failed. Save again before ending the interview?"
+                : "Save before ending the interview?"}
             </p>
-            <div className="flex gap-2">
+            {feedbackSaveStatus === "error" && feedbackSaveError && (
+              <p
+                className="text-[13px] mb-3 pl-13"
+                style={{ color: COLOR.red }}
+              >
+                {feedbackSaveError}
+              </p>
+            )}
+            <div className="flex gap-2 mt-3">
               <button
                 onClick={handleCancelUnsavedWarning}
-                className="flex-1 px-4 py-2.5 font-medium rounded-full text-[13px] transition-colors"
+                disabled={feedbackSaveStatus === "saving"}
+                className="flex-1 px-4 py-2.5 font-medium rounded-full text-[13px] transition-colors disabled:opacity-50"
                 style={{ color: COLOR.text, backgroundColor: COLOR.panelAlt }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDiscardAndProceed}
-                className="flex-1 px-4 py-2.5 font-medium rounded-full text-[13px] transition-colors"
+                disabled={feedbackSaveStatus === "saving"}
+                className="flex-1 px-4 py-2.5 font-medium rounded-full text-[13px] transition-colors disabled:opacity-50"
                 style={{ color: COLOR.text, backgroundColor: COLOR.panelAlt }}
               >
                 Discard
               </button>
               <button
-                onClick={handleSaveAndProceed}
-                className="flex-1 px-4 py-2.5 text-white font-semibold rounded-full text-[13px] transition-opacity hover:opacity-90"
+                onClick={() => void handleSaveAndProceed()}
+                disabled={feedbackSaveStatus === "saving"}
+                className="flex-1 px-4 py-2.5 text-white font-semibold rounded-full text-[13px] transition-opacity hover:opacity-90 disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
                 style={{ backgroundColor: COLOR.blueStrong }}
               >
-                Save
+                {feedbackSaveStatus === "saving" && (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                )}
+                {feedbackSaveStatus === "error" ? "Retry save" : "Save"}
               </button>
             </div>
           </div>

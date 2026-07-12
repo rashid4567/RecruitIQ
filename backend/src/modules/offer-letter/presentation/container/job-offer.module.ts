@@ -20,12 +20,15 @@ import { CreateOfferLetterController } from "../controller/recruiter/createOffer
 import { GetOfferDetailsController } from "../controller/recruiter/GetOfferDetails.controller";
 import { GetRecruiterOffersController } from "../controller/recruiter/GetRecruiterOffers.controller";
 import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
+import { MongooseInterviewRepository } from "../../../interview/infrastructure/repository/mongooseInterview.repository";
+import { InterviewRepository } from "../../../interview/domain/repository/interview.repository";
 
 const offerRepo: OfferRepository = new MongooseOfferRepository();
 const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
 const jobRepo: JobRepository = new MongooseJobRepository();
 const userRepo: UserRepository = new MongooseUserRepository();
+const interviewRepo : InterviewRepository = new MongooseInterviewRepository();
 const sendEmailByEventuc = sendEmailByEventUC;
 const createNotificationuc = createNotificationUC;
 
@@ -36,6 +39,7 @@ const createofferUC = new CreateOfferUseCase(
   applicationRepo,
   jobRepo,
   userRepo,
+  interviewRepo,
   sendEmailByEventuc,
   createNotificationuc,
 );

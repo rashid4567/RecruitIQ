@@ -1,6 +1,7 @@
 import type { Job } from "@/module/jobs/types/job.types";
 import type { OfferStatus } from "@/module/offer-letter/types/candidateOffer.types";
 import type { CandidateApplication } from "./application.types";
+import type { InterviewStatus } from "@/module/interview/types/interview.types";
 
 export const ApplicationStatus = {
   APPLIED: "APPLIED",
@@ -35,11 +36,18 @@ export type ApplicationRecommendation =
   (typeof ApplicationRecommendation)[keyof typeof ApplicationRecommendation];
 
 export interface InterviewInfo {
-  interviewId: string;
+  id: string;
+  status: InterviewStatus;
   scheduledAt: string;
-  meetingLink?: string;
   location?: string;
+  meetingLink?: string;
   notes?: string;
+}
+export interface InterviewSummary {
+  id: string;
+  scheduledAt : Date;
+  status: InterviewStatus;
+  completed: boolean;
 }
 
 export interface SkillScore {

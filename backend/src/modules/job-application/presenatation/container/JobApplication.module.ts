@@ -32,6 +32,8 @@ import { MongooseOfferRepository } from "../../../offer-letter/infrastructure/re
 import { OfferRepository } from "../../../offer-letter/domain/repository/offer-letter.repository";
 import { GetRecruiterApplicationsUseCase } from "../../application/usecase/recruiter/getAllApplication.usecase";
 import { GetAllApplicationRecruiterController } from "../controller/Recruiter/getAllRecruiterApplications.controller";
+import { MongooseInterviewRepository } from "../../../interview/infrastructure/repository/mongooseInterview.repository";
+import { InterviewRepository } from "../../../interview/domain/repository/interview.repository";
 
 export const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
@@ -43,7 +45,7 @@ const recruiterSubscriptionRepo: RecruiterSubscriptionRepository =
 const analysisService = new OpenAIApplicationAnalysisService(openai);
 const applicationNumberGenerator = new MongoApplicationNumberGenerator();
 const offerRepo : OfferRepository = new MongooseOfferRepository()
-
+const interviewRepo : InterviewRepository = new MongooseInterviewRepository();
 export const AnalyzeApplicationUC = new AnalyzeApplicationUseCase(
   applicationRepo,
   jobpostRepo,
@@ -81,7 +83,7 @@ const ApplicationStatusUpdateUC = new UpdateApplicationStatusUseCase(
   createNotificationUC,
 );
 const getRecruiterApplicationDetailsUC =
-  new GetRecruiterApplicationDetailsUseCase(applicationRepo,offerRepo);
+  new GetRecruiterApplicationDetailsUseCase(applicationRepo,offerRepo, interviewRepo);
   export const getAllRecruiterApplicationUC = new GetRecruiterApplicationsUseCase(applicationRepo)
 
 

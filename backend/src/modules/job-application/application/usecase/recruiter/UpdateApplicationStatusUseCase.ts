@@ -32,11 +32,9 @@ export class UpdateApplicationStatusUseCase implements IUseCase<
     try {
       const application = await this.validateAndGetApplication(dto);
       const job = await this.validateAndGetJob(application.jobId);
-if (job.isBlocked) {
-  throw new ApplicationError(
-    ERROR_CODES.JOB_POST_IS_BLOCKED_BY_ADMIN,
-  );
-}
+      if (job.isBlocked) {
+        throw new ApplicationError(ERROR_CODES.JOB_POST_IS_BLOCKED_BY_ADMIN);
+      }
 
       this.updateApplicationStatus(
         application,
@@ -84,7 +82,6 @@ if (job.isBlocked) {
   ): void {
     const allowedStatuses: ApplicationStatus[] = [
       ApplicationStatus.SHORTLISTED,
-      ApplicationStatus.SELECTED,
       ApplicationStatus.REJECTED,
     ];
     if (!allowedStatuses.includes(status)) {
@@ -93,13 +90,23 @@ if (job.isBlocked) {
 
     switch (status) {
       case ApplicationStatus.SHORTLISTED:
+        if (!application.canRecruiterShortlist()) {
+          throw new ApplicationError(
+            ERROR_CODES.APPLICATION_CANNOT_BE_SHORTLISTED,
+          );
+        }
+
         application.shortlist();
         break;
-      case ApplicationStatus.SELECTED:
-        application.select();
-        break;
+
       case ApplicationStatus.REJECTED:
-        application.reject(rejectionReason ?? "");
+        if (!application.canReject()) {
+          throw new ApplicationError(
+            ERROR_CODES.APPLICATION_CANNOT_BE_REJECTED,
+          );
+        }
+
+        application.reject(rejectionReason);
         break;
     }
   }
@@ -124,32 +131,6 @@ if (job.isBlocked) {
             title: "Application Shortlisted",
             message: `Your application for ${job.title} at ${job.companyName} has been shortlisted.`,
             type: NotificationType.APPLICATION_SHORTLISTED,
-            actionUrl: "/candidate/applications",
-            referenceId: dto.applicationId,
-            metadata: {
-              applicationId: dto.applicationId,
-              jobId: application.jobId,
-            },
-          });
-          break;
-
-        case ApplicationStatus.SELECTED:
-          await this.sendEmailByEventUC.execute({
-            to: candidate.email.getValue(),
-            event: EmailEvent.SELECTED,
-            variables: {
-              candidateName: candidate.fullName,
-              jobTitle: job.title,
-              companyName: job.companyName,
-            },
-          });
-
-          await this.createNotificationUC.execute({
-            recipientId: application.candidateId,
-            recipientRole: "candidate",
-            title: "Application Selected",
-            message: `Congratulations! You have been selected for ${job.title} at ${job.companyName}.`,
-            type: NotificationType.APPLICATION_SELECTED,
             actionUrl: "/candidate/applications",
             referenceId: dto.applicationId,
             metadata: {

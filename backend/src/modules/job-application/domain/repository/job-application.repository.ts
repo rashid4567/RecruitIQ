@@ -9,6 +9,7 @@ import {
   InterviewInfo,
 } from "../../domain/entity/job-application.entity";
 import { BaseRepository } from "../../../../shared/repositories/base.repository";
+import { GetRecruiterApplicationsRequestDTO } from "../../application/dto/getRecrruiterApplication.dto";
 
 export interface RecruiterApplicationListItem {
   applicationId: string;
@@ -29,7 +30,7 @@ export interface RecruiterApplicationListItem {
 
 export interface RecruiterApplicationDetailsOutput {
   applicationId: string;
-    applicationNumber: string;
+  applicationNumber: string;
   jobId: string;
   candidateId: string;
   recruiterId: string;
@@ -49,7 +50,7 @@ export interface RecruiterApplicationDetailsOutput {
 
 export interface CandidateApplicationListItem {
   applicationId: string;
-    applicationNumber: string;
+  applicationNumber: string;
   jobId: string;
   jobTitle: string;
   resumeId: string;
@@ -59,7 +60,7 @@ export interface CandidateApplicationListItem {
 }
 export interface RecruiterInterviewApplication {
   applicationId: string;
-    applicationNumber: string;
+  applicationNumber: string;
   jobId: string;
   jobTitle: string;
   candidateId: string;
@@ -70,11 +71,32 @@ export interface RecruiterInterviewApplication {
   status: ApplicationStatus;
 }
 
+export interface RecruiterApplicationsQuery {
+  recruiterId: string;
+  page: number;
+  limit: number;
+  search?: string;
+  status?: ApplicationStatus;
+  recommendation?: ApplicationRecommendation;
+  sortBy?: "appliedAt" | "candidateName" | "aiScore";
+  sortOrder?: "asc" | "desc";
+}
+
+export interface RecruiterApplicationsResult {
+  applications: RecruiterApplicationListItem[];
+  total: number;
+}
 export interface JobApplicationRepository extends BaseRepository<JobApplication> {
   create(application: JobApplication): Promise<JobApplication>;
   save(application: JobApplication): Promise<JobApplication>;
   findByJob(jobId: string): Promise<JobApplication[]>;
-  findAll():Promise<JobApplication[]>;
+  findAll(): Promise<JobApplication[]>;
+  findRecruiterApplications(
+    query: GetRecruiterApplicationsRequestDTO,
+  ): Promise<{
+    applications: RecruiterApplicationListItem[];
+    total: number;
+  }>;
   findApplicationsWithCandidateDetails(
     jobId: string,
   ): Promise<RecruiterApplicationListItem[]>;
@@ -96,10 +118,9 @@ export interface JobApplicationRepository extends BaseRepository<JobApplication>
     recruiterId: string,
     statuses: ApplicationStatus[],
   ): Promise<JobApplication[]>;
-    findRecruiterInterviewApplications(
-  recruiterId: string,
-  statuses: ApplicationStatus[],
-): Promise<RecruiterInterviewApplication[]>;
+findRecruiterApplications(
+  query: RecruiterApplicationsQuery,
+): Promise<RecruiterApplicationsResult>;
   findByAnalysisStatus(
     recruiterId: string,
     status: ApplicationAnalysisStatus,

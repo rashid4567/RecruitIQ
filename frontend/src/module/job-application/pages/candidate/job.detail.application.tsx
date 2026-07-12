@@ -8,6 +8,7 @@ import { ApplicationStatus } from "../../types/jobApplication.types";
 import Sidebar from "../../../candidate/pages/components/personalInfo/shared/candidateSidebar";
 import { ApplicationHeader } from "../component/candidate-details/Applicationheader";
 import { LeftPanel } from "../component/candidate-details/Leftpanel";
+import { OfferLetterSection } from "../component/candidate-details/OfferLetterSection";
 import { Timeline, type TimelineStep } from "../component/candidate-details/Timeline";
 import { InterviewCard } from "../component/candidate-details/Interviewcard";
 import { SkillsSection } from "../component/candidate-details/Skillssection";
@@ -17,15 +18,10 @@ import { InterviewTipsSection } from "../component/candidate-details/Interviewti
 import { statusToStep, getStatusConfig } from "../component/candidate-details/Statusconfig";
 import { formatDate } from "../component/candidate-details/Formatters";
 
-
-
 export default function JobApplicationDetail() {
   const { applicationId } = useParams<{ applicationId: string }>();
-
-console.log("Route applicationId:", applicationId);
   const navigate = useNavigate();
-  const { loading, error, applicationDetail, fetchApplicationDetail } =
-    useApplicationDetail();
+  const { loading, error, applicationDetail, fetchApplicationDetail } = useApplicationDetail();
   const { downloadResume, loading: downloadLoading } = useDownloadResume();
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState(false);
@@ -38,7 +34,6 @@ console.log("Route applicationId:", applicationId);
   const handleWithdrawConfirm = useCallback(async () => {
     setWithdrawLoading(true);
     try {
-   
       await new Promise((r) => setTimeout(r, 800));
       setShowWithdrawModal(false);
       navigate(-1);
@@ -54,7 +49,7 @@ console.log("Route applicationId:", applicationId);
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-9 h-9 border-[3px] border-blue-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-slate-400 text-sm">Loading application…</p>
+            <p className="text-slate-400 text-sm">Loading your application…</p>
           </div>
         </div>
       </div>
@@ -70,9 +65,10 @@ console.log("Route applicationId:", applicationId);
             <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto">
               <AlertCircle className="w-6 h-6 text-red-400" />
             </div>
-            <p className="text-slate-700 font-medium">
-              {error ?? "Application not found"}
-            </p>
+            <div>
+              <p className="text-slate-700 font-medium">{error ?? "We couldn't find this application"}</p>
+              <p className="text-slate-400 text-sm mt-1">Try again, or go back to your applications.</p>
+            </div>
             <button
               onClick={() => applicationId && fetchApplicationDetail(applicationId)}
               className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
@@ -85,84 +81,72 @@ console.log("Route applicationId:", applicationId);
     );
   }
 
-
-  const { application, job } = applicationDetail;
+  const { application, job, offer } = applicationDetail;
   const appStatus = application.status;
   const currentStep = statusToStep(appStatus);
   const statusCfg = getStatusConfig(appStatus);
-const interview = application.interview;
+  const interview = application.interview;
 
   const requiredSkills: string[] = job.requiredSkills ?? [];
   const preferredSkills: string[] = job.preferredSkills ?? [];
   const allSkills = [...new Set([...requiredSkills, ...preferredSkills])];
 
   const timelineSteps: TimelineStep[] = [
-  {
-    stepIndex: 0,
-    title: "Application submitted",
-    description: "Your application was successfully received.",
-    date: formatDate(application.appliedAt),
-  },
-];
+    {
+      stepIndex: 0,
+      title: "Application submitted",
+      description: "Your application was successfully received.",
+      date: formatDate(application.appliedAt),
+    },
+  ];
 
-if (
-  appStatus === ApplicationStatus.SHORTLISTED ||
-  appStatus === ApplicationStatus.INTERVIEW_SCHEDULED ||
-  appStatus === ApplicationStatus.SELECTED
-) {
-  timelineSteps.push({
-    stepIndex: 1,
-    title: "Application shortlisted",
-    description:
-      "Your profile has been shortlisted by the recruiter.",
-    date: formatDate(application.updatedAt),
-  });
-}
+  if (
+    appStatus === ApplicationStatus.SHORTLISTED ||
+    appStatus === ApplicationStatus.INTERVIEW_SCHEDULED ||
+    appStatus === ApplicationStatus.SELECTED
+  ) {
+    timelineSteps.push({
+      stepIndex: 1,
+      title: "Application shortlisted",
+      description: "Your profile has been shortlisted by the recruiter.",
+      date: formatDate(application.updatedAt),
+    });
+  }
 
-if (
-  appStatus === ApplicationStatus.INTERVIEW_SCHEDULED ||
-  appStatus === ApplicationStatus.SELECTED
-) {
-  timelineSteps.push({
-    stepIndex: 2,
-    title: "Interview scheduled",
-    description: interview
-      ? `Scheduled for ${formatDate(interview.scheduledAt)}`
-      : "Interview has been scheduled.",
-    date: interview
-      ? formatDate(interview.scheduledAt)
-      : undefined,
-  });
-}
+  if (appStatus === ApplicationStatus.INTERVIEW_SCHEDULED || appStatus === ApplicationStatus.SELECTED) {
+    timelineSteps.push({
+      stepIndex: 2,
+      title: "Interview scheduled",
+      description: interview ? `Scheduled for ${formatDate(interview.scheduledAt)}` : "Interview has been scheduled.",
+      date: interview ? formatDate(interview.scheduledAt) : undefined,
+    });
+  }
 
-if (appStatus === ApplicationStatus.SELECTED) {
-  timelineSteps.push({
-    stepIndex: 3,
-    title: "Selected",
-    description:
-      "Congratulations! You have been selected.",
-  });
-}
+  if (appStatus === ApplicationStatus.SELECTED) {
+    timelineSteps.push({
+      stepIndex: 3,
+      title: "Selected",
+      description: "Congratulations! You have been selected.",
+    });
+  }
 
-if (appStatus === ApplicationStatus.REJECTED) {
-  timelineSteps.push({
-    stepIndex: timelineSteps.length,
-    title: "Rejected",
-    description:
-      application.rejectionReason
+  if (appStatus === ApplicationStatus.REJECTED) {
+    timelineSteps.push({
+      stepIndex: timelineSteps.length,
+      title: "Rejected",
+      description: application.rejectionReason
         ? `Application rejected. ${application.rejectionReason}`
         : "Application rejected.",
-  });
-}
+    });
+  }
 
-if (appStatus === ApplicationStatus.WITHDRAWN) {
-  timelineSteps.push({
-    stepIndex: timelineSteps.length,
-    title: "Withdrawn",
-    description:
-      "You withdrew this application.",
-  });
-}
+  if (appStatus === ApplicationStatus.WITHDRAWN) {
+    timelineSteps.push({
+      stepIndex: timelineSteps.length,
+      title: "Withdrawn",
+      description: "You withdrew this application.",
+    });
+  }
 
   const getStep = (si: number): "done" | "active" | "pending" => {
     if (si < currentStep) return "done";
@@ -170,18 +154,14 @@ if (appStatus === ApplicationStatus.WITHDRAWN) {
     return "pending";
   };
 
- 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-  
         <ApplicationHeader jobTitle={job.title} companyName={job.department} />
 
-       
         <div className="flex-1 overflow-hidden flex">
-       
           <div className="w-80 shrink-0 overflow-y-auto border-r border-slate-100 p-5 hidden lg:block bg-white/50">
             <LeftPanel
               job={job}
@@ -195,8 +175,7 @@ if (appStatus === ApplicationStatus.WITHDRAWN) {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-2xl mx-auto px-6 py-6 space-y-4">
-
+            <div className="max-w-2xl mx-auto px-6 py-6 space-y-5">
               <div className="lg:hidden">
                 <LeftPanel
                   job={job}
@@ -209,49 +188,35 @@ if (appStatus === ApplicationStatus.WITHDRAWN) {
                 />
               </div>
 
-    
-              <SectionCard
-                title="Application timeline"
-                icon={<TrendingUp className="w-4 h-4" />}
-              >
+              {/* Offer takes priority over the interview card once it exists */}
+              {offer && <OfferLetterSection offer={offer} />}
+
+              {interview && <InterviewCard interview={interview} />}
+
+              <SectionCard title="Application timeline" icon={<TrendingUp className="w-4 h-4" />}>
                 <Timeline timelineSteps={timelineSteps} getStep={getStep} />
               </SectionCard>
 
-     
-              {interview && <InterviewCard interview={interview} />}
-
-       
               {application.status === ApplicationStatus.REJECTED && application.rejectionReason && (
                 <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
                   <h2 className="text-sm font-semibold text-red-700 mb-2 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4" />
                     Rejection feedback
                   </h2>
-                  <p className="text-sm text-red-600 leading-relaxed">
-                    {application.rejectionReason}
-                  </p>
+                  <p className="text-sm text-red-600 leading-relaxed">{application.rejectionReason}</p>
                 </div>
               )}
 
-              <SkillsSection
-                requiredSkills={requiredSkills}
-                preferredSkills={preferredSkills}
-              />
+              <SkillsSection requiredSkills={requiredSkills} preferredSkills={preferredSkills} />
 
-           
               {job.description && (
-                <SectionCard
-                  title="Job description"
-                  icon={<FileText className="w-4 h-4" />}
-                  collapsible
-                >
+                <SectionCard title="Job description" icon={<FileText className="w-4 h-4" />} collapsible>
                   <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line pt-4">
                     {job.description}
                   </p>
                 </SectionCard>
               )}
 
-          
               {(job.responsibilities?.length > 0 || job.requirements?.length > 0) && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {job.responsibilities?.length > 0 && (
@@ -259,9 +224,7 @@ if (appStatus === ApplicationStatus.WITHDRAWN) {
                       <ul className="space-y-2.5 pt-4">
                         {job.responsibilities.map((r: string, i: number) => (
                           <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600">
-                            <span className="text-blue-400 font-bold mt-0.5 shrink-0 text-base leading-none">
-                              →
-                            </span>
+                            <span className="text-blue-400 font-bold mt-0.5 shrink-0 text-base leading-none">→</span>
                             {r}
                           </li>
                         ))}
@@ -283,7 +246,6 @@ if (appStatus === ApplicationStatus.WITHDRAWN) {
                 </div>
               )}
 
-     
               {application.coverLetter && (
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                   <button
@@ -294,9 +256,7 @@ if (appStatus === ApplicationStatus.WITHDRAWN) {
                       <FileText className="w-4 h-4 text-slate-400" />
                       Cover letter
                     </h2>
-                    <span className="text-xs text-slate-400">
-                      {expandedCover ? "Collapse" : "Expand"}
-                    </span>
+                    <span className="text-xs text-slate-400">{expandedCover ? "Collapse" : "Expand"}</span>
                   </button>
                   {expandedCover && (
                     <div className="border-t border-slate-50 px-6 pb-6 pt-4">

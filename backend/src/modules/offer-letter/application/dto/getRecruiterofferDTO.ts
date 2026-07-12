@@ -18,12 +18,13 @@ export interface GetRecruiterOffersResponseDTO {
   jobTitle: string;
   annualCTC: number;
   currency: Currency;
-  employmentType: EmploymentType;
   workLocation: string;
   joiningDate: Date;
   offerDate: Date;
   expiryDate: Date;
   status: OfferStatus;
+  contactEmail?: string;
+  contactPhone?: string;
   sentAt?: Date;
   viewedAt?: Date;
   acceptedAt?: Date;

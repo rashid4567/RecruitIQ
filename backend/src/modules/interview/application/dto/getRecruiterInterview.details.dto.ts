@@ -15,6 +15,7 @@ export interface GetRecruiterInterviewDetailsResponseDTO {
   jobId: string;
   candidateId: string;
   recruiterId: string;
+  candidateName : string;
   roomId?: string;
   round: number;
   title: string;

@@ -3,14 +3,13 @@ import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
 import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
-import { GetRecruiterApplicationDetailsRequestDTO } from "../../../application/dto/getRecruiterApplicationDetail.dto";
-import { RecruiterApplicationDetailsOutput } from "../../../domain/repository/job-application.repository";
+import { GetRecruiterApplicationDetailsRequestDTO, RecruiterApplicationDetailsResponseDTO } from "../../../application/dto/getRecruiterApplicationDetail.dto";
 
 export class GetRecruiterApplicationDetailsController {
   constructor(
     private readonly _getRecruiterApplicationUC: IUseCase<
       GetRecruiterApplicationDetailsRequestDTO,
-      RecruiterApplicationDetailsOutput
+      RecruiterApplicationDetailsResponseDTO
     >,
   ) {}
 

@@ -54,6 +54,7 @@ import {
 import { ConfirmModal } from "../component/recruiter-application.detail/Confirmmodal";
 import { MODAL_CONFIGS } from "../component/recruiter-application.detail/Modalconfigs";
 import ScheduleInterviewModal from "@/module/interview/pages/components/schedule-interview-modal";
+import { OfferLetterCard } from "../component/recruiter-application.detail/OfferLetterCard";
 
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
@@ -172,7 +173,6 @@ function AIScores({ ai }: { ai: ApplicationAIAnalysis }) {
       subtitle="Across all assessment dimensions"
       Icon={Sparkles}
     >
-      {/* Tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <ScoreTile
           label="Overall"
@@ -374,6 +374,10 @@ export default function CandidateScorecardPage() {
     if (applicationId) await fetchApplicationDetails(applicationId);
   }
 
+  const handleCreateOffer = () => {
+    console.log("Create offer for application:", applicationId);
+  };
+
   if (loading) return <LoadingScreen />;
 
   if (error) {
@@ -446,6 +450,10 @@ export default function CandidateScorecardPage() {
             onAction={handleAction}
           />
           {interview && <InterviewCard interview={interview} />}
+          <OfferLetterCard
+            offer={application.offer}
+            onCreateOffer={handleCreateOffer}
+          />
           <ResumeCard resumeId={application.resumeId} />
           <ApplicationInfoCard
             applicationNumber={application.applicationNumber}

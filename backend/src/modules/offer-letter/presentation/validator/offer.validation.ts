@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-import {
-  Currency,
-  EmploymentType,
-} from "../../domain/entity/offer-letter.entity";
+import { Currency } from "../../domain/entity/offer-letter.entity";
 
 export const createOfferSchema = z
   .object({
@@ -12,8 +9,6 @@ export const createOfferSchema = z
     annualCTC: z.number().positive("Annual CTC must be greater than 0."),
 
     currency: z.enum(Currency),
-
-    employmentType: z.enum(EmploymentType),
 
     department: z
       .string()
@@ -43,6 +38,20 @@ export const createOfferSchema = z
       .string()
       .trim()
       .max(5000, "Notes cannot exceed 5000 characters.")
+      .optional(),
+
+    // NEW
+    contactEmail: z
+      .string()
+      .trim()
+      .email("Please enter a valid email address.")
+      .optional(),
+
+    contactPhone: z
+      .string()
+      .trim()
+      .min(8, "Phone number is too short.")
+      .max(20, "Phone number is too long.")
       .optional(),
 
     expiryDate: z.coerce.date(),

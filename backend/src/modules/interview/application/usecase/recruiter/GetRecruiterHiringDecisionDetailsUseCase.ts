@@ -87,8 +87,14 @@ export class GetRecruiterHiringDecisionDetailsUseCase implements IUseCase<
       job: {
         jobId: job.id!,
         title: job.title,
+        companyName: job.companyName,
+        department: job.department,
+        location: {
+          city: job.location?.city ?? "",
+          state: job.location?.state ?? "",
+          country: job.location?.country ?? "",
+        },
       },
-
       resume: {
         resumeId: resume.getId()!,
         fileName: resume.getFileName(),
@@ -101,24 +107,24 @@ export class GetRecruiterHiringDecisionDetailsUseCase implements IUseCase<
   }
 
   private async validateInterview(
-  input: GetRecruiterHiringDecisionDetailsRequestDTO,
-): Promise<Interview> {
-  const interview = await this.interviewRepo.findById(input.interviewId);
+    input: GetRecruiterHiringDecisionDetailsRequestDTO,
+  ): Promise<Interview> {
+    const interview = await this.interviewRepo.findById(input.interviewId);
 
-  if (!interview) {
-    throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_FOUND);
+    if (!interview) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_FOUND);
+    }
+
+    if (!interview.belongsToRecruiter(input.recruiterId)) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_ACCESS_DENIED);
+    }
+
+    if (!interview.isCompleted()) {
+      throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_COMPLETED);
+    }
+
+    return interview;
   }
-
-  if (!interview.belongsToRecruiter(input.recruiterId)) {
-    throw new ApplicationError(ERROR_CODES.INTERVIEW_ACCESS_DENIED);
-  }
-
-  if (!interview.isCompleted()) {
-    throw new ApplicationError(ERROR_CODES.INTERVIEW_NOT_COMPLETED);
-  }
-
-  return interview;
-}
 
   private async validateApplication(
     applicationId: string,
@@ -149,10 +155,8 @@ export class GetRecruiterHiringDecisionDetailsUseCase implements IUseCase<
     }
 
     if (job.isBlocked) {
-  throw new ApplicationError(
-    ERROR_CODES.JOB_POST_IS_BLOCKED_BY_ADMIN,
-  );
-}
+      throw new ApplicationError(ERROR_CODES.JOB_POST_IS_BLOCKED_BY_ADMIN);
+    }
     return job;
   }
 

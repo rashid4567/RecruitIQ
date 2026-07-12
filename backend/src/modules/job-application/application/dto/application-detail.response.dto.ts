@@ -1,9 +1,10 @@
 import { ApplicationStatus } from "../../domain/entity/job-application.entity";
+import { OfferStatus } from "../../../offer-letter/domain/entity/offer-letter.entity";
 
 export interface ApplicationDetailResponseDTO {
   application: {
     id?: string;
-    applicationNumber : string;
+    applicationNumber: string;
     jobId: string;
     candidateId: string;
     recruiterId: string;
@@ -49,9 +50,16 @@ export interface ApplicationDetailResponseDTO {
     postedOn?: Date;
     expiresAt?: Date;
   };
+
+  offer: {
+    id: string;
+    status: OfferStatus;
+    expiryDate: Date;
+    offerLetterUrl: string;
+  } | null;
 }
 
 export interface GetApplicationDetailRequestDTO {
-   candidateId: string,
-    applicationId: string,
+  candidateId: string;
+  applicationId: string;
 }

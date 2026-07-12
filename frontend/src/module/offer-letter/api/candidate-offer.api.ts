@@ -14,7 +14,7 @@ export const getCandidateOffer = async (
   offerId: string,
 ): Promise<GetCandidateOfferResponse> => {
   const response = await api.get(CANDIDATE_OFFER_ROUTES.OFFER_DETAIL(offerId));
-
+  console.log(response ? response : "no response for the getcandidate");
   return response.data.data;
 };
 

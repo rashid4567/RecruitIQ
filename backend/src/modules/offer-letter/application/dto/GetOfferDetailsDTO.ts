@@ -19,7 +19,6 @@ export interface GetOfferDetailsResponseDTO {
   jobTitle: string;
   annualCTC: number;
   currency: Currency;
-  employmentType: EmploymentType;
   department?: string;
   workLocation: string;
   joiningDate: Date;
@@ -30,6 +29,8 @@ export interface GetOfferDetailsResponseDTO {
   expiryDate: Date;
   status: OfferStatus;
   offerLetterUrl?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   sentAt?: Date;
   viewedAt?: Date;
   acceptedAt?: Date;

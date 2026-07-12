@@ -1,6 +1,8 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
+import { JobRepository } from "../../../../job/domain/repositories/job.repository";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
   GetRecruiterInterviewDetailsRequestDTO,
@@ -11,7 +13,10 @@ export class GetRecruiterInterviewDetailsUseCase implements IUseCase<
   GetRecruiterInterviewDetailsRequestDTO,
   GetRecruiterInterviewDetailsResponseDTO
 > {
-  constructor(private readonly interviewRepo: InterviewRepository) {}
+  constructor(private readonly interviewRepo: InterviewRepository,
+    private readonly userRepo : UserRepository,
+    private readonly jobRepo : JobRepository
+  ) {}
 
   async execute(
     input: GetRecruiterInterviewDetailsRequestDTO,
@@ -26,6 +31,15 @@ export class GetRecruiterInterviewDetailsUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
 
+    const candidate = await this.userRepo.findById(interview.candidateId);
+
+    if(!candidate){
+      throw new ApplicationError(ERROR_CODES.CANDIDATE_NOT_FOUND)
+    }
+    const job = await this.jobRepo.findById(interview.jobId);
+    if(!job){
+      throw new ApplicationError(ERROR_CODES.JOB_NOT_FOUND)
+    }
     const result = interview.toObject();
 
     return {
@@ -34,9 +48,10 @@ export class GetRecruiterInterviewDetailsUseCase implements IUseCase<
       jobId: result.jobId,
       candidateId: result.candidateId,
       recruiterId: result.recruiterId,
+      candidateName : candidate.fullName,
       roomId: result.roomId,
       round: result.round,
-      title: result.title,
+      title: job.title,
       description: result.description,
       mode: result.mode,
       status: result.status,

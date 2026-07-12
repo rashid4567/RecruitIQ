@@ -1,10 +1,10 @@
 export const CANDIDATE_OFFER_ROUTES = {
   OFFER_DETAIL: (offerId: string) =>
-    `/offers/${offerId}`,
+    `/candidate/offers/${offerId}`,
 
   ACCEPT: (offerId: string) =>
-    `/offers/${offerId}/accept`,
+    `/candidate/offers/${offerId}/accept`,
 
   REJECT: (offerId: string) =>
-    `/offers/${offerId}/reject`,
+    `/candidate/offers/${offerId}/reject`,
 } as const;

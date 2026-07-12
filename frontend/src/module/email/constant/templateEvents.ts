@@ -7,6 +7,10 @@ export const AVAILABLE_VARIABLES = [
   { name: "interviewLink", description: "Video call / meeting link" },
   { name: "recruiterName", description: "Recruiter / Hiring manager name" },
   { name: "applicationStatus", description: "Current application status" },
+  {
+    name: "offerLink",
+    description: "Employment offer page link for the candidate",
+  },
 ];
 
 export const EVENTS = [

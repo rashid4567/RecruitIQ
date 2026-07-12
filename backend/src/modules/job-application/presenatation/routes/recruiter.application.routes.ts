@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getAllRecruitercontroller,
   getApplicationByjobpostController,
   getRecruiterApplicationDetailsController,
   updateApplicationStatuscontroller,
@@ -7,7 +8,7 @@ import {
 import { JOB_APPLICATION_ROUTES } from "../constants/job-application-routes.constants";
 
 const router = Router();
-
+router.get(JOB_APPLICATION_ROUTES.RECRUITER.ALL_APPLICATIONS,getAllRecruitercontroller.getAll)
 router.get(
   JOB_APPLICATION_ROUTES.RECRUITER.JOB_APPLICATIONS,
   getApplicationByjobpostController.GetJobpostBasedApplicatiton,

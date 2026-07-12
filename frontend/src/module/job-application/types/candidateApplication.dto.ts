@@ -9,6 +9,8 @@ export interface CandidateApplication {
   resumeFileName: string;
   status: ApplicationStatus;
   appliedAt: Date;
+  updatedAt?: Date;
   rejectionReason?: string;
+  coverLetter?: string;
   interview?: InterviewInfo;
 }

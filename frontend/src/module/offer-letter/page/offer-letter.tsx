@@ -1,7 +1,28 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { CheckCircle2, Briefcase, Building2, MapPin, Code2, Clock, Calendar, Users, Heart, Zap, Shield, Banknote } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+  CheckCircle2,
+  Circle,
+  Loader2,
+  AlertTriangle,
+  Info,
+  Mail,
+  Download,
+  Home,
+  XCircle,
+  PartyPopper,
+  X,
+  FileText,
+  ShieldCheck,
+  ExternalLink,
+  Phone,
+} from "lucide-react";
+
+import { useCandidateOffer } from "../hooks/candidate/useCandidateOffer";
+import { useAcceptOffer } from "../hooks/candidate/useAcceptOffer";
+import { useRejectOffer } from "../hooks/candidate/useRejectOffer";
 
 interface CountdownTime {
   days: number;
@@ -9,309 +30,1243 @@ interface CountdownTime {
   minutes: number;
 }
 
-export default function EmploymentOfferPage() {
-  const [countdown, setCountdown] = useState<CountdownTime>({ days: 9, hours: 18, minutes: 24 });
-  const [timeStatus, setTimeStatus] = useState<'green' | 'orange' | 'red'>('green');
+// ─────────────────────────────────────────────────────────────
+// Static config / helpers
+// ─────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        let { days, hours, minutes } = prev;
-        
-        if (minutes > 0) {
-          minutes--;
-        } else if (hours > 0) {
-          hours--;
-          minutes = 59;
-        } else if (days > 0) {
-          days--;
-          hours = 23;
-          minutes = 59;
-        }
+function formatCurrency(amount: number, currency: string) {
+  try {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: currency || "INR",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toLocaleString("en-IN")}`;
+  }
+}
 
-        // Determine status color based on remaining time
-        if (days >= 7) {
-          setTimeStatus('green');
-        } else if (days >= 1) {
-          setTimeStatus('orange');
-        } else {
-          setTimeStatus('red');
-        }
+function formatDate(dateStr?: string) {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
 
-        return { days, hours, minutes };
-      });
-    }, 60000); // Update every minute
+function getCountdown(expiryDate: string): CountdownTime {
+  const expiry = new Date(expiryDate).getTime();
+  const now = Date.now();
+  const diff = Math.max(0, expiry - now);
 
-    return () => clearInterval(timer);
-  }, []);
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-  const getCountdownColor = () => {
-    if (timeStatus === 'green') return 'text-accent';
-    if (timeStatus === 'orange') return 'text-amber-500';
-    return 'text-destructive';
-  };
+  return { days, hours, minutes };
+}
 
-  const getCountdownBgColor = () => {
-    if (timeStatus === 'green') return 'bg-accent/10';
-    if (timeStatus === 'orange') return 'bg-amber-500/10';
-    return 'bg-destructive/10';
-  };
+// Fraction of the offer window (offerDate → expiryDate) that remains, 0–1.
+function getExpiryProgress(offerDate?: string, expiryDate?: string): number {
+  if (!offerDate || !expiryDate) return 1;
+  const start = new Date(offerDate).getTime();
+  const end = new Date(expiryDate).getTime();
+  const now = Date.now();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start)
+    return 1;
+  const remaining = (end - now) / (end - start);
+  return Math.min(1, Math.max(0, remaining));
+}
+
+type UrgencyLevel = "normal" | "soon" | "urgent" | "critical";
+
+function getUrgency(days: number): UrgencyLevel {
+  if (days > 7) return "normal";
+  if (days >= 3) return "soon";
+  if (days >= 1) return "urgent";
+  return "critical";
+}
+
+const URGENCY_STYLES: Record<
+  UrgencyLevel,
+  { bg: string; text: string; bar: string }
+> = {
+  normal: { bg: "bg-[#DBEAFE]", text: "text-[#1D4ED8]", bar: "bg-[#2563EB]" },
+  soon: { bg: "bg-[#DBEAFE]", text: "text-[#1D4ED8]", bar: "bg-[#2563EB]" },
+  urgent: { bg: "bg-[#FEF3C7]", text: "text-[#B45309]", bar: "bg-[#F59E0B]" },
+  critical: { bg: "bg-[#FEE2E2]", text: "text-[#DC2626]", bar: "bg-[#EF4444]" },
+};
+
+const STATUS_STYLES: Record<
+  string,
+  { bg: string; text: string; label: string }
+> = {
+  SENT: { bg: "bg-[#DBEAFE]", text: "text-[#1D4ED8]", label: "Sent" },
+  VIEWED: { bg: "bg-[#EDE9FE]", text: "text-[#7C3AED]", label: "Viewed" },
+  ACCEPTED: { bg: "bg-[#DCFCE7]", text: "text-[#15803D]", label: "Accepted" },
+  REJECTED: { bg: "bg-[#FEE2E2]", text: "text-[#DC2626]", label: "Rejected" },
+  EXPIRED: { bg: "bg-[#FEF3C7]", text: "text-[#B45309]", label: "Expired" },
+};
+
+function getStatusStyle(status?: string) {
+  return STATUS_STYLES[(status ?? "SENT").toUpperCase()] ?? STATUS_STYLES.SENT;
+}
+
+const REJECT_REASONS = [
+  "Accepted another offer",
+  "Compensation expectations",
+  "Role doesn't match expectations",
+  "Personal reasons",
+  "Relocation",
+  "Other",
+];
+
+function CompanyMark({
+  name,
+  logoUrl,
+  size = 10,
+}: {
+  name: string;
+  logoUrl?: string;
+  size?: number;
+}) {
+  const [errored, setErrored] = useState(false);
+  const initial = name?.charAt(0)?.toUpperCase() ?? "A";
+  const dim = `${size * 0.25}rem`;
+
+  if (logoUrl && !errored) {
+    return (
+      <img
+        src={logoUrl}
+        alt={`${name} logo`}
+        onError={() => setErrored(true)}
+        className="rounded-lg object-cover shrink-0"
+        style={{ width: dim, height: dim }}
+      />
+    );
+  }
+  return (
+    <div
+      className="rounded-lg bg-linear-to-br from-[#3B82F6] to-[#2563EB] flex items-center justify-center text-white font-semibold shrink-0"
+      style={{ width: dim, height: dim }}
+    >
+      {initial}
+    </div>
+  );
+}
+
+function SidebarCard({
+  title,
+  children,
+  className = "",
+  delay = 0,
+}: {
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <div
+      className={`bg-white border border-[#E8EEF7] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 animate-in fade-in slide-in-from-bottom-2 fill-mode-both ${className}`}
+      style={{ animationDuration: "500ms", animationDelay: `${delay}ms` }}
+    >
+      {title && (
+        <h3 className="text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-4">
+          {title}
+        </h3>
+      )}
+      {children}
+    </div>
+  );
+}
+
+// Label/value row with no icon — reads like an enterprise form (feedback #3, #4, #9)
+function DetailRow({
+  label,
+  value,
+  divider = true,
+}: {
+  label: string;
+  value: React.ReactNode;
+  divider?: boolean;
+}) {
+  return (
+    <div
+      className={
+        divider ? "py-3 border-b border-[#F1F5F9] last:border-b-0" : "py-3"
+      }
+    >
+      <p className="text-xs text-[#64748B] mb-0.5">{label}</p>
+      <p className="text-sm font-medium text-[#0F172A]">{value}</p>
+    </div>
+  );
+}
+
+// Compact vertical status tracker (feedback #1 / renamed "Timeline" per final layout)
+function CompactTracker({ accepted }: { accepted: boolean }) {
+  const steps = accepted
+    ? [
+        { label: "Application", done: true },
+        { label: "Interview", done: true },
+        { label: "Offer Accepted", done: true },
+        { label: "Onboarding", done: false, current: true },
+      ]
+    : [
+        { label: "Application", done: true },
+        { label: "Interview", done: true },
+        { label: "Offer Sent", done: false, current: true },
+        { label: "Awaiting Response", done: false },
+      ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-card border-b border-border backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Briefcase className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="font-semibold text-foreground">ABC Technologies</span>
+    <div className="flex flex-col gap-0">
+      {steps.map((step, idx) => (
+        <div key={step.label} className="flex items-start gap-3">
+          <div className="flex flex-col items-center">
+            {step.done ? (
+              <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+            ) : (step as any).current ? (
+              <div className="w-4 h-4 rounded-full bg-[#2563EB] ring-4 ring-[#DBEAFE] shrink-0" />
+            ) : (
+              <Circle className="w-4 h-4 text-[#CBD5E1] shrink-0" />
+            )}
+            {idx < steps.length - 1 && (
+              <div className="w-0.5 h-6 bg-[#E2E8F0] my-0.5" />
+            )}
           </div>
-          <h1 className="text-lg font-semibold text-foreground">Employment Offer</h1>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 rounded-full">
-            <div className="w-2 h-2 bg-accent rounded-full" />
-            <span className="text-sm font-medium text-accent">Sent</span>
+          <span
+            className={`text-sm pt-px ${
+              step.done || (step as any).current
+                ? "text-[#0F172A] font-medium"
+                : "text-[#94A3B8]"
+            }`}
+          >
+            {step.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Accessible modal: Escape to close (when not busy), focus moved to close button on open (feedback #25)
+function Modal({
+  open,
+  onClose,
+  busy = false,
+  labelledBy,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  busy?: boolean;
+  labelledBy: string;
+  children: React.ReactNode;
+}) {
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    closeBtnRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !busy) onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, busy, onClose]);
+
+  if (!open) return null;
+  return (
+    <div
+      className="fixed inset-0 z-100 flex items-center justify-center px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={labelledBy}
+    >
+      <div
+        className="absolute inset-0 bg-[#0F172A]/50 backdrop-blur-sm animate-in fade-in duration-200"
+        onClick={() => !busy && onClose()}
+      />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+        <button
+          ref={closeBtnRef}
+          onClick={() => !busy && onClose()}
+          aria-label="Close dialog"
+          className="absolute top-5 right-5 text-[#94A3B8] hover:text-[#475569] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 rounded transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Footer({ companyName }: { companyName: string }) {
+  return (
+    <footer className="border-t border-[#E8EEF7] mt-10">
+      <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#94A3B8]">
+        <p className="flex items-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#94A3B8]" />
+          Secure Offer Portal · Need help?{" "}
+          <a
+            href="mailto:hr@abc-tech.com"
+            className="text-[#2563EB] font-medium hover:underline"
+          >
+            hr@abc-tech.com
+          </a>
+        </p>
+        <div className="flex items-center gap-4">
+          <a href="#" className="hover:text-[#2563EB] transition-colors">
+            Privacy
+          </a>
+          <a href="#" className="hover:text-[#2563EB] transition-colors">
+            Terms
+          </a>
+          <span>
+            © {new Date().getFullYear()} {companyName}
+          </span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Main page
+// ─────────────────────────────────────────────────────────────
+
+export default function EmploymentOfferPage() {
+  const { offerId } = useParams<{ offerId: string }>();
+  const { offer, loading, error, refetch } = useCandidateOffer(offerId ?? "");
+  const { acceptOffer, loading: accepting } = useAcceptOffer();
+  const { rejectOffer, loading: rejecting } = useRejectOffer();
+
+  const [countdown, setCountdown] = useState<CountdownTime>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+  });
+  const [urgency, setUrgency] = useState<UrgencyLevel>("normal");
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  const [showAcceptModal, setShowAcceptModal] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectCategory, setRejectCategory] = useState<string | null>(null);
+  const [rejectComment, setRejectComment] = useState("");
+  const [rejectTouched, setRejectTouched] = useState(false);
+
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+
+  useEffect(() => {
+    if (!offer?.expiryDate) return;
+
+    const update = () => {
+      const next = getCountdown(offer.expiryDate);
+      setCountdown(next);
+      setUrgency(getUrgency(next.days));
+    };
+
+    update();
+    const timer = setInterval(update, 60000);
+    return () => clearInterval(timer);
+  }, [offer?.expiryDate]);
+
+  // Sticky bottom action bar appears once the hero scrolls out of view
+  useEffect(() => {
+    const onScroll = () => setShowStickyBar(window.scrollY > 220);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const expiryProgress = useMemo(
+    () => getExpiryProgress(offer?.offerDate, offer?.expiryDate),
+    [offer?.offerDate, offer?.expiryDate],
+  );
+
+  const resetRejectForm = () => {
+    setShowRejectModal(false);
+    setRejectCategory(null);
+    setRejectComment("");
+    setRejectTouched(false);
+  };
+
+  const busy = accepting || rejecting;
+
+  const handleAccept = async () => {
+    if (!offerId || !agreeTerms) return;
+    setActionError(null);
+    try {
+      await acceptOffer(offerId, {});
+      await refetch();
+      setShowAcceptModal(false);
+      setAgreeTerms(false);
+    } catch (err: any) {
+      setActionError(
+        err?.message ?? "Something went wrong while accepting the offer.",
+      );
+    }
+  };
+
+  const handleReject = async () => {
+    if (!offerId) return;
+    if (!rejectCategory) {
+      setRejectTouched(true);
+      return;
+    }
+    if (rejectCategory === "Other" && !rejectComment.trim()) {
+      setRejectTouched(true);
+      return;
+    }
+    setActionError(null);
+    const remarks =
+      rejectCategory === "Other"
+        ? rejectComment.trim()
+        : rejectComment.trim()
+          ? `${rejectCategory}: ${rejectComment.trim()}`
+          : rejectCategory;
+    try {
+      await rejectOffer(offerId, { remarks });
+      await refetch();
+      resetRejectForm();
+    } catch (err: any) {
+      setActionError(
+        err?.message ?? "Something went wrong while declining the offer.",
+      );
+    }
+  };
+
+  // ---- Loading skeleton ----
+  if (loading) {
+    return (
+      <div className="min-h-screen" style={{ background: "#F4F7FB" }}>
+        <div className="sticky top-0 z-50 bg-white border-b border-[#E8EEF7] h-16" />
+        <main className="max-w-6xl mx-auto px-6 py-8">
+          <div className="mb-6 bg-white border border-[#E8EEF7] rounded-2xl h-32 animate-pulse" />
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+            <div className="space-y-6">
+              <div className="bg-white border border-[#E8EEF7] rounded-2xl h-72 animate-pulse" />
+              <div className="bg-white border border-[#E8EEF7] rounded-2xl h-32 animate-pulse" />
+            </div>
+            <div className="space-y-4">
+              <div className="bg-white border border-[#E8EEF7] rounded-2xl h-64 animate-pulse" />
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // ---- Error state ----
+  if (error || !offer) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-6"
+        style={{ background: "#F4F7FB" }}
+      >
+        <div className="max-w-md w-full bg-white border border-[#E8EEF7] rounded-2xl p-8 text-center shadow-sm">
+          <AlertTriangle className="w-10 h-10 text-[#EF4444] mx-auto mb-4" />
+          <h2 className="text-lg font-semibold text-[#0F172A] mb-2">
+            Unable to load offer
+          </h2>
+          <p className="text-[#64748B] text-sm mb-6">
+            {error ?? "This offer could not be found."}
+          </p>
+          <button
+            onClick={refetch}
+            className="px-6 py-2.5 rounded-lg bg-[#2563EB] text-white font-medium hover:bg-[#1D4ED8] active:scale-95 transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Success screen (feedback #16) ----
+  if (offer.status?.toUpperCase() === "ACCEPTED") {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-6"
+        style={{ background: "#F0FDF4" }}
+      >
+        <div className="max-w-lg w-full bg-white border border-[#DCFCE7] rounded-3xl p-10 sm:p-14 text-center shadow-xl animate-in fade-in zoom-in-95 duration-500">
+          <div className="w-20 h-20 rounded-full bg-[#DCFCE7] flex items-center justify-center mx-auto mb-6">
+            <PartyPopper className="w-10 h-10 text-[#22C55E]" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#0F172A] mb-1">
+            Welcome to {offer.companyName}!
+          </h2>
+          <p className="text-[#475569] mb-8">Your offer has been accepted.</p>
+
+          <div className="text-left bg-[#F0FDF4] border border-[#DCFCE7] rounded-xl p-5 mb-8">
+            <p className="text-xs font-semibold text-[#15803D] uppercase tracking-wide mb-3">
+              Next Steps
+            </p>
+            <ul className="space-y-2.5 text-sm text-[#334155]">
+              <li className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+                HR Contact
+              </li>
+              <li className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+                Documents
+              </li>
+              <li className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+                Background Check
+              </li>
+              <li className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+                Joining
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-[#22C55E] text-white font-medium hover:bg-[#16A34A] active:scale-95 transition-all">
+              <Download className="w-4 h-4" />
+              Download Joining Guide
+            </button>
+            <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] active:scale-95 transition-all">
+              <Home className="w-4 h-4" />
+              Return Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Rejected screen (feedback #17) ----
+  if (offer.status?.toUpperCase() === "REJECTED") {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-6"
+        style={{ background: "#FEF2F2" }}
+      >
+        <div className="max-w-lg w-full bg-white border border-[#FEE2E2] rounded-3xl p-10 sm:p-14 text-center shadow-xl animate-in fade-in zoom-in-95 duration-500">
+          <div className="w-20 h-20 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto mb-6">
+            <XCircle className="w-10 h-10 text-[#EF4444]" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#0F172A] mb-3">Thank You</h2>
+          <p className="text-[#475569] mb-1">Your decision has been shared.</p>
+          <p className="text-[#475569] mb-8">
+            We appreciate your time. We wish you success.
+          </p>
+          <button className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] active:scale-95 transition-all">
+            <Home className="w-4 h-4" />
+            Return Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const monthlyCTC = Math.round(offer.annualCTC / 12);
+  const statusStyle = getStatusStyle(offer.status);
+  const urgencyStyle = URGENCY_STYLES[urgency];
+  const meta = offer as any; // optional fields your API may not send yet
+  const employmentType: string = meta.employmentType ?? "Full Time";
+  const logoUrl: string | undefined = meta.companyLogoUrl;
+
+  const isRejectValid =
+    rejectCategory && (rejectCategory !== "Other" || rejectComment.trim());
+
+  return (
+    <div className="min-h-screen" style={{ background: "#F8FAFC" }}>
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white/90 border-b border-[#E8EEF7] backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <CompanyMark name={offer.companyName} logoUrl={logoUrl} size={9} />
+            <span className="font-semibold text-[#0F172A]">
+              {offer.companyName}
+            </span>
+          </div>
+          <h1 className="hidden sm:block text-base font-semibold text-[#0F172A]">
+            Employment Offer
+          </h1>
+          <div
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${statusStyle.bg}`}
+          >
+            <div
+              className={`w-2 h-2 rounded-full ${statusStyle.text.replace("text-", "bg-")}`}
+            />
+            <span className={`text-sm font-medium ${statusStyle.text}`}>
+              {statusStyle.label}
+            </span>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="mb-12 animate-in fade-in duration-1000">
-          <div className="relative bg-card border border-border rounded-3xl overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-primary" />
-            <div className="px-8 py-16 sm:px-12 sm:py-20">
-              <div className="flex flex-col items-center text-center">
-                <CheckCircle2 className="w-16 h-16 text-accent mb-6 animate-bounce" />
-                <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-                  Congratulations, Rashid!
-                </h2>
-                <p className="text-lg text-muted mb-6 max-w-2xl">
-                  We are pleased to offer you the position of
-                </p>
-                <h3 className="text-2xl sm:text-3xl font-bold text-primary mb-4">
-                  Senior Frontend Developer
-                </h3>
-                <p className="text-lg text-muted">at</p>
-                <p className="text-2xl font-semibold text-foreground mt-2">
-                  ABC Technologies
-                </p>
-              </div>
+      <main className="max-w-6xl mx-auto px-6 py-6 pb-24 lg:pb-6">
+        {/* Compact Hero — target ~150px (feedback #1) */}
+        <div
+          className="mb-4 border border-[#E8EEF7] rounded-2xl px-6 py-4 sm:px-7 sm:py-5 animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{
+            background: "linear-gradient(135deg, #EFF6FF, #FFFFFF)",
+            borderTop: "4px solid #2563EB",
+          }}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <CompanyMark name={offer.companyName} logoUrl={logoUrl} size={12} />
+            <div className="flex-1 min-w-0">
+              <p className="text-base sm:text-lg font-bold text-[#0F172A] leading-tight">
+                🎉 Congratulations! {offer.jobTitle} at {offer.companyName}
+              </p>
+              <p className="text-xs text-[#64748B] mt-1">
+                Offer #{offer.offerNumber} · Expires in {countdown.days} Days
+              </p>
             </div>
-          </div>
-        </div>
-
-        {/* Countdown Card */}
-        <div className={`mb-12 bg-card border border-border rounded-2xl p-8 ${getCountdownBgColor()}`}>
-          <h3 className="text-sm font-semibold text-muted uppercase tracking-wide mb-6">
-            Offer Expires In
-          </h3>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className={`text-4xl sm:text-5xl font-bold ${getCountdownColor()} mb-2`}>
-                {String(countdown.days).padStart(2, '0')}
-              </div>
-              <p className="text-sm text-muted">Days</p>
-            </div>
-            <div className="text-center">
-              <div className={`text-4xl sm:text-5xl font-bold ${getCountdownColor()} mb-2`}>
-                {String(countdown.hours).padStart(2, '0')}
-              </div>
-              <p className="text-sm text-muted">Hours</p>
-            </div>
-            <div className="text-center">
-              <div className={`text-4xl sm:text-5xl font-bold ${getCountdownColor()} mb-2`}>
-                {String(countdown.minutes).padStart(2, '0')}
-              </div>
-              <p className="text-sm text-muted">Minutes</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Summary Cards */}
-        <div className="mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-card border border-border rounded-2xl p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3 mb-3">
-              <Code2 className="w-5 h-5 text-primary" />
-              <span className="text-sm text-muted font-medium">Position</span>
-            </div>
-            <p className="text-lg font-semibold text-foreground">Frontend Developer</p>
-          </div>
-
-          <div className="bg-card border border-border rounded-2xl p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3 mb-3">
-              <Building2 className="w-5 h-5 text-primary" />
-              <span className="text-sm text-muted font-medium">Company</span>
-            </div>
-            <p className="text-lg font-semibold text-foreground">ABC Technologies</p>
-          </div>
-
-          <div className="bg-card border border-border rounded-2xl p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3 mb-3">
-              <MapPin className="w-5 h-5 text-primary" />
-              <span className="text-sm text-muted font-medium">Location</span>
-            </div>
-            <p className="text-lg font-semibold text-foreground">Bangalore</p>
-          </div>
-
-          <div className="bg-card border border-border rounded-2xl p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3 mb-3">
-              <Clock className="w-5 h-5 text-primary" />
-              <span className="text-sm text-muted font-medium">Employment</span>
-            </div>
-            <p className="text-lg font-semibold text-foreground">Full Time</p>
-          </div>
-        </div>
-
-        {/* Compensation Section */}
-        <div className="mb-12 bg-card border border-border rounded-2xl p-8 sm:p-12">
-          <div className="flex items-center gap-3 mb-6">
-            <Banknote className="w-6 h-6 text-primary" />
-            <h3 className="text-xl font-semibold text-foreground">Annual Compensation</h3>
-          </div>
-          <div className="mb-6">
-            <p className="text-5xl sm:text-6xl font-bold text-accent mb-2">
-              ₹12,00,000
-            </p>
-            <p className="text-base text-muted">per year</p>
-          </div>
-          <div className="pt-6 border-t border-border">
-            <p className="text-sm text-muted mb-1">Approximately</p>
-            <p className="text-2xl font-semibold text-foreground">₹1,00,000</p>
-            <p className="text-sm text-muted">per month</p>
-          </div>
-        </div>
-
-        {/* Joining Details - Apple Settings Style */}
-        <div className="mb-12 bg-card border border-border rounded-2xl overflow-hidden">
-          <div className="px-8 py-6 border-b border-border">
-            <h3 className="text-xl font-semibold text-foreground">Joining Details</h3>
-          </div>
-          <div className="divide-y divide-border">
-            <div className="px-8 py-5 flex items-center justify-between hover:bg-secondary/50 transition-colors">
-              <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-primary" />
-                <span className="text-base text-foreground font-medium">Joining Date</span>
-              </div>
-              <span className="text-base text-muted">20 July 2026</span>
-            </div>
-            <div className="px-8 py-5 flex items-center justify-between hover:bg-secondary/50 transition-colors">
-              <div className="flex items-center gap-3">
-                <Users className="w-5 h-5 text-primary" />
-                <span className="text-base text-foreground font-medium">Department</span>
-              </div>
-              <span className="text-base text-muted">Engineering</span>
-            </div>
-            <div className="px-8 py-5 flex items-center justify-between hover:bg-secondary/50 transition-colors">
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-primary" />
-                <span className="text-base text-foreground font-medium">Probation</span>
-              </div>
-              <span className="text-base text-muted">6 Months</span>
-            </div>
-            <div className="px-8 py-5 flex items-center justify-between hover:bg-secondary/50 transition-colors">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-primary" />
-                <span className="text-base text-foreground font-medium">Work Location</span>
-              </div>
-              <span className="text-base text-muted">Bangalore</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Benefits Section */}
-        <div className="mb-12">
-          <h3 className="text-xl font-semibold text-foreground mb-6">Benefits</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              { icon: Code2, label: 'Laptop' },
-              { icon: Shield, label: 'Medical Insurance' },
-              { icon: Clock, label: 'Paid Leave' },
-              { icon: Zap, label: 'Performance Bonus' },
-              { icon: Heart, label: 'Flexible Hours' },
-              { icon: MapPin, label: 'Remote Option' },
-              { icon: Banknote, label: 'PF & Gratuity' },
-              { icon: Users, label: 'Team Events' },
-            ].map((benefit, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:border-primary transition-colors"
+            <div className="flex flex-col items-stretch sm:items-end gap-1.5 shrink-0 w-full sm:w-auto">
+              <button
+                onClick={() => setShowAcceptModal(true)}
+                disabled={busy}
+                className="px-6 py-2.5 rounded-lg bg-[#2563EB] text-white font-medium hover:bg-[#1D4ED8] hover:-translate-y-0.5 hover:shadow-lg active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 shadow-md shadow-blue-200"
               >
-                <div className="w-5 h-5 text-accent flex-shrink-0">
-                  <benefit.icon className="w-5 h-5" />
-                </div>
-                <span className="text-sm font-medium text-foreground">{benefit.label}</span>
+                Accept Offer
+              </button>
+              <div className="flex flex-col items-center sm:items-end">
+                <button
+                  onClick={() => setShowRejectModal(true)}
+                  disabled={busy}
+                  className="text-sm text-[#64748B] hover:text-[#EF4444] font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Decline
+                </button>
+                <span className="text-[11px] text-[#94A3B8]">
+                  Are you sure?
+                </span>
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
-        {/* Notes Section */}
-        <div className="mb-12 bg-secondary rounded-2xl p-8">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Important Notes</h3>
-          <ul className="space-y-3 text-muted">
-            <li className="flex gap-3">
-              <span className="text-primary font-bold">•</span>
-              <span>This offer is contingent upon successful background verification and final approval from the hiring team.</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="text-primary font-bold">•</span>
-              <span>Please confirm your acceptance or rejection within 7 days of receiving this offer.</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="text-primary font-bold">•</span>
-              <span>Your start date may be negotiable based on your current employment situation.</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="text-primary font-bold">•</span>
-              <span>For any queries, please contact our HR team at hr@abc-tech.com</span>
-            </li>
-          </ul>
-        </div>
+        {/* Offer letter preview (feedback #23) */}
+        <button
+          onClick={() => setShowPreviewModal(true)}
+          className="mb-6 flex items-center gap-1.5 text-sm text-[#2563EB] font-medium hover:underline"
+        >
+          <FileText className="w-3.5 h-3.5" />
+          Preview Offer Letter
+        </button>
 
-        {/* Timeline Section */}
-        <div className="mb-16 bg-card border border-border rounded-2xl p-8">
-          <h3 className="text-lg font-semibold text-foreground mb-8">What Happens Next</h3>
-          <div className="space-y-6">
-            {[
-              { step: 1, title: 'Accept or Decline', desc: 'Review the offer and let us know your decision' },
-              { step: 2, title: 'Background Check', desc: 'We will initiate the standard background verification process' },
-              { step: 3, title: 'Final Approval', desc: 'HR team completes the necessary formalities' },
-              { step: 4, title: 'Onboarding', desc: 'You&apos;ll receive onboarding instructions and documents' },
-            ].map((item, idx) => (
-              <div key={idx} className="flex gap-6">
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold">
-                    {item.step}
-                  </div>
-                  {idx < 3 && <div className="w-0.5 h-12 bg-border mt-2" />}
-                </div>
-                <div className="pt-2 pb-6">
-                  <h4 className="font-semibold text-foreground text-base mb-1">{item.title}</h4>
-                  <p className="text-muted text-sm">{item.desc}</p>
+        {actionError && (
+          <div className="mb-6 bg-[#FEE2E2] border border-[#FECACA] rounded-xl px-5 py-3 text-sm text-[#DC2626]">
+            {actionError}
+          </div>
+        )}
+
+        {/* Two column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+          {/* Left column (70%) */}
+          <div className="space-y-6 min-w-0">
+            {/* Merged: Offer Summary + Compensation + Benefits, divided by hairlines (feedback #2) */}
+            <div
+              className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 animate-in fade-in slide-in-from-bottom-2 fill-mode-both"
+              style={{ animationDuration: "500ms", animationDelay: "80ms" }}
+            >
+              {/* Offer Summary — plain rows, no icons (feedback #3, #4) */}
+              <div className="p-6">
+                <h3 className="text-base font-semibold text-[#0F172A] mb-1">
+                  Offer Summary
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+                  <DetailRow label="Position" value={offer.jobTitle} />
+                  <DetailRow
+                    label="Department"
+                    value={offer.department ?? "—"}
+                  />
+                  <DetailRow label="Location" value={offer.workLocation} />
+                  <DetailRow
+                    label="Joining"
+                    value={formatDate(offer.joiningDate)}
+                  />
+                  <DetailRow
+                    label="Employment"
+                    value={employmentType}
+                    divider={false}
+                  />
                 </div>
               </div>
-            ))}
+
+              {/* Compensation */}
+              <div className="px-6 py-5 border-t border-[#F1F5F9]">
+                <h3 className="text-base font-semibold text-[#0F172A] mb-4">
+                  Compensation
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-xs text-[#64748B] mb-1">Annual</p>
+                    <p className="text-xl sm:text-2xl font-bold text-[#1D4ED8]">
+                      {formatCurrency(offer.annualCTC, offer.currency)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#64748B] mb-1">
+                      Approx Monthly
+                    </p>
+                    <p className="text-base font-semibold text-[#475569]">
+                      {formatCurrency(monthlyCTC, offer.currency)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#64748B] mb-1">Employment</p>
+                    <p className="text-base font-semibold text-[#475569]">
+                      {employmentType}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#64748B] mb-1">Currency</p>
+                    <p className="text-base font-semibold text-[#475569]">
+                      {offer.currency || "INR"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Benefits — flat checklist, no grouping/icons (feedback #6) */}
+              {offer.benefits && offer.benefits.length > 0 && (
+                <div className="px-6 py-5 border-t border-[#F1F5F9]">
+                  <h3 className="text-base font-semibold text-[#0F172A] mb-3">
+                    Benefits
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+                    {offer.benefits.map((benefit, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 text-sm text-[#334155] py-1"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+                        {benefit}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Important Information — always visible, no accordion (feedback #7) */}
+            <div
+              className="rounded-2xl p-6 animate-in fade-in slide-in-from-bottom-2 fill-mode-both"
+              style={{
+                background: "#EFF6FF",
+                borderLeft: "5px solid #2563EB",
+                animationDuration: "500ms",
+                animationDelay: "160ms",
+              }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Info className="w-4 h-4 text-[#2563EB]" />
+                <h3 className="text-sm font-semibold text-[#0F172A]">
+                  Important Information
+                </h3>
+              </div>
+              <ul className="space-y-2.5 text-sm text-[#475569]">
+                {offer.notes ? (
+                  <li className="flex gap-2.5">
+                    <span className="text-[#2563EB] font-bold">•</span>
+                    <span>{offer.notes}</span>
+                  </li>
+                ) : (
+                  <>
+                    <li className="flex gap-2.5">
+                      <span className="text-[#2563EB] font-bold">•</span>
+                      <span>
+                        This offer is contingent upon successful background
+                        verification and final approval from the hiring team.
+                      </span>
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-[#2563EB] font-bold">•</span>
+                      <span>
+                        Please confirm your acceptance or rejection within 7
+                        days of receiving this offer.
+                      </span>
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-[#2563EB] font-bold">•</span>
+                      <span>
+                        Your start date may be negotiable based on your current
+                        employment situation.
+                      </span>
+                    </li>
+                  </>
+                )}
+                <li className="flex gap-2.5">
+                  <span className="text-[#2563EB] font-bold">•</span>
+                  <span>
+                    For any queries, please contact our HR team at
+                    hr@abc-tech.com
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Right column (30%) — reordered: Status, Offer Details, Timeline, HR (feedback #8) */}
+          <div className="lg:sticky lg:top-20 space-y-4">
+            {/* Status + Countdown — progress first, date second (feedback #10) */}
+            <SidebarCard delay={0}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs text-[#64748B] font-medium">
+                  Offer Status
+                </span>
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusStyle.bg} ${statusStyle.text}`}
+                >
+                  {statusStyle.label}
+                </span>
+              </div>
+
+              <div className={`rounded-xl p-4 ${urgencyStyle.bg}`}>
+                <p className="text-xs font-medium text-[#64748B] mb-2">
+                  Offer expires
+                </p>
+                <p className={`text-lg font-bold ${urgencyStyle.text} mb-2`}>
+                  {countdown.days} Days Remaining
+                </p>
+                <div className="h-1.5 w-full rounded-full bg-white/70 overflow-hidden mb-2">
+                  <div
+                    className={`h-full rounded-full ${urgencyStyle.bar} transition-all duration-700`}
+                    style={{ width: `${expiryProgress * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-[#64748B]">
+                  {formatDate(offer.expiryDate)}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2 mt-4">
+                <button
+                  onClick={() => setShowAcceptModal(true)}
+                  disabled={busy}
+                  className="w-full px-5 py-2.5 rounded-lg bg-[#2563EB] text-white font-medium hover:bg-[#1D4ED8] hover:-translate-y-0.5 hover:shadow-lg active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {accepting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" /> Processing…
+                    </span>
+                  ) : (
+                    "Accept Offer"
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowRejectModal(true)}
+                  disabled={busy}
+                  className="w-full text-sm text-[#64748B] hover:text-[#EF4444] font-medium py-1 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {rejecting ? "Processing…" : "Decline offer"}
+                </button>
+              </div>
+            </SidebarCard>
+
+            {/* Offer Details — with dividers (feedback #9) */}
+            <SidebarCard title="Offer Details" delay={80}>
+              <DetailRow label="Company" value={offer.companyName} />
+              <DetailRow label="Offer Number" value={offer.offerNumber} />
+              <DetailRow label="Employment Type" value={employmentType} />
+              {offer.department && (
+                <DetailRow label="Department" value={offer.department} />
+              )}
+              <DetailRow
+                label="Offer Date"
+                value={formatDate(offer.offerDate)}
+              />
+              <DetailRow
+                label="Expiry Date"
+                value={formatDate(offer.expiryDate)}
+              />
+              <DetailRow
+                label="Joining Date"
+                value={formatDate(offer.joiningDate)}
+              />
+              {offer.probationPeriod && (
+                <DetailRow label="Probation" value={offer.probationPeriod} />
+              )}
+              <DetailRow
+                label="Location"
+                value={offer.workLocation}
+                divider={false}
+              />
+            </SidebarCard>
+
+            {/* Timeline (compact tracker) */}
+            <SidebarCard title="Timeline" delay={160}>
+              <CompactTracker accepted={false} />
+            </SidebarCard>
+
+            {/* HR Contact — redesigned, no big blue button, simple "Email HR" (feedback #11) */}
+            <SidebarCard title="Need Help?" delay={240}>
+              <div className="space-y-5">
+                {/* Header */}
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-[#2563EB] to-[#1D4ED8] text-white shadow-lg shadow-blue-200">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold text-[#0F172A]">
+                      HR Support Team
+                    </h4>
+
+                    <p className="text-xs text-[#64748B]">
+                      We're here to help you throughout your hiring process.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Contact Email */}
+                {offer.contactEmail && (
+                  <a
+                    href={`mailto:${offer.contactEmail}`}
+                    className="group flex items-center justify-between rounded-xl border border-[#E2E8F0] bg-white p-4 transition-all duration-200 hover:border-[#2563EB] hover:bg-[#F8FAFC] hover:shadow-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-[#2563EB]">
+                        <Mail className="h-4 w-4" />
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-[#64748B]">Email</p>
+
+                        <p className="text-sm font-medium text-[#0F172A] break-all">
+                          {offer.contactEmail}
+                        </p>
+                      </div>
+                    </div>
+
+                    <ExternalLink className="h-4 w-4 text-[#CBD5E1] transition group-hover:text-[#2563EB]" />
+                  </a>
+                )}
+
+                {/* Contact Phone */}
+                {offer.contactPhone && (
+                  <a
+                    href={`tel:${offer.contactPhone}`}
+                    className="group flex items-center justify-between rounded-xl border border-[#E2E8F0] bg-white p-4 transition-all duration-200 hover:border-[#22C55E] hover:bg-[#F8FAFC] hover:shadow-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-[#16A34A]">
+                        <Phone className="h-4 w-4" />
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-[#64748B]">Phone</p>
+
+                        <p className="text-sm font-medium text-[#0F172A]">
+                          {offer.contactPhone}
+                        </p>
+                      </div>
+                    </div>
+
+                    <ExternalLink className="h-4 w-4 text-[#CBD5E1] transition group-hover:text-[#16A34A]" />
+                  </a>
+                )}
+
+                {/* Empty State */}
+                {!offer.contactEmail && !offer.contactPhone && (
+                  <div className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-4 py-5 text-center">
+                    <Mail className="mx-auto mb-2 h-5 w-5 text-[#94A3B8]" />
+
+                    <p className="text-sm font-medium text-[#475569]">
+                      Contact details unavailable
+                    </p>
+
+                    <p className="mt-1 text-xs text-[#64748B]">
+                      Please wait for the recruiter to contact you regarding the
+                      next steps.
+                    </p>
+                  </div>
+                )}
+
+                {/* Information */}
+                <div className="rounded-xl border border-[#DBEAFE] bg-[#EFF6FF] p-4">
+                  <div className="flex gap-2">
+                    <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#2563EB]" />
+
+                    <p className="text-xs leading-5 text-[#1E3A8A]">
+                      For any questions regarding your offer, onboarding
+                      process, documentation, or joining date, please reach out
+                      using the contact information provided above.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </SidebarCard>
           </div>
         </div>
       </main>
 
-      {/* Sticky Action Bar */}
-      <div className="sticky bottom-0 bg-card border-t border-border">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center sm:justify-end">
-          <button className="px-6 py-3 rounded-lg border border-border text-foreground font-medium hover:bg-secondary transition-colors order-2 sm:order-1">
-            Ask Questions
-          </button>
-          <button className="px-8 py-3 rounded-lg bg-destructive text-destructive hover:bg-red-700 font-medium transition-colors order-3">
-            Decline
-          </button>
-          <button className="px-8 py-3 rounded-lg bg-accent text-accent-foreground font-medium hover:bg-green-700 transition-colors order-1 sm:order-4">
-            Accept Offer
-          </button>
+      <Footer companyName={offer.companyName} />
+
+      {/* Sticky mobile/global action bar — shorter now (feedback #18) */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E8EEF7] shadow-[0_-4px_16px_rgba(15,23,42,0.08)] transition-transform duration-300 ${
+          showStickyBar ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center justify-between gap-4">
+          <div className="min-w-0 hidden sm:block">
+            <p className="text-sm font-semibold text-[#0F172A] truncate">
+              {offer.jobTitle}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setShowRejectModal(true)}
+              disabled={busy}
+              className="flex-1 sm:flex-none px-4 py-1.5 rounded-lg border border-[#E2E8F0] text-[#475569] text-sm font-medium hover:bg-[#F8FAFC] active:scale-95 transition-all disabled:opacity-60"
+            >
+              Decline
+            </button>
+            <button
+              onClick={() => setShowAcceptModal(true)}
+              disabled={busy}
+              className="flex-1 sm:flex-none px-5 py-1.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-[#1D4ED8] active:scale-95 transition-all disabled:opacity-60"
+            >
+              Accept Offer
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Accept Confirmation Modal — checklist style (feedback #14) */}
+      <Modal
+        open={showAcceptModal}
+        busy={accepting}
+        labelledBy="accept-modal-title"
+        onClose={() => {
+          setShowAcceptModal(false);
+          setAgreeTerms(false);
+        }}
+      >
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 rounded-full bg-[#DCFCE7] flex items-center justify-center mx-auto mb-4">
+            <PartyPopper className="w-7 h-7 text-[#22C55E]" />
+          </div>
+          <h3
+            id="accept-modal-title"
+            className="text-xl font-bold text-[#0F172A] mb-1"
+          >
+            Accept Employment Offer
+          </h3>
+          <p className="text-sm text-[#64748B]">Congratulations!</p>
+          <p className="text-sm font-medium text-[#0F172A] mt-1">
+            {offer.jobTitle} · {offer.companyName}
+          </p>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-3">
+            Before continuing
+          </p>
+          <div className="space-y-2 text-sm text-[#334155]">
+            <p className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+              Offer reviewed
+            </p>
+            <p className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+              Joining date understood ({formatDate(offer.joiningDate)})
+            </p>
+            <p className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
+              Terms accepted
+            </p>
+          </div>
+        </div>
+
+        <label className="flex items-start gap-2.5 mb-6 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={agreeTerms}
+            onChange={(e) => setAgreeTerms(e.target.checked)}
+            className="mt-0.5 w-4 h-4 rounded border-[#CBD5E1] text-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40"
+          />
+          <span className="text-sm text-[#475569]">
+            I have reviewed this offer.
+          </span>
+        </label>
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setShowAcceptModal(false);
+              setAgreeTerms(false);
+            }}
+            disabled={accepting}
+            className="flex-1 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] transition-colors disabled:opacity-60"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleAccept}
+            disabled={accepting || !agreeTerms}
+            className="flex-1 px-6 py-3 rounded-lg bg-[#22C55E] text-white font-medium hover:bg-[#16A34A] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {accepting && <Loader2 className="w-4 h-4 animate-spin" />}
+            {accepting ? "Processing…" : "Accept"}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Reject Confirmation Modal (feedback #15) */}
+      <Modal
+        open={showRejectModal}
+        busy={rejecting}
+        labelledBy="reject-modal-title"
+        onClose={resetRejectForm}
+      >
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto mb-4">
+            <XCircle className="w-7 h-7 text-[#EF4444]" />
+          </div>
+          <h3
+            id="reject-modal-title"
+            className="text-xl font-bold text-[#0F172A] mb-1"
+          >
+            Decline Employment Offer
+          </h3>
+          <p className="text-sm text-[#64748B]">
+            Are you sure you want to decline this opportunity? This will notify
+            the recruiter.
+          </p>
+        </div>
+
+        <p className="text-sm font-medium text-[#0F172A] mb-2.5">
+          Why are you declining?
+        </p>
+        <div className="space-y-2 mb-4">
+          {REJECT_REASONS.map((reason) => (
+            <label
+              key={reason}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-[#E2E8F0] cursor-pointer hover:bg-[#F8FAFC] has-[:checked]:border-[#EF4444] has-[:checked]:bg-[#FEF2F2] transition-colors"
+            >
+              <input
+                type="radio"
+                name="rejectReason"
+                checked={rejectCategory === reason}
+                onChange={() => setRejectCategory(reason)}
+                className="w-4 h-4 text-[#EF4444] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/40"
+              />
+              <span className="text-sm text-[#334155]">{reason}</span>
+            </label>
+          ))}
+        </div>
+        {rejectTouched && !rejectCategory && (
+          <p className="text-xs text-[#EF4444] mb-4 -mt-2">
+            Please select a reason.
+          </p>
+        )}
+
+        <p className="text-sm font-medium text-[#0F172A] mb-2">
+          {rejectCategory === "Other" ? "Please specify" : "Comment (optional)"}
+        </p>
+        <textarea
+          value={rejectComment}
+          onChange={(e) => setRejectComment(e.target.value)}
+          onBlur={() => setRejectTouched(true)}
+          placeholder="Let us know more…"
+          rows={3}
+          className={[
+            "w-full rounded-lg border px-4 py-3 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/30 mb-1 resize-none",
+            rejectTouched && rejectCategory === "Other" && !rejectComment.trim()
+              ? "border-[#EF4444]"
+              : "border-[#E2E8F0]",
+          ].join(" ")}
+        />
+        <p className="text-xs text-[#94A3B8] mb-4">
+          You can also provide feedback.
+        </p>
+        {rejectTouched &&
+          rejectCategory === "Other" &&
+          !rejectComment.trim() && (
+            <p className="text-xs text-[#EF4444] -mt-3 mb-4">
+              Please tell us a bit more.
+            </p>
+          )}
+
+        <div className="flex gap-3">
+          <button
+            onClick={resetRejectForm}
+            disabled={rejecting}
+            className="flex-1 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] transition-colors disabled:opacity-60"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleReject}
+            disabled={rejecting || !isRejectValid}
+            className="flex-1 px-6 py-3 rounded-lg bg-[#EF4444] text-white font-medium hover:bg-[#DC2626] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {rejecting && <Loader2 className="w-4 h-4 animate-spin" />}
+            {rejecting ? "Processing…" : "Decline Offer"}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Offer Letter Preview Modal (feedback #23) */}
+      <Modal
+        open={showPreviewModal}
+        labelledBy="preview-modal-title"
+        onClose={() => setShowPreviewModal(false)}
+      >
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <FileText className="w-5 h-5 text-[#2563EB]" />
+            <h3
+              id="preview-modal-title"
+              className="text-lg font-bold text-[#0F172A]"
+            >
+              Offer Letter Preview
+            </h3>
+          </div>
+          <p className="text-xs text-[#94A3B8]">Offer #{offer.offerNumber}</p>
+        </div>
+
+        <div className="border border-[#E2E8F0] rounded-xl p-6 bg-[#F8FAFC] text-sm text-[#334155] leading-relaxed space-y-4">
+          <p>
+            Dear Candidate, we are pleased to offer you the position of{" "}
+            <strong>{offer.jobTitle}</strong> at{" "}
+            <strong>{offer.companyName}</strong>
+            {offer.department ? `, ${offer.department} department` : ""}.
+          </p>
+          <p>
+            Your work location will be <strong>{offer.workLocation}</strong> and
+            your anticipated joining date is{" "}
+            <strong>{formatDate(offer.joiningDate)}</strong>.
+          </p>
+          <p>
+            Your annual compensation will be{" "}
+            <strong>{formatCurrency(offer.annualCTC, offer.currency)}</strong>{" "}
+            (approximately {formatCurrency(monthlyCTC, offer.currency)} per
+            month), employment type <strong>{employmentType}</strong>.
+          </p>
+          {offer.benefits && offer.benefits.length > 0 && (
+            <p>Benefits included: {offer.benefits.join(", ")}.</p>
+          )}
+          <p>
+            This offer is valid until{" "}
+            <strong>{formatDate(offer.expiryDate)}</strong>.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setShowPreviewModal(false)}
+          className="w-full mt-6 px-6 py-3 rounded-lg bg-[#2563EB] text-white font-medium hover:bg-[#1D4ED8] active:scale-95 transition-all"
+        >
+          Close Preview
+        </button>
+      </Modal>
     </div>
   );
 }

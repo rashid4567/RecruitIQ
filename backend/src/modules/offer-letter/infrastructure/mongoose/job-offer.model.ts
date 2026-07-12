@@ -10,14 +10,6 @@ export enum OfferStatus {
   REVOKED = "REVOKED",
 }
 
-export enum EmploymentType {
-  FULL_TIME = "FULL_TIME",
-  PART_TIME = "PART_TIME",
-  CONTRACT = "CONTRACT",
-  INTERN = "INTERN",
-  FREELANCE = "FREELANCE",
-}
-
 export enum Currency {
   INR = "INR",
   USD = "USD",
@@ -34,7 +26,6 @@ export interface OfferDocument extends Document {
   jobTitle: string;
   annualCTC: number;
   currency: Currency;
-  employmentType: EmploymentType;
   department?: string;
   workLocation: string;
   joiningDate: Date;
@@ -45,6 +36,8 @@ export interface OfferDocument extends Document {
   expiryDate: Date;
   status: OfferStatus;
   offerLetterUrl?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   sentAt?: Date;
   viewedAt?: Date;
   acceptedAt?: Date;
@@ -121,12 +114,6 @@ const OfferSchema = new Schema<OfferDocument>(
       default: Currency.INR,
     },
 
-    employmentType: {
-      type: String,
-      enum: Object.values(EmploymentType),
-      required: true,
-    },
-
     department: {
       type: String,
       trim: true,
@@ -182,6 +169,19 @@ const OfferSchema = new Schema<OfferDocument>(
     offerLetterUrl: {
       type: String,
       trim: true,
+    },
+
+    contactEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      maxlength: 255,
+    },
+
+    contactPhone: {
+      type: String,
+      trim: true,
+      maxlength: 20,
     },
 
     sentAt: {

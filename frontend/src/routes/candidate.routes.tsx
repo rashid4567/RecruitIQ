@@ -41,6 +41,9 @@ const MyInterviews = lazy(
 const MyInterviewDeatails = lazy(
   () => import("../module/interview/pages/candidate.interview.detail"),
 );
+const EmploymentOfferPage = lazy(
+  () => import("../module/offer-letter/page/offer-letter"),
+);
 const CandidateRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -70,6 +73,7 @@ const CandidateRoutes = () => {
               path="interviews/:interviewId/room"
               element={<LiveMeetingPage />}
             />
+            <Route path="/offer/:offerId" element={<EmploymentOfferPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

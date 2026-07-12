@@ -39,8 +39,8 @@ export function VariablesSidebar({ variables, onInsertVariable }: VariablesSideb
 
   return (
     <aside className="sticky top-24 flex flex-col gap-0 rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-200/50">
-      {/* Header */}
-      <div className="px-5 pt-5 pb-4 border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white">
+
+      <div className="px-5 pt-5 pb-4 border-b border-slate-100 bg-linear-to-b from-slate-50 to-white">
         <div className="flex items-center gap-2.5 mb-1">
           <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center">
             <Braces className="w-3.5 h-3.5 text-white" />
@@ -53,7 +53,7 @@ export function VariablesSidebar({ variables, onInsertVariable }: VariablesSideb
         </p>
       </div>
 
-      {/* Variable list */}
+
       <div className="p-3 flex flex-col gap-1.5">
         {variables.map((v, i) => {
           const palette = VAR_COLORS[i % VAR_COLORS.length];
@@ -73,7 +73,7 @@ export function VariablesSidebar({ variables, onInsertVariable }: VariablesSideb
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", palette.dot)} />
+                      <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", palette.dot)} />
                       <code className={cn(
                         "text-[11px] font-mono font-semibold truncate",
                         isJustInserted ? palette.text : "text-slate-700 group-hover:" + palette.text
@@ -82,7 +82,7 @@ export function VariablesSidebar({ variables, onInsertVariable }: VariablesSideb
                       </code>
                     </div>
                     <ChevronRight className={cn(
-                      "w-3 h-3 flex-shrink-0 transition-all duration-200",
+                      "w-3 h-3 shrink-0 transition-all duration-200",
                       isJustInserted
                         ? `${palette.text} translate-x-0.5`
                         : "text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5"
@@ -102,9 +102,9 @@ export function VariablesSidebar({ variables, onInsertVariable }: VariablesSideb
       </div>
 
       {/* Pro tip */}
-      <div className="mx-3 mb-3 p-3.5 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/60">
+      <div className="mx-3 mb-3 p-3.5 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-200/60">
         <div className="flex items-start gap-2">
-          <Lightbulb className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+          <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-[11px] font-semibold text-amber-900 mb-0.5">Pro tip</p>
             <p className="text-[10px] text-amber-700/90 leading-relaxed">

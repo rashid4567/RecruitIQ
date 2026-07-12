@@ -25,6 +25,8 @@ export class GetCandidateOfferController {
     next: NextFunction,
   ): Promise<void> => {
     try {
+
+      console.log("hit get candidate offer controller")
       const candidateId = req.user?.userId;
 
       if (!candidateId) {
@@ -40,7 +42,7 @@ export class GetCandidateOfferController {
         offerId: req.params.offerId,
         candidateId,
       });
-
+      console.log(result ? result : "no result")
       ApiResponse.success(
         res,
         HTTP_STATUS.OK,

@@ -20,7 +20,7 @@ export class AcceptOfferUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.APPLICATION_NOT_FOUND);
     }
 
-    if (offer.belongsToCandidate(input.candidateId)) {
+    if (!offer.belongsToCandidate(input.candidateId)) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACCESS);
     }
 

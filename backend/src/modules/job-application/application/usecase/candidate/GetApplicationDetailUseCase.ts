@@ -7,6 +7,7 @@ import {
   GetApplicationDetailRequestDTO,
 } from "../../dto/application-detail.response.dto";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { OfferRepository } from "../../../../offer-letter/domain/repository/offer-letter.repository";
 
 export class GetApplicationDetailUseCase implements IUseCase<
   GetApplicationDetailRequestDTO,
@@ -15,6 +16,7 @@ export class GetApplicationDetailUseCase implements IUseCase<
   constructor(
     private readonly applicationRepo: JobApplicationRepository,
     private readonly jobRepo: JobRepository,
+    private readonly offerRepo : OfferRepository
   ) {}
 
   async execute(
@@ -40,6 +42,8 @@ export class GetApplicationDetailUseCase implements IUseCase<
     if (!job) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
+
+    const offer = await this.offerRepo.findByApplicationId(application.id);
 
     return {
       application: {
@@ -77,6 +81,15 @@ export class GetApplicationDetailUseCase implements IUseCase<
         postedOn: job.candidateView().postedOn,
         expiresAt: job.candidateView().expiresAt,
       },
+
+      offer: offer
+    ? {
+        id: offer.id,
+        status: offer.status,
+        expiryDate: offer.expiryDate,
+        offerLetterUrl: `/candidate/offer/${offer.id}`,
+      }
+    : null,
     };
   }
 }

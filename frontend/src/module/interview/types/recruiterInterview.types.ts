@@ -155,6 +155,7 @@ export interface EndInterviewResponse {
   jobId: string;
   candidateId: string;
   recruiterId: string;
+  candidateName : string;
   round: number;
   title: string;
   description?: string;

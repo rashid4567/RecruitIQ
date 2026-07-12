@@ -1,6 +1,5 @@
 import {
   Currency,
-  EmploymentType,
   OfferStatus,
 } from "../../domain/entity/offer-letter.entity";
 
@@ -16,7 +15,6 @@ export interface GetCandidateOfferResponseDTO {
   jobTitle: string;
   annualCTC: number;
   currency: Currency;
-  employmentType: EmploymentType;
   department?: string;
   workLocation: string;
   joiningDate: Date;
@@ -26,6 +24,8 @@ export interface GetCandidateOfferResponseDTO {
   offerDate: Date;
   expiryDate: Date;
   status: OfferStatus;
+  contactEmail?: string;
+  contactPhone?: string;
   viewedAt?: Date;
   createdAt: Date;
   updatedAt: Date;

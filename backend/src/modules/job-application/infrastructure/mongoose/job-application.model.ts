@@ -235,10 +235,6 @@ JobApplicationSchema.index({
 });
 
 JobApplicationSchema.index({
-  status: 1,
-  "interview.scheduledAt": 1,
-});
-JobApplicationSchema.index({
   jobId: 1,
   "aiAnalysis.overallScore": -1,
 });

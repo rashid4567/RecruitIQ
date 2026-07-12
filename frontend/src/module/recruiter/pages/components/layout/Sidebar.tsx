@@ -8,6 +8,7 @@ import {
   LogOut,
   Zap,
   Sparkles,
+  FileText,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,23 +23,36 @@ const navItems = [
     id: "dashboard",
     path: "/recruiter/dashboard",
   },
-  { icon: Briefcase, label: "Jobs", id: "jobs", path: "/recruiter/jobs" },
- 
+  {
+    icon: Briefcase,
+    label: "Jobs",
+    id: "jobs",
+    path: "/recruiter/jobs",
+  },
+  {
+    icon: FileText,
+    label: "Applications",
+    id: "applications",
+    path: "/recruiter/applications",
+  },
   {
     icon: Calendar,
     label: "Interviews",
     id: "interviews",
     path: "/recruiter/interviews",
   },
- 
-
   {
     icon: CreditCard,
     label: "Billing",
     id: "billing",
     path: "/recruiter/plans",
   },
-  { icon: User, label: "Profile", id: "profile", path: "/recruiter/profile" },
+  {
+    icon: User,
+    label: "Profile",
+    id: "profile",
+    path: "/recruiter/profile",
+  },
 ];
 
 interface SidebarProps {

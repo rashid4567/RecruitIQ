@@ -1,3 +1,6 @@
+import { UserRepository } from "../../../auth/domain/repositories/user.repository";
+import { MongooseUserRepository } from "../../../auth/infrastructure/repositories/mongoose-user.repository";
+import { sendEmailByEventUC } from "../../../email/presentation/container/email-template.container";
 import { JobApplicationRepository } from "../../../job-application/domain/repository/job-application.repository";
 import { MongooseJobApplicationRepository } from "../../../job-application/infrastructure/repository/MongooseJobApplicationRepository";
 import { JobRepository } from "../../../job/domain/repositories/job.repository";
@@ -16,27 +19,47 @@ import { RejectOfferController } from "../controller/candidate/rejectOffer.contr
 import { CreateOfferLetterController } from "../controller/recruiter/createOffer.controller";
 import { GetOfferDetailsController } from "../controller/recruiter/GetOfferDetails.controller";
 import { GetRecruiterOffersController } from "../controller/recruiter/GetRecruiterOffers.controller";
+import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
 
-
-const offerRepo : OfferRepository = new MongooseOfferRepository();
-const applicationRepo : JobApplicationRepository = new MongooseJobApplicationRepository();
-const jobRepo : JobRepository = new MongooseJobRepository();
-
+const offerRepo: OfferRepository = new MongooseOfferRepository();
+const applicationRepo: JobApplicationRepository =
+  new MongooseJobApplicationRepository();
+const jobRepo: JobRepository = new MongooseJobRepository();
+const userRepo: UserRepository = new MongooseUserRepository();
+const sendEmailByEventuc = sendEmailByEventUC;
+const createNotificationuc = createNotificationUC;
 
 const getRecruiterOffersUC = new GetRecruiterOffersUseCase(offerRepo);
 const getRecruiterofferDetailsUC = new GetOfferDetailsUseCase(offerRepo);
-const createofferUC = new CreateOfferUseCase(offerRepo,applicationRepo,jobRepo);
+const createofferUC = new CreateOfferUseCase(
+  offerRepo,
+  applicationRepo,
+  jobRepo,
+  userRepo,
+  sendEmailByEventuc,
+  createNotificationuc,
+);
 
-
-const getCandidateofferUC = new GetCandidateOfferUseCase(offerRepo)
+const getCandidateofferUC = new GetCandidateOfferUseCase(offerRepo);
 const acceptOfferUC = new AcceptOfferUseCase(offerRepo);
 const rejectOfferUC = new RejectOfferUseCase(offerRepo);
 
+export const createOfferController = new CreateOfferLetterController(
+  createofferUC,
+);
+export const getrecruiterOffersController = new GetRecruiterOffersController(
+  getRecruiterOffersUC,
+);
+export const getofferDetailsController = new GetOfferDetailsController(
+  getRecruiterofferDetailsUC,
+);
 
-export const createOfferController = new CreateOfferLetterController(createofferUC);
-export const getrecruiterOffersController = new GetRecruiterOffersController(getRecruiterOffersUC);
-export const getofferDetailsController = new GetOfferDetailsController(getRecruiterofferDetailsUC);
-
-export const getcandidateofferController = new GetCandidateOfferController(getCandidateofferUC);
-export const acceptCandidateOfferController = new AcceptOfferController(acceptOfferUC)
-export const rejectcandidateofferController = new RejectOfferController(rejectOfferUC);
+export const getcandidateofferController = new GetCandidateOfferController(
+  getCandidateofferUC,
+);
+export const acceptCandidateOfferController = new AcceptOfferController(
+  acceptOfferUC,
+);
+export const rejectcandidateofferController = new RejectOfferController(
+  rejectOfferUC,
+);

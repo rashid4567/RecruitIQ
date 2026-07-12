@@ -37,7 +37,6 @@ export interface OfferProps {
   jobTitle: string;
   annualCTC: number;
   currency: Currency;
-  employmentType: EmploymentType;
   department?: string;
   workLocation: string;
   joiningDate: Date;
@@ -48,6 +47,8 @@ export interface OfferProps {
   expiryDate: Date;
   status: OfferStatus;
   offerLetterUrl?: string;
+  contactEmail?: string;
+contactPhone?: string;
   sentAt?: Date;
   viewedAt?: Date;
   acceptedAt?: Date;
@@ -64,20 +65,20 @@ export class Offer {
   }
 
   static create(
-    props: Omit<
-      OfferProps,
-      | "id"
-      | "status"
-      | "offerLetterUrl"
-      | "sentAt"
-      | "viewedAt"
-      | "acceptedAt"
-      | "rejectedAt"
-      | "candidateRemarks"
-      | "isDeleted"
-      | "createdAt"
-      | "updatedAt"
-    >,
+     props: Omit<
+    OfferProps,
+    | "id"
+    | "status"
+    | "offerLetterUrl"
+    | "sentAt"
+    | "viewedAt"
+    | "acceptedAt"
+    | "rejectedAt"
+    | "candidateRemarks"
+    | "isDeleted"
+    | "createdAt"
+    | "updatedAt"
+  >,
   ): Offer {
     return new Offer({
       ...props,
@@ -133,10 +134,6 @@ export class Offer {
 
     if (!this.props.currency) {
       throw new DomainError(DOMAIN_ERROR_CODES.CURRENCY_REQUIRED);
-    }
-
-    if (!this.props.employmentType) {
-      throw new DomainError(DOMAIN_ERROR_CODES.EMPLOYMENT_TYPE_REQUIRED);
     }
 
     if (!this.props.workLocation?.trim()) {
@@ -274,80 +271,11 @@ export class Offer {
     this.touch();
   }
 
-  updateOffer(data: {
-    annualCTC?: number;
-    currency?: Currency;
-    employmentType?: EmploymentType;
-    department?: string;
-    workLocation?: string;
-    joiningDate?: Date;
-    probationPeriod?: string;
-    benefits?: string[];
-    notes?: string;
-    expiryDate?: Date;
-  }): void {
-    this.ensureEditable();
-
-    if (data.annualCTC !== undefined) {
-      if (data.annualCTC <= 0) {
-        throw new DomainError(DOMAIN_ERROR_CODES.INVALID_ANNUAL_CTC);
-      }
-
-      this.props.annualCTC = data.annualCTC;
-    }
-
-    if (data.currency !== undefined) {
-      this.props.currency = data.currency;
-    }
-
-    if (data.employmentType !== undefined) {
-      this.props.employmentType = data.employmentType;
-    }
-
-    if (data.department !== undefined) {
-      this.props.department = data.department;
-    }
-
-    if (data.workLocation !== undefined) {
-      this.props.workLocation = data.workLocation;
-    }
-
-    if (data.joiningDate !== undefined) {
-      this.props.joiningDate = data.joiningDate;
-    }
-
-    if (data.probationPeriod !== undefined) {
-      this.props.probationPeriod = data.probationPeriod;
-    }
-
-    if (data.benefits !== undefined) {
-      this.props.benefits = [...data.benefits];
-    }
-
-    if (data.notes !== undefined) {
-      this.props.notes = data.notes;
-    }
-
-    if (data.expiryDate !== undefined) {
-      if (data.expiryDate <= this.props.offerDate) {
-        throw new DomainError(DOMAIN_ERROR_CODES.INVALID_OFFER_EXPIRY_DATE);
-      }
-
-      this.props.expiryDate = data.expiryDate;
-    }
-
-    this.touch();
-  }
   canSend(): boolean {
     return this.props.status === OfferStatus.DRAFT;
   }
 
-  canEdit(): boolean {
-    return (
-      this.props.status === OfferStatus.DRAFT ||
-      this.props.status === OfferStatus.SENT
-    );
-  }
+
 
   canAccept(): boolean {
     return (
@@ -402,9 +330,9 @@ export class Offer {
     return this.props.status === OfferStatus.ACCEPTED;
   }
   softDelete(): void {
-  this.props.isDeleted = true;
-  this.touch();
-}
+    this.props.isDeleted = true;
+    this.touch();
+  }
 
   isRejected(): boolean {
     return this.props.status === OfferStatus.REJECTED;
@@ -477,10 +405,6 @@ export class Offer {
     return this.props.currency;
   }
 
-  get employmentType(): EmploymentType {
-    return this.props.employmentType;
-  }
-
   get department(): string | undefined {
     return this.props.department;
   }
@@ -521,6 +445,14 @@ export class Offer {
     return this.props.offerLetterUrl;
   }
 
+  get contactEmail(): string | undefined {
+  return this.props.contactEmail;
+}
+
+get contactPhone(): string | undefined {
+  return this.props.contactPhone;
+}
+
   get sentAt(): Date | undefined {
     return this.props.sentAt;
   }
@@ -542,8 +474,8 @@ export class Offer {
   }
 
   get isDeleted(): boolean {
-  return this.props.isDeleted;
-}
+    return this.props.isDeleted;
+  }
 
   get createdAt(): Date {
     return this.props.createdAt;

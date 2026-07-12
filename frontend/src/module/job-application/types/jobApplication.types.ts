@@ -1,3 +1,7 @@
+import type { Job } from "@/module/jobs/types/job.types";
+import type { OfferStatus } from "@/module/offer-letter/types/candidateOffer.types";
+import type { CandidateApplication } from "./application.types";
+
 export const ApplicationStatus = {
   APPLIED: "APPLIED",
   SHORTLISTED: "SHORTLISTED",
@@ -60,7 +64,7 @@ export interface ApplicationAIAnalysis {
 
 export interface JobApplication {
   id: string;
-   applicationNumber: string;
+  applicationNumber: string;
   jobId: string;
   jobTitle?: string;
   candidateId: string;
@@ -75,4 +79,17 @@ export interface JobApplication {
   rejectionReason?: string;
   appliedAt: Date;
   updatedAt: Date;
+}
+
+export interface OfferSummary {
+  id: string;
+  status: OfferStatus;
+  expiryDate: string;
+  offerLetterUrl: string;
+}
+
+export interface ApplicationDetailData {
+  application: CandidateApplication;
+  job: Job;
+  offer?: OfferSummary;
 }

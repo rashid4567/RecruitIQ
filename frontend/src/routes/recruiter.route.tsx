@@ -52,8 +52,13 @@ const ScreeningComplete = lazy(
 const RecruiterInterviewDecision = lazy(
   () => import("../module/interview/pages/recruiter.decision"),
 );
-
-const RecruiterDashboard = lazy(()=> import("../module/dashboard/pages/recruiter.dashboard"))
+const RecruiterApplicationsList = lazy(
+  () =>
+    import("../module/job-application/pages/recruiter/All.recruiter.application"),
+);
+const RecruiterDashboard = lazy(
+  () => import("../module/dashboard/pages/recruiter.dashboard"),
+);
 const RecruiterRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
@@ -80,7 +85,7 @@ const RecruiterRoutes = () => {
               path="current-subscription"
               element={<CurrentSubscriptionPage />}
             />
-
+            <Route path="/applications" element={<RecruiterApplicationsList />} />
             <Route
               path="jobs/:jobId/applications"
               element={<RecruiterApplication />}
@@ -106,9 +111,8 @@ const RecruiterRoutes = () => {
               path="interviews/:interviewId/hiring-decision"
               element={<RecruiterInterviewDecision />}
             />
-             <Route path="dashboard" element={<RecruiterDashboard/>}/>
+            <Route path="dashboard" element={<RecruiterDashboard />} />
             <Route path="*" element={<NotFoundPage />} />
-           
           </Route>
         </Route>
       </Routes>

@@ -1,6 +1,6 @@
 export const RECRUITER_APPLICATION_ROUTES = {
-  JOB_APPLICATIONS: (jobId: string) =>
-    `/recruiter/jobs/${jobId}/applications`,
+  ALL_APPLICATIONS: "/recruiter/jobs/applications",
+  JOB_APPLICATIONS: (jobId: string) => `/recruiter/jobs/${jobId}/applications`,
   APPLICATION: (applicationId: string) =>
     `/recruiter/jobs/applications/${applicationId}`,
   UPDATE_STATUS: (applicationId: string) =>

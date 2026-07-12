@@ -90,6 +90,8 @@ const getRecruiterInterviewUC = new GetRecruiterInterviewsUseCase(
 );
 const getRecruiterInterviewDetailsUC = new GetRecruiterInterviewDetailsUseCase(
   interviewRepo,
+  userRepo,
+  jobRepo,
 );
 const getRecruiterHiringDecisionDetailsUC =
   new GetRecruiterHiringDecisionDetailsUseCase(

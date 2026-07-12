@@ -1,21 +1,36 @@
+export const OfferStatus = {
+  SENT: "SENT",
+  VIEWED: "VIEWED",
+  ACCEPTED: "ACCEPTED",
+  REJECTED: "REJECTED",
+  EXPIRED: "EXPIRED",
+  REVOKED: "REVOKED",
+} as const;
+
+export type OfferStatus =
+  (typeof OfferStatus)[keyof typeof OfferStatus];
+
 export interface CreateOfferRequest {
   applicationId: string;
   annualCTC: number;
   currency: string;
-  employmentType: string;
   department?: string;
   workLocation: string;
   joiningDate: string;
   probationPeriod?: string;
   benefits: string[];
   notes?: string;
+
+  contactEmail?: string;
+  contactPhone?: string;
+
   expiryDate: string;
 }
 
 export interface CreateOfferResponse {
   offerId: string;
   offerNumber: string;
-  status: string;
+  status: OfferStatus;
 }
 
 export interface RecruiterOffer {
@@ -28,7 +43,11 @@ export interface RecruiterOffer {
   jobTitle: string;
   annualCTC: number;
   currency: string;
-  status: string;
+  status: OfferStatus;
+
+  contactEmail?: string;
+  contactPhone?: string;
+
   offerDate: string;
   expiryDate: string;
   sentAt?: string;
@@ -37,8 +56,7 @@ export interface RecruiterOffer {
   rejectedAt?: string;
 }
 
-export type GetRecruiterOffersResponse =
-  RecruiterOffer;
+export type GetRecruiterOffersResponse = RecruiterOffer;
 
 export interface GetOfferDetailsResponse {
   id: string;
@@ -51,16 +69,17 @@ export interface GetOfferDetailsResponse {
   jobTitle: string;
   annualCTC: number;
   currency: string;
-  employmentType: string;
   department?: string;
   workLocation: string;
   joiningDate: string;
   probationPeriod?: string;
   benefits: string[];
   notes?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   offerDate: string;
   expiryDate: string;
-  status: string;
+  status: OfferStatus;
   offerLetterUrl?: string;
   sentAt?: string;
   viewedAt?: string;

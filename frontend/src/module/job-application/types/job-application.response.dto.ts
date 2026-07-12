@@ -32,9 +32,10 @@ export interface RecruiterApplicationResponseDTO {
   candidateName: string;
   candidateEmail: string;
   candidateProfileImage?: string;
+  jobTitle: string;
   resumeId: string;
+  fileName: string;
   status: ApplicationStatus;
-  analysisStatus: ApplicationAnalysisStatus;
   aiScore?: number;
   aiRecommendation?: ApplicationRecommendation;
   appliedAt: string;

@@ -2,9 +2,9 @@ import type { Job } from "@/module/jobs/types/job.types";
 import type {
   JobApplication,
   ApplicationStatus,
-  ApplicationAnalysisStatus,
   ApplicationRecommendation,
   InterviewInfo,
+  OfferSummary,
 } from "./jobApplication.types";
 import type { RecruiterApplicationDetails } from "./RecruiterApplicationDetails";
 import type { UpdateApplicationStatusDTO } from "./updateApplicationStatus.dto";
@@ -12,6 +12,10 @@ import type {
   JobApplicationResponseDTO,
   RecruiterApplicationResponseDTO,
 } from "./job-application.response.dto";
+import type {
+  GetRecruiterApplicationsQuery,
+  GetRecruiterApplicationsResult,
+} from "./getRecruiterApplications.dto";
 
 export interface ApplyJobDTO {
   jobId: string;
@@ -35,13 +39,15 @@ export interface CandidateApplication {
 export interface RecruiterApplication {
   applicationId: string;
   applicationNumber: string;
+
   candidateId: string;
   candidateName: string;
   candidateEmail: string;
   candidateProfileImage?: string;
+  jobTitle: string;
   resumeId: string;
+  fileName: string;
   status: ApplicationStatus;
-  analysisStatus: ApplicationAnalysisStatus;
   aiScore?: number;
   aiRecommendation?: ApplicationRecommendation;
   appliedAt: string;
@@ -49,12 +55,15 @@ export interface RecruiterApplication {
 
 export interface ApplicationDetailDTO {
   application: JobApplication;
-
   job: Job;
+  offer?: OfferSummary;
 }
 
 export interface JobApplicationApi {
   apply(payload: ApplyJobDTO): Promise<JobApplication>;
+  getRecruiterApplications(
+    query: GetRecruiterApplicationsQuery,
+  ): Promise<GetRecruiterApplicationsResult>;
   getMyApplications(): Promise<CandidateApplication[]>;
   getById(applicationId: string): Promise<ApplicationDetailDTO>;
   getApplicationsByJob(jobId: string): Promise<RecruiterApplication[]>;
@@ -85,5 +94,6 @@ export interface GetApplicationDetailResponse {
   data: {
     application: JobApplicationResponseDTO;
     job: Job;
+    offer?: OfferSummary;
   };
 }

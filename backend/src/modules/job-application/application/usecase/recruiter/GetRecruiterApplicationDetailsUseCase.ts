@@ -1,23 +1,27 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+
+import { OfferRepository } from "../../../../offer-letter/domain/repository/offer-letter.repository";
+import { JobApplicationRepository } from "../../../domain/repository/job-application.repository";
+
 import {
-  JobApplicationRepository,
-  RecruiterApplicationDetailsOutput,
-} from "../../../domain/repository/job-application.repository";
-import { GetRecruiterApplicationDetailsRequestDTO } from "../../dto/getRecruiterApplicationDetail.dto";
+  GetRecruiterApplicationDetailsRequestDTO,
+  RecruiterApplicationDetailsResponseDTO,
+} from "../../dto/getRecruiterApplicationDetail.dto";
 
 export class GetRecruiterApplicationDetailsUseCase implements IUseCase<
   GetRecruiterApplicationDetailsRequestDTO,
-  RecruiterApplicationDetailsOutput
+  RecruiterApplicationDetailsResponseDTO
 > {
   constructor(
     private readonly applicationRepository: JobApplicationRepository,
+    private readonly offerRepo: OfferRepository,
   ) {}
 
   async execute(
     request: GetRecruiterApplicationDetailsRequestDTO,
-  ): Promise<RecruiterApplicationDetailsOutput> {
+  ): Promise<RecruiterApplicationDetailsResponseDTO> {
     const application =
       await this.applicationRepository.findApplicationDetailsForRecruiter(
         request.applicationId,
@@ -31,6 +35,37 @@ export class GetRecruiterApplicationDetailsUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
 
-    return application;
+    const offer = await this.offerRepo.findByApplicationId(
+      application.applicationId,
+    );
+
+    return {
+      ...application,
+      offer: offer
+        ? {
+            id: offer.id,
+            offerNumber: offer.offerNumber,
+            status: offer.status,
+            companyName: offer.companyName,
+            jobTitle: offer.jobTitle,
+            department: offer.department,
+            workLocation: offer.workLocation,
+            annualCTC: offer.annualCTC,
+            currency: offer.currency,
+            joiningDate: offer.joiningDate,
+            probationPeriod: offer.probationPeriod,
+            benefits: offer.benefits,
+            notes: offer.notes,
+            offerDate: offer.offerDate,
+            expiryDate: offer.expiryDate,
+            offerLetterUrl: offer.offerLetterUrl,
+            sentAt: offer.sentAt,
+            viewedAt: offer.viewedAt,
+            acceptedAt: offer.acceptedAt,
+            rejectedAt: offer.rejectedAt,
+            candidateRemarks: offer.candidateRemarks,
+          }
+        : undefined,
+    };
   }
 }

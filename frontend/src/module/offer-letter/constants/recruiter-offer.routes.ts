@@ -1,5 +1,5 @@
 export const RECRUITER_OFFER_ROUTES = {
-  OFFERS: "/offers",
+  OFFERS: "/recruiter/offers",
   OFFER_DETAIL: (offerId: string) =>
-    `/offers/${offerId}`,
+    `/recruiter/offers/${offerId}`,
 } as const;

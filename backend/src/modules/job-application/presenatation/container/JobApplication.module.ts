@@ -28,6 +28,10 @@ import { GetApplicationsByJobController } from "../controller/Recruiter/GetAppli
 import { GetRecruiterApplicationDetailsController } from "../controller/Recruiter/GetRecruiterApplicationDetails.controller";
 import { UpdateApplicationStatusController } from "../controller/Recruiter/updateApplication.controller";
 import { MongoApplicationNumberGenerator } from "../../infrastructure/service/mongo-application-number-generator";
+import { MongooseOfferRepository } from "../../../offer-letter/infrastructure/repository/mongoose.offer-letter.Repository";
+import { OfferRepository } from "../../../offer-letter/domain/repository/offer-letter.repository";
+import { GetRecruiterApplicationsUseCase } from "../../application/usecase/recruiter/getAllApplication.usecase";
+import { GetAllApplicationRecruiterController } from "../controller/Recruiter/getAllRecruiterApplications.controller";
 
 export const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
@@ -38,6 +42,7 @@ const recruiterSubscriptionRepo: RecruiterSubscriptionRepository =
   new MongooseRecruiterSubscriptionRepository();
 const analysisService = new OpenAIApplicationAnalysisService(openai);
 const applicationNumberGenerator = new MongoApplicationNumberGenerator();
+const offerRepo : OfferRepository = new MongooseOfferRepository()
 
 export const AnalyzeApplicationUC = new AnalyzeApplicationUseCase(
   applicationRepo,
@@ -63,6 +68,7 @@ const withdrawApplicationUC = new WithdrawApplicationUseCase(applicationRepo);
 const getApplicationUC = new GetApplicationDetailUseCase(
   applicationRepo,
   jobpostRepo,
+  offerRepo,
 );
 const getApplicationByJobPostUC = new GetApplicationsByJobUseCase(
   applicationRepo,
@@ -75,7 +81,9 @@ const ApplicationStatusUpdateUC = new UpdateApplicationStatusUseCase(
   createNotificationUC,
 );
 const getRecruiterApplicationDetailsUC =
-  new GetRecruiterApplicationDetailsUseCase(applicationRepo);
+  new GetRecruiterApplicationDetailsUseCase(applicationRepo,offerRepo);
+  export const getAllRecruiterApplicationUC = new GetRecruiterApplicationsUseCase(applicationRepo)
+
 
 export const applyController = new ApplyJobController(ApplyJobUC);
 export const MyApplicationController = new GetMyApplicationController(
@@ -94,3 +102,5 @@ export const getRecruiterApplicationDetailsController =
   new GetRecruiterApplicationDetailsController(
     getRecruiterApplicationDetailsUC,
   );
+
+  export const getAllRecruitercontroller = new GetAllApplicationRecruiterController(getAllRecruiterApplicationUC)

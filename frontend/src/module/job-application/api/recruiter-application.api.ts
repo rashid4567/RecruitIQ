@@ -5,9 +5,47 @@ import type {
   GetRecruiterApplicationDetailsResponse,
   RecruiterApplication,
 } from "../types/application.types";
-import type { RecruiterApplicationResponseDTO } from "../types/job-application.response.dto";
 import type { RecruiterApplicationDetails } from "../types/RecruiterApplicationDetails";
 import type { UpdateApplicationStatusDTO } from "../types/updateApplicationStatus.dto";
+import type {
+  GetRecruiterApplicationsQuery,
+  GetRecruiterApplicationsResponse,
+  GetRecruiterApplicationsResult,
+} from "../types/getRecruiterApplications.dto";
+
+export const getRecruiterApplications = async (
+  query: GetRecruiterApplicationsQuery,
+): Promise<GetRecruiterApplicationsResult> => {
+  const res = await api.get<GetRecruiterApplicationsResponse>(
+    RECRUITER_APPLICATION_ROUTES.ALL_APPLICATIONS,
+    {
+      params: query,
+    },
+  );
+
+
+  return {
+    applications: res.data.data.applications.map(
+      (item): RecruiterApplication => ({
+        applicationId: item.applicationId,
+        applicationNumber: item.applicationNumber,
+        candidateId: item.candidateId,
+        candidateName: item.candidateName,
+        candidateEmail: item.candidateEmail,
+        candidateProfileImage: item.candidateProfileImage,
+        jobTitle: item.jobTitle,
+        resumeId: item.resumeId,
+        fileName: item.fileName,
+        status: item.status,
+        aiScore: item.aiScore,
+        aiRecommendation: item.aiRecommendation,
+        appliedAt: item.appliedAt,
+      }),
+    ),
+
+    pagination: res.data.data.pagination,
+  };
+};
 
 export const getApplicationsByJob = async (
   jobId: string,
@@ -16,22 +54,25 @@ export const getApplicationsByJob = async (
     RECRUITER_APPLICATION_ROUTES.JOB_APPLICATIONS(jobId),
   );
 
-  return res.data.data.map(
-    (item: RecruiterApplicationResponseDTO): RecruiterApplication => ({
+  const result =  res.data.data.map(
+    (item): RecruiterApplication => ({
       applicationId: item.applicationId,
-      applicationNumber : item.applicationNumber,
+      applicationNumber: item.applicationNumber,
       candidateId: item.candidateId,
       candidateName: item.candidateName,
       candidateEmail: item.candidateEmail,
       candidateProfileImage: item.candidateProfileImage,
+      jobTitle: item.jobTitle,
       resumeId: item.resumeId,
+      fileName: item.fileName,
       status: item.status,
-      analysisStatus: item.analysisStatus,
       aiScore: item.aiScore,
       aiRecommendation: item.aiRecommendation,
       appliedAt: item.appliedAt,
     }),
   );
+
+    return result
 };
 
 export const getRecruiterApplicationDetails = async (

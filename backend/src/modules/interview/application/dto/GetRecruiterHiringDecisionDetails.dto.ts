@@ -10,7 +10,10 @@ import {
   InterviewStatus,
 } from "../../domain/entity/interview.entity";
 
-import { ParsedResumeData, ResumeParseStatus } from "../../../resume/domain/entity/resume.entity";
+import {
+  ParsedResumeData,
+  ResumeParseStatus,
+} from "../../../resume/domain/entity/resume.entity";
 
 export interface GetRecruiterHiringDecisionDetailsRequestDTO {
   interviewId: string;
@@ -65,6 +68,13 @@ export interface RecruiterDecisionInterviewDTO {
 export interface RecruiterDecisionJobDTO {
   jobId: string;
   title: string;
+  companyName: string;
+  department?: string;
+  location: {
+    city: string;
+    state: string;
+    country: string;
+  };
 }
 
 export interface RecruiterDecisionResumeDTO {

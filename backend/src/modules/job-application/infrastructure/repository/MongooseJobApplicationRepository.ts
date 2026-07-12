@@ -13,6 +13,8 @@ import {
   JobApplicationRepository,
   RecruiterApplicationDetailsOutput,
   RecruiterApplicationListItem,
+  RecruiterApplicationsQuery,
+  RecruiterApplicationsResult,
   RecruiterInterviewApplication,
 } from "../../domain/repository/job-application.repository";
 
@@ -101,13 +103,13 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
     return docs.map((doc) => this.toDomain(doc));
   }
 
-async findAll(): Promise<JobApplication[]> {
-  const docs = await JobApplicationModel.find({
-    isDeleted: false,
-  });
+  async findAll(): Promise<JobApplication[]> {
+    const docs = await JobApplicationModel.find({
+      isDeleted: false,
+    });
 
-  return docs.map((doc) => this.toDomain(doc));
-}
+    return docs.map((doc) => this.toDomain(doc));
+  }
   async findApplicationsForCandidate(
     candidateId: string,
   ): Promise<CandidateApplicationListItem[]> {
@@ -143,6 +145,103 @@ async findAll(): Promise<JobApplication[]> {
       };
     });
   }
+
+async findRecruiterApplications(
+  query: RecruiterApplicationsQuery,
+): Promise<RecruiterApplicationsResult> {
+  if (!this.isValidObjectId(query.recruiterId)) {
+    return {
+      applications: [],
+      total: 0,
+    };
+  }
+
+  const {
+    recruiterId,
+    page,
+    limit,
+    search,
+    status,
+    recommendation,
+    sortBy = "appliedAt",
+    sortOrder = "desc",
+  } = query;
+
+  const filter: any = {
+    recruiterId: new mongoose.Types.ObjectId(recruiterId),
+    isDeleted: false,
+  };
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (recommendation) {
+    filter["aiAnalysis.recommendation"] = recommendation;
+  }
+
+  const sort: Record<string, 1 | -1> = {
+    [sortBy]: sortOrder === "asc" ? 1 : -1,
+  };
+
+  const docs = await JobApplicationModel.find(filter)
+    .populate({
+      path: "candidateId",
+      select: "fullName email profileImage",
+      match: search
+        ? {
+            $or: [
+              { fullName: { $regex: search, $options: "i" } },
+              { email: { $regex: search, $options: "i" } },
+            ],
+          }
+        : {},
+    })
+    .populate({
+      path: "jobId",
+      select: "title",
+    })
+    .populate({
+      path: "resumeId",
+      select: "fileName",
+    })
+    .sort(sort)
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  const applications = docs
+    .filter((doc) => Boolean(doc.candidateId))
+    .map((doc) => {
+      const candidate = doc.candidateId as PopulatedCandidate;
+      const job = doc.jobId as unknown as PopulatedJob;
+      const resume = doc.resumeId as unknown as PopulatedResume;
+
+      return {
+        applicationId: doc._id.toString(),
+        applicationNumber: doc.applicationNumber,
+        candidateId: candidate._id.toString(),
+        candidateName: candidate.fullName ?? "Unknown Candidate",
+        candidateEmail: candidate.email ?? "",
+        candidateProfileImage: candidate.profileImage,
+        Jobtitle: job.title,
+        resumeId: resume._id.toString(),
+        fileName: resume.fileName,
+        status: doc.status,
+        aiScore: doc.aiAnalysis?.overallScore,
+        aiRecommendation:
+          doc.aiAnalysis?.recommendation as ApplicationRecommendation,
+        appliedAt: doc.appliedAt,
+   
+      };
+    });
+
+  const total = await JobApplicationModel.countDocuments(filter);
+
+  return {
+    applications,
+    total,
+  };
+}
 
   async findByRecruiterAndStatuses(
     recruiterId: string,

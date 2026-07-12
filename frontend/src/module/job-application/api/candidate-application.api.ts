@@ -56,6 +56,7 @@ export const getApplicationById = async (
   return {
     application: unwrapApplication(res.data.data.application),
     job: unwrapJob(res.data.data.job),
+    offer: res.data.data.offer,
   };
 };
 

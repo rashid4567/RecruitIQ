@@ -7,6 +7,7 @@ export const JOB_APPLICATION_ROUTES = {
   },
 
   RECRUITER: {
+    ALL_APPLICATIONS: "/applications",
     JOB_APPLICATIONS: "/:jobId/applications",
     APPLICATION_DETAILS: "/applications/:applicationId",
     UPDATE_STATUS: "/applications/:applicationId/status",

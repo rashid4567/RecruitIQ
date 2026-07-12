@@ -9,16 +9,11 @@ import {
 
 import { OfferRepository } from "../../domain/repository/offer-letter.repository";
 
-import {
-  OfferDocument,
-  OfferModel,
-} from "../mongoose/job-offer.model";
+import { OfferDocument, OfferModel } from "../mongoose/job-offer.model";
 
 export class MongooseOfferRepository implements OfferRepository {
   async create(offer: Offer): Promise<Offer> {
-    const created = await OfferModel.create(
-      this.toPersistence(offer),
-    );
+    const created = await OfferModel.create(this.toPersistence(offer));
 
     return this.toDomain(created);
   }
@@ -32,7 +27,6 @@ export class MongooseOfferRepository implements OfferRepository {
         $set: {
           annualCTC: data.annualCTC,
           currency: data.currency,
-          employmentType: data.employmentType,
           department: data.department,
           workLocation: data.workLocation,
           joiningDate: data.joiningDate,
@@ -40,6 +34,8 @@ export class MongooseOfferRepository implements OfferRepository {
           benefits: data.benefits,
           notes: data.notes,
           expiryDate: data.expiryDate,
+          contactEmail: data.contactEmail,
+          contactPhone: data.contactPhone,
           status: data.status,
           offerLetterUrl: data.offerLetterUrl,
           sentAt: data.sentAt,
@@ -75,9 +71,7 @@ export class MongooseOfferRepository implements OfferRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
-  async findByOfferNumber(
-    offerNumber: string,
-  ): Promise<Offer | null> {
+  async findByOfferNumber(offerNumber: string): Promise<Offer | null> {
     const doc = await OfferModel.findOne({
       offerNumber,
       isDeleted: false,
@@ -86,9 +80,7 @@ export class MongooseOfferRepository implements OfferRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
-    async findByApplicationId(
-    applicationId: string,
-  ): Promise<Offer | null> {
+  async findByApplicationId(applicationId: string): Promise<Offer | null> {
     if (!this.isValidObjectId(applicationId)) {
       return null;
     }
@@ -101,9 +93,7 @@ export class MongooseOfferRepository implements OfferRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
-  async findByCandidateId(
-    candidateId: string,
-  ): Promise<Offer[]> {
+  async findByCandidateId(candidateId: string): Promise<Offer[]> {
     if (!this.isValidObjectId(candidateId)) {
       return [];
     }
@@ -118,9 +108,7 @@ export class MongooseOfferRepository implements OfferRepository {
     return docs.map((doc) => this.toDomain(doc));
   }
 
-  async findByRecruiterId(
-    recruiterId: string,
-  ): Promise<Offer[]> {
+  async findByRecruiterId(recruiterId: string): Promise<Offer[]> {
     if (!this.isValidObjectId(recruiterId)) {
       return [];
     }
@@ -135,9 +123,7 @@ export class MongooseOfferRepository implements OfferRepository {
     return docs.map((doc) => this.toDomain(doc));
   }
 
-  async existsByApplicationId(
-    applicationId: string,
-  ): Promise<boolean> {
+  async existsByApplicationId(applicationId: string): Promise<boolean> {
     if (!this.isValidObjectId(applicationId)) {
       return false;
     }
@@ -149,17 +135,11 @@ export class MongooseOfferRepository implements OfferRepository {
 
     return !!exists;
   }
-    async findExpiredOffers(
-    currentDate: Date,
-  ): Promise<Offer[]> {
+  async findExpiredOffers(currentDate: Date): Promise<Offer[]> {
     const docs = await OfferModel.find({
       expiryDate: { $lt: currentDate },
       status: {
-        $in: [
-          OfferStatus.DRAFT,
-          OfferStatus.SENT,
-          OfferStatus.VIEWED,
-        ],
+        $in: [OfferStatus.DRAFT, OfferStatus.SENT, OfferStatus.VIEWED],
       },
       isDeleted: false,
     }).sort({
@@ -174,14 +154,11 @@ export class MongooseOfferRepository implements OfferRepository {
       return;
     }
 
-    await OfferModel.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(id),
-      {
-        $set: {
-          isDeleted: true,
-        },
+    await OfferModel.findByIdAndUpdate(new mongoose.Types.ObjectId(id), {
+      $set: {
+        isDeleted: true,
       },
-    );
+    });
   }
 
   private toDomain(doc: OfferDocument): Offer {
@@ -196,7 +173,6 @@ export class MongooseOfferRepository implements OfferRepository {
       jobTitle: doc.jobTitle,
       annualCTC: doc.annualCTC,
       currency: doc.currency as Currency,
-      employmentType: doc.employmentType as EmploymentType,
       department: doc.department,
       workLocation: doc.workLocation,
       joiningDate: doc.joiningDate,
@@ -207,6 +183,8 @@ export class MongooseOfferRepository implements OfferRepository {
       expiryDate: doc.expiryDate,
       status: doc.status as OfferStatus,
       offerLetterUrl: doc.offerLetterUrl,
+      contactEmail: doc.contactEmail,
+      contactPhone: doc.contactPhone,
       sentAt: doc.sentAt,
       viewedAt: doc.viewedAt,
       acceptedAt: doc.acceptedAt,
@@ -231,7 +209,6 @@ export class MongooseOfferRepository implements OfferRepository {
       jobTitle: data.jobTitle,
       annualCTC: data.annualCTC,
       currency: data.currency,
-      employmentType: data.employmentType,
       department: data.department,
       workLocation: data.workLocation,
       joiningDate: data.joiningDate,
@@ -242,6 +219,8 @@ export class MongooseOfferRepository implements OfferRepository {
       expiryDate: data.expiryDate,
       status: data.status,
       offerLetterUrl: data.offerLetterUrl,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
       sentAt: data.sentAt,
       viewedAt: data.viewedAt,
       acceptedAt: data.acceptedAt,

@@ -55,7 +55,7 @@ export default function NotificationListener() {
         });
 
         notificationSocket.onUnreadCount(() => {
-          // Update unread count here if needed.
+          
         });
       } catch (error) {
         console.error("Failed to initialize notification socket.", error);

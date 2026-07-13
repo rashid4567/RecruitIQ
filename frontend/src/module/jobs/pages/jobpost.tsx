@@ -73,7 +73,9 @@ export default function JobsPage() {
   }
 
   const pageItems = Array.from({ length: totalPages }, (_, i) => i + 1)
-    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+    .filter(
+      (p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1,
+    )
     .reduce<(number | "...")[]>((acc, p, idx, arr) => {
       if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("...");
       acc.push(p);
@@ -82,7 +84,9 @@ export default function JobsPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
       <div className="flex-1 overflow-x-hidden">
         <Header />
 
@@ -160,7 +164,6 @@ export default function JobsPage() {
               ))}
             </div>
           ) : (
-       
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
               <table className="w-full">
                 <thead>
@@ -196,7 +199,6 @@ export default function JobsPage() {
             </div>
           )}
 
-      
           {totalPages > 1 && filteredJobs.length > 0 && (
             <div className="flex items-center justify-between mt-8 px-1">
               <p className="text-sm text-gray-500">
@@ -213,7 +215,6 @@ export default function JobsPage() {
               </p>
 
               <div className="flex items-center gap-1">
-             
                 <button
                   onClick={() => setCurrentPage((p) => p - 1)}
                   disabled={currentPage === 1}
@@ -242,7 +243,7 @@ export default function JobsPage() {
                     >
                       {item}
                     </button>
-                  )
+                  ),
                 )}
 
                 <button
@@ -256,7 +257,6 @@ export default function JobsPage() {
             </div>
           )}
 
-       
           {filteredJobs.length === 0 && (
             <div className="text-center py-20">
               <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-6">

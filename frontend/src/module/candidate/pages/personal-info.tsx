@@ -163,13 +163,17 @@ export default function CandidateProfilePage() {
 
   return (
     <div className="min-h-screen bg-slate-50/70 flex">
-      <CandidateSidebar
+    
+
+       <div className="hidden lg:block">
+    <CandidateSidebar
         user={{
           fullName: profile.fullName,
           email: profile.email,
           profileImage: profile.profileImage,
         }}
       />
+  </div>
 
       <main className="flex-1 flex flex-col min-h-0">
         <Header profile={profile} error={error} onRetry={loadProfile} />

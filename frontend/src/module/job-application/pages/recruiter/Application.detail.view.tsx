@@ -60,7 +60,9 @@ import { OfferLetterCard } from "../component/recruiter-application.detail/Offer
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-[#f4f6fb]">
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
       <div className="flex-1 overflow-auto">{children}</div>
     </div>
   );
@@ -69,7 +71,9 @@ function PageShell({ children }: { children: React.ReactNode }) {
 function CenteredShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-[#f4f6fb]">
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
       <div className="flex-1 flex items-center justify-center p-8">
         {children}
       </div>

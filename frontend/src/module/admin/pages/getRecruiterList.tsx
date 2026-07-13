@@ -104,7 +104,10 @@ export default function RecruiterManagement() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-indigo-50/30 flex">
-      <Sidebar />
+        <div className="hidden lg:block">
+        <Sidebar />
+    </div>
+
 
       <div className="flex-1 flex flex-col">
         <ManagementHeader

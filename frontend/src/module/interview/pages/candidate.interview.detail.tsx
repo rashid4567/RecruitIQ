@@ -167,7 +167,9 @@ export default function MyInterviewDetails({
 
       <div className="flex flex-1 min-h-0">
         <div className="hidden lg:block sticky top-0 self-start h-screen shrink-0">
-          <Sidebar />
+             <div className="hidden lg:block">
+              <Sidebar />
+            </div>
         </div>
 
         <div className="flex-1 min-w-0 flex flex-col bg-linear-to-b from-slate-50 to-slate-100">

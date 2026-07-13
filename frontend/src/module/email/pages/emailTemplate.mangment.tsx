@@ -11,7 +11,7 @@ import { TemplateList } from "./components/email-template.management/TemplateLis
 import { TemplatePagination } from "./components/email-template.management/TemplatePagination";
 import { TemplateDialogs } from "./components/email-template.management/TemplateDialogs";
 import { ErrorState } from "./components/email-template.management/ErrorState";
-import { TestEmailModal } from "./components/email-template.management/TestEmailModal"; 
+import { TestEmailModal } from "./components/email-template.management/TestEmailModal";
 
 export default function EmailTemplateManagement() {
   const navigate = useNavigate();
@@ -40,19 +40,18 @@ export default function EmailTemplateManagement() {
   } = useEmailTemplateManagement();
 
   const [testModalOpen, setTestModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<EmailTemplate | null>(null);
   const [testEmail, setTestEmail] = useState("");
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [testError, setTestError] = useState("");
 
-  
   const handleTestEmail = (template: EmailTemplate) => {
     setSelectedTemplate(template);
-    setTestEmail("");       
+    setTestEmail("");
     setTestError("");
     setTestModalOpen(true);
   };
-
 
   const handleSendTestEmail = async () => {
     if (!selectedTemplate || !testEmail.trim()) return;
@@ -62,14 +61,16 @@ export default function EmailTemplateManagement() {
 
     try {
       await sendTestEmail(selectedTemplate.id, testEmail.trim());
-      
+
       toast.success(`Test email sent successfully to ${testEmail}`);
       setTestModalOpen(false);
-      
-    
+
       setTestEmail("");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to send the Teast email . Please try again."
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Failed to send the Teast email . Please try again.";
       setTestError(message);
       toast.error(message);
     } finally {
@@ -82,7 +83,7 @@ export default function EmailTemplateManagement() {
   };
 
   const handleEdit = (id: string) => {
-    console.log("handle edit :-", id ? id : "no id found")
+    console.log("handle edit :-", id ? id : "no id found");
     navigate(`/admin/email-templates/edit/${id}`);
   };
 
@@ -93,7 +94,9 @@ export default function EmailTemplateManagement() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex">
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
 
       <div className="flex-1 flex flex-col">
         <TemplateHeader />
@@ -104,7 +107,6 @@ export default function EmailTemplateManagement() {
 
             {!error && (
               <div className="grid lg:grid-cols-12 gap-7">
-           
                 <div className="lg:col-span-3">
                   <TemplateSidebar
                     activeCategory={activeCategory}
@@ -112,7 +114,6 @@ export default function EmailTemplateManagement() {
                   />
                 </div>
 
-         
                 <div className="lg:col-span-9 space-y-6">
                   <TemplateList
                     loading={loading}
@@ -123,7 +124,7 @@ export default function EmailTemplateManagement() {
                     onPaginationChange={setPagination}
                     onView={handleView}
                     onEdit={handleEdit}
-                    onTestEmail={handleTestEmail}    
+                    onTestEmail={handleTestEmail}
                     onToggle={setToggleTemplate}
                     onDelete={setDeleteId}
                   />

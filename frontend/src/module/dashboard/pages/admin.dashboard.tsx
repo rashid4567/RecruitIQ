@@ -855,7 +855,9 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <CommandPalette

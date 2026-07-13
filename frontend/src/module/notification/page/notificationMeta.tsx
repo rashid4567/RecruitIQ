@@ -96,10 +96,13 @@ export const categoryStyles: Record<
   },
 };
 
-export const priorityStyles: Record<NotificationPriority, { dot: boolean; pulse: boolean; glow: boolean }> = {
-  low:    { dot: false, pulse: false, glow: false },
-  medium: { dot: true,  pulse: false, glow: false },
-  high:   { dot: true,  pulse: true,  glow: true },
+export const priorityStyles: Record<
+  NotificationPriority,
+  { dot: boolean; pulse: boolean; glow: boolean }
+> = {
+  low: { dot: false, pulse: false, glow: false },
+  medium: { dot: true, pulse: false, glow: false },
+  high: { dot: true, pulse: true, glow: true },
 };
 
 interface Meta {

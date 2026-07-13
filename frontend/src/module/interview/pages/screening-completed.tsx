@@ -643,7 +643,7 @@ export default function InterviewNotesPage() {
           </div>
         </div>
 
-        {/* Sidebar */}
+    
         <aside className="w-80 shrink-0 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-24">
           <h3 className="text-sm font-bold text-gray-950 uppercase tracking-wide mb-5">Candidate Summary</h3>
 

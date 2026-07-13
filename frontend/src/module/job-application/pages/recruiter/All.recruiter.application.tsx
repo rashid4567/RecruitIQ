@@ -377,8 +377,6 @@ function ApplicationCard({ app }: { app: RecruiterApplication }) {
   const goToDetail = () =>
     navigate(`/recruiter/application-detail/${app.applicationId}`);
   const quickActions = [
-   
-   
     {
       label: "Interview",
       icon: CalendarClock,
@@ -526,8 +524,9 @@ export default function RecruiterApplicationsList() {
 
   return (
     <main className="flex min-h-screen bg-slate-50">
-      <Sidebar activeItem="applications" />
-
+      <div className="hidden lg:block">
+        <Sidebar activeItem="applications" />
+      </div>
       <section className="flex-1">
         <ApplicationsHeader onRefresh={handleRefresh} refreshing={refreshing} />
 

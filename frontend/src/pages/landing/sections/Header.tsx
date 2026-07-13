@@ -9,6 +9,17 @@ import {
   Mail,
   ArrowRight,
   Bell,
+  LayoutDashboard,
+  FileText,
+  Video,
+  CreditCard,
+  User,
+  UserCheck,
+  UserPlus,
+  Package,
+  ScrollText,
+  Settings,
+  type LucideIcon,
 } from "lucide-react";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,7 +28,29 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/module/notification/hook/useNotifications";
 
-function getNavItems(role: string | null) {
+/* ------------------------------------------------------------------ */
+/*  Navigation config                                                  */
+/*  Kept in this file per request, but still a single source of truth  */
+/*  — if you also have a desktop Sidebar component, import             */
+/*  candidateNav / recruiterNav / adminNav / getDashboardNav from here  */
+/*  instead of redefining the menu there, so both stay in sync.        */
+/* ------------------------------------------------------------------ */
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+const DASHBOARD_PREFIXES = ["/candidate", "/recruiter", "/admin"];
+
+/** True for logged-in dashboard routes (candidate/recruiter/admin) vs public pages. */
+function isDashboardRoute(pathname: string): boolean {
+  return DASHBOARD_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+/** Public/marketing nav — shown on public pages only. */
+function getPublicNav(role: string | null): NavItem[] {
   const jobsHref =
     role === "candidate"
       ? "/candidate/jobs"
@@ -32,6 +65,49 @@ function getNavItems(role: string | null) {
     { label: "Contact", href: "#contact", icon: Mail },
   ];
 }
+
+// NOTE: hrefs below are my best guess based on routes already referenced
+// elsewhere in this file (e.g. "/candidate/jobs", "/recruiter/profile",
+// "/admin-dashboard"). Swap in your real route paths if any are off.
+const candidateNav: NavItem[] = [
+  { label: "Dashboard", href: "/candidate/dashboard", icon: LayoutDashboard },
+  { label: "Browse Jobs", href: "/candidate/jobs", icon: Briefcase },
+  { label: "Applications", href: "/candidate/applications", icon: FileText },
+  { label: "Interviews", href: "/candidate/interviews", icon: Video },
+  { label: "Profile", href: "/candidate/profile/setting", icon: User },
+];
+
+const recruiterNav: NavItem[] = [
+  { label: "Dashboard", href: "/recruiter/dashboard", icon: LayoutDashboard },
+  { label: "Jobs", href: "/recruiter/jobs", icon: Briefcase },
+  { label: "Applications", href: "/recruiter/applications", icon: FileText },
+  { label: "Interviews", href: "/recruiter/interviews", icon: Video },
+  { label: "Billing", href: "/recruiter/billing", icon: CreditCard },
+  { label: "Profile", href: "/recruiter/profile", icon: User },
+];
+
+const adminNav: NavItem[] = [
+  { label: "Dashboard", href: "/admin-dashboard", icon: LayoutDashboard },
+  { label: "Recruiters", href: "/admin/recruiters", icon: Users },
+  { label: "Candidates", href: "/admin/candidates", icon: UserCheck },
+  { label: "Job Posts", href: "/admin/job-posts", icon: Briefcase },
+  { label: "Subscribers", href: "/admin/subscribers", icon: UserPlus },
+  { label: "Plans", href: "/admin/plans", icon: Package },
+  { label: "Email Templates", href: "/admin/email-templates", icon: Mail },
+  { label: "Email Logs", href: "/admin/email-logs", icon: ScrollText },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
+];
+
+function getDashboardNav(role: string | null): NavItem[] {
+  if (role === "candidate") return candidateNav;
+  if (role === "recruiter") return recruiterNav;
+  if (role === "admin") return adminNav;
+  return [];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Small helpers                                                      */
+/* ------------------------------------------------------------------ */
 
 function getNotificationPath(role: string | null): string {
   if (role === "recruiter") return "/recruiter/notification";
@@ -66,6 +142,52 @@ function getRoleBadgeColor(role: string | null): string {
   return "bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200";
 }
 
+/** Real internal routes use client-side Link; "#hash" anchors use a plain <a>. */
+const MobileNavLink: React.FC<{
+  item: NavItem;
+  active: boolean;
+  onClick: () => void;
+}> = ({ item, active, onClick }) => {
+  const { label, href, icon: Icon } = item;
+  const className = cn(
+    "flex items-center gap-3 px-3.5 py-3 sm:px-4 rounded-xl transition-all duration-200",
+    active
+      ? "bg-linear-to-r from-cyan-50 to-blue-50/50 text-cyan-700 font-semibold"
+      : "text-gray-700 hover:bg-gray-50 font-medium",
+  );
+  const iconWrap = (
+    <span
+      className={cn(
+        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+        active ? "bg-cyan-100 text-cyan-700" : "bg-gray-100 text-gray-500",
+      )}
+    >
+      <Icon className="w-4 h-4" />
+    </span>
+  );
+  const content = (
+    <>
+      {iconWrap}
+      <span className="truncate">{label}</span>
+      {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0" />}
+    </>
+  );
+
+  if (href.startsWith("#")) {
+    return (
+      <a href={href} onClick={onClick} className={className}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={href} onClick={onClick} className={className}>
+      {content}
+    </Link>
+  );
+};
+
 const NavLink: React.FC<{
   href: string;
   label: string;
@@ -76,7 +198,7 @@ const NavLink: React.FC<{
     to={href}
     onClick={onClick}
     className={cn(
-      "relative text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-200",
+      "relative text-sm font-semibold px-3 py-2 xl:px-4 rounded-lg transition-all duration-200",
       active
         ? "text-cyan-600 bg-cyan-50"
         : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80",
@@ -106,12 +228,16 @@ const NotificationBell: React.FC<{
   >
     <Bell className="w-5 h-5 text-slate-600" />
     {unreadCount > 0 && (
-      <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+      <span className="absolute top-0.5 right-0.5 min-w-4.5 h-4.5 px-0.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-bold ring-1 ring-white">
         {unreadCount > 99 ? "99+" : unreadCount}
       </span>
     )}
   </button>
 );
+
+/* ------------------------------------------------------------------ */
+/*  Header                                                             */
+/* ------------------------------------------------------------------ */
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -134,7 +260,12 @@ export default function Header() {
 
   const { unreadCount } = useNotifications();
 
-  const NAV_ITEMS = getNavItems(userRole);
+  // On a logged-in dashboard route we assume a separate Sidebar already
+  // renders the role menu on desktop, so the Header's own top nav row
+  // (public links) is hidden there and only reappears on public pages.
+  const onDashboard = isLoggedIn && isDashboardRoute(location.pathname);
+  const PUBLIC_NAV_ITEMS = getPublicNav(userRole);
+  const DRAWER_ITEMS = onDashboard ? getDashboardNav(userRole) : PUBLIC_NAV_ITEMS;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -154,7 +285,6 @@ export default function Header() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
-
 
   useLayoutEffect(() => {
     setIsMenuOpen(false);
@@ -205,25 +335,25 @@ export default function Header() {
             : "bg-white/95 backdrop-blur-md border-b border-gray-100/60",
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             <button
               onClick={() => navigate("/")}
-              className="flex items-center gap-2.5 group focus:outline-none"
+              className="flex items-center gap-2 sm:gap-2.5 group focus:outline-none shrink-0"
             >
               <div
                 className={cn(
-                  "w-9 h-9 rounded-xl bg-linear-to-br from-blue-600 to-cyan-500",
+                  "w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-linear-to-br from-blue-600 to-cyan-500",
                   "flex items-center justify-center shadow-md shadow-blue-500/25",
                   "group-hover:shadow-lg group-hover:shadow-cyan-500/35",
                   "transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3",
                 )}
               >
-                <span className="text-white font-black text-sm tracking-tighter">
+                <span className="text-white font-black text-xs sm:text-sm tracking-tighter">
                   IQ
                 </span>
               </div>
-              <span className="hidden sm:block font-bold text-[1.05rem] tracking-tight text-gray-900">
+              <span className="hidden xs:block font-bold text-base sm:text-[1.05rem] tracking-tight text-gray-900">
                 Recruit
                 <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                   IQ
@@ -231,18 +361,20 @@ export default function Header() {
               </span>
             </button>
 
-            <nav className="hidden lg:flex items-center gap-0.5">
-              {NAV_ITEMS.map(({ label, href }) => (
-                <NavLink
-                  key={label}
-                  href={href}
-                  label={label}
-                  active={location.pathname === href}
-                />
-              ))}
-            </nav>
+            {!onDashboard && (
+              <nav className="hidden lg:flex items-center gap-0.5">
+                {PUBLIC_NAV_ITEMS.map(({ label, href }) => (
+                  <NavLink
+                    key={label}
+                    href={href}
+                    label={label}
+                    active={location.pathname === href}
+                  />
+                ))}
+              </nav>
+            )}
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               {isLoggedIn ? (
                 <>
                   <NotificationBell
@@ -280,7 +412,7 @@ export default function Header() {
                         <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white" />
                       </div>
 
-                      <div className="text-left hidden md:block">
+                      <div className="text-left hidden xl:block">
                         <p className="text-sm font-semibold text-gray-900 max-w-28 truncate leading-none">
                           {userName ?? "Profile"}
                         </p>
@@ -305,7 +437,7 @@ export default function Header() {
                     {isProfileOpen && (
                       <div
                         className={cn(
-                          "absolute right-0 top-[calc(100%+8px)] w-64",
+                          "absolute right-0 top-[calc(100%+8px)] w-64 max-w-[calc(100vw-1.5rem)]",
                           "bg-white rounded-2xl border border-gray-200/80",
                           "shadow-xl shadow-gray-900/8 py-1.5 z-50",
                           "animate-in fade-in slide-in-from-top-2 duration-150",
@@ -432,12 +564,22 @@ export default function Header() {
                 </div>
               )}
 
+              {/* Compact bell for logged-in users on small/medium screens,
+                  where the full profile dropdown is hidden. */}
+              {isLoggedIn && (
+                <NotificationBell
+                  unreadCount={unreadCount}
+                  onClick={handleNotificationClick}
+                  className="lg:hidden"
+                />
+              )}
+
               <button
                 onClick={() => setIsMenuOpen((p) => !p)}
                 aria-label="Toggle menu"
                 aria-expanded={isMenuOpen}
                 className={cn(
-                  "lg:hidden relative w-9 h-9 flex items-center justify-center rounded-lg",
+                  "lg:hidden relative w-9 h-9 flex items-center justify-center rounded-lg shrink-0",
                   "border border-gray-200 hover:bg-gray-50 transition-all duration-200",
                   isMenuOpen && "bg-gray-100 border-gray-300",
                 )}
@@ -473,41 +615,21 @@ export default function Header() {
 
           <div
             className={cn(
-              "absolute top-16 left-0 right-0 bottom-0",
+              "absolute top-14 sm:top-16 left-0 right-0 bottom-0",
               "bg-white/99 backdrop-blur-md overflow-y-auto",
               "animate-in slide-in-from-top-1 fade-in duration-200",
             )}
           >
-            <div className="max-w-7xl mx-auto px-4 pt-5 pb-10 space-y-6">
-              {/* Nav links */}
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 pt-4 sm:pt-5 pb-8 sm:pb-10 space-y-5 sm:space-y-6">
+              {/* Nav links — role menu on dashboard routes, public menu otherwise */}
               <nav className="space-y-1">
-                {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
-                  <a
-                    key={label}
-                    href={href}
+                {DRAWER_ITEMS.map((item) => (
+                  <MobileNavLink
+                    key={item.label}
+                    item={item}
+                    active={location.pathname === item.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
-                      location.pathname === href
-                        ? "bg-linear-to-r from-cyan-50 to-blue-50/50 text-cyan-700 font-semibold"
-                        : "text-gray-700 hover:bg-gray-50 font-medium",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                        location.pathname === href
-                          ? "bg-cyan-100 text-cyan-700"
-                          : "bg-gray-100 text-gray-500",
-                      )}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </span>
-                    {label}
-                    {location.pathname === href && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-500" />
-                    )}
-                  </a>
+                  />
                 ))}
               </nav>
 
@@ -521,14 +643,14 @@ export default function Header() {
                       setIsMenuOpen(false);
                     }}
                     className={cn(
-                      "w-full flex items-center gap-4 p-4 rounded-2xl text-left",
+                      "w-full flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl text-left",
                       "bg-linear-to-br from-gray-50 to-gray-100/60",
                       "border border-gray-200 hover:border-cyan-300/60 hover:from-cyan-50/50 hover:to-blue-50/30",
                       "transition-all duration-200",
                     )}
                   >
-                    <div className="relative">
-                      <Avatar className="h-12 w-12 shrink-0">
+                    <div className="relative shrink-0">
+                      <Avatar className="h-11 w-11 sm:h-12 sm:w-12">
                         <AvatarImage
                           src="https://github.com/shadcn.png"
                           alt={userName ?? ""}
@@ -545,7 +667,7 @@ export default function Header() {
                       <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 truncate text-base">
+                      <p className="font-semibold text-gray-900 truncate text-sm sm:text-base">
                         {userName ?? "Your Account"}
                       </p>
                       <span
@@ -565,7 +687,7 @@ export default function Header() {
                       handleNotificationClick();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-3.5 sm:px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
                   >
                     <span className="relative w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
                       <Bell className="w-4 h-4 text-red-500" />
@@ -588,7 +710,7 @@ export default function Header() {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50/80 font-medium transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-3.5 sm:px-4 py-3 rounded-xl text-red-600 hover:bg-red-50/80 font-medium transition-colors text-left"
                   >
                     <span className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
                       <LogOut className="w-4 h-4" />

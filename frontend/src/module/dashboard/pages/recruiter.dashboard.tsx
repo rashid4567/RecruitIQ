@@ -982,7 +982,10 @@ export default function RecruiterDashboard() {
   if (error) {
     return (
       <div className="flex h-screen bg-gray-50">
-        <Sidebar />
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
+
         <div className="flex-1 overflow-auto">
           <DashboardError message={error} onRetry={refresh} />
         </div>
@@ -1004,7 +1007,9 @@ export default function RecruiterDashboard() {
         }
         .soft-pulse { animation: softPulse 2s ease-in-out infinite; }
       `}</style>
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
 
       <div className="flex-1 overflow-auto relative">
         <Header />

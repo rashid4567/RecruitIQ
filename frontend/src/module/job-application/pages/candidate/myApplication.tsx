@@ -3,10 +3,8 @@ import { Loader2, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMyApplications } from "../../hooks/candidate/useMyApplications";
 import { useWithdrawApplication } from "../../hooks/candidate/useWithdrawApplication";
-import {
-  ApplicationStatus,
-} from "../../types/jobApplication.types"
-import Sidebar from "../../../candidate/pages/components/personalInfo/shared/candidateSidebar"
+import { ApplicationStatus } from "../../types/jobApplication.types";
+import Sidebar from "../../../candidate/pages/components/personalInfo/shared/candidateSidebar";
 import { StatsCards } from "../component/candidate-applications/StatsCards";
 import { FilterBar } from "../component/candidate-applications/FilterBar";
 import { ApplicationsTable } from "../component/candidate-applications/ApplicationsTable";
@@ -20,12 +18,7 @@ const PER_PAGE = 7;
 export default function MyApplicationsPage() {
   const navigate = useNavigate();
 
- const {
-  applications,
-  loading,
-  error,
-  refresh,
-} = useMyApplications();
+  const { applications, loading, error, refresh } = useMyApplications();
 
   const { withdraw, loading: withdrawing } = useWithdrawApplication();
 
@@ -34,24 +27,20 @@ export default function MyApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState<"ALL" | ApplicationStatus>(
     "ALL",
   );
-  const [withdrawTarget, setWithdrawTarget] = useState<CandidateApplication | null>(
-    null,
-  );
+  const [withdrawTarget, setWithdrawTarget] =
+    useState<CandidateApplication | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-const filtered = applications.filter((a) => {
-  const q = search.toLowerCase();
+  const filtered = applications.filter((a) => {
+    const q = search.toLowerCase();
 
-  const matchSearch = (a.jobTitle ?? "")
-    .toLowerCase()
-    .includes(q);
+    const matchSearch = (a.jobTitle ?? "").toLowerCase().includes(q);
 
-  const matchStatus =
-    statusFilter === "ALL" || a.status === statusFilter;
+    const matchStatus = statusFilter === "ALL" || a.status === statusFilter;
 
-  return matchSearch && matchStatus;
-});
+    return matchSearch && matchStatus;
+  });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const safePage = Math.min(page, totalPages);
@@ -110,7 +99,9 @@ const filtered = applications.filter((a) => {
   if (loading) {
     return (
       <div className="flex h-screen bg-slate-50">
-        <Sidebar />
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <Loader2 size={26} className="animate-spin text-blue-500" />
@@ -126,7 +117,9 @@ const filtered = applications.filter((a) => {
   if (error) {
     return (
       <div className="flex h-screen bg-slate-50">
-        <Sidebar />
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center max-w-xs">
             <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto mb-4">
@@ -155,7 +148,9 @@ const filtered = applications.filter((a) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar />
+   <div className="hidden lg:block">
+    <Sidebar />
+  </div>
 
       {withdrawTarget && (
         <WithdrawModal

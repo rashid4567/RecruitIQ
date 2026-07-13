@@ -16,7 +16,7 @@ import Header from "../../../pages/landing/sections/Header";
 import { RecruiterProfileSection } from "./components/Recruiter-profile/ProfileSection";
 import { NotificationsSection } from "./components/profileSeting/NotificationsSection";
 import { BillingSection } from "./components/profileSeting/BillingSection";
-import { getRecruiterProfile } from "../api/recruiter.api"; 
+import { getRecruiterProfile } from "../api/recruiter.api";
 import type { RecruiterProfile } from "../types/recruiter.types";
 import { SecuritySection } from "./components/SecuritySection/SecuritySection";
 
@@ -145,7 +145,9 @@ export default function RecruiterSettingsPage() {
       <Header />
 
       <div className="flex min-h-[calc(100vh-64px)] pt-16">
-        <Sidebar activeItem="profile" />
+        <div className="hidden lg:block">
+          <Sidebar activeItem="profile" />
+        </div>
 
         <div className="flex-1 flex flex-col min-w-0">
           <div className="sticky top-16 z-20 bg-white border-b border-slate-200/80 shadow-[0_1px_8px_0_rgba(0,0,0,0.06)]">

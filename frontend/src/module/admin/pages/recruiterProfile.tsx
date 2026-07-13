@@ -159,7 +159,10 @@ export default function RecruiterProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex">
-      <Sidebar />
+        <div className="hidden lg:block">
+        <Sidebar />
+    </div>
+
 
       <main className="flex-1 overflow-y-auto">
         <div className="bg-white border-b border-gray-100 px-8 py-4 sticky top-0 z-10">

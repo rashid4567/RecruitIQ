@@ -88,7 +88,9 @@ export default function CareerPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
-      <CandidateSidebar />
+       <div className="hidden lg:block">
+    <CandidateSidebar />
+  </div>
 
       <main className="flex-1 overflow-y-auto">
         <JobPostList

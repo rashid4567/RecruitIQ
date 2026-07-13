@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Briefcase } from "lucide-react";
 import type { Job } from "@/module/jobs/types/job.types";
 import type { JobPostFilters } from "../../../types/JobPostDTO";
-import Header from "../../../../../pages/landing/sections/Header"
+import Header from "../../../../../pages/landing/sections/Header";
 import { CompanyBanner } from "./CompanyBanner";
 import { SearchBar } from "./SearchBar";
 import { FilterSidebar } from "./FilterSidebar";
@@ -43,22 +43,21 @@ export default function JobPostList({
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const handleClearSearch = () => {
-    onSearchChange(""); 
+    onSearchChange("");
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Header />
-     <CompanyBanner total={jobs.length} jobs={jobs} />
+      <CompanyBanner total={jobs.length} jobs={jobs} />
 
-      
       <SearchBar
-  searchInput={searchInput}
-  onSearchInputChange={onSearchChange}
-  onClear={handleClearSearch}
-  onMobileFilterOpen={() => setMobileFilterOpen(true)}
-  filters={filters} 
-/>
+        searchInput={searchInput}
+        onSearchInputChange={onSearchChange}
+        onClear={handleClearSearch}
+        onMobileFilterOpen={() => setMobileFilterOpen(true)}
+        filters={filters}
+      />
 
       <MobileFilterDrawer
         isOpen={mobileFilterOpen}
@@ -68,10 +67,8 @@ export default function JobPostList({
         onReset={onResetFilters}
       />
 
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex gap-8">
-   
           <div className="hidden lg:block w-64 shrink-0">
             <FilterSidebar
               filters={filters}
@@ -80,9 +77,7 @@ export default function JobPostList({
             />
           </div>
 
-
           <div className="flex-1 min-w-0">
-
             <div className="flex items-center justify-between mb-5">
               <p className="text-sm text-slate-500">
                 {loading ? (
@@ -117,7 +112,6 @@ export default function JobPostList({
               </div>
             )}
 
-       
             {!loading && jobs.length === 0 && (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-5">

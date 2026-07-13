@@ -17,8 +17,6 @@ import {
   Calendar,
   BarChart3,
   X,
-  AlertTriangle,
-  ShieldCheck,
   CheckCircle2,
 } from "lucide-react";
 
@@ -82,7 +80,7 @@ function getPlanCTA(plan: SubscriptionPlan): string {
 }
 
 function getPlanFeatures(
-  plan: SubscriptionPlan
+  plan: SubscriptionPlan,
 ): { text: string; icon: React.ElementType }[] {
   const items: { text: string; icon: React.ElementType }[] = [];
 
@@ -246,7 +244,10 @@ function PlanCard({
                   className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5"
                   style={{ backgroundColor: meta.accent + "18" }}
                 >
-                  <Icon className="w-2.5 h-2.5" style={{ color: meta.accent }} />
+                  <Icon
+                    className="w-2.5 h-2.5"
+                    style={{ color: meta.accent }}
+                  />
                 </span>
                 <span className="text-[12px] text-gray-600 leading-snug">
                   {feat.text}
@@ -301,7 +302,6 @@ function PlanCard({
   );
 }
 
-
 const DURATION_OPTIONS: {
   months: number;
   label: string;
@@ -309,7 +309,7 @@ const DURATION_OPTIONS: {
   popular?: boolean;
 }[] = [
   { months: 1, label: "1 Month" },
-  { months: 3, label: "3 Months",  },
+  { months: 3, label: "3 Months" },
   { months: 6, label: "6 Months", badge: "⭐ Most Popular", popular: true },
   { months: 12, label: "12 Months", badge: "💎 Best Value" },
 ];
@@ -381,15 +381,16 @@ function DurationModal({
           </div>
         </div>
 
-        {/* Body: two columns on desktop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 overflow-y-auto">
-          {/* Left: plan details */}
+    
           <div className="p-7 sm:p-8 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-100">
             <p className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold mb-3">
               Plan Details
             </p>
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="text-base font-bold text-slate-900">{plan.name}</h4>
+              <h4 className="text-base font-bold text-slate-900">
+                {plan.name}
+              </h4>
               {plan.isPopular && (
                 <span
                   className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white"
@@ -413,7 +414,10 @@ function DurationModal({
                       className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
                       style={{ backgroundColor: meta.accent + "18" }}
                     >
-                      <Icon className="w-3 h-3" style={{ color: meta.accent }} />
+                      <Icon
+                        className="w-3 h-3"
+                        style={{ color: meta.accent }}
+                      />
                     </span>
                     <span className="text-sm text-slate-700 leading-snug">
                       {feat.text}
@@ -504,7 +508,9 @@ function DurationModal({
                 </div>
               )}
               <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-900">Total</span>
+                <span className="text-sm font-semibold text-slate-900">
+                  Total
+                </span>
                 <span className="text-xl font-bold text-emerald-600">
                   {formatMoney(totalAmount)}
                 </span>
@@ -553,20 +559,20 @@ function DurationModal({
 
 export function PricingPlans() {
   const {
-  plans,
-  loading,
-  selectedPlanId,
-  setSelectedPlanId,
-  durationMonths,
-  setDurationMonths,
-  showDurationModal,
-  setShowDurationModal,
-  selectedPlan,
-  totalAmount,
-  paymentLoading,
-  openSubscribeModal,
-  handleSubscribe,
-} = usePricingPlans();
+    plans,
+    loading,
+    selectedPlanId,
+    setSelectedPlanId,
+    durationMonths,
+    setDurationMonths,
+    showDurationModal,
+    setShowDurationModal,
+    selectedPlan,
+    totalAmount,
+    paymentLoading,
+    openSubscribeModal,
+    handleSubscribe,
+  } = usePricingPlans();
 
   if (loading) {
     return (
@@ -637,11 +643,10 @@ export function PricingPlans() {
   );
 }
 
-
 function PricingHeader() {
   return (
     <div className="space-y-8">
-      {/* Heading */}
+
       <div className="text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2">
           <Sparkles className="h-4 w-4 text-blue-600" />
@@ -661,7 +666,7 @@ function PricingHeader() {
         </p>
       </div>
 
-      {/* Setup Card */}
+
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-start gap-5 p-6">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-100">
@@ -685,7 +690,7 @@ function PricingHeader() {
               verify your organization, and enable premium recruitment tools.
             </p>
 
-            {/* Checklist */}
+      
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3">
@@ -717,7 +722,6 @@ function PricingHeader() {
               </div>
             </div>
 
-            {/* Footer */}
 
             <div className="mt-6 flex items-center gap-2 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
               <ArrowRight className="h-4 w-4 text-blue-600" />

@@ -328,12 +328,14 @@ export default function MyInterviews() {
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
       <Header />
 
-      <div className="fixed left-0 top-16 bottom-0 w-60 z-40 overflow-y-auto border-r border-slate-100 bg-white">
-        <Sidebar />
+      <div className="hidden lg:block">
+        <aside className="fixed left-0 top-16 bottom-0 w-60 xl:w-64 z-40 overflow-y-auto border-r border-slate-100 bg-white">
+          <Sidebar />
+        </aside>
       </div>
 
-      <div className="ml-60 pt-16 flex flex-col min-h-screen">
-        <div className="px-8 py-6">
+      <div className="flex flex-col min-h-screen pt-16 lg:ml-60 xl:ml-64">
+       <div className="px-4 sm:px-6 lg:px-8 py-6">
           {loading && interviews.length === 0 && (
             <div className="flex items-center justify-center py-24 gap-3 text-slate-400 bg-white rounded-xl border border-slate-200 mb-6">
               <Loader2 size={20} className="animate-spin text-blue-500" />
@@ -358,7 +360,7 @@ export default function MyInterviews() {
 
           {(!loading || interviews.length > 0) && !error && (
             <>
-              <div className="grid grid-cols-3 gap-3 mb-6">
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
                 <StatCard
                   icon={Clock}
                   iconColor="text-blue-500"

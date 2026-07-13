@@ -292,7 +292,10 @@ export default function ChangeAdminPasswordPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+       <div className="hidden lg:block">
+        <Sidebar />
+    </div>
+
       <div className="flex-1">
         <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 px-8 py-4 backdrop-blur-sm">
           <div className="flex items-center gap-2 text-sm text-gray-400">

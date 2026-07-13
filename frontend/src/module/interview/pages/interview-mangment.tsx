@@ -119,8 +119,6 @@ export default function InterviewDashboard() {
     });
   }
 
-  
-
   async function handleStartInterview(interview: RecruiterInterviewItem) {
     if (!interview.interviewId) return;
 
@@ -336,11 +334,11 @@ export default function InterviewDashboard() {
   const hasActiveSearchOrFilter =
     Boolean(debouncedSearch.trim()) || activeFilterCount > 0;
 
-    
-
   return (
     <div className="flex h-screen bg-linear-to-br from-slate-50 to-slate-100">
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
 
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white border-b border-slate-200 shadow-sm">

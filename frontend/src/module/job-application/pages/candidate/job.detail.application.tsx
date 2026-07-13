@@ -9,19 +9,26 @@ import Sidebar from "../../../candidate/pages/components/personalInfo/shared/can
 import { ApplicationHeader } from "../component/candidate-details/Applicationheader";
 import { LeftPanel } from "../component/candidate-details/Leftpanel";
 import { OfferLetterSection } from "../component/candidate-details/OfferLetterSection";
-import { Timeline, type TimelineStep } from "../component/candidate-details/Timeline";
+import {
+  Timeline,
+  type TimelineStep,
+} from "../component/candidate-details/Timeline";
 import { InterviewCard } from "../component/candidate-details/Interviewcard";
 import { SkillsSection } from "../component/candidate-details/Skillssection";
 import { SectionCard } from "../component/candidate-details/Sectioncard";
 import { WithdrawModal } from "../component/candidate-details/Withdrawmodal";
 import { InterviewTipsSection } from "../component/candidate-details/Interviewtipssection";
-import { statusToStep, getStatusConfig } from "../component/candidate-details/Statusconfig";
+import {
+  statusToStep,
+  getStatusConfig,
+} from "../component/candidate-details/Statusconfig";
 import { formatDate } from "../component/candidate-details/Formatters";
 
 export default function JobApplicationDetail() {
   const { applicationId } = useParams<{ applicationId: string }>();
   const navigate = useNavigate();
-  const { loading, error, applicationDetail, fetchApplicationDetail } = useApplicationDetail();
+  const { loading, error, applicationDetail, fetchApplicationDetail } =
+    useApplicationDetail();
   const { downloadResume, loading: downloadLoading } = useDownloadResume();
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState(false);
@@ -45,7 +52,9 @@ export default function JobApplicationDetail() {
   if (loading) {
     return (
       <div className="flex h-screen bg-slate-50 overflow-hidden">
-        <Sidebar />
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-9 h-9 border-[3px] border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -59,18 +68,26 @@ export default function JobApplicationDetail() {
   if (error || !applicationDetail) {
     return (
       <div className="flex h-screen bg-slate-50 overflow-hidden">
-        <Sidebar />
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto">
               <AlertCircle className="w-6 h-6 text-red-400" />
             </div>
             <div>
-              <p className="text-slate-700 font-medium">{error ?? "We couldn't find this application"}</p>
-              <p className="text-slate-400 text-sm mt-1">Try again, or go back to your applications.</p>
+              <p className="text-slate-700 font-medium">
+                {error ?? "We couldn't find this application"}
+              </p>
+              <p className="text-slate-400 text-sm mt-1">
+                Try again, or go back to your applications.
+              </p>
             </div>
             <button
-              onClick={() => applicationId && fetchApplicationDetail(applicationId)}
+              onClick={() =>
+                applicationId && fetchApplicationDetail(applicationId)
+              }
               className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
             >
               Retry
@@ -113,11 +130,16 @@ export default function JobApplicationDetail() {
     });
   }
 
-  if (appStatus === ApplicationStatus.INTERVIEW_SCHEDULED || appStatus === ApplicationStatus.SELECTED) {
+  if (
+    appStatus === ApplicationStatus.INTERVIEW_SCHEDULED ||
+    appStatus === ApplicationStatus.SELECTED
+  ) {
     timelineSteps.push({
       stepIndex: 2,
       title: "Interview scheduled",
-      description: interview ? `Scheduled for ${formatDate(interview.scheduledAt)}` : "Interview has been scheduled.",
+      description: interview
+        ? `Scheduled for ${formatDate(interview.scheduledAt)}`
+        : "Interview has been scheduled.",
       date: interview ? formatDate(interview.scheduledAt) : undefined,
     });
   }
@@ -156,7 +178,9 @@ export default function JobApplicationDetail() {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <ApplicationHeader jobTitle={job.title} companyName={job.department} />
@@ -193,38 +217,57 @@ export default function JobApplicationDetail() {
 
               {interview && <InterviewCard interview={interview} />}
 
-              <SectionCard title="Application timeline" icon={<TrendingUp className="w-4 h-4" />}>
+              <SectionCard
+                title="Application timeline"
+                icon={<TrendingUp className="w-4 h-4" />}
+              >
                 <Timeline timelineSteps={timelineSteps} getStep={getStep} />
               </SectionCard>
 
-              {application.status === ApplicationStatus.REJECTED && application.rejectionReason && (
-                <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
-                  <h2 className="text-sm font-semibold text-red-700 mb-2 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4" />
-                    Rejection feedback
-                  </h2>
-                  <p className="text-sm text-red-600 leading-relaxed">{application.rejectionReason}</p>
-                </div>
-              )}
+              {application.status === ApplicationStatus.REJECTED &&
+                application.rejectionReason && (
+                  <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
+                    <h2 className="text-sm font-semibold text-red-700 mb-2 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      Rejection feedback
+                    </h2>
+                    <p className="text-sm text-red-600 leading-relaxed">
+                      {application.rejectionReason}
+                    </p>
+                  </div>
+                )}
 
-              <SkillsSection requiredSkills={requiredSkills} preferredSkills={preferredSkills} />
+              <SkillsSection
+                requiredSkills={requiredSkills}
+                preferredSkills={preferredSkills}
+              />
 
               {job.description && (
-                <SectionCard title="Job description" icon={<FileText className="w-4 h-4" />} collapsible>
+                <SectionCard
+                  title="Job description"
+                  icon={<FileText className="w-4 h-4" />}
+                  collapsible
+                >
                   <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line pt-4">
                     {job.description}
                   </p>
                 </SectionCard>
               )}
 
-              {(job.responsibilities?.length > 0 || job.requirements?.length > 0) && (
+              {(job.responsibilities?.length > 0 ||
+                job.requirements?.length > 0) && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {job.responsibilities?.length > 0 && (
                     <SectionCard title="Responsibilities">
                       <ul className="space-y-2.5 pt-4">
                         {job.responsibilities.map((r: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600">
-                            <span className="text-blue-400 font-bold mt-0.5 shrink-0 text-base leading-none">→</span>
+                          <li
+                            key={i}
+                            className="flex items-start gap-2.5 text-sm text-slate-600"
+                          >
+                            <span className="text-blue-400 font-bold mt-0.5 shrink-0 text-base leading-none">
+                              →
+                            </span>
                             {r}
                           </li>
                         ))}
@@ -235,7 +278,10 @@ export default function JobApplicationDetail() {
                     <SectionCard title="Requirements">
                       <ul className="space-y-2.5 pt-4">
                         {job.requirements.map((r: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600">
+                          <li
+                            key={i}
+                            className="flex items-start gap-2.5 text-sm text-slate-600"
+                          >
                             <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                             {r}
                           </li>
@@ -256,7 +302,9 @@ export default function JobApplicationDetail() {
                       <FileText className="w-4 h-4 text-slate-400" />
                       Cover letter
                     </h2>
-                    <span className="text-xs text-slate-400">{expandedCover ? "Collapse" : "Expand"}</span>
+                    <span className="text-xs text-slate-400">
+                      {expandedCover ? "Collapse" : "Expand"}
+                    </span>
                   </button>
                   {expandedCover && (
                     <div className="border-t border-slate-50 px-6 pb-6 pt-4">

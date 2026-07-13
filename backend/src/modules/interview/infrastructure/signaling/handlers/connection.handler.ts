@@ -7,6 +7,7 @@ import { AnswerHandler } from "./answer.handler";
 import { IceCandidateHandler } from "./ice-candidate.handler";
 import { DisconnectHandler } from "./disconnect.handler";
 import { ChatMessageHandler } from "./chat-message.handler";
+import { EndInterviewHandler } from "./end-interview.handler";
 
 export class SocketConnectionHandler {
   constructor(
@@ -18,6 +19,7 @@ export class SocketConnectionHandler {
     private readonly iceCandidateHandler: IceCandidateHandler,
     private readonly chatMessageHandler: ChatMessageHandler,
     private readonly disconnectHandler: DisconnectHandler,
+    private readonly endInterviewHandler: EndInterviewHandler,
   ) {}
 
   register(): void {
@@ -29,6 +31,7 @@ export class SocketConnectionHandler {
       this.iceCandidateHandler.register(this.io, socket);
       this.chatMessageHandler.register(this.io, socket);
       this.disconnectHandler.register(socket);
+      this.endInterviewHandler.register(this.io, socket);
     });
   }
 }

@@ -54,3 +54,15 @@ export interface ChatMessageReceivedPayload {
   senderRole: "candidate" | "recruiter";
   sentAt: string;
 }
+
+
+export interface EndInterviewPayload {
+  roomId: string;
+  interviewId: string;
+}
+
+export interface InterviewEndedPayload {
+  roomId: string;
+  interviewId: string;
+  endedBy: string;
+}

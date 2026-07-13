@@ -13,7 +13,10 @@ import type {
   JoinRoomFailedPayload,
   ChatMessagePayload,
   ChatMessageReceivedPayload,
+  EndInterviewPayload,
+  InterviewEndedPayload,
 } from "../types/socket.types";
+
 
 class SocketService {
   private socket: Socket | null = null;
@@ -88,6 +91,10 @@ class SocketService {
     });
   }
 
+  endInterview(payload: EndInterviewPayload): void {
+  this.socket?.emit(SocketEvents.END_INTERVIEW, payload);
+}
+
   onOffer(callback: (payload: OfferPayload) => void): void {
     this.socket?.on(SocketEvents.OFFER, (payload) => {
       callback(payload);
@@ -113,6 +120,19 @@ class SocketService {
       callback(payload);
     });
   }
+
+  onInterviewEnded(
+  callback: (payload: InterviewEndedPayload) => void,
+): void {
+  this.socket?.off(SocketEvents.END_INTERVIEW);
+
+  this.socket?.on(
+    SocketEvents.END_INTERVIEW,
+    (payload) => {
+      callback(payload);
+    },
+  );
+}
 
   removeAllListeners(): void {
     this.socket?.removeAllListeners();

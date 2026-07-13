@@ -7,6 +7,7 @@ export class WebRTCService {
   private peerConnection: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
   private remoteStream: MediaStream | null = null;
+  private cameraTrackBeforeScreenShare: MediaStreamTrack | null = null;
   private onIceCandidateCallback?: (candidate: RTCIceCandidate) => void;
   private onRemoteStreamCallback?: (stream: MediaStream) => void;
   private onConnectionStateChangedCallback?: (
@@ -137,6 +138,7 @@ export class WebRTCService {
   }
   async startScreenShare(): Promise<void> {
     try {
+      this.cameraTrackBeforeScreenShare = this.getVideoTrack() ?? null;
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
       });
@@ -149,7 +151,6 @@ export class WebRTCService {
         const oldTrack = this.getVideoTrack();
         if (oldTrack) {
           this.localStream.removeTrack(oldTrack);
-          oldTrack.stop();
         }
         this.localStream.addTrack(screenTrack);
         screenTrack.onended = async () => {
@@ -163,24 +164,26 @@ export class WebRTCService {
 
   async stopScreenShare(): Promise<void> {
     try {
-      const cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-      });
-      const cameraTrack = cameraStream.getVideoTracks()[0];
+      const cameraTrack = this.cameraTrackBeforeScreenShare;
+
       if (!cameraTrack) {
         return;
       }
 
       await this.replaceTrack("video", cameraTrack);
-      if (this.localStream) {
-        const oldTrack = this.getVideoTrack();
-        if (oldTrack) {
-          this.localStream.removeTrack(oldTrack);
 
-          oldTrack.stop();
+      if (this.localStream) {
+        const currentTrack = this.getVideoTrack();
+
+        if (currentTrack) {
+          this.localStream.removeTrack(currentTrack);
+          currentTrack.stop();
         }
+
         this.localStream.addTrack(cameraTrack);
       }
+
+      this.cameraTrackBeforeScreenShare = null;
     } catch (error) {
       console.error("Failed to stop screen sharing.", error);
     }

@@ -42,6 +42,7 @@ import {
 import { useInterviewDetails } from "../hooks/common/useInterview.details";
 import { useEndInterview } from "../hooks/recruiter/useEndInterview";
 import { useUpdateInterviewNotes } from "../hooks/recruiter/useUpdateInterviewNotes";
+import { socketService } from "../services/SocketService";
 
 const COLOR = {
   bg: "#202124",
@@ -351,10 +352,8 @@ export default function InterviewRoomPage() {
 
   const [activeTab, setActiveTab] = useState<SidebarTab | null>(null);
 
-  // --- Interview feedback (single free-form field, autosaved to the backend) ---
+
   const [feedbackText, setFeedbackText] = useState("");
-  // feedbackSavedText tracks the text that is confirmed persisted in MongoDB
-  // (not just localStorage), so feedbackDirty reflects real unsaved work.
   const [feedbackSavedText, setFeedbackSavedText] = useState("");
   const [feedbackSaveStatus, setFeedbackSaveStatus] = useState<
     "idle" | "pending" | "saving" | "saved" | "error"
@@ -367,8 +366,7 @@ export default function InterviewRoomPage() {
   const feedbackSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
-  // Guards against an in-flight save response landing after a newer save
-  // has already started (e.g. rapid edits triggering back-to-back saves).
+
   const feedbackSaveRequestIdRef = useRef(0);
   const feedbackDirty = feedbackText !== feedbackSavedText;
 
@@ -564,10 +562,7 @@ export default function InterviewRoomPage() {
     return () => clearInterval(id);
   }, [connectedAt]);
 
-  // Keyed on the stream's id so the <video> element remounts whenever the
-  // local stream is replaced (e.g. after toggling the camera off/on). This
-  // avoids the classic WebRTC "frozen preview" bug where srcObject stops
-  // updating because the element never re-attaches to the new track.
+
   useEffect(() => {
     const video = localVideoRef.current;
     if (!video) return;
@@ -640,11 +635,7 @@ export default function InterviewRoomPage() {
     return () => clearInterval(id);
   }, [call.remoteStream]);
 
-  // --- Feedback: restore any locally-saved draft (recruiter only) ---
-  // This is a crash-recovery layer only — it does NOT mean the text is
-  // saved on the server. feedbackSavedText stays empty so the unsaved
-  // indicator and the "must save before ending" gate both fire correctly
-  // until this draft actually reaches the backend.
+
   useEffect(() => {
     if (role !== "recruiter" || !interviewId) return;
     try {
@@ -656,13 +647,8 @@ export default function InterviewRoomPage() {
     } catch (err) {
       console.warn("[FEEDBACK] Failed to read saved draft.", err);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, interviewId]);
 
-  // Persists the current feedback text to the backend (PATCH
-  // /interview/:id/notes via useUpdateInterviewNotes) and keeps a
-  // localStorage mirror purely as an offline/crash-recovery fallback.
-  // Returns true only once the backend has confirmed the save.
   const saveFeedbackNow = useCallback(async (): Promise<boolean> => {
     if (feedbackSaveTimeoutRef.current) {
       clearTimeout(feedbackSaveTimeoutRef.current);
@@ -689,8 +675,7 @@ export default function InterviewRoomPage() {
       notes: textToSave,
     });
 
-    // A newer save started while this one was in flight — let the newer
-    // one own the status instead of clobbering it with a stale result.
+
     if (requestId !== feedbackSaveRequestIdRef.current) {
       return response !== null;
     }
@@ -714,7 +699,7 @@ export default function InterviewRoomPage() {
     return true;
   }, [feedbackText, feedbackSavedText, feedbackSaveStatus, interviewId, submitInterviewNotes]);
 
-  // --- Feedback: debounce-autosave 2s after typing stops ---
+
   useEffect(() => {
     if (role !== "recruiter") return;
     if (feedbackText === feedbackSavedText) return;
@@ -731,10 +716,10 @@ export default function InterviewRoomPage() {
         clearTimeout(feedbackSaveTimeoutRef.current);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [feedbackText, role]);
 
-  // --- Feedback: warn on tab close/refresh if there's unsaved work ---
+
   useEffect(() => {
     function handleBeforeUnload(e: BeforeUnloadEvent) {
       if (role === "recruiter" && feedbackText !== feedbackSavedText) {
@@ -941,8 +926,6 @@ export default function InterviewRoomPage() {
     }
   }, [call.iceConnectionState]);
 
-  // Remember the last good connection quality reading so the completion
-  // screen can show something meaningful instead of a reset/closed state.
   useEffect(() => {
     if (call.callState !== "ENDED") {
       lastConnectionQualityRef.current = connectionInfo.text;
@@ -1027,7 +1010,7 @@ export default function InterviewRoomPage() {
     }
   }, [call, addToast]);
 
-  // Track how long the current screen-share session has been running.
+
   useEffect(() => {
     if (!call.isScreenSharing) {
       screenShareStartRef.current = null;
@@ -1097,22 +1080,31 @@ export default function InterviewRoomPage() {
     setActiveTab((prev) => (prev === tab ? null : tab));
   }
 
-  async function handleConfirmEndCall() {
-    if (role === "recruiter") {
-      if (!interviewId) return;
-      // Safety net: if feedback drifted since the pre-confirm gate (e.g. an
-      // autosave was still in flight), make one last attempt to persist it
-      // before marking the interview complete.
-      if (feedbackDirty) {
-        const saved = await saveFeedbackNow();
-        if (!saved) return;
-      }
-      const response = await submitEndInterview(interviewId);
-      if (!response) return;
+ async function handleConfirmEndCall() {
+  if (role === "recruiter") {
+    if (!interviewId) return;
+
+    if (feedbackDirty) {
+      const saved = await saveFeedbackNow();
+      if (!saved) return;
     }
-    setShowEndConfirm(false);
-    await call.endCall();
+
+    const response = await submitEndInterview(interviewId);
+
+    if (!response) return;
+
+    socketService.endInterview({
+      roomId,
+      interviewId,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
+
+  setShowEndConfirm(false);
+
+  await call.endCall();
+}
 
   function handleLeaveClick() {
     if (role === "recruiter") {
@@ -1143,9 +1135,6 @@ export default function InterviewRoomPage() {
   }
 
   function handleDiscardAndProceed() {
-    // "Discard" reverts to the last text actually confirmed saved on the
-    // server — it never fakes a save, since the backend is the source of
-    // truth for feedback now.
     setFeedbackText(feedbackSavedText);
     setFeedbackSaveStatus(feedbackSavedAt !== null ? "saved" : "idle");
     setFeedbackSaveError(null);

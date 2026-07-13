@@ -51,3 +51,8 @@ export interface ChatMessagePayload {
   roomId: string;
   message: string;
 }
+
+export interface EndInterviewPayload {
+  roomId: string;
+  interviewId: string;
+}

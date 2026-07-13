@@ -56,7 +56,7 @@ export function TemplateSettings({ form, setForm, isEdit, events }: TemplateSett
   return (
     <div className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-200/50">
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
         <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shadow-sm">
           <Settings2 className="w-4 h-4 text-white" />
         </div>
@@ -115,7 +115,7 @@ export function TemplateSettings({ form, setForm, isEdit, events }: TemplateSett
                 )}
               >
                 <div className="flex items-center gap-2">
-                  <Zap className={cn("w-3.5 h-3.5 flex-shrink-0", form.event ? "text-amber-500" : "text-slate-300")} />
+                  <Zap className={cn("w-3.5 h-3.5 shrink-0", form.event ? "text-amber-500" : "text-slate-300")} />
                   <SelectValue placeholder="Choose when this email is sent" />
                 </div>
               </SelectTrigger>
@@ -163,10 +163,9 @@ export function TemplateSettings({ form, setForm, isEdit, events }: TemplateSett
         </FieldWrapper>
       </div>
 
-      {/* Footer stripe */}
       {isEdit && (
         <div className="px-6 py-3 bg-amber-50/60 border-t border-amber-100 flex items-center gap-2">
-          <Lock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+          <Lock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
           <p className="text-[11px] text-amber-700">
             Some fields are locked because this template has already been used.
           </p>

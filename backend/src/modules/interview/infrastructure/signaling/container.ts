@@ -9,6 +9,7 @@ import { DisconnectHandler } from "./handlers/disconnect.handler";
 import { SocketConnectionHandler } from "./handlers/connection.handler";
 import { validateInterviewUC } from "../../presentation/di/interview.module";
 import { ChatMessageHandler } from "./handlers/chat-message.handler";
+import { EndInterviewHandler } from "./handlers/end-interview.handler";
 
 export const roomRepository = new InMemoryRoomRepository();
 
@@ -25,6 +26,7 @@ export function createSocketConnectionHandler(
   const iceCandidateHandler = new IceCandidateHandler(roomRepository);
   const chatMessageHandler = new ChatMessageHandler(roomRepository);
   const disconnectHandler = new DisconnectHandler(roomRepository);
+  const endInterviewHandler = new EndInterviewHandler(roomRepository);
   return new SocketConnectionHandler(
     io,
     joinRoomHandler,
@@ -34,5 +36,7 @@ export function createSocketConnectionHandler(
     iceCandidateHandler,
     chatMessageHandler,
     disconnectHandler,
+    endInterviewHandler
   );
 }
+

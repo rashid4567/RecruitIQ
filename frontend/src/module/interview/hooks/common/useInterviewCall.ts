@@ -11,6 +11,7 @@ import type {
   RoomJoinedPayload,
   UserJoinedPayload,
   UserLeftPayload,
+  InterviewEndedPayload,
 } from "../../types/socket.types";
 
 import type {
@@ -202,6 +203,26 @@ export function useInterviewCall({
     [role],
   );
 
+  const handleInterviewEnded = useCallback(
+    (_payload: InterviewEndedPayload) => {
+      setRemoteStream(null);
+      webRTC.dispose();
+      socketService.removeAllListeners();
+      socketService.disconnect();
+      pendingIceCandidatesRef.current = [];
+      hasJoinedRoomRef.current = false;
+      callbacksRegisteredRef.current = false;
+      isInitializedRef.current = false;
+
+      setCallState("ENDED");
+      setConnectionState("closed");
+      setIceConnectionState("closed");
+
+      onCallEnded?.();
+    },
+    [webRTC, onCallEnded],
+  );
+
   const handleRoomJoined = useCallback((_payload: RoomJoinedPayload) => {
     clearJoinTimeout();
 
@@ -271,6 +292,7 @@ export function useInterviewCall({
     socketService.onJoinRoomFailed(handleJoinRoomFailed);
     socketService.onUserJoined(handleUserJoined);
     socketService.onUserLeft(handleUserLeft);
+    socketService.onInterviewEnded(handleInterviewEnded);
     socketService.onOffer(handleOffer);
     socketService.onAnswer(handleAnswer);
     socketService.onChatMessage(handleChatMessage);
@@ -280,6 +302,7 @@ export function useInterviewCall({
     handleJoinRoomFailed,
     handleUserJoined,
     handleUserLeft,
+    handleInterviewEnded,
     handleOffer,
     handleAnswer,
     handleChatMessage,
@@ -299,7 +322,11 @@ export function useInterviewCall({
 
     try {
       await webRTC.initialize();
-      setLocalStream(webRTC.getLocalStream());
+     const stream = webRTC.getLocalStream();
+
+if (stream) {
+  setLocalStream(new MediaStream(stream.getTracks()));
+}
       setIsMuted(!webRTC.isMicrophoneEnabled());
       setIsCameraEnabled(webRTC.isCameraEnabled());
 
@@ -395,10 +422,17 @@ export function useInterviewCall({
     setIsMuted(!enabled);
   }, [webRTC]);
 
-  const toggleCamera = useCallback(() => {
-    const enabled = webRTC.toggleCamera();
-    setIsCameraEnabled(enabled);
-  }, [webRTC]);
+const toggleCamera = useCallback(() => {
+  const enabled = webRTC.toggleCamera();
+
+  setIsCameraEnabled(enabled);
+
+  const stream = webRTC.getLocalStream();
+
+  if (stream) {
+    setLocalStream(new MediaStream(stream.getTracks()));
+  }
+}, [webRTC]);
 
   const toggleScreenShare = useCallback(async () => {
     try {

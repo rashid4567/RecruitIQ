@@ -27,7 +27,6 @@ export interface IRecruiterSubscription extends Document {
   screeningUsed: number;
   aiScoreUsed: number;
   jobPostsLimit: number;
-  resumeDownloadLimit : number
   screeningLimit: number;
   aiScoreLimit: number;
   createdAt: Date;
@@ -145,11 +144,6 @@ const recruiterSubscriptionSchema = new Schema<IRecruiterSubscription>(
       min: -1,
     },
 
-    resumeDownloadLimit : {
-      type : Number,
-      required : true,
-      min : -1
-    },
 
     screeningLimit: {
       type: Number,

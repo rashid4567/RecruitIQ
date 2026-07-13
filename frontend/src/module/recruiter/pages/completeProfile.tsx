@@ -9,10 +9,9 @@ export default function RecruiterDetails() {
   const {
     formData,
     errors,
-    selectedPlan,
+ 
     isSubmitting,
     progress,
-    setSelectedPlan,
     handleInputChange,
     handleSubmit,
   } = useCompleteProfile();
@@ -31,16 +30,15 @@ export default function RecruiterDetails() {
             onChange={handleInputChange}
           />
 
-          <PricingPlans
-            selectedPlan={selectedPlan}
-            onPlanSelect={setSelectedPlan}
-          />
-
-          <ActionButtons
+            <ActionButtons
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
             progress={progress}
           />
+
+          <PricingPlans/>
+
+        
         </div>
       </div>
     </div>

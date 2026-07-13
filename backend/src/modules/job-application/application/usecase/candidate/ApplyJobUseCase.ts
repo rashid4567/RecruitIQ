@@ -109,11 +109,11 @@ export class ApplyJobUseCase implements IUseCase<ApplyJobDTO, JobApplication> {
     }
 
     if (resume.getParseStatus() !== ResumeParseStatus.COMPLETED) {
-      throw new ApplicationError(ERROR_CODES.RESUME_NOT_READY);
+      throw new ApplicationError(ERROR_CODES.RESUME_ANALYSIS_IN_PROGRESS_PLEASE_WAIT);
     }
 
     if (!resume.getParsedData()) {
-      throw new ApplicationError(ERROR_CODES.RESUME_NOT_READY);
+      throw new ApplicationError(ERROR_CODES.RESUME_ANALYSIS_IN_PROGRESS_PLEASE_WAIT);
     }
 
     return resume;

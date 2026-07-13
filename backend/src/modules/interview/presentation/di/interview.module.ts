@@ -66,10 +66,10 @@ const getCandidateInterviewUC = new GetCandidateInterviewUseCase(interviewRepo);
 const CandidateinterviewDetailUC = new CandidateInterviewDetailsUseCase(
   interviewRepo,
 );
-const acceptInterviewUC = new AcceptInterviewUseCase(interviewRepo);
-const rejectInterviewUC = new RejectInterviewUseCase(interviewRepo);
+const acceptInterviewUC = new AcceptInterviewUseCase(interviewRepo,createNotificationUC,jobRepo);
+const rejectInterviewUC = new RejectInterviewUseCase(interviewRepo,createNotificationUC,jobRepo);
 const requestRescheduleInterviewUC = new RequestInterviewRescheduleUseCase(
-  interviewRepo,
+  interviewRepo,createNotificationUC,jobRepo,
 );
 const joinInterviewUC = new JoinInterviewUseCase(interviewRepo);
 export const validateInterviewUC = new ValidateInterviewRoomAccessUseCase(

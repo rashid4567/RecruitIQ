@@ -1,6 +1,10 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { JobRepository } from "../../../../job/domain/repositories/job.repository";
+import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
+import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
+import { Interview } from "../../../domain/entity/interview.entity";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
   AcceptInterviewRequestDTO,
@@ -11,7 +15,11 @@ export class AcceptInterviewUseCase implements IUseCase<
   AcceptInterviewRequestDTO,
   AcceptInterviewResponseDTO
 > {
-  constructor(private readonly interviewRepo: InterviewRepository) {}
+  constructor(
+    private readonly interviewRepo: InterviewRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly jobRepo: JobRepository,
+  ) {}
 
   async execute(
     input: AcceptInterviewRequestDTO,
@@ -32,6 +40,7 @@ export class AcceptInterviewUseCase implements IUseCase<
 
     interview.accept();
     const saveInterview = await this.interviewRepo.save(interview);
+    await this.sendInterviewAcceptedNotification(saveInterview);
     const result = saveInterview.toObject();
 
     return {
@@ -40,5 +49,36 @@ export class AcceptInterviewUseCase implements IUseCase<
       candidateRespondedAt: result.candidateRespondedAt,
       updatedAt: result.updatedAt,
     };
+  }
+  private async sendInterviewAcceptedNotification(
+    interview: Interview,
+  ): Promise<void> {
+    try {
+      const job = await this.jobRepo.findById(interview.jobId);
+
+      if (!job) {
+        return;
+      }
+
+      await this.createNotificationUseCase.execute({
+        recipientId: interview.recruiterId,
+        recipientRole: "recruiter",
+        title: "Interview Accepted",
+        message: `The candidate has accepted the interview invitation for "${job.title}".`,
+        type: NotificationType.INTERVIEW_ACCEPTED,
+        actionUrl: "/recruiter/interviews",
+        referenceId: interview.id,
+        metadata: {
+          interviewId: interview.id,
+          applicationId: interview.applicationId,
+          recruiterId: interview.recruiterId,
+          candidateId: interview.candidateId,
+          jobId: interview.jobId,
+          acceptedAt: interview.candidateRespondedAt,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to create interview accepted notification:", error);
+    }
   }
 }

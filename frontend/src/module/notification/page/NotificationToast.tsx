@@ -1,106 +1,154 @@
-// NotificationToast.tsx
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { notificationMeta, categoryStyles } from "./notificationMeta";
+import { notificationMeta, categoryStyles, priorityStyles } from "./notificationMeta";
+import { formatTimeAgo } from "./timeAgo";
 import type { Notification } from "../types/notification.types";
 
 interface Props {
   id: string | number;
   notification: Notification;
   onNavigate: (path: string) => void;
+  duration?: number;
 }
 
-export default function NotificationToast({
-  id,
-  notification,
-  onNavigate,
-}: Props) {
+function getActor(notification: Notification): { name: string; avatarUrl?: string } | null {
+  const meta = notification.metadata;
+  const name = meta && typeof meta.actorName === "string" ? (meta.actorName as string) : undefined;
+  if (!name) return null;
+  const avatarUrl = meta && typeof meta.actorAvatarUrl === "string" ? (meta.actorAvatarUrl as string) : undefined;
+  return { name, avatarUrl };
+}
+
+export default function NotificationToast({ id, notification, onNavigate, duration = 6000 }: Props) {
   const meta = notificationMeta[notification.type];
   const colors = categoryStyles[meta.category];
+  const priority = priorityStyles[meta.priority];
+  const actor = getActor(notification);
+
+  const [progress, setProgress] = useState(100);
+  const [paused, setPaused] = useState(false);
+  const startRef = useRef(Date.now());
+  const remainingRef = useRef(duration);
+
+  useEffect(() => {
+    if (paused) return;
+    startRef.current = Date.now();
+    let raf: number;
+    const tick = () => {
+      const elapsed = Date.now() - startRef.current;
+      const remaining = Math.max(remainingRef.current - elapsed, 0);
+      setProgress((remaining / duration) * 100);
+      if (remaining <= 0) {
+        toast.dismiss(id);
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [paused, duration, id]);
 
   return (
     <div
       role="status"
-      className="relative w-100 rounded-2xl bg-white shadow-[0_8px_28px_-6px_rgba(15,23,42,0.16)] ring-1 ring-black/5 animate-in slide-in-from-right-4 fade-in duration-200 overflow-hidden"
+      onMouseEnter={() => {
+        remainingRef.current = Math.max(remainingRef.current - (Date.now() - startRef.current), 0);
+        setPaused(true);
+      }}
+      onMouseLeave={() => setPaused(false)}
+      className="group relative w-[380px] overflow-hidden rounded-2xl bg-white shadow-[0_8px_28px_-6px_rgba(15,23,42,0.16)] ring-1 ring-black/5 transition-all duration-200 ease-out animate-in fade-in slide-in-from-bottom-2 zoom-in-95 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-2xl"
+      style={priority.glow ? { boxShadow: `0 8px 28px -6px rgba(15,23,42,.16), 0 0 0 1px ${colors.ring}` } : undefined}
     >
-      <div className="flex">
-        <div className="relative flex w-16 shrink-0 items-center justify-center">
-          <span className="absolute -top-2 right-0 h-4 w-4 -translate-x-1/2 rounded-full bg-slate-50" />
-          <span className="absolute -bottom-2 right-0 h-4 w-4 -translate-x-1/2 rounded-full bg-slate-50" />
+      {/* accent border */}
+      <div className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: colors.fg }} />
+
+      {/* auto-progress bar */}
+      <div className="absolute inset-x-0 top-0 h-[3px] bg-slate-100">
+        <div className="h-full ease-linear" style={{ width: `${progress}%`, backgroundColor: colors.fg }} />
+      </div>
+
+      <div className="flex gap-3 py-4 pl-5 pr-4">
+        <div className="relative shrink-0">
           <div
-            className="relative flex h-10 w-10 items-center justify-center rounded-full"
-            style={{ backgroundColor: colors.bg, color: colors.fg }}
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-white ring-1"
+            style={{
+              background: `linear-gradient(135deg, ${colors.gradientFrom}, ${colors.gradientTo})`,
+              boxShadow: `inset 0 1px 1px rgba(255,255,255,.35), 0 4px 10px -2px ${colors.fg}55`,
+              ["--tw-ring-color" as any]: colors.ring,
+            }}
           >
             {meta.icon}
-            {meta.urgent && (
-              <span
-                className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-white"
-                style={{ backgroundColor: colors.fg }}
-              >
-                <span
-                  className="absolute inset-0 rounded-full animate-ping"
-                  style={{ backgroundColor: colors.fg, opacity: 0.6 }}
-                />
-              </span>
-            )}
           </div>
-          <div
-            className="absolute right-0 top-3 bottom-3 border-r border-dashed"
-            style={{ borderColor: colors.ring }}
-          />
+          {priority.dot && (
+            <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full ring-2 ring-white" style={{ backgroundColor: colors.fg }}>
+              {priority.pulse && (
+                <span className="absolute inset-0 animate-ping rounded-full" style={{ backgroundColor: colors.fg, opacity: 0.6 }} />
+              )}
+            </span>
+          )}
         </div>
 
-        <div className="min-w-0 flex-1 py-3 pl-3 pr-3">
-          <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
             <span
-              className="text-[10px] font-semibold uppercase tracking-[0.08em]"
-              style={{
-                color: colors.fg,
-                fontFamily:
-                  "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace",
-              }}
+              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+              style={{ backgroundColor: colors.bg, color: colors.fg }}
             >
               {meta.eyebrow}
             </span>
             <button
               onClick={() => toast.dismiss(id)}
               aria-label="Dismiss notification"
-              className="-mr-1 -mt-1 rounded-full p-1 text-slate-300 transition-colors hover:bg-slate-100 hover:text-slate-500"
+              className="rounded-full p-1 text-slate-300 opacity-0 transition-all hover:bg-slate-100 hover:text-slate-500 group-hover:opacity-100"
             >
               <X size={14} />
             </button>
           </div>
 
-          <h3
-            className="mt-0.5 text-[15px] font-semibold leading-snug text-slate-900"
-            style={{ fontFamily: "'Space Grotesk', ui-sans-serif, system-ui" }}
-          >
-            {notification.title}
-          </h3>
+          <h3 className="mt-1.5 text-[15px] font-semibold leading-snug text-slate-900">{notification.title}</h3>
 
-          <p className="mt-1 text-[13px] leading-5 text-slate-500 line-clamp-2">
-            {notification.message}
-          </p>
+          {actor ? (
+            <div className="mt-1 flex items-start gap-1.5">
+              {actor.avatarUrl ? (
+                <img src={actor.avatarUrl} alt={actor.name} className="mt-0.5 h-4 w-4 shrink-0 rounded-full ring-1 ring-slate-200" />
+              ) : (
+                <span
+                  className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold ring-1 ring-slate-200"
+                  style={{ backgroundColor: colors.bg, color: colors.fg }}
+                >
+                  {actor.name.charAt(0)}
+                </span>
+              )}
+              <p className="text-[13px] leading-5 text-slate-500">
+                <span className="font-medium text-slate-700">{actor.name}</span> {notification.message}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-1 text-[13px] leading-5 text-slate-500">{notification.message}</p>
+          )}
 
-          <div className="mt-3 flex items-center justify-between">
-            <span className="text-[11px] text-slate-400">Just now</span>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-[11px] text-slate-400">{formatTimeAgo(notification.createdAt)}</span>
 
             {notification.actionUrl && (
-              <button
-                onClick={() => {
-                  toast.dismiss(id);
-                  onNavigate(notification.actionUrl!);
-                }}
-                className="group flex items-center gap-1 rounded-lg px-3 py-1.5 text-[12.5px] font-medium text-white transition-transform active:scale-[0.97]"
-                style={{ backgroundColor: colors.fg }}
-              >
-                View
-                <ArrowRight
-                  size={13}
-                  className="transition-transform group-hover:translate-x-0.5"
-                />
-              </button>
+              <div className="flex items-center gap-1">
+                <button onClick={() => toast.dismiss(id)} className="rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-slate-500 transition-colors hover:bg-slate-100">
+                  Dismiss
+                </button>
+                <button
+                  onClick={() => {
+                    toast.dismiss(id);
+                    onNavigate(notification.actionUrl!);
+                  }}
+                  className="group/btn flex items-center gap-1 rounded-lg px-3 py-1.5 text-[12.5px] font-medium text-white transition-transform active:scale-[0.97]"
+                  style={{ backgroundColor: colors.fg }}
+                >
+                  {meta.actionLabel}
+                  <ArrowRight size={13} className="transition-transform group-hover/btn:translate-x-0.5" />
+                </button>
+              </div>
             )}
           </div>
         </div>

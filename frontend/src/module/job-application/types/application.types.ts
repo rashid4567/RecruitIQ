@@ -3,7 +3,6 @@ import type {
   JobApplication,
   ApplicationStatus,
   ApplicationRecommendation,
-  InterviewInfo,
   OfferSummary,
   InterviewSummary,
 } from "./jobApplication.types";

@@ -1,6 +1,10 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { JobRepository } from "../../../../job/domain/repositories/job.repository";
+import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
+import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
+import { Offer } from "../../../domain/entity/offer-letter.entity";
 import { OfferRepository } from "../../../domain/repository/offer-letter.repository";
 import {
   RejectOfferRequestDTO,
@@ -11,8 +15,11 @@ export class RejectOfferUseCase implements IUseCase<
   RejectOfferRequestDTO,
   RejectOfferResponseDTO
 > {
-  constructor(private readonly offerRepo: OfferRepository) {}
-
+  constructor(
+    private readonly offerRepo: OfferRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly jobRepo: JobRepository,
+  ) {}
   async execute(input: RejectOfferRequestDTO): Promise<RejectOfferResponseDTO> {
     const offer = await this.offerRepo.findById(input.offerId);
 
@@ -31,6 +38,7 @@ export class RejectOfferUseCase implements IUseCase<
     offer.reject(input.remarks);
 
     const updateOffer = await this.offerRepo.update(offer);
+    await this.sendOfferRejectedNotification(updateOffer);
 
     return {
       offerId: updateOffer.id,
@@ -38,5 +46,35 @@ export class RejectOfferUseCase implements IUseCase<
       status: updateOffer.status,
       rejectedAt: updateOffer.rejectedAt!,
     };
+  }
+
+  private async sendOfferRejectedNotification(offer: Offer): Promise<void> {
+    try {
+      const job = await this.jobRepo.findById(offer.jobId);
+
+      if (!job) {
+        return;
+      }
+
+      await this.createNotificationUseCase.execute({
+        recipientId: offer.recruiterId,
+        recipientRole: "recruiter",
+        title: "Offer Rejected",
+        message: `The candidate has rejected the offer for "${job.title}".`,
+        type: NotificationType.OFFER_REJECTED,
+        actionUrl: "/recruiter/offers",
+        referenceId: offer.id,
+        metadata: {
+          offerId: offer.id,
+          applicationId: offer.applicationId,
+          recruiterId: offer.recruiterId,
+          candidateId: offer.candidateId,
+          jobId: offer.jobId,
+          rejectedAt: offer.rejectedAt,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to create offer rejected notification:", error);
+    }
   }
 }

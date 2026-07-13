@@ -27,7 +27,6 @@ import {
   ArrowUpRight,
   Loader2,
   Upload,
-  Trash2,
   Download,
   FileBadge,
   AlertCircle,
@@ -133,12 +132,10 @@ function ResumePanel() {
     isLoading,
     isUploading,
     uploadProgress,
-    isDeleting,
     isDownloading,
     error,
     uploadResume,
     downloadResume,
-    deleteResume,
     clearError,
   } = useResume();
 

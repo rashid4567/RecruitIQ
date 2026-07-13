@@ -28,7 +28,7 @@ const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
 const jobRepo: JobRepository = new MongooseJobRepository();
 const userRepo: UserRepository = new MongooseUserRepository();
-const interviewRepo : InterviewRepository = new MongooseInterviewRepository();
+const interviewRepo: InterviewRepository = new MongooseInterviewRepository();
 const sendEmailByEventuc = sendEmailByEventUC;
 const createNotificationuc = createNotificationUC;
 
@@ -45,8 +45,16 @@ const createofferUC = new CreateOfferUseCase(
 );
 
 const getCandidateofferUC = new GetCandidateOfferUseCase(offerRepo);
-const acceptOfferUC = new AcceptOfferUseCase(offerRepo);
-const rejectOfferUC = new RejectOfferUseCase(offerRepo);
+const acceptOfferUC = new AcceptOfferUseCase(
+  offerRepo,
+  createNotificationuc,
+  jobRepo,
+);
+const rejectOfferUC = new RejectOfferUseCase(
+  offerRepo,
+  createNotificationuc,
+  jobRepo,
+);
 
 export const createOfferController = new CreateOfferLetterController(
   createofferUC,

@@ -1,3 +1,4 @@
+import type { ParsedResumeData } from "@/module/resume/types/resume.types";
 import type {
   ApplicationAIAnalysis,
   ApplicationAnalysisStatus,
@@ -14,6 +15,9 @@ export interface RecruiterApplicationDetails {
   candidateId: string;
   recruiterId: string;
   resumeId: string;
+  appliedResumeFileName: string;
+  resumeDownloadUrl?: string;
+  appliedResumeData: ParsedResumeData;
   candidateName?: string;
   candidateEmail?: string;
   candidateProfileImage?: string;
@@ -25,6 +29,7 @@ export interface RecruiterApplicationDetails {
   aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: string;
   updatedAt: string;
+
   offer?: {
     id: string;
     offerNumber: string;

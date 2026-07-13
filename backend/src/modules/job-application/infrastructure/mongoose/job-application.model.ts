@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { parsedResumeDataSchema } from "../../../resume/infrastructure/mongoose/parsedResumeData.schema";
 
 export enum ApplicationStatus {
   APPLIED = "APPLIED",
@@ -36,12 +37,31 @@ export interface ApplicationAIAnalysis {
   analyzedAt: Date;
 }
 
+export interface AppliedResumeData {
+  fullName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  skills: string[];
+  education: string[];
+  experience: string[];
+  totalExperienceYears?: number | null;
+  linkedin?: string | null;
+  github?: string | null;
+  portfolio?: string | null;
+  currentCompany?: string | null;
+  currentRole?: string | null;
+}
+
 export interface JobApplicationDocument extends Document {
   applicationNumber: string;
+
   jobId: mongoose.Types.ObjectId;
   candidateId: mongoose.Types.ObjectId;
   recruiterId: mongoose.Types.ObjectId;
   resumeId: mongoose.Types.ObjectId;
+  appliedResumeFileName: string;
+  appliedResumeFileKey: string;
+  appliedResumeData: AppliedResumeData;
   coverLetter?: string;
   status: ApplicationStatus;
   rejectionReason?: string;
@@ -158,7 +178,20 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
       ref: "Resume",
       required: true,
     },
+    appliedResumeFileName: {
+      type: String,
+      required: true,
+    },
 
+    appliedResumeFileKey: {
+      type: String,
+      required: true,
+    },
+
+  appliedResumeData: {
+  type: parsedResumeDataSchema,
+  required: true,
+},
     coverLetter: {
       type: String,
       trim: true,

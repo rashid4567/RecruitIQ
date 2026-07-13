@@ -42,8 +42,6 @@ type JobType =
   | "internship"
   | "freelance";
 
-
-
 interface JobDetailModalProps {
   job: Job;
   onClose: () => void;
@@ -205,21 +203,30 @@ function ResumePanel() {
               ) : (
                 <Download className="w-3.5 h-3.5" />
               )}
-              {isDownloading ? "Downloading…" : "Download"}
+              {isDownloading ? "Downloading..." : "Download"}
             </button>
+
             <button
-              onClick={deleteResume}
-              disabled={isDeleting}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 text-xs font-semibold text-red-500 hover:bg-red-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isDeleting ? (
+              {isUploading ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <Trash2 className="w-3.5 h-3.5" />
+                <Upload className="w-3.5 h-3.5" />
               )}
-              {isDeleting ? "Removing…" : "Remove"}
+              {isUploading ? "Uploading..." : "Replace"}
             </button>
           </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx"
+            onChange={handleFileChange}
+            className="hidden"
+          />
 
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -595,10 +602,10 @@ export default function JobDetailModal({
                         label={`${job.positions} opening${job.positions !== 1 ? "s" : ""}`}
                       />
                     )}
-                   <StatPill
-  icon={<Eye className="w-3.5 h-3.5" />}
-  label={`${(job.views ?? 0).toLocaleString()} views`}
-/>
+                    <StatPill
+                      icon={<Eye className="w-3.5 h-3.5" />}
+                      label={`${(job.views ?? 0).toLocaleString()} views`}
+                    />
                     <StatPill
                       icon={<FileText className="w-3.5 h-3.5" />}
                       label={`${(job.applicationsCount ?? 0).toLocaleString()} applicants`}

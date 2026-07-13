@@ -10,7 +10,7 @@ import {
 } from "../../domain/entity/job-application.entity";
 import { BaseRepository } from "../../../../shared/repositories/base.repository";
 import { GetRecruiterApplicationsRequestDTO } from "../../application/dto/getRecrruiterApplication.dto";
-
+import type { ParsedResumeData as AppliedResumeData } from "../../../resume/domain/entity/resume.entity";
 export interface RecruiterApplicationListItem {
   applicationId: string;
   applicationNumber: string;
@@ -20,7 +20,7 @@ export interface RecruiterApplicationListItem {
   Jobtitle: string;
   candidateProfileImage?: string;
   resumeId: string;
-  fileName: string;
+  appliedResumeFileName: string;
   status: ApplicationStatus;
   aiScore?: number;
   aiRecommendation?: ApplicationRecommendation;
@@ -35,6 +35,9 @@ export interface RecruiterApplicationDetailsOutput {
   candidateId: string;
   recruiterId: string;
   resumeId: string;
+  appliedResumeFileName: string;
+  appliedResumeFileKey: string;
+  appliedResumeData: AppliedResumeData;
   candidateName?: string;
   candidateEmail?: string;
   candidateProfileImage?: string;
@@ -47,7 +50,6 @@ export interface RecruiterApplicationDetailsOutput {
   appliedAt: Date;
   updatedAt: Date;
 }
-
 export interface CandidateApplicationListItem {
   applicationId: string;
   applicationNumber: string;
@@ -55,6 +57,7 @@ export interface CandidateApplicationListItem {
   jobTitle: string;
   resumeId: string;
   resumeFileName: string;
+  appliedResumeData: AppliedResumeData;
   status: ApplicationStatus;
   appliedAt: Date;
 }
@@ -118,9 +121,9 @@ export interface JobApplicationRepository extends BaseRepository<JobApplication>
     recruiterId: string,
     statuses: ApplicationStatus[],
   ): Promise<JobApplication[]>;
-findRecruiterApplications(
-  query: RecruiterApplicationsQuery,
-): Promise<RecruiterApplicationsResult>;
+  findRecruiterApplications(
+    query: RecruiterApplicationsQuery,
+  ): Promise<RecruiterApplicationsResult>;
   findByAnalysisStatus(
     recruiterId: string,
     status: ApplicationAnalysisStatus,

@@ -2,16 +2,18 @@ import {
   ApplicationAIAnalysis,
   ApplicationAnalysisStatus,
   ApplicationStatus,
-  InterviewInfo,
 } from "../../domain/entity/job-application.entity";
 
 import { OfferStatus } from "../../../offer-letter/domain/entity/offer-letter.entity";
 import { InterviewStatus } from "../../../interview/domain/entity/interview.entity";
+import { ParsedResumeData } from "../../../resume/domain/entity/resume.entity";
 
 export interface GetRecruiterApplicationDetailsRequestDTO {
   applicationId: string;
   recruiterId: string;
 }
+
+
 
 export interface RecruiterApplicationDetailsResponseDTO {
   applicationId: string;
@@ -20,6 +22,9 @@ export interface RecruiterApplicationDetailsResponseDTO {
   candidateId: string;
   recruiterId: string;
   resumeId: string;
+  appliedResumeFileName: string;
+  appliedResumeFileKey: string;
+  appliedResumeData: ParsedResumeData;
   candidateName?: string;
   candidateEmail?: string;
   candidateProfileImage?: string;
@@ -30,9 +35,9 @@ export interface RecruiterApplicationDetailsResponseDTO {
   aiAnalysis?: ApplicationAIAnalysis;
   appliedAt: Date;
   updatedAt: Date;
-   interview?: {
+  interview?: {
     id: string;
-    scheduledAt : Date,
+    scheduledAt: Date;
     status: InterviewStatus;
     completed: boolean;
   };

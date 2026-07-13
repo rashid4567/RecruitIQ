@@ -44,7 +44,7 @@ export class ApplyJobUseCase implements IUseCase<ApplyJobDTO, JobApplication> {
     const { jobId, candidateId, resumeId, coverLetter } = dto;
 
     const job = await this.validateAndGetJob(jobId);
-    await this.validateAndGetResume(resumeId, candidateId);
+    const resume = await this.validateAndGetResume(resumeId, candidateId);
     await this.validateDailyApplicationLimit(candidateId);
     await this.ensureApplicationDoesNotExist(candidateId, jobId);
     const candidate = await this.userRepo.findById(candidateId);
@@ -60,6 +60,10 @@ export class ApplyJobUseCase implements IUseCase<ApplyJobDTO, JobApplication> {
       candidateId,
       recruiterId: job.recruiterId,
       resumeId,
+      appliedResumeFileName: resume.getFileName(),
+      appliedResumeFileKey: resume.getFileKey(),
+      appliedResumeData: resume.getRequiredParsedData(),
+
       coverLetter,
     });
 
@@ -91,18 +95,29 @@ export class ApplyJobUseCase implements IUseCase<ApplyJobDTO, JobApplication> {
     candidateId: string,
   ): Promise<Resume> {
     const resume = await this.resumeRepo.findById(resumeId);
+
     if (!resume) {
       throw new ApplicationError(ERROR_CODES.RESUME_NOT_FOUND);
     }
+
     if (resume.getCandidateId() !== candidateId) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_CANDIDATE_ACTION);
     }
+
     if (resume.getParseStatus() === ResumeParseStatus.FAILED) {
       throw new ApplicationError(ERROR_CODES.RESUME_PARSE_FAILED);
     }
+
+    if (resume.getParseStatus() !== ResumeParseStatus.COMPLETED) {
+      throw new ApplicationError(ERROR_CODES.RESUME_NOT_READY);
+    }
+
+    if (!resume.getParsedData()) {
+      throw new ApplicationError(ERROR_CODES.RESUME_NOT_READY);
+    }
+
     return resume;
   }
-
   private async ensureApplicationDoesNotExist(
     candidateId: string,
     jobId: string,

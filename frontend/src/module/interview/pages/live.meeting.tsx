@@ -352,7 +352,6 @@ export default function InterviewRoomPage() {
 
   const [activeTab, setActiveTab] = useState<SidebarTab | null>(null);
 
-
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackSavedText, setFeedbackSavedText] = useState("");
   const [feedbackSaveStatus, setFeedbackSaveStatus] = useState<
@@ -562,7 +561,6 @@ export default function InterviewRoomPage() {
     return () => clearInterval(id);
   }, [connectedAt]);
 
-
   useEffect(() => {
     const video = localVideoRef.current;
     if (!video) return;
@@ -635,7 +633,6 @@ export default function InterviewRoomPage() {
     return () => clearInterval(id);
   }, [call.remoteStream]);
 
-
   useEffect(() => {
     if (role !== "recruiter" || !interviewId) return;
     try {
@@ -675,7 +672,6 @@ export default function InterviewRoomPage() {
       notes: textToSave,
     });
 
-
     if (requestId !== feedbackSaveRequestIdRef.current) {
       return response !== null;
     }
@@ -697,8 +693,13 @@ export default function InterviewRoomPage() {
     setFeedbackSavedAt(Date.now());
     setFeedbackSaveStatus("saved");
     return true;
-  }, [feedbackText, feedbackSavedText, feedbackSaveStatus, interviewId, submitInterviewNotes]);
-
+  }, [
+    feedbackText,
+    feedbackSavedText,
+    feedbackSaveStatus,
+    interviewId,
+    submitInterviewNotes,
+  ]);
 
   useEffect(() => {
     if (role !== "recruiter") return;
@@ -716,9 +717,7 @@ export default function InterviewRoomPage() {
         clearTimeout(feedbackSaveTimeoutRef.current);
       }
     };
-
   }, [feedbackText, role]);
-
 
   useEffect(() => {
     function handleBeforeUnload(e: BeforeUnloadEvent) {
@@ -1010,7 +1009,6 @@ export default function InterviewRoomPage() {
     }
   }, [call, addToast]);
 
-
   useEffect(() => {
     if (!call.isScreenSharing) {
       screenShareStartRef.current = null;
@@ -1080,31 +1078,31 @@ export default function InterviewRoomPage() {
     setActiveTab((prev) => (prev === tab ? null : tab));
   }
 
- async function handleConfirmEndCall() {
-  if (role === "recruiter") {
-    if (!interviewId) return;
+  async function handleConfirmEndCall() {
+    if (role === "recruiter") {
+      if (!interviewId) return;
 
-    if (feedbackDirty) {
-      const saved = await saveFeedbackNow();
-      if (!saved) return;
+      if (feedbackDirty) {
+        const saved = await saveFeedbackNow();
+        if (!saved) return;
+      }
+
+      const response = await submitEndInterview(interviewId);
+
+      if (!response) return;
+
+      socketService.endInterview({
+        roomId,
+        interviewId,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    const response = await submitEndInterview(interviewId);
+    setShowEndConfirm(false);
 
-    if (!response) return;
-
-    socketService.endInterview({
-      roomId,
-      interviewId,
-    });
-
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await call.endCall();
   }
-
-  setShowEndConfirm(false);
-
-  await call.endCall();
-}
 
   function handleLeaveClick() {
     if (role === "recruiter") {

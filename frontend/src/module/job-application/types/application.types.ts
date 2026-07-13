@@ -5,6 +5,7 @@ import type {
   ApplicationRecommendation,
   InterviewInfo,
   OfferSummary,
+  InterviewSummary,
 } from "./jobApplication.types";
 import type { RecruiterApplicationDetails } from "./RecruiterApplicationDetails";
 import type { UpdateApplicationStatusDTO } from "./updateApplicationStatus.dto";
@@ -29,24 +30,23 @@ export interface CandidateApplication {
   jobId: string;
   jobTitle: string;
   resumeId: string;
-  resumeFileName: string;
+  appliedResumeFileName: string;
   status: ApplicationStatus;
   appliedAt: string;
   rejectionReason?: string;
-  interview?: InterviewInfo;
+  interview?: InterviewSummary;
 }
 
 export interface RecruiterApplication {
   applicationId: string;
   applicationNumber: string;
-
   candidateId: string;
   candidateName: string;
   candidateEmail: string;
   candidateProfileImage?: string;
   jobTitle: string;
   resumeId: string;
-  fileName: string;
+  appliedResumeFileName: string;
   status: ApplicationStatus;
   aiScore?: number;
   aiRecommendation?: ApplicationRecommendation;

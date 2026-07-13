@@ -135,6 +135,10 @@ export class ScheduleInterviewUseCase implements IUseCase<
         return;
       }
 
+      if(job.isBlocked){
+        throw new ApplicationError(ERROR_CODES.JOB_POST_IS_BLOCKED_BY_ADMIN)
+      }
+
       await this.sendEmailByEventUC.execute({
         to: candidate.email.getValue(),
         event: EmailEvent.INTERVIEW_SCHEDULED,

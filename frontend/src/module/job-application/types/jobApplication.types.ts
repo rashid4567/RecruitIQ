@@ -44,12 +44,11 @@ export interface InterviewInfo {
   notes?: string;
 }
 export interface InterviewSummary {
-  id: string;
-  scheduledAt : Date;
-  status: InterviewStatus;
-  completed: boolean;
+  scheduledAt: string;
+  location?: string;
+  meetingLink?: string;
+  notes?: string;
 }
-
 export interface SkillScore {
   name: string;
   score: number;

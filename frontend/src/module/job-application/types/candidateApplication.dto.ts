@@ -1,4 +1,4 @@
-import { ApplicationStatus, type InterviewInfo } from "./jobApplication.types";
+import { ApplicationStatus, type InterviewSummary } from "./jobApplication.types";
 
 export interface CandidateApplication {
   applicationId: string;
@@ -6,11 +6,11 @@ export interface CandidateApplication {
   jobId: string;
   jobTitle: string;
   resumeId: string;
-  resumeFileName: string;
+  appliedResumeFileName: string;
   status: ApplicationStatus;
   appliedAt: Date;
   updatedAt?: Date;
   rejectionReason?: string;
   coverLetter?: string;
-  interview?: InterviewInfo;
+  interview?: InterviewSummary;
 }

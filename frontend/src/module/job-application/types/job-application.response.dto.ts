@@ -1,4 +1,3 @@
-
 import type {
   ApplicationAIAnalysis,
   ApplicationAnalysisStatus,
@@ -6,8 +5,6 @@ import type {
   ApplicationStatus,
   InterviewSummary,
 } from "./jobApplication.types";
-
-
 
 export interface JobApplicationResponseDTO {
   applicationId: string;
@@ -17,7 +14,8 @@ export interface JobApplicationResponseDTO {
   candidateId: string;
   recruiterId: string;
   resumeId: string;
-  resumeFileName?: string;
+  appliedResumeFileName?: string;
+  appliedResumeFileKey?: string;
   coverLetter?: string;
   status: ApplicationStatus;
   analysisStatus: ApplicationAnalysisStatus;
@@ -37,7 +35,7 @@ export interface RecruiterApplicationResponseDTO {
   candidateProfileImage?: string;
   jobTitle: string;
   resumeId: string;
-  fileName: string;
+  appliedResumeFileName: string;
   status: ApplicationStatus;
   aiScore?: number;
   aiRecommendation?: ApplicationRecommendation;

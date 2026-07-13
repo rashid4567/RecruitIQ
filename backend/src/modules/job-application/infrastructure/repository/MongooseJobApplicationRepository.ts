@@ -36,11 +36,6 @@ interface PopulatedJob {
   title: string;
 }
 
-interface PopulatedResume {
-  _id: mongoose.Types.ObjectId;
-  fileName: string;
-}
-
 export class MongooseJobApplicationRepository implements JobApplicationRepository {
   async create(application: JobApplication): Promise<JobApplication> {
     const created = await JobApplicationModel.create(
@@ -62,6 +57,9 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
           rejectionReason: data.rejectionReason,
           analysisStatus: data.analysisStatus,
           aiAnalysis: data.aiAnalysis,
+          appliedResumeFileName: data.appliedResumeFileName,
+          appliedResumeFileKey: data.appliedResumeFileKey,
+          appliedResumeData: data.appliedResumeData,
         },
       },
       {
@@ -110,6 +108,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
     return docs.map((doc) => this.toDomain(doc));
   }
+
   async findApplicationsForCandidate(
     candidateId: string,
   ): Promise<CandidateApplicationListItem[]> {
@@ -121,127 +120,122 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
         path: "jobId",
         select: "title",
       })
-      .populate({
-        path: "resumeId",
-        select: "fileName",
-      })
       .sort({
         createdAt: -1,
       });
 
     return docs.map((doc) => {
       const job = doc.jobId as unknown as PopulatedJob;
-      const resume = doc.resumeId as unknown as PopulatedResume;
 
       return {
         applicationId: doc._id.toString(),
         applicationNumber: doc.applicationNumber,
         jobId: job._id.toString(),
         jobTitle: job.title,
-        resumeId: resume._id.toString(),
-        resumeFileName: resume.fileName,
+        resumeId: doc.resumeId.toString(),
+        resumeFileName: doc.appliedResumeFileName,
+        appliedResumeData: doc.appliedResumeData,
         status: doc.status,
         appliedAt: doc.appliedAt,
       };
     });
   }
 
-async findRecruiterApplications(
-  query: RecruiterApplicationsQuery,
-): Promise<RecruiterApplicationsResult> {
-  if (!this.isValidObjectId(query.recruiterId)) {
+  async findRecruiterApplications(
+    query: RecruiterApplicationsQuery,
+  ): Promise<RecruiterApplicationsResult> {
+    if (!this.isValidObjectId(query.recruiterId)) {
+      return {
+        applications: [],
+        total: 0,
+      };
+    }
+
+    const {
+      recruiterId,
+      page,
+      limit,
+      search,
+      status,
+      recommendation,
+      sortBy = "appliedAt",
+      sortOrder = "desc",
+    } = query;
+
+    const filter: any = {
+      recruiterId: new mongoose.Types.ObjectId(recruiterId),
+      isDeleted: false,
+    };
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (recommendation) {
+      filter["aiAnalysis.recommendation"] = recommendation;
+    }
+
+    const sort: Record<string, 1 | -1> = {
+      [sortBy]: sortOrder === "asc" ? 1 : -1,
+    };
+
+    const docs = await JobApplicationModel.find(filter)
+      .populate({
+        path: "candidateId",
+        select: "fullName email profileImage",
+        match: search
+          ? {
+              $or: [
+                { fullName: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } },
+              ],
+            }
+          : {},
+      })
+      .populate({
+        path: "jobId",
+        select: "title",
+      })
+      .sort(sort)
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const applications: RecruiterApplicationListItem[] = docs
+      .filter((doc) => Boolean(doc.candidateId))
+      .map((doc) => {
+        const candidate = doc.candidateId as PopulatedCandidate;
+        const job = doc.jobId as unknown as PopulatedJob;
+
+        return {
+          applicationId: doc._id.toString(),
+          applicationNumber: doc.applicationNumber,
+
+          candidateId: candidate._id.toString(),
+          candidateName: candidate.fullName ?? "Unknown Candidate",
+          candidateEmail: candidate.email ?? "",
+          candidateProfileImage: candidate.profileImage,
+
+          Jobtitle: job.title,
+
+          resumeId: doc.resumeId.toString(),
+          appliedResumeFileName: doc.appliedResumeFileName,
+
+          status: doc.status,
+          aiScore: doc.aiAnalysis?.overallScore,
+          aiRecommendation: doc.aiAnalysis
+            ?.recommendation as ApplicationRecommendation,
+
+          appliedAt: doc.appliedAt,
+        };
+      });
+
+    const total = await JobApplicationModel.countDocuments(filter);
+
     return {
-      applications: [],
-      total: 0,
+      applications,
+      total,
     };
   }
-
-  const {
-    recruiterId,
-    page,
-    limit,
-    search,
-    status,
-    recommendation,
-    sortBy = "appliedAt",
-    sortOrder = "desc",
-  } = query;
-
-  const filter: any = {
-    recruiterId: new mongoose.Types.ObjectId(recruiterId),
-    isDeleted: false,
-  };
-
-  if (status) {
-    filter.status = status;
-  }
-
-  if (recommendation) {
-    filter["aiAnalysis.recommendation"] = recommendation;
-  }
-
-  const sort: Record<string, 1 | -1> = {
-    [sortBy]: sortOrder === "asc" ? 1 : -1,
-  };
-
-  const docs = await JobApplicationModel.find(filter)
-    .populate({
-      path: "candidateId",
-      select: "fullName email profileImage",
-      match: search
-        ? {
-            $or: [
-              { fullName: { $regex: search, $options: "i" } },
-              { email: { $regex: search, $options: "i" } },
-            ],
-          }
-        : {},
-    })
-    .populate({
-      path: "jobId",
-      select: "title",
-    })
-    .populate({
-      path: "resumeId",
-      select: "fileName",
-    })
-    .sort(sort)
-    .skip((page - 1) * limit)
-    .limit(limit);
-
-  const applications = docs
-    .filter((doc) => Boolean(doc.candidateId))
-    .map((doc) => {
-      const candidate = doc.candidateId as PopulatedCandidate;
-      const job = doc.jobId as unknown as PopulatedJob;
-      const resume = doc.resumeId as unknown as PopulatedResume;
-
-      return {
-        applicationId: doc._id.toString(),
-        applicationNumber: doc.applicationNumber,
-        candidateId: candidate._id.toString(),
-        candidateName: candidate.fullName ?? "Unknown Candidate",
-        candidateEmail: candidate.email ?? "",
-        candidateProfileImage: candidate.profileImage,
-        Jobtitle: job.title,
-        resumeId: resume._id.toString(),
-        fileName: resume.fileName,
-        status: doc.status,
-        aiScore: doc.aiAnalysis?.overallScore,
-        aiRecommendation:
-          doc.aiAnalysis?.recommendation as ApplicationRecommendation,
-        appliedAt: doc.appliedAt,
-   
-      };
-    });
-
-  const total = await JobApplicationModel.countDocuments(filter);
-
-  return {
-    applications,
-    total,
-  };
-}
 
   async findByRecruiterAndStatuses(
     recruiterId: string,
@@ -276,25 +270,15 @@ async findRecruiterApplications(
         path: "jobId",
         select: "title",
       })
-      .populate({
-        path: "resumeId",
-        select: "fileName",
-      })
       .sort({
         appliedAt: -1,
       });
-
-    docs.forEach((doc) => {
-      console.log("APPLICATION:", doc._id.toString());
-      console.log("resumeId:", doc.resumeId);
-    });
 
     return docs
       .filter((doc) => Boolean(doc.candidateId))
       .map((doc) => {
         const candidate = doc.candidateId as PopulatedCandidate;
         const job = doc.jobId as unknown as PopulatedJob;
-        const resume = doc.resumeId as unknown as PopulatedResume;
 
         return {
           applicationId: doc._id.toString(),
@@ -304,8 +288,10 @@ async findRecruiterApplications(
           candidateEmail: candidate.email ?? "",
           candidateProfileImage: candidate.profileImage,
           Jobtitle: job.title,
-          fileName: resume.fileName,
+
           resumeId: doc.resumeId.toString(),
+          appliedResumeFileName: doc.appliedResumeFileName,
+
           status: doc.status,
           aiScore: doc.aiAnalysis?.overallScore,
           aiRecommendation: doc.aiAnalysis
@@ -344,6 +330,9 @@ async findRecruiterApplications(
       candidateId: candidate._id.toString(),
       recruiterId: doc.recruiterId.toString(),
       resumeId: doc.resumeId.toString(),
+      appliedResumeFileName: doc.appliedResumeFileName,
+      appliedResumeFileKey: doc.appliedResumeFileKey,
+      appliedResumeData: doc.appliedResumeData,
       candidateName: candidate.fullName ?? "Unknown Candidate",
       candidateEmail: candidate.email ?? "",
       candidateProfileImage: candidate.profileImage,
@@ -404,6 +393,9 @@ async findRecruiterApplications(
   }
 
   async findByResumeId(resumeId: string): Promise<JobApplication[]> {
+    if (!this.isValidObjectId(resumeId)) {
+    return [];
+}
     const docs = await JobApplicationModel.find({
       resumeId: new mongoose.Types.ObjectId(resumeId),
       isDeleted: false,
@@ -419,6 +411,9 @@ async findRecruiterApplications(
       candidateId: doc.candidateId.toString(),
       recruiterId: doc.recruiterId.toString(),
       resumeId: doc.resumeId.toString(),
+      appliedResumeFileName: doc.appliedResumeFileName,
+      appliedResumeFileKey: doc.appliedResumeFileKey,
+      appliedResumeData: doc.appliedResumeData,
       coverLetter: doc.coverLetter,
       status: doc.status,
       aiAnalysis: this.mapAIAnalysis(doc.aiAnalysis),
@@ -438,6 +433,9 @@ async findRecruiterApplications(
       candidateId: new mongoose.Types.ObjectId(data.candidateId),
       recruiterId: new mongoose.Types.ObjectId(data.recruiterId),
       resumeId: new mongoose.Types.ObjectId(data.resumeId),
+      appliedResumeFileName: data.appliedResumeFileName,
+      appliedResumeFileKey: data.appliedResumeFileKey,
+      appliedResumeData: data.appliedResumeData,
       coverLetter: data.coverLetter,
       status: data.status,
       analysisStatus: data.analysisStatus,
@@ -452,10 +450,11 @@ async findRecruiterApplications(
     recruiterId: string,
     statuses: ApplicationStatus[],
   ): Promise<RecruiterInterviewApplication[]> {
-    const applications = await JobApplicationModel.find({
-      recruiterId: new mongoose.Types.ObjectId(recruiterId),
-      status: { $in: statuses },
-    })
+   const applications = await JobApplicationModel.find({
+    recruiterId: new mongoose.Types.ObjectId(recruiterId),
+    status: { $in: statuses },
+    isDeleted: false,
+})
       .populate({
         path: "candidateId",
         select: "fullName email profileImage",

@@ -9,6 +9,8 @@ export interface ApplicationDetailResponseDTO {
     candidateId: string;
     recruiterId: string;
     resumeId: string;
+    appliedResumeFileName: string;
+    appliedResumeFileKey: string;
     status: ApplicationStatus;
     appliedAt: Date;
     updatedAt: Date;

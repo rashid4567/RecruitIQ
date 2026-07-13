@@ -1,8 +1,6 @@
 import { useRef, useCallback } from "react";
-import { X, Upload, File, CheckCircle2, AlertCircle, Trash2, Download } from "lucide-react";
+import { X, Upload, FileText, RotateCw, AlertCircle } from "lucide-react";
 import type { Resume } from "@/module/candidate/types/candidate.types";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ResumeUploadModalProps {
   open: boolean;
@@ -10,16 +8,27 @@ interface ResumeUploadModalProps {
   resume: Resume | null;
   isUploading: boolean;
   uploadProgress: number;
-  isDeleting: boolean;
-  isDownloading: boolean;
   error: string | null;
   onUpload: (file: File) => void;
-  onDelete: () => void;
-  onDownload: () => void;
   clearError: () => void;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function formatUploadedDate(dateString: string) {
+  const uploaded = new Date(dateString);
+  const now = new Date();
+  const isSameDay =
+    uploaded.getFullYear() === now.getFullYear() &&
+    uploaded.getMonth() === now.getMonth() &&
+    uploaded.getDate() === now.getDate();
+
+  if (isSameDay) return "Uploaded today";
+
+  return `Uploaded ${uploaded.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })}`;
+}
 
 export function ResumeUploadModal({
   open,
@@ -27,12 +36,8 @@ export function ResumeUploadModal({
   resume,
   isUploading,
   uploadProgress,
-  isDeleting,
-  isDownloading,
   error,
   onUpload,
-  onDelete,
-  onDownload,
   clearError,
 }: ResumeUploadModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,22 +74,19 @@ export function ResumeUploadModal({
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 z-40 animate-in fade-in duration-150"
         onClick={handleClose}
         aria-hidden="true"
       />
 
-      {/* Modal */}
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="resume-modal-title"
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md animate-in fade-in zoom-in-95 duration-150">
-
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-black/10 w-full max-w-md animate-in fade-in zoom-in-95 duration-150">
           {/* Header */}
           <div className="flex items-start justify-between p-6 pb-4">
             <div>
@@ -92,25 +94,27 @@ export function ResumeUploadModal({
                 id="resume-modal-title"
                 className="text-base font-semibold text-slate-900"
               >
-                Upload resume
+                Resume
               </h2>
               <p className="text-sm text-slate-500 mt-0.5">
-                PDF or Word document · max 5 MB
+                Upload or replace your resume
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                PDF • DOC • DOCX • Max 5 MB
               </p>
             </div>
             <button
               onClick={handleClose}
               disabled={isUploading}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-40"
+              className="w-8 h-8 shrink-0 rounded-full bg-white border border-slate-200 text-slate-400 flex items-center justify-center hover:bg-amber-50 hover:text-slate-600 hover:border-amber-200 transition-colors disabled:opacity-40"
               aria-label="Close modal"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="px-6 pb-6 space-y-4">
-
-            {/* Drop zone (hidden while uploading or file already present) */}
+          <div className="px-6 pb-6 space-y-5">
+            {/* Empty state / drop zone */}
             {!isUploading && !resume && (
               <div
                 onDrop={handleDrop}
@@ -122,12 +126,15 @@ export function ResumeUploadModal({
                   <Upload className="h-5 w-5 text-slate-400 group-hover:text-amber-500 transition-colors" />
                 </div>
                 <p className="text-sm font-medium text-slate-700 mb-1">
-                  Drag & drop your file here
+                  Drop your resume here
                 </p>
-                <p className="text-sm text-slate-400 mb-3">or</p>
-                <span className="inline-block px-4 py-1.5 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 transition-colors">
-                  Browse files
-                </span>
+                <p className="text-sm text-slate-400 mb-1">
+                  or click to browse
+                </p>
+                <p className="text-xs text-slate-400">
+                  PDF • DOC • DOCX
+                </p>
+                <p className="text-xs text-slate-400">Max 5 MB</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -139,11 +146,11 @@ export function ResumeUploadModal({
               </div>
             )}
 
-            {/* Upload progress */}
+            {/* Uploading state */}
             {isUploading && (
               <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-200">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
-                  <File className="h-5 w-5 text-purple-600" />
+                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                  <FileText className="h-5 w-5 text-amber-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-800 truncate mb-1.5">
@@ -151,7 +158,7 @@ export function ResumeUploadModal({
                   </p>
                   <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-purple-500 rounded-full transition-all duration-300"
+                      className="h-full bg-amber-500 rounded-full transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
@@ -162,49 +169,31 @@ export function ResumeUploadModal({
               </div>
             )}
 
-            {/* Uploaded file */}
+            {/* Resume file card */}
             {resume && !isUploading && (
-              <div className="flex items-center gap-3 bg-green-50 rounded-xl p-3 border border-green-200">
-                <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                  <FileText className="h-5 w-5 text-slate-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-green-900 truncate">
+                  <p className="text-sm font-medium text-slate-900 truncate">
                     {resume.fileName}
                   </p>
-                  <p className="text-xs text-green-700 mt-0.5">
-                    Uploaded on{" "}
-                    {new Date(resume.uploadedAt).toLocaleDateString()}
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {formatUploadedDate(resume.uploadedAt)}
                   </p>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    onClick={onDownload}
-                    disabled={isDownloading}
-                    className="p-1.5 rounded-lg text-green-700 hover:bg-green-100 transition-colors disabled:opacity-40"
-                    aria-label="Download resume"
-                  >
-                    <Download className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={onDelete}
-                    disabled={isDeleting}
-                    className="p-1.5 rounded-lg text-green-700 hover:bg-red-100 hover:text-red-600 transition-colors disabled:opacity-40"
-                    aria-label="Delete resume"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
                 </div>
               </div>
             )}
 
-            {/* Replace button (shown after upload) */}
+            {/* Replace button */}
             {resume && !isUploading && (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full py-2 rounded-lg border border-dashed border-slate-200 text-sm text-slate-500 hover:border-amber-400 hover:text-amber-600 hover:bg-amber-50/40 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-amber-300 text-sm font-medium text-amber-600 hover:bg-amber-50 transition-colors"
               >
-                Replace with a different file
+                <RotateCw className="h-4 w-4 text-amber-500" />
+                Replace Resume
               </button>
             )}
             <input
@@ -216,7 +205,6 @@ export function ResumeUploadModal({
               aria-label="Replace resume file"
             />
 
-            {/* Error */}
             {error && (
               <div className="flex items-center gap-2 bg-red-50 rounded-lg px-3 py-2.5 border border-red-200">
                 <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
@@ -225,21 +213,33 @@ export function ResumeUploadModal({
             )}
 
             {/* Footer actions */}
-            <div className="flex gap-3 pt-1">
-              <button
-                onClick={handleClose}
-                disabled={isUploading}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-40"
-              >
-                {resume ? "Done" : "Cancel"}
-              </button>
-              {!resume && !isUploading && (
+            <div className="pt-1">
+              {resume ? (
                 <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors"
+                  onClick={handleClose}
+                  disabled={isUploading}
+                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors disabled:opacity-40"
                 >
-                  Choose file
+                  Done
                 </button>
+              ) : (
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleClose}
+                    disabled={isUploading}
+                    className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-40"
+                  >
+                    Cancel
+                  </button>
+                  {!isUploading && (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors"
+                    >
+                      Choose file
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           </div>

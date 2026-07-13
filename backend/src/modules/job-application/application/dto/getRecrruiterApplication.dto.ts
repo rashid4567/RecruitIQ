@@ -24,7 +24,7 @@ export interface RecruiterApplicationSummaryDTO {
   candidateProfileImage?: string;
   jobTitle: string;
   resumeId: string;
-  fileName: string;
+  appliedResumeFileName: string;
   status: ApplicationStatus;
   aiScore?: number;
   aiRecommendation?: ApplicationRecommendation;

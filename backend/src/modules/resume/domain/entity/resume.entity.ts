@@ -1,3 +1,6 @@
+import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code";
+import { DomainError } from "../../../../shared/errors/domain.error";
+
 export interface ParsedResumeData {
   fullName?: string | null;
   email?: string | null;
@@ -72,6 +75,14 @@ export class Resume {
     this.parsedData = parsedData;
   }
 
+  public getRequiredParsedData(): ParsedResumeData {
+  if (!this.parsedData) {
+    throw new DomainError(DOMAIN_ERROR_CODES.RESUME_PARSED_DATA_REQUIRED);
+  }
+
+  return this.parsedData;
+}
+
   public getId(): string | undefined {
     return this.id;
   }
@@ -112,9 +123,9 @@ export class Resume {
   public markFailed(): void {
     this.parseStatus = ResumeParseStatus.FAILED;
   }
-  public getParsedData(): ParsedResumeData | undefined {
-    return this.parsedData;
-  }
+ public getParsedData(): ParsedResumeData | undefined {
+  return this.parsedData;
+}
 
   public toJSON() {
     return {

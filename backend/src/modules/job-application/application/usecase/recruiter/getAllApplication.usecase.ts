@@ -41,7 +41,7 @@ export class GetRecruiterApplicationsUseCase implements IUseCase<
         candidateProfileImage: application.candidateProfileImage,
         jobTitle: application.Jobtitle,
         resumeId: application.resumeId,
-        fileName: application.fileName,
+        appliedResumeFileName: application.appliedResumeFileName,
         status: application.status,
         aiScore: application.aiScore,
         aiRecommendation: application.aiRecommendation,

@@ -50,7 +50,20 @@ export interface ApplicationAIAnalysis {
   summary: string;
   analyzedAt: Date;
 }
-
+export interface AppliedResumeData {
+  fullName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  skills: string[];
+  education: string[];
+  experience: string[];
+  totalExperienceYears?: number | null;
+  linkedin?: string | null;
+  github?: string | null;
+  portfolio?: string | null;
+  currentCompany?: string | null;
+  currentRole?: string | null;
+}
 export interface JobApplicationProps {
   id?: string;
   applicationNumber: string;
@@ -58,6 +71,9 @@ export interface JobApplicationProps {
   candidateId: string;
   recruiterId: string;
   resumeId: string;
+  appliedResumeFileName: string;
+  appliedResumeFileKey: string;
+  appliedResumeData: AppliedResumeData;
   coverLetter?: string;
   status: ApplicationStatus;
   interview?: InterviewInfo;
@@ -115,6 +131,15 @@ export class JobApplication {
       throw new DomainError(DOMAIN_ERROR_CODES.RECRUITER_REQUIRED);
     }
     if (!this.props.resumeId?.trim()) {
+      throw new DomainError(DOMAIN_ERROR_CODES.RESUME_REQUIRED);
+    }
+    if (!this.props.appliedResumeFileName.trim()) {
+      throw new DomainError(DOMAIN_ERROR_CODES.RESUME_REQUIRED);
+    }
+if (!this.props.appliedResumeData) {
+  throw new DomainError(DOMAIN_ERROR_CODES.RESUME_REQUIRED);
+}
+    if (!this.props.appliedResumeFileKey.trim()) {
       throw new DomainError(DOMAIN_ERROR_CODES.RESUME_REQUIRED);
     }
   }
@@ -429,6 +454,17 @@ export class JobApplication {
   get aiAnalysis() {
     return this.props.aiAnalysis;
   }
+
+  get appliedResumeFileName(): string {
+    return this.props.appliedResumeFileName;
+  }
+
+  get appliedResumeFileKey(): string {
+    return this.props.appliedResumeFileKey;
+  }
+  get appliedResumeData(): AppliedResumeData {
+  return this.props.appliedResumeData;
+}
 
   get aiScore(): number | undefined {
     return this.props.aiAnalysis?.overallScore;

@@ -28,7 +28,7 @@ interface AdditionalInfoSectionProps {
     resume?: Resume | null;
   };
   editData: Partial<ProfileFormData>;
- 
+
   onInputChange: <K extends keyof ProfileFormData>(
     key: K,
     value: ProfileFormData[K],
@@ -48,7 +48,6 @@ interface TagInputProps {
   icon: React.ReactNode;
   tagColor: "amber" | "purple";
 }
-
 
 function FieldError({ message, id }: { message?: string; id?: string }) {
   if (!message) return null;
@@ -77,7 +76,6 @@ function formatGender(gender?: string | null): string {
   if (!gender) return "Not specified";
   return gender.charAt(0).toUpperCase() + gender.slice(1);
 }
-
 
 function TagInput({
   tags,
@@ -193,7 +191,6 @@ function TagInput({
   );
 }
 
-
 function useAdditionalInfo({
   profile,
   editData,
@@ -277,12 +274,11 @@ function useAdditionalInfo({
   };
 }
 
-
 export function AdditionalInfoSection({
   isEditing,
   profile,
   editData,
- 
+
   onInputChange,
   onFieldBlur,
   getFieldError,
@@ -290,18 +286,12 @@ export function AdditionalInfoSection({
 }: AdditionalInfoSectionProps) {
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
 
-
-
   const {
     resume,
     isUploading,
     uploadProgress,
-    isDeleting,
-    isDownloading,
     error: resumeError,
     uploadResume,
-    downloadResume,
-    deleteResume,
     clearError,
   } = useResume();
 
@@ -337,7 +327,6 @@ export function AdditionalInfoSection({
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
           {/* Gender */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
@@ -379,7 +368,6 @@ export function AdditionalInfoSection({
             )}
           </div>
 
-          {/* Resume */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
               <FileText className="h-4 w-4 text-amber-500" />
@@ -392,20 +380,19 @@ export function AdditionalInfoSection({
                 onClick={() => setResumeModalOpen(true)}
                 className={`
                   w-full h-12 px-4 rounded-lg border text-sm text-left flex items-center gap-3 transition-colors
-                  ${resume
-                    ? "border-green-300 bg-green-50 text-green-800 hover:bg-green-100"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-amber-400 hover:text-amber-600 hover:bg-amber-50/40"
+                  ${
+                    resume
+                      ? "border-green-300 bg-green-50 text-green-800 hover:bg-green-100"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-amber-400 hover:text-amber-600 hover:bg-amber-50/40"
                   }
                 `}
               >
                 {resume ? (
                   <>
                     <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-                    {/* Issue 3: was resume.name, now resume.getFileName() */}
                     <span className="flex-1 truncate font-medium">
                       {resume.fileName}
                     </span>
-                    {/* Issue 4 & 5: resume.size removed; show upload date instead */}
                     <span className="text-xs text-green-600 shrink-0">
                       {new Date(resume.uploadedAt).toLocaleDateString()}
                     </span>
@@ -422,11 +409,9 @@ export function AdditionalInfoSection({
                 {resume ? (
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-amber-500 shrink-0" />
-                    {/* Issue 3: was resume.name, now resume.getFileName() */}
                     <span className="text-slate-900 truncate flex-1">
                       {resume.fileName}
                     </span>
-                    {/* Issue 4 & 5: resume.size removed; show upload date instead */}
                     <span className="text-xs text-slate-400 shrink-0">
                       {new Date(resume.uploadedAt).toLocaleDateString()}
                     </span>
@@ -438,7 +423,6 @@ export function AdditionalInfoSection({
             )}
           </div>
 
-          {/* Skills */}
           <div className="space-y-1.5 md:col-span-2">
             <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
               <Award className="h-4 w-4 text-amber-500" />
@@ -479,7 +463,6 @@ export function AdditionalInfoSection({
             )}
           </div>
 
-          {/* Preferred Job Locations */}
           <div className="space-y-1.5 md:col-span-2">
             <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
               <MapPin className="h-4 w-4 text-amber-500" />
@@ -522,23 +505,17 @@ export function AdditionalInfoSection({
               </div>
             )}
           </div>
-
         </div>
       </div>
 
-      {/* Resume Upload Modal — Issue 9: now imported, not duplicated inline */}
       <ResumeUploadModal
         open={resumeModalOpen}
         onClose={() => setResumeModalOpen(false)}
         resume={resume}
         isUploading={isUploading}
         uploadProgress={uploadProgress}
-        isDeleting={isDeleting}
-        isDownloading={isDownloading}
         error={resumeError}
         onUpload={uploadResume}
-        onDelete={deleteResume}
-        onDownload={downloadResume}
         clearError={clearError}
       />
     </>

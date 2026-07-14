@@ -1,8 +1,5 @@
-import {
+import { FeatureAccess, PlanFeature } from "../../../../subscription/domain/entities/subscription-plan.entity";
 
-  FeaturesAccess,
-  PlanFeature,
-} from "../../../Domain/entities/subscription-plan.entity";
 
 export interface UpdatePlanInput {
   name?: string;
@@ -14,7 +11,7 @@ export interface UpdatePlanInput {
   screeningCredits?: number;
   resumeParsesPerMonth?: number;
   aiScoreCredits?: number;
-  featuresAccess?: Partial<FeaturesAccess>;
+  featuresAccess?: Partial<FeatureAccess>;
   features?: PlanFeature[];
   isPopular?: boolean;
   sortOrder?: number;

@@ -90,6 +90,10 @@ export interface RecruiterApplicationsResult {
   total: number;
 }
 export interface JobApplicationRepository extends BaseRepository<JobApplication> {
+ findRecruiterInterviewApplications(
+  recruiterId: string,
+  statuses: ApplicationStatus[],
+): Promise<RecruiterInterviewApplication[]>;
   create(application: JobApplication): Promise<JobApplication>;
   save(application: JobApplication): Promise<JobApplication>;
   findByJob(jobId: string): Promise<JobApplication[]>;
@@ -100,6 +104,7 @@ export interface JobApplicationRepository extends BaseRepository<JobApplication>
     applications: RecruiterApplicationListItem[];
     total: number;
   }>;
+  
   findApplicationsWithCandidateDetails(
     jobId: string,
   ): Promise<RecruiterApplicationListItem[]>;

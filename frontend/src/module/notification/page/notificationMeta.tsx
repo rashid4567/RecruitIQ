@@ -123,6 +123,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "low",
     actionLabel: "View Application",
   },
+
   APPLICATION_SHORTLISTED: {
     icon: <Star {...iconProps} />,
     category: "attention",
@@ -130,6 +131,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "medium",
     actionLabel: "View Application",
   },
+
   APPLICATION_SELECTED: {
     icon: <Award {...iconProps} />,
     category: "success",
@@ -137,6 +139,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "high",
     actionLabel: "Review Candidate",
   },
+
   APPLICATION_REJECTED: {
     icon: <XCircle {...iconProps} />,
     category: "danger",
@@ -144,6 +147,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "medium",
     actionLabel: "See Details",
   },
+
   INTERVIEW_SCHEDULED: {
     icon: <Calendar {...iconProps} />,
     category: "progress",
@@ -151,6 +155,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "medium",
     actionLabel: "View Interview",
   },
+
   INTERVIEW_STARTED: {
     icon: <PlayCircle {...iconProps} />,
     category: "success",
@@ -158,6 +163,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "high",
     actionLabel: "Join Interview",
   },
+
   INTERVIEW_CANCELLED: {
     icon: <Ban {...iconProps} />,
     category: "danger",
@@ -165,6 +171,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "high",
     actionLabel: "See Details",
   },
+
   INTERVIEW_RESCHEDULED: {
     icon: <CalendarClock {...iconProps} />,
     category: "attention",
@@ -172,83 +179,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "medium",
     actionLabel: "View Interview",
   },
-  INTERVIEW_RESCHEDULE_REQUEST_APPROVED: {
-    icon: <CheckCircle {...iconProps} />,
-    category: "success",
-    eyebrow: "Interview",
-    priority: "medium",
-    actionLabel: "View Interview",
-  },
-  INTERVIEW_RESCHEDULE_REQUEST_REJECTED: {
-    icon: <XCircle {...iconProps} />,
-    category: "danger",
-    eyebrow: "Interview",
-    priority: "medium",
-    actionLabel: "See Details",
-  },
-  SUBSCRIPTION_CREATED: {
-    icon: <Crown {...iconProps} />,
-    category: "premium",
-    eyebrow: "Plan",
-    priority: "low",
-    actionLabel: "Open Dashboard",
-  },
-  SUBSCRIPTION_RENEWED: {
-    icon: <RefreshCw {...iconProps} />,
-    category: "premium",
-    eyebrow: "Plan",
-    priority: "low",
-    actionLabel: "Open Dashboard",
-  },
-  SUBSCRIPTION_UPGRADED: {
-    icon: <TrendingUp {...iconProps} />,
-    category: "premium",
-    eyebrow: "Plan",
-    priority: "medium",
-    actionLabel: "Open Dashboard",
-  },
-  SUBSCRIPTION_EXPIRING: {
-    icon: <Clock {...iconProps} />,
-    category: "attention",
-    eyebrow: "Plan",
-    priority: "high",
-    actionLabel: "Renew Plan",
-  },
-  SUBSCRIPTION_EXPIRED: {
-    icon: <CircleAlert {...iconProps} />,
-    category: "danger",
-    eyebrow: "Plan",
-    priority: "high",
-    actionLabel: "Renew Plan",
-  },
-  RECRUITER_VERIFIED: {
-    icon: <UserCheck {...iconProps} />,
-    category: "verified",
-    eyebrow: "Account",
-    priority: "medium",
-    actionLabel: "Open Dashboard",
-  },
-  RECRUITER_REJECTED: {
-    icon: <UserX {...iconProps} />,
-    category: "danger",
-    eyebrow: "Account",
-    priority: "high",
-    actionLabel: "See Details",
-  },
-  JOB_APPROVED: {
-    icon: <BriefcaseBusiness {...iconProps} />,
-    category: "success",
-    eyebrow: "Listing",
-    priority: "medium",
-    actionLabel: "View Job",
-  },
-  JOB_REJECTED: {
-    icon: <Briefcase {...iconProps} />,
-    category: "danger",
-    eyebrow: "Listing",
-    priority: "high",
-    actionLabel: "See Details",
-  },
+
   INTERVIEW_ACCEPTED: {
     icon: <Handshake {...iconProps} />,
     category: "success",
@@ -256,6 +187,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "medium",
     actionLabel: "View Interview",
   },
+
   INTERVIEW_DECLINED: {
     icon: <XCircle {...iconProps} />,
     category: "danger",
@@ -263,6 +195,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "high",
     actionLabel: "Review Candidate",
   },
+
   INTERVIEW_RESCHEDULE_REQUESTED: {
     icon: <Clock {...iconProps} />,
     category: "attention",
@@ -270,6 +203,23 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "high",
     actionLabel: "Review Request",
   },
+
+  INTERVIEW_RESCHEDULE_REQUEST_APPROVED: {
+    icon: <CheckCircle {...iconProps} />,
+    category: "success",
+    eyebrow: "Interview",
+    priority: "medium",
+    actionLabel: "View Interview",
+  },
+
+  INTERVIEW_RESCHEDULE_REQUEST_REJECTED: {
+    icon: <XCircle {...iconProps} />,
+    category: "danger",
+    eyebrow: "Interview",
+    priority: "medium",
+    actionLabel: "See Details",
+  },
+
   OFFER_SENT: {
     icon: <Send {...iconProps} />,
     category: "progress",
@@ -277,6 +227,7 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "medium",
     actionLabel: "Open Offer",
   },
+
   OFFER_ACCEPTED: {
     icon: <BadgeCheck {...iconProps} />,
     category: "success",
@@ -284,10 +235,83 @@ export const notificationMeta: Record<NotificationType, Meta> = {
     priority: "high",
     actionLabel: "Open Offer",
   },
+
   OFFER_REJECTED: {
     icon: <XCircle {...iconProps} />,
     category: "danger",
     eyebrow: "Offer",
+    priority: "high",
+    actionLabel: "See Details",
+  },
+
+  SUBSCRIPTION_CREATED: {
+    icon: <Crown {...iconProps} />,
+    category: "premium",
+    eyebrow: "Plan",
+    priority: "low",
+    actionLabel: "Open Dashboard",
+  },
+
+  SUBSCRIPTION_RENEWED: {
+    icon: <RefreshCw {...iconProps} />,
+    category: "premium",
+    eyebrow: "Plan",
+    priority: "low",
+    actionLabel: "Open Dashboard",
+  },
+
+  SUBSCRIPTION_UPGRADED: {
+    icon: <TrendingUp {...iconProps} />,
+    category: "premium",
+    eyebrow: "Plan",
+    priority: "medium",
+    actionLabel: "Open Dashboard",
+  },
+
+  SUBSCRIPTION_EXPIRING: {
+    icon: <Clock {...iconProps} />,
+    category: "attention",
+    eyebrow: "Plan",
+    priority: "high",
+    actionLabel: "Renew Plan",
+  },
+
+  SUBSCRIPTION_EXPIRED: {
+    icon: <CircleAlert {...iconProps} />,
+    category: "danger",
+    eyebrow: "Plan",
+    priority: "high",
+    actionLabel: "Renew Plan",
+  },
+
+  RECRUITER_VERIFIED: {
+    icon: <UserCheck {...iconProps} />,
+    category: "verified",
+    eyebrow: "Account",
+    priority: "medium",
+    actionLabel: "Open Dashboard",
+  },
+
+  RECRUITER_REJECTED: {
+    icon: <UserX {...iconProps} />,
+    category: "danger",
+    eyebrow: "Account",
+    priority: "high",
+    actionLabel: "See Details",
+  },
+
+  JOB_APPROVED: {
+    icon: <BriefcaseBusiness {...iconProps} />,
+    category: "success",
+    eyebrow: "Listing",
+    priority: "medium",
+    actionLabel: "View Job",
+  },
+
+  JOB_REJECTED: {
+    icon: <Briefcase {...iconProps} />,
+    category: "danger",
+    eyebrow: "Listing",
     priority: "high",
     actionLabel: "See Details",
   },

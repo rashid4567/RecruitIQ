@@ -70,15 +70,8 @@ export function buildIcsContent(
   const start = new Date(details.scheduledAt);
   const end = new Date(start.getTime() + details.durationInMinutes * 60000);
   const locationOrLink =
-    details.mode === InterviewMode.ONLINE
-      ? (details.meetingLink ?? "")
-      : (details.location ?? "");
-  const descriptionParts = [
-    details.description ?? "",
-    details.mode === InterviewMode.ONLINE && details.meetingLink
-      ? `Meeting link: ${details.meetingLink}`
-      : "",
-  ].filter(Boolean);
+    details.mode === InterviewMode.ONLINE ? "" : (details.location ?? "");
+  const descriptionParts = [details.description ?? ""].filter(Boolean);
 
   const lines = [
     "BEGIN:VCALENDAR",
@@ -198,7 +191,7 @@ export function canJoinNow(
   details: GetCandidateInterviewDetailsResponse,
   now: number,
 ): boolean {
-  if (details.mode !== InterviewMode.ONLINE || !details.meetingLink)
+  if (details.mode !== InterviewMode.ONLINE)
     return false;
   if (details.status === InterviewStatus.ONGOING) return true;
   if (!ACTIVE_STATUSES.includes(details.status)) return false;

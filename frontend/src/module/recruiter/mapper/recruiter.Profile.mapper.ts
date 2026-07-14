@@ -1,30 +1,7 @@
-import type { SubscriptionStatus } from "@/module/subscription/constant/subscription.constants";
-import type { VerificationStatus } from "../constants/status";
 import type { RecruiterProfile, RecruiterProfileResponse } from "../types/recruiter.types";
 
-interface UserDto {
-  fullName: string;
-  email: string;
-}
 
-interface RecruiterDto {
-  companyName?: string;
-  companyWebsite?: string;
-  companySize?: number;
-  industry?: string;
-  location?: string;
-  bio?: string;
-  designation?: string;
-  linkedinUrl?: string;
-  subscriptionStatus?: SubscriptionStatus;
-  verificationStatus?: VerificationStatus;
-  jobPostsUsed?: number;
-}
 
-interface RecruiterProfileDto {
-  user: UserDto;
-  recruiter: RecruiterDto;
-}
 
 export function mapRecruiterProfile(
   response: RecruiterProfileResponse,

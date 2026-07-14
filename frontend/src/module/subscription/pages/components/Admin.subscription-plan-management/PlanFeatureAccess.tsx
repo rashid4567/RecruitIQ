@@ -3,7 +3,6 @@ import {
   Calendar,
   BarChart2,
   ShieldCheck,
-  FileSearch,
   ScanText,
   Users,
   Download,
@@ -114,7 +113,7 @@ export default function PlanFeatureAccess({
           }
         />
 
-        {/* ✅ added: was missing from entity */}
+     
         <FeatureRow
           icon={<ScanText className="h-4 w-4" />}
           iconBg="bg-violet-100"
@@ -130,23 +129,10 @@ export default function PlanFeatureAccess({
           }
         />
 
-        {/* ✅ added: was missing from entity */}
-        <FeatureRow
-          icon={<FileSearch className="h-4 w-4" />}
-          iconBg="bg-sky-100"
-          iconColor="text-sky-600"
-          label="Resume Parsing"
-          description="Extract structured data from uploaded resumes automatically"
-          checked={featuresAccess.resumeParsing}
-          onToggle={() =>
-            handleFeaturesAccessChange(
-              "resumeParsing",
-              !featuresAccess.resumeParsing,
-            )
-          }
-        />
+     
+    
 
-        {/* ✅ added: was missing from entity */}
+     
         <FeatureRow
           icon={<Users className="h-4 w-4" />}
           iconBg="bg-rose-100"
@@ -162,7 +148,7 @@ export default function PlanFeatureAccess({
           }
         />
 
-        {/* ✅ added: was missing from entity */}
+     
         <FeatureRow
           icon={<Download className="h-4 w-4" />}
           iconBg="bg-teal-100"

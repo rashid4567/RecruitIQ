@@ -26,7 +26,11 @@ import {
   Trash2,
   UserCheck,
   UserX,
-  Undo2,
+  BriefcaseBusiness,
+  BadgeCheck,
+  Send,
+  Handshake,
+  Play,
 } from "lucide-react";
 import { useNotifications } from "@/module/notification/hook/useNotifications";
 import type {
@@ -67,6 +71,7 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Application",
         badgeColor: "bg-violet-100 text-violet-700",
       };
+
     case "APPLICATION_SHORTLISTED":
       return {
         icon: <UserCheck className="h-4 w-4 text-white" />,
@@ -75,14 +80,7 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Shortlisted",
         badgeColor: "bg-amber-100 text-amber-700",
       };
-    case "APPLICATION_REJECTED":
-      return {
-        icon: <UserX className="h-4 w-4 text-white" />,
-        accent: "bg-linear-to-br from-red-400 to-red-500",
-        dot: "bg-red-500",
-        badge: "Rejected",
-        badgeColor: "bg-red-100 text-red-600",
-      };
+
     case "APPLICATION_SELECTED":
       return {
         icon: <CircleCheck className="h-4 w-4 text-white" />,
@@ -91,14 +89,16 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Selected",
         badgeColor: "bg-emerald-100 text-emerald-700",
       };
-    case "APPLICATION_WITHDRAWN":
+
+    case "APPLICATION_REJECTED":
       return {
-        icon: <Undo2 className="h-4 w-4 text-white" />,
-        accent: "bg-linear-to-br from-slate-400 to-slate-500",
-        dot: "bg-slate-400",
-        badge: "Withdrawn",
-        badgeColor: "bg-slate-100 text-slate-600",
+        icon: <UserX className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-red-400 to-red-500",
+        dot: "bg-red-500",
+        badge: "Rejected",
+        badgeColor: "bg-red-100 text-red-600",
       };
+
     case "INTERVIEW_SCHEDULED":
       return {
         icon: <Calendar className="h-4 w-4 text-white" />,
@@ -107,6 +107,34 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Interview",
         badgeColor: "bg-blue-100 text-blue-700",
       };
+
+    case "INTERVIEW_STARTED":
+      return {
+        icon: <Play className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-green-500 to-green-600",
+        dot: "bg-green-500",
+        badge: "Interview",
+        badgeColor: "bg-green-100 text-green-700",
+      };
+
+    case "INTERVIEW_ACCEPTED":
+      return {
+        icon: <Handshake className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-emerald-500 to-emerald-600",
+        dot: "bg-emerald-500",
+        badge: "Accepted",
+        badgeColor: "bg-emerald-100 text-emerald-700",
+      };
+
+    case "INTERVIEW_DECLINED":
+      return {
+        icon: <CircleX className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-red-500 to-red-600",
+        dot: "bg-red-500",
+        badge: "Declined",
+        badgeColor: "bg-red-100 text-red-700",
+      };
+
     case "INTERVIEW_RESCHEDULED":
       return {
         icon: <Clock className="h-4 w-4 text-white" />,
@@ -115,6 +143,34 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Rescheduled",
         badgeColor: "bg-indigo-100 text-indigo-700",
       };
+
+    case "INTERVIEW_RESCHEDULE_REQUESTED":
+      return {
+        icon: <Clock className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-yellow-400 to-yellow-500",
+        dot: "bg-yellow-500",
+        badge: "Request",
+        badgeColor: "bg-yellow-100 text-yellow-700",
+      };
+
+    case "INTERVIEW_RESCHEDULE_REQUEST_APPROVED":
+      return {
+        icon: <CircleCheck className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-emerald-500 to-emerald-600",
+        dot: "bg-emerald-500",
+        badge: "Approved",
+        badgeColor: "bg-emerald-100 text-emerald-700",
+      };
+
+    case "INTERVIEW_RESCHEDULE_REQUEST_REJECTED":
+      return {
+        icon: <CircleX className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-red-400 to-red-500",
+        dot: "bg-red-500",
+        badge: "Rejected",
+        badgeColor: "bg-red-100 text-red-700",
+      };
+
     case "INTERVIEW_CANCELLED":
       return {
         icon: <CircleX className="h-4 w-4 text-white" />,
@@ -123,8 +179,37 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Cancelled",
         badgeColor: "bg-rose-100 text-rose-600",
       };
+
+    case "OFFER_SENT":
+      return {
+        icon: <Send className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-cyan-500 to-cyan-600",
+        dot: "bg-cyan-500",
+        badge: "Offer",
+        badgeColor: "bg-cyan-100 text-cyan-700",
+      };
+
+    case "OFFER_ACCEPTED":
+      return {
+        icon: <BadgeCheck className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-green-500 to-green-600",
+        dot: "bg-green-500",
+        badge: "Offer",
+        badgeColor: "bg-green-100 text-green-700",
+      };
+
+    case "OFFER_REJECTED":
+      return {
+        icon: <CircleX className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-red-500 to-red-600",
+        dot: "bg-red-500",
+        badge: "Offer",
+        badgeColor: "bg-red-100 text-red-700",
+      };
+
     case "SUBSCRIPTION_CREATED":
     case "SUBSCRIPTION_RENEWED":
+    case "SUBSCRIPTION_UPGRADED":
       return {
         icon: <CreditCard className="h-4 w-4 text-white" />,
         accent: "bg-linear-to-br from-teal-500 to-teal-600",
@@ -132,6 +217,7 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Subscription",
         badgeColor: "bg-teal-100 text-teal-700",
       };
+
     case "SUBSCRIPTION_EXPIRING":
     case "SUBSCRIPTION_EXPIRED":
       return {
@@ -141,7 +227,8 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Subscription",
         badgeColor: "bg-orange-100 text-orange-700",
       };
-    case "VERIFICATION_APPROVED":
+
+    case "RECRUITER_VERIFIED":
       return {
         icon: <ShieldCheck className="h-4 w-4 text-white" />,
         accent: "bg-linear-to-br from-emerald-500 to-emerald-600",
@@ -149,7 +236,8 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Verified",
         badgeColor: "bg-emerald-100 text-emerald-700",
       };
-    case "VERIFICATION_REJECTED":
+
+    case "RECRUITER_REJECTED":
       return {
         icon: <ShieldX className="h-4 w-4 text-white" />,
         accent: "bg-linear-to-br from-red-400 to-red-500",
@@ -157,18 +245,35 @@ function getTypeConfig(type: NotificationType): TypeConfig {
         badge: "Verification",
         badgeColor: "bg-red-100 text-red-600",
       };
-    case "SYSTEM_NOTIFICATION":
+
+    case "JOB_APPROVED":
+      return {
+        icon: <BriefcaseBusiness className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-green-500 to-green-600",
+        dot: "bg-green-500",
+        badge: "Job",
+        badgeColor: "bg-green-100 text-green-700",
+      };
+
+    case "JOB_REJECTED":
+      return {
+        icon: <Briefcase className="h-4 w-4 text-white" />,
+        accent: "bg-linear-to-br from-red-400 to-red-500",
+        dot: "bg-red-500",
+        badge: "Job",
+        badgeColor: "bg-red-100 text-red-700",
+      };
+
     default:
       return {
         icon: <Info className="h-4 w-4 text-white" />,
         accent: "bg-linear-to-br from-slate-500 to-slate-600",
         dot: "bg-slate-500",
-        badge: "System",
+        badge: "Notification",
         badgeColor: "bg-slate-100 text-slate-600",
       };
   }
 }
-
 interface NotificationRowProps {
   notification: Notification;
   onMarkAsRead: (id: string) => void;

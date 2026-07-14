@@ -73,7 +73,7 @@ export class MongooseInterviewRepository implements InterviewRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
-    async findRecruiterInterviewConflict(
+  async findRecruiterInterviewConflict(
     recruiterId: string,
     scheduledAt: Date,
     durationInMinutes: number,
@@ -113,9 +113,6 @@ export class MongooseInterviewRepository implements InterviewRepository {
     return conflict ? this.toDomain(conflict) : null;
   }
 
-
-
-
   async findByApplicationId(applicationId: string): Promise<Interview | null> {
     if (!this.isValidObjectId(applicationId)) {
       return null;
@@ -139,7 +136,6 @@ export class MongooseInterviewRepository implements InterviewRepository {
       return [];
     }
 
-
     const skip = (page - 1) * limit;
 
     const docs = await InterviewModel.find({
@@ -150,7 +146,6 @@ export class MongooseInterviewRepository implements InterviewRepository {
       })
       .skip(skip)
       .limit(limit);
-
 
     return docs.map((doc) => this.toDomain(doc));
   }
@@ -167,10 +162,11 @@ export class MongooseInterviewRepository implements InterviewRepository {
     const skip = (page - 1) * limit;
     const docs = await InterviewModel.find({
       recruiterId: new mongoose.Types.ObjectId(recruiterId),
+      status: {
+        $ne: InterviewStatus.CANCELLED,
+      },
     })
-      .sort({
-        scheduledAt: -1,
-      })
+      .sort({ scheduledAt: -1 })
       .skip(skip)
       .limit(limit);
 

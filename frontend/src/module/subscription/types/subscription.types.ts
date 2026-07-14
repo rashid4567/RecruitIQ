@@ -1,5 +1,6 @@
 import type { BillingCycle, Currency, PlanType } from "../constant/subscription.constants";
-import type { FeatureAccess, PlanFeature } from "../domain/entity/SubscriptionPlan.entity";
+import type { FeatureAccess, PlanFeature } from "./subscription-plan.types";
+
 
 export interface SubscriptionPlan {
   id: string;

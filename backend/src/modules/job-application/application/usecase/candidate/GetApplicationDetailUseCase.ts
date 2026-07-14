@@ -16,7 +16,7 @@ export class GetApplicationDetailUseCase implements IUseCase<
   constructor(
     private readonly applicationRepo: JobApplicationRepository,
     private readonly jobRepo: JobRepository,
-    private readonly offerRepo : OfferRepository
+    private readonly offerRepo: OfferRepository,
   ) {}
 
   async execute(
@@ -48,11 +48,13 @@ export class GetApplicationDetailUseCase implements IUseCase<
     return {
       application: {
         id: application.id,
-        applicationNumber : application.applicationNumber,
+        applicationNumber: application.applicationNumber,
         jobId: application.jobId,
         candidateId: application.candidateId,
         recruiterId: application.recruiterId,
         resumeId: application.resumeId,
+        appliedResumeFileName: application.appliedResumeFileName,
+        appliedResumeFileKey: application.appliedResumeFileKey,
         status: application.status,
         appliedAt: application.appliedAt,
         updatedAt: application.updatedAt,
@@ -60,7 +62,6 @@ export class GetApplicationDetailUseCase implements IUseCase<
         rejectionReason: application.rejectionReason,
         interview: application.interview,
       },
-
       job: {
         id: job.id,
         companyName: job.candidateView().companyName,
@@ -83,13 +84,13 @@ export class GetApplicationDetailUseCase implements IUseCase<
       },
 
       offer: offer
-    ? {
-        id: offer.id,
-        status: offer.status,
-        expiryDate: offer.expiryDate,
-        offerLetterUrl: `/candidate/offer/${offer.id}`,
-      }
-    : null,
+        ? {
+            id: offer.id,
+            status: offer.status,
+            expiryDate: offer.expiryDate,
+            offerLetterUrl: `/candidate/offer/${offer.id}`,
+          }
+        : null,
     };
   }
 }

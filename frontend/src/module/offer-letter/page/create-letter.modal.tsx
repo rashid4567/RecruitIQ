@@ -63,6 +63,7 @@ interface JobData {
     city: string;
     state: string;
     country: string;
+
   };
 }
 

@@ -259,10 +259,13 @@ export interface HiringDecisionInterview {
 export interface HiringDecisionJob {
   jobId: string;
   title: string;
-
   companyName: string;
   department?: string;
-  location: string;
+  location: {
+    city: string;
+    state: string;
+    country: string;
+  };
   employmentType: string;
 }
 

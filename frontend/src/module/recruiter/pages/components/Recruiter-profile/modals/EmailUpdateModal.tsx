@@ -630,7 +630,7 @@ export function EmailUpdateModal({
                     <h2 className="text-xl font-bold text-white">
                       Email updated successfully
                     </h2>
-                    <p className="text-sm text-white/80 leading-relaxed max-w-[240px]">
+                    <p className="text-sm text-white/80 leading-relaxed max-w-60">
                       Your account is now using{" "}
                       <span className="font-semibold text-white">
                         {newEmail}

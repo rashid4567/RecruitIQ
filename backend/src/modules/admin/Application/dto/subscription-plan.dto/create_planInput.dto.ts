@@ -1,4 +1,4 @@
-import { BillingCycle, Currency, FeaturesAccess, PlanFeature, PlanType } from "../../../Domain/entities/subscription-plan.entity";
+import { BillingCycle, Currency, FeatureAccess, PlanFeature, PlanType } from "../../../../subscription/domain/entities/subscription-plan.entity";
 
 export interface CreatePlanInput {
   name:             string;
@@ -9,7 +9,7 @@ export interface CreatePlanInput {
   billingInterval:  number;
   jobPostsPerMonth: number;
   screeningCredits: number;
-  featuresAccess:   FeaturesAccess;
+  featuresAccess:   FeatureAccess;
   features:         PlanFeature[];
   isPopular:        boolean;
   sortOrder:        number;

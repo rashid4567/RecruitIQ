@@ -129,6 +129,14 @@ const RECOMMENDATION_CONFIG: Record<
   },
 };
 
+function getStars(score: number) {
+  if (score >= 95) return 5;
+  if (score >= 85) return 4;
+  if (score >= 70) return 3;
+  if (score >= 55) return 2;
+  return 1;
+}
+
 const SORT_OPTIONS: {
   value: string;
   label: string;
@@ -386,7 +394,7 @@ function ApplicationCard({ app }: { app: RecruiterApplication }) {
       },
     },
   ];
-
+  const stars = getStars(app.aiScore ?? 0);
   return (
     <div
       role="button"
@@ -434,7 +442,9 @@ function ApplicationCard({ app }: { app: RecruiterApplication }) {
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
-              className={`w-3 h-3 ${i < rec.stars ? "fill-amber-400 text-amber-400" : "text-slate-200"}`}
+              className={`w-3 h-3 ${
+                i < stars ? "fill-amber-400 text-amber-400" : "text-slate-200"
+              }`}
             />
           ))}
         </div>

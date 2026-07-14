@@ -1061,8 +1061,8 @@ function SelectConfirmModal({
           {candidateName} · {applicationNumber}
         </p>
         <p className="text-sm text-slate-600 mb-4">
-          To complete the selection, you'll prepare and send an employment
-          offer next — there's no way to select a candidate without one.
+          To complete the selection, you'll prepare and send an employment offer
+          next — there's no way to select a candidate without one.
         </p>
         <ul className="space-y-2 mb-6">
           {[
@@ -1325,12 +1325,7 @@ function ErrorState({
 
 const DASHBOARD_ROUTE = "/recruiter/interviews";
 
-// modal is a small state machine:
-// null -> nothing open
-// "select" -> confirmation dialog ("do you want to select this candidate?")
-// "offer" -> mandatory Employment Offer modal (the only thing that can actually
-//            move the application into SELECTED, via useCreateOffer inside it)
-// "reject" -> reject dialog, still uses updateStatus directly
+
 type ModalState = "select" | "offer" | "reject" | null;
 
 export default function RecruiterHiringDecisionPage() {
@@ -1540,9 +1535,6 @@ export default function RecruiterHiringDecisionPage() {
         />
       )}
 
-      {/* Step 2: mandatory offer modal — this is the only path that actually
-          creates the offer, marks the application SELECTED, and sends the
-          selection email. There is no skip/draft/save-for-later. */}
       {modal === "offer" && decision && (
         <EmploymentOfferModal
           candidate={{
@@ -1559,7 +1551,7 @@ export default function RecruiterHiringDecisionPage() {
             title: decision.job.title,
             department: decision.job.department ?? "",
             location: decision.job.location,
-            employmentType: decision.job.employmentType,
+          
           }}
           onClose={() => setModal(null)}
           onSent={handleOfferSent}

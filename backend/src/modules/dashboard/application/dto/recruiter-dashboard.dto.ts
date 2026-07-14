@@ -72,7 +72,6 @@ export interface RecruiterDashboardSubscriptionDTO {
   aiScoreUsed: number;
   aiScoreLimit: number;
   resumeDownloadedCount: number;
-  resumeDownloadLimit: number;
 }
 
 export interface RecruiterDashboardNotificationDTO {

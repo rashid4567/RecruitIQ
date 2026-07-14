@@ -205,8 +205,8 @@ export const ApplicationRow: React.FC<Props> = ({
           </div>
 
           <span className="font-mono text-[10px] text-slate-500">
-            {app.resumeFileName
-              ? `${app.resumeFileName.slice(0, 12)}…`
+            {app.appliedResumeFileName
+              ? `${app.appliedResumeFileName.slice(0, 12)}…`
               : "Resume"}
           </span>
         </button>

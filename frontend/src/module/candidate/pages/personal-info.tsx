@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Shield, Bell, Lock } from "lucide-react";
+import { User, Shield, Bell } from "lucide-react";
 import { toast } from "sonner";
 import {
   Card,

@@ -24,10 +24,7 @@ export default function PricingPlans() {
   return (
     <>
       <div className="min-h-screen bg-linear-to-b from-slate-50 via-blue-50/30 to-white">
-        <PricingHeader
-          billingCycle={pricing.billingCycle}
-          setBillingCycle={pricing.setBillingCycle}
-        />
+        <PricingHeader />
 
         <PlanCards
           plans={pricing.plans}

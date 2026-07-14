@@ -25,7 +25,17 @@ export type NotificationType =
   | "RECRUITER_VERIFIED"
   | "RECRUITER_REJECTED"
   | "JOB_APPROVED"
-  | "JOB_REJECTED";
+  | "JOB_REJECTED"
+  | "RECRUITER_REJECTED"
+  | "RECRUITER_VERIFIED"
+  | "SUBSCRIPTION_UPGRADED"
+  | "SUBSCRIPTION_CREATED";
+
+
+
+
+
+
 
 export interface Notification {
   id: string;

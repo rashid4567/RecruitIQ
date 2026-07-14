@@ -109,7 +109,6 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
             aiScoreUsed: subscription.aiScoreUsed,
             aiScoreLimit: subscription.aiScoreLimit,
             resumeDownloadedCount: subscription.resumeDownloadedCount,
-            resumeDownloadLimit: subscription.resumeDownloadLimit,
           }
         : null,
       notifications: notifications.map((notification) => ({

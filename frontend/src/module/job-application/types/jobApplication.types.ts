@@ -82,7 +82,7 @@ export interface JobApplication {
   status: ApplicationStatus;
   analysisStatus: ApplicationAnalysisStatus;
   aiAnalysis?: ApplicationAIAnalysis;
-  interview?: InterviewInfo;
+  interview?: InterviewSummary;
   rejectionReason?: string;
   appliedAt: Date;
   updatedAt: Date;

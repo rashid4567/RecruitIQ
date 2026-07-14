@@ -8,7 +8,6 @@ import {
   Calendar,
   Building2,
   Settings,
-  Shield,
   Loader2,
   Star,
   Clock,
@@ -19,6 +18,15 @@ import {
   CheckCheck,
   Inbox,
   FileText,
+  ShieldCheck,
+  ShieldX,
+  FileCheck,
+  FileX,
+  TrendingUp,
+  BadgeCheck,
+  Mail,
+  XCircle,
+  CheckCircle,
 } from "lucide-react";
 import { useNotifications } from "../hook/useNotifications";
 import Header from "@/pages/landing/sections/Header";
@@ -68,26 +76,62 @@ const TYPE_META: Record<string, TypeMeta> = {
     accent: "border-l-green-500",
   },
 
-  INTERVIEW_RESCHEDULED: {
-    icon: <Calendar className="w-4 h-4" />,
-    tile: "bg-amber-50 text-amber-700",
-    accent: "border-l-amber-500",
-  },
-
   INTERVIEW_CANCELLED: {
     icon: <Calendar className="w-4 h-4" />,
     tile: "bg-red-50 text-red-700",
     accent: "border-l-red-400",
   },
 
-  INTERVIEW_RESCHEDULE_REQUEST_APPROVED: {
+  INTERVIEW_RESCHEDULED: {
     icon: <Calendar className="w-4 h-4" />,
+    tile: "bg-amber-50 text-amber-700",
+    accent: "border-l-amber-500",
+  },
+
+  INTERVIEW_ACCEPTED: {
+    icon: <CheckCircle className="w-4 h-4" />,
+    tile: "bg-green-50 text-green-700",
+    accent: "border-l-green-500",
+  },
+
+  INTERVIEW_DECLINED: {
+    icon: <XCircle className="w-4 h-4" />,
+    tile: "bg-red-50 text-red-700",
+    accent: "border-l-red-400",
+  },
+
+  INTERVIEW_RESCHEDULE_REQUESTED: {
+    icon: <Clock className="w-4 h-4" />,
+    tile: "bg-yellow-50 text-yellow-700",
+    accent: "border-l-yellow-500",
+  },
+
+  INTERVIEW_RESCHEDULE_REQUEST_APPROVED: {
+    icon: <CheckCircle className="w-4 h-4" />,
     tile: "bg-green-50 text-green-700",
     accent: "border-l-green-500",
   },
 
   INTERVIEW_RESCHEDULE_REQUEST_REJECTED: {
-    icon: <Calendar className="w-4 h-4" />,
+    icon: <XCircle className="w-4 h-4" />,
+    tile: "bg-red-50 text-red-700",
+    accent: "border-l-red-400",
+  },
+
+  OFFER_SENT: {
+    icon: <Mail className="w-4 h-4" />,
+    tile: "bg-indigo-50 text-indigo-700",
+    accent: "border-l-indigo-500",
+  },
+
+  OFFER_ACCEPTED: {
+    icon: <BadgeCheck className="w-4 h-4" />,
+    tile: "bg-green-50 text-green-700",
+    accent: "border-l-green-500",
+  },
+
+  OFFER_REJECTED: {
+    icon: <FileX className="w-4 h-4" />,
     tile: "bg-red-50 text-red-700",
     accent: "border-l-red-400",
   },
@@ -105,7 +149,7 @@ const TYPE_META: Record<string, TypeMeta> = {
   },
 
   SUBSCRIPTION_UPGRADED: {
-    icon: <RefreshCw className="w-4 h-4" />,
+    icon: <TrendingUp className="w-4 h-4" />,
     tile: "bg-purple-50 text-purple-700",
     accent: "border-l-purple-500",
   },
@@ -123,25 +167,25 @@ const TYPE_META: Record<string, TypeMeta> = {
   },
 
   RECRUITER_VERIFIED: {
-    icon: <Shield className="w-4 h-4" />,
+    icon: <ShieldCheck className="w-4 h-4" />,
     tile: "bg-green-50 text-green-700",
     accent: "border-l-green-500",
   },
 
   RECRUITER_REJECTED: {
-    icon: <Shield className="w-4 h-4" />,
+    icon: <ShieldX className="w-4 h-4" />,
     tile: "bg-red-50 text-red-700",
     accent: "border-l-red-400",
   },
 
   JOB_APPROVED: {
-    icon: <FileText className="w-4 h-4" />,
+    icon: <FileCheck className="w-4 h-4" />,
     tile: "bg-green-50 text-green-700",
     accent: "border-l-green-500",
   },
 
   JOB_REJECTED: {
-    icon: <FileText className="w-4 h-4" />,
+    icon: <FileX className="w-4 h-4" />,
     tile: "bg-red-50 text-red-700",
     accent: "border-l-red-400",
   },
@@ -160,22 +204,34 @@ const TYPE_TAB: Record<string, TabId> = {
   APPLICATION_SHORTLISTED: "shortlist",
   APPLICATION_REJECTED: "application",
   APPLICATION_SELECTED: "application",
+
   INTERVIEW_SCHEDULED: "interview",
   INTERVIEW_STARTED: "interview",
-  INTERVIEW_RESCHEDULED: "interview",
   INTERVIEW_CANCELLED: "interview",
+  INTERVIEW_RESCHEDULED: "interview",
+  INTERVIEW_ACCEPTED: "interview",
+  INTERVIEW_DECLINED: "interview",
+  INTERVIEW_RESCHEDULE_REQUESTED: "interview",
   INTERVIEW_RESCHEDULE_REQUEST_APPROVED: "interview",
   INTERVIEW_RESCHEDULE_REQUEST_REJECTED: "interview",
+
+  OFFER_SENT: "application",
+  OFFER_ACCEPTED: "application",
+  OFFER_REJECTED: "application",
+
   SUBSCRIPTION_CREATED: "system",
   SUBSCRIPTION_RENEWED: "system",
   SUBSCRIPTION_UPGRADED: "system",
   SUBSCRIPTION_EXPIRING: "system",
   SUBSCRIPTION_EXPIRED: "system",
+
   RECRUITER_VERIFIED: "system",
   RECRUITER_REJECTED: "system",
+
   JOB_APPROVED: "system",
   JOB_REJECTED: "system",
 };
+
 const TABS: Array<{ id: TabId; label: string; icon: React.ReactNode }> = [
   { id: "all", label: "All", icon: <Inbox className="w-3.5 h-3.5" /> },
   {

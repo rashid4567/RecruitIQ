@@ -35,7 +35,7 @@ export class GoogleService implements GoogleAuthPort {
         fullName: payload.name ?? "",
       };
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw err;
     }
   }

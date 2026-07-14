@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SubscriptionStatus } from "../../domain/entities/Recruitersubscription.entity";
+import { SubscriptionStatus } from "../../../subscription/domain/entities/recruiter-subscription.entity"; 
 
 export const subscribeSchema = z
   .object({

@@ -835,7 +835,7 @@ export default function PaymentSuccessPage() {
           style={{ transitionDelay: "450ms" }}
         >
           <button
-            onClick={() => navigate("/recruiter/jobs/create")}
+            onClick={() => navigate("/recruiter/job-editor")}
             className="flex-1 group flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-200/60 hover:shadow-xl hover:shadow-emerald-300/50 hover:-translate-y-0.5 display text-sm"
           >
             Post Your First Job

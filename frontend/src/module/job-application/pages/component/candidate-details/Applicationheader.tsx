@@ -28,7 +28,7 @@ export function ApplicationHeader({
         </button>
         <nav className="flex items-center gap-1.5 text-sm flex-1 min-w-0">
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/")}
             className="text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap hidden sm:block"
           >
             Dashboard

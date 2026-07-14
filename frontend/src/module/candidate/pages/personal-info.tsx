@@ -14,7 +14,6 @@ import { Separator } from "@/components/ui/separator";
 import CandidateSidebar from "@/module/candidate/pages/components/personalInfo/shared/candidateSidebar.tsx";
 import { CandidatePrivacyAndSecurity } from "./components/personalInfo/tabs/CandidatePrivacyAndSecurity.tsx";
 import { NotificationsSection } from "./NotificationsSection.tsx";
-import { PrivacySection } from "./PrivacySection.tsx";
 import { PersonalInfoTab } from "./PersonalInfoTab.tsx";
 import { Header } from "./components/personalInfo/common/Header.tsx";
 import { LoadingState } from "./components/personalInfo/common/LoadingState.tsx";
@@ -49,12 +48,7 @@ const settingsTabs = [
     icon: Bell,
     description: "Email, in-app and job alert preferences",
   },
-  {
-    value: "privacy",
-    label: "Privacy",
-    icon: Lock,
-    description: "Control who can see your profile and data",
-  },
+ 
 ] as const;
 
 type TabValue = (typeof settingsTabs)[number]["value"];
@@ -80,8 +74,7 @@ export default function CandidateProfilePage() {
     setValidationErrors,
   } = useProfileEdit(profile);
 
-  // ✅ useImageUpload removed — PersonalInfoTab owns upload + preview via useUploadProfileImage
-
+  
   const handleInputChange = useCallback(
     <K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
       updateField(key, value);
@@ -226,7 +219,7 @@ export default function CandidateProfilePage() {
                         </p>
                         <Separator className="my-5" />
 
-                        {/* ✅ isUploading, imagePreview, onImageUpload removed — owned by PersonalInfoTab */}
+                       
                         <PersonalInfoTab
                           profile={profile}
                           stats={stats}
@@ -280,22 +273,7 @@ export default function CandidateProfilePage() {
                       </div>
                     </TabsContent>
 
-                    <TabsContent
-                      value="privacy"
-                      className="mt-0 space-y-6 focus-visible:outline-none"
-                    >
-                      <div>
-                        <h2 className="text-xl font-semibold">Privacy</h2>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {
-                            settingsTabs.find((t) => t.value === "privacy")
-                              ?.description
-                          }
-                        </p>
-                        <Separator className="my-5" />
-                        <PrivacySection />
-                      </div>
-                    </TabsContent>
+                   
                   </div>
                 </Tabs>
               </CardContent>

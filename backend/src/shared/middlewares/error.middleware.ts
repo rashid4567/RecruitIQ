@@ -27,8 +27,21 @@ export function errorHandler(
   res: Response,
   next: NextFunction,
 ): void {
+  console.log("\n===== ERROR START =====");
+  console.log("METHOD:", req.method);
+  console.log("URL:", req.originalUrl);
+  console.log("BODY:", req.body);
+  console.log("PARAMS:", req.params);
+  console.log("QUERY:", req.query);
+  console.log("RAW ERROR:", err);
+  if (err instanceof Error) {
+    console.log("NAME:", err.name);
+    console.log("MESSAGE:", err.message);
+    console.log("STACK:");
+    console.log(err.stack);
+  }
 
- 
+  console.log("===== ERROR END =====\n")
   logger.error({
     message: "Request Error",
     method: req.method,

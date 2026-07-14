@@ -1499,7 +1499,7 @@ export default function InterviewRoomPage() {
           className="text-[15px] font-medium truncate"
           style={{ color: COLOR.text }}
         >
-          {details.title}
+          {details?.title ?? ""}
         </h1>
 
         <div className="flex items-center gap-4 shrink-0">
@@ -2280,7 +2280,7 @@ export default function InterviewRoomPage() {
                         className="text-[14px] font-medium"
                         style={{ color: COLOR.text }}
                       >
-                        {details.round}
+                        {details?.round ?? "1"}
                       </p>
                     </div>
                     <div
@@ -2297,7 +2297,7 @@ export default function InterviewRoomPage() {
                         className="text-[14px] font-medium capitalize"
                         style={{ color: COLOR.text }}
                       >
-                        {details.status.toLowerCase()}
+                        {details?.status ?? "Ongoing"}
                       </p>
                     </div>
                     <div
@@ -2314,7 +2314,7 @@ export default function InterviewRoomPage() {
                         className="text-[14px] font-medium"
                         style={{ color: COLOR.text }}
                       >
-                        {details.durationInMinutes} minutes
+                        {details?.durationInMinutes ?? "1 hour"} minutes
                       </p>
                     </div>
                     {details.mode === "OFFLINE" && details.location && (

@@ -6,7 +6,7 @@ import { JobRepository } from "../../../../job/domain/repositories/job.repositor
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
 import { NotificationType } from "../../../../notification/infrastructure/mongoose/notification.model";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
-import { Interview } from "../../../domain/entity/interview.entity";
+import { CandidateResponseStatus, Interview } from "../../../domain/entity/interview.entity";
 import { InterviewRepository } from "../../../domain/repository/interview.repository";
 import {
   StartInterviewRequestDTO,
@@ -45,6 +45,15 @@ export class StartInterviewUseCase implements IUseCase<
     if (!interview.hasRoom()) {
       throw new ApplicationError(ERROR_CODES.INTERVIEW_ROOM_NOT_FOUND);
     }
+
+    if (
+  interview.candidateResponseStatus !==
+  CandidateResponseStatus.ACCEPTED
+) {
+  throw new ApplicationError(
+    ERROR_CODES.CANDIDATE_HAS_NOT_ACCEPTED_INTERVIEW,
+  );
+}
 
     const subscription =
       await this.recruiterSubscriptionRepo.findActiveByRecruiter(

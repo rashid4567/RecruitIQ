@@ -2,7 +2,6 @@ import type { RecruiterProfile } from "../types/recruiter.types";
 import type { ProfileFormData } from "../validators/recruiter-form.validator";
 
 export class RecruiterProfileFormMapper {
-
   static toForm(profile: RecruiterProfile): ProfileFormData {
     return {
       fullName: profile.fullName ?? "",
@@ -16,7 +15,6 @@ export class RecruiterProfileFormMapper {
       linkedinUrl: profile.linkedinUrl ?? "",
     };
   }
-
 
   static toApi(data: ProfileFormData) {
     return {

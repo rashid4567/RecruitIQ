@@ -239,7 +239,14 @@ export function RecruiterProfileSection() {
           emailVM.reset();
         }}
         onSendOtp={emailVM.sendOtp}
-        onVerifyOtp={emailVM.verifyOtp}
+        onVerifyOtp={async () => {
+          const success = await emailVM.verifyOtp();
+
+          if (!success) return;
+
+          setIsEmailModalOpen(false);
+          emailVM.reset();
+        }}
         onResendOtp={emailVM.resendOtp}
         newEmail={emailVM.newEmail}
         setNewEmail={emailVM.setNewEmail}

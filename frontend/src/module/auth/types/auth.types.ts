@@ -65,6 +65,7 @@ export interface RequestEmailUpdatePayload {
 export interface VerifyEmailUpdatePayload {
   newEmail: string;
   otp: string;
+  role: "candidate" | "recruiter";
 }
 
 export interface UploadProfileImagePayload {

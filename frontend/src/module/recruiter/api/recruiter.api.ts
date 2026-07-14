@@ -12,6 +12,7 @@ export const getRecruiterProfile = async (): Promise<RecruiterProfile> => {
   const { data } = await api.get<{
     data: RecruiterProfileResponse;
   }>(RECRUITER_PROFILE_ROUTES.PROFILE);
+
   return mapRecruiterProfile(data.data);
 };
 
@@ -21,6 +22,7 @@ export const updateRecruiterProfile = async (
   const { data } = await api.put<{
     data: RecruiterProfileResponse;
   }>(RECRUITER_PROFILE_ROUTES.PROFILE, payload);
+
   return mapRecruiterProfile(data.data);
 };
 

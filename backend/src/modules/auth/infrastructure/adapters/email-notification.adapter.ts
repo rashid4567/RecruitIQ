@@ -1,4 +1,3 @@
-//import { SendEmailByEventUseCase } from "../../../admin/Application/use-Cases/email-template/send-email-by-event.usecase";
 import { EmailEvent } from "../../../admin/Domain/constatns/email-enum.events";
 import { SendEmailByEventUseCase } from "../../../email/application/usecase/email-template/send-email-by-event.usecase";
 import { NotificationPort } from "../../application/ports/notification.port";

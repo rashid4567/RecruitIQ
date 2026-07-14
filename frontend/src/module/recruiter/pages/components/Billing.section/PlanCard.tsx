@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star } from "lucide-react";
-import type { SubscriptionPlan } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
-import type { PlanFeature } from "@/module/subscription/domain/entity/SubscriptionPlan.entity";
+
+import { PlanType } from "@/module/subscription/constant/subscription.constants";
+import type {
+  PlanFeature,
+  SubscriptionPlan,
+} from "@/module/subscription/types/subscription-plan.types";
 
 interface PlanCardProps {
   plan: SubscriptionPlan;
@@ -18,8 +22,13 @@ function getFeatureLabel(feature: PlanFeature): string {
   return feature.name;
 }
 
-export function PlanCard({ plan, isCurrentPlan, onUpgrade }: PlanCardProps) {
+export function PlanCard({
+  plan,
+  isCurrentPlan,
+  onUpgrade,
+}: PlanCardProps) {
   const isPopular = plan.isPopular && !isCurrentPlan;
+  const isFreePlan = plan.planType === PlanType.Free;
 
   return (
     <div
@@ -50,20 +59,32 @@ export function PlanCard({ plan, isCurrentPlan, onUpgrade }: PlanCardProps) {
       )}
 
       <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-slate-900 mb-2">{plan.name}</h3>
-        {plan.isFree ? (
+        <h3 className="text-xl font-bold text-slate-900 mb-2">
+          {plan.name}
+        </h3>
+
+        {isFreePlan ? (
           <div className="flex items-baseline justify-center mb-2">
-            <span className="text-4xl font-bold text-slate-900">Free</span>
+            <span className="text-4xl font-bold text-slate-900">
+              Free
+            </span>
           </div>
         ) : (
           <div className="flex items-baseline justify-center mb-2">
             <span className="text-4xl font-bold text-slate-900">
               ₹{plan.price.toLocaleString()}
             </span>
-            <span className="text-slate-500 ml-1">/month</span>
+            <span className="text-slate-500 ml-1">
+              /{plan.billingCycle.toLowerCase()}
+            </span>
           </div>
         )}
-        <p className="text-sm text-slate-500">{plan.description}</p>
+
+        {plan.description && (
+          <p className="text-sm text-slate-500 mt-2">
+            {plan.description}
+          </p>
+        )}
       </div>
 
       <div className="space-y-4 mb-8">
@@ -75,11 +96,12 @@ export function PlanCard({ plan, isCurrentPlan, onUpgrade }: PlanCardProps) {
                   ? "bg-linear-to-br from-blue-500 to-blue-600"
                   : isPopular
                     ? "bg-linear-to-br from-emerald-500 to-emerald-600"
-                    : "bg-slate-200"
+                    : "bg-slate-300"
               }`}
             >
               <Check className="h-3 w-3 text-white" />
             </div>
+
             <span className="text-sm text-slate-700">
               {getFeatureLabel(feature)}
             </span>
@@ -89,8 +111,8 @@ export function PlanCard({ plan, isCurrentPlan, onUpgrade }: PlanCardProps) {
 
       <Button
         variant={getButtonVariant(isCurrentPlan)}
-        onClick={() => onUpgrade(plan.id)}
         disabled={isCurrentPlan}
+        onClick={() => onUpgrade(plan.id)}
         className={`w-full h-12 ${
           isPopular
             ? "bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-emerald-500/25"
@@ -99,7 +121,11 @@ export function PlanCard({ plan, isCurrentPlan, onUpgrade }: PlanCardProps) {
               : ""
         }`}
       >
-        {isCurrentPlan ? "Current Plan" : "Upgrade Now"}
+        {isCurrentPlan
+          ? "Current Plan"
+          : isFreePlan
+            ? "Get Started"
+            : "Upgrade Now"}
       </Button>
     </div>
   );

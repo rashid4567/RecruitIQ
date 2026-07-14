@@ -107,7 +107,7 @@ export function ChangePasswordForm({
             icon="shield"
           />
 
-          {/* Password Match Indicator - Improved */}
+       
           {confirmPassword && newPassword && (
             <div className="flex items-center gap-2 text-sm mt-1">
               {passwordsMatch ? (
@@ -125,7 +125,7 @@ export function ChangePasswordForm({
           )}
         </div>
 
-        {/* RIGHT COLUMN - Password Requirements & Tips */}
+      
         <div className="space-y-4">
           {newPassword && (
             <PasswordStrength 
@@ -139,7 +139,7 @@ export function ChangePasswordForm({
 
       <Separator className="my-4" />
 
-      {/* Action Area */}
+    
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <Info className="h-4 w-4" />
@@ -149,7 +149,7 @@ export function ChangePasswordForm({
         <Button
           onClick={onSubmit}
           disabled={loading || !validation.isValid}
-          className="h-12 px-10 gap-3 bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white shadow-lg shadow-rose-500/25 hover:shadow-xl transition-all disabled:opacity-70 w-full sm:w-auto"
+          className="h-12 px-10 gap-3 bg-linear-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white shadow-lg shadow-rose-500/25 hover:shadow-xl transition-all disabled:opacity-70 w-full sm:w-auto"
         >
           {loading ? (
             <>

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingUp } from "lucide-react";
-import type { RecruiterSubscription } from "@/module/subscription/domain/entity/RecruiterSubscription.entity";
+import type { RecruiterSubscription } from "@/module/subscription/types/RecruiterSubscription.types";
 import { UsageMetricRow } from "./UsageMetricRow";
 
 interface CurrentUsageCardProps {

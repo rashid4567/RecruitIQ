@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Info, ShieldCheck, Loader2, CheckCircle, XCircle } from "lucide-react";
 import { PasswordField } from "@/module/recruiter/pages/components/SecuritySection/PasswordField";
 import { PasswordStrength } from "@/module/recruiter/pages/components/SecuritySection/PasswordStrength"; 
-import { SecurityTips } from "./SecurityTips";
+import { SecurityTips } from "../../SecuritySection/SecurityTips";
 import type { PasswordFormData } from "@/module/recruiter/validators/password.validator";
 
 interface ChangePasswordFormProps {

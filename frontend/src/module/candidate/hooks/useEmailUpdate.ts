@@ -73,6 +73,7 @@ export function useEmailUpdate() {
       await verifyEmailUpdate({
         newEmail: email,
         otp,
+        role : "candidate",
       });
 
       toast.success("Email updated successfully 🎉");

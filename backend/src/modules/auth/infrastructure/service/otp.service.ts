@@ -6,6 +6,7 @@ import { INFRA_ERRORS } from "../constants/error-messages.constants";
 import { otpModel } from "../mongoose/model/otp.model";
 import { OtpRole } from "../../domain/constants/otp-roles.constants";
 import { OtpEmailService } from "../../../email/application/services/otp-email.service";
+
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
 
 export class OTPService implements OTPServicePort {
@@ -13,21 +14,23 @@ export class OTPService implements OTPServicePort {
 
   async create(
     email: Email,
-
     role: OtpRole,
   ): Promise<void> {
     const otp = generateOTP();
     const emailValue = email.getValue();
+
     await otpModel.deleteMany({
       email: emailValue,
       role,
     });
+
     await otpModel.create({
       email: emailValue,
       role,
       otpHash: hashOTP(otp),
       expiresAt: new Date(Date.now() + OTP_EXPIRY_MS),
     });
+
     await this.otpEmailService.send(emailValue, otp);
   }
 
@@ -37,6 +40,7 @@ export class OTPService implements OTPServicePort {
     role: OtpRole,
   ): Promise<void> {
     const emailValue = email.getValue();
+
     const record = await otpModel.findOne({
       email: emailValue,
       role,
@@ -45,15 +49,19 @@ export class OTPService implements OTPServicePort {
     if (!record) {
       throw new Error(INFRA_ERRORS.OTP_NOT_FOUND);
     }
-    if (record.expiresAt < new Date()) {
+
+    if (record.expiresAt.getTime() < Date.now()) {
       throw new Error(INFRA_ERRORS.OTP_EXPIRED);
     }
-    if (hashOTP(otp) !== record.otpHash) {
+
+    const hashedOtp = hashOTP(otp);
+
+    if (hashedOtp !== record.otpHash) {
       throw new Error(INFRA_ERRORS.INVALID_OTP);
     }
+
     await otpModel.deleteMany({
       email: emailValue,
-
       role,
     });
   }

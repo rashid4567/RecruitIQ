@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { ArrowLeft, Save, Send, Loader2, Clock, CheckCircle2, Mail, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Save,
+  Send,
+  Loader2,
+  Clock,
+  CheckCircle2,
+  Mail,
+  ChevronRight,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -42,8 +51,7 @@ export function TemplateHeader({
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm shadow-slate-100">
-      <div className="max-w-screen-2xl mx-auto px-6 py-0 flex items-stretch justify-between gap-4 min-h-[64px]">
-
+      <div className="max-w-screen-2xl mx-auto px-6 py-0 flex items-stretch justify-between gap-4 min-h-16">
         {/* ── Left: Back + breadcrumb ── */}
         <div className="flex items-center gap-0">
           <button
@@ -65,40 +73,42 @@ export function TemplateHeader({
                 {isEdit ? "Edit Template" : "New Template"}
               </h1>
               <p className="text-[11px] text-slate-400 mt-0.5 hidden sm:block">
-                {isEdit ? "Modify your existing email template" : "Build a dynamic email template"}
+                {isEdit
+                  ? "Modify your existing email template"
+                  : "Build a dynamic email template"}
               </p>
             </div>
 
             {/* Mode pill */}
-            <span className={cn(
-              "hidden lg:flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border",
-              isEdit
-                ? "bg-amber-50 text-amber-700 border-amber-200"
-                : "bg-emerald-50 text-emerald-700 border-emerald-200"
-            )}>
-              <span className={cn(
-                "w-1.5 h-1.5 rounded-full",
-                isEdit ? "bg-amber-400" : "bg-emerald-400"
-              )} />
+            <span
+              className={cn(
+                "hidden lg:flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border",
+                isEdit
+                  ? "bg-amber-50 text-amber-700 border-amber-200"
+                  : "bg-emerald-50 text-emerald-700 border-emerald-200",
+              )}
+            >
+              <span
+                className={cn(
+                  "w-1.5 h-1.5 rounded-full",
+                  isEdit ? "bg-amber-400" : "bg-emerald-400",
+                )}
+              />
               {isEdit ? "Editing" : "Creating"}
             </span>
           </div>
         </div>
-
-        {/* ── Right: Test email + Save ── */}
         <div className="flex items-center gap-3">
-
-          {/* Test email panel (edit mode only) */}
           {isEdit && (
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-1 pl-3 py-1">
-              <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <Input
                 placeholder="test@company.com"
                 value={testEmail}
                 onChange={(e) => onTestEmailChange(e.target.value)}
                 className={cn(
                   "h-8 w-52 bg-transparent border-0 shadow-none focus-visible:ring-0 text-sm placeholder:text-slate-300",
-                  "font-medium text-slate-700"
+                  "font-medium text-slate-700",
                 )}
               />
               <button
@@ -108,7 +118,7 @@ export function TemplateHeader({
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all",
                   canSendTest
                     ? "bg-slate-900 text-white hover:bg-slate-800 shadow-sm shadow-slate-900/20"
-                    : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : "bg-slate-200 text-slate-400 cursor-not-allowed",
                 )}
               >
                 {cooldown > 0 ? (
@@ -126,10 +136,7 @@ export function TemplateHeader({
             </div>
           )}
 
-          {/* Divider */}
           {isEdit && <div className="w-px h-7 bg-slate-200" />}
-
-          {/* Save button */}
           <button
             onClick={handleSave}
             disabled={!canSave || isSaving}
@@ -138,8 +145,8 @@ export function TemplateHeader({
               !canSave || isSaving
                 ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
                 : justSaved
-                ? "bg-emerald-600 text-white shadow-emerald-300/40 shadow-md"
-                : "bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/25 hover:shadow-md hover:-translate-y-px active:translate-y-0"
+                  ? "bg-emerald-600 text-white shadow-emerald-300/40 shadow-md"
+                  : "bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/25 hover:shadow-md hover:-translate-y-px active:translate-y-0",
             )}
           >
             {isSaving ? (
@@ -159,10 +166,9 @@ export function TemplateHeader({
               </>
             )}
 
-            {/* Saving shimmer */}
             {isSaving && (
               <span className="absolute inset-0 rounded-xl overflow-hidden">
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.2s_infinite] -translate-x-full" />
+                <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.2s_infinite] -translate-x-full" />
               </span>
             )}
           </button>

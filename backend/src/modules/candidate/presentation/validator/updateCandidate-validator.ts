@@ -24,7 +24,7 @@ export const updateCandidateProfileSchema = z
       .string()
       .trim()
       .url("Invalid profile image URL")
-      .max(500)
+      .max(50000)
       .optional(),
 
     currentJob: z

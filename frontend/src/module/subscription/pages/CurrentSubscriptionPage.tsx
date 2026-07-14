@@ -34,7 +34,9 @@ function computeOverallUsage(sub: {
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen bg-white">
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
       <div className="flex-1 overflow-auto bg-slate-50 flex items-center justify-center">
         {children}
       </div>
@@ -104,7 +106,9 @@ export default function CurrentSubscriptionPage() {
   const overallUsage = computeOverallUsage(subscription);
   return (
     <div className="flex h-screen bg-white">
-      <Sidebar />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
       <div className="flex-1 overflow-auto bg-slate-50">
         <div className="p-8 max-w-6xl">
           <div className="mb-8">

@@ -49,7 +49,6 @@ export function useRecruiterProfile() {
     profile,
     isLoading,
     error,
-
     fetchProfile,
     updateLocalProfile,
     clearProfile,

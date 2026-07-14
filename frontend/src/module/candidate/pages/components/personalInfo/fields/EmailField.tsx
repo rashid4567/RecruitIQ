@@ -33,8 +33,8 @@ export function EmailField({
     );
   }
 
-  const trimmedEmail = email.trim();
-  const trimmedProfileEmail = profileEmail.trim();
+  const trimmedEmail = (email ?? "").trim();
+const trimmedProfileEmail = (profileEmail ?? "").trim();
 
   const isNewEmail =
     trimmedEmail.length > 0 &&

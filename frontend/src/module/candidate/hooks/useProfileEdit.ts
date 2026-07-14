@@ -61,20 +61,21 @@ export function useProfileEdit(profile: CandidateProfile | null) {
 
   const updateField = useCallback(
     <K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
-      setEditData((prev) => ({ ...prev, [key]: value }));
-      setTouchedFields((prev) => {
-        const alreadyTouched = !!prev[key];
-        if (alreadyTouched) {
-          const message = validateProfileField(key, value);
-          setValidationErrors((errs) => ({
-            ...errs,
-            [key]: message || undefined,
-          }));
-        }
-        return prev;
-      });
+      setEditData((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+
+      if (touchedFields[key]) {
+        const message = validateProfileField(key, value);
+
+        setValidationErrors((prev) => ({
+          ...prev,
+          [key]: message || undefined,
+        }));
+      }
     },
-    [],
+    [touchedFields],
   );
 
   const touchField = useCallback(<K extends keyof ProfileFormData>(key: K) => {

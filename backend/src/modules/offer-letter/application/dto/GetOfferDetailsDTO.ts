@@ -1,6 +1,5 @@
 import {
   Currency,
-  EmploymentType,
   OfferStatus,
 } from "../../domain/entity/offer-letter.entity";
 

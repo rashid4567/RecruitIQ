@@ -1,6 +1,4 @@
 import { DOMAIN_ERROR_CODES } from "../../../../shared/constants/domain.error.code";
-import { ERROR_CODES } from "../../../../shared/constants/errorcode.constants";
-import { ApplicationError } from "../../../../shared/errors/application.error";
 import { DomainError } from "../../../../shared/errors/domain.error";
 
 export enum InterviewStatus {

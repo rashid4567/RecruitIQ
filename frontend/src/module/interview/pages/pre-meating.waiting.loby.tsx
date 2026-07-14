@@ -185,7 +185,6 @@ export default function PreMeetingLobby() {
     } catch (err) {
       console.error("[join] ERROR — API call threw:", err);
     } finally {
-      console.log("[join] 9. finally — enteringRoom set to false");
       setEnteringRoom(false);
     }
   }

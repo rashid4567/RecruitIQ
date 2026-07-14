@@ -35,7 +35,6 @@ export class JoinRoomHandler {
           userId: payload.userId,
           role: payload.role,
         });
-        const currentRoom = this.roomRepository.get(room.roomId);
       } catch (error) {
         socket.emit(SocketEvents.JOIN_ROOM_ERROR, {
           message:

@@ -117,7 +117,7 @@ export const useResume = () => {
           startPolling();
         }
       } catch (error) {
-        console.log("No resume found", error);
+        console.error("No resume found", error);
         setResume(null);
       } finally {
         setIsLoading(false);

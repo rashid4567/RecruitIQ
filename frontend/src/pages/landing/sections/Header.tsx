@@ -21,20 +21,12 @@ import {
   Settings,
   type LucideIcon,
 } from "lucide-react";
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout } from "@/module/auth/hooks/useLogout";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/module/notification/hook/useNotifications";
-
-/* ------------------------------------------------------------------ */
-/*  Navigation config                                                  */
-/*  Kept in this file per request, but still a single source of truth  */
-/*  — if you also have a desktop Sidebar component, import             */
-/*  candidateNav / recruiterNav / adminNav / getDashboardNav from here  */
-/*  instead of redefining the menu there, so both stay in sync.        */
-/* ------------------------------------------------------------------ */
 
 interface NavItem {
   label: string;
@@ -44,12 +36,11 @@ interface NavItem {
 
 const DASHBOARD_PREFIXES = ["/candidate", "/recruiter", "/admin"];
 
-/** True for logged-in dashboard routes (candidate/recruiter/admin) vs public pages. */
 function isDashboardRoute(pathname: string): boolean {
   return DASHBOARD_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
-/** Public/marketing nav — shown on public pages only. */
+
 function getPublicNav(role: string | null): NavItem[] {
   const jobsHref =
     role === "candidate"
@@ -66,9 +57,6 @@ function getPublicNav(role: string | null): NavItem[] {
   ];
 }
 
-// NOTE: hrefs below are my best guess based on routes already referenced
-// elsewhere in this file (e.g. "/candidate/jobs", "/recruiter/profile",
-// "/admin-dashboard"). Swap in your real route paths if any are off.
 const candidateNav: NavItem[] = [
   { label: "Dashboard", href: "/candidate/dashboard", icon: LayoutDashboard },
   { label: "Browse Jobs", href: "/candidate/jobs", icon: Briefcase },
@@ -105,9 +93,6 @@ function getDashboardNav(role: string | null): NavItem[] {
   return [];
 }
 
-/* ------------------------------------------------------------------ */
-/*  Small helpers                                                      */
-/* ------------------------------------------------------------------ */
 
 function getNotificationPath(role: string | null): string {
   if (role === "recruiter") return "/recruiter/notification";
@@ -142,7 +127,7 @@ function getRoleBadgeColor(role: string | null): string {
   return "bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200";
 }
 
-/** Real internal routes use client-side Link; "#hash" anchors use a plain <a>. */
+
 const MobileNavLink: React.FC<{
   item: NavItem;
   active: boolean;
@@ -235,9 +220,6 @@ const NotificationBell: React.FC<{
   </button>
 );
 
-/* ------------------------------------------------------------------ */
-/*  Header                                                             */
-/* ------------------------------------------------------------------ */
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -260,9 +242,6 @@ export default function Header() {
 
   const { unreadCount } = useNotifications();
 
-  // On a logged-in dashboard route we assume a separate Sidebar already
-  // renders the role menu on desktop, so the Header's own top nav row
-  // (public links) is hidden there and only reappears on public pages.
   const onDashboard = isLoggedIn && isDashboardRoute(location.pathname);
   const PUBLIC_NAV_ITEMS = getPublicNav(userRole);
   const DRAWER_ITEMS = onDashboard ? getDashboardNav(userRole) : PUBLIC_NAV_ITEMS;
@@ -286,9 +265,7 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  useLayoutEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
+
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";

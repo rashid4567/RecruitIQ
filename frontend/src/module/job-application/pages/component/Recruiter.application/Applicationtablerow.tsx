@@ -11,7 +11,7 @@ interface ApplicationTableRowProps {
 
 type ScoreTier = "excellent" | "good" | "average" | "poor";
 
-export function getScoreTier(score: number): ScoreTier {
+function getScoreTier(score: number): ScoreTier {
   if (score >= 80) return "excellent";
   if (score >= 60) return "good";
   if (score >= 40) return "average";

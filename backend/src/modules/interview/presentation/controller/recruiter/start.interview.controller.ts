@@ -19,9 +19,7 @@ export class StartInterviewController {
 
   start = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("Hit start interview recruiter controller ");
       const recruiterId = req.user?.userId;
-      console.log("recruiter id :", recruiterId)
       if (!recruiterId) {
         return ApiResponse.error(
           res,
@@ -31,7 +29,6 @@ export class StartInterviewController {
       }
 
       const { interviewId } = req.params;
-      console.log("interview :", interviewId)
       if (!interviewId) {
         return ApiResponse.error(
           res,
@@ -44,7 +41,6 @@ export class StartInterviewController {
         interviewId,
         recruiterId,
       });
-      console.log("result :", result)
       ApiResponse.success(
         res,
         HTTP_STATUS.OK,

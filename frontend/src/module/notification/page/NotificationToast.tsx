@@ -46,8 +46,34 @@ export default function NotificationToast({
 
   const [progress, setProgress] = useState(100);
   const [paused, setPaused] = useState(false);
-  const startRef = useRef(Date.now());
+  const startRef = useRef(0);
   const remainingRef = useRef(duration);
+
+  useEffect(() => {
+    if (paused) return;
+
+    startRef.current = Date.now();
+
+    let raf: number;
+
+    const tick = () => {
+      const elapsed = Date.now() - startRef.current;
+      const remaining = Math.max(remainingRef.current - elapsed, 0);
+
+      setProgress((remaining / duration) * 100);
+
+      if (remaining <= 0) {
+        toast.dismiss(id);
+        return;
+      }
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(raf);
+  }, [paused, duration, id]);
 
   useEffect(() => {
     if (paused) return;
@@ -66,7 +92,13 @@ export default function NotificationToast({
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [paused, duration, id]);
-
+  const iconStyle: React.CSSProperties & {
+    "--tw-ring-color": string;
+  } = {
+    background: `linear-gradient(135deg, ${colors.gradientFrom}, ${colors.gradientTo})`,
+    boxShadow: `inset 0 1px 1px rgba(255,255,255,.35), 0 4px 10px -2px ${colors.fg}55`,
+    "--tw-ring-color": colors.ring,
+  };
   return (
     <div
       role="status"
@@ -103,11 +135,7 @@ export default function NotificationToast({
         <div className="relative shrink-0">
           <div
             className="flex h-11 w-11 items-center justify-center rounded-xl text-white ring-1"
-            style={{
-              background: `linear-gradient(135deg, ${colors.gradientFrom}, ${colors.gradientTo})`,
-              boxShadow: `inset 0 1px 1px rgba(255,255,255,.35), 0 4px 10px -2px ${colors.fg}55`,
-              ["--tw-ring-color" as any]: colors.ring,
-            }}
+            style={iconStyle}
           >
             {meta.icon}
           </div>

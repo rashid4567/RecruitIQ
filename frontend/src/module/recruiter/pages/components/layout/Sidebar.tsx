@@ -80,7 +80,7 @@ export default function Sidebar({ activeItem }: SidebarProps) {
   const handleLogout = async () => {
     try {
       await logout();
-      console.log("Logging out...");
+    
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
@@ -88,7 +88,6 @@ export default function Sidebar({ activeItem }: SidebarProps) {
     }
   };
 
-  // Close the drawer on Escape (mobile/tablet only)
   useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {

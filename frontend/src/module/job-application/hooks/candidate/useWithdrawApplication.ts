@@ -8,19 +8,16 @@ export function useWithdrawApplication() {
 
   const withdraw = useCallback(
   async (applicationId: string): Promise<boolean> => {
-    console.log("WITHDRAW CALLED", applicationId);
-
+   
     setLoading(true);
     setError(null);
 
     try {
       await withdrawApplication(applicationId);
 
-      console.log("WITHDRAW SUCCESS");
 
       return true;
     } catch (err) {
-      console.log("WITHDRAW ERROR", err);
 
       const message =
         err instanceof Error

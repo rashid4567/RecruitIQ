@@ -21,7 +21,6 @@ export class OtpController {
         SUCCESS_MESSAGES.OTP_SENT_SUCCESSFULLY,
       );
     } catch (err) {
-      console.log("error", err);
       next(err);
     }
   };

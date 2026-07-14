@@ -849,7 +849,6 @@ export default function AdminDashboard() {
   const revenueChange = pctChange(revenueSeries);
   const lastUpdatedLabel = lastUpdated ? timeAgo(lastUpdated) : "just now";
   const handleExport = useCallback((fmt: string) => {
-    console.log(`Exporting dashboard as ${fmt}`);
     setToast(`${fmt.toUpperCase()} export isn't wired up yet — coming soon.`);
   }, []);
 

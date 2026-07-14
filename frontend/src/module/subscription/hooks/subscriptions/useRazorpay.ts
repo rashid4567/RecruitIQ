@@ -166,7 +166,7 @@ export function useRazorpay({
           planId,
           durationMonths,
         });
-        console.log("ORDER CREATED:", orderData);
+
         setStatus("processing");
         toast.loading("Opening payment window...", {
           id: loadingToastId,
@@ -199,7 +199,7 @@ export function useRazorpay({
                   razorpay_signature: response.razorpay_signature,
                 });
 
-                console.log("VERIFY RESULT:", result);
+               
                 if (result.status === "success") {
                   toast.success("Payment successful! 🎉", {
                     id: loadingToastId,

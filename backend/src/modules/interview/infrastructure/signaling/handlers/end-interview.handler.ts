@@ -1,7 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { RoomRepository } from "../../../domain/repository/room.repository";
 import { SocketEvents } from "../socket.events";
-import { EndInterviewPayload } from "../socket.types";
 
 export class EndInterviewHandler {
   constructor(private readonly roomRepository: RoomRepository) {}

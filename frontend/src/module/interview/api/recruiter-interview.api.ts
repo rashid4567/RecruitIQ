@@ -60,9 +60,7 @@ export const rescheduleInterview = async (
   interviewId: string,
   data: RescheduleInterviewRequest,
 ): Promise<RescheduleInterviewResponse> => {
-   console.log(
-    RECRUITER_INTERVIEW_ROUTES.HIRING_DECISION(interviewId),
-  );
+  
 
   const response = await api.patch(
     RECRUITER_INTERVIEW_ROUTES.RESCHEDULE(interviewId),

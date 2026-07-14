@@ -26,8 +26,9 @@ export function useRejectOffer() {
         offerId,
         data,
       );
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Facing issue to reject the offer";
+      setError(message);
       throw err;
     } finally {
       setLoading(false);

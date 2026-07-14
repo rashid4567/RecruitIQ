@@ -23,7 +23,6 @@ export class GetAllApplicationRecruiterController {
 
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("hit controller of GetAllApplicationRecruiterController")
       const recruiterId = req.user?.userId;
 
       if (!recruiterId) {

@@ -224,14 +224,12 @@ summary:
 
   private async fetchAnalysisWithRetry(
     prompt: string,
-    candidateName: string | null | undefined,
-    jobTitle: string,
+    _candidateName: string | null | undefined,
+    _jobTitle: string,
   ): Promise<AnalysisResponse> {
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      console.log(`Application analysis attempt ${attempt}/${MAX_RETRIES}`);
-
       try {
         const completion = await this.openai.chat.completions.create({
           model: MODEL,
@@ -248,14 +246,6 @@ summary:
           ],
         });
 
-        console.log("ATS Analysis", {
-          candidate: candidateName,
-          jobTitle,
-          promptTokens: completion.usage?.prompt_tokens,
-          completionTokens: completion.usage?.completion_tokens,
-          totalTokens: completion.usage?.total_tokens,
-        });
-
         const content = completion.choices[0]?.message?.content;
         if (!content) {
           throw new ApplicationError(ERROR_CODES.AI_RESPONSE_IS_EMPTY);
@@ -263,14 +253,7 @@ summary:
         return AnalysisSchema.parse(JSON.parse(content));
       } catch (error: unknown) {
         lastError = error;
-        console.log(lastError);
         const { status, code } = this.extractErrorMeta(error);
-
-        console.error(`Application analysis attempt ${attempt} failed`, {
-          status,
-          code,
-          message: error instanceof Error ? error.message : "Unknown error",
-        });
         if (code === "insufficient_quota") {
           throw new ApplicationError(ERROR_CODES.AI_QUOTA_EXCEEDED);
         }
@@ -293,7 +276,6 @@ summary:
           break;
         }
         const delay = Math.pow(2, attempt) * 1000;
-        console.log(`Retrying application analysis in ${delay}ms…`);
         await this.sleep(delay);
       }
     }

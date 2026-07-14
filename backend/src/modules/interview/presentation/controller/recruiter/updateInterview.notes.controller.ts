@@ -26,7 +26,7 @@ export class UpdateInterviewNotesController {
     next: NextFunction,
   ) => {
     try {
-      console.log("hit controller");
+   
       const recruiterId = req.user?.userId;
 
       if (!recruiterId) {
@@ -46,7 +46,6 @@ export class UpdateInterviewNotesController {
           ERROR_CODES.INTERVIEW_NOT_FOUND,
         );
       }
-      console.log("body :", req.body);
       const validatedData = UpdateInterviewNotesSchema.parse(req.body ?? {});
 
       const result = await this._updateInterviewNotesUseCase.execute({
@@ -54,7 +53,6 @@ export class UpdateInterviewNotesController {
         recruiterId,
         notes: validatedData.notes,
       });
-      console.log("result :", result);
       return ApiResponse.success(
         res,
         HTTP_STATUS.OK,

@@ -23,8 +23,9 @@ export function useAcceptOffer() {
 
     try {
       return await acceptOffer(offerId, data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+       const message = err instanceof Error ? err.message : "Facing issue to accept candidate offer";
+      setError(message);
       throw err;
     } finally {
       setLoading(false);

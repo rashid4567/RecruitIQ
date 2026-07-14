@@ -4,13 +4,9 @@ import * as THREE from 'three';
 
 export default function ServerErrorPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mounted, setMounted] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
 
-  useLayoutEffect(() => {
-    setMounted(true);
-  }, []);
-
+ 
   const handleRetry = () => {
     setIsRetrying(true);
     setTimeout(() => {
@@ -313,7 +309,7 @@ export default function ServerErrorPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-red-50/60 to-orange-50" />
+      <div className="absolute inset-0 bg-linear-to-br from-slate-50 via-red-50/60 to-orange-50" />
 
       <div
         className="absolute inset-0 opacity-[0.035]"
@@ -331,11 +327,7 @@ export default function ServerErrorPage() {
       />
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-6">
-        <div
-          className={`max-w-sm w-full transition-all duration-1000 ease-out ${
-            mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
+       <div className="max-w-sm w-full animate-fade-up">
           <div
             className="rounded-3xl px-9 py-11 text-center"
             style={{
@@ -501,7 +493,7 @@ export default function ServerErrorPage() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="mt-0.5 flex-shrink-0"
+                className="mt-0.5 shrink-0"
                 style={{ color: '#ef4444', minWidth: 16 }}
               >
                 <circle cx="12" cy="12" r="10" />
@@ -561,6 +553,22 @@ export default function ServerErrorPage() {
             box-shadow: 0 16px 48px rgba(239,68,68,0.28), inset 0 1px 0 rgba(255,255,255,1);
           }
         }
+
+        @keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s ease-out forwards;
+}
 
         @keyframes spin {
           from {

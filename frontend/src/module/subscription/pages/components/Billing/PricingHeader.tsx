@@ -1,12 +1,12 @@
 import { Star, ArrowLeft, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-interface Props {
-  billingCycle: "monthly" | "yearly";
-  setBillingCycle: (cycle: "monthly" | "yearly") => void;
-}
+// interface Props {
+//   billingCycle: "monthly" | "yearly";
+//   setBillingCycle: (cycle: "monthly" | "yearly") => void;
+// }
 
-export default function PricingHeader({}: Props) {
+export default function PricingHeader() {
   const navigate = useNavigate();
 
   return (

@@ -1,6 +1,5 @@
 import {
   Currency,
-  EmploymentType,
   Offer,
 } from "../../../domain/entity/offer-letter.entity";
 import { OfferRepository } from "../../../domain/repository/offer-letter.repository";

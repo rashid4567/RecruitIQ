@@ -46,6 +46,7 @@ export class UpdateRecruiterProfileController {
         res,
         HTTP_STATUS.OK,
         SUCCESS_MESSAGES.PROFILE_UPDATED_SUCCESSFULLY,
+        profile,
       );
     } catch (err) {
       next(err);

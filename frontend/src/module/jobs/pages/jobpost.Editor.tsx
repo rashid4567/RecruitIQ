@@ -13,7 +13,7 @@ import Header from "../../../pages/landing/sections/Header";
 import JobStepper from "./components/jobpost/form/JobStepper";
 import PublishDialog from "./components/jobpost/PublishDialog";
 import SaveDraftDialog from "./components/jobpost/SaveDraftDialog";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
@@ -102,22 +102,22 @@ function JobEditorUI({
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
   const errors = Object.keys(stepErrors).length > 0 ? stepErrors : localErrors;
 
-  const goNext = () => {
-    if (handleNext) {
-      const result = handleNext();
-      setLocalErrors(result ?? {});
-    } else {
-      if (currentStep < 5) setCurrentStep(currentStep + 1);
-    }
-  };
+const goNext = useCallback(() => {
+  if (handleNext) {
+    const result = handleNext();
+    setLocalErrors(result ?? {});
+  } else if (currentStep < 5) {
+    setCurrentStep(currentStep + 1);
+  }
+}, [handleNext, currentStep, setCurrentStep]);
 
-  const goPrev = () => {
-    if (handlePrevious) {
-      handlePrevious();
-    } else if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  const goPrev = useCallback(() => {
+  if (handlePrevious) {
+    handlePrevious();
+  } else if (currentStep > 1) {
+    setCurrentStep(currentStep - 1);
+  }
+}, [handlePrevious, currentStep, setCurrentStep]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -174,7 +174,7 @@ function JobEditorUI({
         return null;
     }
   };
-  console.log(subscription);
+ 
 
   if (isLoading) {
     return (

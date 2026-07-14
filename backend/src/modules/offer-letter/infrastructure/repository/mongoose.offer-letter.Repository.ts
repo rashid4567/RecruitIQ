@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 import {
   Currency,
-  EmploymentType,
   Offer,
   OfferStatus,
 } from "../../domain/entity/offer-letter.entity";

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   X,
   MapPin,
@@ -466,9 +466,16 @@ export default function JobDetailModal({
     .join("")
     .toUpperCase();
 
-  const isExpiringSoon =
-    job.expiresAt &&
-    new Date(job.expiresAt).getTime() - Date.now() < 7 * 86_400_000;
+const isExpiringSoon = useMemo(() => {
+  if (!job.expiresAt) return false;
+
+  const now = new Date().getTime();
+
+  return (
+    new Date(job.expiresAt).getTime() - now <
+    7 * 24 * 60 * 60 * 1000
+  );
+}, [job.expiresAt]);
 
   const hasAdminFlags =
     job.isBlocked || job.isDeleted || job.visibility === "hidden";

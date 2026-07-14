@@ -1,10 +1,9 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
 import { useNavigate } from "react-router-dom";
 
 export default function NotFoundPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -14,10 +13,6 @@ export default function NotFoundPage() {
       navigate("/");
     }
   };
-
-  useLayoutEffect(() => {
-    setMounted(true);
-  }, []);
 
   useLayoutEffect(() => {
     if (!canvasRef.current) return;
@@ -332,11 +327,7 @@ export default function NotFoundPage() {
       />
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-6">
-        <div
-          className={`max-w-sm w-full transition-all duration-1000 ease-out ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
-        >
+        <div className="max-w-sm w-full animate-fade-up">
           <div
             className="rounded-3xl px-9 py-11 text-center"
             style={{
@@ -532,6 +523,21 @@ export default function NotFoundPage() {
       </div>
 
       <style>{`
+      @keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s ease-out forwards;
+}
         @keyframes floatIcon {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           33%       { transform: translateY(-7px) rotate(1.5deg); }

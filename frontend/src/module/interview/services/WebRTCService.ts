@@ -114,11 +114,11 @@ export class WebRTCService {
     };
 
     this.peerConnection.onicegatheringstatechange = () => {
-      console.log("[ICE GATHERING]", this.peerConnection!.iceGatheringState);
+      console.info("[ICE GATHERING]", this.peerConnection!.iceGatheringState);
     };
 
     this.peerConnection.onnegotiationneeded = () => {
-      console.log("[NEGOTIATION NEEDED]");
+      console.info("[NEGOTIATION NEEDED]");
     };
   }
 
@@ -226,6 +226,7 @@ export class WebRTCService {
       await peerConnection.setLocalDescription(answer);
       return answer;
     } catch (error) {
+      console.error(error);
       throw error;
     }
   }

@@ -36,8 +36,9 @@ export function InterviewCard({ interview }: InterviewCardProps) {
       await navigator.clipboard.writeText(interview.meetingLink);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {
- 
+    } catch(err : unknown) {
+       const message = err instanceof Error ? err.message : "Facing issue to copy the link";
+       throw new Error(message);
     }
   };
 

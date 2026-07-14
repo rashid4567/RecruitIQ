@@ -15,7 +15,6 @@ export class ParseResumeController {
 
   parseResume = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("hit resume parse service");
       const file = req.file;
 
       if (!file) {

@@ -26,7 +26,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout } from "@/module/auth/hooks/useLogout";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -361,9 +361,7 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  useLayoutEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
+
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";

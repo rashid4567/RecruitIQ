@@ -27,6 +27,32 @@ interface InterviewSummary {
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
+
+type RawInterviewDetails = Partial<{
+  applicationId: string;
+  jobId: string;
+  candidateId: string;
+  candidateName: string;
+  title: string;
+  round: number;
+  mode: string;
+  status: string;
+  candidateResponseStatus: string;
+  candidateRespondedAt: string | null;
+  scheduledAt: string | null;
+  durationInMinutes: number;
+  startedAt: string | null;
+  endedAt: string | null;
+  recruiterJoinedAt: string | null;
+  candidateJoinedAt: string | null;
+  notes: string;
+  recruiterNotes: string;
+}>;
+
+interface UpdateNotesResponse {
+  notes?: string;
+}
+
 const NOTE_TEMPLATES: { label: string; snippet: string }[] = [
   { label: "Technical Skills", snippet: "Technical Skills\n- " },
   { label: "Communication", snippet: "Communication\n- " },
@@ -42,7 +68,7 @@ const DASHBOARD_ROUTE = "/recruiter/dashboard";
 const decisionRoute = (interviewId: string) =>
   `/recruiter/interviews/${interviewId}/hiring-decision`;
 
-// ---------- formatting utils ----------
+
 
 function formatDate(date: string | null) {
   if (!date) return "—";
@@ -90,19 +116,18 @@ function initials(name: string) {
   return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
 }
 
-// ---------- data mapping ----------
 
 function mapToSummary(
   interviewId: string,
   res: GetRecruiterInterviewDetailsResponse,
 ): { summary: InterviewSummary; draftNotes: string } {
-  const r = res as any;
+  const r = res as unknown as RawInterviewDetails;
 
   const summary: InterviewSummary = {
     interviewId,
-    applicationId: r.applicationId,
-    jobId: r.jobId,
-    candidateId: r.candidateId,
+    applicationId: r.applicationId ?? "",
+    jobId: r.jobId ?? "",
+    candidateId: r.candidateId ?? "",
     candidateName: r.candidateName ?? "Unknown candidate",
     title: r.title ?? "—",
     round: r.round ?? 1,
@@ -123,7 +148,6 @@ function mapToSummary(
   return { summary, draftNotes };
 }
 
-// ---------- icons ----------
 
 function CheckIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -181,7 +205,6 @@ function HourglassIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-// ---------- status badges ----------
 
 const STATUS_STYLES: Record<string, string> = {
   SCHEDULED: "bg-blue-50 text-blue-700 border-blue-200",
@@ -218,7 +241,6 @@ function ResponseBadge({ status }: { status: string }) {
   );
 }
 
-// ---------- summary cards ----------
 
 function SummaryCard({
   icon,
@@ -243,7 +265,6 @@ function SummaryCard({
   );
 }
 
-// ---------- timeline ----------
 
 function InterviewTimeline({ summary }: { summary: InterviewSummary }) {
   const steps = [
@@ -256,10 +277,24 @@ function InterviewTimeline({ summary }: { summary: InterviewSummary }) {
 
   if (steps.length === 0) return null;
 
- 
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+      <h2 className="text-lg font-bold text-gray-950 mb-5">Timeline</h2>
+      <ol className="relative border-l-2 border-gray-100 ml-2 space-y-6">
+        {steps.map((step) => (
+          <li key={step.label} className="ml-5">
+            <span className="absolute -left-1.75 mt-1 w-3 h-3 rounded-full bg-blue-600 ring-4 ring-blue-50" />
+            <p className="text-sm font-semibold text-gray-900">{step.label}</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {formatDate(step.time)} · {formatTime(step.time)}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
 }
 
-// ---------- progress / misc ----------
 
 function ProgressStepper() {
   const steps = [
@@ -380,7 +415,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
   );
 }
 
-// ---------- main page ----------
+
 
 export default function InterviewNotesPage() {
   const { interviewId } = useParams<{ interviewId: string }>();
@@ -433,8 +468,8 @@ export default function InterviewNotesPage() {
         const response = await updateInterviewNotes(interviewId, { notes: value });
         if (!response) throw new Error("Failed to save notes");
 
-        const persistedNotes =
-          typeof (response as any)?.notes === "string" ? (response as any).notes : value;
+        const raw = response as unknown as UpdateNotesResponse;
+        const persistedNotes = typeof raw.notes === "string" ? raw.notes : value;
 
         setSavedNotes(persistedNotes);
         setSaveState("saved");
@@ -455,7 +490,7 @@ export default function InterviewNotesPage() {
     return () => {
       if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     };
-  }, [notes]);
+  }, [notes, isDirty, persist]);
 
   useEffect(() => {
     if (savedSecondsAgo === null) return;
@@ -476,7 +511,7 @@ export default function InterviewNotesPage() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [notes]);
+  }, [notes, persist]);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -643,7 +678,6 @@ export default function InterviewNotesPage() {
           </div>
         </div>
 
-    
         <aside className="w-80 shrink-0 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-24">
           <h3 className="text-sm font-bold text-gray-950 uppercase tracking-wide mb-5">Candidate Summary</h3>
 

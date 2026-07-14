@@ -39,7 +39,6 @@ export class DeleteJobController {
         SUCCESS_MESSAGES.JOB_DELETED_SUCCESSFULLY,
       );
     } catch (err) {
-      console.log("error :", err);
       next(err);
     }
   };

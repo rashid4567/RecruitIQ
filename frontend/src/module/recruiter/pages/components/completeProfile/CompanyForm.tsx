@@ -422,7 +422,7 @@ interface FloatingFieldProps {
   checks?: { label: string; pass: boolean }[];
   preview?: string;
   shake?: boolean;
-  fieldRef?: (el: HTMLElement | null) => void;
+  fieldRef?: (el: HTMLDivElement | null) => void;
 }
 
 function FloatingField({
@@ -458,7 +458,7 @@ function FloatingField({
 
   return (
     <div
-      ref={fieldRef as any}
+      ref={fieldRef }
       className={shake ? "animate-[shake_0.5s_ease-in-out]" : undefined}
     >
       <div
@@ -701,7 +701,7 @@ function LocationField({
   shake?: boolean;
   onChange: (e: FormChangeEvent) => void;
   onBlur: () => void;
-  fieldRef?: (el: HTMLElement | null) => void;
+ fieldRef?: (el: HTMLDivElement | null) => void;
 }) {
   const [locating, setLocating] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -738,7 +738,7 @@ function LocationField({
 
   return (
     <div
-      ref={fieldRef as any}
+      ref={fieldRef}
       className={shake ? "animate-[shake_0.5s_ease-in-out]" : undefined}
     >
       <div

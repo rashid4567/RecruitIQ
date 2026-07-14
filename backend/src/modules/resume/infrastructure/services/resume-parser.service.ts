@@ -33,7 +33,6 @@ export class ResumeParserService {
 
     for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
       try {
-        console.log(`Resume parsing attempt ${attempt}/${this.MAX_RETRIES}`);
 
         const response = await this.openai.responses.create({
           model: "gpt-5-mini",
@@ -59,12 +58,6 @@ Resume:
 
 ${normalizedText}
 `,
-        });
-
-        console.log("Resume Parser Usage:", {
-          inputTokens: response.usage?.input_tokens,
-          outputTokens: response.usage?.output_tokens,
-          totalTokens: response.usage?.total_tokens,
         });
 
         const content = response.output_text?.trim();
@@ -129,7 +122,6 @@ ${normalizedText}
         }
 
         const delay = Math.pow(2, attempt) * 1000;
-        console.log(`Retrying resume parsing in ${delay}ms...`);
         await this.sleep(delay);
       }
     }
@@ -151,9 +143,7 @@ ${normalizedText}
       const parsed = JSON.parse(content);
       return ResumeSchema.parse(parsed);
     } catch (error) {
-      console.error("Invalid resume parser response:", content);
-      console.log("error :", error);
-      throw new Error("Invalid AI response format");
+      throw new Error(`Invalid AI response format error ${error}`);
     }
   }
 

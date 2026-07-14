@@ -8,7 +8,6 @@ export class GoogleService implements GoogleAuthPort {
 
   constructor() {
 
-    console.log("Google client id from env : ", process.env.GOOGLE_CLIENT_ID)
     if (!process.env.GOOGLE_CLIENT_ID) {
       throw new Error("GOOGLE_CLIENT_ID missing in env");
     }
@@ -18,8 +17,6 @@ export class GoogleService implements GoogleAuthPort {
 
   async verifyToken(credential: string): Promise<GoogleAuthResult> {
     try {
-      console.log("VERIFYING TOKEN..."); 
-
       const ticket = await this.client.verifyIdToken({
         idToken: credential,
         audience: process.env.GOOGLE_CLIENT_ID,
@@ -27,7 +24,6 @@ export class GoogleService implements GoogleAuthPort {
 
       const payload = ticket.getPayload();
 
-      console.log("GOOGLE PAYLOAD:", payload);
 
       if (!payload?.email || !payload.sub) {
         throw new Error(INFRA_ERRORS.INVALID_GOOGLE_TOKEN);
@@ -39,7 +35,7 @@ export class GoogleService implements GoogleAuthPort {
         fullName: payload.name ?? "",
       };
     } catch (err) {
-      console.error("GOOGLE VERIFY FAILED:", err);
+      console.log(err);
       throw err;
     }
   }

@@ -1,6 +1,6 @@
 import { MoreVertical } from "lucide-react";
 import type { RecruiterSubscription } from "@/module/subscription/types/RecruiterSubscription.types";
-
+import { useMemo } from "react";
 interface SubscriptionOverviewProps {
   subscription: RecruiterSubscription;
   overallUsage: number;
@@ -14,10 +14,11 @@ export default function SubscriptionOverview({
     ? new Date(subscription.startDate)
     : null;
 
+  const today = useMemo(() => new Date(), []);
+
   const subscriptionDays = startDate
     ? Math.floor(
-        (Date.now() - startDate.getTime()) /
-          (1000 * 60 * 60 * 24),
+        (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
       )
     : 0;
 
@@ -52,9 +53,7 @@ export default function SubscriptionOverview({
               : "—"}
           </h2>
 
-          <p className="mt-2 text-sm text-slate-600">
-            {subscriptionDays} days
-          </p>
+          <p className="mt-2 text-sm text-slate-600">{subscriptionDays} days</p>
         </div>
 
         <div>
@@ -62,9 +61,7 @@ export default function SubscriptionOverview({
             Overall Usage
           </p>
 
-          <h2 className="text-2xl font-bold text-blue-600">
-            {overallUsage}%
-          </h2>
+          <h2 className="text-2xl font-bold text-blue-600">{overallUsage}%</h2>
 
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
             <div

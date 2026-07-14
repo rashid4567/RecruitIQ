@@ -36,7 +36,11 @@ export function useJobRotator(
       setIsAnimating(true);
 
       setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % jobs.length);
+        setCurrentIndex((prev) => {
+          if (jobs.length === 0) return 0;
+          return (prev + 1) % jobs.length;
+        });
+
         setIsAnimating(false);
       }, 400);
     }, intervalMs);
@@ -44,15 +48,14 @@ export function useJobRotator(
     return () => clearInterval(timer);
   }, [jobs.length, intervalMs]);
 
-  useEffect(() => {
-    if (currentIndex >= jobs.length) {
-      setCurrentIndex(0);
-    }
-  }, [jobs.length, currentIndex]);
+  const safeIndex =
+    jobs.length === 0
+      ? 0
+      : Math.min(currentIndex, jobs.length - 1);
 
   return {
-    currentJob: jobs[currentIndex] ?? null,
-    currentIndex,
+    currentJob: jobs[safeIndex] ?? null,
+    currentIndex: safeIndex,
     goTo,
     isAnimating,
   };

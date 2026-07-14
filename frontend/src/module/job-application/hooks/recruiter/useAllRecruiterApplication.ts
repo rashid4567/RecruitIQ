@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
 import type {
   GetRecruiterApplicationsQuery,
   Pagination,
 } from "../../types/getRecruiterApplications.dto";
 import type { RecruiterApplication } from "../../types/application.types";
+
 import { getRecruiterApplications } from "../../api/recruiter-application.api";
 
 export function useAllRecruiterApplications(
@@ -14,33 +16,22 @@ export function useAllRecruiterApplications(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     try {
       setLoading(true);
-
-      console.log("Calling API...");
+      setError(null);
 
       const result = await getRecruiterApplications(query);
 
-      console.log("API Result:", result);
-
       setApplications(result.applications);
       setPagination(result.pagination);
-      setError(null);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
 
-      setError(
-        err instanceof Error ? err.message : "Something went wrong",
-      );
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    console.log("useEffect running");
-    fetchApplications();
   }, [
     query.page,
     query.limit,
@@ -50,6 +41,10 @@ export function useAllRecruiterApplications(
     query.sortBy,
     query.sortOrder,
   ]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
   return {
     applications,

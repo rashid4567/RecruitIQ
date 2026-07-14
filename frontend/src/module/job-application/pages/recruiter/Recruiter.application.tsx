@@ -128,12 +128,18 @@ export default function RecruiterApplication() {
     );
 
   const toggleSelectRow = (id: string) => {
-    setSelectedRows((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+  setSelectedRows((prev) => {
+    const next = new Set(prev);
+
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+
+    return next;
+  });
+};
 
   const isAllSelected =
     paginatedRows.length > 0 &&

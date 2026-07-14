@@ -1,7 +1,6 @@
 import {
   ApplicationRecommendation,
   ApplicationStatus,
-  InterviewInfo,
 } from "../../domain/entity/job-application.entity";
 
 export interface GetRecruiterApplicationsRequestDTO {

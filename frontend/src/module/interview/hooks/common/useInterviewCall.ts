@@ -118,7 +118,9 @@ export function useInterviewCall({
     for (const candidate of queued) {
       try {
         await webRTC.addIceCandidate(candidate);
-      } catch (err) {}
+      } catch (err) {
+        console.error(err);
+      }
     }
   }, [webRTC]);
   const createAndSendOffer = useCallback(async () => {
@@ -191,7 +193,9 @@ export function useInterviewCall({
         }
 
         await createAndSendOffer();
-      } catch (err) {}
+      } catch (err) {
+        console.error(err)
+      }
     },
     [role, webRTC, createAndSendOffer],
   );

@@ -31,6 +31,23 @@ interface PopulatedCandidate {
   profileImage?: string;
 }
 
+interface RecruiterInterviewApplicationDoc {
+  _id: mongoose.Types.ObjectId;
+  applicationNumber: string;
+  recruiterId: mongoose.Types.ObjectId;
+  status: ApplicationStatus;
+  jobId: {
+    _id: mongoose.Types.ObjectId;
+    title: string;
+  };
+  candidateId: {
+    _id: mongoose.Types.ObjectId;
+    fullName: string;
+    email: string;
+    profileImage?: string;
+  };
+}
+
 interface PopulatedJob {
   _id: mongoose.Types.ObjectId;
   title: string;
@@ -162,7 +179,7 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       sortOrder = "desc",
     } = query;
 
-    const filter: any = {
+    const filter: mongoose.FilterQuery<JobApplicationDocument> = {
       recruiterId: new mongoose.Types.ObjectId(recruiterId),
       isDeleted: false,
     };
@@ -394,8 +411,8 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
 
   async findByResumeId(resumeId: string): Promise<JobApplication[]> {
     if (!this.isValidObjectId(resumeId)) {
-    return [];
-}
+      return [];
+    }
     const docs = await JobApplicationModel.find({
       resumeId: new mongoose.Types.ObjectId(resumeId),
       isDeleted: false,
@@ -446,15 +463,16 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       updatedAt: data.updatedAt,
     };
   }
+
   async findRecruiterInterviewApplications(
     recruiterId: string,
     statuses: ApplicationStatus[],
   ): Promise<RecruiterInterviewApplication[]> {
-   const applications = await JobApplicationModel.find({
-    recruiterId: new mongoose.Types.ObjectId(recruiterId),
-    status: { $in: statuses },
-    isDeleted: false,
-})
+    const applications = await JobApplicationModel.find({
+      recruiterId: new mongoose.Types.ObjectId(recruiterId),
+      status: { $in: statuses },
+      isDeleted: false,
+    })
       .populate({
         path: "candidateId",
         select: "fullName email profileImage",
@@ -463,9 +481,9 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
         path: "jobId",
         select: "title",
       })
-      .lean();
+      .lean<RecruiterInterviewApplicationDoc[]>();
 
-    return applications.map((app: any) => ({
+    return applications.map((app) => ({
       applicationId: app._id.toString(),
       applicationNumber: app.applicationNumber,
       jobId: app.jobId._id.toString(),
@@ -475,7 +493,6 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       candidateEmail: app.candidateId.email,
       candidateProfileImage: app.candidateId.profileImage,
       recruiterId: app.recruiterId.toString(),
-
       status: app.status,
     }));
   }

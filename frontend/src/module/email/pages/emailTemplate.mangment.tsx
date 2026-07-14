@@ -83,7 +83,6 @@ export default function EmailTemplateManagement() {
   };
 
   const handleEdit = (id: string) => {
-    console.log("handle edit :-", id ? id : "no id found");
     navigate(`/admin/email-templates/edit/${id}`);
   };
 

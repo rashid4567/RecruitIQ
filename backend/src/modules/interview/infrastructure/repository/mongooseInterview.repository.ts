@@ -139,7 +139,6 @@ export class MongooseInterviewRepository implements InterviewRepository {
       return [];
     }
 
-    console.log("candidatId :", candidateId);
 
     const skip = (page - 1) * limit;
 
@@ -152,7 +151,6 @@ export class MongooseInterviewRepository implements InterviewRepository {
       .skip(skip)
       .limit(limit);
 
-    console.log("Mongo Docs:", docs ? docs : "no docs");
 
     return docs.map((doc) => this.toDomain(doc));
   }

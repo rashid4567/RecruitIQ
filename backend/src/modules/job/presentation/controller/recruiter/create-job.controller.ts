@@ -34,7 +34,6 @@ export class CreateJobController {
         job,
       );
     } catch (err) {
-      console.log("err", err);
       next(err);
     }
   };

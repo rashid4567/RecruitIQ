@@ -39,7 +39,6 @@ export class GetCandidateProfileController {
         profile,
       )
     } catch (err) {
-      console.log("err", err);
       return next(err);
     }
   };

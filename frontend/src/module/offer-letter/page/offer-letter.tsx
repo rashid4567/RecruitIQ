@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   CheckCircle2,
@@ -108,7 +114,6 @@ function getStatusStyle(status?: string) {
   return STATUS_STYLES[(status ?? "SENT").toUpperCase()] ?? STATUS_STYLES.SENT;
 }
 
-
 const REJECT_REASONS = [
   "Accepted another offer",
   "Compensation expectations",
@@ -201,8 +206,14 @@ function DetailRow({
   );
 }
 
+type TrackerStep = {
+  label: string;
+  done: boolean;
+  current?: boolean;
+};
+
 function CompactTracker({ accepted }: { accepted: boolean }) {
-  const steps = accepted
+  const steps : TrackerStep[] = accepted
     ? [
         { label: "Application", done: true },
         { label: "Interview", done: true },
@@ -223,7 +234,7 @@ function CompactTracker({ accepted }: { accepted: boolean }) {
           <div className="flex flex-col items-center">
             {step.done ? (
               <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
-            ) : (step as any).current ? (
+            ) : step.current ? (
               <div className="w-4 h-4 rounded-full bg-[#2563EB] ring-4 ring-[#DBEAFE] shrink-0" />
             ) : (
               <Circle className="w-4 h-4 text-[#CBD5E1] shrink-0" />
@@ -234,7 +245,7 @@ function CompactTracker({ accepted }: { accepted: boolean }) {
           </div>
           <span
             className={`text-sm pt-px ${
-              step.done || (step as any).current
+              step.done || step.current
                 ? "text-[#0F172A] font-medium"
                 : "text-[#94A3B8]"
             }`}
@@ -299,7 +310,6 @@ function Modal({
   );
 }
 
-
 const AcceptOfferModal = React.memo(function AcceptOfferModal({
   open,
   busy,
@@ -331,12 +341,20 @@ const AcceptOfferModal = React.memo(function AcceptOfferModal({
   }, [agreeTerms, onSubmit]);
 
   return (
-    <Modal open={open} busy={busy} labelledBy="accept-modal-title" onClose={handleClose}>
+    <Modal
+      open={open}
+      busy={busy}
+      labelledBy="accept-modal-title"
+      onClose={handleClose}
+    >
       <div className="text-center mb-6">
         <div className="w-14 h-14 rounded-full bg-[#DCFCE7] flex items-center justify-center mx-auto mb-4">
           <PartyPopper className="w-7 h-7 text-[#22C55E]" />
         </div>
-        <h3 id="accept-modal-title" className="text-xl font-bold text-[#0F172A] mb-1">
+        <h3
+          id="accept-modal-title"
+          className="text-xl font-bold text-[#0F172A] mb-1"
+        >
           Accept Employment Offer
         </h3>
         <p className="text-sm text-[#64748B]">Congratulations!</p>
@@ -372,7 +390,9 @@ const AcceptOfferModal = React.memo(function AcceptOfferModal({
           onChange={(e) => setAgreeTerms(e.target.checked)}
           className="mt-0.5 w-4 h-4 rounded border-[#CBD5E1] text-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40"
         />
-        <span className="text-sm text-[#475569]">I have reviewed this offer.</span>
+        <span className="text-sm text-[#475569]">
+          I have reviewed this offer.
+        </span>
       </label>
 
       <div className="flex gap-3">
@@ -395,7 +415,6 @@ const AcceptOfferModal = React.memo(function AcceptOfferModal({
     </Modal>
   );
 });
-
 
 const RejectOfferModal = React.memo(function RejectOfferModal({
   open,
@@ -440,46 +459,55 @@ const RejectOfferModal = React.memo(function RejectOfferModal({
         el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
       }
     },
-    []
+    [],
   );
 
   const handleSubmit = useCallback(async () => {
     setSubmitAttempted(true);
-    if (!reason || (commentRequired && commentIsEmpty)) return;
+    if (!reason || (commentRequired && commentIsEmpty)){
+    return
+    }
 
     const trimmed = comment.trim();
     const remarks =
-      reason === "Other"
-        ? trimmed
-        : trimmed
-        ? `${reason}: ${trimmed}`
-        : reason;
+      reason === "Other" ? trimmed : trimmed ? `${reason}: ${trimmed}` : reason;
 
     try {
       await onSubmit(remarks);
       resetForm();
-    } catch {
-    
+    } catch(error) {
+      console.error(error)
     }
   }, [reason, comment, commentRequired, commentIsEmpty, onSubmit, resetForm]);
 
   return (
-    <Modal open={open} busy={busy} labelledBy="reject-modal-title" onClose={handleClose}>
+    <Modal
+      open={open}
+      busy={busy}
+      labelledBy="reject-modal-title"
+      onClose={handleClose}
+    >
       <div className="text-center mb-6">
         <div className="w-14 h-14 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto mb-4">
           <XCircle className="w-7 h-7 text-[#EF4444]" />
         </div>
-        <h3 id="reject-modal-title" className="text-xl font-bold text-[#0F172A] mb-1">
+        <h3
+          id="reject-modal-title"
+          className="text-xl font-bold text-[#0F172A] mb-1"
+        >
           Decline Employment Offer
         </h3>
         <p className="text-sm text-[#64748B]">
-          Are you sure you want to decline this opportunity? This will notify the recruiter.
+          Are you sure you want to decline this opportunity? This will notify
+          the recruiter.
         </p>
       </div>
 
       <div className="mb-5">
         <div className="flex items-center justify-between mb-2.5">
-          <p className="text-sm font-medium text-[#0F172A]">Why are you declining?</p>
+          <p className="text-sm font-medium text-[#0F172A]">
+            Why are you declining?
+          </p>
           {showReasonError && (
             <span className="text-xs text-[#EF4444] flex items-center gap-1">
               <AlertCircle className="w-3.5 h-3.5" />
@@ -488,7 +516,11 @@ const RejectOfferModal = React.memo(function RejectOfferModal({
           )}
         </div>
 
-        <div role="radiogroup" aria-labelledby="reject-modal-title" className="flex flex-wrap gap-2">
+        <div
+          role="radiogroup"
+          aria-labelledby="reject-modal-title"
+          className="flex flex-wrap gap-2"
+        >
           {REJECT_REASONS.map((r) => {
             const selected = reason === r;
             return (
@@ -597,7 +629,10 @@ const PreviewOfferModal = React.memo(function PreviewOfferModal({
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
           <FileText className="w-5 h-5 text-[#2563EB]" />
-          <h3 id="preview-modal-title" className="text-lg font-bold text-[#0F172A]">
+          <h3
+            id="preview-modal-title"
+            className="text-lg font-bold text-[#0F172A]"
+          >
             Offer Letter Preview
           </h3>
         </div>
@@ -727,10 +762,12 @@ export default function EmploymentOfferPage() {
       await acceptOffer(offerId, {});
       await refetch();
       setShowAcceptModal(false);
-    } catch (err: any) {
-      setActionError(
-        err?.message ?? "Something went wrong while accepting the offer.",
-      );
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Something went wrong while accepting the offer.";
+      setActionError(message);
     }
   }, [offerId, acceptOffer, refetch]);
 
@@ -742,11 +779,13 @@ export default function EmploymentOfferPage() {
         await rejectOffer(offerId, { remarks });
         await refetch();
         setShowRejectModal(false);
-      } catch (err: any) {
-        setActionError(
-          err?.message ?? "Something went wrong while declining the offer.",
-        );
-        throw err; // let the modal know it failed so it keeps the user's input
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Something went wrong while declining the offer.";
+        setActionError(message);
+        throw err;
       }
     },
     [offerId, rejectOffer, refetch],
@@ -880,7 +919,11 @@ export default function EmploymentOfferPage() {
   const monthlyCTC = Math.round(offer.annualCTC / 12);
   const statusStyle = getStatusStyle(offer.status);
   const urgencyStyle = URGENCY_STYLES[urgency];
-  const meta = offer as any;
+  type CandidateOfferWithMeta = typeof offer & {
+  employmentType?: string;
+  companyLogoUrl?: string;
+};
+  const meta = offer as CandidateOfferWithMeta;
   const employmentType: string = meta.employmentType ?? "Full Time";
   const logoUrl: string | undefined = meta.companyLogoUrl;
 

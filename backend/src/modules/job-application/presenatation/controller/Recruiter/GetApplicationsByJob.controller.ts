@@ -39,7 +39,6 @@ export class GetApplicationsByJobController {
       const applications = await this._getApplicationByJobPostUC.execute({
         jobId,
       });
-      console.log("applications : ", applications)
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         message: SUCCESS_MESSAGES.APPLICATIONS_FETCHED_SUCCESSFULLY,

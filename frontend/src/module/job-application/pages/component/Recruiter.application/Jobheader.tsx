@@ -223,10 +223,9 @@ export function JobHeader({
   const selected = statusCounts[ApplicationStatus.SELECTED] ?? 0;
   const shortlisted = statusCounts[ApplicationStatus.SHORTLISTED] ?? 0;
 
-  // Auto-dismiss the modal once the close request finishes successfully.
   useEffect(() => {
     if (!closingJob) setShowCloseModal((open) => (open ? false : open));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [closingJob]);
 
   return (

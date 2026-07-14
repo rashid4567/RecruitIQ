@@ -48,7 +48,6 @@ export class UpdateCandidateProfileController {
         result,
       );
     } catch (err) {
-      console.log("Error :-", err);
       next(err);
     }
   };

@@ -32,9 +32,7 @@ export class ScheduleInterviewController {
           ERROR_MESSAGE.UNAUTHORIZED,
         );
       }
-      console.log("req :", req.body);
       const parsedBody = ScheduleInterviewSchema.parse(req.body);
-      console.log("After parse :", parsedBody);
       const input: ScheduleInterviewRequestDTO = {
         ...parsedBody,
         recruiterId,

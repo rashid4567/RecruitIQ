@@ -26,7 +26,7 @@ import {
 import type { RecruiterInterviewItem } from "@/module/interview/types/recruiterInterview.types";
 import type { InterviewStatus } from "@/module/interview/types/interview.types";
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
-import Header from "@/pages/landing/sections/Header";
+
 import {
   Empty,
   ScoreTile,
@@ -56,6 +56,7 @@ import { ConfirmModal } from "../component/recruiter-application.detail/Confirmm
 import { MODAL_CONFIGS } from "../component/recruiter-application.detail/Modalconfigs";
 import ScheduleInterviewModal from "@/module/interview/pages/components/schedule-interview-modal";
 import { OfferLetterCard } from "../component/recruiter-application.detail/OfferLetterCard";
+import Header from "@/module/auth/pages/home/header";
 
 function PageShell({ children }: { children: React.ReactNode }) {
   return (

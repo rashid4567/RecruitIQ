@@ -9,7 +9,7 @@ import {
   InterviewStatus,
 } from "../types/interview.types";
 import Sidebar from "../../candidate/pages/components/personalInfo/shared/candidateSidebar";
-import Header from "@/pages/landing/sections/Header";
+
 import InterviewDecisionModal from "./components/interview-decision-modal";
 import RequestRescheduleModal from "./components/request-reschedule-modal";
 import InterviewStatusModal from "./components/candidate-interviews/InterviewStatusModal";
@@ -46,6 +46,7 @@ import {
   NoInterviewsEmptyState,
   NoResultsEmptyState,
 } from "./components/candidate-interviews/Emptystates";
+import Header from "@/module/auth/pages/home/header";
 
 interface StatusModalState {
   open: boolean;

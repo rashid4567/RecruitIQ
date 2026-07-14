@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Briefcase } from "lucide-react";
 import type { Job } from "@/module/jobs/types/job.types";
 import type { JobPostFilters } from "../../../types/JobPostDTO";
-import Header from "../../../../../pages/landing/sections/Header";
+
 import { CompanyBanner } from "./CompanyBanner";
 import { SearchBar } from "./SearchBar";
 import { FilterSidebar } from "./FilterSidebar";
@@ -12,6 +12,7 @@ import { JobCard } from "./JobCard";
 import { Pagination } from "./Pagination";
 import { Testimonials } from "./Testimonials";
 import { Footer } from "./Footer";
+import Header from "@/module/auth/pages/home/header";
 
 interface JobPostListProps {
   jobs: Job[];

@@ -1,6 +1,6 @@
 
+import Header from '@/module/auth/pages/home/header'
 import { Users, Building2, TrendingUp, Clock, Zap, Shield, BarChart3, Headphones, Lightbulb, Star, Share2, Mail, Link as LinkIcon, Share, Eye, Database } from 'lucide-react'
-import Header from './landing/sections/Header'
 
 export default function Home() {
 

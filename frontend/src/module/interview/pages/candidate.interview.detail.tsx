@@ -28,7 +28,7 @@ import {
   CandidateResponseStatus,
 } from "../types/interview.types";
 import Sidebar from "../../candidate/pages/components/personalInfo/shared/candidateSidebar";
-import Header from "@/pages/landing/sections/Header";
+
 import InterviewDecisionModal from "./components/interview-decision-modal";
 import RequestRescheduleModal from "./components/request-reschedule-modal";
 
@@ -50,6 +50,7 @@ import {
   needsResponse,
   canRequestReschedule,
 } from "./components/candidate.interview.details/Interviewdetails.helpers";
+import Header from "@/module/auth/pages/home/header";
 
 export default function MyInterviewDetails({
   id: idProp,

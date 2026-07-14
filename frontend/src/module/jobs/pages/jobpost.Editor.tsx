@@ -9,7 +9,7 @@ import Step3Requirements from "./components/jobpost/form/Step3Requirements";
 import Step4Compensation from "./components/jobpost/form/Step4Compensation";
 import Step5Preview from "./components/jobpost/form/Step5Preview";
 import Sidebar from "../../recruiter/pages/components/layout/Sidebar";
-import Header from "../../../pages/landing/sections/Header";
+
 import JobStepper from "./components/jobpost/form/JobStepper";
 import PublishDialog from "./components/jobpost/PublishDialog";
 import SaveDraftDialog from "./components/jobpost/SaveDraftDialog";
@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Rocket } from "lucide-react";
 import { useCurrentSubscription } from "@/module/subscription/hooks/subscriptions/useCurrentSubscription";
+import Header from "@/module/auth/pages/home/header";
 
 function CreateMode() {
   const hook = useCreateJobPost();

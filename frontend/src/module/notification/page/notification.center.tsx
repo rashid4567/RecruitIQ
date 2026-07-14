@@ -29,9 +29,9 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useNotifications } from "../hook/useNotifications";
-import Header from "@/pages/landing/sections/Header";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import Header from "@/module/auth/pages/home/header";
 
 interface TypeMeta {
   icon: React.ReactNode;

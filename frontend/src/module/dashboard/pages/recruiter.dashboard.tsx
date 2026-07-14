@@ -48,7 +48,8 @@ import type {
 } from "../types/recruiter-dashboard.types";
 import { useNavigate } from "react-router-dom";
 import { RECRUITER_ROUTES } from "@/routes/constants/Recruiter.routes";
-import Header from "@/pages/landing/sections/Header";
+import Header from "@/module/auth/pages/home/header";
+
 
 const STATUS = {
   info: {

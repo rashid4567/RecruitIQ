@@ -1,8 +1,9 @@
-import Header from "./sections/Header"
+
 import Hero from "./sections/Hero"
 import Features from "./sections/Feature"
 import TrustedCompanies from "./sections/TrustedCompanies"
 import CTA from "./sections/CTA"
+import Header from "@/module/auth/pages/home/header"
 
 export default function LandingPage() {
   return (

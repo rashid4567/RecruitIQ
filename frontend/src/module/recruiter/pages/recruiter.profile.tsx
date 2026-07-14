@@ -12,13 +12,14 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 import Sidebar from "./components/layout/Sidebar";
-import Header from "../../../pages/landing/sections/Header";
+
 import { RecruiterProfileSection } from "./components/Recruiter-profile/ProfileSection";
 import { NotificationsSection } from "./components/profileSeting/NotificationsSection";
 import { BillingSection } from "./components/profileSeting/BillingSection";
 import { getRecruiterProfile } from "../api/recruiter.api";
 import type { RecruiterProfile } from "../types/recruiter.types";
 import { SecuritySection } from "./components/SecuritySection/SecuritySection";
+import Header from "./components/layout/header";
 
 const settingsTabs = [
   {

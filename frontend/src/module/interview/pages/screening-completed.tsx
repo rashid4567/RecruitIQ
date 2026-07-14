@@ -3,7 +3,8 @@ import { useRecruiterInterviewDetails } from "../hooks/recruiter/useRecruiterInt
 import { useUpdateInterviewNotes } from "../hooks/recruiter/useUpdateInterviewNotes";
 import type { GetRecruiterInterviewDetailsResponse } from "../types/recruiterInterview.types";
 import { useNavigate, useParams } from "react-router-dom";
-import Header from "@/pages/landing/sections/Header";
+import Header from "@/module/auth/pages/home/header";
+
 
 interface InterviewSummary {
   interviewId: string;

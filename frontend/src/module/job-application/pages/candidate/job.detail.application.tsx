@@ -23,6 +23,7 @@ import {
   getStatusConfig,
 } from "../component/candidate-details/Statusconfig";
 import { formatDate } from "../component/candidate-details/Formatters";
+import Header from "@/module/auth/pages/home/header";
 
 export default function JobApplicationDetail() {
   const { applicationId } = useParams<{ applicationId: string }>();
@@ -52,7 +53,8 @@ export default function JobApplicationDetail() {
   if (loading) {
     return (
       <div className="flex h-screen bg-slate-50 overflow-hidden">
-        <div className="hidden lg:block">
+        <Header/>
+        <div className="hidden xl:block">
           <Sidebar />
         </div>
         <div className="flex-1 flex items-center justify-center">
@@ -68,10 +70,11 @@ export default function JobApplicationDetail() {
   if (error || !applicationDetail) {
     return (
       <div className="flex h-screen bg-slate-50 overflow-hidden">
-        <div className="hidden lg:block">
+         <Header/>
+        <div className="hidden xl:block">
           <Sidebar />
         </div>
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto">
               <AlertCircle className="w-6 h-6 text-red-400" />
@@ -88,7 +91,7 @@ export default function JobApplicationDetail() {
               onClick={() =>
                 applicationId && fetchApplicationDetail(applicationId)
               }
-              className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
+              className="w-full sm:w-auto px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
             >
               Retry
             </button>
@@ -178,15 +181,15 @@ export default function JobApplicationDetail() {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <div className="hidden lg:block">
+      <div className="hidden xl:block">
         <Sidebar />
       </div>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <ApplicationHeader jobTitle={job.title} companyName={job.department} />
 
-        <div className="flex-1 overflow-hidden flex">
-          <div className="w-80 shrink-0 overflow-y-auto border-r border-slate-100 p-5 hidden lg:block bg-white/50">
+        <div className="flex-1 overflow-y-auto xl:overflow-hidden xl:flex">
+          <div className="w-full xl:w-[320px] 2xl:w-90 shrink-0 xl:overflow-y-auto xl:border-r border-slate-100 p-4 sm:p-5 bg-white/50 xl:bg-white/50">
             <LeftPanel
               job={job}
               application={application}
@@ -198,20 +201,15 @@ export default function JobApplicationDetail() {
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto">
-            <div className="max-w-2xl mx-auto px-6 py-6 space-y-5">
-              <div className="lg:hidden">
-                <LeftPanel
-                  job={job}
-                  application={application}
-                  statusCfg={statusCfg}
-                  currentStep={currentStep}
-                  onWithdraw={() => setShowWithdrawModal(true)}
-                  downloadResume={downloadResume}
-                  downloadLoading={downloadLoading}
-                />
-              </div>
-
+          <div className="flex-1 xl:overflow-y-auto">
+            <div
+              className="
+                mx-auto w-full max-w-3xl xl:max-w-5xl 2xl:max-w-6xl
+                px-4 sm:px-6 lg:px-8 xl:px-10
+                py-4 sm:py-6
+                space-y-4 md:space-y-6 xl:space-y-8
+              "
+            >
               {/* Offer takes priority over the interview card once it exists */}
               {offer && <OfferLetterSection offer={offer} />}
 
@@ -226,12 +224,12 @@ export default function JobApplicationDetail() {
 
               {application.status === ApplicationStatus.REJECTED &&
                 application.rejectionReason && (
-                  <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
+                  <div className="bg-red-50 border border-red-200 rounded-2xl xl:rounded-3xl p-4 sm:p-5">
                     <h2 className="text-sm font-semibold text-red-700 mb-2 flex items-center gap-2">
                       <AlertCircle className="w-4 h-4" />
                       Rejection feedback
                     </h2>
-                    <p className="text-sm text-red-600 leading-relaxed">
+                    <p className="text-sm lg:text-base text-red-600 leading-relaxed">
                       {application.rejectionReason}
                     </p>
                   </div>
@@ -248,7 +246,7 @@ export default function JobApplicationDetail() {
                   icon={<FileText className="w-4 h-4" />}
                   collapsible
                 >
-                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line pt-4">
+                  <p className="text-sm lg:text-base text-slate-600 leading-relaxed whitespace-pre-line pt-4">
                     {job.description}
                   </p>
                 </SectionCard>
@@ -256,14 +254,14 @@ export default function JobApplicationDetail() {
 
               {(job.responsibilities?.length > 0 ||
                 job.requirements?.length > 0) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 xl:gap-8">
                   {job.responsibilities?.length > 0 && (
                     <SectionCard title="Responsibilities">
                       <ul className="space-y-2.5 pt-4">
                         {job.responsibilities.map((r: string, i: number) => (
                           <li
                             key={i}
-                            className="flex items-start gap-2.5 text-sm text-slate-600"
+                            className="flex items-start gap-2.5 text-sm lg:text-base text-slate-600"
                           >
                             <span className="text-blue-400 font-bold mt-0.5 shrink-0 text-base leading-none">
                               →
@@ -280,7 +278,7 @@ export default function JobApplicationDetail() {
                         {job.requirements.map((r: string, i: number) => (
                           <li
                             key={i}
-                            className="flex items-start gap-2.5 text-sm text-slate-600"
+                            className="flex items-start gap-2.5 text-sm lg:text-base text-slate-600"
                           >
                             <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                             {r}
@@ -293,10 +291,10 @@ export default function JobApplicationDetail() {
               )}
 
               {application.coverLetter && (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-2xl xl:rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                   <button
                     onClick={() => setExpandedCover((p) => !p)}
-                    className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors"
+                    className="w-full flex items-center justify-between px-4 sm:px-6 py-4 hover:bg-slate-50 transition-colors"
                   >
                     <h2 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-slate-400" />
@@ -307,8 +305,8 @@ export default function JobApplicationDetail() {
                     </span>
                   </button>
                   {expandedCover && (
-                    <div className="border-t border-slate-50 px-6 pb-6 pt-4">
-                      <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                    <div className="border-t border-slate-50 px-4 sm:px-6 pb-6 pt-4">
+                      <p className="text-sm lg:text-base text-slate-600 leading-relaxed whitespace-pre-line">
                         {application.coverLetter}
                       </p>
                     </div>

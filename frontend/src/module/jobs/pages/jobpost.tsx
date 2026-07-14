@@ -12,11 +12,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useJobs } from "../hooks/Recruiter-jobPost/useJobs";
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
-import Header from "../../../pages/landing/sections/Header";
+
 import StatsOverview from "./components/jobpost/StatsOverview";
 import JobCard from "./components/jobpost/JobCard";
 import JobListRow from "./components/jobpost/JobListRow";
 import QuickViewModal from "./components/jobpost/QuickView.modal";
+import Header from "@/module/auth/pages/home/header";
 
 export default function JobsPage() {
   const {

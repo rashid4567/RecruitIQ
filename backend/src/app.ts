@@ -1,11 +1,14 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import cookieParser from "cookie-parser";
+
 import authRoutes from "./modules/auth/presentation/routes/index";
 import candidateRoutes from "./modules/candidate/presentation/routes/candidate.routes";
 import recruiterRoutes from "./modules/recruiter/presentation/router/recruiter.routes";
 import adminRoutes from "./modules/admin/Presentation/routes/admin.Routes";
 import notificationRoutes from "./modules/notification/presentation/routes/notification.routes";
+
 import { notFound } from "./shared/middlewares/notFound.middleware";
 import { errorHandler } from "./shared/middlewares/error.middleware";
 import { requestLogger } from "./shared/middlewares/requestLogger";
@@ -14,8 +17,14 @@ import { API_ROUTES } from "./shared/constants/api-routes.constants";
 const app = express();
 
 app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  }),
+);
+
+app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   }),
 );

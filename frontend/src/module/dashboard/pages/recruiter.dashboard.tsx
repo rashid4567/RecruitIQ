@@ -611,15 +611,19 @@ export default function RecruiterDashboard() {
   const interviews = dashboard?.interviews ?? [];
   const subscription = dashboard?.subscription ?? null;
 
-  const today = new Date();
-  const todaysInterviews = useMemo(
-    () => interviews.filter((iv) => isSameDay(new Date(iv.scheduledAt), today)),
-    [interviews],
-  );
-  const todaysApplications = useMemo(
-    () => applications.filter((a) => isSameDay(new Date(a.appliedAt), today)),
-    [applications],
-  );
+  const todaysInterviews = useMemo(() => {
+    const today = new Date();
+
+    return interviews.filter((iv) =>
+      isSameDay(new Date(iv.scheduledAt), today),
+    );
+  }, [interviews]);
+
+  const todaysApplications = useMemo(() => {
+    const today = new Date();
+
+    return applications.filter((a) => isSameDay(new Date(a.appliedAt), today));
+  }, [applications]);
   const pendingReview = useMemo(
     () =>
       applications.filter((a) => applicationTone(a.status) === "pending")
@@ -627,6 +631,10 @@ export default function RecruiterDashboard() {
     [applications],
   );
 
+  const currentHour = new Date().getHours();
+
+  const greeting =
+    currentHour < 12 ? "Morning" : currentHour < 18 ? "Afternoon" : "Evening";
   const applicationsTrend = useMemo(
     () => computeWeeklyTrend(applications.map((a) => a.appliedAt)),
     [applications],
@@ -1025,12 +1033,7 @@ export default function RecruiterDashboard() {
                   Live · Synced {formatRelativeTime(lastSyncedAt.toISOString())}
                 </div>
                 <h1 className="text-3xl font-black tracking-tight">
-                  Good{" "}
-                  {today.getHours() < 12
-                    ? "Morning"
-                    : today.getHours() < 18
-                      ? "Afternoon"
-                      : "Evening"}
+                  Good {greeting}
                   {dashboard ? `, ${dashboard.recruiter.recruiterName}` : ""} 👋
                 </h1>
                 <p className="text-blue-100 text-sm mt-2 max-w-lg">

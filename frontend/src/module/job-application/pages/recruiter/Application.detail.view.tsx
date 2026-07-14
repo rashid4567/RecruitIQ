@@ -393,7 +393,7 @@ export default function CandidateScorecardPage() {
   }
 
   const handleCreateOffer = () => {
-    console.info("Create offer for application:", applicationId);
+    console.warn("Create offer for application:", applicationId);
   };
 
   if (loading) return <LoadingScreen />;

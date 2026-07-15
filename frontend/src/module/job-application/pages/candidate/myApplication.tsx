@@ -12,6 +12,7 @@ import { WithdrawModal } from "../component/candidate-applications/WithdrawModal
 import { Toast } from "../component/candidate-applications/Toast";
 import { RefreshCw, Search } from "lucide-react";
 import type { CandidateApplication } from "../../types/application.types";
+import Header from "@/module/auth/pages/home/header";
 
 const PER_PAGE = 7;
 
@@ -99,6 +100,7 @@ export default function MyApplicationsPage() {
   if (loading) {
     return (
       <div className="flex h-screen bg-slate-50">
+        <Header/>
         <div className="hidden lg:block">
           <Sidebar />
         </div>
@@ -117,6 +119,7 @@ export default function MyApplicationsPage() {
   if (error) {
     return (
       <div className="flex h-screen bg-slate-50">
+        <Header/>
         <div className="hidden lg:block">
           <Sidebar />
         </div>
@@ -148,6 +151,7 @@ export default function MyApplicationsPage() {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Header/>
    <div className="hidden lg:block">
     <Sidebar />
   </div>
@@ -217,7 +221,7 @@ export default function MyApplicationsPage() {
             />
 
             <div className="flex items-center justify-between pt-1">
-              {/* Result count */}
+         
               <p className="text-[12px] text-slate-400">
                 Showing{" "}
                 <span className="font-medium text-slate-600">

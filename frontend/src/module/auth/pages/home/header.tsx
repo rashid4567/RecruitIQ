@@ -66,7 +66,7 @@ function getNavItems(role: Role): NavItem[] {
     return [
       {
         label: "Dashboard",
-        href: "/candidate/dashboard",
+        href: "/candidate/home",
         icon: LayoutGrid,
         iconColor: "blue",
       },
@@ -90,7 +90,7 @@ function getNavItems(role: Role): NavItem[] {
       },
     ];
   }
-  // Guest / logged out — marketing nav.
+
   return [
     { label: "Features", href: "#features", icon: Sparkles, iconColor: "blue" },
     { label: "Pricing", href: "#pricing", icon: Tag, iconColor: "violet" },
@@ -193,7 +193,7 @@ function getProfilePath(role: Role): string {
 }
 
 function getDashboardPath(role: Role): string {
-  if (role === "candidate") return "/candidate/";
+  if (role === "candidate") return "/candidate/home";
   if (role === "recruiter") return "/recruiter-dashboard";
   if (role === "admin") return "/admin-dashboard";
   return "/";

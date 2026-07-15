@@ -1525,7 +1525,7 @@ export default function RecruiterHiringDecisionPage() {
         )}
       </div>
 
-      {/* Step 1: "are you sure you want to select this candidate?" */}
+      
       {modal === "select" && decision && (
         <SelectConfirmModal
           candidateName={decision.application.candidateName}

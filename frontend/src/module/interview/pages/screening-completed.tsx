@@ -255,12 +255,12 @@ function SummaryCard({
   subvalue?: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+    <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-3 sm:p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
       <div className="flex items-center gap-1.5 text-gray-500 mb-2">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
       </div>
-      <p className="text-base font-bold text-gray-950">{value}</p>
+      <p className="text-sm sm:text-base font-bold text-gray-950">{value}</p>
       {subvalue && <p className="text-xs text-gray-500 mt-0.5">{subvalue}</p>}
     </div>
   );
@@ -279,9 +279,9 @@ function InterviewTimeline({ summary }: { summary: InterviewSummary }) {
   if (steps.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-gray-950 mb-5">Timeline</h2>
-      <ol className="relative border-l-2 border-gray-100 ml-2 space-y-6">
+    <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm">
+      <h2 className="text-base sm:text-lg font-bold text-gray-950 mb-4 sm:mb-5">Timeline</h2>
+      <ol className="relative border-l-2 border-gray-100 ml-2 space-y-4 sm:space-y-6">
         {steps.map((step) => (
           <li key={step.label} className="ml-5">
             <span className="absolute -left-1.75 mt-1 w-3 h-3 rounded-full bg-blue-600 ring-4 ring-blue-50" />
@@ -305,9 +305,9 @@ function ProgressStepper() {
   ];
 
   return (
-    <ol className="flex items-center gap-3">
+    <ol className="flex items-center gap-2 sm:gap-3 overflow-x-auto">
       {steps.map((step, i) => (
-        <li key={step.label} className="flex items-center gap-3">
+        <li key={step.label} className="flex items-center gap-2 sm:gap-3 shrink-0">
           <div className="flex items-center gap-2">
             <span
               className={
@@ -323,14 +323,14 @@ function ProgressStepper() {
             </span>
             <span
               className={
-                "text-sm font-semibold " +
+                "text-xs sm:text-sm font-semibold whitespace-nowrap " +
                 (step.state === "upcoming" ? "text-gray-400" : "text-gray-900")
               }
             >
               {step.label}
             </span>
           </div>
-          {i < steps.length - 1 && <span className="w-10 h-px bg-gray-200" />}
+          {i < steps.length - 1 && <span className="w-6 sm:w-10 h-px bg-gray-200" />}
         </li>
       ))}
     </ol>
@@ -340,14 +340,14 @@ function ProgressStepper() {
 function ExitWarningModal({ onCancel, onLeave }: { onCancel: () => void; onLeave: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 px-4">
-      <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 w-full max-w-sm">
+      <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-5 sm:p-6 w-full max-w-sm">
         <h2 className="text-lg font-bold text-gray-950 mb-2">Unsaved interview notes</h2>
         <p className="text-sm text-gray-600 mb-6">You have unsaved interview notes. Leave anyway?</p>
-        <div className="flex justify-end gap-3">
-          <button onClick={onCancel} className="px-4 py-2 text-sm font-semibold text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+          <button onClick={onCancel} className="w-full sm:w-auto min-h-11 px-4 py-2 text-sm font-semibold text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
             Cancel
           </button>
-          <button onClick={onLeave} className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">
+          <button onClick={onLeave} className="w-full sm:w-auto min-h-11 px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">
             Leave
           </button>
         </div>
@@ -364,11 +364,11 @@ function LoadingState() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="max-w-7xl mx-auto px-8 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <SkeletonBlock className="h-6 w-64" />
       </div>
-      <div className="max-w-7xl mx-auto px-8 py-8 flex gap-8 items-start">
-        <div className="flex-1 min-w-0 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+        <div className="flex-1 min-w-0 w-full space-y-4 sm:space-y-6">
           <div className="flex items-start gap-4">
             <SkeletonBlock className="w-14 h-14 rounded-full shrink-0" />
             <div className="flex-1 space-y-2">
@@ -376,17 +376,17 @@ function LoadingState() {
               <SkeletonBlock className="h-4 w-full max-w-md" />
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonBlock key={i} className="h-20 w-full rounded-2xl" />
+              <SkeletonBlock key={i} className="h-20 w-full rounded-xl sm:rounded-2xl" />
             ))}
           </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm">
             <SkeletonBlock className="h-5 w-40 mb-4" />
             <SkeletonBlock className="h-40 w-full" />
           </div>
         </div>
-        <aside className="w-80 shrink-0 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+        <aside className="w-full lg:w-80 shrink-0 bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4">
           <SkeletonBlock className="h-4 w-32" />
           <SkeletonBlock className="h-12 w-full" />
           {Array.from({ length: 5 }).map((_, i) => (
@@ -402,13 +402,13 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="max-w-2xl mx-auto px-8 py-24 text-center">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
         <div className="w-14 h-14 mx-auto rounded-full bg-red-50 border border-red-200 flex items-center justify-center text-red-600 mb-5">
           <AlertIcon className="w-6 h-6" />
         </div>
         <h1 className="text-xl font-bold text-gray-950 mb-2">Couldn't load this interview</h1>
         <p className="text-gray-600 mb-6">{message}</p>
-        <button onClick={onRetry} className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+        <button onClick={onRetry} className="min-h-11 px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
           Try again
         </button>
       </div>
@@ -560,24 +560,24 @@ export default function InterviewNotesPage() {
   const completedAgo = summary.status === "COMPLETED" ? timeAgo(summary.endedAt) : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-28 sm:pb-24">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-8 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
         <ProgressStepper />
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-8 flex gap-8 items-start">
-        <div className="flex-1 min-w-0 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+        <div className="flex-1 min-w-0 w-full space-y-4 sm:space-y-6">
           {/* Hero */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shrink-0">
+          <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-base sm:text-lg shrink-0">
                 {initials(summary.candidateName)}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="text-2xl font-bold text-gray-950 truncate">{summary.candidateName}</h1>
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-950 truncate">{summary.candidateName}</h1>
                   <StatusBadge status={summary.status} />
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
@@ -594,7 +594,7 @@ export default function InterviewNotesPage() {
           </div>
 
           {/* Summary cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <SummaryCard icon={<CalendarIcon />} label="Date" value={formatDate(summary.scheduledAt)} />
             <SummaryCard
               icon={<ClockIcon />}
@@ -610,14 +610,14 @@ export default function InterviewNotesPage() {
             />
           </div>
 
-          {/* Timeline */}
+         
           <InterviewTimeline summary={summary} />
 
-          {/* Notes */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-1">
-              <h2 className="text-lg font-bold text-gray-950">Evaluation Notes</h2>
-              <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+      
+          <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-1 gap-2">
+              <h2 className="text-base sm:text-lg font-bold text-gray-950">Evaluation Notes</h2>
+              <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500 shrink-0">
                 <span
                   className={
                     "w-1.5 h-1.5 rounded-full " +
@@ -630,7 +630,7 @@ export default function InterviewNotesPage() {
                           : "bg-gray-300")
                   }
                 />
-                <span className={saveState === "error" ? "text-red-600" : ""}>{savedLabel}</span>
+                <span className={"hidden sm:inline " + (saveState === "error" ? "text-red-600" : "")}>{savedLabel}</span>
                 {saveState === "error" && (
                   <button
                     onClick={() => persist(notes)}
@@ -641,7 +641,7 @@ export default function InterviewNotesPage() {
                 )}
               </span>
             </div>
-            <p className="text-sm text-gray-500 mb-4">Write your observations while they're still fresh.</p>
+            <p className="text-xs sm:text-sm text-gray-500 mb-4">Write your observations while they're still fresh.</p>
 
             <div className="flex flex-wrap gap-2 mb-3">
               {NOTE_TEMPLATES.map((t) => (
@@ -649,7 +649,7 @@ export default function InterviewNotesPage() {
                   key={t.label}
                   onClick={() => insertTemplate(t.snippet)}
                   disabled={isSaving}
-                  className="text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-full px-3 py-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-h-9 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-full px-3 py-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   + {t.label}
                 </button>
@@ -664,25 +664,25 @@ export default function InterviewNotesPage() {
               placeholder={
                 "Things to consider\n\n• Technical knowledge\n• Communication\n• Confidence\n• Problem solving\n• Overall recommendation"
               }
-              rows={14}
-              className="w-full resize-y rounded-lg border border-gray-300 p-4 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+              rows={12}
+              className="w-full resize-y rounded-lg border border-gray-300 p-3 sm:p-4 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
             />
 
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mt-2">
               <p className="text-xs text-gray-500">
                 These notes are private. They will only be visible to recruiters involved in this hiring process.
               </p>
-              <span className="text-xs text-gray-400 shrink-0 ml-4">
+              <span className="text-xs text-gray-400 shrink-0 sm:ml-4">
                 {notes.length} / {MAX_CHARS}
               </span>
             </div>
           </div>
         </div>
 
-        <aside className="w-80 shrink-0 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-24">
-          <h3 className="text-sm font-bold text-gray-950 uppercase tracking-wide mb-5">Candidate Summary</h3>
+        <aside className="w-full lg:w-80 shrink-0 bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 lg:sticky lg:top-24">
+          <h3 className="text-sm font-bold text-gray-950 uppercase tracking-wide mb-4 sm:mb-5">Candidate Summary</h3>
 
-          <div className="flex items-center gap-3 mb-5">
+          <div className="flex items-center gap-3 mb-4 sm:mb-5">
             <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
               {initials(summary.candidateName)}
             </div>
@@ -692,11 +692,11 @@ export default function InterviewNotesPage() {
             </div>
           </div>
 
-          <div className="mb-5">
+          <div className="mb-4 sm:mb-5">
             <StatusBadge status={summary.status} />
           </div>
 
-          <dl className="space-y-4">
+          <dl className="space-y-3 sm:space-y-4">
             <SidebarRow label="Round" value={`Round ${summary.round}`} />
             <SidebarRow label="Duration" value={formatDuration(summary.durationInMinutes)} />
             <SidebarRow label="Scheduled" value={formatDate(summary.scheduledAt)} />
@@ -715,17 +715,17 @@ export default function InterviewNotesPage() {
         </aside>
       </div>
 
-      {/* Sticky action bar */}
+  
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.04)] z-40">
-        <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
+          <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-gray-500">
             <span className={"w-1.5 h-1.5 rounded-full " + (isDirty ? "bg-amber-400" : "bg-green-500")} />
             {isDirty ? "Unsaved changes" : "All changes saved"}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => guardedNavigate(() => navigate(DASHBOARD_ROUTE))}
-              className="px-5 py-2.5 text-sm font-semibold text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all"
+              className="min-h-11 w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all order-2 sm:order-1"
             >
               ← Dashboard
             </button>
@@ -741,7 +741,7 @@ export default function InterviewNotesPage() {
                 if (!summary?.interviewId) return;
                 navigate(decisionRoute(summary.interviewId));
               }}
-              className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="min-h-11 w-full sm:w-auto px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
             >
               Continue to Hiring Decision →
             </button>
@@ -769,9 +769,9 @@ export default function InterviewNotesPage() {
 
 function SidebarRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-b-0 last:pb-0">
+    <div className="flex items-center justify-between gap-3 border-b border-gray-100 pb-3 last:border-b-0 last:pb-0">
       <dt className="text-xs text-gray-500 font-semibold uppercase tracking-wide">{label}</dt>
-      <dd className="text-sm font-bold text-gray-950">{value}</dd>
+      <dd className="text-sm font-bold text-gray-950 text-right">{value}</dd>
     </div>
   );
 }

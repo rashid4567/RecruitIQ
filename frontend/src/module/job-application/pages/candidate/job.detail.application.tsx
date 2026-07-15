@@ -181,12 +181,13 @@ export default function JobApplicationDetail() {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Header/>
       <div className="hidden xl:block">
         <Sidebar />
       </div>
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <ApplicationHeader jobTitle={job.title} companyName={job.department} />
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden pt-20">
+        <ApplicationHeader jobTitle={job.title} />
 
         <div className="flex-1 overflow-y-auto xl:overflow-hidden xl:flex">
           <div className="w-full xl:w-[320px] 2xl:w-90 shrink-0 xl:overflow-y-auto xl:border-r border-slate-100 p-4 sm:p-5 bg-white/50 xl:bg-white/50">

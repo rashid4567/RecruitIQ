@@ -593,7 +593,7 @@ export default function InterviewNotesPage() {
             </div>
           </div>
 
-          {/* Summary cards */}
+         
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <SummaryCard icon={<CalendarIcon />} label="Date" value={formatDate(summary.scheduledAt)} />
             <SummaryCard

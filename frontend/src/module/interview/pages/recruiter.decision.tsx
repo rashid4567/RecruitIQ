@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  memo,
+  lazy,
+  Suspense,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useRecruiterHiringDecisionDetails } from "@/module/interview/hooks/recruiter/useRecruiterHiringDecisionDetails";
@@ -9,9 +17,11 @@ import type {
   HiringDecisionInterview,
 } from "@/module/interview/types/recruiterInterview.types";
 
-import EmploymentOfferModal from "../../offer-letter/page/create-letter.modal";
-
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
+const EmploymentOfferModal = lazy(
+  () => import("../../offer-letter/page/create-letter.modal"),
+);
+
 type Recommendation = "STRONG_MATCH" | "PARTIAL_MATCH" | "NO_MATCH";
 
 interface TimelineEvent {
@@ -63,6 +73,19 @@ function fmtDateTime(value?: string | null) {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+function timeAgo(value?: string | null) {
+  if (!value) return null;
+  const diffMs = Date.now() - new Date(value).getTime();
+  if (Number.isNaN(diffMs)) return null;
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin} minute${diffMin > 1 ? "s" : ""} ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr} hour${diffHr > 1 ? "s" : ""} ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`;
 }
 
 function titleCase(value?: string | null) {
@@ -219,6 +242,18 @@ const ExternalLinkIcon = (p: { className?: string }) => (
     }
   />
 );
+const DownloadIcon = (p: { className?: string }) => (
+  <Icon
+    className={p.className}
+    path={
+      <>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </>
+    }
+  />
+);
 const MailIcon = (p: { className?: string }) => (
   <Icon
     className={p.className}
@@ -286,6 +321,9 @@ const VideoIcon = (p: { className?: string }) => (
       </>
     }
   />
+);
+const ChevronIcon = (p: { className?: string }) => (
+  <Icon className={p.className} path={<polyline points="6 9 12 15 18 9" />} />
 );
 const SpinnerIcon = (p: { className?: string }) => (
   <svg
@@ -418,8 +456,11 @@ function ScoreGauge({ score }: { score: number }) {
   const offset =
     circumference - (Math.max(0, Math.min(100, score)) / 100) * circumference;
   return (
-    <div className="relative w-28 h-28 shrink-0">
-      <svg viewBox="0 0 100 100" className="w-28 h-28 -rotate-90">
+    <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 mx-auto sm:mx-0">
+      <svg
+        viewBox="0 0 100 100"
+        className="w-24 h-24 sm:w-28 sm:h-28 -rotate-90"
+      >
         <circle
           cx="50"
           cy="50"
@@ -442,7 +483,9 @@ function ScoreGauge({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={`text-2xl font-bold ${c.text}`}>{score}%</span>
+        <span className={`text-xl sm:text-2xl font-bold ${c.text}`}>
+          {score}%
+        </span>
         <span className="text-[11px] text-slate-500 font-medium">overall</span>
       </div>
     </div>
@@ -462,11 +505,13 @@ function Card({
 }) {
   return (
     <section
-      className={`bg-white rounded-2xl border border-slate-100 shadow-sm p-6 ${className}`}
+      className={`bg-white rounded-xl sm:rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 lg:p-8 ${className}`}
     >
       {title && (
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold text-slate-900">{title}</h2>
+        <div className="flex items-center justify-between mb-4 gap-2">
+          <h2 className="text-sm sm:text-base font-bold text-slate-900">
+            {title}
+          </h2>
           {action}
         </div>
       )}
@@ -492,13 +537,13 @@ function Toast({ message, onDone }: { message: string; onDone: () => void }) {
     return () => clearTimeout(t);
   }, [onDone]);
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-60 bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-lg animate-in fade-in slide-in-from-bottom-2">
+    <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-60 bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-lg animate-in fade-in slide-in-from-bottom-2 max-w-[90vw] text-center">
       {message}
     </div>
   );
 }
 
-function CandidateOverviewCard({
+const CandidateOverviewCard = memo(function CandidateOverviewCard({
   candidateName,
   candidateEmail,
   candidateProfileImage,
@@ -519,15 +564,15 @@ function CandidateOverviewCard({
 }) {
   return (
     <Card title="Candidate overview">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-5 text-center sm:text-left">
         {candidateProfileImage ? (
           <img
             src={candidateProfileImage}
             alt={candidateName}
-            className="w-14 h-14 rounded-full object-cover shrink-0 shadow-md shadow-indigo-100"
+            className="w-14 h-14 rounded-full object-cover shrink-0 shadow-md shadow-indigo-100 mx-auto sm:mx-0"
           />
         ) : (
-          <div className="w-14 h-14 rounded-full bg-linear-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-md shadow-indigo-100">
+          <div className="w-14 h-14 rounded-full bg-linear-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-md shadow-indigo-100 mx-auto sm:mx-0">
             {initials(candidateName)}
           </div>
         )}
@@ -537,7 +582,7 @@ function CandidateOverviewCard({
           </p>
           <button
             onClick={onCopyEmail}
-            className="text-sm text-slate-500 hover:text-indigo-600 flex items-center gap-1.5 truncate group transition-colors"
+            className="text-sm text-slate-500 hover:text-indigo-600 flex items-center justify-center sm:justify-start gap-1.5 truncate group transition-colors w-full sm:w-auto"
             title="Copy email"
           >
             <MailIcon className="w-3.5 h-3.5 shrink-0" />
@@ -545,18 +590,20 @@ function CandidateOverviewCard({
             <CopyIcon className="w-3 h-3 shrink-0 opacity-0 group-hover:opacity-60 transition-opacity" />
           </button>
         </div>
-        <StatusBadge status={status} />
+        <div className="mx-auto sm:mx-0">
+          <StatusBadge status={status} />
+        </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 pt-5 border-t border-slate-100">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 pt-5 border-t border-slate-100">
         <Field label="Application number" value={applicationNumber} />
         <Field label="Position" value={position} />
         <Field label="Applied" value={appliedDate} />
       </div>
     </Card>
   );
-}
+});
 
-function AiEvaluationCard({
+const AiEvaluationCard = memo(function AiEvaluationCard({
   overallScore,
   recommendation,
   requiredSkillsScore,
@@ -575,7 +622,7 @@ function AiEvaluationCard({
 }) {
   return (
     <Card title="AI evaluation">
-      <div className="flex flex-col sm:flex-row gap-6 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6">
         <ScoreGauge score={overallScore} />
         <div className="flex-1 flex flex-col justify-center gap-3">
           <RecommendationBadge recommendation={recommendation} />
@@ -590,7 +637,7 @@ function AiEvaluationCard({
       </div>
     </Card>
   );
-}
+});
 
 function AnalysisPendingCard({ analysisStatus }: { analysisStatus: string }) {
   const failed = analysisStatus?.toUpperCase() === "FAILED";
@@ -629,7 +676,7 @@ function StrengthsGapsCard({
   gaps: string[];
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
       <Card title="Strengths">
         {strengths.length === 0 ? (
           <p className="text-sm text-slate-400">No strengths recorded.</p>
@@ -702,7 +749,7 @@ function InterviewStatusPill({ status }: { status?: string }) {
   );
 }
 
-function InterviewDetailsCard({
+const InterviewDetailsCard = memo(function InterviewDetailsCard({
   interview,
 }: {
   interview: HiringDecisionInterview | undefined;
@@ -734,7 +781,7 @@ function InterviewDetailsCard({
         title="Interview details"
         action={<InterviewStatusPill status={interview.status} />}
       >
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
           <Field
             label="Round"
             value={
@@ -766,7 +813,7 @@ function InterviewDetailsCard({
           />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 mt-4 border-t border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 mt-4 border-t border-slate-100">
           <Field
             label="Scheduled for"
             value={
@@ -797,7 +844,7 @@ function InterviewDetailsCard({
             <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1.5">
               Description
             </p>
-            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+            <p className="text-sm text-slate-700 leading-7 whitespace-pre-line">
               {interview.description}
             </p>
           </div>
@@ -815,7 +862,7 @@ function InterviewDetailsCard({
 
       <Card title="Interview notes">
         {interview.notes ? (
-          <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50 border border-slate-100 rounded-lg p-4">
+          <p className="text-sm text-slate-700 leading-7 whitespace-pre-line bg-slate-50 border border-slate-100 rounded-lg p-4">
             {interview.notes}
           </p>
         ) : (
@@ -826,7 +873,7 @@ function InterviewDetailsCard({
       </Card>
     </>
   );
-}
+});
 
 function ResumePreviewModal({
   resume,
@@ -847,11 +894,11 @@ function ResumePreviewModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 py-8"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 sm:px-4 sm:py-8"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-100 w-full max-w-3xl h-full max-h-[85vh] flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
+      <div className="bg-white sm:rounded-2xl shadow-xl border-0 sm:border border-slate-100 w-full h-full sm:max-w-3xl sm:h-full sm:max-h-[85vh] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
               <FileIcon className="w-4.5 h-4.5" />
@@ -865,15 +912,23 @@ function ResumePreviewModal({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <a
+              href={resume.previewUrl}
+              download
+              className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-800 px-2 py-1"
+            >
+              <DownloadIcon className="w-4 h-4" />
+              Download
+            </a>
             <a
               href={resume.previewUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 px-2 py-1"
+              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-indigo-600 hover:text-indigo-700 px-2 py-1"
             >
               <ExternalLinkIcon className="w-4 h-4" />
-              Open in new tab
+              <span className="hidden sm:inline">Open in new tab</span>
             </a>
             <button
               onClick={onClose}
@@ -910,7 +965,7 @@ function ResumePreviewModal({
         </div>
 
         {resume.parsedData && (
-          <div className="border-t border-slate-100 px-5 py-3 flex flex-wrap gap-1.5 shrink-0 max-h-24 overflow-y-auto">
+          <div className="border-t border-slate-100 px-4 sm:px-5 py-3 flex flex-wrap gap-1.5 shrink-0 max-h-24 overflow-y-auto">
             {resume.parsedData.skills.slice(0, 14).map((skill) => (
               <span
                 key={skill}
@@ -945,7 +1000,7 @@ function ResumeCard({
 }) {
   return (
     <Card title="Resume">
-      <div className="flex items-center justify-between gap-4 border border-slate-200 rounded-xl p-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-slate-200 rounded-xl p-4">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
             <FileIcon className="w-5 h-5" />
@@ -954,7 +1009,7 @@ function ResumeCard({
             <p className="text-sm font-bold text-slate-900 truncate">
               {resume.fileName}
             </p>
-            <p className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+            <p className="text-xs text-slate-500 flex flex-wrap items-center gap-2 mt-0.5">
               <span>Uploaded {fmtDate(resume.uploadedAt)}</span>
               <span
                 className={`px-1.5 py-0.5 rounded-full font-semibold ${parseStatusPill(resume.parseStatus)}`}
@@ -966,7 +1021,7 @@ function ResumeCard({
         </div>
         <button
           onClick={onPreview}
-          className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 shrink-0 px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors"
+          className="flex items-center justify-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 shrink-0 px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors w-full sm:w-auto min-h-11 sm:min-h-0"
         >
           <EyeIcon className="w-4 h-4" />
           Preview
@@ -974,7 +1029,7 @@ function ResumeCard({
       </div>
 
       {resume.parsedData?.totalExperienceYears != null && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 pt-4 mt-4 border-t border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 pt-4 mt-4 border-t border-slate-100">
           <Field
             label="Experience"
             value={`${resume.parsedData.totalExperienceYears} yrs`}
@@ -993,11 +1048,29 @@ function ResumeCard({
   );
 }
 
-function ActivityTimelineCard({ timeline }: { timeline: TimelineEvent[] }) {
+const ActivityTimelineCard = memo(function ActivityTimelineCard({
+  timeline,
+}: {
+  timeline: TimelineEvent[];
+}) {
+  const [collapsed, setCollapsed] = useState(true);
+
   if (timeline.length === 0) return null;
+
   return (
-    <Card title="Activity timeline">
-      <ol className="space-y-0">
+    <Card className="lg:p-6">
+      <button
+        onClick={() => setCollapsed((c) => !c)}
+        className="w-full flex items-center justify-between mb-4 lg:mb-4 lg:pointer-events-none"
+      >
+        <h2 className="text-sm sm:text-base font-bold text-slate-900">
+          Activity timeline
+        </h2>
+        <ChevronIcon
+          className={`w-4 h-4 text-slate-400 transition-transform lg:hidden ${collapsed ? "" : "rotate-180"}`}
+        />
+      </button>
+      <ol className={`space-y-0 ${collapsed ? "hidden lg:block" : "block"}`}>
         {timeline.map((event, i) => (
           <li key={event.id} className="flex gap-3">
             <div className="flex flex-col items-center">
@@ -1035,7 +1108,7 @@ function ActivityTimelineCard({ timeline }: { timeline: TimelineEvent[] }) {
       </ol>
     </Card>
   );
-}
+});
 
 function SelectConfirmModal({
   candidateName,
@@ -1049,8 +1122,8 @@ function SelectConfirmModal({
   onConfirm: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 w-full max-w-md">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/50 sm:px-4">
+      <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl border border-slate-100 p-6 w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
         <div className="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mb-4">
           <CheckIcon className="w-5 h-5" />
         </div>
@@ -1079,16 +1152,16 @@ function SelectConfirmModal({
             </li>
           ))}
         </ul>
-        <div className="flex justify-end gap-3">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
+            className="min-h-11 w-full sm:w-auto px-4 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors"
+            className="min-h-11 w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors"
           >
             Continue
           </button>
@@ -1118,8 +1191,8 @@ function RejectModal({
   const reasonLabel = REJECT_REASONS.find((r) => r.value === reason)?.label;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 w-full max-w-md">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/50 sm:px-4">
+      <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl border border-slate-100 p-6 w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
         <div className="w-11 h-11 rounded-full bg-red-50 border border-red-200 flex items-center justify-center text-red-600 mb-4">
           <XIcon className="w-5 h-5" />
         </div>
@@ -1138,7 +1211,7 @@ function RejectModal({
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value as RejectReason | "")}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full min-h-11 rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="">Select a reason</option>
               {REJECT_REASONS.map((r) => (
@@ -1159,17 +1232,17 @@ function RejectModal({
               className="w-full rounded-lg border border-slate-300 p-3 text-sm text-slate-900 placeholder:text-slate-400 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
 
-            <div className="flex justify-end gap-3 mt-2">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 mt-2">
               <button
                 onClick={onCancel}
-                className="px-4 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
+                className="min-h-11 w-full sm:w-auto px-4 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={() => reason && setStep("confirm")}
                 disabled={!reason}
-                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="min-h-11 w-full sm:w-auto px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Continue
               </button>
@@ -1195,18 +1268,18 @@ function RejectModal({
                 </p>
               </div>
             )}
-            <div className="flex justify-end gap-3 mt-2">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 mt-2">
               <button
                 onClick={() => setStep("reason")}
                 disabled={submitting}
-                className="px-4 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-50"
+                className="min-h-11 w-full sm:w-auto px-4 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-50"
               >
                 Back
               </button>
               <button
                 onClick={() => reason && onConfirm({ reason, notes })}
                 disabled={submitting}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                className="min-h-11 w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 {submitting && <SpinnerIcon className="w-3.5 h-3.5" />}
                 {submitting ? "Rejecting…" : "Confirm rejection"}
@@ -1233,9 +1306,9 @@ function DecisionFooter({
   onSelect: () => void;
 }) {
   return (
-    <div className="sticky bottom-0 z-20 bg-white border-t border-slate-100 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
-      <div className="px-8 py-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-6 min-w-0">
+    <div className="fixed sm:sticky bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+      <div className="px-4 sm:px-8 py-3 sm:py-4 min-h-18 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="hidden sm:flex items-center gap-6 min-w-0">
           <div className="min-w-0">
             <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">
               Application
@@ -1245,7 +1318,7 @@ function DecisionFooter({
             </p>
           </div>
           {overallScore != null && (
-            <div className="hidden sm:block">
+            <div>
               <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">
                 AI score
               </p>
@@ -1257,18 +1330,18 @@ function DecisionFooter({
             </div>
           )}
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={onReject}
             disabled={disabled}
-            className="px-5 py-2.5 text-sm font-semibold text-red-600 border-2 border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="min-h-11 sm:min-h-0 w-full sm:w-auto order-2 sm:order-1 px-5 py-2.5 text-sm font-semibold text-red-600 border-2 border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Reject
           </button>
           <button
             onClick={onSelect}
             disabled={disabled}
-            className="px-6 py-2.5 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 active:bg-emerald-800 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="min-h-11 sm:min-h-0 w-full sm:w-auto order-1 sm:order-2 px-6 py-2.5 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 active:bg-emerald-800 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Select
           </button>
@@ -1286,11 +1359,11 @@ function SkeletonBlock({ className = "" }: { className?: string }) {
 
 function LoadingState() {
   return (
-    <div className="flex-1 px-8 py-8 space-y-6">
+    <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 space-y-4 sm:space-y-6">
       <SkeletonBlock className="h-6 w-64" />
-      <SkeletonBlock className="h-40 w-full rounded-2xl" />
-      <SkeletonBlock className="h-56 w-full rounded-2xl" />
-      <SkeletonBlock className="h-40 w-full rounded-2xl" />
+      <SkeletonBlock className="h-40 w-full rounded-xl sm:rounded-2xl" />
+      <SkeletonBlock className="h-56 w-full rounded-xl sm:rounded-2xl" />
+      <SkeletonBlock className="h-40 w-full rounded-xl sm:rounded-2xl" />
     </div>
   );
 }
@@ -1304,7 +1377,7 @@ function ErrorState({
 }) {
   return (
     <div className="flex-1 flex items-center justify-center">
-      <div className="max-w-md text-center px-8">
+      <div className="max-w-md text-center px-4 sm:px-8">
         <div className="w-14 h-14 mx-auto rounded-full bg-red-50 border border-red-200 flex items-center justify-center text-red-600 mb-5">
           <AlertIcon className="w-6 h-6" />
         </div>
@@ -1314,7 +1387,7 @@ function ErrorState({
         <p className="text-slate-600 mb-6">{message}</p>
         <button
           onClick={onRetry}
-          className="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+          className="min-h-11 px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
         >
           Try again
         </button>
@@ -1323,8 +1396,18 @@ function ErrorState({
   );
 }
 
-const DASHBOARD_ROUTE = "/recruiter/interviews";
+function ModalFallback() {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 flex items-center gap-3">
+        <SpinnerIcon className="w-5 h-5 text-indigo-600" />
+        <span className="text-sm font-semibold text-slate-700">Loading…</span>
+      </div>
+    </div>
+  );
+}
 
+const DASHBOARD_ROUTE = "/recruiter/interviews";
 
 type ModalState = "select" | "offer" | "reject" | null;
 
@@ -1396,6 +1479,11 @@ export default function RecruiterHiringDecisionPage() {
 
   const retry = useCallback(() => void refetch(), [refetch]);
 
+  const completedAgo =
+    decision && decision.interview?.status?.toUpperCase() === "COMPLETED"
+      ? timeAgo(decision.interview.endedAt)
+      : null;
+
   return (
     <div className="min-h-screen bg-slate-50 flex">
       <Sidebar />
@@ -1407,15 +1495,15 @@ export default function RecruiterHiringDecisionPage() {
         {decision && (
           <>
             <div className="flex-1">
-              <div className="px-8 pt-8 pb-4">
+              <div className="px-4 sm:px-8 pt-6 sm:pt-8 pb-4">
                 <button
                   onClick={() => navigate(DASHBOARD_ROUTE)}
                   className="text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors mb-3"
                 >
                   ← Back
                 </button>
-                <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-2xl font-bold text-slate-900">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900">
                     Hiring decision
                   </h1>
                   <StatusBadge status={decision.application.status} />
@@ -1426,8 +1514,8 @@ export default function RecruiterHiringDecisionPage() {
                 </p>
               </div>
 
-              <div className="px-8 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                <div className="lg:col-span-2 space-y-6">
+              <div className="px-4 sm:px-8 pb-24 sm:pb-10 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
+                <div className="lg:col-span-2 lg:order-1 space-y-4 sm:space-y-6">
                   <CandidateOverviewCard
                     candidateName={decision.application.candidateName}
                     candidateEmail={decision.application.candidateEmail}
@@ -1482,6 +1570,11 @@ export default function RecruiterHiringDecisionPage() {
                   )}
 
                   <InterviewDetailsCard interview={decision.interview} />
+                  {completedAgo && (
+                    <p className="text-xs text-slate-400 -mt-3 sm:-mt-4">
+                      Interview completed {completedAgo}
+                    </p>
+                  )}
 
                   <ResumeCard
                     resume={decision.resume}
@@ -1489,7 +1582,7 @@ export default function RecruiterHiringDecisionPage() {
                   />
                 </div>
 
-                <div className="space-y-6 lg:sticky lg:top-8">
+                <div className="order-first lg:order-2 space-y-4 sm:space-y-6 lg:sticky lg:top-8">
                   <ActivityTimelineCard timeline={timeline} />
                   {decisionAlreadyMade && (
                     <Card>
@@ -1525,7 +1618,6 @@ export default function RecruiterHiringDecisionPage() {
         )}
       </div>
 
-      
       {modal === "select" && decision && (
         <SelectConfirmModal
           candidateName={decision.application.candidateName}
@@ -1536,26 +1628,27 @@ export default function RecruiterHiringDecisionPage() {
       )}
 
       {modal === "offer" && decision && (
-        <EmploymentOfferModal
-          candidate={{
-            id: decision.application.applicationId,
-            name: decision.application.candidateName,
-            role: decision.job.title,
-            appId: decision.application.applicationNumber,
-            applicationId: decision.application.applicationId,
-            aiScore: decision.application.aiAnalysis?.overallScore ?? 0,
-          }}
-          job={{
-            id: decision.job.jobId,
-            company: decision.job.companyName,
-            title: decision.job.title,
-            department: decision.job.department ?? "",
-            location: decision.job.location,
-          
-          }}
-          onClose={() => setModal(null)}
-          onSent={handleOfferSent}
-        />
+        <Suspense fallback={<ModalFallback />}>
+          <EmploymentOfferModal
+            candidate={{
+              id: decision.application.applicationId,
+              name: decision.application.candidateName,
+              role: decision.job.title,
+              appId: decision.application.applicationNumber,
+              applicationId: decision.application.applicationId,
+              aiScore: decision.application.aiAnalysis?.overallScore ?? 0,
+            }}
+            job={{
+              id: decision.job.jobId,
+              company: decision.job.companyName,
+              title: decision.job.title,
+              department: decision.job.department ?? "",
+              location: decision.job.location,
+            }}
+            onClose={() => setModal(null)}
+            onSent={handleOfferSent}
+          />
+        </Suspense>
       )}
 
       {modal === "reject" && decision && (

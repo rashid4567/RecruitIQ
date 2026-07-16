@@ -85,7 +85,7 @@ export function useSignIn() {
       if (!profileCompleted) {
         navigate(
           role === "candidate"
-            ? "/candidate/complete"
+            ? "/candidate/profile/complete"
             : "/recruiter/complete-profile",
         );
         return;

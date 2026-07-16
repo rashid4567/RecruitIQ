@@ -31,9 +31,14 @@ export class AuthController {
         SUCCESS_MESSAGES.LOGIN_SUCCESSFULLY,
         {
           accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+          profileCompleted: result.profileCompleted,
+          isFirstLogin: result.isFirstLogin,
           user: {
-            id: result.userId,
-            role: result.role,
+            id: result.user.id,
+            role: result.user.role,
+            fullName: result.user.fullName,
+            profileImage: result.user.profileImage,
           },
         },
       );

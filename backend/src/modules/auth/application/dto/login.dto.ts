@@ -9,6 +9,12 @@ export interface LoginRequestDTO {
 export interface LoginResponseDTO {
   accessToken: string;
   refreshToken: string;
-  userId: string;
-  role: UserRole;
+  user: {
+    id: string;
+    role: UserRole;
+    fullName?: string;
+    profileImage?: string;
+  };
+  profileCompleted: boolean;
+  isFirstLogin: boolean;
 }

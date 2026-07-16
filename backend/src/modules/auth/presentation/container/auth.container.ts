@@ -74,7 +74,7 @@ const updateProfileImageUC = new UpdateProfileImageUseCase(
   userRepo,
   fileStorageRepo,
 );
-const loginUC = new LoginUseCase(userRepo, passwordPort, tokenService);
+const loginUC = new LoginUseCase(userRepo,candidateRepo, recruiterRepo, passwordPort, tokenService);
 const adminLoginUC = new AdminLoginUseCase(loginUC);
 const refreshTokenUC = new RefreshTokenUseCase(userRepo, tokenService);
 const forgotPassWordUC = new ForgotPasswordUseCase(

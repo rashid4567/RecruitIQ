@@ -80,23 +80,16 @@ export function useSignIn() {
     }
   }, []);
 
-  const navigateAfterLogin = useCallback(
-    (role: string, profileCompleted: boolean) => {
-      if (!profileCompleted) {
-        navigate(
-          role === "candidate"
-            ? "/candidate/profile/complete"
-            : "/recruiter/complete-profile",
-        );
-        return;
-      }
-
-      navigate(
-        role === "candidate" ? "/candidate/home" : "/recruiter/dashboard",
-      );
-    },
-    [navigate],
-  );
+const navigateAfterLogin = useCallback(
+  (role: string) => {
+    navigate(
+      role === "candidate"
+        ? "/candidate/home"
+        : "/recruiter/dashboard",
+    );
+  },
+  [navigate],
+);
 
   const clearMessages = useCallback(() => {
     setError(null);
@@ -122,7 +115,7 @@ export function useSignIn() {
       setSuccess("Successfully signed in!");
 
       setTimeout(() => {
-        navigateAfterLogin(result.user.role, result.profileCompleted);
+        navigateAfterLogin(result.user.role,);
       }, 900);
     } catch (err) {
       setError(getAuthError(err));
@@ -154,7 +147,7 @@ export function useSignIn() {
       setSuccess("Google sign in successful!");
 
       setTimeout(() => {
-        navigateAfterLogin(result.user.role, result.profileCompleted);
+        navigateAfterLogin(result.user.role);
       }, 900);
     } catch (err) {
       const axiosErr = err as AxiosError<{
@@ -187,7 +180,7 @@ export function useSignIn() {
       setSuccess("Welcome!");
 
       setTimeout(() => {
-        navigateAfterLogin(result.user.role, result.profileCompleted);
+        navigateAfterLogin(result.user.role,);
       }, 900);
     } catch (err) {
       setError(getAuthError(err));

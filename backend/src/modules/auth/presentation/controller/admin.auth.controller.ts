@@ -16,11 +16,17 @@ export class AdminAuthController {
   constructor(
     private readonly _adminLoginUC: IUseCase<LoginRequestDTO, LoginResponseDTO>,
   ) {}
+
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = LoginSchema.parse(req.body);
-      const result = await this._adminLoginUC.execute({ email, password });
-      if (result.role !== USER_ROLES.ADMIN) {
+
+      const result = await this._adminLoginUC.execute({
+        email,
+        password,
+      });
+
+      if (result.user.role !== USER_ROLES.ADMIN) {
         return ApiResponse.error(
           res,
           HTTP_STATUS.FORBIDDEN,
@@ -36,9 +42,12 @@ export class AdminAuthController {
         SUCCESS_MESSAGES.ADMIN_LOGIN_SUCCESFULLY,
         {
           accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
           user: {
-            id: result.userId,
-            role: result.role,
+            id: result.user.id,
+            role: result.user.role,
+            fullName: result.user.fullName,
+            profileImage: result.user.profileImage,
           },
         },
       );

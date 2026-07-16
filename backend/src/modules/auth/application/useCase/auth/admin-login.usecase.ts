@@ -16,7 +16,7 @@ export class AdminLoginUseCase implements IUseCase<
   async execute(input: LoginRequestDTO): Promise<LoginResponseDTO> {
     const result = await this.loginUseCase.execute(input);
 
-    if (result.role !== USER_ROLES.ADMIN) {
+    if (result.user.role !== USER_ROLES.ADMIN) {
       throw new ApplicationError(ERROR_CODES.ADMIN_LOGIN_NOT_ALLOWED);
     }
 

@@ -252,7 +252,6 @@ summary:
         }
         return AnalysisSchema.parse(JSON.parse(content));
       } catch (error: unknown) {
-        lastError = error;
         const { status, code } = this.extractErrorMeta(error);
         if (code === "insufficient_quota") {
           throw new ApplicationError(ERROR_CODES.AI_QUOTA_EXCEEDED);

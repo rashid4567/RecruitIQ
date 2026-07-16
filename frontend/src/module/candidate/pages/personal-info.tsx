@@ -9,7 +9,9 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 import CandidateSidebar from "@/module/candidate/pages/components/personalInfo/shared/candidateSidebar.tsx";
 import { CandidatePrivacyAndSecurity } from "./components/personalInfo/tabs/CandidatePrivacyAndSecurity.tsx";
@@ -33,25 +35,38 @@ const settingsTabs = [
   {
     value: "personal-info",
     label: "Personal Info",
+    shortLabel: "Personal",
     icon: User,
-    description: "Your personal details, skills, bio and preferences",
+    description:
+      "Everything recruiters can see: your details, skills, bio and preferences",
   },
   {
     value: "security",
     label: "Security",
+    shortLabel: "Security",
     icon: Shield,
     description: "Password, sessions and login methods",
   },
   {
     value: "notifications",
     label: "Notifications",
+    shortLabel: "Notify",
     icon: Bell,
     description: "Email, in-app and job alert preferences",
   },
- 
 ] as const;
 
 type TabValue = (typeof settingsTabs)[number]["value"];
+
+function getInitials(name?: string | null): string {
+  if (!name) return "U";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 export default function CandidateProfilePage() {
   const [activeTab, setActiveTab] = useState<TabValue>("personal-info");
@@ -74,7 +89,6 @@ export default function CandidateProfilePage() {
     setValidationErrors,
   } = useProfileEdit(profile);
 
-  
   const handleInputChange = useCallback(
     <K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
       updateField(key, value);
@@ -154,130 +168,179 @@ export default function CandidateProfilePage() {
   if (loading && !profile) return <LoadingState />;
   if (!profile) return <ErrorState onRetry={loadProfile} loading={loading} />;
 
+  const completion =
+    typeof stats?.completionPercentage === "number"
+      ? stats.completionPercentage
+      : undefined;
+
+  const activeTabMeta = settingsTabs.find((t) => t.value === activeTab);
+
   return (
     <div className="min-h-screen bg-slate-50/70 flex">
-    
-
-       <div className="hidden lg:block">
-    <CandidateSidebar
-        user={{
-          fullName: profile.fullName,
-          email: profile.email,
-          profileImage: profile.profileImage,
-        }}
-      />
-  </div>
+      <div className="hidden lg:block">
+        <CandidateSidebar
+          user={{
+            fullName: profile.fullName,
+            email: profile.email,
+            profileImage: profile.profileImage,
+          }}
+        />
+      </div>
 
       <main className="flex-1 flex flex-col min-h-0">
         <Header profile={profile} error={error} onRetry={loadProfile} />
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-8">
-          <div className="max-w-5xl mx-auto">
-            <Card className="border-none shadow-sm">
-              <CardHeader>
-                <CardTitle>Settings</CardTitle>
-                <CardDescription>
-                  Manage your profile, security and preferences
-                </CardDescription>
-              </CardHeader>
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-5 lg:py-8 space-y-5 sm:space-y-6 lg:space-y-8">
+            <div>
+              <h1 className="text-2xl sm:text-[1.75rem] lg:text-[2rem] font-bold tracking-tight text-slate-900">
+                Profile Settings
+              </h1>
+              <p className="text-sm sm:text-[15px] lg:text-base text-muted-foreground mt-1">
+                Manage your account, privacy and notifications
+              </p>
+            </div>
 
-              <CardContent>
-                <Tabs
-                  value={activeTab}
-                  onValueChange={(v) => setActiveTab(v as TabValue)}
-                  className="space-y-6"
-                >
-                  <TabsList className="h-14 w-full justify-start bg-muted/60 overflow-x-auto">
-                    {settingsTabs.map((tab) => {
-                      const Icon = tab.icon;
-                      return (
-                        <TabsTrigger
-                          key={tab.value}
-                          value={tab.value}
-                          className="gap-2"
-                        >
-                          <Icon className="h-4 w-4" />
-                          {tab.label}
-                        </TabsTrigger>
-                      );
-                    })}
-                  </TabsList>
+            <Tabs
+              value={activeTab}
+              onValueChange={(v) => setActiveTab(v as TabValue)}
+              className="space-y-5 sm:space-y-6 lg:space-y-8"
+            >
+              <div
+                className={cn(
+                  "sticky top-0 z-10 -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-10",
+                  "px-4 sm:px-6 lg:px-8 xl:px-10 pb-4 pt-1",
+                  "bg-slate-50/90 backdrop-blur-sm space-y-4",
+                )}
+              >
+                <Card className="rounded-2xl border shadow-sm">
+                  <CardContent className="flex items-center gap-4 p-4 sm:p-5">
+                    <Avatar className="h-14 w-14 sm:h-16 sm:w-16 shrink-0">
+                      <AvatarImage
+                        src={profile.profileImage ?? undefined}
+                        alt={profile.fullName}
+                      />
+                      <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-500 text-white font-bold">
+                        {getInitials(profile.fullName)}
+                      </AvatarFallback>
+                    </Avatar>
 
-                  <div className="pt-2">
-                    <TabsContent
-                      value="personal-info"
-                      className="mt-0 space-y-6 focus-visible:outline-none"
-                    >
-                      <div>
-                        <h2 className="text-xl font-semibold">Personal Info</h2>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {
-                            settingsTabs.find(
-                              (t) => t.value === "personal-info",
-                            )?.description
-                          }
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-slate-900 truncate">
+                        {profile.fullName}
+                      </p>
+                      {profile.currentJob && (
+                        <p className="text-sm text-muted-foreground truncate">
+                          {profile.currentJob}
                         </p>
-                        <Separator className="my-5" />
+                      )}
+                      {completion !== undefined && (
+                        <div className="flex items-center gap-2 mt-2 max-w-xs">
+                          <Progress value={completion} className="h-1.5" />
+                          <span className="text-xs font-medium text-muted-foreground shrink-0">
+                            {completion}% complete
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
 
-                       
-                        <PersonalInfoTab
-                          profile={profile}
-                          stats={stats}
-                          isEditing={isEditing}
-                          editData={editData}
-                          validationErrors={validationErrors}
-                          onInputChange={handleInputChange}
-                          onFieldBlur={touchField}
-                          getFieldError={getFieldError}
-                          isFieldValid={isFieldValid}
-                          onEditToggle={startEdit}
-                          onSave={handleSave}
-                          onCancel={cancelEdit}
-                          loading={isUpdating}
-                        />
-                      </div>
-                    </TabsContent>
+                <TabsList className="h-auto w-full justify-start bg-muted/60 overflow-x-auto p-1 rounded-full gap-1">
+                  {settingsTabs.map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <TabsTrigger
+                        key={tab.value}
+                        value={tab.value}
+                        className="gap-2 rounded-full px-3 sm:px-4 h-10 shrink-0"
+                      >
+                        <Icon className="h-4 w-4 shrink-0" />
+                        <span className="hidden sm:inline lg:hidden">
+                          {tab.shortLabel}
+                        </span>
+                        <span className="hidden lg:inline">{tab.label}</span>
+                      </TabsTrigger>
+                    );
+                  })}
+                </TabsList>
+              </div>
 
-                    <TabsContent
-                      value="security"
-                      className="mt-0 space-y-6 focus-visible:outline-none"
-                    >
-                      <div>
-                        <h2 className="text-xl font-semibold">Security</h2>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {
-                            settingsTabs.find((t) => t.value === "security")
-                              ?.description
-                          }
-                        </p>
-                        <Separator className="my-5" />
-                        <CandidatePrivacyAndSecurity />
-                      </div>
-                    </TabsContent>
+              <TabsContent
+                value="personal-info"
+                className="mt-0 focus-visible:outline-none"
+              >
+                <Card className="rounded-2xl border shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Personal Information</CardTitle>
+                    <CardDescription>
+                      {
+                        settingsTabs.find((t) => t.value === "personal-info")
+                          ?.description
+                      }
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <PersonalInfoTab
+                      profile={profile}
+                      stats={stats}
+                      isEditing={isEditing}
+                      editData={editData}
+                      validationErrors={validationErrors}
+                      onInputChange={handleInputChange}
+                      onFieldBlur={touchField}
+                      getFieldError={getFieldError}
+                      isFieldValid={isFieldValid}
+                      onEditToggle={startEdit}
+                      onSave={handleSave}
+                      onCancel={cancelEdit}
+                      loading={isUpdating}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-                    <TabsContent
-                      value="notifications"
-                      className="mt-0 space-y-6 focus-visible:outline-none"
-                    >
-                      <div>
-                        <h2 className="text-xl font-semibold">Notifications</h2>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {
-                            settingsTabs.find(
-                              (t) => t.value === "notifications",
-                            )?.description
-                          }
-                        </p>
-                        <Separator className="my-5" />
-                        <NotificationsSection />
-                      </div>
-                    </TabsContent>
+              <TabsContent
+                value="security"
+                className="mt-0 focus-visible:outline-none"
+              >
+                <Card className="rounded-2xl border shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Security</CardTitle>
+                    <CardDescription>
+                      {
+                        settingsTabs.find((t) => t.value === "security")
+                          ?.description
+                      }
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <CandidatePrivacyAndSecurity />
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-                   
-                  </div>
-                </Tabs>
-              </CardContent>
-            </Card>
+              <TabsContent
+                value="notifications"
+                className="mt-0 focus-visible:outline-none"
+              >
+                <Card className="rounded-2xl border shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Notifications</CardTitle>
+                    <CardDescription>
+                      {
+                        settingsTabs.find((t) => t.value === "notifications")
+                          ?.description
+                      }
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <NotificationsSection />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+            <span className="sr-only">{activeTabMeta?.description}</span>
           </div>
         </div>
       </main>

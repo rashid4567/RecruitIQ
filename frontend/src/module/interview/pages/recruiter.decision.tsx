@@ -11,18 +11,20 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useRecruiterHiringDecisionDetails } from "@/module/interview/hooks/recruiter/useRecruiterHiringDecisionDetails";
 import { useUpdateApplicationStatus } from "@/module/job-application/hooks/recruiter/useUpdateApplicationStatus";
-import { ApplicationStatus } from "@/module/job-application/types/jobApplication.types";
+import {
+  ApplicationRecommendation,
+  ApplicationStatus,
+} from "@/module/job-application/types/jobApplication.types";
 import type {
   HiringDecisionResume,
   HiringDecisionInterview,
 } from "@/module/interview/types/recruiterInterview.types";
 
 import Sidebar from "@/module/recruiter/pages/components/layout/Sidebar";
+import Header from "@/module/auth/pages/home/header";
 const EmploymentOfferModal = lazy(
   () => import("../../offer-letter/page/create-letter.modal"),
 );
-
-type Recommendation = "STRONG_MATCH" | "PARTIAL_MATCH" | "NO_MATCH";
 
 interface TimelineEvent {
   id: string;
@@ -97,10 +99,19 @@ function titleCase(value?: string | null) {
     .join(" ");
 }
 
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
+const AVATAR_GRADIENTS = [
+  "from-blue-600 to-blue-400",
+  "from-purple-600 to-purple-400",
+  "from-indigo-600 to-indigo-400",
+  "from-emerald-600 to-emerald-400",
+];
+
+function avatarGradient(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) % AVATAR_GRADIENTS.length;
+  }
+  return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
 }
 
 function buildTimeline(
@@ -360,7 +371,7 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${className}`}
+      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border ${className}`}
     >
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
       {titleCase(status)}
@@ -371,10 +382,10 @@ function StatusBadge({ status }: { status: string }) {
 function RecommendationBadge({
   recommendation,
 }: {
-  recommendation: Recommendation;
+  recommendation: ApplicationRecommendation;
 }) {
   const map: Record<
-    Recommendation,
+    ApplicationRecommendation,
     {
       label: string;
       sub: string;
@@ -383,20 +394,29 @@ function RecommendationBadge({
     }
   > = {
     STRONG_MATCH: {
-      label: "Strong match",
-      sub: "Ready to move forward",
+      label: "Strong Match",
+      sub: "Highly recommended for this position.",
       className: "bg-emerald-50 border-emerald-200 text-emerald-800",
       dot: "bg-emerald-500",
     },
+
+    GOOD_MATCH: {
+      label: "Good Match",
+      sub: "Meets most job requirements.",
+      className: "bg-blue-50 border-blue-200 text-blue-800",
+      dot: "bg-blue-500",
+    },
+
     PARTIAL_MATCH: {
-      label: "Partial match",
-      sub: "Needs manual review",
+      label: "Partial Match",
+      sub: "Needs manual review before proceeding.",
       className: "bg-amber-50 border-amber-200 text-amber-800",
       dot: "bg-amber-500",
     },
-    NO_MATCH: {
-      label: "Not recommended",
-      sub: "Falls short of requirements",
+
+    POOR_MATCH: {
+      label: "Poor Match",
+      sub: "Does not meet several key job requirements.",
       className: "bg-red-50 border-red-200 text-red-800",
       dot: "bg-red-500",
     },
@@ -410,16 +430,19 @@ function RecommendationBadge({
   };
 
   return (
-    <div className={`rounded-xl border px-4 py-3 ${m.className}`}>
+    <div
+      className={`rounded-xl border px-4 py-3 transition-all ${m.className}`}
+    >
       <div className="flex items-center gap-2">
-        <span className={`w-2 h-2 rounded-full ${m.dot}`} />
-        <span className="text-sm font-bold">{m.label}</span>
+        <span className={`h-2.5 w-2.5 rounded-full ${m.dot}`} />
+
+        <span className="text-sm font-semibold">{m.label}</span>
       </div>
-      <p className="text-xs mt-0.5 opacity-80">{m.sub}</p>
+
+      <p className="mt-1 text-xs opacity-80">{m.sub}</p>
     </div>
   );
 }
-
 function scoreColor(score: number) {
   if (score >= 70)
     return {
@@ -486,7 +509,9 @@ function ScoreGauge({ score }: { score: number }) {
         <span className={`text-xl sm:text-2xl font-bold ${c.text}`}>
           {score}%
         </span>
-        <span className="text-[11px] text-slate-500 font-medium">overall</span>
+        <span className="text-[11px] text-slate-500 font-medium tracking-wide uppercase">
+          AI Match
+        </span>
       </div>
     </div>
   );
@@ -497,15 +522,24 @@ function Card({
   action,
   children,
   className = "",
+  interactive = false,
+  onClick,
 }: {
   title?: string;
   action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  interactive?: boolean;
+  onClick?: () => void;
 }) {
   return (
     <section
-      className={`bg-white rounded-xl sm:rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 lg:p-8 ${className}`}
+      onClick={onClick}
+      className={`bg-white rounded-2xl border border-slate-100 shadow-sm py-5 px-5 sm:p-6 lg:p-8 ${
+        interactive
+          ? "cursor-pointer transition-all duration-200 hover:border-blue-200 hover:shadow-lg hover:-translate-y-1"
+          : ""
+      } ${className}`}
     >
       {title && (
         <div className="flex items-center justify-between mb-4 gap-2">
@@ -546,7 +580,6 @@ function Toast({ message, onDone }: { message: string; onDone: () => void }) {
 const CandidateOverviewCard = memo(function CandidateOverviewCard({
   candidateName,
   candidateEmail,
-  candidateProfileImage,
   status,
   applicationNumber,
   position,
@@ -565,17 +598,22 @@ const CandidateOverviewCard = memo(function CandidateOverviewCard({
   return (
     <Card title="Candidate overview">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-5 text-center sm:text-left">
-        {candidateProfileImage ? (
-          <img
-            src={candidateProfileImage}
-            alt={candidateName}
-            className="w-14 h-14 rounded-full object-cover shrink-0 shadow-md shadow-indigo-100 mx-auto sm:mx-0"
-          />
-        ) : (
-          <div className="w-14 h-14 rounded-full bg-linear-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-md shadow-indigo-100 mx-auto sm:mx-0">
-            {initials(candidateName)}
-          </div>
-        )}
+        <div
+          className={`group relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-linear-to-br ${avatarGradient(
+            candidateName,
+          )} text-xl font-bold text-white shadow-lg shadow-slate-900/10 ring-2 ring-white transition-transform duration-200 hover:scale-105 hover:shadow-xl`}
+        >
+          <span className="pointer-events-none absolute inset-0 bg-linear-to-br from-white/25 via-transparent to-black/10" />
+
+          <span className="relative select-none tracking-wide">
+            {candidateName?.trim()?.charAt(0).toUpperCase() || "U"}
+          </span>
+
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
+          </span>
+        </div>
         <div className="min-w-0 flex-1">
           <p className="font-bold text-slate-900 text-lg truncate">
             {candidateName}
@@ -596,8 +634,16 @@ const CandidateOverviewCard = memo(function CandidateOverviewCard({
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 pt-5 border-t border-slate-100">
         <Field label="Application number" value={applicationNumber} />
-        <Field label="Position" value={position} />
-        <Field label="Applied" value={appliedDate} />
+        {/* 14px / medium */}
+        <Field
+          label="Position"
+          value={<span className="text-sm font-medium">{position}</span>}
+        />
+        {/* 12px / gray */}
+        <Field
+          label="Applied"
+          value={<span className="text-xs text-slate-500">{appliedDate}</span>}
+        />
       </div>
     </Card>
   );
@@ -613,7 +659,7 @@ const AiEvaluationCard = memo(function AiEvaluationCard({
   requirementsScore,
 }: {
   overallScore: number;
-  recommendation: Recommendation;
+  recommendation: ApplicationRecommendation;
   requiredSkillsScore: number;
   preferredSkillsScore: number;
   experienceScore: number;
@@ -742,7 +788,7 @@ function InterviewStatusPill({ status }: { status?: string }) {
           : "bg-amber-50 text-amber-700";
   return (
     <span
-      className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-full ${className}`}
+      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ${className}`}
     >
       {titleCase(status ?? "unknown")}
     </span>
@@ -1000,7 +1046,10 @@ function ResumeCard({
 }) {
   return (
     <Card title="Resume">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-slate-200 rounded-xl p-4">
+      <div
+        onClick={onPreview}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-slate-200 rounded-xl p-4 cursor-pointer transition-all duration-200 hover:border-blue-200 hover:shadow-lg hover:-translate-y-1"
+      >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
             <FileIcon className="w-5 h-5" />
@@ -1020,7 +1069,10 @@ function ResumeCard({
           </div>
         </div>
         <button
-          onClick={onPreview}
+          onClick={(e) => {
+            e.stopPropagation();
+            onPreview();
+          }}
           className="flex items-center justify-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 shrink-0 px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors w-full sm:w-auto min-h-11 sm:min-h-0"
         >
           <EyeIcon className="w-4 h-4" />
@@ -1361,9 +1413,9 @@ function LoadingState() {
   return (
     <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 space-y-4 sm:space-y-6">
       <SkeletonBlock className="h-6 w-64" />
-      <SkeletonBlock className="h-40 w-full rounded-xl sm:rounded-2xl" />
-      <SkeletonBlock className="h-56 w-full rounded-xl sm:rounded-2xl" />
-      <SkeletonBlock className="h-40 w-full rounded-xl sm:rounded-2xl" />
+      <SkeletonBlock className="h-40 w-full rounded-2xl" />
+      <SkeletonBlock className="h-56 w-full rounded-2xl" />
+      <SkeletonBlock className="h-40 w-full rounded-2xl" />
     </div>
   );
 }
@@ -1442,8 +1494,6 @@ export default function RecruiterHiringDecisionPage() {
     setToast("Email copied to clipboard");
   }, [decision]);
 
-  // Reject still goes straight through updateStatus — only Select requires
-  // the mandatory offer flow.
   const handleReject = useCallback(
     async (payload: { reason: RejectReason; notes: string }) => {
       if (!decision) return;
@@ -1467,10 +1517,6 @@ export default function RecruiterHiringDecisionPage() {
     [decision, updateStatus, navigate],
   );
 
-  // The offer modal only tells us it succeeded — everything that happens
-  // next (toast, refresh, navigation) is this page's call, not the modal's.
-  // The modal also calls its own onClose() right after onSent, which sets
-  // modal back to null; we don't duplicate that here.
   const handleOfferSent = useCallback(async () => {
     setToast("Candidate selected — offer sent");
     await refetch();
@@ -1485,8 +1531,11 @@ export default function RecruiterHiringDecisionPage() {
       : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <Sidebar />
+    <div className="min-h-screen flex">
+      <Header />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
 
       <div className="flex-1 flex flex-col min-w-0">
         {loading && !decision && <LoadingState />}
@@ -1537,7 +1586,7 @@ export default function RecruiterHiringDecisionPage() {
                         }
                         recommendation={
                           decision.application.aiAnalysis
-                            .recommendation as Recommendation
+                            .recommendation as ApplicationRecommendation
                         }
                         requiredSkillsScore={
                           decision.application.aiAnalysis.requiredSkillsScore

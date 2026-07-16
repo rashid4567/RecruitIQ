@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import {
   Search,
   ChevronDown,
@@ -22,6 +23,11 @@ import {
   Plus,
   Users,
   TrendingUp,
+  ArrowLeft,
+  LayoutDashboard,
+  SlidersHorizontal,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 
 import { useAllRecruiterApplications } from "../../hooks/recruiter/useAllRecruiterApplication";
@@ -33,6 +39,8 @@ import {
   ApplicationStatus,
   ApplicationRecommendation,
 } from "../../types/jobApplication.types";
+import Header from "@/module/auth/pages/home/header";
+import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<
   ApplicationStatus,
@@ -216,7 +224,7 @@ function scoreColor(score: number) {
   return { stroke: "#ef4444", text: "text-red-700", bg: "bg-red-50" };
 }
 
-function ScoreRing({ score, size = 52 }: { score: number; size?: number }) {
+function ScoreRing({ score, size = 56 }: { score: number; size?: number }) {
   const c = scoreColor(score);
   const radius = (size - 8) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -288,12 +296,41 @@ function RecommendationPill({
   );
 }
 
+function Breadcrumb() {
+  const navigate = useNavigate();
+  return (
+    <div className="mb-3 sm:mb-4">
+      <button
+        onClick={() => navigate("/recruiter/dashboard")}
+        className="sm:hidden inline-flex items-center gap-1.5 text-xs font-medium text-white/80 hover:text-white transition-colors"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" />
+        Dashboard
+      </button>
+      <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-white/70">
+        <button
+          onClick={() => navigate("/recruiter/dashboard")}
+          className="inline-flex items-center gap-1.5 hover:text-white transition-colors"
+        >
+          <LayoutDashboard className="w-3.5 h-3.5" />
+          Dashboard
+        </button>
+        <ChevronRight className="w-3.5 h-3.5" />
+        <span className="text-white">Applications</span>
+      </div>
+    </div>
+  );
+}
+
 function ApplicationsHeader({
   onRefresh,
   refreshing,
+  total,
 }: {
   onRefresh: () => void;
   refreshing: boolean;
+  onExport: () => void;
+  total?: number;
 }) {
   const navigate = useNavigate();
 
@@ -302,34 +339,46 @@ function ApplicationsHeader({
   };
 
   return (
-    <div className="bg-linear-to-br from-indigo-600 via-indigo-600 to-violet-600 px-6 sm:px-8 py-7 rounded-b-3xl shadow-lg shadow-indigo-200/60">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div
+      className="mt-6 lg:mt-8 px-6 sm:px-8 py-7 rounded-3xl shadow-lg shadow-indigo-200/60"
+      style={{
+        background: "linear-gradient(135deg, #4F46E5, #2563EB, #0EA5E9)",
+      }}
+    >
+      <Breadcrumb />
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-[28px] lg:text-[32px] font-bold text-white tracking-tight">
             Applications
           </h1>
-          <p className="text-sm text-indigo-100 mt-1 max-w-md">
-            Manage every candidate, interview and AI recommendation from one
-            place.
+          <p className="text-sm text-indigo-100 mt-1.5 max-w-md">
+            Track, shortlist and hire candidates from one workspace.
           </p>
+          {typeof total === "number" && (
+            <p className="text-xs text-indigo-200/80 mt-2">
+              {total} total application{total === 1 ? "" : "s"}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={onRefresh}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm"
+            aria-label="Refresh"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all backdrop-blur-sm"
           >
             <RefreshCw
-              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+              className={cn("w-4 h-4", refreshing && "animate-spin")}
             />
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </button>
 
           <button
             onClick={handleCreateJob}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white text-indigo-700 hover:bg-indigo-50 transition-colors shadow-sm"
+            aria-label="Create job"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white text-indigo-700 hover:bg-indigo-50 active:scale-95 transition-all shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            New Job
+            <span className="hidden sm:inline">Create Job</span>
           </button>
         </div>
       </div>
@@ -358,18 +407,18 @@ function StatCard({
   } as const;
 
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
+    <div className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-3.5 shadow-sm">
       <div
-        className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${tints[tint]}`}
+        className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${tints[tint]}`}
       >
-        <Icon className="w-5 h-5" />
+        <Icon className="w-5.5 h-5.5" />
       </div>
       <div className="min-w-0">
         <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide truncate">
           {label}
         </p>
         <div className="flex items-baseline gap-1.5">
-          <span className="text-xl font-bold text-slate-900">{value}</span>
+          <span className="text-2xl font-bold text-slate-900">{value}</span>
           <span className="text-[11px] text-slate-400 truncate">{meta}</span>
         </div>
       </div>
@@ -377,39 +426,79 @@ function StatCard({
   );
 }
 
-function ApplicationCard({ app }: { app: RecruiterApplication }) {
+function StatCardSkeleton() {
+  return (
+    <div className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-3.5 shadow-sm animate-pulse">
+      <div className="w-12 h-12 rounded-xl bg-slate-100 shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-2.5 w-16 rounded bg-slate-100" />
+        <div className="h-5 w-10 rounded bg-slate-100" />
+      </div>
+    </div>
+  );
+}
+
+function ApplicationCard({
+  app,
+  index,
+}: {
+  app: RecruiterApplication;
+  index: number;
+}) {
   const navigate = useNavigate();
   const rec = app.aiRecommendation
     ? RECOMMENDATION_CONFIG[app.aiRecommendation]
     : null;
   const goToDetail = () =>
     navigate(`/recruiter/application-detail/${app.applicationId}`);
+
+  const stopAnd =
+    (fn: (app: RecruiterApplication) => void) => (e: React.MouseEvent) => {
+      e.stopPropagation();
+      fn(app);
+    };
+
   const quickActions = [
     {
       label: "Interview",
       icon: CalendarClock,
-      onClick: (e: React.MouseEvent) => {
-        e.stopPropagation();
-        navigate("/recruiter/interviews");
-      },
+      onClick: stopAnd(() => navigate("/recruiter/interviews")),
+    },
+    {
+      label: "Shortlist",
+      icon: ThumbsUp,
+      onClick: stopAnd((a) =>
+        toast.info(
+          `Shortlist "${a.candidateName}" — connect this to your update-status mutation.`,
+        ),
+      ),
+    },
+    {
+      label: "Reject",
+      icon: ThumbsDown,
+      onClick: stopAnd((a) =>
+        toast.info(
+          `Reject "${a.candidateName}" — connect this to your update-status mutation.`,
+        ),
+      ),
     },
   ];
   const stars = getStars(app.aiScore ?? 0);
+
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={goToDetail}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && goToDetail()}
-      className="group relative bg-white border border-slate-100 rounded-2xl p-5 cursor-pointer transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-100/60 hover:border-indigo-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-100"
+      style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+      className="group relative bg-white border border-slate-100 rounded-2xl p-6 cursor-pointer transition-all duration-200 ease-out hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/50 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-100 animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0 flex-1">
-          {
-            <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold shrink-0">
-              {initials(app.candidateName)}
-            </div>
-          }
+          <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold shrink-0">
+            {initials(app.candidateName)}
+          </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-800 truncate">
               {app.candidateName}
@@ -424,7 +513,16 @@ function ApplicationCard({ app }: { app: RecruiterApplication }) {
           </div>
         </div>
 
-        {typeof app.aiScore === "number" && <ScoreRing score={app.aiScore} />}
+        {typeof app.aiScore === "number" && (
+          <div className="flex flex-col items-center gap-1 shrink-0">
+            <ScoreRing score={app.aiScore} />
+            {rec && (
+              <span className={cn("text-[9px] font-semibold", rec.text)}>
+                {rec.label}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-50">
@@ -451,15 +549,15 @@ function ApplicationCard({ app }: { app: RecruiterApplication }) {
       )}
 
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
           {quickActions.map(({ label, icon: Icon, onClick }) => (
             <button
               key={label}
               onClick={onClick}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition-colors"
+              className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded-lg transition-colors"
             >
               <Icon className="w-3.5 h-3.5" />
-              {label}
+              <span className="hidden sm:inline">{label}</span>
             </button>
           ))}
         </div>
@@ -472,6 +570,17 @@ function ApplicationCard({ app }: { app: RecruiterApplication }) {
   );
 }
 
+function getPageWindow(current: number, total: number, size = 5): number[] {
+  if (total <= size) return Array.from({ length: total }, (_, i) => i + 1);
+  let start = Math.max(1, current - Math.floor(size / 2));
+  let end = start + size - 1;
+  if (end > total) {
+    end = total;
+    start = end - size + 1;
+  }
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+}
+
 export default function RecruiterApplicationsList() {
   const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState(1);
@@ -481,6 +590,8 @@ export default function RecruiterApplicationsList() {
   >("");
   const [sortValue, setSortValue] = useState("appliedAt-desc");
   const [refreshing, setRefreshing] = useState(false);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
   const debouncedSearch = useDebounce(searchInput, 400);
   const activeSort =
     SORT_OPTIONS.find((o) => o.value === sortValue) ?? SORT_OPTIONS[0];
@@ -521,6 +632,22 @@ export default function RecruiterApplicationsList() {
     }
   };
 
+  const handleExport = () => {
+    toast.info("Export CSV isn't wired to an endpoint yet.");
+  };
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (e.key === "/" && tag !== "INPUT" && tag !== "TEXTAREA") {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   const stats = useMemo(() => {
     const interview = applications.filter(
       (a) => a.status === "INTERVIEW_SCHEDULED",
@@ -532,147 +659,340 @@ export default function RecruiterApplicationsList() {
     return { interview, selected, strongMatch };
   }, [applications]);
 
+  const isInitialLoad = loading && applications.length === 0 && page === 1;
+
   return (
     <main className="flex min-h-screen bg-slate-50">
+      <Header />
       <div className="hidden lg:block">
         <Sidebar activeItem="applications" />
       </div>
       <section className="flex-1">
-        <ApplicationsHeader onRefresh={handleRefresh} refreshing={refreshing} />
+        <div className="px-6 sm:px-8">
+          <ApplicationsHeader
+            onRefresh={handleRefresh}
+            refreshing={refreshing}
+            onExport={handleExport}
+            total={pagination?.total ?? applications.length}
+          />
+        </div>
 
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-            <StatCard
-              icon={Users}
-              label="Applications"
-              value={pagination?.total ?? applications.length}
-              meta="total"
-              tint="indigo"
-            />
-            <StatCard
-              icon={CalendarClock}
-              label="Interviews"
-              value={stats.interview}
-              meta="this page"
-              tint="amber"
-            />
-            <StatCard
-              icon={CheckCircle2}
-              label="Selected"
-              value={stats.selected}
-              meta="this page"
-              tint="emerald"
-            />
-            <StatCard
-              icon={TrendingUp}
-              label="AI Strong Match"
-              value={stats.strongMatch}
-              meta="this page"
-              tint="violet"
-            />
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-6 space-y-6 lg:space-y-8">
+          <div className="flex gap-3 overflow-x-auto pb-1 -mx-6 px-6 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 sm:overflow-visible">
+            {isInitialLoad ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="min-w-42.5 sm:min-w-0">
+                  <StatCardSkeleton />
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="min-w-42.5 sm:min-w-0">
+                  <StatCard
+                    icon={Users}
+                    label="Applications"
+                    value={pagination?.total ?? applications.length}
+                    meta="total"
+                    tint="indigo"
+                  />
+                </div>
+                <div className="min-w-42.5 sm:min-w-0">
+                  <StatCard
+                    icon={CalendarClock}
+                    label="Interviews"
+                    value={stats.interview}
+                    meta="this page"
+                    tint="amber"
+                  />
+                </div>
+                <div className="min-w-42.5 sm:min-w-0">
+                  <StatCard
+                    icon={CheckCircle2}
+                    label="Selected"
+                    value={stats.selected}
+                    meta="this page"
+                    tint="emerald"
+                  />
+                </div>
+                <div className="min-w-42.5 sm:min-w-0">
+                  <StatCard
+                    icon={TrendingUp}
+                    label="AI Strong Match"
+                    value={stats.strongMatch}
+                    meta="this page"
+                    tint="violet"
+                  />
+                </div>
+              </>
+            )}
           </div>
 
-          <div className="bg-white/80 backdrop-blur border border-slate-100 rounded-2xl shadow-sm p-3 mb-5">
-            <div className="flex flex-col lg:flex-row gap-2">
-              <div className="relative flex-1 min-w-0">
-                <Search className="w-4 h-4 text-slate-300 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  value={searchInput}
-                  onChange={(e) => {
-                    setSearchInput(e.target.value);
-                    setPage(1);
-                  }}
-                  placeholder="Search by candidate name or email…"
-                  className="w-full pl-9 pr-9 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 outline-none transition-all"
-                />
-                {searchInput && (
-                  <button
-                    onClick={() => {
-                      setSearchInput("");
-                      setPage(1);
-                    }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
+          <div className="sticky top-16 z-30 -mx-6 px-6 sm:-mx-8 sm:px-8 py-3 bg-slate-50/90 backdrop-blur-sm">
+            <div className="bg-white/90 backdrop-blur border border-slate-100 rounded-2xl shadow-sm p-3">
+              {isInitialLoad ? (
+                <div className="h-10 rounded-xl bg-slate-100 animate-pulse" />
+              ) : (
+                <>
+                  <div className="hidden lg:flex gap-2">
+                    <div className="relative flex-1 min-w-0">
+                      <Search className="w-4 h-4 text-slate-300 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        ref={searchRef}
+                        value={searchInput}
+                        onChange={(e) => {
+                          setSearchInput(e.target.value);
+                          setPage(1);
+                        }}
+                        placeholder="Search candidates by name or email…"
+                        className="w-full pl-9 pr-9 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 outline-none transition-all"
+                      />
+                      {searchInput ? (
+                        <button
+                          onClick={() => {
+                            setSearchInput("");
+                            setPage(1);
+                          }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      ) : (
+                        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 bg-white">
+                          /
+                        </kbd>
+                      )}
+                    </div>
 
-              <div className="relative shrink-0">
-                <select
-                  value={status}
-                  onChange={(e) =>
-                    updateFilter(
-                      setStatus,
-                      e.target.value as ApplicationStatus | "",
-                    )
-                  }
-                  className="appearance-none pl-3 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-600 font-medium outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 cursor-pointer"
-                >
-                  <option value="">All statuses</option>
-                  {Object.entries(STATUS_CONFIG).map(([value, cfg]) => (
-                    <option key={value} value={value}>
-                      {cfg.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
+                    <div className="relative shrink-0">
+                      <select
+                        value={status}
+                        onChange={(e) =>
+                          updateFilter(
+                            setStatus,
+                            e.target.value as ApplicationStatus | "",
+                          )
+                        }
+                        className="appearance-none pl-3 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-600 font-medium outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 cursor-pointer"
+                      >
+                        <option value="">All statuses</option>
+                        {Object.entries(STATUS_CONFIG).map(([value, cfg]) => (
+                          <option key={value} value={value}>
+                            {cfg.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
 
-              <div className="relative shrink-0">
-                <select
-                  value={recommendation}
-                  onChange={(e) =>
-                    updateFilter(
-                      setRecommendation,
-                      e.target.value as ApplicationRecommendation | "",
-                    )
-                  }
-                  className="appearance-none pl-3 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-600 font-medium outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 cursor-pointer"
-                >
-                  <option value="">All AI recommendations</option>
-                  {Object.entries(RECOMMENDATION_CONFIG).map(([value, cfg]) => (
-                    <option key={value} value={value}>
-                      {cfg.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
+                    <div className="relative shrink-0">
+                      <select
+                        value={recommendation}
+                        onChange={(e) =>
+                          updateFilter(
+                            setRecommendation,
+                            e.target.value as ApplicationRecommendation | "",
+                          )
+                        }
+                        className="appearance-none pl-3 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-600 font-medium outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 cursor-pointer"
+                      >
+                        <option value="">All AI recommendations</option>
+                        {Object.entries(RECOMMENDATION_CONFIG).map(
+                          ([value, cfg]) => (
+                            <option key={value} value={value}>
+                              {cfg.label}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
 
-              <div className="relative shrink-0">
-                <select
-                  value={sortValue}
-                  onChange={(e) => {
-                    setSortValue(e.target.value);
-                    setPage(1);
-                  }}
-                  className="appearance-none pl-9 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-600 font-medium outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 cursor-pointer"
-                >
-                  {SORT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <ArrowUpDown className="w-3.5 h-3.5 text-slate-300 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <ChevronDown className="w-3.5 h-3.5 text-slate-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
+                    <div className="relative shrink-0">
+                      <select
+                        value={sortValue}
+                        onChange={(e) => {
+                          setSortValue(e.target.value);
+                          setPage(1);
+                        }}
+                        className="appearance-none pl-9 pr-8 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-600 font-medium outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 cursor-pointer"
+                      >
+                        {SORT_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ArrowUpDown className="w-3.5 h-3.5 text-slate-300 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
 
-              {hasActiveFilters && (
-                <button
-                  onClick={resetFilters}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium text-slate-400 hover:text-red-500 transition-colors shrink-0"
-                >
-                  <X className="w-3.5 h-3.5" />
-                  Clear
-                </button>
+                    {hasActiveFilters && (
+                      <button
+                        onClick={resetFilters}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium text-slate-400 hover:text-red-500 transition-colors shrink-0"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex lg:hidden gap-2">
+                    <div className="relative flex-1 min-w-0">
+                      <Search className="w-4 h-4 text-slate-300 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        value={searchInput}
+                        onChange={(e) => {
+                          setSearchInput(e.target.value);
+                          setPage(1);
+                        }}
+                        placeholder="Search candidates…"
+                        className="w-full pl-9 pr-9 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 outline-none transition-all"
+                      />
+                      {searchInput && (
+                        <button
+                          onClick={() => {
+                            setSearchInput("");
+                            setPage(1);
+                          }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setIsFilterSheetOpen(true)}
+                      className={cn(
+                        "relative inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold shrink-0 transition-colors",
+                        hasActiveFilters
+                          ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                          : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
+                      )}
+                    >
+                      <SlidersHorizontal className="w-4 h-4" />
+                      Filters
+                      {hasActiveFilters && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                      )}
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           </div>
 
+          {isFilterSheetOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden">
+              <div
+                className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150"
+                onClick={() => setIsFilterSheetOpen(false)}
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-5 pb-8 space-y-4 animate-in slide-in-from-bottom duration-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-900">
+                    Filters
+                  </h3>
+                  <button
+                    onClick={() => setIsFilterSheetOpen(false)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100"
+                  >
+                    <X className="w-4 h-4 text-slate-500" />
+                  </button>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 mb-1.5 block">
+                    Status
+                  </label>
+                  <select
+                    value={status}
+                    onChange={(e) =>
+                      updateFilter(
+                        setStatus,
+                        e.target.value as ApplicationStatus | "",
+                      )
+                    }
+                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-600 font-medium outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50"
+                  >
+                    <option value="">All statuses</option>
+                    {Object.entries(STATUS_CONFIG).map(([value, cfg]) => (
+                      <option key={value} value={value}>
+                        {cfg.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 mb-1.5 block">
+                    AI Recommendation
+                  </label>
+                  <select
+                    value={recommendation}
+                    onChange={(e) =>
+                      updateFilter(
+                        setRecommendation,
+                        e.target.value as ApplicationRecommendation | "",
+                      )
+                    }
+                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-600 font-medium outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50"
+                  >
+                    <option value="">All AI recommendations</option>
+                    {Object.entries(RECOMMENDATION_CONFIG).map(
+                      ([value, cfg]) => (
+                        <option key={value} value={value}>
+                          {cfg.label}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 mb-1.5 block">
+                    Sort by
+                  </label>
+                  <select
+                    value={sortValue}
+                    onChange={(e) => {
+                      setSortValue(e.target.value);
+                      setPage(1);
+                    }}
+                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-600 font-medium outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50"
+                  >
+                    {SORT_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  {hasActiveFilters && (
+                    <button
+                      onClick={() => {
+                        resetFilters();
+                      }}
+                      className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsFilterSheetOpen(false)}
+                    className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700"
+                  >
+                    Show results
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {error && (
-            <div className="bg-red-50 border border-red-100 rounded-2xl p-5 mb-5 flex items-start gap-3">
+            <div className="bg-red-50 border border-red-100 rounded-2xl p-5 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-semibold text-red-700">
@@ -680,21 +1000,31 @@ export default function RecruiterApplicationsList() {
                 </p>
                 <p className="text-xs text-red-500 mt-0.5">{error}</p>
               </div>
-              <button
-                onClick={refetch}
-                className="text-xs font-semibold text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg bg-white border border-red-200 shrink-0"
-              >
-                Retry
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={refetch}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg bg-white border border-red-200"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Refresh
+                </button>
+                <a
+                  href="/recruiter/dashboard"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded-lg bg-white border border-slate-200"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  Go Dashboard
+                </a>
+              </div>
             </div>
           )}
 
-          {loading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {loading && !isInitialLoad && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white border border-slate-100 rounded-2xl p-5 animate-pulse"
+                  className="bg-white border border-slate-100 rounded-2xl p-6 animate-pulse"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-full bg-slate-100 shrink-0" />
@@ -713,10 +1043,30 @@ export default function RecruiterApplicationsList() {
             </div>
           )}
 
+          {isInitialLoad && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-slate-100 rounded-2xl p-6 animate-pulse"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-32 bg-slate-100 rounded" />
+                      <div className="h-2.5 w-40 bg-slate-100 rounded" />
+                      <div className="h-2.5 w-24 bg-slate-100 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {!loading && !error && applications.length === 0 && (
             <div className="bg-white border border-slate-100 rounded-2xl shadow-sm py-16 flex flex-col items-center text-center px-6">
-              <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mb-4">
-                <Inbox className="w-6 h-6 text-slate-300" />
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-4">
+                <Inbox className="w-7 h-7 text-slate-300" />
               </div>
               <p className="text-sm font-semibold text-slate-700">
                 {hasActiveFilters
@@ -726,66 +1076,117 @@ export default function RecruiterApplicationsList() {
               <p className="text-xs text-slate-400 mt-1 max-w-xs">
                 {hasActiveFilters
                   ? "Try adjusting or clearing your search and filters."
-                  : "New applications for your jobs will show up here."}
+                  : "Post your first job to start receiving candidates."}
               </p>
-              {hasActiveFilters && (
+              {hasActiveFilters ? (
                 <button
                   onClick={resetFilters}
                   className="mt-4 text-xs font-semibold text-indigo-600 hover:text-indigo-700 px-4 py-2 rounded-lg bg-indigo-50"
                 >
                   Clear filters
                 </button>
+              ) : (
+                <button
+                  onClick={() =>
+                    window.location.assign("/recruiter/job-editor")
+                  }
+                  className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Create Job
+                </button>
               )}
             </div>
           )}
 
           {!loading && !error && applications.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {applications.map((app: RecruiterApplication) => (
-                <ApplicationCard key={app.applicationId} app={app} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+              {applications.map((app: RecruiterApplication, i: number) => (
+                <ApplicationCard key={app.applicationId} app={app} index={i} />
               ))}
             </div>
           )}
 
           {!loading && !error && pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6">
-              <p className="text-xs text-slate-400">
-                Showing{" "}
-                <span className="font-semibold text-slate-600">
-                  {(pagination.page - 1) * pagination.limit + 1}
-                </span>
-                –
-                <span className="font-semibold text-slate-600">
-                  {Math.min(
-                    pagination.page * pagination.limit,
-                    pagination.total,
-                  )}
-                </span>{" "}
-                of{" "}
-                <span className="font-semibold text-slate-600">
-                  {pagination.total}
-                </span>
-              </p>
+            <div className="flex items-center justify-between">
+              {/* Desktop: full "Showing x-y of z" + numbered pages */}
+              <div className="hidden sm:flex items-center justify-between w-full">
+                <p className="text-xs text-slate-400">
+                  Showing{" "}
+                  <span className="font-semibold text-slate-600">
+                    {(pagination.page - 1) * pagination.limit + 1}
+                  </span>
+                  –
+                  <span className="font-semibold text-slate-600">
+                    {Math.min(
+                      pagination.page * pagination.limit,
+                      pagination.total,
+                    )}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-semibold text-slate-600">
+                    {pagination.total}
+                  </span>
+                </p>
 
-              <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={!pagination.hasPreviousPage}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    Previous
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {getPageWindow(pagination.page, pagination.totalPages).map(
+                      (p) => (
+                        <button
+                          key={p}
+                          onClick={() => setPage(p)}
+                          className={cn(
+                            "w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors",
+                            p === pagination.page
+                              ? "bg-indigo-600 text-white"
+                              : "text-slate-500 hover:bg-slate-100",
+                          )}
+                        >
+                          {p}
+                        </button>
+                      ),
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={!pagination.hasNextPage}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                  >
+                    Next
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Mobile: compact "← Page x of y →" */}
+              <div className="flex sm:hidden items-center justify-between w-full">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={!pagination.hasPreviousPage}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                  Previous
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="px-3 py-1.5 text-xs font-semibold text-slate-500">
+                <span className="text-xs font-semibold text-slate-500">
                   Page {pagination.page} of {pagination.totalPages}
                 </span>
                 <button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={!pagination.hasNextPage}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  Next
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>

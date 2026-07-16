@@ -22,7 +22,6 @@ import {
   ExternalLink,
   Plus,
   Check,
-  X,
   Sparkles,
   AlertCircle,
   AlertTriangle,
@@ -49,7 +48,6 @@ import type {
 import { useNavigate } from "react-router-dom";
 import { RECRUITER_ROUTES } from "@/routes/constants/Recruiter.routes";
 import Header from "@/module/auth/pages/home/header";
-
 
 const STATUS = {
   info: {
@@ -189,14 +187,6 @@ function formatRelativeTime(iso: string): string {
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-function initials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
-}
 
 function computeWeeklyTrend(dates: string[]): number | null {
   const now = new Date();
@@ -1534,7 +1524,7 @@ export default function RecruiterDashboard() {
                                 style={{ animationDelay: `${idx * 40}ms` }}
                               >
                                 <div className="flex items-center gap-3 min-w-0">
-                                  <div className="w-11 h-11 bg-linear-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center text-xs font-semibold text-gray-600 shrink-0 overflow-hidden">
+                                 <div className="h-12 w-12 shrink-0 rounded-full bg-linear-to-br from-blue-500 via-indigo-500 to-violet-600 text-white font-bold text-base flex items-center justify-center shadow-sm overflow-hidden">
                                     {app.candidateProfileImage ? (
                                       <img
                                         src={app.candidateProfileImage}
@@ -1542,7 +1532,7 @@ export default function RecruiterDashboard() {
                                         className="w-full h-full object-cover"
                                       />
                                     ) : (
-                                      initials(app.candidateName)
+                                      app.candidateName.charAt(0).toUpperCase()
                                     )}
                                   </div>
                                   <div className="min-w-0">
@@ -1601,13 +1591,13 @@ export default function RecruiterDashboard() {
                                       className="p-1.5 rounded-md hover:bg-emerald-50 text-emerald-600"
                                       title="Shortlist"
                                     >
-                                      <Check size={14} />
+                                    
                                     </button>
                                     <button
                                       className="p-1.5 rounded-md hover:bg-red-50 text-red-500"
                                       title="Reject"
                                     >
-                                      <X size={14} />
+                                    
                                     </button>
                                   </div>
                                 </div>

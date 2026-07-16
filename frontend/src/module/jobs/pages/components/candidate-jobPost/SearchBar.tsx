@@ -45,7 +45,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   }, []);
 
   return (
-    <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+    <div className="lg:sticky lg:top-16 lg:z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center gap-3">
         <div className="flex-1 relative group">
           <div className="absolute -inset-[1.5px] rounded-[14px] bg-linear-to-r from-indigo-500 via-violet-500 to-indigo-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-[1px]" />

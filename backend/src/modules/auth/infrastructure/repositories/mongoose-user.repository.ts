@@ -27,6 +27,14 @@ export class MongooseUserRepository implements UserRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
+  async findByIds(userIds: string[]): Promise<User[]> {
+  const docs = await UserModel.find({
+    _id: { $in: userIds },
+  }).lean<UserDocument[]>();
+
+  return docs.map((doc) => this.toDomain(doc));
+}
+
   async findById(userId: string): Promise<User | null> {
     const doc = await UserModel.findById(userId).lean<UserDocument>();
     return doc ? this.toDomain(doc) : null;

@@ -16,15 +16,16 @@ import {
   HelpCircle,
   Tag,
   MoreHorizontal,
+  Check,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout } from "@/module/auth/hooks/useLogout";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/module/notification/hook/useNotifications";
 
-type Role = "candidate" | "recruiter" | "admin" | null;
+type Role = "candidate" | "recruiter" | null;
 
 type NavItem = {
   label: string;
@@ -109,7 +110,7 @@ const ICON_BG: Record<NavItem["iconColor"], string> = {
 };
 
 const ROLE_THEME: Record<
-  "candidate" | "recruiter" | "admin" | "guest",
+  "candidate" | "recruiter" | "guest",
   {
     grad: string;
     text: string;
@@ -121,7 +122,7 @@ const ROLE_THEME: Record<
   }
 > = {
   candidate: {
-    grad: "from-blue-500 to-cyan-500",
+    grad: "from-blue-600 to-cyan-500",
     text: "text-blue-600",
     activeBg: "bg-blue-50",
     activeText: "text-blue-700",
@@ -138,15 +139,6 @@ const ROLE_THEME: Record<
     ring: "focus-visible:ring-emerald-500",
     dot: "bg-emerald-500",
   },
-  admin: {
-    grad: "from-rose-500 to-red-600",
-    text: "text-rose-600",
-    activeBg: "bg-rose-50",
-    activeText: "text-rose-700",
-    badge: "bg-rose-100 text-rose-700 ring-1 ring-rose-200",
-    ring: "focus-visible:ring-rose-500",
-    dot: "bg-rose-500",
-  },
   guest: {
     grad: "from-blue-600 to-cyan-500",
     text: "text-cyan-600",
@@ -161,7 +153,6 @@ const ROLE_THEME: Record<
 function getTheme(role: Role) {
   if (role === "recruiter") return ROLE_THEME.recruiter;
   if (role === "candidate") return ROLE_THEME.candidate;
-  if (role === "admin") return ROLE_THEME.admin;
   return ROLE_THEME.guest;
 }
 
@@ -181,34 +172,29 @@ function getRoleDisplay(role: Role): string {
 
 function getNotificationPath(role: Role): string {
   if (role === "recruiter") return "/recruiter/notification";
-  if (role === "admin") return "/admin/notifications";
   return "/candidate/notification";
 }
 
 function getProfilePath(role: Role): string {
   if (role === "candidate") return "/candidate/profile/setting";
-  if (role === "recruiter") return "/recruiter-dashboard";
-  if (role === "admin") return "/admin-dashboard";
+  if (role === "recruiter") return "/recruiter/profile";
   return "/profile";
 }
 
 function getDashboardPath(role: Role): string {
   if (role === "candidate") return "/candidate/home";
-  if (role === "recruiter") return "/recruiter-dashboard";
-  if (role === "admin") return "/admin-dashboard";
+  if (role === "recruiter") return "/recruiter/dashboard";
   return "/";
 }
 
 function getSettingsPath(role: Role): string {
   if (role === "candidate") return "/candidate/settings";
   if (role === "recruiter") return "/recruiter/settings";
-  if (role === "admin") return "/admin/settings";
   return "/settings";
 }
 
 function getHeaderSubtitle(role: Role): string {
   if (role === "recruiter") return "Hiring Workspace";
-  if (role === "admin") return "Admin Workspace";
   return "AI Recruitment Platform";
 }
 
@@ -225,11 +211,6 @@ function getUserStats(): {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Viewport tier. Desktop shows the full nav, tablet shows a trimmed nav with
-// an overflow "More" menu, mobile relies on the drawer instead of squeezing
-// items into the top bar.
-// ---------------------------------------------------------------------------
 type Viewport = "mobile" | "tablet" | "desktop";
 
 const NAV_VISIBLE_COUNT: Record<Viewport, number> = {
@@ -270,29 +251,26 @@ const NavLink: React.FC<{
   active: boolean;
   theme: ReturnType<typeof getTheme>;
 }> = ({ href, label, icon: Icon, active, theme }) => (
-  <a
-    href={href}
+  <Link
+    to={href}
     aria-current={active ? "page" : undefined}
     className={cn(
-      "relative flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 rounded-lg transition-all duration-200",
+      "group relative flex items-center gap-2 text-sm px-4 py-2.5 rounded-full transition-all duration-200",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
       theme.ring,
       active
-        ? cn(theme.activeBg, theme.activeText)
-        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80",
+        ? cn(theme.activeBg, theme.activeText, "font-bold shadow-sm")
+        : "font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 hover:-translate-y-0.5",
     )}
   >
-    <Icon className="w-3.5 h-3.5 shrink-0" />
+    <Icon
+      className={cn(
+        "w-4 h-4 shrink-0 transition-colors",
+        !active && "text-gray-400 group-hover:text-gray-700",
+      )}
+    />
     {label}
-    {active && (
-      <span
-        className={cn(
-          "absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full",
-          theme.dot,
-        )}
-      />
-    )}
-  </a>
+  </Link>
 );
 
 export default function Header() {
@@ -395,7 +373,6 @@ export default function Header() {
     setIsMoreOpen(false);
   }, [location.pathname]);
 
-  // Lock body scroll while the drawer is open; always restore on unmount.
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
     return () => {
@@ -403,8 +380,6 @@ export default function Header() {
     };
   }, [isMenuOpen]);
 
-  // Focus management: move focus into the drawer on open, trap Tab/Shift+Tab
-  // inside it, close on Escape, and restore focus to the menu button on close.
   useEffect(() => {
     if (!isMenuOpen) return;
 
@@ -475,7 +450,6 @@ export default function Header() {
 
   return (
     <>
-      {/* Gentle 6s bell sway instead of a constant pulse — noticeable once, not distracting. */}
       <style>{`
         @keyframes bell-ring {
           0%, 82%, 100% { transform: scale(1) rotate(0deg); }
@@ -490,88 +464,87 @@ export default function Header() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           scrolled
-            ? "bg-white/98 backdrop-blur-xl shadow-[0_1px_0_0_rgba(15,23,42,0.06),0_12px_28px_-14px_rgba(15,23,42,0.18)] border-b border-gray-200/50"
-            : "bg-white/80 backdrop-blur-md border-b border-gray-100/50",
+            ? "bg-white/98 backdrop-blur-md shadow-[0_8px_24px_-14px_rgba(15,23,42,0.22)] border-b border-gray-200/60"
+            : "bg-white/85 backdrop-blur-md border-b border-gray-100/60",
         )}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div
             className={cn(
-              "flex items-center gap-2 transition-[height] duration-300",
+              "grid grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto_1fr] items-center gap-2 transition-[height] duration-300",
               "h-16 md:h-17",
               scrolled ? "lg:h-16" : "lg:h-18",
             )}
           >
-            {/* Mobile menu trigger — leftmost on small screens, one-handed thumb reach */}
-            <button
-              ref={menuButtonRef}
-              onClick={() => setIsMenuOpen((p) => !p)}
-              aria-label="Toggle menu"
-              aria-expanded={isMenuOpen}
-              className={cn(
-                "md:hidden relative w-9 h-9 flex items-center justify-center rounded-lg shrink-0",
-                "border border-gray-200 hover:bg-gray-50 transition-all duration-200",
-                "focus:outline-none focus-visible:ring-2",
-                theme.ring,
-                isMenuOpen && "bg-gray-100 border-gray-300",
-              )}
-            >
-              <span
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <button
+                ref={menuButtonRef}
+                onClick={() => setIsMenuOpen((p) => !p)}
+                aria-label="Toggle menu"
+                aria-expanded={isMenuOpen}
                 className={cn(
-                  "absolute transition-all duration-200",
-                  isMenuOpen ? "opacity-0 rotate-45" : "opacity-100",
+                  "md:hidden relative w-9 h-9 flex items-center justify-center rounded-lg shrink-0",
+                  "border border-gray-200 hover:bg-gray-50 transition-all duration-200",
+                  "focus:outline-none focus-visible:ring-2",
+                  theme.ring,
+                  isMenuOpen && "bg-gray-100 border-gray-300",
                 )}
               >
-                <Menu className="w-4.5 h-4.5 text-gray-700" />
-              </span>
-              <span
-                className={cn(
-                  "absolute transition-all duration-200",
-                  isMenuOpen ? "opacity-100" : "opacity-0 -rotate-45",
-                )}
-              >
-                <X className="w-4.5 h-4.5 text-gray-700" />
-              </span>
-            </button>
-
-            {/* Brand */}
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center gap-2 sm:gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 rounded-lg shrink-0 min-w-0"
-            >
-              <div
-                style={{
-                  clipPath:
-                    "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-                }}
-                className={cn(
-                  "w-8 h-8 sm:w-9 sm:h-9 bg-linear-to-br shrink-0",
-                  theme.grad,
-                  "flex items-center justify-center shadow-md shadow-blue-500/20",
-                  "transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3",
-                )}
-              >
-                <span className="text-white font-black text-xs sm:text-sm tracking-tighter">
-                  RF
+                <span
+                  className={cn(
+                    "absolute transition-all duration-200",
+                    isMenuOpen ? "opacity-0 rotate-45" : "opacity-100",
+                  )}
+                >
+                  <Menu className="w-5 h-5 text-gray-700" />
                 </span>
-              </div>
-              <span className="flex flex-col items-start leading-none min-w-0">
-                <span className="font-bold text-sm sm:text-[1.05rem] tracking-tight text-gray-900 truncate">
-                  Recruit
-                  <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-                    Flow
+                <span
+                  className={cn(
+                    "absolute transition-all duration-200",
+                    isMenuOpen ? "opacity-100" : "opacity-0 -rotate-45",
+                  )}
+                >
+                  <X className="w-5 h-5 text-gray-700" />
+                </span>
+              </button>
+
+              <button
+                onClick={() => navigate("/")}
+                className="flex items-center gap-2 sm:gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 rounded-lg shrink-0 min-w-0"
+              >
+                <div
+                  style={{
+                    clipPath:
+                      "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+                  }}
+                  className={cn(
+                    "w-8 h-8 sm:w-9 sm:h-9 bg-linear-to-br shrink-0",
+                    theme.grad,
+                    "flex items-center justify-center shadow-md shadow-blue-500/20",
+                    "transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3",
+                  )}
+                >
+                  <Check
+                    className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white"
+                    strokeWidth={3}
+                  />
+                </div>
+                <span className="flex flex-col items-start leading-none min-w-0">
+                  <span className="font-bold text-sm sm:text-[1.05rem] tracking-tight text-gray-900 truncate">
+                    Recruit
+                    <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                      Flow
+                    </span>
+                  </span>
+                  <span className="hidden lg:block text-[10px] font-medium text-gray-400 mt-0.5 tracking-wider">
+                    {getHeaderSubtitle(userRole)}
                   </span>
                 </span>
-                <span className="hidden lg:block text-[10px] font-medium text-gray-400 mt-0.5 tracking-wide">
-                  {getHeaderSubtitle(userRole)}
-                </span>
-              </span>
-            </button>
+              </button>
+            </div>
 
-            {/* Nav — tablet and up. Trims to a "More" menu once it would
-                crowd the bar. */}
-            <div className="hidden md:flex flex-1 items-center min-w-0 px-1">
-              <nav className="flex items-center gap-0.5 shrink-0">
+            <div className="hidden md:flex items-center justify-self-center min-w-0">
+              <nav className="flex items-center gap-1 shrink-0">
                 {visibleNavItems.map((item) => (
                   <NavLink
                     key={item.label}
@@ -589,37 +562,41 @@ export default function Header() {
                       onClick={() => setIsMoreOpen((p) => !p)}
                       aria-expanded={isMoreOpen}
                       className={cn(
-                        "flex items-center gap-1 text-sm font-semibold px-3.5 py-2 rounded-lg transition-all duration-200",
+                        "flex items-center gap-1 text-sm font-semibold px-4 py-2.5 rounded-full transition-all duration-200",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
                         theme.ring,
                         isMoreOpen
-                          ? cn(theme.activeBg, theme.activeText)
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80",
+                          ? cn(
+                              theme.activeBg,
+                              theme.activeText,
+                              "font-bold shadow-sm",
+                            )
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 hover:-translate-y-0.5",
                       )}
                     >
-                      <MoreHorizontal className="w-3.5 h-3.5" />
+                      <MoreHorizontal className="w-4 h-4" />
                       More
                       <ChevronDown
                         className={cn(
-                          "w-3 h-3 transition-transform duration-200",
+                          "w-3.5 h-3.5 transition-transform duration-200",
                           isMoreOpen && "rotate-180",
                         )}
                       />
                     </button>
 
                     {isMoreOpen && (
-                      <div className="absolute left-0 top-[calc(100%+8px)] w-52 bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-900/8 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+8px)] w-52 bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-900/8 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                         {overflowNavItems.map((item) => {
                           const Icon = item.icon;
                           const active = location.pathname === item.href;
                           return (
-                            <a
+                            <Link
                               key={item.label}
-                              href={item.href}
+                              to={item.href}
                               aria-current={active ? "page" : undefined}
                               onClick={() => setIsMoreOpen(false)}
                               className={cn(
-                                "flex items-center gap-2.5 mx-1.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                                "flex items-center gap-2.5 mx-1.5 px-3 h-11 rounded-lg text-sm transition-colors",
                                 active
                                   ? cn(
                                       theme.activeBg,
@@ -635,10 +612,10 @@ export default function Header() {
                                   ICON_BG[item.iconColor],
                                 )}
                               >
-                                <Icon className="w-3.5 h-3.5" />
+                                <Icon className="w-4 h-4" />
                               </span>
                               {item.label}
-                            </a>
+                            </Link>
                           );
                         })}
                       </div>
@@ -648,10 +625,9 @@ export default function Header() {
               </nav>
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto md:ml-0">
+            <div className="flex items-center justify-self-end gap-1.5 sm:gap-2 shrink-0">
               {isLoggedIn ? (
                 <>
-                  {/* Notification bell with hover preview (tablet + desktop) */}
                   <div
                     ref={notifRef}
                     className="relative hidden md:block"
@@ -663,14 +639,14 @@ export default function Header() {
                       aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
                       aria-expanded={isNotifPreviewOpen}
                       className={cn(
-                        "relative flex items-center justify-center w-9 h-9 rounded-xl shrink-0",
+                        "relative flex items-center justify-center w-10 h-10 rounded-xl shrink-0",
                         "border border-gray-200 hover:border-gray-300 hover:bg-gray-50",
                         "text-gray-500 hover:text-gray-700",
                         "transition-all duration-200 focus:outline-none focus-visible:ring-2",
                         theme.ring,
                       )}
                     >
-                      <Bell className="w-4.5 h-4.5" />
+                      <Bell className="w-5 h-5" />
                       {unreadCount > 0 && (
                         <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 flex items-center justify-center rounded-full text-[10px] font-bold leading-none bg-linear-to-br from-rose-500 to-red-500 text-white shadow-sm shadow-red-400/40 ring-2 ring-white animate-bell-ring">
                           {unreadCount > 99 ? "99+" : unreadCount}
@@ -679,7 +655,7 @@ export default function Header() {
                     </button>
 
                     {isNotifPreviewOpen && (
-                      <div className="absolute right-0 top-[calc(100%+8px)] w-80 bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-900/8 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="absolute right-0 top-[calc(100%+8px)] w-95 bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-900/8 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                         <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                           <p className="text-sm font-semibold text-gray-900">
                             Notifications
@@ -690,38 +666,58 @@ export default function Header() {
                             </span>
                           )}
                         </div>
-                        <div className="max-h-72 overflow-y-auto py-1 divide-y divide-gray-50">
+                        <div className="max-h-80 overflow-y-auto py-1 divide-y divide-gray-50">
                           {recentNotifications.length > 0 ? (
-                            recentNotifications.map((n, i) => (
-                              <div
-                                key={n.id ?? i}
-                                className="flex items-start gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors cursor-pointer"
-                                onClick={handleNotificationClick}
-                              >
-                                <span
-                                  className={cn(
-                                    "mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0",
-                                    theme.activeBg,
-                                    theme.text,
-                                  )}
+                            recentNotifications.map((n, i) => {
+                              const title = n.title || "Notification";
+                              const description =
+                                n.message || n.body || undefined;
+                              return (
+                                <div
+                                  key={n.id ?? i}
+                                  className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                                  onClick={handleNotificationClick}
                                 >
-                                  <Bell className="w-3.5 h-3.5" />
-                                </span>
-                                <div className="min-w-0">
-                                  <p className="text-sm text-gray-800 truncate">
-                                    {n.title ||
-                                      n.message ||
-                                      n.body ||
-                                      "Notification"}
-                                  </p>
-                                  {(n.time || n.createdAt) && (
-                                    <p className="text-xs text-gray-400 mt-0.5">
-                                      {n.time || n.createdAt}
+                                  <span
+                                    className={cn(
+                                      "mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0",
+                                      theme.activeBg,
+                                      theme.text,
+                                    )}
+                                  >
+                                    <Bell className="w-4 h-4" />
+                                  </span>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-semibold text-gray-900 truncate">
+                                      {title}
                                     </p>
-                                  )}
+                                    {description && description !== title && (
+                                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                                        {description}
+                                      </p>
+                                    )}
+                                    {(n.time || n.createdAt) && (
+                                      <p className="text-xs text-gray-400 mt-1">
+                                        {n.time
+                                          ? n.time
+                                          : n.createdAt
+                                            ? new Date(
+                                                n.createdAt,
+                                              ).toLocaleString("en-IN", {
+                                                day: "2-digit",
+                                                month: "short",
+                                                year: "numeric",
+                                                hour: "numeric",
+                                                minute: "2-digit",
+                                                hour12: true,
+                                              })
+                                            : ""}
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            ))
+                              );
+                            })
                           ) : (
                             <p className="px-4 py-6 text-sm text-gray-400 text-center">
                               You're all caught up
@@ -742,18 +738,17 @@ export default function Header() {
                     )}
                   </div>
 
-                  {/* Compact bell for true mobile top bar */}
                   <button
                     onClick={handleNotificationClick}
                     aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
                     className={cn(
-                      "relative flex md:hidden items-center justify-center w-8 h-8 rounded-xl shrink-0",
+                      "relative flex md:hidden items-center justify-center w-9 h-9 rounded-xl shrink-0",
                       "border border-gray-200 hover:bg-gray-50 text-gray-500",
                       "transition-all duration-200 focus:outline-none focus-visible:ring-2",
                       theme.ring,
                     )}
                   >
-                    <Bell className="w-4 h-4" />
+                    <Bell className="w-4.5 h-4.5" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-rose-500 text-white ring-2 ring-white animate-bell-ring">
                         {unreadCount > 9 ? "9+" : unreadCount}
@@ -761,7 +756,6 @@ export default function Header() {
                     )}
                   </button>
 
-                  {/* Avatar visible on mobile top bar too — builds trust/confidence */}
                   <button
                     onClick={() => navigate(getProfilePath(userRole))}
                     aria-label="View profile"
@@ -783,7 +777,6 @@ export default function Header() {
                     </Avatar>
                   </button>
 
-                  {/* Tablet/desktop profile trigger — name/role/workspace fill the row instead of empty space */}
                   <div ref={profileRef} className="relative hidden md:block">
                     <button
                       onClick={() => setIsProfileOpen((p) => !p)}
@@ -876,13 +869,14 @@ export default function Header() {
 
                         <div className="h-px bg-gray-100 mx-3" />
 
+                        {/* Every row is a full 44px tap target */}
                         <div className="py-1.5 px-1.5 space-y-0.5">
                           <button
                             onClick={() => {
                               navigate(getDashboardPath(userRole));
                               setIsProfileOpen(false);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-3 h-11 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
                           >
                             <LayoutGrid className="w-4 h-4 text-gray-400 shrink-0" />
                             Dashboard
@@ -892,7 +886,7 @@ export default function Header() {
                               navigate(getProfilePath(userRole));
                               setIsProfileOpen(false);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-3 h-11 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
                           >
                             <Avatar className="h-4 w-4 shrink-0">
                               <AvatarFallback
@@ -911,7 +905,7 @@ export default function Header() {
                               handleNotificationClick();
                               setIsProfileOpen(false);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-3 h-11 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
                           >
                             <Bell className="w-4 h-4 text-gray-400 shrink-0" />
                             <span>Notifications</span>
@@ -926,7 +920,7 @@ export default function Header() {
                               navigate(getSettingsPath(userRole));
                               setIsProfileOpen(false);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-3 h-11 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
                           >
                             <Settings className="w-4 h-4 text-gray-400 shrink-0" />
                             Settings
@@ -936,7 +930,7 @@ export default function Header() {
                               navigate("/help");
                               setIsProfileOpen(false);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-3 h-11 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
                           >
                             <HelpCircle className="w-4 h-4 text-gray-400 shrink-0" />
                             Help
@@ -948,7 +942,7 @@ export default function Header() {
                         <div className="py-1.5 px-1.5">
                           <button
                             onClick={handleLogout}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-3 h-11 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
                           >
                             <LogOut className="w-4 h-4 shrink-0" />
                             Sign out
@@ -1015,7 +1009,7 @@ export default function Header() {
                     Flow
                   </span>
                 </span>
-                <span className="text-[10px] font-medium text-gray-400 mt-0.5 tracking-wide">
+                <span className="text-[10px] font-medium text-gray-400 mt-0.5 tracking-wider">
                   {getHeaderSubtitle(userRole)}
                 </span>
               </span>
@@ -1028,9 +1022,7 @@ export default function Header() {
               </button>
             </div>
 
-            {/* Scrollable middle — logout and guest CTAs live in the sticky footer below, not here */}
             <div className="flex-1 overflow-y-auto min-h-0 px-4 pt-5 pb-6">
-              {/* Profile card */}
               {isLoggedIn && (
                 <button
                   onClick={() => {
@@ -1039,46 +1031,37 @@ export default function Header() {
                   }}
                   className={cn(
                     "w-full flex items-center gap-3.5 p-4 rounded-2xl text-left mb-3",
-                    "bg-linear-to-br from-gray-50 to-gray-100/60 border border-gray-200",
-                    "hover:border-gray-300 transition-all duration-200",
+                    "bg-linear-to-br border shadow-sm",
+                    theme.grad,
+                    "border-transparent",
                   )}
                 >
                   <div className="relative shrink-0">
-                    <Avatar className="h-12 w-12">
+                    <Avatar className="h-12 w-12 ring-2 ring-white/40">
                       <AvatarImage
                         src="https://github.com/shadcn.png"
                         alt={userName ?? ""}
                       />
-                      <AvatarFallback
-                        className={cn(
-                          "bg-linear-to-br text-white font-bold text-base",
-                          theme.grad,
-                        )}
-                      >
+                      <AvatarFallback className="bg-white/20 text-white font-bold text-base">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
                     <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 truncate text-sm">
+                    <p className="font-semibold text-white truncate text-sm">
                       {userName ?? "Your Account"}
                     </p>
-                    <span
-                      className={cn(
-                        "text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block",
-                        theme.badge,
-                      )}
-                    >
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block bg-white/20 text-white">
                       {roleLabel}
                     </span>
                     {userCompany && (
-                      <p className="text-xs text-gray-400 truncate mt-1">
+                      <p className="text-xs text-white/80 truncate mt-1">
                         {userCompany}
                       </p>
                     )}
                     {!userCompany && userEmail && (
-                      <p className="text-xs text-gray-400 truncate mt-1">
+                      <p className="text-xs text-white/80 truncate mt-1">
                         {userEmail}
                       </p>
                     )}
@@ -1086,7 +1069,6 @@ export default function Header() {
                 </button>
               )}
 
-              {/* Role-specific quick stats — only shown when real data is present */}
               {isLoggedIn &&
                 (stats.activeJobs !== undefined ||
                   stats.applications !== undefined ||
@@ -1125,18 +1107,17 @@ export default function Header() {
                   </div>
                 )}
 
-              {/* MAIN section */}
               <p className="px-2 mb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                {isLoggedIn ? "Main" : "Menu"}
+                {isLoggedIn ? "Workspace" : "Menu"}
               </p>
               <nav className="space-y-1 mb-5">
                 {NAV_ITEMS.map((item) => {
                   const Icon = item.icon;
                   const active = location.pathname === item.href;
                   return (
-                    <a
+                    <Link
                       key={item.label}
-                      href={item.href}
+                      to={item.href}
                       aria-current={active ? "page" : undefined}
                       onClick={() => setIsMenuOpen(false)}
                       className={cn(
@@ -1160,7 +1141,7 @@ export default function Header() {
                         <Icon className="w-4 h-4" />
                       </span>
                       {item.label}
-                    </a>
+                    </Link>
                   );
                 })}
               </nav>
@@ -1169,9 +1150,8 @@ export default function Header() {
                 <>
                   <div className="h-px bg-gray-100 mx-2 mb-5" />
 
-                  {/* ACCOUNT section */}
                   <p className="px-2 mb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                    Account
+                    Personal
                   </p>
                   <div className="space-y-1 mb-5">
                     <button
@@ -1234,13 +1214,12 @@ export default function Header() {
 
                   <div className="h-px bg-gray-100 mx-2 mb-5" />
 
-                  {/* SUPPORT section */}
                   <p className="px-2 mb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
                     Support
                   </p>
                   <div className="space-y-1">
-                    <a
-                      href="/help"
+                    <Link
+                      to="/help"
                       onClick={() => setIsMenuOpen(false)}
                       className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
                     >
@@ -1253,9 +1232,9 @@ export default function Header() {
                         <HelpCircle className="w-4 h-4" />
                       </span>
                       Help
-                    </a>
-                    <a
-                      href="#contact"
+                    </Link>
+                    <Link
+                      to="#contact"
                       onClick={() => setIsMenuOpen(false)}
                       className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
                     >
@@ -1268,13 +1247,12 @@ export default function Header() {
                         <Mail className="w-4 h-4" />
                       </span>
                       Contact
-                    </a>
+                    </Link>
                   </div>
                 </>
               )}
             </div>
 
-            {/* Sticky footer — sign out (or guest CTAs) always reachable, never scrolls away */}
             {isLoggedIn ? (
               <div className="shrink-0 border-t border-gray-100 p-4">
                 <button

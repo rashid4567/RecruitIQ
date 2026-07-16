@@ -43,7 +43,7 @@ export function ProfileAvatarSection({
             </Avatar>
           </div>
 
-          {/* Status dot — uploading indicator */}
+         
           {isUploading && (
             <span className="absolute -bottom-1.5 -right-1.5 w-6 h-6 bg-white border border-gray-100 rounded-full flex items-center justify-center shadow-sm">
               <Loader2 className="w-3.5 h-3.5 text-gray-500 animate-spin" />
@@ -51,7 +51,7 @@ export function ProfileAvatarSection({
           )}
         </div>
 
-        {/* Edit controls */}
+     
         {isEditing && (
           <div className="flex items-center gap-2">
             <Tooltip>

@@ -33,11 +33,9 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
   ): Promise<RecruiterDashboardDTO> {
     const { recruiterId } = request;
     const recruiter = await this.userRepository.findById(recruiterId);
-
     if (!recruiter) {
       throw new ApplicationError(ERROR_CODES.USER_NOT_FOUND);
     }
-
     const recruiterProfile = await this.recruiterProfileRepository.findByUserId(
       UserId.create(recruiterId),
     );
@@ -50,6 +48,20 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
         this.subscriptionRepository.findActiveByRecruiter(recruiterId),
         this.notificationRepository.findByRecipientId(recruiterId),
       ]);
+
+    const candidateIds = [
+      ...new Set([
+        ...applications.map((a) => a.candidateId),
+        ...interviews.map((i) => i.candidateId),
+      ]),
+    ];
+
+    const candidates = await this.userRepository.findByIds(candidateIds);
+    const candidateMap = new Map(
+      candidates.map((candidate) => [candidate.id!, candidate]),
+    );
+
+    const jobMap = new Map(jobs.map((job) => [job.id!, job]));
     return {
       recruiter: {
         recruiterId: recruiter.id!,
@@ -57,6 +69,7 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
         companyName: recruiterProfile?.getCompanyName(),
         profileImage: recruiter.profileImage,
       },
+
       jobs: jobs.map((job) => ({
         id: job.id,
         title: job.title,
@@ -66,36 +79,48 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
         publicationCount: job.publicationCount,
         createdAt: job.createdAt,
       })),
-      applications: applications.map((application) => ({
-        applicationId: application.id,
-        applicationNumber: application.applicationNumber,
-        candidateId: application.candidateId,
-        candidateName: "",
-        candidateEmail: "",
-        candidateProfileImage: undefined,
-        jobId: application.jobId,
-        jobTitle: "",
-        resumeId: application.resumeId,
-        resumeFileName: "",
-        status: application.status,
-        analysisStatus: application.analysisStatus,
-        aiScore: application.aiAnalysis?.overallScore,
-        recommendation: application.aiAnalysis?.recommendation,
-        appliedAt: application.appliedAt,
-      })),
-      interviews: interviews.map((interview) => ({
-        interviewId: interview.id,
-        applicationId: interview.applicationId,
-        candidateId: interview.candidateId,
-        candidateName: "",
-        candidateProfileImage: undefined,
-        jobId: interview.jobId,
-        jobTitle: "",
-        round: interview.round,
-        status: interview.status,
-        scheduledAt: interview.scheduledAt,
-        roomId: interview.roomId,
-      })),
+
+      applications: applications.map((application) => {
+        const candidate = candidateMap.get(application.candidateId);
+        const job = jobMap.get(application.jobId);
+
+        return {
+          applicationId: application.id,
+          applicationNumber: application.applicationNumber,
+          candidateId: application.candidateId,
+          candidateName: candidate?.fullName ?? "",
+          candidateEmail: candidate?.email.getValue() ?? "",
+          candidateProfileImage: candidate?.profileImage,
+          jobId: application.jobId,
+          jobTitle: job?.title ?? "",
+          resumeId: application.resumeId,
+          resumeFileName: "",
+          status: application.status,
+          analysisStatus: application.analysisStatus,
+          aiScore: application.aiAnalysis?.overallScore,
+          recommendation: application.aiAnalysis?.recommendation,
+          appliedAt: application.appliedAt,
+        };
+      }),
+
+      interviews: interviews.map((interview) => {
+        const candidate = candidateMap.get(interview.candidateId);
+        const job = jobMap.get(interview.jobId);
+        return {
+          interviewId: interview.id,
+          applicationId: interview.applicationId,
+          candidateId: interview.candidateId,
+          candidateName: candidate?.fullName ?? "",
+          candidateProfileImage: candidate?.profileImage,
+          jobId: interview.jobId,
+          jobTitle: job?.title ?? "",
+          round: interview.round,
+          status: interview.status,
+          scheduledAt: interview.scheduledAt,
+          roomId: interview.roomId,
+        };
+      }),
+
       subscription: subscription
         ? {
             planName: subscription.planName,
@@ -111,6 +136,7 @@ export class GetRecruiterDashboardUseCase implements IUseCase<
             resumeDownloadedCount: subscription.resumeDownloadedCount,
           }
         : null,
+
       notifications: notifications.map((notification) => ({
         id: notification.getId()!,
         title: notification.getTitle(),

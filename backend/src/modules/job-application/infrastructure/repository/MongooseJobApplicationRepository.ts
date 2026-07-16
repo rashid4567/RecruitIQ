@@ -483,18 +483,20 @@ export class MongooseJobApplicationRepository implements JobApplicationRepositor
       })
       .lean<RecruiterInterviewApplicationDoc[]>();
 
-    return applications.map((app) => ({
-      applicationId: app._id.toString(),
-      applicationNumber: app.applicationNumber,
-      jobId: app.jobId._id.toString(),
-      jobTitle: app.jobId.title,
-      candidateId: app.candidateId._id.toString(),
-      candidateName: app.candidateId.fullName,
-      candidateEmail: app.candidateId.email,
-      candidateProfileImage: app.candidateId.profileImage,
-      recruiterId: app.recruiterId.toString(),
-      status: app.status,
-    }));
+return applications
+  .filter((app) => app.candidateId && app.jobId)
+  .map((app) => ({
+    applicationId: app._id.toString(),
+    applicationNumber: app.applicationNumber,
+    jobId: app.jobId._id.toString(),
+    jobTitle: app.jobId.title,
+    candidateId: app.candidateId._id.toString(),
+    candidateName: app.candidateId.fullName,
+    candidateEmail: app.candidateId.email,
+    candidateProfileImage: app.candidateId.profileImage,
+    recruiterId: app.recruiterId.toString(),
+    status: app.status,
+  }));
   }
 
   async countTodayApplicationsByCandidate(

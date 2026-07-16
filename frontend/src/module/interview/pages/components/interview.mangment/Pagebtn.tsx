@@ -13,7 +13,7 @@ export default function PageBtn({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
     >
       {children}
     </button>

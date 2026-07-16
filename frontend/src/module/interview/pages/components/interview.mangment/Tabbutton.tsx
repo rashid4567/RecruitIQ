@@ -16,18 +16,18 @@ export default function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm transition-colors ${
+      className={`relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 ${
         active
-          ? "bg-white text-slate-900 shadow-sm"
-          : "text-slate-600 hover:text-slate-900"
+          ? "bg-slate-900 text-white shadow-sm"
+          : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
       }`}
     >
-      {Icon && <Icon size={15} />}
+      {Icon && <Icon size={14} />}
       {label}
       {count !== undefined && (
         <span
-          className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
-            active ? "bg-slate-100 text-slate-700" : "bg-slate-200/40"
+          className={`ml-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+            active ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600"
           }`}
         >
           {count}

@@ -130,7 +130,7 @@ export function useSignUp() {
       if (!response.profileCompleted) {
         navigate(
           response.user.role === "candidate"
-            ? "/candidate/complete-profile"
+            ? "candidate/profile/complete"
             : "/recruiter/complete-profile",
         );
       } else {

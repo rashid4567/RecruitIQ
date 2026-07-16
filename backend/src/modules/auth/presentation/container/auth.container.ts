@@ -37,6 +37,11 @@ import { S3FileStorageRepository } from "../../../resume/infrastructure/storage/
 import { UpdateProfileImageUseCase } from "../../application/useCase/update-profile-image.usecase";
 import { ProfileImageController } from "../controller/profile-image.controller";
 import { assignFreeSubscriptionUC } from "../../../subscription/presentation/container/recruiter-subscription.module";
+import { CandidateRepository } from "../../../candidate/domain/repositories/candidate.repository";
+import { MongooseCandidateRepository } from "../../../candidate/infrastructure/repositories/mongoose-candidate.repository";
+
+import { MongooseRecruiterProfileRepository } from "../../../recruiter/infrastructure/repositories/mongoose-recruiter.repository";
+import { RecruiterProfileRepository } from "../../../recruiter/domain/repositories/recruiter.repository";
 
 const userRepo: UserRepository = new MongooseUserRepository();
 const passwordPort: PasswordHasherPort = new PasswordService();
@@ -48,6 +53,9 @@ const otpEmailService = new OtpEmailService(genericEmailService);
 const passwordResetEmailService = new PasswordResetEmailService(
   genericEmailService,
 );
+const candidateRepo: CandidateRepository = new MongooseCandidateRepository();
+const recruiterRepo: RecruiterProfileRepository =
+  new MongooseRecruiterProfileRepository();
 const emailService = new AuthEmailService(passwordResetEmailService);
 const otpService = new OTPService(otpEmailService);
 
@@ -59,7 +67,7 @@ const verifyRegistrationUC = new VerifyRegistrationUseCase(
   tokenService,
   activityTracker,
   sendEmailByEventUC,
-  assignFreeSubscriptionUC
+  assignFreeSubscriptionUC,
 );
 const fileStorageRepo = new S3FileStorageRepository();
 const updateProfileImageUC = new UpdateProfileImageUseCase(
@@ -82,6 +90,8 @@ const resetPasswordUC = new ResetPasswordUseCase(
 const changePasswordUC = new UpdatePasswordUseCase(userRepo, passwordPort);
 const googleLoginUC = new GoogleLoginUseCase(
   userRepo,
+  candidateRepo,
+  recruiterRepo,
   googleAuthService,
   tokenService,
 );

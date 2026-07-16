@@ -14,7 +14,7 @@ export class CreateProfileUseCase implements IUseCase<CreateProfileRequest,void>
             return;
         }
  
-        if(request.role === USER_ROLES.RECRUTER){
+        if(request.role === USER_ROLES.RECRUITER){
             await this.ProfileCreator.createRecruiterProfile(request.userId);
             return
         }

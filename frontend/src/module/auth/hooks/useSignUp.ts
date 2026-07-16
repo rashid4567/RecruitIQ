@@ -122,14 +122,24 @@ export function useSignUp() {
     setError(null);
 
     try {
-      const { user } = await googleLogin({
+      const response = await googleLogin({
         credential,
         role: formData.role,
       });
 
-      navigate(
-        user.role === "candidate" ? "/candidate/home" : "/recruiter/dashboard",
-      );
+      if (!response.profileCompleted) {
+        navigate(
+          response.user.role === "candidate"
+            ? "/candidate/complete-profile"
+            : "/recruiter/complete-profile",
+        );
+      } else {
+        navigate(
+          response.user.role === "candidate"
+            ? "/candidate/home"
+            : "/recruiter/dashboard",
+        );
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Google sign-up failed.";

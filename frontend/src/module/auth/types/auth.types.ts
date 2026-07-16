@@ -18,7 +18,10 @@ export interface AuthUser {
 
 export interface AuthResponse {
   accessToken: string;
+  refreshToken: string;
   user: AuthUser;
+  profileCompleted: boolean;
+  isFirstLogin: boolean;
 }
 
 export interface LoginPayload {

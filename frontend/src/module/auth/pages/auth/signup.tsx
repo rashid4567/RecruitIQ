@@ -125,7 +125,7 @@ function FloatInput({
         {label}
       </label>
 
-      {/* Right icon(s) */}
+    
       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
         {rightSlot}
         <span className="text-gray-300">{icon}</span>

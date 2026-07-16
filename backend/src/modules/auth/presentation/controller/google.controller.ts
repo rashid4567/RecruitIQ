@@ -19,19 +19,28 @@ export class GoogleController {
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { credential, role } = GoogleLoginSchema.parse(req.body);
-      const result = await this._googleLoginUC.execute({ credential, role });
+
+      const result = await this._googleLoginUC.execute({
+        credential,
+        role,
+      });
 
       setRefreshCookie(res, result.refreshToken);
+
       return ApiResponse.success(
         res,
         HTTP_STATUS.OK,
         SUCCESS_MESSAGES.GOOGLE_LOGIN_SUCCESSFULLY,
         {
           accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+          profileCompleted: result.profileCompleted,
+          isFirstLogin: result.isFirstLogin,
           user: {
-            id: result.userId,
-            role: result.role,
-            fullName: result.fullName,
+            id: result.user.id,
+            role: result.user.role,
+            fullName: result.user.fullName,
+            profileImage: result.user.profileImage,
           },
         },
       );

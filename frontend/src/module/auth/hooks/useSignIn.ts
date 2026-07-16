@@ -8,7 +8,6 @@ import { login, googleLogin } from "../api/auth.api";
 import type { GoogleRole } from "../types/google.types";
 import type { SignInFormData } from "../types/auth.types";
 import { signInSchema } from "../validation/signin.schema";
-
 import type { AuthError } from "../types/auth.error";
 
 export function useSignIn() {
@@ -75,28 +74,26 @@ export function useSignIn() {
 
       default:
         return {
-          message:
-            backendMessage ??
-            "Something went wrong. Please try again.",
+          message: backendMessage ?? "Something went wrong. Please try again.",
           type: "generic",
         };
     }
   }, []);
 
-  const navigateBasedOnRole = useCallback(
-    (role: string) => {
-      switch (role) {
-        case "candidate":
-          navigate("/candidate/home");
-          break;
-
-        case "recruiter":
-          navigate("/recruiter");
-          break;
-
-        default:
-          navigate("/");
+  const navigateAfterLogin = useCallback(
+    (role: string, profileCompleted: boolean) => {
+      if (!profileCompleted) {
+        navigate(
+          role === "candidate"
+            ? "/candidate/complete-profile"
+            : "/recruiter/complete-profile",
+        );
+        return;
       }
+
+      navigate(
+        role === "candidate" ? "/candidate/home" : "/recruiter/dashboard",
+      );
     },
     [navigate],
   );
@@ -106,16 +103,14 @@ export function useSignIn() {
     setSuccess("");
   }, []);
 
-  const signIn = async (
-    formData: SignInFormData,
-  ): Promise<void> => {
+  const signIn = async (formData: SignInFormData): Promise<void> => {
     clearMessages();
     setIsLoading(true);
 
     try {
       signInSchema.parse(formData);
 
-      const { user } = await login({
+      const result = await login({
         email: formData.email,
         password: formData.password,
       });
@@ -127,7 +122,7 @@ export function useSignIn() {
       setSuccess("Successfully signed in!");
 
       setTimeout(() => {
-        navigateBasedOnRole(user.role);
+        navigateAfterLogin(result.user.role, result.profileCompleted);
       }, 900);
     } catch (err) {
       setError(getAuthError(err));
@@ -137,9 +132,7 @@ export function useSignIn() {
     }
   };
 
-  const handleGoogleResponse = async (
-    response: GoogleCredentialResponse,
-  ) => {
+  const handleGoogleResponse = async (response: GoogleCredentialResponse) => {
     const credential = response.credential;
 
     if (!credential) {
@@ -154,14 +147,14 @@ export function useSignIn() {
     setGoogleLoading(true);
 
     try {
-      const { user } = await googleLogin({
+      const result = await googleLogin({
         credential,
       });
 
       setSuccess("Google sign in successful!");
 
       setTimeout(() => {
-        navigateBasedOnRole(user.role);
+        navigateAfterLogin(result.user.role, result.profileCompleted);
       }, 900);
     } catch (err) {
       const axiosErr = err as AxiosError<{
@@ -179,16 +172,14 @@ export function useSignIn() {
     }
   };
 
-  const handleGoogleRoleSelect = async (
-    role: GoogleRole,
-  ) => {
+  const handleGoogleRoleSelect = async (role: GoogleRole) => {
     if (!pendingGoogleCredential) return;
 
     clearMessages();
     setGoogleLoading(true);
 
     try {
-      const { user } = await googleLogin({
+      const result = await googleLogin({
         credential: pendingGoogleCredential,
         role,
       });
@@ -196,7 +187,7 @@ export function useSignIn() {
       setSuccess("Welcome!");
 
       setTimeout(() => {
-        navigateBasedOnRole(user.role);
+        navigateAfterLogin(result.user.role, result.profileCompleted);
       }, 900);
     } catch (err) {
       setError(getAuthError(err));

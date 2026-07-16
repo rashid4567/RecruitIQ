@@ -51,7 +51,7 @@ export class CompleteRecruiterProfileUseCase implements IUseCase<
     if (data.bio !== undefined) {
       profile.updateBio(data.bio);
     }
-
+    profile.completeProfile();
     await this.recruiterRepo.save(profile);
   }
 }

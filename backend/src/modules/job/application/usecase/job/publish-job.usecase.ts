@@ -1,11 +1,13 @@
 import { ERROR_CODES } from "../../../../../shared/constants/errorcode.constants";
 import { ApplicationError } from "../../../../../shared/errors/application.error";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
+import { UserId } from "../../../../../shared/value-objects/userId.vo";
 import { ActivityTrackerService } from "../../../../Activity.logger/application/services/activityTracker.service";
 import { ActivityAction } from "../../../../Activity.logger/domain/constants/activityActions";
 import { UserRepository } from "../../../../auth/domain/repositories/user.repository";
 import { RecruiterSubscription } from "../../../../subscription/domain/entities/recruiter-subscription.entity";
 import { RecruiterSubscriptionRepository } from "../../../../subscription/domain/repository/recruiter-subscription-plan-repository";
+import { RecruiterProfileRepository } from "../../../../recruiter/domain/repositories/recruiter.repository";
 import { Job } from "../../../domain/entities/job.entity";
 import { JobRepository } from "../../../domain/repositories/job.repository";
 import { PublishJobPostRequestDTO } from "../../dto/publish.job.dto";
@@ -18,6 +20,7 @@ export class PublishJobUseCase implements IUseCase<
   constructor(
     private readonly jobRepo: JobRepository,
     private readonly subscriptionRepo: RecruiterSubscriptionRepository,
+    private readonly recruiterRepo: RecruiterProfileRepository,
     private readonly activityTracker: ActivityTrackerService,
     private readonly idGenerator: IdGenerator,
     private readonly userRepo: UserRepository,
@@ -28,15 +31,17 @@ export class PublishJobUseCase implements IUseCase<
       request.jobId,
       request.recruiterId,
     );
-
     const subscription = await this.validateAndGetSubscription(
       request.recruiterId,
     );
-
     this.validateExpiryLimit(job, subscription.jobPostActiveDays);
     await this.consumeCreditsIfNeeded(job, subscription);
+    const isFirstPublication = job.publicationCount === 0;
     job.publish();
     const savedJob = await this.jobRepo.save(job);
+    if (isFirstPublication) {
+      await this.incrementRecruiterJobPostsUsed(request.recruiterId);
+    }
     this.trackPublication(request.recruiterId, savedJob);
     return savedJob;
   }
@@ -48,25 +53,19 @@ export class PublishJobUseCase implements IUseCase<
     if (!jobId) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
-
     if (!recruiterId) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
-
     const job = await this.jobRepo.findById(jobId);
-
     if (!job) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
-
     if (!job.belongsToRecruiter(recruiterId)) {
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACTION);
     }
-
     if (job.isDeleted()) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_NOT_FOUND);
     }
-
     return job;
   }
 
@@ -75,21 +74,17 @@ export class PublishJobUseCase implements IUseCase<
   ): Promise<RecruiterSubscription> {
     const subscription =
       await this.subscriptionRepo.findActiveByRecruiter(recruiterId);
-
     if (!subscription) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_REQUIRED);
     }
-
     if (subscription.isExpired()) {
       throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_EXPIRED);
     }
-
     if (subscription.jobPostActiveDays < 1) {
       throw new ApplicationError(
         ERROR_CODES.INVALID_SUBSCRIPTION_CONFIGURATION,
       );
     }
-
     return subscription;
   }
 
@@ -99,7 +94,6 @@ export class PublishJobUseCase implements IUseCase<
     if (!expiresAt) {
       throw new ApplicationError(ERROR_CODES.JOB_EXPIRY_DATE_REQUIRED);
     }
-
     const maxAllowedDate = new Date();
     maxAllowedDate.setDate(maxAllowedDate.getDate() + jobPostActiveDays);
     maxAllowedDate.setHours(23, 59, 59, 999);
@@ -124,10 +118,22 @@ export class PublishJobUseCase implements IUseCase<
     if (!subscription.hasJobPostAccess()) {
       throw new ApplicationError(ERROR_CODES.JOB_POST_LIMIT_REACHED);
     }
-
     const updatedSubscription = subscription.consumeJobPost();
-
     await this.subscriptionRepo.update(updatedSubscription);
+  }
+
+  private async incrementRecruiterJobPostsUsed(
+    recruiterId: string,
+  ): Promise<void> {
+    const profile = await this.recruiterRepo.findByUserId(
+      UserId.create(recruiterId),
+    );
+
+    if (!profile) {
+      return;
+    }
+    profile.incrementJobPostsUsed();
+    await this.recruiterRepo.save(profile);
   }
 
   private trackPublication(recruiterId: string, job: Job): void {
@@ -138,9 +144,7 @@ export class PublishJobUseCase implements IUseCase<
 
   private async logActivity(recruiterId: string, job: Job): Promise<void> {
     const user = await this.userRepo.findById(recruiterId);
-
     const trackerId = this.idGenerator.generate();
-
     await this.activityTracker.track({
       id: trackerId,
       userId: recruiterId,

@@ -18,6 +18,7 @@ export interface RecruiterProfileProps {
   subscriptionStatus: subscriptionStatus;
   jobPostsUsed: number;
   verificationStatus: verificationStatus;
+  profileCompleted: boolean;
 }
 
 export class RecruiterProfile {
@@ -42,6 +43,7 @@ export class RecruiterProfile {
       subscriptionStatus: "free",
       jobPostsUsed: 0,
       verificationStatus: "pending",
+      profileCompleted : false,
     });
   }
 
@@ -52,6 +54,7 @@ export class RecruiterProfile {
       subscriptionStatus: "free",
       jobPostsUsed: 0,
       verificationStatus: "pending",
+      profileCompleted : false,
     });
   }
 
@@ -104,6 +107,14 @@ export class RecruiterProfile {
   public incrementJobPostsUsed(): void {
     this.props.jobPostsUsed += 1;
   }
+
+  public completeProfile(): void {
+  this.props.profileCompleted = true;
+}
+
+public isProfileCompleted(): boolean {
+  return this.props.profileCompleted;
+}
 
  public updateSubscriptionStatus(status: subscriptionStatus): void {
   this.props.subscriptionStatus = status;

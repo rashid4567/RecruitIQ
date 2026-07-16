@@ -29,6 +29,7 @@ export class MongooseRecruiterProfileRepository implements RecruiterProfileRepos
       jobPostsUsed: doc.jobPostsUsed ?? 0,
       verificationStatus: (doc.verificationStatus ??
         "pending") as verificationStatus,
+      profileCompleted: doc.profileCompleted ?? false,
     });
   }
 
@@ -51,6 +52,7 @@ export class MongooseRecruiterProfileRepository implements RecruiterProfileRepos
           subscriptionStatus: profile.getSubscriptionStatus(),
           jobPostsUsed: profile.getJobPostsUsed(),
           verificationStatus: profile.getVerificationStatus(),
+          profileCompleted: profile.isProfileCompleted(),
         },
       },
       { upsert: true, new: true },

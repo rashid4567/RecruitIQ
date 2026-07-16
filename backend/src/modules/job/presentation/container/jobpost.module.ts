@@ -45,7 +45,9 @@ const recruiterRepo: RecruiterProfileRepository =
   new MongooseRecruiterProfileRepository();
 const subscriptionPlanRepo: SubscriptionPlanRepository =
   new MongooseSubscriptionPlanRepository();
-const applicationRepo : JobApplicationRepository = new MongooseJobApplicationRepository();
+const applicationRepo: JobApplicationRepository =
+  new MongooseJobApplicationRepository();
+
 const createJobUC = new CreateJobUseCase(
   jobRepo,
   recruiterSubscriptionRepo,
@@ -65,6 +67,7 @@ const deleteJobUC = new DeleteJobUseCase(jobRepo);
 const publishJobUC = new PublishJobUseCase(
   jobRepo,
   recruiterSubscriptionRepo,
+  recruiterRepo,
   activityTracker,
   idGenerator,
   userRepo,
@@ -73,7 +76,7 @@ const hideJobUC = new HideJobUseCase(jobRepo);
 const unhideJobUC = new UnhideJobUseCase(jobRepo);
 const blockJobUC = new BlockJobUseCase(jobRepo);
 const unblockJobUC = new UnblockJobUseCase(jobRepo);
-const closeJobUC = new CloseJobsUseCase(jobRepo,applicationRepo);
+const closeJobUC = new CloseJobsUseCase(jobRepo, applicationRepo);
 export const createJobController = new CreateJobController(createJobUC);
 export const recruiterJobsController = new RecruiterJobController(jobsUC);
 export const getJobByIdController = new RecruiterJobByIdController(

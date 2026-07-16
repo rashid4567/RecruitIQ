@@ -50,6 +50,10 @@ const recruiterProfileSchema = new Schema(
       enum: ["pending", "verified", "rejected"],
       default: "pending",
     },
+    profileCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   {

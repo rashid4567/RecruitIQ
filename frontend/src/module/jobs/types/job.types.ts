@@ -31,4 +31,5 @@ export interface Job {
   expiresAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+   isApplied?: boolean;
 }

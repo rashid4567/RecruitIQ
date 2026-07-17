@@ -36,6 +36,7 @@ import { CloseJobsUseCase } from "../../application/usecase/job/close-jobs.useca
 import { CloseJobController } from "../controller/recruiter/close.job.controller";
 import { JobApplicationRepository } from "../../../job-application/domain/repository/job-application.repository";
 import { MongooseJobApplicationRepository } from "../../../job-application/infrastructure/repository/MongooseJobApplicationRepository";
+import { CandidateGetJobsUseCase } from "../../application/usecase/job/CandidateGetJobs.ueCase";
 const jobRepo: JobRepository = new MongooseJobRepository();
 const activityTracker = new ActivityTrackerService();
 
@@ -63,6 +64,7 @@ const updateJobUC = new UpdateJobUseCase(
   recruiterSubscriptionRepo,
   subscriptionPlanRepo,
 );
+const candidateJobsUC = new CandidateGetJobsUseCase(jobRepo, applicationRepo);
 const deleteJobUC = new DeleteJobUseCase(jobRepo);
 const publishJobUC = new PublishJobUseCase(
   jobRepo,
@@ -90,7 +92,7 @@ export const toggleJobVisibilityController = new ToggleJobVisibilityController(
   unhideJobUC,
 );
 export const closeJobcontroller = new CloseJobController(closeJobUC);
-export const candidateJobsController = new CandidateJobController(jobsUC);
+export const candidateJobsController = new CandidateJobController(candidateJobsUC);
 export const candidateJobIdController = new CandidateJobByIdController(
   getJobByIdUC,
 );

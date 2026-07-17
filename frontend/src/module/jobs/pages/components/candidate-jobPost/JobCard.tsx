@@ -7,6 +7,8 @@ import {
   Briefcase,
   Users,
   Eye,
+  Check,
+  ArrowUpRight,
 } from "lucide-react";
 
 import type { Job } from "@/module/jobs/types/job.types";
@@ -116,7 +118,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
   return (
     <article
       style={style}
-      onClick={() => !isUnavailable && onApply(job)}
+      onClick={() => !isUnavailable && !job.isApplied && onApply(job)}
       className={`group relative bg-white rounded-2xl border transition-all duration-300 overflow-hidden flex flex-col
         ${
           isUnavailable
@@ -150,7 +152,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
         </div>
 
         <div className="space-y-2 mb-4">
-          {/* Location + Remote */}
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span className="truncate">{formatLocation(job)}</span>
@@ -200,14 +201,16 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
         )}
 
         <div className="flex items-center justify-between pt-3 border-t border-slate-100 mt-auto">
-          <div className="flex items-center gap-3 text-xs text-slate-400">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
             <span>{postedAgo(job)}</span>
+
             {job.applicationsCount > 0 && (
               <span className="flex items-center gap-1">
                 <Users className="w-3 h-3" />
                 {job.applicationsCount.toLocaleString()}
               </span>
             )}
+
             {job.views > 0 && (
               <span className="flex items-center gap-1">
                 <Eye className="w-3 h-3" />
@@ -226,6 +229,26 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
                     ? "Draft"
                     : "Unavailable"}
             </span>
+          ) : job.isApplied ? (
+            <span
+              className="
+                inline-flex
+                items-center
+                gap-1
+                rounded-full
+                bg-emerald-50
+                border
+                border-emerald-200
+                px-2.5
+                py-1
+                text-xs
+                font-bold
+                text-emerald-700
+              "
+            >
+              <Check className="w-3.5 h-3.5" />
+              Applied
+            </span>
           ) : (
             <button
               onClick={(e) => {
@@ -233,17 +256,20 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, style }) => {
                 onApply(job);
               }}
               className="
-      flex
-      items-center
-      gap-1
-      text-xs
-      font-bold
-      text-indigo-600
-      hover:text-indigo-800
-      transition-colors
-      group/btn
-    "
-            ></button>
+                flex
+                items-center
+                gap-1
+                text-xs
+                font-bold
+                text-indigo-600
+                hover:text-indigo-800
+                transition-colors
+                group/btn
+              "
+            >
+              Apply
+              <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+            </button>
           )}
         </div>
       </div>

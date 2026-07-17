@@ -29,6 +29,7 @@ export interface JobCardProps {
   avgAiScore: number;
   positionsFilled: number;
   applicants?: Applicant[];
+   isApplied?: boolean;
 }
 
 export interface Applicant {

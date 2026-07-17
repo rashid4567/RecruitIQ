@@ -45,5 +45,6 @@ export const unwrapJob = (raw: JobResponse): Job => {
     expiresAt: data.expiresAt ? new Date(data.expiresAt) : undefined,
     createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
     updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
+      isApplied: data.isApplied ?? false,
   };
 };

@@ -40,6 +40,7 @@ export interface JobApiProps {
   isDeleted: boolean;
   createdAt?: string;
   updatedAt?: string;
+   isApplied?: boolean;
 }
 
 export interface WrappedJobResponse {

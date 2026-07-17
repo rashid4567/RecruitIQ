@@ -60,5 +60,6 @@ export const mapJobPostToCard = (job: Job): JobCardProps => {
     avgAiScore: 0,
     positionsFilled: Math.round((job.applicationsCount || 0) * 0.3),
     publicationCount: job.publicationCount || 0,
+    isApplied: job.isApplied ?? false,
   };
 };

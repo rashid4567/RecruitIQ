@@ -1,21 +1,39 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../../../shared/constants/httpStatus";
-import { Job, JobType } from "../../../domain/entities/job.entity";
+import { JobType } from "../../../domain/entities/job.entity";
 import { SUCCESS_MESSAGES } from "../../../../../shared/constants/success-message.constants";
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
-import { GetJobsRequestDTO } from "../../../application/dto/getJobPostRequest.dto";
+import {
+  GetJobsRequestDTO,
+  CandidateJobResponse,
+} from "../../../application/dto/candidatejobpost.dto";
 import { PaginatedResult } from "../../../domain/types/job-filter.type";
 import { ApiResponse } from "../../../../../shared/utils/api-response";
+import { ERROR_MESSAGE } from "../../../../../shared/constants/error-message.constants";
 
 export class CandidateJobController {
   constructor(
-    private readonly _jobsUc: IUseCase<GetJobsRequestDTO, PaginatedResult<Job>>,
+    private readonly _jobsUc: IUseCase<
+      GetJobsRequestDTO,
+      PaginatedResult<CandidateJobResponse>
+    >,
   ) {}
 
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
+
+      const candidateId = req.user?.userId;
+
+      if(!candidateId){
+        return ApiResponse.error(
+          res,
+          HTTP_STATUS.UNAUTHORIZED,
+          ERROR_MESSAGE.UNAUTHORIZED,
+        )
+      }
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+
       const result = await this._jobsUc.execute({
         filters: {
           forCandidate: true,
@@ -30,6 +48,7 @@ export class CandidateJobController {
         },
         page,
         limit,
+        candidateId
       });
 
       ApiResponse.success(

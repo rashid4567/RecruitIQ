@@ -51,6 +51,57 @@ const DURATIONS = [
   { label: "3 hours", value: 180 },
 ];
 
+const PRIMARY_DURATIONS = [
+  { label: "30 min", value: 30 },
+  { label: "45 min", value: 45 },
+  { label: "1 hour", value: 60 },
+  { label: "1.5 hours", value: 90 },
+];
+
+const TIME_GROUPS: { label: string; slots: [string, string][] }[] = [
+  {
+    label: "Morning",
+    slots: [
+      ["09", "00"],
+      ["09", "30"],
+      ["10", "00"],
+      ["10", "30"],
+      ["11", "00"],
+      ["11", "30"],
+    ],
+  },
+  {
+    label: "Afternoon",
+    slots: [
+      ["12", "00"],
+      ["12", "30"],
+      ["13", "00"],
+      ["13", "30"],
+      ["14", "00"],
+      ["14", "30"],
+      ["15", "00"],
+      ["15", "30"],
+      ["16", "00"],
+      ["16", "30"],
+    ],
+  },
+  {
+    label: "Evening",
+    slots: [
+      ["17", "00"],
+      ["17", "30"],
+      ["18", "00"],
+      ["18", "30"],
+    ],
+  },
+];
+
+function formatTimeLabel(hour: string, minute: string) {
+  const d = new Date();
+  d.setHours(Number(hour), Number(minute), 0, 0);
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
+
 const SCHEDULE_STEPS = ["Candidate", "Details", "Schedule", "Confirm"] as const;
 const RESCHEDULE_STEPS = ["Reschedule", "Confirm"] as const;
 
@@ -195,6 +246,9 @@ export default function ScheduleInterviewModal({
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [fetchedDetails, setFetchedDetails] =
     useState<GetRecruiterInterviewDetailsResponse | null>(null);
+  const [showMoreDurations, setShowMoreDurations] = useState(false);
+  const [showCustomTime, setShowCustomTime] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const existingInterview = useMemo<ExistingInterviewData | null>(() => {
     if (!isReschedule) return null;
     if (fetchedDetails)
@@ -208,6 +262,9 @@ export default function ScheduleInterviewModal({
     setStep(0);
     setSubmitSuccess(false);
     setFetchedDetails(null);
+    setShowMoreDurations(false);
+    setShowCustomTime(false);
+    setShowDatePicker(false);
 
     if (!isReschedule) {
       setScheduleForm(
@@ -281,6 +338,27 @@ export default function ScheduleInterviewModal({
   ) {
     const { name, value } = e.target;
     setRescheduleField(name as keyof RescheduleFormValues, value as never);
+  }
+
+  function setTime(hour: string, minute: string) {
+    if (isReschedule) {
+      setRescheduleField("hour", hour);
+      setRescheduleField("minute", minute);
+    } else {
+      setScheduleField("hour", hour);
+      setScheduleField("minute", minute);
+    }
+  }
+
+  function setDate(value: string) {
+    if (isReschedule) setRescheduleField("date", value);
+    else setScheduleField("date", value);
+  }
+
+  function handleCustomTimeChange(value: string) {
+    const [hour, minute] = value.split(":");
+    if (!hour || !minute) return;
+    setTime(hour, minute);
   }
 
   function validateStep(s: number): Record<string, string | undefined> {
@@ -392,18 +470,66 @@ export default function ScheduleInterviewModal({
     ? rescheduleForm.roomId
     : scheduleForm.roomId;
 
-  const previewDate = useMemo(() => {
-    if (!activeDate) return null;
-    return new Date(
-      `${activeDate}T${activeHour.padStart(2, "0")}:${activeMinute.padStart(2, "0")}:00`,
-    ).toLocaleString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+  const quickDates = useMemo(() => {
+    return Array.from({ length: 4 }, (_, index) => {
+      const date = new Date();
+      date.setDate(date.getDate() + index);
+      return {
+        value: date.toLocaleDateString("en-CA"),
+        day:
+          index === 0
+            ? "Today"
+            : index === 1
+              ? "Tomorrow"
+              : date.toLocaleDateString("en-US", { weekday: "short" }),
+        dateNum: date.getDate(),
+      };
     });
-  }, [activeDate, activeHour, activeMinute]);
+  }, []);
+
+  const isQuickDate = quickDates.some((d) => d.value === activeDate);
+  const isSlotTime = TIME_GROUPS.some((g) =>
+    g.slots.some(([h, m]) => h === activeHour && m === activeMinute),
+  );
+  const isPrimaryDuration = PRIMARY_DURATIONS.some(
+    (d) => d.value === activeDuration,
+  );
+  const customTimePanelOpen = showCustomTime || !isSlotTime;
+  const durationPanelOpen = showMoreDurations || !isPrimaryDuration;
+  const datePickerOpen =
+    showDatePicker || (Boolean(activeDate) && !isQuickDate);
+
+  const schedulePreview = useMemo(() => {
+    if (!activeDate) return null;
+    const start = new Date(
+      `${activeDate}T${activeHour.padStart(2, "0")}:${activeMinute.padStart(2, "0")}:00`,
+    );
+    if (Number.isNaN(start.getTime())) return null;
+    const end = new Date(start.getTime() + activeDuration * 60 * 1000);
+
+    return {
+      full: start.toLocaleString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      date: start.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }),
+      start: start.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      }),
+      end: end.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      }),
+    };
+  }, [activeDate, activeHour, activeMinute, activeDuration]);
 
   const durationLabel =
     DURATIONS.find((d) => d.value === activeDuration)?.label ?? "—";
@@ -418,37 +544,65 @@ export default function ScheduleInterviewModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden max-h-[90vh]">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/60 backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="flex h-[95dvh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:h-auto sm:max-h-[90dvh] sm:w-full sm:max-w-2xl sm:rounded-2xl">
+        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-600">
               {isReschedule ? (
                 <RefreshCw size={13} className="text-white" />
               ) : (
-                <span className="text-white font-bold text-xs">R</span>
+                <span className="text-xs font-bold text-white">R</span>
               )}
             </div>
-            <span className="font-semibold text-slate-900 text-sm">
+            <span className="truncate text-sm font-semibold text-slate-900">
               {isReschedule ? "Reschedule Interview" : "Schedule Interview"}
             </span>
             {candidateName && (
               <>
-                <span className="text-slate-300">·</span>
-                <span className="text-slate-500 text-sm">{candidateName}</span>
+                <span className="hidden text-slate-300 min-[400px]:inline">
+                  ·
+                </span>
+                <span className="hidden truncate text-sm text-slate-500 min-[400px]:inline">
+                  {candidateName}
+                </span>
               </>
             )}
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
             <X size={16} />
           </button>
         </div>
-        <div className="px-6 pt-5 pb-0">
-          <div className="flex items-center gap-0">
+
+        <div className="px-4 pb-0 pt-4 sm:px-6 sm:pt-5">
+          <div className="sm:hidden">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-blue-600">
+                  Step {step + 1} of {STEPS.length}
+                </p>
+                <p className="mt-0.5 text-sm font-semibold text-slate-900">
+                  {STEPS[step]}
+                </p>
+              </div>
+              <span className="text-xs text-slate-400">
+                {Math.round(((step + 1) / STEPS.length) * 100)}%
+              </span>
+            </div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-blue-600 transition-all"
+                style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Full labeled stepper — sm and up */}
+          <div className="hidden items-center gap-0 sm:flex">
             {STEPS.map((label, i) => {
               const isActive = i === step;
               const isDone = i < step;
@@ -483,7 +637,7 @@ export default function ScheduleInterviewModal({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
           {!isReschedule && step === 0 && (
             <StepPanel
               title="Confirm the candidate"
@@ -501,7 +655,7 @@ export default function ScheduleInterviewModal({
                   </p>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3">
                 {candidateName && (
                   <InfoBadge
                     icon={<Users size={13} />}
@@ -567,7 +721,7 @@ export default function ScheduleInterviewModal({
                 <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
                   Format
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-2.5 min-[400px]:grid-cols-2 sm:gap-3">
                   {(["ONLINE", "OFFLINE"] as const).map((m) => {
                     const active = scheduleForm.mode === m;
                     return (
@@ -614,8 +768,13 @@ export default function ScheduleInterviewModal({
               </div>
 
               {scheduleForm.mode === "OFFLINE" && (
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  <Field label="Address" error={errors.location} required>
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field
+                    label="Address"
+                    error={errors.location}
+                    required
+                    className="sm:col-span-2"
+                  >
                     <Input
                       name="location"
                       value={scheduleForm.location ?? ""}
@@ -640,7 +799,7 @@ export default function ScheduleInterviewModal({
 
           {((!isReschedule && step === 2) || (isReschedule && step === 0)) && (
             <StepPanel
-              title={isReschedule ? "Pick a new time" : "Pick a time"}
+              title={isReschedule ? "Pick a new time" : "Pick a date & time"}
               subtitle="Times are stored in UTC and shown in the candidate's local timezone."
             >
               {isReschedule && detailsLoading && (
@@ -686,90 +845,149 @@ export default function ScheduleInterviewModal({
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <Field
-                  label="Date"
-                  error={errors.date}
-                  required
-                  icon={<Calendar size={14} />}
-                >
-                  <Input
-                    name="date"
-                    type="date"
-                    value={activeDate}
-                    onChange={
-                      isReschedule ? handleRescheduleInput : handleScheduleInput
-                    }
-                    error={!!errors.date}
-                    min={todayStr}
-                  />
-                </Field>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+                  Select date
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {quickDates.map((item) => {
+                    const selected = activeDate === item.value;
+                    return (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => {
+                          setDate(item.value);
+                          setShowDatePicker(false);
+                        }}
+                        className={`flex min-h-16 flex-col items-center justify-center rounded-xl border transition-all ${
+                          selected
+                            ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-blue-300"
+                        }`}
+                      >
+                        <span className="text-[10px] font-semibold uppercase">
+                          {item.day}
+                        </span>
+                        <span className="mt-1 text-lg font-bold">
+                          {item.dateNum}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                <Field
-                  label="Time"
-                  error={errors.hour}
-                  icon={<Clock size={14} />}
-                >
-                  <div className="flex items-center gap-2">
-                    <Select
-                      name="hour"
-                      value={activeHour}
-                      onChange={
-                        isReschedule
-                          ? handleRescheduleInput
-                          : handleScheduleInput
-                      }
-                      className="flex-1"
+                {!datePickerOpen && (
+                  <button
+                    type="button"
+                    onClick={() => setShowDatePicker(true)}
+                    className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                  >
+                    <Calendar size={13} />
+                    Choose another date
+                  </button>
+                )}
+
+                {datePickerOpen && (
+                  <div className="mt-3">
+                    <Field
+                      label="Choose another date"
+                      error={errors.date}
+                      icon={<Calendar size={14} />}
                     >
-                      {Array.from({ length: 24 }, (_, i) =>
-                        i.toString().padStart(2, "0"),
-                      ).map((h) => (
-                        <option key={h} value={h}>
-                          {h}
-                        </option>
-                      ))}
-                    </Select>
-                    <span className="text-slate-400 font-semibold text-sm select-none">
-                      :
-                    </span>
-                    <Select
-                      name="minute"
-                      value={activeMinute}
-                      onChange={
-                        isReschedule
-                          ? handleRescheduleInput
-                          : handleScheduleInput
-                      }
-                      className="flex-1"
-                    >
-                      {Array.from({ length: 12 }, (_, index) =>
-                        String(index * 5).padStart(2, "0"),
-                      ).map((minute) => (
-                        <option key={minute} value={minute}>
-                          {minute}
-                        </option>
-                      ))}
-                    </Select>
+                      <Input
+                        name="date"
+                        type="date"
+                        value={activeDate}
+                        onChange={(e) => setDate(e.target.value)}
+                        min={todayStr}
+                        error={!!errors.date}
+                      />
+                    </Field>
                   </div>
-                </Field>
+                )}
               </div>
 
-              <Field
-                label="Duration"
-                required
-                icon={<Clock size={14} />}
-                className="mt-4"
-              >
+              <div className="mt-5">
+                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+                  Select time
+                </label>
+                <div className="space-y-4">
+                  {TIME_GROUPS.map((group) => (
+                    <div key={group.label}>
+                      <p className="mb-1.5 text-xs font-semibold text-slate-400">
+                        {group.label}
+                      </p>
+                      <div className="grid grid-cols-2 gap-2 min-[400px]:grid-cols-3 sm:grid-cols-4">
+                        {group.slots.map(([h, m]) => {
+                          const selected =
+                            activeHour === h && activeMinute === m;
+                          return (
+                            <button
+                              key={`${h}-${m}`}
+                              type="button"
+                              onClick={() => {
+                                setTime(h, m);
+                                setShowCustomTime(false);
+                              }}
+                              className={`min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold transition-all ${
+                                selected
+                                  ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100"
+                                  : "border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50/40"
+                              }`}
+                            >
+                              {formatTimeLabel(h, m)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {!customTimePanelOpen ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowCustomTime(true)}
+                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                  >
+                    <Clock size={13} />
+                    Can't find your time? Choose custom time
+                  </button>
+                ) : (
+                  <div className="mt-3">
+                    <Field
+                      label="Custom time"
+                      error={errors.hour}
+                      icon={<Clock size={14} />}
+                    >
+                      <Input
+                        type="time"
+                        step={300}
+                        value={`${activeHour}:${activeMinute}`}
+                        onChange={(e) => handleCustomTimeChange(e.target.value)}
+                      />
+                    </Field>
+                  </div>
+                )}
+              </div>
+
+              {/* Duration */}
+              <div className="mt-5">
+                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+                  Duration
+                </label>
                 <div className="flex flex-wrap gap-2">
-                  {DURATIONS.map((d) => (
+                  {PRIMARY_DURATIONS.map((d) => (
                     <button
                       key={d.value}
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
                         isReschedule
                           ? setRescheduleField("durationInMinutes", d.value)
-                          : setScheduleField("durationInMinutes", d.value)
-                      }
+                          : setScheduleField("durationInMinutes", d.value);
+                        setShowMoreDurations(false);
+                      }}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                         activeDuration === d.value
                           ? "border-blue-500 bg-blue-50 text-blue-700"
@@ -779,8 +997,45 @@ export default function ScheduleInterviewModal({
                       {d.label}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    onClick={() => setShowMoreDurations((v) => !v)}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-dashed border-slate-300 text-slate-500 hover:border-slate-400 hover:text-slate-700 transition-all"
+                  >
+                    More
+                    <ChevronDown
+                      size={12}
+                      className={`transition-transform ${durationPanelOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
                 </div>
-              </Field>
+
+                {durationPanelOpen && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {DURATIONS.filter(
+                      (d) =>
+                        !PRIMARY_DURATIONS.some((p) => p.value === d.value),
+                    ).map((d) => (
+                      <button
+                        key={d.value}
+                        type="button"
+                        onClick={() =>
+                          isReschedule
+                            ? setRescheduleField("durationInMinutes", d.value)
+                            : setScheduleField("durationInMinutes", d.value)
+                        }
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                          activeDuration === d.value
+                            ? "border-blue-500 bg-blue-50 text-blue-700"
+                            : "border-slate-200 text-slate-600 hover:border-slate-300 bg-white"
+                        }`}
+                      >
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {isReschedule && activeMode === "ONLINE" && (
                 <MeetingLinkPicker
@@ -795,8 +1050,13 @@ export default function ScheduleInterviewModal({
               )}
 
               {isReschedule && activeMode === "OFFLINE" && (
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  <Field label="Address" error={errors.location} required>
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field
+                    label="Address"
+                    error={errors.location}
+                    required
+                    className="sm:col-span-2"
+                  >
                     <Input
                       name="location"
                       value={rescheduleForm.location ?? ""}
@@ -817,18 +1077,31 @@ export default function ScheduleInterviewModal({
                 </div>
               )}
 
-              {previewDate && (
-                <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-                    <Calendar size={15} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-blue-500 font-medium">
-                      {isReschedule ? "New time" : "Scheduled for"}
-                    </p>
-                    <p className="text-sm font-semibold text-blue-800">
-                      {previewDate}
-                    </p>
+              {schedulePreview && (
+                <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                      <CalendarClock size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-blue-500">
+                        {isReschedule
+                          ? "New interview time"
+                          : "Interview scheduled for"}
+                      </p>
+                      <p className="mt-1 text-sm font-bold text-slate-900">
+                        {schedulePreview.date}
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold text-blue-700">
+                        {schedulePreview.start} – {schedulePreview.end}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {durationLabel} ·{" "}
+                        {activeMode === "ONLINE"
+                          ? "Online interview"
+                          : "In-person interview"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -865,7 +1138,9 @@ export default function ScheduleInterviewModal({
                   },
                   {
                     label: isReschedule ? "New date & time" : "Date & time",
-                    value: previewDate ?? "—",
+                    value: schedulePreview
+                      ? `${schedulePreview.date} · ${schedulePreview.start} – ${schedulePreview.end}`
+                      : "—",
                     icon: <Calendar size={14} className="text-slate-400" />,
                   },
                   {
@@ -993,18 +1268,18 @@ export default function ScheduleInterviewModal({
           )}
         </div>
 
-        <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <button
-            type="button"
-            onClick={step === 0 ? handleClose : prevStep}
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {step === 0 ? "Cancel" : "← Back"}
-          </button>
+        <div className="shrink-0 border-t border-slate-100 bg-white px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:bg-slate-50/50 sm:px-6 sm:py-4">
+          <div className="flex items-center gap-2 sm:justify-between">
+            <button
+              type="button"
+              onClick={step === 0 ? handleClose : prevStep}
+              disabled={loading}
+              className="shrink-0 px-4 py-2.5 sm:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {step === 0 ? "Cancel" : "← Back"}
+            </button>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
+            <div className="hidden items-center gap-1 sm:flex">
               {STEPS.map((_, i) => (
                 <div
                   key={i}
@@ -1024,7 +1299,7 @@ export default function ScheduleInterviewModal({
                 type="button"
                 onClick={nextStep}
                 disabled={loading || (step === 0 && missingApplicationContext)}
-                className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm flex items-center gap-2 transition-colors shadow-sm shadow-blue-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition-colors hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed sm:flex-none sm:min-h-0 sm:py-2 sm:font-medium"
               >
                 Continue
                 <ArrowRight size={14} />
@@ -1034,7 +1309,7 @@ export default function ScheduleInterviewModal({
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading || submitSuccess}
-                className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm flex items-center gap-2 transition-colors shadow-sm shadow-blue-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition-colors hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed sm:flex-none sm:min-h-0 sm:py-2"
               >
                 {loading ? (
                   <>
@@ -1129,27 +1404,6 @@ function Input({
           : "border-slate-200 hover:border-slate-300"
       } ${className}`}
     />
-  );
-}
-
-function Select({
-  className = "",
-  children,
-  ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement> & { className?: string }) {
-  return (
-    <div className={`relative ${className}`}>
-      <select
-        {...props}
-        className="w-full appearance-none px-3.5 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition pr-8 cursor-pointer"
-      >
-        {children}
-      </select>
-      <ChevronDown
-        size={13}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-      />
-    </div>
   );
 }
 

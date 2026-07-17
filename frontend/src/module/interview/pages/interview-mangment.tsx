@@ -27,7 +27,7 @@ import { InterviewStatus } from "../types/interview.types";
 import StatCard from "./components/interview.mangment/StatCard";
 import TabButton from "./components/interview.mangment/Tabbutton";
 import PageBtn from "./components/interview.mangment/Pagebtn";
-import FilterBar from "./components/interview.mangment/Filterbar"
+import FilterBar from "./components/interview.mangment/Filterbar";
 import InterviewsSkeleton from "./components/interview.mangment/Interviewsskeleton";
 import InterviewRow, {
   INTERVIEW_GRID_COLS,
@@ -313,283 +313,288 @@ export default function InterviewDashboard() {
   const hasActiveSearchOrFilter =
     Boolean(debouncedSearch.trim()) || activeFilterCount > 0;
 
-  const rangeStart = filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const rangeStart =
+    filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const rangeEnd = Math.min(currentPage * pageSize, filtered.length);
 
   return (
-    <div className="flex h-screen bg-slate-50">
-      <Header/>
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
+    <div className="min-h-dvh bg-slate-50">
+      <Header />
 
-      <main className="flex h-screen flex-1 flex-col overflow-hidden">
-     
-        <header className="shrink-0 border-b border-slate-200 bg-white">
-          <div className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
-            <div className="min-w-0">
-              <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
-                Interviews
-              </h1>
-              <p className="truncate text-xs text-slate-500 sm:text-sm">
-                {stats.todayCount > 0
-                  ? `${stats.todayCount} scheduled today`
-                  : `${enriched.length} total interviews`}
-                {stats.nextInterview && ` · next at ${stats.nextInterview}`}
-              </p>
+      <div className="flex">
+        <aside className="hidden lg:block lg:w-64 lg:shrink-0">
+          <Sidebar />
+        </aside>
+
+        <main className="min-w-0 flex-1">
+          <header className="border-b border-slate-200 bg-white">
+            <div className="flex items-center justify-between gap-4 px-3 py-3.5 min-[375px]:px-4 sm:px-6 lg:px-8">
+              <div className="min-w-0">
+                <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
+                  Interviews
+                </h1>
+                <p className="truncate text-xs text-slate-500 sm:text-sm">
+                  {stats.todayCount > 0
+                    ? `${stats.todayCount} scheduled today`
+                    : `${enriched.length} total interviews`}
+                  {stats.nextInterview && ` · next at ${stats.nextInterview}`}
+                </p>
+              </div>
+
+              <button
+                onClick={() => navigate("/recruiter/notification")}
+                className="relative shrink-0 rounded-lg bg-slate-100 p-2.5 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                title="Notifications"
+              >
+                <Bell size={17} />
+                <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500 ring-1 ring-white" />
+              </button>
             </div>
 
-            <button
-              onClick={() => navigate("/recruiter/notification")}
-              className="relative shrink-0 rounded-lg bg-slate-100 p-2.5 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700"
-              title="Notifications"
-            >
-              <Bell size={17} />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500 ring-1 ring-white" />
-            </button>
-          </div>
+            <div className="scrollbar-none flex items-center gap-1.5 overflow-x-auto px-3 pb-3 min-[375px]:px-4 sm:px-6 lg:px-8">
+              <TabButton
+                label="All"
+                active={selectedTab === "all"}
+                onClick={() => handleTabChange("all")}
+                count={enriched.length}
+              />
+              <TabButton
+                label="Today"
+                active={selectedTab === "today"}
+                onClick={() => handleTabChange("today")}
+                count={stats.todayCount}
+              />
+              <TabButton
+                label="Upcoming"
+                active={selectedTab === "upcoming"}
+                onClick={() => handleTabChange("upcoming")}
+                count={
+                  enriched.filter(
+                    (i) =>
+                      i.scheduledAt && new Date(i.scheduledAt) > new Date(),
+                  ).length
+                }
+              />
+              <TabButton
+                icon={History}
+                label="Reschedules"
+                active={selectedTab === "reschedule"}
+                onClick={() => handleTabChange("reschedule")}
+                count={stats.pendingReschedules}
+              />
+              <TabButton
+                icon={BarChart3}
+                label="Timeline"
+                active={selectedTab === "timeline"}
+                onClick={() => handleTabChange("timeline")}
+              />
+            </div>
+          </header>
 
-          <div className="scrollbar-none flex items-center gap-1.5 overflow-x-auto px-4 pb-3 sm:px-6">
-            <TabButton
-              label="All"
-              active={selectedTab === "all"}
-              onClick={() => handleTabChange("all")}
-              count={enriched.length}
-            />
-            <TabButton
+          <FilterBar
+            searchInputRef={searchInputRef}
+            searchInput={searchInput}
+            onSearchChange={setSearchInput}
+            onClearSearch={clearSearch}
+            isSearchPending={isSearchPending}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            modeFilter={modeFilter}
+            onModeFilterChange={setModeFilter}
+            activeFilterCount={activeFilterCount}
+            onReset={clearFilters}
+          />
+
+          <div className="grid grid-cols-2 gap-2.5 px-3 py-4 min-[375px]:px-4 sm:grid-cols-3 sm:gap-3 sm:px-6 lg:grid-cols-5 lg:px-8">
+            <StatCard
               label="Today"
-              active={selectedTab === "today"}
-              onClick={() => handleTabChange("today")}
-              count={stats.todayCount}
-            />
-            <TabButton
-              label="Upcoming"
-              active={selectedTab === "upcoming"}
-              onClick={() => handleTabChange("upcoming")}
-              count={
-                enriched.filter(
-                  (i) => i.scheduledAt && new Date(i.scheduledAt) > new Date(),
-                ).length
+              value={String(stats.todayCount)}
+              sub={
+                stats.nextInterview
+                  ? `Next @ ${stats.nextInterview}`
+                  : "None scheduled"
               }
+              accent="blue"
+              icon={CalendarClock}
             />
-            <TabButton
-              icon={History}
-              label="Reschedules"
-              active={selectedTab === "reschedule"}
-              onClick={() => handleTabChange("reschedule")}
-              count={stats.pendingReschedules}
+            <StatCard
+              label="This Week"
+              value={String(stats.thisWeek)}
+              sub="All interviews"
+              accent="violet"
+              icon={CalendarPlus}
             />
-            <TabButton
-              icon={BarChart3}
-              label="Timeline"
-              active={selectedTab === "timeline"}
-              onClick={() => handleTabChange("timeline")}
+            <StatCard
+              label="Completed"
+              value={String(stats.completedThisMonth)}
+              sub="This month"
+              accent="emerald"
+              icon={CheckCircle2}
+            />
+            <StatCard
+              label="Pending"
+              value={String(stats.pendingFeedback)}
+              sub="Awaiting feedback"
+              accent="amber"
+              icon={Hourglass}
+            />
+            <StatCard
+              label="Reschedule"
+              value={String(stats.pendingReschedules)}
+              sub="Pending decision"
+              accent="rose"
+              icon={CalendarX2}
             />
           </div>
-        </header>
 
-        <FilterBar
-          searchInputRef={searchInputRef}
-          searchInput={searchInput}
-          onSearchChange={setSearchInput}
-          onClearSearch={clearSearch}
-          isSearchPending={isSearchPending}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          modeFilter={modeFilter}
-          onModeFilterChange={setModeFilter}
-          activeFilterCount={activeFilterCount}
-          onReset={clearFilters}
-        />
+          <div className="px-3 pb-4 min-[375px]:px-4 sm:px-6 lg:px-8">
+            <div className="overflow-visible rounded-xl sm:rounded-2xl border border-slate-200 bg-white shadow-sm">
+              {loading && <InterviewsSkeleton />}
 
-        <div className="grid shrink-0 grid-cols-2 gap-3 px-4 py-4 sm:grid-cols-3 sm:px-6 lg:grid-cols-5">
-          <StatCard
-            label="Today"
-            value={String(stats.todayCount)}
-            sub={stats.nextInterview ? `Next @ ${stats.nextInterview}` : "None scheduled"}
-            accent="blue"
-            icon={CalendarClock}
-          />
-          <StatCard
-            label="This Week"
-            value={String(stats.thisWeek)}
-            sub="All interviews"
-            accent="violet"
-            icon={CalendarPlus}
-          />
-          <StatCard
-            label="Completed"
-            value={String(stats.completedThisMonth)}
-            sub="This month"
-            accent="emerald"
-            icon={CheckCircle2}
-          />
-          <StatCard
-            label="Pending"
-            value={String(stats.pendingFeedback)}
-            sub="Awaiting feedback"
-            accent="amber"
-            icon={Hourglass}
-          />
-          <StatCard
-            label="Reschedule"
-            value={String(stats.pendingReschedules)}
-            sub="Pending decision"
-            accent="rose"
-            icon={CalendarX2}
-          />
-        </div>
-
-        {/* Data area */}
-        <div className="flex flex-1 flex-col overflow-hidden px-4 pb-4 sm:px-6">
-          <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            {loading && (
-              <div className="flex-1 overflow-y-auto">
-                <InterviewsSkeleton />
-              </div>
-            )}
-
-            {!loading && error && (
-              <div className="flex flex-1 flex-col items-center justify-center gap-3 py-24 text-center">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
-                  <AlertCircle size={24} />
-                </span>
-                <p className="text-sm font-semibold text-slate-700">
-                  Couldn't load interviews
-                </p>
-                <p className="max-w-xs text-xs text-slate-400">{error}</p>
-                <button
-                  onClick={refetch}
-                  className="rounded-lg border border-red-200 px-4 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
-                >
-                  Try again
-                </button>
-              </div>
-            )}
-
-            {!loading && !error && filtered.length === 0 && (
-              <div className="flex flex-1 flex-col items-center justify-center gap-2 py-24 text-center">
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-300">
-                  {hasActiveSearchOrFilter ? (
-                    <SearchX size={26} />
-                  ) : (
-                    <CalendarClock size={26} />
-                  )}
-                </span>
-                <p className="mt-2 text-sm font-semibold text-slate-600">
-                  No interviews found
-                </p>
-                <p className="max-w-xs text-xs text-slate-400">
-                  {hasActiveSearchOrFilter
-                    ? "Try adjusting your search or filters."
-                    : selectedTab === "reschedule"
-                      ? "No pending reschedule requests."
-                      : "Schedule your first interview to get started."}
-                </p>
-                {hasActiveSearchOrFilter && (
+              {!loading && error && (
+                <div className="flex flex-col items-center justify-center gap-3 py-24 text-center">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+                    <AlertCircle size={24} />
+                  </span>
+                  <p className="text-sm font-semibold text-slate-700">
+                    Couldn't load interviews
+                  </p>
+                  <p className="max-w-xs text-xs text-slate-400">{error}</p>
                   <button
-                    onClick={() => {
-                      clearSearch();
-                      clearFilters();
-                    }}
-                    className="mt-1 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                    onClick={refetch}
+                    className="rounded-lg border border-red-200 px-4 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
                   >
-                    Clear filters
+                    Try again
                   </button>
-                )}
-              </div>
-            )}
-
-            {!loading && !error && filtered.length > 0 && (
-              <>
-                {/* Column headers — desktop/tablet only, sticky */}
-                <div
-                  className={`sticky top-0 z-10 hidden ${INTERVIEW_GRID_COLS} items-center gap-3 border-b border-slate-200 bg-slate-50/90 px-5 py-3 backdrop-blur sm:grid`}
-                >
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Date & Time
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Candidate
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Position
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Mode
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Status
-                  </span>
-                  <span className="text-right text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Actions
-                  </span>
                 </div>
+              )}
 
-                <div className="flex-1 overflow-y-auto">
-                  {paginated.map((interview) => (
-                    <InterviewRow
-                      key={interview.interviewId ?? interview.applicationId}
-                      interview={interview}
-                      onStatusChange={handleStatusChange}
-                      onOpenSchedule={openScheduleForApplication}
-                      onOpenReschedule={openReschedule}
-                      onOpenCancel={openCancel}
-                      onApproveReschedule={openApproveReschedule}
-                      onRejectReschedule={openRejectReschedule}
-                      onJoinInterview={handleJoinInterview}
-                      onOpenDetail={openDetailModal}
-                    />
-                  ))}
+              {!loading && !error && filtered.length === 0 && (
+                <div className="flex flex-col items-center justify-center gap-2 py-24 text-center">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-300">
+                    {hasActiveSearchOrFilter ? (
+                      <SearchX size={26} />
+                    ) : (
+                      <CalendarClock size={26} />
+                    )}
+                  </span>
+                  <p className="mt-2 text-sm font-semibold text-slate-600">
+                    No interviews found
+                  </p>
+                  <p className="max-w-xs text-xs text-slate-400">
+                    {hasActiveSearchOrFilter
+                      ? "Try adjusting your search or filters."
+                      : selectedTab === "reschedule"
+                        ? "No pending reschedule requests."
+                        : "Schedule your first interview to get started."}
+                  </p>
+                  {hasActiveSearchOrFilter && (
+                    <button
+                      onClick={() => {
+                        clearSearch();
+                        clearFilters();
+                      }}
+                      className="mt-1 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                    >
+                      Clear filters
+                    </button>
+                  )}
                 </div>
+              )}
 
-                {/* Pagination */}
-                <div className="flex shrink-0 flex-col gap-3 border-t border-slate-100 bg-slate-50/80 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-medium text-slate-600">
-                      Showing {rangeStart}–{rangeEnd} of {filtered.length}
+              {!loading && !error && filtered.length > 0 && (
+                <>
+                  <div
+                    className={`hidden ${INTERVIEW_GRID_COLS} items-center gap-3 border-b border-slate-200 bg-slate-50 px-5 py-3 lg:grid`}
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Date & Time
                     </span>
-                    <label className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                      Rows
-                      <select
-                        value={pageSize}
-                        onChange={(e) => setPageSize(Number(e.target.value))}
-                        className="rounded-md border border-slate-200 bg-white px-1.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Candidate
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Position
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Mode
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Status
+                    </span>
+                    <span className="text-right text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Actions
+                    </span>
+                  </div>
+
+                  <div>
+                    {paginated.map((interview) => (
+                      <InterviewRow
+                        key={interview.interviewId ?? interview.applicationId}
+                        interview={interview}
+                        onStatusChange={handleStatusChange}
+                        onOpenSchedule={openScheduleForApplication}
+                        onOpenReschedule={openReschedule}
+                        onOpenCancel={openCancel}
+                        onApproveReschedule={openApproveReschedule}
+                        onRejectReschedule={openRejectReschedule}
+                        onJoinInterview={handleJoinInterview}
+                        onOpenDetail={openDetailModal}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Pagination — Rows selector hidden below sm, buttons
+                      centered on mobile */}
+                  <div className="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/80 px-3 py-3 min-[375px]:px-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-medium text-slate-600">
+                        Showing {rangeStart}–{rangeEnd} of {filtered.length}
+                      </span>
+                      <label className="hidden items-center gap-1.5 text-xs font-medium text-slate-500 sm:flex">
+                        Rows
+                        <select
+                          value={pageSize}
+                          onChange={(e) => setPageSize(Number(e.target.value))}
+                          className="rounded-md border border-slate-200 bg-white px-1.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                        >
+                          {PAGE_SIZE_OPTIONS.map((n) => (
+                            <option key={n} value={n}>
+                              {n}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-2">
+                      <PageBtn
+                        onClick={() =>
+                          setCurrentPage((p) => Math.max(1, p - 1))
+                        }
+                        disabled={currentPage === 1}
                       >
-                        {PAGE_SIZE_OPTIONS.map((n) => (
-                          <option key={n} value={n}>
-                            {n}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                        <ChevronLeft size={16} />
+                      </PageBtn>
+                      <span className="px-2 text-xs font-semibold text-slate-600">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <PageBtn
+                        onClick={() =>
+                          setCurrentPage((p) => Math.min(totalPages, p + 1))
+                        }
+                        disabled={currentPage === totalPages}
+                      >
+                        <ChevronRight size={16} />
+                      </PageBtn>
+                    </div>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <PageBtn
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft size={16} />
-                    </PageBtn>
-                    <span className="px-2 text-xs font-semibold text-slate-600">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <PageBtn
-                      onClick={() =>
-                        setCurrentPage((p) => Math.min(totalPages, p + 1))
-                      }
-                      disabled={currentPage === totalPages}
-                    >
-                      <ChevronRight size={16} />
-                    </PageBtn>
-                  </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
       <ScheduleInterviewModal
         isOpen={scheduleModal.open}

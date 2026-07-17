@@ -49,7 +49,9 @@ export default function InterviewRow({
   onOpenDetail,
 }: InterviewRowProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const { date, time } = formatScheduledAt(interview.scheduledAt);
   const linear = candidateGradient(interview.candidateId);
   const scheduled = isInterviewScheduled(interview);
@@ -90,10 +92,16 @@ export default function InterviewRow({
     function handleOutside(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node))
         setMenuOpen(false);
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e.target as Node)
+      )
+        setMobileMenuOpen(false);
     }
-    if (menuOpen) document.addEventListener("mousedown", handleOutside);
+    if (menuOpen || mobileMenuOpen)
+      document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
-  }, [menuOpen]);
+  }, [menuOpen, mobileMenuOpen]);
 
   const name = interview.candidateName || interview.candidateId;
   const jobTitle = interview.jobTitle || interview.jobId;
@@ -137,10 +145,11 @@ export default function InterviewRow({
     </span>
   );
 
-  function Actions({ compact = false }: { compact?: boolean }) {
+
+  function Actions() {
     return (
       <div
-        className={`flex items-center gap-1.5 ${compact ? "flex-wrap" : ""}`}
+        className="flex items-center gap-1.5"
         onClick={(e) => e.stopPropagation()}
       >
         {scheduled && isOnline && canJoin && (
@@ -249,12 +258,127 @@ export default function InterviewRow({
     );
   }
 
+
+  type MenuEntry = { key: string; label: string; tone?: "danger" | "success"; onClick: () => void };
+  const secondaryEntries: MenuEntry[] = [];
+
+  if (modifiable) {
+    secondaryEntries.push({
+      key: "reschedule",
+      label: "Reschedule",
+      onClick: () => onOpenReschedule(interview),
+    });
+    secondaryEntries.push({
+      key: "cancel",
+      label: "Cancel interview",
+      tone: "danger",
+      onClick: () => onOpenCancel(interview),
+    });
+  }
+  if (pendingReschedule) {
+    secondaryEntries.push({
+      key: "approve",
+      label: "Approve reschedule",
+      tone: "success",
+      onClick: () => onApproveReschedule(interview),
+    });
+    secondaryEntries.push({
+      key: "reject",
+      label: "Reject reschedule",
+      tone: "danger",
+      onClick: () => onRejectReschedule(interview),
+    });
+  }
+  secondaryEntries.push({
+    key: "details",
+    label: "View details",
+    onClick: () => onOpenDetail(interview),
+  });
+  transitions.forEach((t) => {
+    secondaryEntries.push({
+      key: t.status,
+      label: t.label,
+      onClick: () => onStatusChange(interview.interviewId!, t.status),
+    });
+  });
+
+  function CompactActions() {
+    return (
+      <div
+        className="flex items-center gap-1.5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {scheduled && isOnline && canJoin ? (
+          <button
+            onClick={() => onJoinInterview(interview)}
+            className="flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700"
+            title="Join interview"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+            </span>
+            Join
+          </button>
+        ) : !scheduled ? (
+          <button
+            onClick={() => onOpenSchedule(interview)}
+            title="Schedule interview"
+            className="flex-1 whitespace-nowrap rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-medium text-blue-600 transition-colors hover:bg-blue-100"
+          >
+            Schedule
+          </button>
+        ) : (
+          <button
+            onClick={() => onOpenDetail(interview)}
+            className="flex-1 whitespace-nowrap rounded-lg bg-slate-100 px-3 py-2 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-200"
+          >
+            View application
+          </button>
+        )}
+
+        <div className="relative" ref={mobileMenuRef}>
+          <button
+            onClick={() => setMobileMenuOpen((o) => !o)}
+            title="More actions"
+            className="rounded-lg border border-slate-200 p-2 text-slate-500 transition-colors hover:bg-slate-100"
+          >
+            <MoreVertical size={16} />
+          </button>
+
+          {mobileMenuOpen && (
+            <div className="absolute right-0 top-10 z-40 w-44 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+              {secondaryEntries.map((entry) => (
+                <button
+                  key={entry.key}
+                  onClick={() => {
+                    entry.onClick();
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium transition-colors hover:bg-slate-50 ${
+                    entry.tone === "danger"
+                      ? "text-red-600"
+                      : entry.tone === "success"
+                        ? "text-emerald-600"
+                        : "text-slate-700"
+                  }`}
+                >
+                  {entry.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      {/* Mobile — card layout, no table below sm */}
+      {/* Mobile / tablet — card layout below lg */}
       <div
         onClick={handleRowClick}
-        className={`flex cursor-pointer flex-col gap-3 border-b border-slate-100 p-4 transition-colors sm:hidden ${
+        className={`flex cursor-pointer flex-col gap-3 border-b border-slate-100 p-3.5 min-[375px]:p-4 sm:p-5 transition-colors lg:hidden ${
           pendingReschedule ? "bg-rose-50/40" : "active:bg-slate-50"
         }`}
       >
@@ -299,12 +423,12 @@ export default function InterviewRow({
           </span>
         )}
 
-        <Actions compact />
+        <CompactActions />
       </div>
 
       <div
         onClick={handleRowClick}
-        className={`hidden ${INTERVIEW_GRID_COLS} cursor-pointer items-center gap-3 border-b border-slate-100 px-5 py-3.5 transition-colors sm:grid ${
+        className={`hidden ${INTERVIEW_GRID_COLS} cursor-pointer items-center gap-3 border-b border-slate-100 px-5 py-3.5 transition-colors lg:grid ${
           pendingReschedule
             ? "bg-rose-50/40 hover:bg-rose-50/60"
             : canJoin
@@ -361,7 +485,7 @@ export default function InterviewRow({
             <div className="truncate text-sm font-semibold text-slate-800">
               {name}
             </div>
-            <div className="hidden truncate text-xs text-slate-400 lg:block">
+            <div className="hidden truncate text-xs text-slate-400 xl:block">
               {interview.candidateEmail || "—"}
             </div>
           </div>
@@ -379,7 +503,7 @@ export default function InterviewRow({
             )}
           </div>
           {interview.title && (
-            <div className="hidden truncate text-xs text-slate-400 lg:block">
+            <div className="hidden truncate text-xs text-slate-400 xl:block">
               {interview.title}
             </div>
           )}

@@ -16,37 +16,152 @@ export const FilterBar: React.FC<Props> = ({
   statusFilter,
   onStatusFilter,
 }) => (
-  <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3 mb-4 flex items-center gap-3 shadow-sm">
-    <div className="flex items-center gap-2.5 flex-1 bg-slate-50 rounded-xl px-3.5 py-2.5 border border-slate-100 focus-within:border-blue-300 focus-within:bg-white transition-colors">
-      <Search size={14} className="text-slate-400 shrink-0" />
-      <input
-        type="text"
-        placeholder="Search by job title or company…"
-        value={search}
-        onChange={(e) => onSearch(e.target.value)}
-        className="bg-transparent outline-none text-[13px] text-slate-800 placeholder-slate-400 flex-1"
-      />
-    </div>
-
-    <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5 hover:border-slate-200 transition-colors">
-      <SlidersHorizontal size={13} className="text-slate-400 shrink-0" />
-      <select
-        value={statusFilter}
-        onChange={(e) => onStatusFilter(e.target.value)}
-        className="text-[13px] text-slate-600 bg-transparent outline-none cursor-pointer pr-1"
+  <div
+    className="
+      mb-4
+      rounded-xl sm:rounded-2xl
+      border border-slate-200/70
+      bg-white
+      p-3 sm:p-4
+      shadow-sm
+    "
+  >
+    <div
+      className="
+        flex flex-col gap-2.5
+        sm:flex-row sm:items-center
+      "
+    >
+      <div
+        className="
+          flex min-w-0 flex-1
+          items-center gap-2.5
+          rounded-xl
+          border border-slate-200
+          bg-slate-50/70
+          px-3.5
+          transition-all
+          focus-within:border-blue-400
+          focus-within:bg-white
+          focus-within:ring-2
+          focus-within:ring-blue-100
+        "
       >
-        <option value="ALL">All Status</option>
-        {Object.values(ApplicationStatus).map((v) => (
-          <option key={v} value={v}>
-            {STATUS_CFG[v].label}
-          </option>
-        ))}
-      </select>
+        <Search size={15} className="shrink-0 text-slate-400" />
+
+        <input
+          type="search"
+          placeholder="Search by job title or company…"
+          value={search}
+          onChange={(e) => onSearch(e.target.value)}
+          className="
+            min-w-0 flex-1
+            bg-transparent
+            py-2.5
+            text-sm text-slate-800
+            outline-none
+            placeholder:text-slate-400
+          "
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
+        <div
+          className="
+            relative
+            flex min-w-0
+            items-center gap-2
+            rounded-xl
+            border border-slate-200
+            bg-white
+            px-3
+            transition-colors
+            hover:border-slate-300
+          "
+        >
+          <SlidersHorizontal size={14} className="shrink-0 text-slate-400" />
+
+          <select
+            value={statusFilter}
+            onChange={(e) => onStatusFilter(e.target.value)}
+            aria-label="Filter applications by status"
+            className="
+              min-w-0 flex-1
+              cursor-pointer
+              bg-transparent
+              py-2.5
+              text-sm text-slate-600
+              outline-none
+            "
+          >
+            <option value="ALL">All Statuses</option>
+            {Object.values(ApplicationStatus).map((v) => (
+              <option key={v} value={v}>
+                {STATUS_CFG[v].label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          type="button"
+          className="
+            inline-flex min-h-10
+            items-center justify-center gap-2
+            whitespace-nowrap
+            rounded-xl
+            border border-slate-200
+            bg-white
+            px-3 sm:px-4
+            text-sm font-medium
+            text-slate-600
+            transition-all
+            hover:border-slate-300
+            hover:bg-slate-50
+            hover:text-slate-900
+          "
+        >
+          <Download size={14} className="shrink-0 text-slate-400" />
+          <span className="hidden min-[360px]:inline">Export</span>
+          <span className="hidden lg:inline">CSV</span>
+        </button>
+      </div>
     </div>
 
-    <button className="flex items-center gap-2 text-[13px] text-slate-600 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 hover:bg-slate-100 hover:border-slate-200 transition font-medium whitespace-nowrap">
-      <Download size={13} className="text-slate-400" />
-      Export CSV
-    </button>
+    {(search || statusFilter !== "ALL") && (
+      <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+        <span className="text-xs font-medium text-slate-400">
+          Active filters:
+        </span>
+
+        {search && (
+          <span
+            className="
+              inline-flex max-w-45
+              items-center rounded-full
+              bg-blue-50
+              px-2.5 py-1
+              text-xs font-medium text-blue-700
+            "
+          >
+            <span className="truncate">Search: {search}</span>
+          </span>
+        )}
+
+        {statusFilter !== "ALL" && (
+          <span
+            className="
+              inline-flex items-center
+              rounded-full
+              bg-slate-100
+              px-2.5 py-1
+              text-xs font-medium text-slate-600
+            "
+          >
+            {STATUS_CFG[statusFilter].label}
+          </span>
+        )}
+      </div>
+    )}
   </div>
 );

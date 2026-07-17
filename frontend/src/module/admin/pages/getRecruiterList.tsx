@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Sidebar from "@/components/admin/sideBar";
 import { useNavigate } from "react-router-dom";
 import { useRecruiters } from "../hooks/Recruiter-Hooks/useRecruiters";
 import { RecruiterTable } from "./components/recruiterlist/RecruiterTable";
+import { RecruiterStatsCards } from "./components/recruiterlist/RecruiterStatsCards";
 import type { RecruiterListItem, RecruiterProfile } from "../types/recruiter.types";
 import { CommonConfirmDialog } from "@/shared/Commonconfirmdialog";
 import { ImpactList } from "@/shared/ImpactList";
@@ -39,12 +39,12 @@ export default function RecruiterManagement() {
     navigate(`/admin/recruiters/${recruiterId}`);
   };
 
+  const recruiterLabel = confirm.recruiter?.companyName ?? confirm.recruiter?.name ?? "this recruiter";
+
   const dialogConfig = {
     verify: {
       title: "Verify Recruiter",
-      description: `Grant verified status and full platform access to ${
-        confirm.recruiter?.companyName ?? confirm.recruiter?.name ?? "this recruiter"
-      }.`,
+      description: `Grant verified status and full platform access to ${recruiterLabel}.`,
       icon: <ShieldCheck />,
       variant: "success" as const,
       confirmText: "Verify",
@@ -54,9 +54,7 @@ export default function RecruiterManagement() {
     },
     reject: {
       title: "Reject Application",
-      description: `Reject the verification request from ${
-        confirm.recruiter?.companyName ?? confirm.recruiter?.name ?? "this recruiter"
-      }.`,
+      description: `Reject the verification request from ${recruiterLabel}.`,
       icon: <XCircle />,
       variant: "danger" as const,
       confirmText: "Reject",
@@ -66,9 +64,7 @@ export default function RecruiterManagement() {
     },
     block: {
       title: "Block Recruiter",
-      description: `Immediately revoke platform access for ${
-        confirm.recruiter?.companyName ?? confirm.recruiter?.name ?? "this recruiter"
-      }.`,
+      description: `Immediately revoke platform access for ${recruiterLabel}.`,
       icon: <Ban />,
       variant: "danger" as const,
       confirmText: "Block",
@@ -78,9 +74,7 @@ export default function RecruiterManagement() {
     },
     unblock: {
       title: "Unblock Recruiter",
-      description: `Restore platform access for ${
-        confirm.recruiter?.companyName ?? confirm.recruiter?.name ?? "this recruiter"
-      }.`,
+      description: `Restore platform access for ${recruiterLabel}.`,
       icon: <ShieldOff />,
       variant: "success" as const,
       confirmText: "Unblock",
@@ -103,12 +97,7 @@ export default function RecruiterManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-indigo-50/30 flex">
-        <div className="hidden lg:block">
-        <Sidebar />
-    </div>
-
-
+    <div className="min-h-full bg-linear-to-br from-slate-50 to-indigo-50/30 flex">
       <div className="flex-1 flex flex-col">
         <ManagementHeader
           title="Recruiter Management"
@@ -126,16 +115,25 @@ export default function RecruiterManagement() {
           onFilterChange={recruitersData.setTab}
         />
 
-        <main className="flex-1 p-6">
-          <RecruiterTable
-            recruiters={recruitersData.recruiters}
-            loading={recruitersData.loading}
-            pagination={recruitersData.pagination}
-            actionLoading={recruitersData.actionLoading}
-            onPageChange={(page) => recruitersData.setPage(page)}
-            onAction={handleAction}
-            onViewProfile={handleViewProfile}
-          />
+        <main className="flex-1 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8">
+          <div className="max-w-none">
+            <RecruiterStatsCards
+              recruiters={recruitersData.recruiters}
+              total={recruitersData.pagination.total}
+              activeFilter={recruitersData.tab}
+              onFilterClick={(value) => recruitersData.setTab(value)}
+            />
+
+            <RecruiterTable
+              recruiters={recruitersData.recruiters}
+              loading={recruitersData.loading}
+              pagination={recruitersData.pagination}
+              actionLoading={recruitersData.actionLoading}
+              onPageChange={(page) => recruitersData.setPage(page)}
+              onAction={handleAction}
+              onViewProfile={handleViewProfile}
+            />
+          </div>
         </main>
 
         {current && (
@@ -148,7 +146,22 @@ export default function RecruiterManagement() {
             }}
             icon={current.icon}
             title={current.title}
-            description={current.description}
+            description={
+              <>
+                {confirm.recruiter && (
+                  <div className="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 mb-3 text-sm">
+                    <div className="font-medium text-slate-800">
+                      {confirm.recruiter.companyName || confirm.recruiter.name}
+                    </div>
+                    {confirm.recruiter.companyName && confirm.recruiter.name && (
+                      <div className="text-slate-600">{confirm.recruiter.name}</div>
+                    )}
+                    <div className="text-slate-500">{confirm.recruiter.email}</div>
+                  </div>
+                )}
+                {current.description}
+              </>
+            }
             variant={current.variant}
             confirmText={current.confirmText}
             loading={confirm.recruiter ? (recruitersData.actionLoading[confirm.recruiter.id] ?? false) : false}

@@ -1,13 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Eye, MapPin, Briefcase, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CandidateProfile } from "@/module/admin/types/candidate.types"; 
+import type { CandidateProfile } from "@/module/admin/types/candidate.types";
 
 interface CandidateRowProps {
   candidate: CandidateProfile;
@@ -72,38 +68,37 @@ export function CandidateRow({
 
   return (
     <tr className="hover:bg-indigo-50/30 transition-colors duration-200 group">
-      <td className="px-6 py-5">
-        <div className="flex items-center gap-3.5">
-          <Avatar className="h-11 w-11 ring-2 ring-white shadow-sm">
-  <AvatarImage
-    src={candidate.profileImage}
-    alt={candidate.name}
-    className="object-cover"
-  />
-
-  <AvatarFallback
-    className={cn(
-      "text-white font-semibold text-sm",
-      isActive
-        ? "bg-linear-to-br from-emerald-500 to-emerald-600"
-        : "bg-linear-to-br from-rose-500 to-rose-600",
-    )}
-  >
-    {getInitials(candidate.name)}
-  </AvatarFallback>
-</Avatar>
+      <td className="px-4 md:px-5 lg:px-6 py-4 lg:py-5">
+        <div className="flex items-center gap-3 lg:gap-3.5">
+          <Avatar className="h-10 w-10 sm:h-11 sm:w-11 ring-2 ring-white shadow-sm shrink-0">
+            <AvatarImage
+              src={candidate.profileImage}
+              alt={candidate.name}
+              className="object-cover"
+            />
+            <AvatarFallback
+              className={cn(
+                "text-white font-semibold text-sm",
+                isActive
+                  ? "bg-linear-to-br from-emerald-500 to-emerald-600"
+                  : "bg-linear-to-br from-rose-500 to-rose-600",
+              )}
+            >
+              {getInitials(candidate.name)}
+            </AvatarFallback>
+          </Avatar>
           <div className="min-w-0">
-            <div className="font-medium text-slate-900 truncate max-w-50">
+            <div className="font-medium text-slate-900 truncate max-w-30 sm:max-w-45 lg:max-w-55">
               {candidate.name}
             </div>
-            <div className="text-sm text-slate-500 mt-0.5 truncate max-w-50">
+            <div className="text-sm text-slate-500 mt-0.5 truncate max-w-30 sm:max-w-45 lg:max-w-55">
               {candidate.email}
             </div>
           </div>
         </div>
       </td>
 
-      <td className="px-5 py-5">
+      <td className="px-4 md:px-5 py-4 lg:py-5">
         <div className="flex flex-wrap gap-1.5">
           {getSkills(candidate).map((skill) => (
             <Badge
@@ -125,27 +120,27 @@ export function CandidateRow({
         </div>
       </td>
 
-      <td className="px-5 py-5 text-slate-700 text-sm">
+      <td className="hidden lg:table-cell px-5 py-5 text-slate-700 text-sm">
         <div className="flex items-center gap-2">
           <Briefcase className="h-4 w-4 text-slate-400" />
           {getExperienceDisplay(candidate.experienceYears ?? 0)}
         </div>
       </td>
 
-      <td className="px-5 py-5 text-slate-600 text-sm">
+      <td className="hidden lg:table-cell px-5 py-5 text-slate-600 text-sm">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-slate-400" />
           {getLocation(candidate)}
         </div>
       </td>
 
-      <td className="px-4 py-5 text-center">
+      <td className="hidden xl:table-cell px-4 py-5 text-center">
         <Badge className="bg-linear-to-r from-blue-500 to-indigo-600 text-white px-3 py-1 text-xs font-medium rounded-full shadow-sm">
           {(id.charCodeAt(0) % 15) + 3}
         </Badge>
       </td>
 
-      <td className="px-4 py-5 text-center">
+      <td className="px-4 py-4 lg:py-5 text-center">
         <div className="flex items-center justify-center gap-2">
           <div
             className={cn(
@@ -167,7 +162,7 @@ export function CandidateRow({
           </Badge>
           <label
             className={cn(
-              "relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:ring-offset-2",
+              "hidden lg:inline-flex relative h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:ring-offset-2",
               isActive ? "bg-emerald-500" : "bg-rose-500",
               isActionLoading && "opacity-50 cursor-not-allowed",
             )}
@@ -195,14 +190,14 @@ export function CandidateRow({
         </div>
       </td>
 
-      <td className="px-5 py-5 text-slate-600 text-sm">
+      <td className="hidden xl:table-cell px-5 py-5 text-slate-600 text-sm">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-slate-400" />
           {formatDate(candidate.joinedDate)}
         </div>
       </td>
 
-      <td className="px-6 py-5 text-right pr-8">
+      <td className="px-4 md:px-6 py-4 lg:py-5 text-right md:pr-8">
         <Button
           variant="ghost"
           size="icon"

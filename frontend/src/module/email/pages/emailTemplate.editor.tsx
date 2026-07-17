@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import Sidebar from "@/components/admin/sideBar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEmailTemplateEditor } from "../hooks/EmailTemplate.Hooks/useEmailTemplateEditor";
 import { TemplateHeader } from "./components/email-template/TemplateHeader";
@@ -33,7 +32,7 @@ export default function EmailTemplateEditor() {
   if (loading) {
     return (
       <div className="min-h-screen bg-liner-to-br from-slate-50 via-indigo-50/20 to-purple-50/10 flex">
-        <Sidebar />
+
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-5">
             <div className="relative">
@@ -50,7 +49,6 @@ export default function EmailTemplateEditor() {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-liner-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex">
-        <Sidebar />
 
         <div className="flex-1 flex flex-col">
           <TemplateHeader

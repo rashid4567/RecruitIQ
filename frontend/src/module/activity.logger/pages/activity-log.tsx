@@ -1,8 +1,7 @@
+import { RefreshCw } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Sidebar from "@/components/admin/sideBar";
-
+import { Button } from "@/components/ui/button";
 import { useActivityLogs } from "../hooks/useActivityLogs";
-import { ActivityLogsHeader } from "./components/activity.logger/ActivityLogsHeader";
 import { ActivityLogsStats } from "./components/activity.logger/ActivityStats";
 import { ActivityLogsSearch } from "./components/activity.logger/ActivitySearch";
 import { ActivityLogsTable } from "./components/activity.logger/Activitylogstable";
@@ -14,7 +13,6 @@ export default function ActivityLogsPage() {
     paginated,
     loading,
     error,
-    refreshing,
     search,
     setSearch,
     pagination,
@@ -27,60 +25,68 @@ export default function ActivityLogsPage() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex">
-        <Sidebar />
+      <div className="flex flex-1 flex-col min-w-0 bg-slate-50">
+        <main className="flex-1 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8">
+          <div className="mx-auto w-full max-w-425 space-y-4 lg:space-y-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">
+                  Activity Logs
+                </h1>
+                <p className="text-sm text-slate-500 hidden sm:block">
+                  Track every action across the platform.
+                </p>
+              </div>
 
-        <div className="flex-1 flex flex-col min-w-0">
-          <ActivityLogsHeader
-            loading={loading}
-            refreshing={refreshing}
-            onRefresh={() => fetchLogs(true)}
-          />
-
-          <main className="flex-1 p-6 lg:p-8">
-            <div className="max-w-screen-2xl mx-auto space-y-6">
-              {error ? (
-                <ActivityLogsError
-                  message={error}
-                  onRetry={() => fetchLogs()}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchLogs()}
+                disabled={loading}
+                className="gap-2"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
                 />
-              ) : (
-                <>
-                  {/* Stats row */}
-                  <ActivityLogsStats
-                    total={stats.total}
-                    errors={stats.errors}
-                    today={stats.today}
-                    mostRecentUser={stats.mostRecentUser}
-                  />
-
-                  {/* Search */}
-                  <ActivityLogsSearch
-                    search={search}
-                    onSearch={(v) => {
-                      setSearch(v);
-                      changePage(1);
-                    }}
-                    resultCount={filtered.length}
-                    totalCount={stats.total}
-                  />
-
-                  {/* Table */}
-                  <ActivityLogsTable
-                    paginated={paginated}
-                    filtered={filtered}
-                    loading={loading}
-                    pagination={pagination}
-                    totalPages={totalPages}
-                    onChangePage={changePage}
-                    onChangeLimit={changeLimit}
-                    search={search}
-                  />
-                </>
-              )}
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
             </div>
-          </main>
-        </div>
+
+            {error ? (
+              <ActivityLogsError message={error} onRetry={() => fetchLogs()} />
+            ) : (
+              <>
+                <ActivityLogsStats
+                  total={stats.total}
+                  errors={stats.errors}
+                  today={stats.today}
+                  mostRecentUser={stats.mostRecentUser}
+                />
+
+                <ActivityLogsSearch
+                  search={search}
+                  onSearch={(v) => {
+                    setSearch(v);
+                    changePage(1);
+                  }}
+                  resultCount={filtered.length}
+                  totalCount={stats.total}
+                />
+
+                <ActivityLogsTable
+                  paginated={paginated}
+                  filtered={filtered}
+                  loading={loading}
+                  pagination={pagination}
+                  totalPages={totalPages}
+                  onChangePage={changePage}
+                  onChangeLimit={changeLimit}
+                  search={search}
+                />
+              </>
+            )}
+          </div>
+        </main>
       </div>
     </TooltipProvider>
   );

@@ -1,8 +1,6 @@
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-
-import Sidebar from "@/components/admin/sideBar";
 import type { EmailTemplate } from "../types/email.types";
 import { useEmailTemplateManagement } from "../hooks/EmailTemplate.Hooks/useEmailTemplateManagement";
 import { TemplateHeader } from "./components/email-template.management/TemplateHeader";
@@ -93,10 +91,6 @@ export default function EmailTemplateManagement() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex">
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
-
       <div className="flex-1 flex flex-col">
         <TemplateHeader />
 

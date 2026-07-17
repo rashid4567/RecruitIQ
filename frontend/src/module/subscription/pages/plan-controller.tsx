@@ -10,8 +10,6 @@ import {
   DollarSign,
   X,
 } from "lucide-react";
-
-import Sidebar from "@/components/admin/sideBar";
 import { useNavigate } from "react-router-dom";
 import {
   useSubscriptionPlans,
@@ -41,7 +39,6 @@ export default function PlansPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50">
-      <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/80 backdrop-blur-xl">
           <div className="flex h-16 items-center justify-between px-8">

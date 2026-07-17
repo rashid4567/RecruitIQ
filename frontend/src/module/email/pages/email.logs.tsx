@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Sidebar from "@/components/admin/sideBar";
 import { useEmailLogs } from "../hooks/EmailLog-Hooks/useEmailLogs"; 
 import { EmailLogsHeader } from "./components/email-logs/EmailLogsHeader";
 import { EmailLogsFilters } from "./components/email-logs/EmailLogsFilters";
@@ -81,7 +80,6 @@ export default function EmailLogsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      <Sidebar />
 
       <div className="flex-1">
         <EmailLogsHeader

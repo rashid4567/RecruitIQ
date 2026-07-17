@@ -46,7 +46,6 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import Sidebar from "../../../components/admin/sideBar";
 import type { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdminDashboard } from "../hooks/useAdminDashboard";
@@ -854,10 +853,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
-
       <div className="flex-1 flex flex-col overflow-hidden">
         <CommandPalette
           open={paletteOpen}

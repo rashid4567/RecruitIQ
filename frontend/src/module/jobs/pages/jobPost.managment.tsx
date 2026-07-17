@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import Sidebar from "@/components/admin/sideBar";
 import type { Job } from "../types/job.types";
 import { useAllJobPosts } from "../hooks/jobPost-Hooks/useAllJobpost";
 import { useUpdateJobPostStatus } from "../hooks/jobPost-Hooks/Useupdatejobpoststatus";
@@ -112,9 +111,6 @@ export default function JobPostManagement() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-indigo-50/30 flex">
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
 
       <div className="flex-1 flex flex-col min-w-0">
         <JobPostHeader />

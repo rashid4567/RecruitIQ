@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Sidebar from "@/components/admin/sideBar";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useCandidates } from "../hooks/Candidate-Hooks/useCandidate";
@@ -11,6 +10,7 @@ import { ManagementHeader } from "@/shared/table/ManagementHeader";
 import { SearchFilterBar } from "@/shared/table/SearchFilterBar";
 import { ErrorCard } from "@/shared/table/ErrorCard";
 import { ShieldAlert, ShieldCheck } from "lucide-react";
+
 
 const STATUS_FILTERS = [
   {
@@ -96,12 +96,7 @@ export default function CandidateManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-indigo-50/30 flex">
-        <div className="hidden lg:block">
-        <Sidebar />
-    </div>
-
-
+    <div className="min-h-full bg-linear-to-br from-slate-50 to-indigo-50/30 flex">
       <div className="flex-1 flex flex-col">
         <ManagementHeader
           title="Candidates"
@@ -119,8 +114,8 @@ export default function CandidateManagement() {
           onFilterChange={setFilterStatus}
         />
 
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8">
+          <div className="max-w-none">
             {error ? (
               <ErrorCard message={error} onRetry={refresh} />
             ) : (

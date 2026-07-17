@@ -18,7 +18,6 @@ import {
 import { useUpdatePassword } from "@/module/auth/hooks/useUpdate.password";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import Sidebar from "../../../components/admin/sideBar";
 
 export interface UpdatePasswordPayload {
   currentPassword: string;
@@ -106,8 +105,6 @@ function getStrengthMeta(passedCount: number) {
   };
 }
 
-// ---------- backend error mapping ----------
-
 const ERROR_MESSAGE_MAP: Record<string, string> = {
   INVALID_CURRENT_PASSWORD: "The current password you entered is incorrect.",
   PASSWORD_REUSED: "Please choose a different password.",
@@ -129,8 +126,6 @@ function isCurrentPasswordError(raw: string | null): boolean {
     /incorrect/i.test(raw)
   );
 }
-
-// ---------- password field ----------
 
 interface PasswordFieldProps {
   id: string;
@@ -230,15 +225,15 @@ function PasswordField({
           autoComplete={autoComplete}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${id}-error` : undefined}
-          className={`w-full rounded-xl border bg-white py-2.75 pl-10 pr-10 text-sm text-gray-900
-            placeholder:text-gray-400 outline-none transition-all duration-150
+          className={`min-h-11 w-full rounded-xl border bg-white py-2.5 pl-10 pr-11 text-sm text-slate-900
+            placeholder:text-slate-400 outline-none transition-all duration-150
             focus:ring-4
             ${
               error
                 ? "border-red-300 focus:border-red-400 focus:ring-red-50"
                 : success
                   ? "border-emerald-300 focus:border-emerald-400 focus:ring-emerald-50"
-                  : "border-gray-200 hover:border-gray-300 focus:border-indigo-500 focus:ring-indigo-50"
+                  : "border-slate-200 hover:border-slate-300 focus:border-indigo-500 focus:ring-indigo-50"
             }`}
         />
         <button
@@ -246,7 +241,7 @@ function PasswordField({
           onClick={() => setVisible((v) => !v)}
           tabIndex={-1}
           aria-label={visible ? "Hide password" : "Show password"}
-          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600"
+          className="absolute right-1 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
         >
           {visible ? <EyeOff size={17} /> : <Eye size={17} />}
         </button>
@@ -313,7 +308,19 @@ function ConfirmUpdateDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && !loading && onCancel()}>
-      <DialogContent className="sm:max-w-sm rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl">
+      <DialogContent
+        className="
+          w-[calc(100%-24px)]
+          max-w-sm
+          rounded-2xl
+          border border-slate-200
+          bg-white
+          p-4
+          shadow-2xl
+          min-[375px]:p-5
+          sm:p-6
+        "
+      >
         <div className="flex items-start gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50">
             <KeyRound size={20} className="text-indigo-600" />
@@ -330,13 +337,13 @@ function ConfirmUpdateDialog({
           </div>
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-5 flex flex-col-reverse gap-2 min-[400px]:flex-row min-[400px]:gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 rounded-xl border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+            className="min-h-11 flex-1 rounded-xl border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
           >
             Cancel
           </Button>
@@ -344,7 +351,7 @@ function ConfirmUpdateDialog({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className="flex-1 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-indigo-300"
+            className="min-h-11 flex-1 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-indigo-300"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -403,8 +410,6 @@ function SuccessCard({ forceLogout }: { forceLogout: boolean }) {
   );
 }
 
-// ---------- main page ----------
-
 export default function ChangeAdminPasswordPage() {
   const [values, setValues] = useState<PasswordFormValues>({
     currentPassword: "",
@@ -413,9 +418,9 @@ export default function ChangeAdminPasswordPage() {
     forceLogoutOtherSessions: true,
   });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [touched, setTouched] = useState<
-    Partial<Record<keyof PasswordFormValues, boolean>>
-  >({});
+const [touched, setTouched] = useState<
+  Partial<Record<keyof PasswordFormValues, boolean>>
+>({});
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [capsLockOn, setCapsLockOn] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -533,274 +538,581 @@ export default function ChangeAdminPasswordPage() {
       }));
       setTouched({});
       setFieldErrors({});
-      // No redirect and no forced logout of the current session here.
-      // The backend is expected to invalidate only *other* sessions'
-      // refresh tokens (when forceLogoutOtherSessions is true) and keep
-      // this browser's session/access token valid, so the user can keep
-      // working without being bounced back to the login page.
     } else {
       setConfirmOpen(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
+    <div className="flex min-h-dvh bg-slate-50">
+  
 
-      <div className="flex-1">
-        <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 px-8 py-4 backdrop-blur-sm">
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <span>Settings</span>
-            <span>/</span>
-            <span className="font-medium text-gray-900">
-              Change Admin Password
-            </span>
-          </div>
-        </header>
-        <main className="px-8 py-10">
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-              <div className="mb-7 flex items-start gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50">
-                  <KeyRound size={20} className="text-indigo-600" />
+      <div className="flex min-w-0 flex-1 flex-col">
+   
+        <main
+          className="
+            min-w-0 flex-1
+            bg-slate-50
+            px-3 py-4
+            min-[375px]:px-4
+            sm:px-6 sm:py-6
+            lg:px-8 lg:py-7
+          "
+        >
+          <div className="mx-auto w-full max-w-6xl">
+            {/* Page layout */}
+            <div
+              className="
+                grid grid-cols-1
+                gap-4
+                sm:gap-5
+                lg:grid-cols-[minmax(0,1fr)_300px]
+                lg:items-start
+                lg:gap-6
+                xl:grid-cols-[minmax(0,1fr)_320px]
+                xl:gap-8
+              "
+            >
+              {/* =========================
+                  PASSWORD FORM
+              ========================== */}
+              <section
+                className="
+                  min-w-0
+                  overflow-hidden
+                  rounded-2xl
+                  border border-slate-200
+                  bg-white
+                  shadow-sm
+                "
+              >
+                {/* Form header */}
+                <div
+                  className="
+                    border-b border-slate-100
+                    px-4 py-4
+                    min-[375px]:px-5
+                    sm:px-6 sm:py-5
+                    lg:px-7
+                    xl:px-8
+                  "
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="
+                        flex size-10 shrink-0
+                        items-center justify-center
+                        rounded-xl
+                        bg-indigo-50
+                        text-indigo-600
+                        sm:size-11
+                      "
+                    >
+                      <KeyRound size={20} />
+                    </div>
+
+                    <div className="min-w-0">
+                      <h1
+                        className="
+                          text-base font-semibold
+                          tracking-tight text-slate-900
+                          sm:text-lg
+                        "
+                      >
+                        Change Your Admin Password
+                      </h1>
+
+                      <p
+                        className="
+                          mt-1
+                          text-xs leading-relaxed
+                          text-slate-500
+                          sm:text-sm
+                        "
+                      >
+                        Create a strong password to keep your administrator
+                        account secure.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-lg font-semibold text-gray-900">
-                    Change Your Admin Password
-                  </h1>
-                  <p className="mt-0.5 text-sm text-gray-500">
-                    Update your password to enhance account security.
+
+                {/* Form content */}
+                <div
+                  className="
+                    p-4
+                    min-[375px]:p-5
+                    sm:p-6
+                    lg:p-7
+                    xl:p-8
+                  "
+                >
+                  {mappedError && !currentPasswordServerError && (
+                    <div
+                      role="alert"
+                      className="
+                        mb-5
+                        flex items-start gap-2.5
+                        rounded-xl
+                        border border-red-200
+                        bg-red-50
+                        px-3.5 py-3
+                        text-xs leading-relaxed
+                        text-red-600
+                        sm:items-center
+                        sm:px-4
+                        sm:text-sm
+                      "
+                    >
+                      <ShieldAlert
+                        size={16}
+                        className="mt-0.5 shrink-0 sm:mt-0"
+                      />
+                      <span className="min-w-0">{mappedError}</span>
+                    </div>
+                  )}
+
+                  <AnimatePresence>
+                    {successMessage && (
+                      <SuccessCard
+                        forceLogout={values.forceLogoutOtherSessions}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  <form
+                    onSubmit={onSubmit}
+                    noValidate
+                    className="space-y-5 sm:space-y-6"
+                  >
+                    <PasswordField
+                      id="currentPassword"
+                      label="Current Password"
+                      hint="Enter your existing account password."
+                      placeholder="Enter your current password"
+                      value={values.currentPassword}
+                      onChange={(v) => setField("currentPassword", v)}
+                      onBlur={() => markTouched("currentPassword")}
+                      onEnter={() => newPasswordRef.current?.focus()}
+                      error={
+                        touched.currentPassword
+                          ? (fieldErrors.currentPassword ??
+                            currentPasswordServerError ??
+                            undefined)
+                          : (currentPasswordServerError ?? undefined)
+                      }
+                      onCapsLock={setCapsLockOn}
+                      showCapsWarning={capsLockOn}
+                      autoComplete="current-password"
+                    />
+
+                    <div className="h-px bg-slate-100" />
+
+                    <PasswordField
+                      id="newPassword"
+                      label="New Password"
+                      placeholder="Create a new password"
+                      value={values.newPassword}
+                      onChange={(v) => setField("newPassword", v)}
+                      onBlur={() => markTouched("newPassword")}
+                      onEnter={() => confirmPasswordRef.current?.focus()}
+                      error={
+                        touched.newPassword
+                          ? fieldErrors.newPassword
+                          : undefined
+                      }
+                      onCapsLock={setCapsLockOn}
+                      showCapsWarning={capsLockOn}
+                      autoComplete="new-password"
+                      inputRef={newPasswordRef}
+                    />
+
+                    {/* Password strength */}
+                    <AnimatePresence>
+                      {values.newPassword.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div
+                            className="
+                              rounded-xl
+                              border border-slate-100
+                              bg-slate-50/70
+                              p-3.5
+                              sm:p-4
+                            "
+                          >
+                            <div
+                              className="
+                                flex flex-col gap-1
+                                min-[400px]:flex-row
+                                min-[400px]:items-center
+                                min-[400px]:justify-between
+                              "
+                            >
+                              <p
+                                className="
+                                  text-[10px] font-semibold
+                                  uppercase tracking-wide
+                                  text-slate-500
+                                  sm:text-xs
+                                "
+                              >
+                                Password strength
+                              </p>
+
+                              <span
+                                className="
+                                  flex items-center gap-1
+                                  text-[10px]
+                                  text-slate-400
+                                  sm:text-xs
+                                "
+                              >
+                                <Clock size={11} />
+                                Crack time: {strength.crackTime}
+                              </span>
+                            </div>
+
+                            <div
+                              className="
+                                mt-2
+                                h-1.5
+                                overflow-hidden
+                                rounded-full
+                                bg-slate-200
+                              "
+                            >
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: strength.width }}
+                                transition={{ duration: 0.3 }}
+                                className={`h-full rounded-full ${strength.color}`}
+                              />
+                            </div>
+
+                            <p
+                              className={`mt-1.5 text-xs font-semibold ${strength.text}`}
+                            >
+                              {strength.label} password
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    <PasswordField
+                      id="confirmPassword"
+                      label="Confirm New Password"
+                      placeholder="Re-enter your new password"
+                      value={values.confirmPassword}
+                      onChange={(v) => setField("confirmPassword", v)}
+                      onBlur={() => markTouched("confirmPassword")}
+                      onEnter={() => {
+                        if (canSubmit)
+                          onSubmit({ preventDefault() {} } as React.FormEvent);
+                      }}
+                      error={
+                        touched.confirmPassword
+                          ? (fieldErrors.confirmPassword ??
+                            (passwordsMismatch
+                              ? "Passwords do not match."
+                              : undefined))
+                          : undefined
+                      }
+                      success={
+                        !touched.confirmPassword || !fieldErrors.confirmPassword
+                          ? passwordsMatch
+                            ? "Passwords match"
+                            : undefined
+                          : undefined
+                      }
+                      disablePaste
+                      autoComplete="new-password"
+                      inputRef={confirmPasswordRef}
+                    />
+
+                    {/* Requirements */}
+                    <AnimatePresence>
+                      {values.newPassword.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="
+                            overflow-hidden
+                            rounded-xl
+                            border border-slate-100
+                            bg-slate-50/70
+                            p-3.5
+                            sm:p-4
+                          "
+                        >
+                          <p
+                            className="
+                              mb-3
+                              text-[10px] font-semibold
+                              uppercase tracking-wide
+                              text-slate-500
+                              sm:text-xs
+                            "
+                          >
+                            Your new password must contain
+                          </p>
+
+                          <ul
+                            className="
+                              grid grid-cols-1
+                              gap-2
+                              min-[500px]:grid-cols-2
+                            "
+                          >
+                            {ruleStatus.map((rule) => (
+                              <motion.li
+                                key={rule.key}
+                                initial={false}
+                                animate={{ x: 0 }}
+                                className={`flex items-center gap-2 text-xs transition-colors sm:text-sm ${
+                                  rule.passed
+                                    ? "text-emerald-600"
+                                    : "text-slate-400"
+                                }`}
+                              >
+                                <motion.span
+                                  key={rule.passed ? "passed" : "unpassed"}
+                                  initial={{ scale: 0.6, opacity: 0 }}
+                                  animate={{ scale: 1, opacity: 1 }}
+                                  transition={{
+                                    type: "spring",
+                                    stiffness: 300,
+                                    damping: 20,
+                                  }}
+                                  className={`flex size-4 shrink-0 items-center justify-center rounded-full ${
+                                    rule.passed
+                                      ? "bg-emerald-100"
+                                      : "bg-slate-200"
+                                  }`}
+                                >
+                                  {rule.passed ? (
+                                    <Check
+                                      size={11}
+                                      className="text-emerald-600"
+                                    />
+                                  ) : (
+                                    <X size={11} className="text-slate-400" />
+                                  )}
+                                </motion.span>
+                                <span>{rule.label}</span>
+                              </motion.li>
+                            ))}
+                          </ul>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Sign out from other devices toggle */}
+                    <label
+                      className="
+                        flex cursor-pointer
+                        items-start gap-3
+                        rounded-xl
+                        border border-slate-200
+                        bg-slate-50/60
+                        p-3.5
+                        transition-colors
+                        hover:border-slate-300
+                        sm:p-4
+                      "
+                    >
+                      <input
+                        type="checkbox"
+                        checked={values.forceLogoutOtherSessions}
+                        onChange={(e) =>
+                          setField("forceLogoutOtherSessions", e.target.checked)
+                        }
+                        className="mt-0.5 size-4 shrink-0 accent-indigo-600"
+                      />
+
+                      <div>
+                        <p className="text-sm font-semibold text-slate-700">
+                          Sign out from other devices
+                        </p>
+
+                        <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                          End active sessions on other devices after changing
+                          your password. This browser will stay signed in.
+                        </p>
+                      </div>
+                    </label>
+
+                    <Button
+                      type="submit"
+                      disabled={!canSubmit}
+                      className={`min-h-11 w-full rounded-xl px-4 text-sm font-semibold text-white transition-all
+                        ${
+                          canSubmit
+                            ? "bg-indigo-600 shadow-sm hover:bg-indigo-700 hover:shadow-md"
+                            : "cursor-not-allowed bg-indigo-300 hover:bg-indigo-300"
+                        }`}
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 size={15} className="animate-spin" />
+                          Updating...
+                        </span>
+                      ) : (
+                        "Update Password"
+                      )}
+                    </Button>
+
+                    <p
+                      className="
+                        text-center
+                        text-[11px]
+                        leading-relaxed
+                        text-slate-400
+                        sm:text-xs
+                      "
+                    >
+                      Changing your password will immediately secure your
+                      administrator account.
+                    </p>
+                  </form>
+                </div>
+              </section>
+
+              {/* =========================
+                  SECURITY INFORMATION
+              ========================== */}
+              <aside
+                className="
+                  grid grid-cols-1
+                  gap-4
+                  sm:grid-cols-2
+                  lg:sticky
+                  lg:top-24
+                  lg:grid-cols-1
+                  lg:self-start
+                "
+              >
+                {/* Password tips */}
+                <div
+                  className="
+                    rounded-2xl
+                    border border-slate-200
+                    bg-white
+                    p-4
+                    shadow-sm
+                    min-[375px]:p-5
+                    lg:p-6
+                  "
+                >
+                  <div className="mb-3 flex items-center gap-2.5">
+                    <div
+                      className="
+                        flex size-8 shrink-0
+                        items-center justify-center
+                        rounded-lg
+                        bg-indigo-50
+                      "
+                    >
+                      <Info size={15} className="text-indigo-600" />
+                    </div>
+
+                    <h2 className="text-sm font-semibold text-slate-900">
+                      Password tips
+                    </h2>
+                  </div>
+
+                  <ul
+                    className="
+                      space-y-2.5
+                      text-xs
+                      leading-relaxed
+                      text-slate-500
+                      sm:text-sm
+                    "
+                  >
+                    <li className="flex gap-2">
+                      <Check
+                        size={14}
+                        className="mt-0.5 shrink-0 text-emerald-500"
+                      />
+                      Avoid reusing passwords from other accounts.
+                    </li>
+
+                    <li className="flex gap-2">
+                      <Check
+                        size={14}
+                        className="mt-0.5 shrink-0 text-emerald-500"
+                      />
+                      Use a passphrase of unrelated words.
+                    </li>
+
+                    <li className="flex gap-2">
+                      <Check
+                        size={14}
+                        className="mt-0.5 shrink-0 text-emerald-500"
+                      />
+                      Never share your admin password over email or chat.
+                    </li>
+
+                    <li className="flex gap-2">
+                      <Check
+                        size={14}
+                        className="mt-0.5 shrink-0 text-emerald-500"
+                      />
+                      Change your password if you suspect it was exposed.
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Security notice */}
+                <div
+                  className="
+                    rounded-2xl
+                    border border-amber-200
+                    bg-amber-50/70
+                    p-4
+                    min-[375px]:p-5
+                    lg:p-6
+                  "
+                >
+                  <div className="mb-3 flex items-center gap-2.5">
+                    <div
+                      className="
+                        flex size-8 shrink-0
+                        items-center justify-center
+                        rounded-lg
+                        bg-amber-100
+                      "
+                    >
+                      <ShieldAlert size={15} className="text-amber-600" />
+                    </div>
+
+                    <h2 className="text-sm font-semibold text-amber-900">
+                      Security notice
+                    </h2>
+                  </div>
+
+                  <p
+                    className="
+                      text-xs
+                      leading-relaxed
+                      text-amber-700
+                      sm:text-sm
+                    "
+                  >
+                    Changing your password with "Sign out from other devices"
+                    enabled ends active sessions on other devices. Your current
+                    browser session remains signed in.
                   </p>
                 </div>
-              </div>
-
-              {mappedError && !currentPasswordServerError && (
-                <div
-                  role="alert"
-                  className="mb-5 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
-                >
-                  <ShieldAlert size={16} className="shrink-0" />
-                  {mappedError}
-                </div>
-              )}
-
-              <AnimatePresence>
-                {successMessage && (
-                  <SuccessCard forceLogout={values.forceLogoutOtherSessions} />
-                )}
-              </AnimatePresence>
-
-              <form onSubmit={onSubmit} noValidate className="space-y-6">
-                <PasswordField
-                  id="currentPassword"
-                  label="Current Password"
-                  hint="Enter your existing account password."
-                  placeholder="Enter your current password"
-                  value={values.currentPassword}
-                  onChange={(v) => setField("currentPassword", v)}
-                  onBlur={() => markTouched("currentPassword")}
-                  onEnter={() => newPasswordRef.current?.focus()}
-                  error={
-                    touched.currentPassword
-                      ? (fieldErrors.currentPassword ??
-                        currentPasswordServerError ??
-                        undefined)
-                      : (currentPasswordServerError ?? undefined)
-                  }
-                  onCapsLock={setCapsLockOn}
-                  showCapsWarning={capsLockOn}
-                  autoComplete="current-password"
-                />
-
-                <hr className="border-gray-100" />
-
-                <PasswordField
-                  id="newPassword"
-                  label="New Password"
-                  placeholder="Create a new password"
-                  value={values.newPassword}
-                  onChange={(v) => setField("newPassword", v)}
-                  onBlur={() => markTouched("newPassword")}
-                  onEnter={() => confirmPasswordRef.current?.focus()}
-                  error={
-                    touched.newPassword ? fieldErrors.newPassword : undefined
-                  }
-                  onCapsLock={setCapsLockOn}
-                  showCapsWarning={capsLockOn}
-                  autoComplete="new-password"
-                  inputRef={newPasswordRef}
-                />
-
-                <AnimatePresence>
-                  {values.newPassword.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="-mt-2 overflow-hidden"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                          Password strength
-                        </p>
-                        <span className="flex items-center gap-1 text-xs text-gray-400">
-                          <Clock size={11} />
-                          Crack time: {strength.crackTime}
-                        </span>
-                      </div>
-                      <div className="mt-1.5 flex h-1.5 overflow-hidden rounded-full bg-gray-100">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: strength.width }}
-                          transition={{ duration: 0.3 }}
-                          className={`h-full rounded-full ${strength.color}`}
-                        />
-                      </div>
-                      <p
-                        className={`mt-1.5 text-xs font-medium ${strength.text}`}
-                      >
-                        {strength.label} password
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <PasswordField
-                  id="confirmPassword"
-                  label="Confirm New Password"
-                  placeholder="Re-enter your new password"
-                  value={values.confirmPassword}
-                  onChange={(v) => setField("confirmPassword", v)}
-                  onBlur={() => markTouched("confirmPassword")}
-                  onEnter={() => {
-                    if (canSubmit)
-                      onSubmit({ preventDefault() {} } as React.FormEvent);
-                  }}
-                  error={
-                    touched.confirmPassword
-                      ? (fieldErrors.confirmPassword ??
-                        (passwordsMismatch
-                          ? "Passwords do not match."
-                          : undefined))
-                      : undefined
-                  }
-                  success={
-                    !touched.confirmPassword || !fieldErrors.confirmPassword
-                      ? passwordsMatch
-                        ? "Passwords match"
-                        : undefined
-                      : undefined
-                  }
-                  disablePaste
-                  autoComplete="new-password"
-                  inputRef={confirmPasswordRef}
-                />
-
-                <AnimatePresence>
-                  {values.newPassword.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="overflow-hidden rounded-xl bg-gray-50 p-4"
-                    >
-                      <p className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Your new password must contain
-                      </p>
-                      <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                        {ruleStatus.map((rule) => (
-                          <motion.li
-                            key={rule.key}
-                            initial={false}
-                            animate={{ x: 0 }}
-                            className={`flex items-center gap-1.5 text-sm transition-colors ${
-                              rule.passed ? "text-emerald-600" : "text-gray-400"
-                            }`}
-                          >
-                            <motion.span
-                              key={rule.passed ? "passed" : "unpassed"}
-                              initial={{ scale: 0.6, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              transition={{
-                                type: "spring",
-                                stiffness: 300,
-                                damping: 20,
-                              }}
-                              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
-                                rule.passed ? "bg-emerald-100" : "bg-gray-200"
-                              }`}
-                            >
-                              {rule.passed ? (
-                                <Check size={11} className="text-emerald-600" />
-                              ) : (
-                                <X size={11} className="text-gray-400" />
-                              )}
-                            </motion.span>
-                            {rule.label}
-                          </motion.li>
-                        ))}
-                      </ul>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <Button
-                  type="submit"
-                  disabled={!canSubmit}
-                  className={`flex w-full items-center justify-center gap-2 rounded-xl py-2.75 text-sm font-medium text-white transition-all
-                    ${
-                      canSubmit
-                        ? "bg-indigo-600 shadow-sm hover:bg-indigo-700 hover:shadow"
-                        : "cursor-not-allowed bg-indigo-300 hover:bg-indigo-300"
-                    }`}
-                >
-                  Update Password
-                </Button>
-
-                <p className="text-center text-xs text-gray-400">
-                  Changing your password will immediately secure your account.
-                </p>
-              </form>
+              </aside>
             </div>
-
-            <aside className="space-y-5">
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="mb-3 flex items-center gap-2">
-                  <Info size={16} className="text-indigo-500" />
-                  <h2 className="text-sm font-semibold text-gray-900">
-                    Password tips
-                  </h2>
-                </div>
-                <ul className="space-y-2.5 text-sm text-gray-500">
-                  <li>Avoid reusing passwords from other accounts.</li>
-                  <li>
-                    Use a passphrase of unrelated words instead of a single
-                    word.
-                  </li>
-                  <li>Never share your admin password over email or chat.</li>
-                  <li>
-                    Update your password immediately if you suspect it was
-                    exposed.
-                  </li>
-                </ul>
-              </div>
-
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-                <div className="mb-2 flex items-center gap-2">
-                  <ShieldAlert size={16} className="text-amber-600" />
-                  <h2 className="text-sm font-semibold text-amber-800">
-                    Heads up
-                  </h2>
-                </div>
-                <p className="text-sm text-amber-700">
-                  As an admin, changing your password with "Sign out from other
-                  devices" enabled will end active sessions on all other devices
-                  immediately. This browser session stays signed in.
-                </p>
-              </div>
-            </aside>
           </div>
         </main>
       </div>

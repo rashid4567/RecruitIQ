@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { XCircle } from "lucide-react";
-import Sidebar from "@/components/admin/sideBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCandidateProfile } from "../hooks/Candidate-Hooks/useCandidateProfile";
@@ -61,9 +60,7 @@ const CandidateProfileView: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex">
-          <div className="hidden lg:block">
-        <Sidebar />
-    </div>
+     
 
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-6">
@@ -83,9 +80,7 @@ const CandidateProfileView: React.FC = () => {
   if (error || !profile) {
     return (
       <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex">
-        <div className="hidden lg:block">
-        <Sidebar />
-    </div>
+        
 
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="w-full max-w-lg border-none shadow-2xl bg-white/80 backdrop-blur-lg rounded-3xl">
@@ -115,9 +110,7 @@ const CandidateProfileView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex">
-      <div className="hidden lg:block">
-        <Sidebar />
-    </div>
+   
 
 
       <div className="flex-1 flex flex-col overflow-hidden">

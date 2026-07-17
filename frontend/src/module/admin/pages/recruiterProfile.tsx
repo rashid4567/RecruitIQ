@@ -8,11 +8,8 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
-import Sidebar from "@/components/admin/sideBar";
-
 import { useRecruiterProfile } from "../hooks/Recruiter-Hooks/useRecruiterProfile";
 import { useUserStatus } from "../hooks/Candidate-Hooks/useUserStatus";
-
 import { RecruiterProfileHeader } from "./components/recruiter-profile/RecruiterProfileHeader";
 import { RecruiterContactInfo } from "./components/recruiter-profile/RecruiterContactInfo";
 import { RecruiterCompanyCard } from "./components/recruiter-profile/RecruiterCompanyCard";
@@ -159,10 +156,6 @@ export default function RecruiterProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex">
-        <div className="hidden lg:block">
-        <Sidebar />
-    </div>
-
 
       <main className="flex-1 overflow-y-auto">
         <div className="bg-white border-b border-gray-100 px-8 py-4 sticky top-0 z-10">

@@ -54,6 +54,7 @@ import {
   filterBySearch,
   deriveStats,
 } from "./components/interview.mangment/Interviewdashboard.helpers";
+import Header from "@/module/auth/pages/home/header";
 
 const PAGE_SIZE_OPTIONS = [8, 20, 50, 100];
 
@@ -317,12 +318,13 @@ export default function InterviewDashboard() {
 
   return (
     <div className="flex h-screen bg-slate-50">
+      <Header/>
       <div className="hidden lg:block">
         <Sidebar />
       </div>
 
       <main className="flex h-screen flex-1 flex-col overflow-hidden">
-        {/* Compact header */}
+     
         <header className="shrink-0 border-b border-slate-200 bg-white">
           <div className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
             <div className="min-w-0">
@@ -347,7 +349,6 @@ export default function InterviewDashboard() {
             </button>
           </div>
 
-          {/* Tabs */}
           <div className="scrollbar-none flex items-center gap-1.5 overflow-x-auto px-4 pb-3 sm:px-6">
             <TabButton
               label="All"
@@ -387,7 +388,6 @@ export default function InterviewDashboard() {
           </div>
         </header>
 
-        {/* Filters */}
         <FilterBar
           searchInputRef={searchInputRef}
           searchInput={searchInput}
@@ -402,7 +402,6 @@ export default function InterviewDashboard() {
           onReset={clearFilters}
         />
 
-        {/* Stats */}
         <div className="grid shrink-0 grid-cols-2 gap-3 px-4 py-4 sm:grid-cols-3 sm:px-6 lg:grid-cols-5">
           <StatCard
             label="Today"

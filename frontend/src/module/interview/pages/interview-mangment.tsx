@@ -53,6 +53,7 @@ import {
   filterByMode,
   filterBySearch,
   deriveStats,
+  isToday,
 } from "./components/interview.mangment/Interviewdashboard.helpers";
 import Header from "@/module/auth/pages/home/header";
 
@@ -62,12 +63,13 @@ export default function InterviewDashboard() {
   const [selectedTab, setSelectedTab] = useState<Tab>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(ITEMS_PER_PAGE);
-  const [statusOverrides, setStatusOverrides] = useState<
-    Record<string, InterviewStatus>
-  >({});
-  const [rescheduleClearedIds, setRescheduleClearedIds] = useState<
-    Record<string, boolean>
-  >({});
+const [statusOverrides, setStatusOverrides] = useState<
+  Record<string, InterviewStatus>
+>({});
+
+const [rescheduleClearedIds, setRescheduleClearedIds] = useState<
+  Record<string, boolean>
+>({});
   const [scheduleModal, setScheduleModal] = useState<ScheduleModalState>({
     open: false,
   });
@@ -162,11 +164,60 @@ export default function InterviewDashboard() {
     [interviews, statusOverrides, rescheduleClearedIds],
   );
 
+  const todaysInterviews = useMemo(() => {
+    const now = new Date();
+
+    return enriched
+      .filter((interview) => {
+        if (!interview.scheduledAt) return false;
+
+        const scheduled = new Date(interview.scheduledAt);
+
+        return (
+          scheduled.getFullYear() === now.getFullYear() &&
+          scheduled.getMonth() === now.getMonth() &&
+          scheduled.getDate() === now.getDate() &&
+          interview.interviewStatus !== InterviewStatus.CANCELLED &&
+          interview.interviewStatus !== InterviewStatus.COMPLETED
+        );
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.scheduledAt!).getTime() -
+          new Date(b.scheduledAt!).getTime(),
+      );
+  }, [enriched]);
+
   const filtered = useMemo(() => {
     let result = filterByTab(enriched, selectedTab);
     result = filterByStatus(result, statusFilter);
     result = filterByMode(result, modeFilter);
     result = filterBySearch(result, debouncedSearch);
+
+    if (selectedTab === "all") {
+      result = [...result].sort((a, b) => {
+        const aToday = isToday(a.scheduledAt);
+        const bToday = isToday(b.scheduledAt);
+
+
+        if (aToday && !bToday) return -1;
+        if (!aToday && bToday) return 1;
+
+
+        if (a.scheduledAt && b.scheduledAt) {
+          return (
+            new Date(a.scheduledAt).getTime() -
+            new Date(b.scheduledAt).getTime()
+          );
+        }
+
+        if (a.scheduledAt) return -1;
+        if (b.scheduledAt) return 1;
+
+        return 0;
+      });
+    }
+
     return result;
   }, [enriched, selectedTab, statusFilter, modeFilter, debouncedSearch]);
 
@@ -391,19 +442,118 @@ export default function InterviewDashboard() {
             </div>
           </header>
 
-          <FilterBar
-            searchInputRef={searchInputRef}
-            searchInput={searchInput}
-            onSearchChange={setSearchInput}
-            onClearSearch={clearSearch}
-            isSearchPending={isSearchPending}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-            modeFilter={modeFilter}
-            onModeFilterChange={setModeFilter}
-            activeFilterCount={activeFilterCount}
-            onReset={clearFilters}
-          />
+          {!loading && !error && todaysInterviews.length > 0 && (
+            <section className="px-3 pt-4 min-[375px]:px-4 sm:px-6 lg:px-8">
+              <div
+                className="
+                  overflow-hidden
+                  rounded-2xl
+                  border border-blue-200
+                  bg-linear-to-br from-blue-50/80 via-white to-indigo-50/60
+                  shadow-sm
+                "
+              >
+                <div
+                  className="
+                    flex flex-col gap-2
+                    border-b border-blue-100
+                    px-4 py-3.5
+                    sm:flex-row sm:items-center sm:justify-between
+                    sm:px-5
+                  "
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="
+                        flex size-10 shrink-0
+                        items-center justify-center
+                        rounded-xl
+                        bg-blue-600
+                        text-white
+                        shadow-sm
+                      "
+                    >
+                      <CalendarClock size={18} />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-sm font-bold text-slate-900">
+                          Today's Interviews
+                        </h2>
+
+                        <span
+                          className="
+                            rounded-full
+                            bg-blue-100
+                            px-2 py-0.5
+                            text-[10px] font-bold
+                            text-blue-700
+                          "
+                        >
+                          PRIORITY
+                        </span>
+                      </div>
+
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        Your interviews scheduled for today
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleTabChange("today")}
+                    className="
+                      self-start
+                      text-xs font-semibold
+                      text-blue-600
+                      transition-colors
+                      hover:text-blue-700
+                      sm:self-auto
+                    "
+                  >
+                    View all {todaysInterviews.length} today
+                  </button>
+                </div>
+
+                <div className="divide-y divide-blue-100/70">
+                  {todaysInterviews.slice(0, 3).map((interview) => (
+                    <InterviewRow
+                      key={`today-${interview.interviewId ?? interview.applicationId}`}
+                      interview={interview}
+                      onStatusChange={handleStatusChange}
+                      onOpenSchedule={openScheduleForApplication}
+                      onOpenReschedule={openReschedule}
+                      onOpenCancel={openCancel}
+                      onApproveReschedule={openApproveReschedule}
+                      onRejectReschedule={openRejectReschedule}
+                      onJoinInterview={handleJoinInterview}
+                      onOpenDetail={openDetailModal}
+                    />
+                  ))}
+                </div>
+
+                {todaysInterviews.length > 3 && (
+                  <button
+                    type="button"
+                    onClick={() => handleTabChange("today")}
+                    className="
+                      flex w-full items-center justify-center
+                      border-t border-blue-100
+                      px-4 py-3
+                      text-xs font-semibold
+                      text-blue-600
+                      transition-colors
+                      hover:bg-blue-50
+                    "
+                  >
+                    View {todaysInterviews.length - 3} more today's interviews
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
 
           <div className="grid grid-cols-2 gap-2.5 px-3 py-4 min-[375px]:px-4 sm:grid-cols-3 sm:gap-3 sm:px-6 lg:grid-cols-5 lg:px-8">
             <StatCard
@@ -446,6 +596,20 @@ export default function InterviewDashboard() {
               icon={CalendarX2}
             />
           </div>
+
+          <FilterBar
+            searchInputRef={searchInputRef}
+            searchInput={searchInput}
+            onSearchChange={setSearchInput}
+            onClearSearch={clearSearch}
+            isSearchPending={isSearchPending}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            modeFilter={modeFilter}
+            onModeFilterChange={setModeFilter}
+            activeFilterCount={activeFilterCount}
+            onReset={clearFilters}
+          />
 
           <div className="px-3 pb-4 min-[375px]:px-4 sm:px-6 lg:px-8">
             <div className="overflow-visible rounded-xl sm:rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -544,8 +708,6 @@ export default function InterviewDashboard() {
                     ))}
                   </div>
 
-                  {/* Pagination — Rows selector hidden below sm, buttons
-                      centered on mobile */}
                   <div className="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/80 px-3 py-3 min-[375px]:px-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-medium text-slate-600">

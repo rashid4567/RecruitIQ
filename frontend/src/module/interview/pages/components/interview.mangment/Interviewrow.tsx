@@ -21,7 +21,6 @@ import {
 
 const TICK_INTERVAL_MS = 15_000;
 
-
 export const INTERVIEW_GRID_COLS =
   "grid-cols-[1.3fr_1.7fr_1fr_0.9fr_1fr_auto]";
 
@@ -111,13 +110,13 @@ export default function InterviewRow({
     else onOpenDetail(interview);
   }
 
- const avatar = (
-  <div
-    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-linear-to-br ${linear} text-xs font-bold text-white shadow-sm`}
-  >
-    {name.charAt(0).toUpperCase()}
-  </div>
-);
+  const avatar = (
+    <div
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-linear-to-br ${linear} text-xs font-bold text-white shadow-sm`}
+    >
+      {name.charAt(0).toUpperCase()}
+    </div>
+  );
 
   const modeBadge =
     interview.mode === "ONLINE" ? (
@@ -144,7 +143,6 @@ export default function InterviewRow({
       {statusCfg.label}
     </span>
   );
-
 
   function Actions() {
     return (
@@ -257,7 +255,6 @@ export default function InterviewRow({
       </div>
     );
   }
-
 
   type MenuEntry = { key: string; label: string; tone?: "danger" | "success"; onClick: () => void };
   const secondaryEntries: MenuEntry[] = [];
@@ -375,13 +372,29 @@ export default function InterviewRow({
 
   return (
     <>
-      {/* Mobile / tablet — card layout below lg */}
+
       <div
         onClick={handleRowClick}
-        className={`flex cursor-pointer flex-col gap-3 border-b border-slate-100 p-3.5 min-[375px]:p-4 sm:p-5 transition-colors lg:hidden ${
-          pendingReschedule ? "bg-rose-50/40" : "active:bg-slate-50"
+        className={`relative flex cursor-pointer flex-col gap-3 border-b border-slate-100 p-3.5 min-[375px]:p-4 sm:p-5 transition-colors lg:hidden ${
+          pendingReschedule
+            ? "bg-rose-50/50"
+            : todayFlag
+              ? "bg-blue-50/50 active:bg-blue-50"
+              : "active:bg-slate-50"
         }`}
       >
+        {todayFlag && (
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex size-2">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-blue-400 opacity-50" />
+              <span className="relative inline-flex size-2 rounded-full bg-blue-500" />
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-wide text-blue-600">
+              Today
+            </span>
+          </div>
+        )}
+
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2.5">
             {avatar}
@@ -432,8 +445,10 @@ export default function InterviewRow({
           pendingReschedule
             ? "bg-rose-50/40 hover:bg-rose-50/60"
             : canJoin
-              ? "hover:bg-emerald-50/40"
-              : "hover:bg-blue-50/30"
+              ? "bg-emerald-50/30 hover:bg-emerald-50/60"
+              : todayFlag
+                ? "bg-blue-50/40 hover:bg-blue-50/70"
+                : "hover:bg-slate-50"
         }`}
       >
         <div>

@@ -4,7 +4,6 @@ import {
   LogOut,
   ChevronDown,
   Briefcase,
-  Sparkles,
   Users,
   Mail,
   ArrowRight,
@@ -14,7 +13,6 @@ import {
   CalendarCheck,
   Settings,
   HelpCircle,
-  Tag,
   MoreHorizontal,
   Check,
 } from "lucide-react";
@@ -93,10 +91,30 @@ function getNavItems(role: Role): NavItem[] {
   }
 
   return [
-    { label: "Jobs", href: "/signin", icon: Sparkles, iconColor: "blue" },
-    { label: "Application", href: "/signin", icon: Tag, iconColor: "violet" },
-    { label: "Interview", href: "/signin", icon: Users, iconColor: "emerald" },
-    { label: "Contact", href: "/singin", icon: Mail, iconColor: "orange" },
+    {
+      label: "Jobs",
+      href: "/signin",
+      icon: Briefcase,
+      iconColor: "blue",
+    },
+    {
+      label: "Applications",
+      href: "/signin",
+      icon: FileText,
+      iconColor: "violet",
+    },
+    {
+      label: "Interviews",
+      href: "/signin",
+      icon: CalendarCheck,
+      iconColor: "emerald",
+    },
+    {
+      label: "Contact",
+      href: "/signin", 
+      icon: Mail,
+      iconColor: "orange",
+    },
   ];
 }
 

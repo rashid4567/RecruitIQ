@@ -377,3 +377,178 @@ export function SkeletonRow() {
     </tr>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Mobile / small-screen card equivalents of the row above             */
+/* ------------------------------------------------------------------ */
+
+interface JobPostCardProps {
+  job: Job;
+  onView: (job: Job) => void;
+  onToggleBlock: (job: Job) => void;
+  isPending?: boolean;
+}
+
+export function JobPostCard({
+  job,
+  onView,
+  onToggleBlock,
+  isPending,
+}: JobPostCardProps) {
+  return (
+    <div
+      className={cn(
+        "relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-150",
+        "active:scale-[0.99]",
+        isPending && "opacity-50 pointer-events-none select-none",
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="relative shrink-0">
+            <div
+              className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
+                "bg-linear-to-br from-slate-100 to-slate-50 border border-slate-200 text-slate-500",
+              )}
+            >
+              <Briefcase className="w-4.5 h-4.5" />
+            </div>
+            {job.isBlocked && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white flex items-center justify-center">
+                <Ban className="w-2 h-2 text-white" />
+              </span>
+            )}
+          </div>
+
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-slate-900 truncate">
+              {job.title}
+            </h3>
+            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+              <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+              <p className="text-xs font-medium text-indigo-600 truncate">
+                {job.companyName}
+              </p>
+              <span className="text-slate-300">•</span>
+              <p className="text-[11px] text-slate-500 truncate">
+                {job.department}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-xl shrink-0 hover:bg-slate-100 hover:text-slate-900"
+            >
+              <MoreVertical className="w-4 h-4 text-slate-500" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-48 rounded-2xl shadow-xl border-slate-200 p-1.5"
+          >
+            <DropdownMenuItem
+              onClick={() => onView(job)}
+              className="gap-2.5 cursor-pointer rounded-xl py-2.5 px-3 focus:bg-slate-50 text-slate-700"
+            >
+              <Eye className="w-4 h-4 text-slate-400" />
+              <span className="font-medium text-sm">View Details</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-1.5 bg-slate-100" />
+            <DropdownMenuItem
+              onClick={() => onToggleBlock(job)}
+              className={cn(
+                "gap-2.5 cursor-pointer rounded-xl py-2.5 px-3",
+                job.isBlocked
+                  ? "text-emerald-700 focus:bg-emerald-50"
+                  : "text-red-600 focus:bg-red-50",
+              )}
+            >
+              {job.isBlocked ? (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="font-medium text-sm">Unblock Job</span>
+                </>
+              ) : (
+                <>
+                  <Ban className="w-4 h-4" />
+                  <span className="font-medium text-sm">Block Job</span>
+                </>
+              )}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <div className="flex items-center gap-2 flex-wrap mt-3">
+        <TypeBadge jobType={job.jobType} isRemote={job.isRemote} />
+        <StatusBadge status={job.status} isBlocked={job.isBlocked} />
+      </div>
+
+      <div className="flex items-center gap-4 mt-3 text-[11px] text-slate-500">
+        <span className="flex items-center gap-1">
+          <Zap className="w-3 h-3 text-slate-400" />
+          {expRange(job.experienceMin, job.experienceMax)}
+        </span>
+        <span className="flex items-center gap-1">
+          <Users className="w-3 h-3 text-slate-400" />
+          {job.positions} position{job.positions > 1 ? "s" : ""}
+        </span>
+      </div>
+
+      <div className="mt-3">
+        <ApplicationsBar count={job.applicationsCount} />
+      </div>
+
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+        <div>
+          <p className="text-xs font-semibold text-slate-900">
+            {formatDate(job.postedOn)}
+          </p>
+          <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+            <Clock className="w-3 h-3" /> Exp: {formatDate(job.expiresAt)}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-semibold text-slate-500">
+            Active
+          </span>
+          <Switch
+            checked={!job.isBlocked && job.status === "active"}
+            onCheckedChange={() => onToggleBlock(job)}
+            disabled={job.status !== "active"}
+            className="data-[state=checked]:bg-indigo-600 data-[state=unchecked]:bg-slate-200"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function SkeletonCard() {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-slate-100 animate-pulse shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 w-40 bg-slate-100 rounded-lg animate-pulse" />
+          <div className="h-3 w-24 bg-slate-100 rounded-md animate-pulse" />
+        </div>
+      </div>
+      <div className="flex gap-2 mt-3">
+        <div className="h-5 w-20 bg-slate-100 rounded-md animate-pulse" />
+        <div className="h-5 w-16 bg-slate-100 rounded-full animate-pulse" />
+      </div>
+      <div className="h-1.5 w-full bg-slate-100 rounded-full animate-pulse mt-3" />
+      <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
+        <div className="h-3 w-20 bg-slate-100 rounded animate-pulse" />
+        <div className="h-6 w-10 bg-slate-100 rounded-full animate-pulse" />
+      </div>
+    </div>
+  );
+}

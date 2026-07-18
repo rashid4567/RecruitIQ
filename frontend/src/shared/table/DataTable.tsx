@@ -19,9 +19,10 @@ export function DataTable({
   pagination,
   onPageChange,
   hideFooterOnSinglePage = false,
-  minWidth = "min-w-[700px] lg:min-w-[950px]",
+  minWidth = "min-w-[760px]",
 }: DataTableProps) {
   const showHeader = Boolean(headerContent || title || rightSlot);
+
   const showFooter =
     !loading &&
     !isError &&
@@ -31,51 +32,27 @@ export function DataTable({
     (!hideFooterOnSinglePage || pagination.totalPages > 1);
 
   return (
-    <Card
-      className="
-        w-full min-w-0
-        overflow-hidden
-        rounded-lg sm:rounded-xl
-        border border-slate-200
-        bg-white
-        shadow-sm
-        transition-shadow
-        hover:shadow-md
-      "
-    >
+    <Card className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
       {showHeader && (
-        <CardHeader
-          className="
-            border-b border-slate-200/70
-            bg-slate-50
-            px-4 py-4
-            sm:px-5
-            lg:px-6
-          "
-        >
+        <CardHeader className="border-b border-slate-100 bg-slate-50/70 px-5 py-4 lg:px-5">
           {headerContent ?? (
-            <div
-              className="
-                flex flex-col gap-3
-                sm:flex-row
-                sm:items-center
-                sm:justify-between
-              "
-            >
-              <div className="min-w-0">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
                 {title && (
-                  <CardTitle className="text-base font-semibold text-slate-900 sm:text-lg">
+                  <CardTitle className="text-lg font-semibold text-slate-900">
                     {title}
                   </CardTitle>
                 )}
+
                 {description && (
-                  <CardDescription className="mt-1 text-sm text-slate-600">
+                  <CardDescription className="mt-1 text-sm text-slate-500">
                     {description}
                   </CardDescription>
                 )}
               </div>
+
               {rightSlot && (
-                <div className="flex w-full shrink-0 sm:w-auto">{rightSlot}</div>
+                <div className="w-full md:w-auto">{rightSlot}</div>
               )}
             </div>
           )}
@@ -87,9 +64,15 @@ export function DataTable({
       ) : !loading && isEmpty ? (
         emptyState
       ) : (
-        <div className="w-full overflow-x-auto overscroll-x-contain">
-          <table className={cn("w-full text-sm border-collapse", minWidth)}>
+        <div className="overflow-x-auto">
+          <table
+            className={cn(
+              "w-full border-collapse text-sm",
+              minWidth
+            )}
+          >
             {header}
+
             <tbody className="divide-y divide-slate-100 bg-white">
               {loading ? skeletonRows : children}
             </tbody>
@@ -98,7 +81,10 @@ export function DataTable({
       )}
 
       {showFooter && pagination && onPageChange && (
-        <DataTablePagination pagination={pagination} onPageChange={onPageChange} />
+        <DataTablePagination
+          pagination={pagination}
+          onPageChange={onPageChange}
+        />
       )}
     </Card>
   );

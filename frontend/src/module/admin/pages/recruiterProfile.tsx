@@ -117,10 +117,10 @@ export default function RecruiterProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F8FA]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-3">
-          <Loader2 className="h-7 w-7 animate-spin text-gray-400 mx-auto" />
-          <p className="text-sm text-gray-400 font-medium">Loading profile…</p>
+          <Loader2 className="h-7 w-7 animate-spin text-indigo-400 mx-auto" />
+          <p className="text-sm text-slate-400 font-medium">Loading profile…</p>
         </div>
       </div>
     );
@@ -128,16 +128,16 @@ export default function RecruiterProfilePage() {
 
   if (error || !recruiter) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F8FA]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
         <div className="text-center space-y-5 max-w-sm">
           <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto">
             <AlertCircle className="h-7 w-7 text-red-500" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-base font-semibold text-gray-900">
+            <h3 className="text-base font-semibold text-slate-900">
               Recruiter not found
             </h3>
-            <p className="text-sm text-gray-400 max-w-xs mx-auto">
+            <p className="text-sm text-slate-400 max-w-xs mx-auto">
               {error ?? "Unable to load recruiter information."}
             </p>
           </div>
@@ -145,7 +145,7 @@ export default function RecruiterProfilePage() {
             variant="outline"
             size="sm"
             onClick={refresh}
-            className="rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50"
+            className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50"
           >
             Retry
           </Button>
@@ -155,26 +155,9 @@ export default function RecruiterProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] flex">
-
+    <div className="min-h-screen bg-slate-50 flex">
       <main className="flex-1 overflow-y-auto">
-        <div className="bg-white border-b border-gray-100 px-8 py-4 sticky top-0 z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gray-900 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-sm">R</span>
-            </div>
-            <div>
-              <h1 className="text-base font-semibold text-gray-900 leading-none">
-                RecruitIQ
-              </h1>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Admin · Recruiter Profile
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+        <div className="-mt-2 px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 space-y-6 max-w-7xl mx-auto">
           <RecruiterProfileHeader
             recruiter={recruiter}
             onBack={() => navigate("/admin/recruiters")}
@@ -188,7 +171,7 @@ export default function RecruiterProfilePage() {
             actionLoading={actionLoading}
           />
 
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid lg:grid-cols-3 gap-6 items-stretch">
             <div className="lg:col-span-1">
               <RecruiterCompanyCard recruiter={recruiter} />
             </div>

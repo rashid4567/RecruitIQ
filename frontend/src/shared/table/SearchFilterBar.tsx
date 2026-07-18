@@ -27,7 +27,8 @@ export function SearchFilterBar<T extends string>({
   onFilterChange,
 }: SearchFilterBarProps<T>) {
   return (
-    <div className="sticky top-18 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-3.5 shadow-sm">
+    <div className=" top-16 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-3.5 shadow-sm">
+      {" "}
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />

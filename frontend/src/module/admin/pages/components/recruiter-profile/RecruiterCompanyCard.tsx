@@ -7,48 +7,50 @@ interface RecruiterCompanyCardProps {
 
 export function RecruiterCompanyCard({ recruiter }: RecruiterCompanyCardProps) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-50">
-        <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-          <BriefcaseBusiness className="w-4 h-4 text-amber-500" />
+    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200 h-full">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100">
+        <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
+          <BriefcaseBusiness className="w-4 h-4 text-indigo-500" />
         </div>
-        <h3 className="text-sm font-semibold text-gray-800 tracking-wide uppercase">Company & Subscription</h3>
+        <h3 className="text-sm font-bold text-slate-800 tracking-wide">
+          Company &amp; Subscription
+        </h3>
       </div>
-      <div className="p-6 grid sm:grid-cols-2 gap-5">
+      <div className="p-6 space-y-5">
         <InfoItem
           icon={Building2}
-          accent="bg-sky-50"
+          accent="bg-sky-50 border-sky-100"
           iconColor="text-sky-500"
           label="Company Name"
           value={recruiter.companyName || "—"}
         />
         <InfoItem
           icon={Crown}
-          accent="bg-violet-50"
+          accent="bg-violet-50 border-violet-100"
           iconColor="text-violet-500"
           label="Subscription"
           value={recruiter.subscriptionStatus?.toUpperCase() || "FREE"}
         />
         <InfoItem
           icon={FileText}
-          accent="bg-gray-50"
-          iconColor="text-gray-400"
+          accent="bg-slate-100 border-slate-200"
+          iconColor="text-slate-500"
           label="Job Posts Used"
           value={String(recruiter.jobPostsUsed)}
         />
         <InfoItem
           icon={CalendarDays}
-          accent="bg-emerald-50"
+          accent="bg-emerald-50 border-emerald-100"
           iconColor="text-emerald-500"
           label="Member Since"
           value={
-  recruiter.joinedDate
-    ? new Date(recruiter.joinedDate).toLocaleDateString("en-IN", {
-        month: "long",
-        year: "numeric",
-      })
-    : "—"
-}
+            recruiter.joinedDate
+              ? new Date(recruiter.joinedDate).toLocaleDateString("en-IN", {
+                  month: "long",
+                  year: "numeric",
+                })
+              : "—"
+          }
         />
       </div>
     </div>
@@ -69,13 +71,13 @@ function InfoItem({
   value: string;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <div className={`w-9 h-9 rounded-xl ${accent} border border-gray-100 flex items-center justify-center shrink-0`}>
+    <div className="flex items-start gap-3.5">
+      <div className={`w-10 h-10 rounded-xl ${accent} border flex items-center justify-center shrink-0`}>
         <Icon className={`h-4 w-4 ${iconColor}`} />
       </div>
-      <div>
-        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">{label}</p>
-        <p className="text-sm font-semibold text-gray-800 mt-0.5">{value}</p>
+      <div className="min-w-0">
+        <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">{label}</p>
+        <p className="text-sm font-semibold text-slate-800 mt-0.5 truncate">{value}</p>
       </div>
     </div>
   );

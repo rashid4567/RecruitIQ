@@ -23,7 +23,6 @@ import {
   Zap,
   Eye,
   Star,
-  TrendingUp,
 } from "lucide-react";
 import type { CandidateProfile } from "@/module/admin/types/candidate.types";
 
@@ -160,9 +159,7 @@ export function CandidateProfileContent({
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] font-sans p-4 sm:p-8 space-y-6">
-     
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-       
         <div className="h-1.5 w-full bg-linear-to-r from-slate-300 via-gray-200 to-slate-300" />
 
         <div className="px-6 sm:px-10 py-8">
@@ -305,12 +302,6 @@ export function CandidateProfileContent({
                 value={`${profile.skills.length} listed`}
               />
             )}
-            <StatCard
-              icon={<TrendingUp className="w-4 h-4 text-emerald-600" />}
-              accent="bg-emerald-50"
-              label="Match Score"
-              value={<span className="text-emerald-600 font-bold">98%</span>}
-            />
           </div>
         </div>
       </div>

@@ -6,7 +6,6 @@ import { useUserStatus } from "../hooks/Candidate-Hooks/useUserStatus";
 import { CandidateTable } from "./components/candidatelist/CandidateTable";
 import { CommonConfirmDialog } from "@/shared/Commonconfirmdialog";
 import { ImpactList } from "@/shared/ImpactList";
-import { ManagementHeader } from "@/shared/table/ManagementHeader";
 import { SearchFilterBar } from "@/shared/table/SearchFilterBar";
 import { ErrorCard } from "@/shared/table/ErrorCard";
 import { ShieldAlert, ShieldCheck } from "lucide-react";
@@ -97,13 +96,8 @@ export default function CandidateManagement() {
 
   return (
     <div className="min-h-full bg-linear-to-br from-slate-50 to-indigo-50/30 flex">
-      <div className="flex-1 flex flex-col">
-        <ManagementHeader
-          title="Candidates"
-          description="Review and manage all registered candidates"
-          onRefresh={refresh}
-          loading={loading}
-        />
+      <div className="flex-1 flex flex-col min-w-0">
+       
 
         <SearchFilterBar
           searchTerm={searchTerm}

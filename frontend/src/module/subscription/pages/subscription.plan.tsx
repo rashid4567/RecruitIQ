@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
-import Sidebar from "@/components/admin/sideBar";
 import { usePlanEditor } from "../hooks/Admin.Subscription.plans.Hooks/usePlanEditor";
 import PlanHeader from "./components/Admin.subscription-plan-management/PlanHeader";
 import PlanBasicDetails from "./components/Admin.subscription-plan-management/PlanBasicDetails";
@@ -47,53 +46,7 @@ export default function PlanEditor() {
 
   return (
     <div className="flex h-screen bg-zinc-50">
-      <Sidebar />
-
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white shadow-sm">
-          <div className="flex h-16 items-center justify-between px-8">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => window.history.back()}
-                className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 font-medium transition-colors"
-              >
-                ← Back to Plans
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button className="px-5 py-2.5 rounded-xl border border-zinc-300 text-sm font-medium hover:bg-zinc-50 transition-colors">
-                Preview Plan
-              </button>
-
-              <button
-                onClick={() => window.history.back()}
-                className="px-5 py-2.5 text-red-600 hover:text-red-700 font-medium transition-colors"
-              >
-                Discard Changes
-              </button>
-
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 
-                           text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
-              >
-                {saving ? (
-                  <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    Saving...
-                  </>
-                ) : isEditMode ? (
-                  "Update Plan"
-                ) : (
-                  "Create Plan"
-                )}
-              </button>
-            </div>
-          </div>
-        </header>
-
         <div className="flex-1 overflow-y-auto">
           <div className="px-8 py-8 max-w-350 mx-auto">
             <PlanHeader formData={formData} isEditMode={isEditMode} />

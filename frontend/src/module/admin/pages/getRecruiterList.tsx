@@ -6,7 +6,6 @@ import { RecruiterStatsCards } from "./components/recruiterlist/RecruiterStatsCa
 import type { RecruiterListItem, RecruiterProfile } from "../types/recruiter.types";
 import { CommonConfirmDialog } from "@/shared/Commonconfirmdialog";
 import { ImpactList } from "@/shared/ImpactList";
-import { ManagementHeader } from "@/shared/table/ManagementHeader";
 import { SearchFilterBar } from "@/shared/table/SearchFilterBar";
 import { ShieldCheck, ShieldOff, Ban, XCircle } from "lucide-react";
 
@@ -99,12 +98,7 @@ export default function RecruiterManagement() {
   return (
     <div className="min-h-full bg-linear-to-br from-slate-50 to-indigo-50/30 flex">
       <div className="flex-1 flex flex-col">
-        <ManagementHeader
-          title="Recruiter Management"
-          description="Review, verify and manage all recruiters"
-          onRefresh={recruitersData.fetchRecruiters}
-          loading={recruitersData.loading}
-        />
+      
 
         <SearchFilterBar
           searchTerm={recruitersData.search}

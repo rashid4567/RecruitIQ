@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useEmailLogs } from "../hooks/EmailLog-Hooks/useEmailLogs"; 
-import { EmailLogsHeader } from "./components/email-logs/EmailLogsHeader";
+import { useEmailLogs } from "../hooks/EmailLog-Hooks/useEmailLogs";
 import { EmailLogsFilters } from "./components/email-logs/EmailLogsFilters";
 import { EmailLogsTable } from "./components/email-logs/EmailLogsTable";
 import { AlertTriangle } from "lucide-react";
@@ -28,7 +27,7 @@ function toTypeFilter(value: string): TypeFilter {
 }
 
 export default function EmailLogsPage() {
-  const { logs, loading, error, refreshing, fetchLogs } = useEmailLogs();
+  const { logs, loading, error, fetchLogs } = useEmailLogs();
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
@@ -80,13 +79,7 @@ export default function EmailLogsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-
       <div className="flex-1">
-        <EmailLogsHeader
-          onRefresh={handleRefresh}
-          isRefreshing={refreshing || loading}
-        />
-
         <EmailLogsFilters
           search={search}
           onSearchChange={setSearch}
@@ -102,8 +95,7 @@ export default function EmailLogsPage() {
           }}
           onClearFilters={handleClearFilters}
         />
-
-        <main className="p-6 lg:p-8 max-w-screen-2xl mx-auto">
+        <main className="p-4 sm:p-6 lg:p-8 max-w-screen-2xl mx-auto">
           {error ? (
             <Card className="border-rose-200 bg-rose-50">
               <CardContent className="p-8 text-center">

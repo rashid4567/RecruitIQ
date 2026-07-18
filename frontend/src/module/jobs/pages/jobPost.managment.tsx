@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import type { Job } from "../types/job.types";
 import { useAllJobPosts } from "../hooks/jobPost-Hooks/useAllJobpost";
 import { useUpdateJobPostStatus } from "../hooks/jobPost-Hooks/Useupdatejobpoststatus";
-import { JobPostHeader } from "./components/admin.job.management/Jobpostheader";
 import { JobPostFilters } from "./components/admin.job.management/Jobpostfilters";
 import { JobPostTable } from "./components/admin.job.management/Jobposttable";
 import { JobPostDetailModal } from "./components/admin.job.management/Jobpostdetailmodal";
@@ -111,11 +110,8 @@ export default function JobPostManagement() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-indigo-50/30 flex">
-
       <div className="flex-1 flex flex-col min-w-0">
-        <JobPostHeader />
-
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6">
           <div className="max-w-7xl mx-auto space-y-5">
             <JobPostFilters
               searchQuery={searchQuery}

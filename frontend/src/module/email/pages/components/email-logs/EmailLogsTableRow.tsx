@@ -17,7 +17,7 @@ interface EmailLogsTableRowProps {
   onSelect: (id: string) => void;
 }
 
-function formatDate(ts: string | number) {
+export function formatDate(ts: string | number) {
   return new Date(ts).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
@@ -25,7 +25,7 @@ function formatDate(ts: string | number) {
   });
 }
 
-function formatTime(ts: string | number) {
+export function formatTime(ts: string | number) {
   return new Date(ts).toLocaleTimeString("en-IN", {
     hour: "2-digit",
     minute: "2-digit",
@@ -33,7 +33,7 @@ function formatTime(ts: string | number) {
   });
 }
 
-function getInitials(email: string) {
+export function getInitials(email: string) {
   const name = email.split("@")[0];
   const parts = name.split(/[._-]/);
   return parts.length >= 2
@@ -52,7 +52,7 @@ const AVATAR_COLORS = [
   "bg-amber-100 text-amber-700",
 ];
 
-function getAvatarColor(str: string) {
+export function getAvatarColor(str: string) {
   let hash = 0;
   for (let i = 0; i < str.length; i++)
     hash = str.charCodeAt(i) + ((hash << 5) - hash);

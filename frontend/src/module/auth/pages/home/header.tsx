@@ -93,10 +93,10 @@ function getNavItems(role: Role): NavItem[] {
   }
 
   return [
-    { label: "Features", href: "#features", icon: Sparkles, iconColor: "blue" },
-    { label: "Pricing", href: "#pricing", icon: Tag, iconColor: "violet" },
-    { label: "About", href: "#about", icon: Users, iconColor: "emerald" },
-    { label: "Contact", href: "#contact", icon: Mail, iconColor: "orange" },
+    { label: "Jobs", href: "/signin", icon: Sparkles, iconColor: "blue" },
+    { label: "Application", href: "/signin", icon: Tag, iconColor: "violet" },
+    { label: "Interview", href: "/signin", icon: Users, iconColor: "emerald" },
+    { label: "Contact", href: "/singin", icon: Mail, iconColor: "orange" },
   ];
 }
 

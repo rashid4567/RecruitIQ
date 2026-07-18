@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-
 import CandidateSidebar from "@/module/candidate/pages/components/personalInfo/shared/candidateSidebar";
 import JobPostList from "./components/candidate-jobPost/JobPostList";
 import JobDetailModal from "./components/candidate-jobPost/candidate-JobDetailModal";
@@ -191,67 +190,63 @@ export default function CareerPage() {
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
-      <div className="hidden lg:block">
-        <CandidateSidebar />
-      </div>
+  <>
+    <CandidateSidebar>
+      <JobPostList
+        jobs={jobs}
+        loading={loading}
+        currentPage={pagination.page}
+        totalPages={pagination.totalPages}
+        filters={filters}
+        searchInput={searchInput}
+        onApplyClick={handleApplyClick}
+        onPageChange={changePage}
+        onFilterChange={updateFilters}
+        onSearchChange={updateSearch}
+        onResetFilters={resetFilters}
+      />
+    </CandidateSidebar>
 
-      <main className="flex-1 overflow-y-auto">
-        <JobPostList
-          jobs={jobs}
-          loading={loading}
-          currentPage={pagination.page}
-          totalPages={pagination.totalPages}
-          filters={filters}
-          searchInput={searchInput}
-          onApplyClick={handleApplyClick}
-          onPageChange={changePage}
-          onFilterChange={updateFilters}
-          onSearchChange={updateSearch}
-          onResetFilters={resetFilters}
-        />
-      </main>
+    {showJobDetail && selectedJob && (
+      <JobDetailModal
+        job={selectedJob}
+        onClose={handleCloseJobDetail}
+        onApply={handleApplyNow}
+        applying={applying || checkingResume}
+        loading={loadingDetail}
+      />
+    )}
 
-      {showJobDetail && selectedJob && (
-        <JobDetailModal
-          job={selectedJob}
-          onClose={handleCloseJobDetail}
-          onApply={handleApplyNow}
-          applying={applying || checkingResume}
-          loading={loadingDetail}
-        />
-      )}
+    {showResumeProcessing && (
+      <ResumeProcessingModal
+        onCancel={() => setShowResumeProcessing(false)}
+      />
+    )}
 
-      {showResumeProcessing && (
-        <ResumeProcessingModal
-          onCancel={() => setShowResumeProcessing(false)}
-        />
-      )}
+    {showResumeFailed && (
+      <ResumeFailedModal
+        onClose={handleResumeFailedClose}
+        onUploadAnother={handleResumeFailedUploadAnother}
+      />
+    )}
 
-      {showResumeFailed && (
-        <ResumeFailedModal
-          onClose={handleResumeFailedClose}
-          onUploadAnother={handleResumeFailedUploadAnother}
-        />
-      )}
+    {showUploadResume && (
+      <UploadResumeModal
+        onClose={handleUploadResumeClose}
+        onUploaded={handleUploadResumeComplete}
+      />
+    )}
 
-      {showUploadResume && (
-        <UploadResumeModal
-          onClose={handleUploadResumeClose}
-          onUploaded={handleUploadResumeComplete}
-        />
-      )}
-
-      {showApplicationSuccess && application && selectedJob && (
-        <ApplicationSuccessModal
-          applicationId={application.id}
-          jobTitle={selectedJob.title}
-          companyName={selectedJob.companyName}
-          status={application.status}
-          appliedAt={application.appliedAt}
-          onClose={handleCloseSuccess}
-        />
-      )}
-    </div>
-  );
+    {showApplicationSuccess && application && selectedJob && (
+      <ApplicationSuccessModal
+        applicationId={application.id}
+        jobTitle={selectedJob.title}
+        companyName={selectedJob.companyName}
+        status={application.status}
+        appliedAt={application.appliedAt}
+        onClose={handleCloseSuccess}
+      />
+    )}
+  </>
+);
 }

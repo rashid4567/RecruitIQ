@@ -1,6 +1,6 @@
 import Header from "@/module/auth/pages/home/header"; 
-import Hero from "@/module/auth/pages/home/Hero"; 
-import Features from "@/module/auth/pages/home/TrustedCompanies"; 
+import Hero from "../../../pages/landing/sections/Hero"; 
+import Features from "../../../pages/landing/sections/Feature"
 import TrustedCompanies from "@/pages/landing/sections/TrustedCompanies";
 
 const CandidateHome = () => {

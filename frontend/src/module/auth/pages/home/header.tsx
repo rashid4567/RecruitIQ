@@ -29,7 +29,7 @@ type NavItem = {
   label: string;
   href: string;
   icon: React.ElementType;
-  iconColor: "blue" | "violet" | "emerald" | "orange" | "cyan" | "rose";
+  iconColor: "blue" | "teal" | "orange";
 };
 
 function getNavItems(role: Role): NavItem[] {
@@ -45,19 +45,19 @@ function getNavItems(role: Role): NavItem[] {
         label: "Jobs",
         href: "/recruiter/jobs",
         icon: Briefcase,
-        iconColor: "violet",
+        iconColor: "teal",
       },
       {
         label: "Applications",
         href: "/recruiter/applications",
         icon: Users,
-        iconColor: "emerald",
+        iconColor: "orange",
       },
       {
         label: "Interviews",
         href: "/recruiter/interviews",
         icon: CalendarCheck,
-        iconColor: "orange",
+        iconColor: "blue",
       },
     ];
   }
@@ -73,62 +73,51 @@ function getNavItems(role: Role): NavItem[] {
         label: "Jobs",
         href: "/candidate/jobs",
         icon: Briefcase,
-        iconColor: "violet",
+        iconColor: "teal",
       },
       {
         label: "Applications",
         href: "/candidate/applications",
         icon: FileText,
-        iconColor: "emerald",
+        iconColor: "orange",
       },
       {
         label: "Interviews",
         href: "/candidate/interviews",
         icon: CalendarCheck,
-        iconColor: "orange",
+        iconColor: "blue",
       },
     ];
   }
 
   return [
-    {
-      label: "Jobs",
-      href: "/signin",
-      icon: Briefcase,
-      iconColor: "blue",
-    },
+    { label: "Jobs", href: "/signin", icon: Briefcase, iconColor: "blue" },
     {
       label: "Applications",
       href: "/signin",
       icon: FileText,
-      iconColor: "violet",
+      iconColor: "teal",
     },
     {
       label: "Interviews",
       href: "/signin",
       icon: CalendarCheck,
-      iconColor: "emerald",
-    },
-    {
-      label: "Contact",
-      href: "/signin", 
-      icon: Mail,
       iconColor: "orange",
     },
+    { label: "Contact", href: "/signin", icon: Mail, iconColor: "blue" },
   ];
 }
 
 const ICON_BG: Record<NavItem["iconColor"], string> = {
   blue: "bg-blue-50 text-blue-600",
-  violet: "bg-violet-50 text-violet-600",
-  emerald: "bg-emerald-50 text-emerald-600",
-  orange: "bg-orange-50 text-orange-600",
-  cyan: "bg-cyan-50 text-cyan-600",
-  rose: "bg-rose-50 text-rose-600",
+  teal: "bg-teal-50 text-teal-700",
+  orange: "bg-orange-50 text-orange-500",
 };
 
+type UserRole = "candidate" | "recruiter" | "guest";
+
 const ROLE_THEME: Record<
-  "candidate" | "recruiter" | "guest",
+  UserRole,
   {
     grad: string;
     text: string;
@@ -140,7 +129,7 @@ const ROLE_THEME: Record<
   }
 > = {
   candidate: {
-    grad: "from-blue-600 to-cyan-500",
+    grad: "from-blue-600 to-blue-500",
     text: "text-blue-600",
     activeBg: "bg-blue-50",
     activeText: "text-blue-700",
@@ -149,22 +138,22 @@ const ROLE_THEME: Record<
     dot: "bg-blue-500",
   },
   recruiter: {
-    grad: "from-emerald-500 to-green-600",
-    text: "text-emerald-600",
-    activeBg: "bg-emerald-50",
-    activeText: "text-emerald-700",
-    badge: "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200",
-    ring: "focus-visible:ring-emerald-500",
-    dot: "bg-emerald-500",
+    grad: "from-teal-700 to-teal-600",
+    text: "text-teal-700",
+    activeBg: "bg-teal-50",
+    activeText: "text-teal-800",
+    badge: "bg-teal-100 text-teal-800 ring-1 ring-teal-200",
+    ring: "focus-visible:ring-teal-600",
+    dot: "bg-teal-600",
   },
   guest: {
-    grad: "from-blue-600 to-cyan-500",
-    text: "text-cyan-600",
-    activeBg: "bg-cyan-50",
-    activeText: "text-cyan-700",
-    badge: "bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200",
-    ring: "focus-visible:ring-cyan-500",
-    dot: "bg-cyan-500",
+    grad: "from-blue-600 to-teal-600",
+    text: "text-blue-600",
+    activeBg: "bg-blue-50",
+    activeText: "text-blue-700",
+    badge: "bg-blue-100 text-blue-700 ring-1 ring-blue-200",
+    ring: "focus-visible:ring-blue-500",
+    dot: "bg-blue-500",
   },
 };
 
@@ -528,7 +517,7 @@ export default function Header() {
 
               <button
                 onClick={() => navigate("/")}
-                className="flex items-center gap-2 sm:gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 rounded-lg shrink-0 min-w-0"
+                className="flex items-center gap-2 sm:gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg shrink-0 min-w-0"
               >
                 <div
                   style={{
@@ -550,7 +539,7 @@ export default function Header() {
                 <span className="flex flex-col items-start leading-none min-w-0">
                   <span className="font-bold text-sm sm:text-[1.05rem] tracking-tight text-gray-900 truncate">
                     Recruit
-                    <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                    <span className="bg-linear-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
                       Flow
                     </span>
                   </span>
@@ -666,7 +655,7 @@ export default function Header() {
                     >
                       <Bell className="w-5 h-5" />
                       {unreadCount > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 flex items-center justify-center rounded-full text-[10px] font-bold leading-none bg-linear-to-br from-rose-500 to-red-500 text-white shadow-sm shadow-red-400/40 ring-2 ring-white animate-bell-ring">
+                        <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 flex items-center justify-center rounded-full text-[10px] font-bold leading-none bg-linear-to-br from-orange-500 to-orange-400 text-white shadow-sm shadow-orange-400/40 ring-2 ring-white animate-bell-ring">
                           {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                       )}
@@ -679,7 +668,7 @@ export default function Header() {
                             Notifications
                           </p>
                           {unreadCount > 0 && (
-                            <span className="text-[10px] font-semibold bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded-full">
+                            <span className="text-[10px] font-semibold bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded-full">
                               {unreadCount} unread
                             </span>
                           )}
@@ -768,7 +757,7 @@ export default function Header() {
                   >
                     <Bell className="w-4.5 h-4.5" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-rose-500 text-white ring-2 ring-white animate-bell-ring">
+                      <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-orange-500 text-white ring-2 ring-white animate-bell-ring">
                         {unreadCount > 9 ? "9+" : unreadCount}
                       </span>
                     )}
@@ -777,7 +766,7 @@ export default function Header() {
                   <button
                     onClick={() => navigate(getProfilePath(userRole))}
                     aria-label="View profile"
-                    className="flex md:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 rounded-full"
+                    className="flex md:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-full"
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage
@@ -823,7 +812,7 @@ export default function Header() {
                             {initials}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white" />
+                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-teal-500 border-2 border-white" />
                       </div>
 
                       <div className="text-left hidden lg:block min-w-0">
@@ -862,7 +851,7 @@ export default function Header() {
                                   {initials}
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
+                              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-teal-500 border-2 border-white" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-gray-900 truncate">
@@ -887,7 +876,6 @@ export default function Header() {
 
                         <div className="h-px bg-gray-100 mx-3" />
 
-                        {/* Every row is a full 44px tap target */}
                         <div className="py-1.5 px-1.5 space-y-0.5">
                           <button
                             onClick={() => {
@@ -928,7 +916,7 @@ export default function Header() {
                             <Bell className="w-4 h-4 text-gray-400 shrink-0" />
                             <span>Notifications</span>
                             {unreadCount > 0 && (
-                              <span className="ml-auto text-[10px] font-semibold bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded-full">
+                              <span className="ml-auto text-[10px] font-semibold bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded-full">
                                 {unreadCount}
                               </span>
                             )}
@@ -982,8 +970,8 @@ export default function Header() {
                     onClick={() => navigate("/role-selection")}
                     className={cn(
                       "px-4 py-2 text-white text-sm font-semibold rounded-2xl",
-                      "bg-linear-to-r from-blue-600 to-cyan-500",
-                      "shadow-md shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/35",
+                      "bg-linear-to-r from-blue-600 to-teal-600",
+                      "shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/35",
                       "transition-all duration-200 hover:scale-105 active:scale-95",
                       "flex items-center gap-1.5",
                     )}
@@ -1023,7 +1011,7 @@ export default function Header() {
               <span className="flex flex-col leading-none">
                 <span className="font-bold text-base tracking-tight text-gray-900">
                   Recruit
-                  <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                  <span className="bg-linear-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
                     Flow
                   </span>
                 </span>
@@ -1034,7 +1022,7 @@ export default function Header() {
               <button
                 onClick={() => setIsMenuOpen(false)}
                 aria-label="Close menu"
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <X className="w-4.5 h-4.5 text-gray-600" />
               </button>
@@ -1064,7 +1052,7 @@ export default function Header() {
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-teal-400 border-2 border-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-white truncate text-sm">
@@ -1179,17 +1167,17 @@ export default function Header() {
                       }}
                       className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors text-left"
                     >
-                      <span className="relative w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center shrink-0">
-                        <Bell className="w-4 h-4 text-rose-500" />
+                      <span className="relative w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+                        <Bell className="w-4 h-4 text-orange-500" />
                         {unreadCount > 0 && (
-                          <span className="absolute -top-1 -right-1 min-w-4 h-4 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-rose-500 text-white ring-1 ring-white">
+                          <span className="absolute -top-1 -right-1 min-w-4 h-4 px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-orange-500 text-white ring-1 ring-white">
                             {unreadCount > 99 ? "99+" : unreadCount}
                           </span>
                         )}
                       </span>
                       <span>Notifications</span>
                       {unreadCount > 0 && (
-                        <span className="ml-auto text-xs font-semibold bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full border border-rose-100">
+                        <span className="ml-auto text-xs font-semibold bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-100">
                           {unreadCount}
                         </span>
                       )}
@@ -1221,7 +1209,7 @@ export default function Header() {
                       <span
                         className={cn(
                           "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                          ICON_BG.violet,
+                          ICON_BG.teal,
                         )}
                       >
                         <Settings className="w-4 h-4" />
@@ -1244,7 +1232,7 @@ export default function Header() {
                       <span
                         className={cn(
                           "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                          ICON_BG.cyan,
+                          ICON_BG.blue,
                         )}
                       >
                         <HelpCircle className="w-4 h-4" />
@@ -1301,8 +1289,8 @@ export default function Header() {
                   }}
                   className={cn(
                     "w-full py-3 px-4 rounded-2xl text-white font-semibold",
-                    "bg-linear-to-r from-blue-600 to-cyan-500",
-                    "shadow-md shadow-cyan-500/20 active:scale-[0.98] transition-all",
+                    "bg-linear-to-r from-blue-600 to-teal-600",
+                    "shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all",
                     "flex items-center justify-center gap-2",
                   )}
                 >

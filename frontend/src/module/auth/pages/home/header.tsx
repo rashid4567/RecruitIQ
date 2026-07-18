@@ -955,13 +955,13 @@ export default function Header() {
               ) : (
                 <div className="hidden md:flex items-center gap-2">
                   <button
-                    onClick={() => navigate("/login")}
+                    onClick={() => navigate("/signin")}
                     className="text-sm font-semibold text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100/80 transition-all duration-200"
                   >
                     Sign in
                   </button>
                   <button
-                    onClick={() => navigate("/register")}
+                    onClick={() => navigate("/role-selection")}
                     className={cn(
                       "px-4 py-2 text-white text-sm font-semibold rounded-2xl",
                       "bg-linear-to-r from-blue-600 to-cyan-500",

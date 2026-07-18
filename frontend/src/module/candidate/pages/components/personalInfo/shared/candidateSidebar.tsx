@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -10,6 +10,7 @@ import {
   Search,
   LogOut,
   ChevronRight,
+  ChevronsLeft,
   Menu,
   X,
   Bell,
@@ -55,6 +56,8 @@ const activeMatchers: Record<string, (p: string) => boolean> = {
     p.startsWith("/candidate/profile/setting"),
 };
 
+const COLLAPSE_KEY = "candidate-nav-collapsed";
+
 export default function CandidateNavigation({
   user,
   sidebarItems = defaultSidebarItems,
@@ -64,6 +67,20 @@ export default function CandidateNavigation({
   const location = useLocation();
   const { logout, isLoading } = useLogout();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(COLLAPSE_KEY);
+    if (stored === "1") setCollapsed(true);
+  }, []);
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      window.localStorage.setItem(COLLAPSE_KEY, next ? "1" : "0");
+      return next;
+    });
+  };
 
   const initials =
     (user?.fullName ?? "")
@@ -96,45 +113,75 @@ export default function CandidateNavigation({
     if (closeDrawer) setDrawerOpen(false);
   };
 
-  const Logo = () => (
-    <div className="flex items-center gap-2.5">
-      <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
-        <Briefcase className="h-4 w-4 text-white" />
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
+
+  const Logo = ({ compact = false }: { compact?: boolean }) => (
+    <div className="flex items-center gap-2.5 min-w-0">
+      <div className="h-8 w-8 rounded-[9px] bg-indigo-600 flex items-center justify-center shrink-0">
+        <Briefcase className="h-4 w-4 text-white" strokeWidth={2.25} />
       </div>
-      <span className="text-[15px] font-medium tracking-tight text-slate-900">
-        Recruit<span className="text-blue-600">IQ</span>
-      </span>
+      {!compact && (
+        <span className="text-[15px] font-semibold tracking-tight text-neutral-900 truncate">
+          Recruit<span className="text-indigo-600">IQ</span>
+        </span>
+      )}
     </div>
   );
 
-  const UserCard = ({ closeDrawer = false }: { closeDrawer?: boolean }) =>
+  const UserCard = ({
+    closeDrawer = false,
+    compact = false,
+  }: {
+    closeDrawer?: boolean;
+    compact?: boolean;
+  }) =>
     user ? (
-      <div className="mx-2.5 mt-3 mb-1">
+      <div className={compact ? "mx-2 mt-3 mb-1" : "mx-3 mt-3 mb-1"}>
         <button
           onClick={() => goTo("/candidate/profile/setting", closeDrawer)}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors"
+          title={compact ? user.fullName : undefined}
+          className={`w-full flex items-center gap-2.5 rounded-xl border border-neutral-100 bg-neutral-50/70 hover:bg-neutral-100 transition-colors ${focusRing} ${
+            compact ? "justify-center p-2" : "px-3 py-2.5"
+          }`}
         >
-          <Avatar className="h-8.5 w-8.5 shrink-0">
+          <Avatar className="h-9 w-9 shrink-0">
             <AvatarImage src={user.profileImage} />
-            <AvatarFallback className="bg-blue-50 text-blue-600 text-xs font-medium">
+            <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0 text-left">
-            <p className="text-xs font-medium text-slate-800 truncate leading-tight">
-              {user.fullName}
-            </p>
-            <p className="text-[11px] text-slate-400 truncate mt-0.5">
-              {user.email}
-            </p>
-          </div>
-          <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+          {!compact && (
+            <>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-[13px] font-medium text-neutral-900 truncate leading-tight">
+                  {user.fullName}
+                </p>
+                <p className="text-[11px] text-neutral-400 truncate mt-0.5">
+                  {user.email}
+                </p>
+              </div>
+              <ChevronRight className="h-3.5 w-3.5 text-neutral-300 shrink-0" />
+            </>
+          )}
         </button>
       </div>
     ) : null;
 
-  const NavList = ({ closeDrawer = false }: { closeDrawer?: boolean }) => (
-    <nav className="flex-1 px-2 space-y-px overflow-y-auto">
+  const SectionLabel = ({ children: label }: { children: string }) => (
+    <p className="px-4.5 pt-4 pb-1.5 text-[10.5px] font-semibold text-neutral-400 uppercase tracking-[0.08em]">
+      {label}
+    </p>
+  );
+
+  const NavList = ({
+    closeDrawer = false,
+    compact = false,
+  }: {
+    closeDrawer?: boolean;
+    compact?: boolean;
+  }) => (
+    <nav className="flex-1 px-2.5 space-y-0.5 overflow-y-auto overflow-x-hidden">
       {sidebarItems.map((item) => {
         const enabled = !!item.href;
         const active = isActive(item.href);
@@ -144,57 +191,69 @@ export default function CandidateNavigation({
             key={item.label}
             onClick={() => enabled && goTo(item.href, closeDrawer)}
             disabled={!enabled}
-            title={!enabled ? "Coming soon" : undefined}
+            title={compact ? item.label : !enabled ? "Coming soon" : undefined}
             className={`
-              group relative w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg
-              text-sm transition-colors duration-100
+              group relative w-full flex items-center gap-2.5 rounded-[10px]
+              text-[13.5px] transition-all duration-150 ${focusRing}
+              ${compact ? "justify-center px-2 py-2.5" : "px-2.5 py-2.5"}
               ${
                 active
-                  ? "bg-blue-50"
+                  ? "bg-indigo-600"
                   : enabled
-                    ? "hover:bg-slate-50"
-                    : "opacity-45 cursor-not-allowed"
+                    ? "hover:bg-neutral-100"
+                    : "opacity-40 cursor-not-allowed"
               }
             `}
           >
-            {active && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.75 h-4.5 rounded-r-full bg-blue-600" />
-            )}
-
             <span
               className={`
-                h-7.5 w-7.5 rounded-[7px] flex items-center justify-center shrink-0 transition-colors
+                h-7 w-7 rounded-[7px] flex items-center justify-center shrink-0 transition-colors
                 ${
                   active
-                    ? "bg-blue-600"
-                    : "bg-slate-100 group-hover:bg-white group-hover:border group-hover:border-slate-200"
+                    ? "bg-white/15"
+                    : "bg-neutral-100 group-hover:bg-white group-hover:shadow-sm group-hover:shadow-neutral-200"
                 }
               `}
             >
               <item.icon
-                className={`h-4 w-4 ${active ? "text-white" : "text-slate-500 group-hover:text-slate-800"}`}
+                className={`h-4 w-4 ${active ? "text-white" : "text-neutral-500 group-hover:text-neutral-800"}`}
+                strokeWidth={2}
               />
             </span>
 
-            <span
-              className={`
-                flex-1 text-left font-normal
-                ${active ? "text-blue-600 font-medium" : "text-slate-500 group-hover:text-slate-900"}
-              `}
-            >
-              {item.label}
-            </span>
+            {!compact && (
+              <>
+                <span
+                  className={`
+                    flex-1 text-left truncate
+                    ${active ? "text-white font-medium" : "text-neutral-600 font-normal group-hover:text-neutral-900"}
+                  `}
+                >
+                  {item.label}
+                </span>
 
-            {item.badge && (
-              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-600 text-white">
-                {item.badge}
-              </span>
+                {item.badge && (
+                  <span
+                    className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${
+                      active
+                        ? "bg-white/20 text-white"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+
+                {!enabled && (
+                  <span className="text-[10px] text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded-full shrink-0">
+                    Soon
+                  </span>
+                )}
+              </>
             )}
 
-            {!enabled && (
-              <span className="text-[10px] text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-full">
-                Soon
-              </span>
+            {compact && item.badge && (
+              <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 ring-2 ring-white" />
             )}
           </button>
         );
@@ -202,65 +261,104 @@ export default function CandidateNavigation({
     </nav>
   );
 
-  const LogoutButton = () => (
-    <div className="border-t border-slate-100 p-2">
+  const LogoutButton = ({ compact = false }: { compact?: boolean }) => (
+    <div className="border-t border-neutral-100 p-2.5">
       <button
         onClick={handleLogout}
         disabled={isLoading}
-        className="group w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors hover:bg-red-50 disabled:opacity-50"
+        title={compact ? "Log out" : undefined}
+        className={`group w-full flex items-center gap-2.5 rounded-[10px] text-[13.5px] transition-colors hover:bg-red-50 disabled:opacity-50 ${focusRing} ${
+          compact ? "justify-center px-2 py-2.5" : "px-2.5 py-2.5"
+        }`}
       >
-        <span className="h-7.5 w-7.5 rounded-[7px] bg-slate-100 group-hover:bg-red-100 flex items-center justify-center shrink-0 transition-colors">
-          <LogOut className="h-4 w-4 text-slate-400 group-hover:text-red-500" />
+        <span className="h-7 w-7 rounded-[7px] bg-neutral-100 group-hover:bg-red-100 flex items-center justify-center shrink-0 transition-colors">
+          <LogOut
+            className="h-4 w-4 text-neutral-400 group-hover:text-red-500"
+            strokeWidth={2}
+          />
         </span>
-        <span className="text-slate-500 group-hover:text-red-600 transition-colors">
-          {isLoading ? "Logging out…" : "Log out"}
-        </span>
+        {!compact && (
+          <span className="text-neutral-500 group-hover:text-red-600 transition-colors">
+            {isLoading ? "Logging out…" : "Log out"}
+          </span>
+        )}
       </button>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Desktop permanent sidebar (>=1024px) */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-white border-r border-slate-100 z-20">
-        <div className="flex items-center px-4 py-4.5 border-b border-slate-100">
-          <Logo />
+    <div className="min-h-screen bg-[#F7F7F5]">
+      <aside
+        className={`hidden lg:flex fixed inset-y-0 left-0 flex-col bg-white border-r border-neutral-100 z-20 transition-[width] duration-200 ease-in-out ${
+          collapsed ? "w-18.5" : "w-64"
+        }`}
+      >
+        <div
+          className={`flex items-center h-16 border-b border-neutral-100 ${
+            collapsed ? "justify-center px-2" : "justify-between px-4.5"
+          }`}
+        >
+          <Logo compact={collapsed} />
+          {!collapsed && (
+            <button
+              onClick={toggleCollapsed}
+              aria-label="Collapse sidebar"
+              className={`p-1 rounded-md text-neutral-300 hover:bg-neutral-100 hover:text-neutral-600 transition-colors shrink-0 ${focusRing}`}
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </button>
+          )}
         </div>
-        <UserCard />
-        <p className="px-4.5 pt-4 pb-1.5 text-[10px] font-medium text-slate-400 uppercase tracking-widest">
-          Menu
-        </p>
-        <NavList />
-        <LogoutButton />
+
+        <UserCard compact={collapsed} />
+
+        {!collapsed ? (
+          <SectionLabel>Workspace</SectionLabel>
+        ) : (
+          <div className="pt-3" />
+        )}
+
+        <NavList compact={collapsed} />
+        <LogoutButton compact={collapsed} />
+
+        {collapsed && (
+          <button
+            onClick={toggleCollapsed}
+            aria-label="Expand sidebar"
+            className={`absolute -right-3 top-17 h-6 w-6 rounded-full bg-white border border-neutral-200 shadow-sm flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:border-neutral-300 transition-colors ${focusRing}`}
+          >
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+        )}
       </aside>
 
-      {/* Tablet/Mobile sticky header (<1024px) */}
-      <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between h-14 px-4 bg-white border-b border-slate-100">
+      <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between h-14 px-4 bg-white/90 backdrop-blur-md border-b border-neutral-100">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="Open menu"
-            className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+            className={`p-1.5 -ml-1.5 rounded-lg hover:bg-neutral-100 transition-colors ${focusRing}`}
           >
-            <Menu className="h-5 w-5 text-slate-700" />
+            <Menu className="h-5 w-5 text-neutral-700" />
           </button>
           <Logo />
         </div>
         <div className="flex items-center gap-1">
           <button
             aria-label="Notifications"
-            className="p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+            className={`relative p-1.5 rounded-lg hover:bg-neutral-100 transition-colors ${focusRing}`}
           >
-            <Bell className="h-5 w-5 text-slate-500" />
+            <Bell className="h-5 w-5 text-neutral-500" />
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
           </button>
           <button
             onClick={() => goTo("/candidate/profile/setting")}
             aria-label="Profile"
-            className="rounded-full hover:ring-2 hover:ring-slate-100 transition-shadow"
+            className={`rounded-full transition-shadow ${focusRing}`}
           >
-            <Avatar className="h-7.5 w-7.5">
+            <Avatar className="h-8 w-8">
               <AvatarImage src={user?.profileImage} />
-              <AvatarFallback className="bg-blue-50 text-blue-600 text-[10px] font-medium">
+              <AvatarFallback className="bg-indigo-100 text-indigo-700 text-[10px] font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -268,64 +366,69 @@ export default function CandidateNavigation({
         </div>
       </header>
 
-
       {drawerOpen && (
         <div className="lg:hidden fixed inset-0 z-40">
           <div
-            className="absolute inset-0 bg-slate-900/40"
+            className="absolute inset-0 bg-neutral-900/45 animate-in fade-in duration-150"
             onClick={() => setDrawerOpen(false)}
             aria-hidden="true"
           />
-          <aside className="absolute inset-y-0 left-0 w-[85%] max-w-75 bg-white flex flex-col shadow-xl">
-            <div className="flex items-center justify-between px-4 py-4.5 border-b border-slate-100">
+          <aside className="absolute inset-y-0 left-0 w-[85%] max-w-75 bg-white flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
+            <div className="flex items-center justify-between h-16 px-4.5 border-b border-neutral-100">
               <Logo />
               <button
                 onClick={() => setDrawerOpen(false)}
                 aria-label="Close menu"
-                className="p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                className={`p-1.5 rounded-lg hover:bg-neutral-100 transition-colors ${focusRing}`}
               >
-                <X className="h-4.5 w-4.5 text-slate-500" />
+                <X className="h-4.5 w-4.5 text-neutral-500" />
               </button>
             </div>
             <UserCard closeDrawer />
-            <p className="px-4.5 pt-4 pb-1.5 text-[10px] font-medium text-slate-400 uppercase tracking-widest">
-              Menu
-            </p>
+            <SectionLabel>Workspace</SectionLabel>
             <NavList closeDrawer />
             <LogoutButton />
           </aside>
         </div>
       )}
 
-
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-stretch h-14 bg-white border-t border-slate-100">
-        {sidebarItems.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <button
-              key={item.label}
-              onClick={() => item.href && goTo(item.href)}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5"
-            >
-              <item.icon
-                className={`h-5 w-5 ${active ? "text-blue-600" : "text-slate-400"}`}
-              />
-              <span
-                className={`text-[10px] leading-none ${active ? "text-blue-600 font-medium" : "text-slate-400"}`}
+      <nav className="md:hidden fixed bottom-3 inset-x-3 z-30">
+        <div className="flex items-stretch bg-white rounded-2xl border border-neutral-100 shadow-[0_8px_24px_-8px_rgba(20,20,25,0.18)] px-1 py-1">
+          {sidebarItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <button
+                key={item.label}
+                onClick={() => item.href && goTo(item.href)}
+                className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl transition-colors ${
+                  active ? "bg-indigo-600" : "hover:bg-neutral-50"
+                } ${focusRing}`}
               >
-                {item.label.split(" ")[0]}
-              </span>
-            </button>
-          );
-        })}
+                <item.icon
+                  className={`h-4.5 w-4.5 ${active ? "text-white" : "text-neutral-400"}`}
+                  strokeWidth={2}
+                />
+                <span
+                  className={`text-[9.5px] leading-none ${active ? "text-white font-medium" : "text-neutral-400"}`}
+                >
+                  {item.label.split(" ")[0]}
+                </span>
+                {item.badge && !active && (
+                  <span className="absolute top-1 right-3 h-1.5 w-1.5 rounded-full bg-amber-500" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </nav>
 
-      {/* Page content */}
-  <main className="lg:pl-60 pb-14 md:pb-0">
-  <div className="w-full px-4 lg:px-6">
-    {children}
-  </div>
-</main>
+      <main
+        className={`pb-24 md:pb-6 transition-[padding] duration-200 ease-in-out ${
+          collapsed ? "lg:pl-18.5" : "lg:pl-64"
+        }`}
+      >
+        <div className="w-full px-4 lg:px-7 py-5">{children}</div>
+      </main>
     </div>
   );
 }

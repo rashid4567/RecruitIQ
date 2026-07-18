@@ -79,6 +79,14 @@ export function useNotifications() {
   );
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
+
     refresh();
   }, [refresh]);
 

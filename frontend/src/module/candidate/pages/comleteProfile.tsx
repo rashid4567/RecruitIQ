@@ -746,20 +746,19 @@ export default function CompleteCandidateProfile({
   ];
   const remainingCount = checklist.filter((c) => !completionMap[c.key]).length;
 
-  // Per-card completion, used for the "Completed / N remaining" badges.
+ 
   const careerKeys = ["job", "experience", "education"];
   const careerRemaining = careerKeys.filter((k) => !completionMap[k]).length;
   const skillsPrefKeys = ["skills", "locations"];
   const skillsPrefRemaining = skillsPrefKeys.filter(
     (k) => !completionMap[k],
   ).length;
-  // LinkedIn is optional, so the Professional Presence card is considered
-  // complete once the bio requirement is met.
+
   const presenceRemaining = completionMap.bio ? 0 : 1;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white px-4 py-10 sm:px-6 lg:px-8">
-      {/* almost-invisible indigo → white → emerald background glow */}
+
       <div
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
@@ -839,7 +838,6 @@ export default function CompleteCandidateProfile({
             </span>
           </div>
 
-          {/* hero card — welcome + progress + benefits, unified */}
           <div className="animate-card-in overflow-hidden rounded-2xl border border-indigo-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm sm:p-8">
             <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-indigo-500">
               <span className="flex h-5 w-5 items-center justify-center rounded-md bg-indigo-600 text-[10px] font-bold text-white">

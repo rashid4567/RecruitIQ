@@ -4,6 +4,7 @@ import Features from "./sections/Feature"
 import TrustedCompanies from "./sections/TrustedCompanies"
 import CTA from "./sections/CTA"
 import Header from "@/module/auth/pages/home/header"
+import Footer from "./sections/Footer"
 
 export default function LandingPage() {
   return (
@@ -13,6 +14,7 @@ export default function LandingPage() {
       <Features />
       <TrustedCompanies />
       <CTA />
+      <Footer/>
     </main>
   )
 }

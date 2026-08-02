@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { X, FileText, Wallet, CheckCircle2, Circle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, FileText, Wallet, CheckCircle2, Circle, PenTool, ImageOff } from "lucide-react";
 import type { OfferStatus } from "@/module/offer-letter/types/candidateOffer.types";
 
 
@@ -24,6 +24,7 @@ export interface OfferDetails {
   viewedAt?: string;
   acceptedAt?: string;
   rejectedAt?: string;
+  candidateSignatureUrl?: string;
   candidateRemarks?: string;
 }
 
@@ -264,6 +265,97 @@ function BenefitsSection({ benefits }: { benefits: string[] }) {
 }
 
 
+/**
+ * Renders the candidate's signature, but degrades gracefully if the URL
+ * has expired or failed to load (e.g. a time-limited signed S3 URL)
+ * instead of showing the browser's broken-image icon.
+ */
+function SignatureImage({ src, alt }: { src: string; alt: string }) {
+  const [errored, setErrored] = useState(false);
+
+  if (errored) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-1.5 py-6 text-slate-400">
+        <ImageOff className="w-5 h-5" />
+        <p className="text-sm">Signature unavailable</p>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="max-h-24 max-w-full object-contain"
+      onError={() => setErrored(true)}
+    />
+  );
+}
+
+
+/**
+ * Rich "signed document" style card shown once a candidate has accepted.
+ * Combines the acceptance confirmation, their captured signature, and
+ * any remarks they left into a single cohesive block instead of three
+ * disconnected pieces.
+ */
+function CandidateAcceptanceSection({ offer }: { offer: OfferDetails }) {
+  const { candidateSignatureUrl, acceptedAt, candidateRemarks } = offer;
+
+  if (!candidateSignatureUrl) return null;
+
+  return (
+    <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 overflow-hidden">
+      <div className="px-5 py-4 border-b border-emerald-100 flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+          <PenTool className="w-4 h-4" />
+        </div>
+        <h3 className="text-sm font-bold text-slate-900">Candidate Acceptance</h3>
+      </div>
+
+      <div className="p-5 space-y-5">
+        <div className="flex items-start gap-2.5">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-bold text-slate-900">Offer Accepted</p>
+            {acceptedAt && (
+              <p className="text-xs text-slate-400 mt-0.5">{formatDate(acceptedAt)}</p>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+            Signature
+          </p>
+          <div className="rounded-xl border border-slate-200 bg-white px-4 pt-4 pb-2">
+            <div className="flex items-center justify-center min-h-24">
+              <SignatureImage src={candidateSignatureUrl} alt="Candidate signature" />
+            </div>
+            <div className="mt-3 pt-2 border-t border-dashed border-slate-200">
+              <span className="text-[11px] text-slate-400">{offer.jobTitle} candidate</span>
+            </div>
+          </div>
+        </div>
+
+        {candidateRemarks && (
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+              Candidate Remarks
+            </p>
+            <div className="rounded-xl bg-white border border-slate-100 px-4 py-3.5">
+              <p className="text-sm text-slate-600 leading-relaxed italic">
+                "{candidateRemarks}"
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 function QuoteBlock({ title, text, tone }: { title: string; text: string; tone: "neutral" | "emerald" | "blue" | "red" | "slate" }) {
   const tones: Record<typeof tone, string> = {
     neutral: "bg-slate-50",
@@ -313,6 +405,10 @@ export function OfferLetterModal({
 
   const subtitle = [offer.jobTitle, offer.companyName].filter(Boolean).join(" · ");
 
+  // Once accepted with a captured signature, the rich acceptance card
+  // takes over remarks display so we don't show the same text twice.
+  const showAcceptanceCard = status === "ACCEPTED" && Boolean(offer.candidateSignatureUrl);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
@@ -352,14 +448,24 @@ export function OfferLetterModal({
             <OfferInformationSection offer={offer} />
             <CompensationSection offer={offer} />
             <BenefitsSection benefits={offer.benefits} />
-            {offer.candidateRemarks && (
-              <QuoteBlock title="Candidate Response" text={offer.candidateRemarks} tone={candidateResponseTone(status)} />
+
+            {showAcceptanceCard ? (
+              <CandidateAcceptanceSection offer={offer} />
+            ) : (
+              offer.candidateRemarks && (
+                <QuoteBlock
+                  title="Candidate Response"
+                  text={offer.candidateRemarks}
+                  tone={candidateResponseTone(status)}
+                />
+              )
             )}
+
             {offer.notes && <QuoteBlock title="Recruiter Notes" text={offer.notes} tone="neutral" />}
           </div>
         </div>
 
-       
+
         <div className="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-4 shrink-0">
           <button
             onClick={onClose}

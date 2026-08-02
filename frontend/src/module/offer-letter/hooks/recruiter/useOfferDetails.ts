@@ -1,16 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-
 import { getOfferDetails } from "../../api/recruiter-offer.api";
-
 import type { GetOfferDetailsResponse } from "../../types/recruiterOffer.types";
 
 export function useOfferDetails(offerId: string) {
   const [offer, setOffer] = useState<GetOfferDetailsResponse | null>(null);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState<string | null>(null);
-
   const fetchOffer = useCallback(async () => {
     if (!offerId) return;
 

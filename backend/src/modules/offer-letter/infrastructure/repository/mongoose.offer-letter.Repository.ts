@@ -5,9 +5,7 @@ import {
   Offer,
   OfferStatus,
 } from "../../domain/entity/offer-letter.entity";
-
 import { OfferRepository } from "../../domain/repository/offer-letter.repository";
-
 import { OfferDocument, OfferModel } from "../mongoose/job-offer.model";
 
 export class MongooseOfferRepository implements OfferRepository {
@@ -41,6 +39,7 @@ export class MongooseOfferRepository implements OfferRepository {
           viewedAt: data.viewedAt,
           acceptedAt: data.acceptedAt,
           rejectedAt: data.rejectedAt,
+          candidateSignatureUrl: data.candidateSignatureUrl,
           candidateRemarks: data.candidateRemarks,
         },
       },
@@ -56,6 +55,7 @@ export class MongooseOfferRepository implements OfferRepository {
 
     return this.toDomain(updated);
   }
+
 
   async findById(id: string): Promise<Offer | null> {
     if (!this.isValidObjectId(id)) {
@@ -188,6 +188,7 @@ export class MongooseOfferRepository implements OfferRepository {
       viewedAt: doc.viewedAt,
       acceptedAt: doc.acceptedAt,
       rejectedAt: doc.rejectedAt,
+      candidateSignatureUrl: doc.candidateSignatureUrl,
       candidateRemarks: doc.candidateRemarks,
       isDeleted: doc.isDeleted,
       createdAt: doc.createdAt,
@@ -224,6 +225,7 @@ export class MongooseOfferRepository implements OfferRepository {
       viewedAt: data.viewedAt,
       acceptedAt: data.acceptedAt,
       rejectedAt: data.rejectedAt,
+      candidateSignatureUrl: data.candidateSignatureUrl,
       candidateRemarks: data.candidateRemarks,
       isDeleted: data.isDeleted,
       createdAt: data.createdAt,

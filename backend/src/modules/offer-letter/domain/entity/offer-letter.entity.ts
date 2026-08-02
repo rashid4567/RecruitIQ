@@ -48,11 +48,12 @@ export interface OfferProps {
   status: OfferStatus;
   offerLetterUrl?: string;
   contactEmail?: string;
-contactPhone?: string;
+  contactPhone?: string;
   sentAt?: Date;
   viewedAt?: Date;
   acceptedAt?: Date;
   rejectedAt?: Date;
+  candidateSignatureUrl?: string;
   candidateRemarks?: string;
   isDeleted: boolean;
   createdAt: Date;
@@ -65,20 +66,21 @@ export class Offer {
   }
 
   static create(
-     props: Omit<
-    OfferProps,
-    | "id"
-    | "status"
-    | "offerLetterUrl"
-    | "sentAt"
-    | "viewedAt"
-    | "acceptedAt"
-    | "rejectedAt"
-    | "candidateRemarks"
-    | "isDeleted"
-    | "createdAt"
-    | "updatedAt"
-  >,
+    props: Omit<
+      OfferProps,
+      | "id"
+      | "status"
+      | "offerLetterUrl"
+      | "sentAt"
+      | "viewedAt"
+      | "acceptedAt"
+      | "rejectedAt"
+      | "candidateSignatureUrl"
+      | "candidateRemarks"
+      | "isDeleted"
+      | "createdAt"
+      | "updatedAt"
+    >,
   ): Offer {
     return new Offer({
       ...props,
@@ -88,6 +90,7 @@ export class Offer {
       viewedAt: undefined,
       acceptedAt: undefined,
       rejectedAt: undefined,
+      candidateSignatureUrl: undefined,
       candidateRemarks: undefined,
       isDeleted: false,
       createdAt: new Date(),
@@ -214,7 +217,7 @@ export class Offer {
     this.touch();
   }
 
-  accept(remarks?: string): void {
+  accept(signatureUrl: string, remarks?: string): void {
     if (
       this.props.status !== OfferStatus.SENT &&
       this.props.status !== OfferStatus.VIEWED
@@ -224,6 +227,7 @@ export class Offer {
 
     this.props.status = OfferStatus.ACCEPTED;
     this.props.acceptedAt = new Date();
+    this.props.candidateSignatureUrl = signatureUrl;
     this.props.candidateRemarks = remarks?.trim() || undefined;
 
     this.touch();
@@ -274,8 +278,6 @@ export class Offer {
   canSend(): boolean {
     return this.props.status === OfferStatus.DRAFT;
   }
-
-
 
   canAccept(): boolean {
     return (
@@ -425,6 +427,10 @@ export class Offer {
     return [...this.props.benefits];
   }
 
+  get candidateSignatureUrl(): string | undefined {
+  return this.props.candidateSignatureUrl;
+}
+
   get notes(): string | undefined {
     return this.props.notes;
   }
@@ -446,12 +452,12 @@ export class Offer {
   }
 
   get contactEmail(): string | undefined {
-  return this.props.contactEmail;
-}
+    return this.props.contactEmail;
+  }
 
-get contactPhone(): string | undefined {
-  return this.props.contactPhone;
-}
+  get contactPhone(): string | undefined {
+    return this.props.contactPhone;
+  }
 
   get sentAt(): Date | undefined {
     return this.props.sentAt;

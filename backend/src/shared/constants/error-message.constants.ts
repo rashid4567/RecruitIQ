@@ -19,4 +19,6 @@ export const ERROR_MESSAGE = {
   INTERVIEW_REQUIRED: "interview required",
   NO_REFRESH_TOKEN: "No Refresh Token",
   PLAN_REQUIRED: "Plan Required",
+  SIGNATURE_FILE_REQUIRED: "Signature file is required",
+  OFFER_ID_IS_REQUIRED: "Offer ID is required",
 };

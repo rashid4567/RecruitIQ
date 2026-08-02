@@ -76,7 +76,6 @@ export class CreateOfferUseCase implements IUseCase<
         ERROR_CODES.INTERVIEW_REQUIRED_BEFORE_SELECTION,
       );
     }
-
     const offerExists = await this.offerRepo.existsByApplicationId(
       application.id,
     );

@@ -34,5 +34,6 @@ export interface GetOfferDetailsResponseDTO {
   viewedAt?: Date;
   acceptedAt?: Date;
   rejectedAt?: Date;
+  candidateSignatureUrl?: string;
   candidateRemarks?: string;
 }

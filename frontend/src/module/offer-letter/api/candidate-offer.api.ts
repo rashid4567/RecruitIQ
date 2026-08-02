@@ -40,3 +40,25 @@ export const rejectOffer = async (
 
   return response.data.data;
 };
+
+export const uploadSignature = async (
+  offerId: string,
+  file: File,
+): Promise<{ signatureUrl: string }> => {
+  const formData = new FormData();
+
+  formData.append("signature", file);
+  formData.append("offerId", offerId);
+
+  const response = await api.post(
+    CANDIDATE_OFFER_ROUTES.UPLOAD_SIGNATURE,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
+
+  return response.data.data;
+};

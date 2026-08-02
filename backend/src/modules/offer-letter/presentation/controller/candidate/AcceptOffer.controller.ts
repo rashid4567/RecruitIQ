@@ -39,6 +39,7 @@ export class AcceptOfferController {
       const result = await this._acceptOfferUC.execute({
         offerId: req.params.offerId,
         candidateId,
+        signatureUrl : req.body.signatureUrl,
         remarks: req.body.remarks,
       });
 

@@ -7,4 +7,5 @@ export const CANDIDATE_OFFER_ROUTES = {
 
   REJECT: (offerId: string) =>
     `/candidate/offers/${offerId}/reject`,
+  UPLOAD_SIGNATURE: "/candidate/offers/signature",
 } as const;

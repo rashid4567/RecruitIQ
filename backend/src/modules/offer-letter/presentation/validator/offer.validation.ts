@@ -40,7 +40,7 @@ export const createOfferSchema = z
       .max(5000, "Notes cannot exceed 5000 characters.")
       .optional(),
 
-    // NEW
+    
     contactEmail: z
       .string()
       .trim()

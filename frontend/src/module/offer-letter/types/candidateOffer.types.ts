@@ -7,8 +7,7 @@ export const OfferStatus = {
   REVOKED: "REVOKED",
 } as const;
 
-export type OfferStatus =
-  (typeof OfferStatus)[keyof typeof OfferStatus];
+export type OfferStatus = (typeof OfferStatus)[keyof typeof OfferStatus];
 
 export interface CandidateOffer {
   id: string;
@@ -29,11 +28,13 @@ export interface CandidateOffer {
   expiryDate: string;
   status: OfferStatus;
   viewedAt?: string;
+  candidateSignatureUrl?: string;
 }
 
 export type GetCandidateOfferResponse = CandidateOffer;
 
 export interface AcceptOfferRequest {
+  signatureUrl: string;
   remarks?: string;
 }
 

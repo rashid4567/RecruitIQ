@@ -22,12 +22,20 @@ import { GetRecruiterOffersController } from "../controller/recruiter/GetRecruit
 import { createNotificationUC } from "../../../notification/presentation/container/notification.module";
 import { MongooseInterviewRepository } from "../../../interview/infrastructure/repository/mongooseInterview.repository";
 import { InterviewRepository } from "../../../interview/domain/repository/interview.repository";
+import { FileStorageRepository } from "../../../resume/domain/repository/fileStorage.repository";
+import { S3FileStorageRepository } from "../../../resume/infrastructure/storage/s3-file-storage.repository";
+import { UploadSignatureUseCase } from "../../application/usecase/candidate/UploadSignatureUseCase";
+import { CandidateRepository } from "../../../candidate/domain/repositories/candidate.repository";
+import { MongooseCandidateRepository } from "../../../candidate/infrastructure/repositories/mongoose-candidate.repository";
+import { UploadSignatureController } from "../controller/candidate/uploadSignature.controller";
 
 const offerRepo: OfferRepository = new MongooseOfferRepository();
 const applicationRepo: JobApplicationRepository =
   new MongooseJobApplicationRepository();
 const jobRepo: JobRepository = new MongooseJobRepository();
+const candidateRepo :  CandidateRepository = new MongooseCandidateRepository();
 const userRepo: UserRepository = new MongooseUserRepository();
+const fileStorageRepo  :FileStorageRepository = new S3FileStorageRepository();
 const interviewRepo: InterviewRepository = new MongooseInterviewRepository();
 const sendEmailByEventuc = sendEmailByEventUC;
 const createNotificationuc = createNotificationUC;
@@ -43,7 +51,7 @@ const createofferUC = new CreateOfferUseCase(
   sendEmailByEventuc,
   createNotificationuc,
 );
-
+const uploadSignatureUC = new UploadSignatureUseCase(candidateRepo,fileStorageRepo)
 const getCandidateofferUC = new GetCandidateOfferUseCase(offerRepo);
 const acceptOfferUC = new AcceptOfferUseCase(
   offerRepo,
@@ -69,6 +77,8 @@ export const getofferDetailsController = new GetOfferDetailsController(
 export const getcandidateofferController = new GetCandidateOfferController(
   getCandidateofferUC,
 );
+
+export const uploadSignatureController = new UploadSignatureController(uploadSignatureUC)
 export const acceptCandidateOfferController = new AcceptOfferController(
   acceptOfferUC,
 );

@@ -62,6 +62,7 @@ export interface RecruiterApplicationDetailsResponseDTO {
     acceptedAt?: Date;
     rejectedAt?: Date;
     sentAt?: Date;
+    candidateSignatureUrl ?: string;
     candidateRemarks?: string;
   };
 }

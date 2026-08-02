@@ -38,6 +38,7 @@ export interface OfferDocument extends Document {
   offerLetterUrl?: string;
   contactEmail?: string;
   contactPhone?: string;
+  candidateSignatureUrl: string;
   sentAt?: Date;
   viewedAt?: Date;
   acceptedAt?: Date;
@@ -190,6 +191,11 @@ const OfferSchema = new Schema<OfferDocument>(
 
     viewedAt: {
       type: Date,
+    },
+
+    candidateSignatureUrl: {
+      type: String,
+      trim: true,
     },
 
     acceptedAt: {

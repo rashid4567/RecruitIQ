@@ -51,6 +51,7 @@ export class GetOfferDetailsUseCase implements IUseCase<
       viewedAt: offer.viewedAt,
       acceptedAt: offer.acceptedAt,
       rejectedAt: offer.rejectedAt,
+      candidateSignatureUrl : offer.candidateSignatureUrl,
       candidateRemarks: offer.candidateRemarks,
     };
   }

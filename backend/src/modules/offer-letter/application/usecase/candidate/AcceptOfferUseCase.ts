@@ -3,7 +3,7 @@ import { ApplicationError } from "../../../../../shared/errors/application.error
 import { IUseCase } from "../../../../../shared/interfaces/usecase.interface";
 import { JobRepository } from "../../../../job/domain/repositories/job.repository";
 import { CreateNotificationUseCase } from "../../../../notification/application/usecases/create-notification.usecase";
-import { NotificationType } from "../../../../notification/domain/constant/notification.constants"; 
+import { NotificationType } from "../../../../notification/domain/constant/notification.constants";
 import { Offer } from "../../../domain/entity/offer-letter.entity";
 import { OfferRepository } from "../../../domain/repository/offer-letter.repository";
 import {
@@ -32,7 +32,7 @@ export class AcceptOfferUseCase implements IUseCase<
       throw new ApplicationError(ERROR_CODES.UNAUTHORIZED_ACCESS);
     }
 
-    offer.accept(input.remarks);
+    offer.accept(input.signatureUrl, input.remarks);
     const updatedOffer = await this.offerRepo.update(offer);
     await this.sendOfferAcceptedNotification(updatedOffer);
     return {

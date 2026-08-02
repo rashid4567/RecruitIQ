@@ -12,3 +12,4 @@ export interface OfferRepository {
   findExpiredOffers(currentDate: Date): Promise<Offer[]>;
   softDelete(id: string): Promise<void>;
 }
+

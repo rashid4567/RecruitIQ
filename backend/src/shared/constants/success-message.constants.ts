@@ -123,4 +123,5 @@ export const SUCCESS_MESSAGES = {
   OFFER_DETAILS_FETCHED_SUCCESSFULLY: "Offer details fetched successfully.",
   OFFER_ACCEPTED_SUCCESSFULLY: "Offer accepted successfully.",
   OFFER_REJECTED_SUCCESSFULLY: "Offer rejected successfully.",
+  FILE_UPLOADED_SUCCESSFULLY: "File uploaded successfully.",
 } as const;

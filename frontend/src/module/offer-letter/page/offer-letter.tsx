@@ -27,6 +27,8 @@ import {
 import { useCandidateOffer } from "../hooks/candidate/useCandidateOffer";
 import { useAcceptOffer } from "../hooks/candidate/useAcceptOffer";
 import { useRejectOffer } from "../hooks/candidate/useRejectOffer";
+import { useUploadSignature } from "../hooks/candidate/useuploadSignature";
+import SignatureCanvas from "./components/Signaturecanvas";
 
 interface CountdownTime {
   days: number;
@@ -213,7 +215,7 @@ type TrackerStep = {
 };
 
 function CompactTracker({ accepted }: { accepted: boolean }) {
-  const steps : TrackerStep[] = accepted
+  const steps: TrackerStep[] = accepted
     ? [
         { label: "Application", done: true },
         { label: "Interview", done: true },
@@ -313,6 +315,7 @@ function Modal({
 const AcceptOfferModal = React.memo(function AcceptOfferModal({
   open,
   busy,
+  offerId,
   jobTitle,
   companyName,
   joiningDate,
@@ -321,29 +324,57 @@ const AcceptOfferModal = React.memo(function AcceptOfferModal({
 }: {
   open: boolean;
   busy: boolean;
+  offerId: string;
   jobTitle: string;
   companyName: string;
   joiningDate: string;
   onClose: () => void;
-  onSubmit: () => Promise<void> | void;
+  onSubmit: (signatureUrl: string) => Promise<void> | void;
 }) {
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const { uploadSignature, loading: uploading } = useUploadSignature();
+
+  const submitting = busy || uploading;
+  const canSubmit = agreeTerms && !!signatureFile && !submitting;
 
   const handleClose = useCallback(() => {
     setAgreeTerms(false);
+    setSignatureFile(null);
+    setUploadError(null);
     onClose();
   }, [onClose]);
 
+  const handleSignatureChange = useCallback((file: File | null) => {
+    setSignatureFile(file);
+    setUploadError(null);
+  }, []);
+
   const handleSubmit = useCallback(async () => {
-    if (!agreeTerms) return;
-    await onSubmit();
-    setAgreeTerms(false);
-  }, [agreeTerms, onSubmit]);
+    if (!agreeTerms || !signatureFile) return;
+
+    setUploadError(null);
+    try {
+      const signatureUrl = await uploadSignature(offerId, signatureFile);
+      console.log("Signature URL:", signatureUrl);
+
+      await onSubmit(signatureUrl);
+      setAgreeTerms(false);
+      setSignatureFile(null);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Couldn't upload your signature. Please try again.";
+      setUploadError(message);
+    }
+  }, [agreeTerms, signatureFile, uploadSignature, onSubmit]);
 
   return (
     <Modal
       open={open}
-      busy={busy}
+      busy={submitting}
       labelledBy="accept-modal-title"
       onClose={handleClose}
     >
@@ -383,6 +414,19 @@ const AcceptOfferModal = React.memo(function AcceptOfferModal({
         </div>
       </div>
 
+      <div className="mb-5">
+        <SignatureCanvas
+          onChange={handleSignatureChange}
+          disabled={submitting}
+        />
+      </div>
+
+      {uploadError && (
+        <div className="mb-4 bg-[#FEE2E2] border border-[#FECACA] rounded-lg px-4 py-2.5 text-xs text-[#DC2626]">
+          {uploadError}
+        </div>
+      )}
+
       <label className="flex items-start gap-2.5 mb-6 cursor-pointer select-none">
         <input
           type="checkbox"
@@ -391,25 +435,25 @@ const AcceptOfferModal = React.memo(function AcceptOfferModal({
           className="mt-0.5 w-4 h-4 rounded border-[#CBD5E1] text-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40"
         />
         <span className="text-sm text-[#475569]">
-          I have reviewed this offer.
+          I have reviewed this offer and the signature above is mine.
         </span>
       </label>
 
       <div className="flex gap-3">
         <button
           onClick={handleClose}
-          disabled={busy}
+          disabled={submitting}
           className="flex-1 px-6 py-3 rounded-lg border border-[#E2E8F0] text-[#475569] font-medium hover:bg-[#F8FAFC] transition-colors disabled:opacity-60"
         >
           Cancel
         </button>
         <button
           onClick={handleSubmit}
-          disabled={busy || !agreeTerms}
+          disabled={!canSubmit}
           className="flex-1 px-6 py-3 rounded-lg bg-[#22C55E] text-white font-medium hover:bg-[#16A34A] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-          {busy ? "Processing…" : "Accept"}
+          {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+          {submitting ? "Processing…" : "Accept"}
         </button>
       </div>
     </Modal>
@@ -464,8 +508,8 @@ const RejectOfferModal = React.memo(function RejectOfferModal({
 
   const handleSubmit = useCallback(async () => {
     setSubmitAttempted(true);
-    if (!reason || (commentRequired && commentIsEmpty)){
-    return
+    if (!reason || (commentRequired && commentIsEmpty)) {
+      return;
     }
 
     const trimmed = comment.trim();
@@ -475,8 +519,8 @@ const RejectOfferModal = React.memo(function RejectOfferModal({
     try {
       await onSubmit(remarks);
       resetForm();
-    } catch(error) {
-      console.error(error)
+    } catch (error) {
+      console.error(error);
     }
   }, [reason, comment, commentRequired, commentIsEmpty, onSubmit, resetForm]);
 
@@ -755,21 +799,24 @@ export default function EmploymentOfferPage() {
 
   const busy = accepting || rejecting;
 
-  const handleAcceptSubmit = useCallback(async () => {
-    if (!offerId) return;
-    setActionError(null);
-    try {
-      await acceptOffer(offerId, {});
-      await refetch();
-      setShowAcceptModal(false);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Something went wrong while accepting the offer.";
-      setActionError(message);
-    }
-  }, [offerId, acceptOffer, refetch]);
+  const handleAcceptSubmit = useCallback(
+    async (signatureUrl: string) => {
+      if (!offerId) return;
+      setActionError(null);
+      try {
+        await acceptOffer(offerId, { signatureUrl });
+        await refetch();
+        setShowAcceptModal(false);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Something went wrong while accepting the offer.";
+        setActionError(message);
+      }
+    },
+    [offerId, acceptOffer, refetch],
+  );
 
   const handleRejectSubmit = useCallback(
     async (remarks: string) => {
@@ -920,9 +967,9 @@ export default function EmploymentOfferPage() {
   const statusStyle = getStatusStyle(offer.status);
   const urgencyStyle = URGENCY_STYLES[urgency];
   type CandidateOfferWithMeta = typeof offer & {
-  employmentType?: string;
-  companyLogoUrl?: string;
-};
+    employmentType?: string;
+    companyLogoUrl?: string;
+  };
   const meta = offer as CandidateOfferWithMeta;
   const employmentType: string = meta.employmentType ?? "Full Time";
   const logoUrl: string | undefined = meta.companyLogoUrl;
@@ -1367,6 +1414,7 @@ export default function EmploymentOfferPage() {
       <AcceptOfferModal
         open={showAcceptModal}
         busy={accepting}
+        offerId={offerId ?? ""}
         jobTitle={offer.jobTitle}
         companyName={offer.companyName}
         joiningDate={formatDate(offer.joiningDate)}

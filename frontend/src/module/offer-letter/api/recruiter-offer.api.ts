@@ -29,6 +29,6 @@ export const getOfferDetails = async (
   offerId: string,
 ): Promise<GetOfferDetailsResponse> => {
   const response = await api.get(RECRUITER_OFFER_ROUTES.OFFER_DETAIL(offerId));
-
+  console.log("response :", response);
   return response.data.data;
 };

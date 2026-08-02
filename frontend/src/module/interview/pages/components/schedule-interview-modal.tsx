@@ -96,10 +96,51 @@ const TIME_GROUPS: { label: string; slots: [string, string][] }[] = [
   },
 ];
 
+// Minimum lead time between "now" and the interview start. Keeps recruiters
+// from scheduling something that's already effectively in the past.
+const MIN_LEAD_MINUTES = 5;
+
 function formatTimeLabel(hour: string, minute: string) {
   const d = new Date();
   d.setHours(Number(hour), Number(minute), 0, 0);
   return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
+
+function parseScheduledDateTime(
+  date: string,
+  hour: string,
+  minute: string,
+): Date | null {
+  if (!date || !hour || !minute) return null;
+  const d = new Date(
+    `${date}T${hour.padStart(2, "0")}:${minute.padStart(2, "0")}:00`,
+  );
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Returns a human-readable error if the given date/time is in the past or
+ * inside the minimum lead-time window, otherwise undefined.
+ */
+function getScheduleTimeError(
+  date: string,
+  hour: string,
+  minute: string,
+): string | undefined {
+  const start = parseScheduledDateTime(date, hour, minute);
+  if (!start) return undefined;
+
+  const now = Date.now();
+  if (start.getTime() < now) {
+    return "This time has already passed. Please choose a future date and time.";
+  }
+
+  const minAllowed = now + MIN_LEAD_MINUTES * 60 * 1000;
+  if (start.getTime() < minAllowed) {
+    return `Please choose a time at least ${MIN_LEAD_MINUTES} minutes from now.`;
+  }
+
+  return undefined;
 }
 
 const SCHEDULE_STEPS = ["Candidate", "Details", "Schedule", "Confirm"] as const;
@@ -361,27 +402,61 @@ export default function ScheduleInterviewModal({
     setTime(hour, minute);
   }
 
+  const activeMode: InterviewMode = isReschedule
+    ? rescheduleForm.mode
+    : scheduleForm.mode;
+  const activeDate = isReschedule ? rescheduleForm.date : scheduleForm.date;
+  const activeHour = isReschedule ? rescheduleForm.hour : scheduleForm.hour;
+  const activeMinute = isReschedule
+    ? rescheduleForm.minute
+    : scheduleForm.minute;
+  const activeDuration = isReschedule
+    ? rescheduleForm.durationInMinutes
+    : scheduleForm.durationInMinutes;
+  const activeLocation = isReschedule
+    ? rescheduleForm.location
+    : scheduleForm.location;
+  const activeMeetingRoom = isReschedule
+    ? rescheduleForm.roomId
+    : scheduleForm.roomId;
+
+  // Which step index holds the date/time picker, per flow.
+  const dateTimeStepIndex = isReschedule ? 0 : 2;
+
+  const timeWindowError = useMemo(
+    () => getScheduleTimeError(activeDate, activeHour, activeMinute),
+    [activeDate, activeHour, activeMinute],
+  );
+
   function validateStep(s: number): Record<string, string | undefined> {
+    let errs: Record<string, string | undefined> = {};
+
     if (isReschedule) {
       const parsed = rescheduleInterviewSchema.safeParse(rescheduleForm);
-      if (parsed.success) return {};
-      const relevant = new Set<string>(rescheduleStepFields[s] ?? []);
-      const errs: Record<string, string | undefined> = {};
-      for (const issue of parsed.error.issues) {
-        const key = issue.path[0] as string;
-        if (relevant.has(key) && !errs[key]) errs[key] = issue.message;
+      if (!parsed.success) {
+        const relevant = new Set<string>(rescheduleStepFields[s] ?? []);
+        for (const issue of parsed.error.issues) {
+          const key = issue.path[0] as string;
+          if (relevant.has(key) && !errs[key]) errs[key] = issue.message;
+        }
       }
-      return errs;
+    } else {
+      const parsed = scheduleInterviewSchema.safeParse(scheduleForm);
+      if (!parsed.success) {
+        const relevant = new Set<string>(scheduleStepFields[s] ?? []);
+        for (const issue of parsed.error.issues) {
+          const key = issue.path[0] as string;
+          if (relevant.has(key) && !errs[key]) errs[key] = issue.message;
+        }
+      }
     }
 
-    const parsed = scheduleInterviewSchema.safeParse(scheduleForm);
-    if (parsed.success) return {};
-    const relevant = new Set<string>(scheduleStepFields[s] ?? []);
-    const errs: Record<string, string | undefined> = {};
-    for (const issue of parsed.error.issues) {
-      const key = issue.path[0] as string;
-      if (relevant.has(key) && !errs[key]) errs[key] = issue.message;
+    // Layer on the "not in the past / min lead time" check for the
+    // date & time step — schema validation alone doesn't know "now".
+    if (s === dateTimeStepIndex && timeWindowError) {
+      errs = { ...errs, scheduledAt: timeWindowError };
     }
+
     return errs;
   }
 
@@ -403,12 +478,15 @@ export default function ScheduleInterviewModal({
   async function handleSubmit() {
     if (isReschedule) {
       const parsed = rescheduleInterviewSchema.safeParse(rescheduleForm);
-      if (!parsed.success) {
+      if (!parsed.success || timeWindowError) {
         const fieldErrors: Record<string, string | undefined> = {};
-        for (const issue of parsed.error.issues) {
-          const key = issue.path[0] as string;
-          if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+        if (!parsed.success) {
+          for (const issue of parsed.error.issues) {
+            const key = issue.path[0] as string;
+            if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+          }
         }
+        if (timeWindowError) fieldErrors.scheduledAt = timeWindowError;
         setErrors(fieldErrors);
         return;
       }
@@ -430,12 +508,15 @@ export default function ScheduleInterviewModal({
     }
 
     const parsed = scheduleInterviewSchema.safeParse(scheduleForm);
-    if (!parsed.success) {
+    if (!parsed.success || timeWindowError) {
       const fieldErrors: Record<string, string | undefined> = {};
-      for (const issue of parsed.error.issues) {
-        const key = issue.path[0] as string;
-        if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+      if (!parsed.success) {
+        for (const issue of parsed.error.issues) {
+          const key = issue.path[0] as string;
+          if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+        }
       }
+      if (timeWindowError) fieldErrors.scheduledAt = timeWindowError;
       setErrors(fieldErrors);
       return;
     }
@@ -451,24 +532,6 @@ export default function ScheduleInterviewModal({
       }, 2000);
     }
   }
-
-  const activeMode: InterviewMode = isReschedule
-    ? rescheduleForm.mode
-    : scheduleForm.mode;
-  const activeDate = isReschedule ? rescheduleForm.date : scheduleForm.date;
-  const activeHour = isReschedule ? rescheduleForm.hour : scheduleForm.hour;
-  const activeMinute = isReschedule
-    ? rescheduleForm.minute
-    : scheduleForm.minute;
-  const activeDuration = isReschedule
-    ? rescheduleForm.durationInMinutes
-    : scheduleForm.durationInMinutes;
-  const activeLocation = isReschedule
-    ? rescheduleForm.location
-    : scheduleForm.location;
-  const activeMeetingRoom = isReschedule
-    ? rescheduleForm.roomId
-    : scheduleForm.roomId;
 
   const quickDates = useMemo(() => {
     return Array.from({ length: 4 }, (_, index) => {
@@ -970,6 +1033,13 @@ export default function ScheduleInterviewModal({
                     </Field>
                   </div>
                 )}
+
+                {timeWindowError && (
+                  <p className="flex items-center gap-1.5 mt-3 text-xs font-medium text-red-600">
+                    <AlertCircle size={12} className="shrink-0" />
+                    {timeWindowError}
+                  </p>
+                )}
               </div>
 
               {/* Duration */}
@@ -1077,34 +1147,55 @@ export default function ScheduleInterviewModal({
                 </div>
               )}
 
-              {schedulePreview && (
-                <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
-                      <CalendarClock size={18} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-semibold text-blue-500">
-                        {isReschedule
-                          ? "New interview time"
-                          : "Interview scheduled for"}
-                      </p>
-                      <p className="mt-1 text-sm font-bold text-slate-900">
-                        {schedulePreview.date}
-                      </p>
-                      <p className="mt-0.5 text-sm font-semibold text-blue-700">
-                        {schedulePreview.start} – {schedulePreview.end}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {durationLabel} ·{" "}
-                        {activeMode === "ONLINE"
-                          ? "Online interview"
-                          : "In-person interview"}
-                      </p>
+              {schedulePreview &&
+                (timeWindowError ? (
+                  <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                        <AlertCircle size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-red-500">
+                          Invalid time selected
+                        </p>
+                        <p className="mt-1 text-sm font-bold text-red-700">
+                          {timeWindowError}
+                        </p>
+                        <p className="mt-1 text-xs text-red-400">
+                          {schedulePreview.date} · {schedulePreview.start} –{" "}
+                          {schedulePreview.end}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                        <CalendarClock size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-blue-500">
+                          {isReschedule
+                            ? "New interview time"
+                            : "Interview scheduled for"}
+                        </p>
+                        <p className="mt-1 text-sm font-bold text-slate-900">
+                          {schedulePreview.date}
+                        </p>
+                        <p className="mt-0.5 text-sm font-semibold text-blue-700">
+                          {schedulePreview.start} – {schedulePreview.end}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {durationLabel} ·{" "}
+                          {activeMode === "ONLINE"
+                            ? "Online interview"
+                            : "In-person interview"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </StepPanel>
           )}
 
@@ -1298,7 +1389,11 @@ export default function ScheduleInterviewModal({
               <button
                 type="button"
                 onClick={nextStep}
-                disabled={loading || (step === 0 && missingApplicationContext)}
+                disabled={
+                  loading ||
+                  (step === 0 && missingApplicationContext) ||
+                  (step === dateTimeStepIndex && Boolean(timeWindowError))
+                }
                 className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition-colors hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed sm:flex-none sm:min-h-0 sm:py-2 sm:font-medium"
               >
                 Continue
@@ -1308,7 +1403,7 @@ export default function ScheduleInterviewModal({
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={loading || submitSuccess}
+                disabled={loading || submitSuccess || Boolean(timeWindowError)}
                 className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition-colors hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed sm:flex-none sm:min-h-0 sm:py-2"
               >
                 {loading ? (

@@ -20,10 +20,8 @@ export interface CreateOfferRequest {
   probationPeriod?: string;
   benefits: string[];
   notes?: string;
-
   contactEmail?: string;
   contactPhone?: string;
-
   expiryDate: string;
 }
 
@@ -44,10 +42,8 @@ export interface RecruiterOffer {
   annualCTC: number;
   currency: string;
   status: OfferStatus;
-
   contactEmail?: string;
   contactPhone?: string;
-
   offerDate: string;
   expiryDate: string;
   sentAt?: string;
@@ -85,5 +81,6 @@ export interface GetOfferDetailsResponse {
   viewedAt?: string;
   acceptedAt?: string;
   rejectedAt?: string;
+  candidateSignatureUrl?: string;
   candidateRemarks?: string;
 }

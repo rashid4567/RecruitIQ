@@ -14,6 +14,9 @@ interface Props {
   notification: Notification;
   onNavigate: (path: string) => void;
   duration?: number;
+  enableSound?: boolean;
+  soundUrl?: string;
+  soundVolume?: number;
 }
 
 function getActor(
@@ -50,6 +53,58 @@ function formatCompactTime(createdAt: string | number | Date): string {
   return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 }
 
+let cachedAudio: HTMLAudioElement | null = null;
+let cachedAudioSrc: string | null = null;
+
+function getAudioElement(src: string): HTMLAudioElement {
+  if (cachedAudio && cachedAudioSrc === src) {
+    return cachedAudio;
+  }
+  const audio = new Audio(src);
+  audio.preload = "auto";
+  cachedAudio = audio;
+  cachedAudioSrc = src;
+  return audio;
+}
+
+function playFallbackBeep(volume: number) {
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AudioCtx) return;
+
+    const ctx = new AudioCtx();
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(
+      1320,
+      ctx.currentTime + 0.08,
+    );
+
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(
+      Math.min(Math.max(volume, 0), 1) * 0.3,
+      ctx.currentTime + 0.02,
+    );
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.4);
+    oscillator.onended = () => ctx.close();
+  } catch (error) {
+    console.error("Failed to play fallback notification sound:", error);
+  }
+}
+
+const DEFAULT_SOUND_URL = "/sounds/notification.mp3";
 const DRAG_DISMISS_THRESHOLD = 90;
 
 export default function NotificationToast({
@@ -57,6 +112,9 @@ export default function NotificationToast({
   notification,
   onNavigate,
   duration = 6000,
+  enableSound = true,
+  soundUrl = DEFAULT_SOUND_URL,
+  soundVolume = 0.5,
 }: Props) {
   const meta = notificationMeta[notification.type];
   const colors = categoryStyles[meta.category];
@@ -70,6 +128,23 @@ export default function NotificationToast({
   const dragStartX = useRef<number | null>(null);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const hasPlayedSound = useRef(false);
+
+  useEffect(() => {
+    if (!enableSound || hasPlayedSound.current) return;
+    hasPlayedSound.current = true;
+
+    const audio = getAudioElement(soundUrl);
+    audio.volume = Math.min(Math.max(soundVolume, 0), 1);
+    audio.currentTime = 0;
+
+    const playPromise = audio.play();
+    if (playPromise) {
+      playPromise.catch(() => {
+        playFallbackBeep(soundVolume);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (paused) return;

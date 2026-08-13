@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Shield, Bell } from "lucide-react";
+import { User, Shield, Bell, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 import CandidateSidebar from "@/module/candidate/pages/components/personalInfo/shared/candidateSidebar.tsx";
@@ -66,6 +65,44 @@ function getInitials(name?: string | null): string {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+}
+
+/** Small circular completion ring — replaces the flat progress bar */
+function CompletionRing({ value }: { value: number }) {
+  const radius = 20;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <div className="relative h-12 w-12 shrink-0">
+      <svg viewBox="0 0 48 48" className="h-12 w-12 -rotate-90">
+        <circle
+          cx="24"
+          cy="24"
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="4"
+          className="text-slate-200"
+        />
+        <circle
+          cx="24"
+          cy="24"
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="text-teal-600 transition-[stroke-dashoffset] duration-700 ease-out"
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-[11px] font-semibold text-slate-700">
+        {value}%
+      </span>
+    </div>
+  );
 }
 
 export default function CandidateProfilePage() {
@@ -176,7 +213,7 @@ export default function CandidateProfilePage() {
   const activeTabMeta = settingsTabs.find((t) => t.value === activeTab);
 
   return (
-    <div className="min-h-screen bg-slate-50/70 flex">
+    <div className="min-h-screen bg-linear-to-b from-slate-50 to-white flex">
       <div className="hidden lg:block">
         <CandidateSidebar
           user={{
@@ -213,17 +250,20 @@ export default function CandidateProfilePage() {
                   "bg-slate-50/90 backdrop-blur-sm space-y-4",
                 )}
               >
-                <Card className="rounded-2xl border shadow-sm">
+                <Card className="rounded-2xl border shadow-sm overflow-hidden">
+                  <div className="h-1.5 w-full bg-linear-to-r from-teal-500 via-cyan-500 to-blue-500" />
                   <CardContent className="flex items-center gap-4 p-4 sm:p-5">
-                    <Avatar className="h-14 w-14 sm:h-16 sm:w-16 shrink-0">
-                      <AvatarImage
-                        src={profile.profileImage ?? undefined}
-                        alt={profile.fullName}
-                      />
-                      <AvatarFallback className="bg-linear-to-br from-blue-600 to-cyan-500 text-white font-bold">
-                        {getInitials(profile.fullName)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative shrink-0">
+                      <Avatar className="h-14 w-14 sm:h-16 sm:w-16 ring-2 ring-white shadow-sm">
+                        <AvatarImage
+                          src={profile.profileImage ?? undefined}
+                          alt={profile.fullName}
+                        />
+                        <AvatarFallback className="bg-linear-to-br from-teal-600 to-blue-600 text-white font-bold">
+                          {getInitials(profile.fullName)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
 
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-slate-900 truncate">
@@ -234,26 +274,37 @@ export default function CandidateProfilePage() {
                           {profile.currentJob}
                         </p>
                       )}
-                      {completion !== undefined && (
-                        <div className="flex items-center gap-2 mt-2 max-w-xs">
-                          <Progress value={completion} className="h-1.5" />
-                          <span className="text-xs font-medium text-muted-foreground shrink-0">
-                            {completion}% complete
-                          </span>
-                        </div>
+                      {completion !== undefined && completion < 100 && (
+                        <p className="text-xs text-teal-700 mt-1.5 inline-flex items-center gap-1 font-medium">
+                          <Sparkles className="h-3 w-3" />
+                          Finish your profile to get noticed by recruiters
+                        </p>
+                      )}
+                      {completion === 100 && (
+                        <p className="text-xs text-emerald-700 mt-1.5 font-medium">
+                          Profile complete
+                        </p>
                       )}
                     </div>
+
+                    {completion !== undefined && (
+                      <CompletionRing value={completion} />
+                    )}
                   </CardContent>
                 </Card>
 
-                <TabsList className="h-auto w-full justify-start bg-muted/60 overflow-x-auto p-1 rounded-full gap-1">
+                <TabsList className="h-auto w-full justify-start bg-slate-100 overflow-x-auto p-1 rounded-full gap-1">
                   {settingsTabs.map((tab) => {
                     const Icon = tab.icon;
                     return (
                       <TabsTrigger
                         key={tab.value}
                         value={tab.value}
-                        className="gap-2 rounded-full px-3 sm:px-4 h-10 shrink-0"
+                        className={cn(
+                          "gap-2 rounded-full px-3 sm:px-4 h-10 shrink-0 transition-colors",
+                          "data-[state=active]:bg-slate-900 data-[state=active]:text-white",
+                          "data-[state=active]:shadow-md",
+                        )}
                       >
                         <Icon className="h-4 w-4 shrink-0" />
                         <span className="hidden sm:inline lg:hidden">
@@ -271,16 +322,24 @@ export default function CandidateProfilePage() {
                 className="mt-0 focus-visible:outline-none"
               >
                 <Card className="rounded-2xl border shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Personal Information</CardTitle>
-                    <CardDescription>
-                      {
-                        settingsTabs.find((t) => t.value === "personal-info")
-                          ?.description
-                      }
-                    </CardDescription>
+                  <CardHeader className="border-b bg-slate-50/60 rounded-t-2xl">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-50 text-teal-700">
+                        <User className="h-4.5 w-4.5" />
+                      </div>
+                      <div>
+                        <CardTitle>Personal Information</CardTitle>
+                        <CardDescription>
+                          {
+                            settingsTabs.find(
+                              (t) => t.value === "personal-info",
+                            )?.description
+                          }
+                        </CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-6">
                     <PersonalInfoTab
                       profile={profile}
                       stats={stats}
@@ -305,16 +364,23 @@ export default function CandidateProfilePage() {
                 className="mt-0 focus-visible:outline-none"
               >
                 <Card className="rounded-2xl border shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Security</CardTitle>
-                    <CardDescription>
-                      {
-                        settingsTabs.find((t) => t.value === "security")
-                          ?.description
-                      }
-                    </CardDescription>
+                  <CardHeader className="border-b bg-slate-50/60 rounded-t-2xl">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+                        <Shield className="h-4.5 w-4.5" />
+                      </div>
+                      <div>
+                        <CardTitle>Security</CardTitle>
+                        <CardDescription>
+                          {
+                            settingsTabs.find((t) => t.value === "security")
+                              ?.description
+                          }
+                        </CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-6">
                     <CandidatePrivacyAndSecurity />
                   </CardContent>
                 </Card>
@@ -325,16 +391,24 @@ export default function CandidateProfilePage() {
                 className="mt-0 focus-visible:outline-none"
               >
                 <Card className="rounded-2xl border shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Notifications</CardTitle>
-                    <CardDescription>
-                      {
-                        settingsTabs.find((t) => t.value === "notifications")
-                          ?.description
-                      }
-                    </CardDescription>
+                  <CardHeader className="border-b bg-slate-50/60 rounded-t-2xl">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
+                        <Bell className="h-4.5 w-4.5" />
+                      </div>
+                      <div>
+                        <CardTitle>Notifications</CardTitle>
+                        <CardDescription>
+                          {
+                            settingsTabs.find(
+                              (t) => t.value === "notifications",
+                            )?.description
+                          }
+                        </CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-6">
                     <NotificationsSection />
                   </CardContent>
                 </Card>

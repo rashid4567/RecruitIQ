@@ -1,6 +1,6 @@
 import { Outlet, Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import NotificationListener from "../module/notification/page/NotificationListener"
+import NotificationListener from "../module/notification/page/NotificationListener";
 import api from "../api/axios";
 
 const CandidateLayout = () => {
@@ -20,19 +20,17 @@ const CandidateLayout = () => {
 
   const checkProfileStatus = async () => {
     try {
-  
       const storedStatus = localStorage.getItem("profileCompleted");
-      
+
       if (storedStatus === "true") {
         setIsProfileCompleted(true);
         setIsChecking(false);
         return;
       }
 
-  
       const res = await api.get("/candidate/profile");
       const profile = res.data.data;
-      
+
       if (profile?.profileCompleted) {
         localStorage.setItem("profileCompleted", "true");
         setIsProfileCompleted(true);
@@ -55,19 +53,22 @@ const CandidateLayout = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p>Loading...</p>
         </div>
       </div>
     );
   }
 
-return (
-  <div>
-    <NotificationListener />
-    <Outlet />
-  </div>
-);
+  return (
+    <div className="min-h-screen bg-[#F7F7F5]">
+      <NotificationListener />
+
+      <main className="min-h-screen w-full">
+        <Outlet />
+      </main>
+    </div>
+  );
 };
 
 export default CandidateLayout;

@@ -4,10 +4,13 @@ import { IUseCase } from "../../../../../../shared/interfaces/usecase.interface"
 import { SubscriptionPlanRepository } from "../../../../domain/repository/subscription-plan.repository";
 import { ActiveSubscriptionPlanRequestDTO } from "../../../dto/active-subscription-plan.dto";
 
-export class ActiveSubscriptionPlanUseCase implements IUseCase<ActiveSubscriptionPlanRequestDTO, void> {
+export class ActiveSubscriptionPlanUseCase implements IUseCase<
+  ActiveSubscriptionPlanRequestDTO,
+  void
+> {
   constructor(private readonly repo: SubscriptionPlanRepository) {}
 
-  async execute(request : ActiveSubscriptionPlanRequestDTO): Promise<void> {
+  async execute(request: ActiveSubscriptionPlanRequestDTO): Promise<void> {
     const plan = await this.repo.findById(request.planId);
 
     if (!plan) {

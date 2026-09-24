@@ -4,8 +4,6 @@ import { logger } from "../../modules/Activity.logger/infrastructure/logging/log
 import { ApplicationError } from "../errors/application.error";
 import { DomainError } from "../errors/domain.error";
 
-
-
 const ERROR_STATUS_MAP: Record<string, number> = {
   USER_ALREADY_EXISTS: 409,
   PASSWORD_RESET_NOT_ALLOWED: 403,
@@ -61,7 +59,6 @@ export function errorHandler(
     });
     return;
   }
-
 
   if (err instanceof ApplicationError) {
     const statusCode = ERROR_STATUS_MAP[err.code] ?? 400;

@@ -3,11 +3,10 @@ import { HTTP_STATUS } from "../constants/httpStatus";
 import { UserModel } from "../../modules/auth/infrastructure/mongoose/model/user.model";
 import { getError } from "../utils/getErrorMessage";
 
-
 export const checkUserActive = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.user?.userId;
@@ -35,15 +34,14 @@ export const checkUserActive = async (
           user.role === "candidate"
             ? "Your candidate account has been deactivated. Please contact support."
             : user.role === "recruiter"
-            ? "Your recruiter account has been deactivated. Please contact admin."
-            : "Your account has been deactivated.",
+              ? "Your recruiter account has been deactivated. Please contact admin."
+              : "Your account has been deactivated.",
         code: "ACCOUNT_DEACTIVATED",
       });
     }
 
     next();
   } catch (err) {
-
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: getError(err),

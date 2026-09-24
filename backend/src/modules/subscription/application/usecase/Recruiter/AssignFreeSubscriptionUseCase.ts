@@ -17,19 +17,14 @@ export class AssignFreeSubscriptionUseCase {
 
   async execute(recruiterId: string): Promise<void> {
     const existing =
-      await this.recruiterSubscriptionRepo.findActiveByRecruiter(
-        recruiterId,
-      );
+      await this.recruiterSubscriptionRepo.findActiveByRecruiter(recruiterId);
     if (existing) {
       return;
     }
 
-    const freePlan =
-      await this.planRepo.findActiveFreePlan();
+    const freePlan = await this.planRepo.findActiveFreePlan();
     if (!freePlan) {
-      throw new ApplicationError(
-        ERROR_CODES.SUBSCRIPTION_REQUIRED,
-      );
+      throw new ApplicationError(ERROR_CODES.SUBSCRIPTION_REQUIRED);
     }
 
     const now = new Date();

@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../constants/httpStatus";
 
-
 export const notFound = (
   req: Request,
   res: Response,
